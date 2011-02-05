@@ -1,0 +1,117 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.schema;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.util.Set;<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>    <a name="line.12"></a>
+<FONT color="green">013</FONT>    /**<a name="line.13"></a>
+<FONT color="green">014</FONT>     * A database update. Instances typically perform changes to the database schema, though non-schema updates<a name="line.14"></a>
+<FONT color="green">015</FONT>     * that just manipulate the data in the database are perfectly valid as well.<a name="line.15"></a>
+<FONT color="green">016</FONT>     *<a name="line.16"></a>
+<FONT color="green">017</FONT>     * &lt;p&gt;<a name="line.17"></a>
+<FONT color="green">018</FONT>     * Each {@link SchemaUpdate} has a unique name among all updates ever applied to a single database, and zero<a name="line.18"></a>
+<FONT color="green">019</FONT>     * or more required predecessors, which are other dependent updates that must be applied first.<a name="line.19"></a>
+<FONT color="green">020</FONT>     *<a name="line.20"></a>
+<FONT color="green">021</FONT>     * &lt;p&gt;<a name="line.21"></a>
+<FONT color="green">022</FONT>     * Once an update has been applied to a database, it must not be changed; otherwise, inconsistencies<a name="line.22"></a>
+<FONT color="green">023</FONT>     * can exist between databases that were updated using the old version vs. databases that were<a name="line.23"></a>
+<FONT color="green">024</FONT>     * updated using the new version. If an update has been applied but had the wrong behavior, instead of<a name="line.24"></a>
+<FONT color="green">025</FONT>     * changing the update, it's better to create a new update that depends on the first as a predecessor<a name="line.25"></a>
+<FONT color="green">026</FONT>     * and corrects the mistake.<a name="line.26"></a>
+<FONT color="green">027</FONT>     *<a name="line.27"></a>
+<FONT color="green">028</FONT>     * &lt;p&gt;<a name="line.28"></a>
+<FONT color="green">029</FONT>     * If you do have to change an update after it has been applied, then those databases that have<a name="line.29"></a>
+<FONT color="green">030</FONT>     * already seen the previous version of the update must be manually corrected so they are in the<a name="line.30"></a>
+<FONT color="green">031</FONT>     * same state that the new version of the update would have left them.<a name="line.31"></a>
+<FONT color="green">032</FONT>     */<a name="line.32"></a>
+<FONT color="green">033</FONT>    public interface SchemaUpdate extends SchemaModification {<a name="line.33"></a>
+<FONT color="green">034</FONT>    <a name="line.34"></a>
+<FONT color="green">035</FONT>        /**<a name="line.35"></a>
+<FONT color="green">036</FONT>         * Get the unique name of this update. This name must be unique among all updates ever applied to the database<a name="line.36"></a>
+<FONT color="green">037</FONT>         * and must never change once this update has been applied to any database.<a name="line.37"></a>
+<FONT color="green">038</FONT>         *<a name="line.38"></a>
+<FONT color="green">039</FONT>         * @return the name of this update; must not be the empty string<a name="line.39"></a>
+<FONT color="green">040</FONT>         */<a name="line.40"></a>
+<FONT color="green">041</FONT>        String getName();<a name="line.41"></a>
+<FONT color="green">042</FONT>    <a name="line.42"></a>
+<FONT color="green">043</FONT>        /**<a name="line.43"></a>
+<FONT color="green">044</FONT>         * Get the the other updates (if any) that must be applied &lt;b&gt;before&lt;/b&gt; this update may be applied.<a name="line.44"></a>
+<FONT color="green">045</FONT>         *<a name="line.45"></a>
+<FONT color="green">046</FONT>         * @return set of zero or more other updates<a name="line.46"></a>
+<FONT color="green">047</FONT>         * @see #getName<a name="line.47"></a>
+<FONT color="green">048</FONT>         */<a name="line.48"></a>
+<FONT color="green">049</FONT>        Set&lt;SchemaUpdate&gt; getRequiredPredecessors();<a name="line.49"></a>
+<FONT color="green">050</FONT>    }<a name="line.50"></a>
+<FONT color="green">051</FONT>    <a name="line.51"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,135 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.schema;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.util.HashSet;<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>    import org.springframework.beans.factory.BeanFactory;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import org.springframework.beans.factory.BeanFactoryAware;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import org.springframework.beans.factory.BeanNameAware;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import org.springframework.beans.factory.config.ConfigurableBeanFactory;<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    /**<a name="line.17"></a>
+<FONT color="green">018</FONT>     * Support superclass for {@link SchemaUpdate}s declared in Spring {@link BeanFactory}s that infer their update<a name="line.18"></a>
+<FONT color="green">019</FONT>     * name and required predecessors from their Spring bean attributes.<a name="line.19"></a>
+<FONT color="green">020</FONT>     *<a name="line.20"></a>
+<FONT color="green">021</FONT>     * &lt;p&gt;<a name="line.21"></a>
+<FONT color="green">022</FONT>     * Instances infer their {@link #getName name} and {@link #getRequiredPredecessors required predecessors} from<a name="line.22"></a>
+<FONT color="green">023</FONT>     * their Spring bean name (specified by the &lt;code&gt;id&lt;/code&gt; XML attribute) and Spring dependencies (specified by<a name="line.23"></a>
+<FONT color="green">024</FONT>     * the &lt;code&gt;depends-on&lt;/code&gt; XML attribute), respectively.<a name="line.24"></a>
+<FONT color="green">025</FONT>     *<a name="line.25"></a>
+<FONT color="green">026</FONT>     * &lt;p&gt;<a name="line.26"></a>
+<FONT color="green">027</FONT>     * The use of &lt;code&gt;depends-on&lt;/code&gt; is an abuse of Spring's dependency notation for convenience. Normally<a name="line.27"></a>
+<FONT color="green">028</FONT>     * &lt;code&gt;depends-on&lt;/code&gt; refers to bean intialization ordering, whereas this class uses it to refer to schema update ordering.<a name="line.28"></a>
+<FONT color="green">029</FONT>     * Schema updates are not normally expected to have any initialization ordering requirements, so this abuse shouldn't matter.<a name="line.29"></a>
+<FONT color="green">030</FONT>     * If they do, this class should not be used.<a name="line.30"></a>
+<FONT color="green">031</FONT>     *<a name="line.31"></a>
+<FONT color="green">032</FONT>     * &lt;p&gt;<a name="line.32"></a>
+<FONT color="green">033</FONT>     * Also, the containing {@link BeanFactory} must be a {@link ConfigurableBeanFactory} (normally this is always the case).<a name="line.33"></a>
+<FONT color="green">034</FONT>     */<a name="line.34"></a>
+<FONT color="green">035</FONT>    public abstract class AbstractSpringSchemaUpdate extends AbstractSchemaUpdate implements BeanNameAware, BeanFactoryAware {<a name="line.35"></a>
+<FONT color="green">036</FONT>    <a name="line.36"></a>
+<FONT color="green">037</FONT>        @Override<a name="line.37"></a>
+<FONT color="green">038</FONT>        public void setBeanName(String beanName) {<a name="line.38"></a>
+<FONT color="green">039</FONT>            this.setName(beanName);<a name="line.39"></a>
+<FONT color="green">040</FONT>        }<a name="line.40"></a>
+<FONT color="green">041</FONT>    <a name="line.41"></a>
+<FONT color="green">042</FONT>        @Override<a name="line.42"></a>
+<FONT color="green">043</FONT>        public void setBeanFactory(BeanFactory beanFactory) {<a name="line.43"></a>
+<FONT color="green">044</FONT>            AbstractSpringSchemaUpdate.setRequiredPredecessorsFromDependencies(this, beanFactory);<a name="line.44"></a>
+<FONT color="green">045</FONT>        }<a name="line.45"></a>
+<FONT color="green">046</FONT>    <a name="line.46"></a>
+<FONT color="green">047</FONT>        /**<a name="line.47"></a>
+<FONT color="green">048</FONT>         * Infer required predecessors from Spring dependencies.<a name="line.48"></a>
+<FONT color="green">049</FONT>         *<a name="line.49"></a>
+<FONT color="green">050</FONT>         * @param update the update in question; it's name must be configured and will be used to query for Spring dependencies<a name="line.50"></a>
+<FONT color="green">051</FONT>         * @param beanFactory the bean factory containing the update and the update's depdendencies<a name="line.51"></a>
+<FONT color="green">052</FONT>         * @throws IllegalArgumentException if {@code beanFactory} is not a {@link ConfigurableBeanFactory}<a name="line.52"></a>
+<FONT color="green">053</FONT>         */<a name="line.53"></a>
+<FONT color="green">054</FONT>        public static void setRequiredPredecessorsFromDependencies(AbstractSchemaUpdate update, BeanFactory beanFactory) {<a name="line.54"></a>
+<FONT color="green">055</FONT>    <a name="line.55"></a>
+<FONT color="green">056</FONT>            // Check factory type<a name="line.56"></a>
+<FONT color="green">057</FONT>            if (!(beanFactory instanceof ConfigurableBeanFactory))<a name="line.57"></a>
+<FONT color="green">058</FONT>                throw new IllegalArgumentException("BeanFactory is not a ConfigurableBeanFactory: " + beanFactory);<a name="line.58"></a>
+<FONT color="green">059</FONT>            ConfigurableBeanFactory configurableBeanFactory = (ConfigurableBeanFactory)beanFactory;<a name="line.59"></a>
+<FONT color="green">060</FONT>    <a name="line.60"></a>
+<FONT color="green">061</FONT>            // Find required predecessors defined as Spring dependencies<a name="line.61"></a>
+<FONT color="green">062</FONT>            String[] predecessorNames = configurableBeanFactory.getDependenciesForBean(update.getName());<a name="line.62"></a>
+<FONT color="green">063</FONT>            HashSet&lt;SchemaUpdate&gt; predecessors = new HashSet&lt;SchemaUpdate&gt;(predecessorNames.length);<a name="line.63"></a>
+<FONT color="green">064</FONT>            for (String predecessorName : predecessorNames)<a name="line.64"></a>
+<FONT color="green">065</FONT>                predecessors.add(configurableBeanFactory.getBean(predecessorName, SchemaUpdate.class));<a name="line.65"></a>
+<FONT color="green">066</FONT>            update.setRequiredPredecessors(predecessors);<a name="line.66"></a>
+<FONT color="green">067</FONT>        }<a name="line.67"></a>
+<FONT color="green">068</FONT>    }<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

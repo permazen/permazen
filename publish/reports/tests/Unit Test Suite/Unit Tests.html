@@ -1,0 +1,390 @@
+<html>
+<head>
+<title>TestNG:  Unit Tests</title>
+<link href="../testng.css" rel="stylesheet" type="text/css" />
+<link href="../my-testng.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+.log { display: none;} 
+.stack-trace { display: none;} 
+</style>
+<script type="text/javascript">
+<!--
+function flip(e) {
+  current = e.style.display;
+  if (current == 'block') {
+    e.style.display = 'none';
+    return 0;
+  }
+  else {
+    e.style.display = 'block';
+    return 1;
+  }
+}
+
+function toggleBox(szDivId, elem, msg1, msg2)
+{
+  var res = -1;  if (document.getElementById) {
+    res = flip(document.getElementById(szDivId));
+  }
+  else if (document.all) {
+    // this is the way old msie versions work
+    res = flip(document.all[szDivId]);
+  }
+  if(elem) {
+    if(res == 0) elem.innerHTML = msg1; else elem.innerHTML = msg2;
+  }
+
+}
+
+function toggleAllBoxes() {
+  if (document.getElementsByTagName) {
+    d = document.getElementsByTagName('div');
+    for (i = 0; i < d.length; i++) {
+      if (d[i].className == 'log') {
+        flip(d[i]);
+      }
+    }
+  }
+}
+
+// -->
+</script>
+
+</head>
+<body>
+<h2 align='center'>Unit Tests</h2><table border='1' align="center">
+<tr>
+<td>Tests passed/Failed/Skipped:</td><td>60/0/0</td>
+</tr><tr>
+<td>Started on:</td><td>Sat Feb 05 15:59:20 CST 2011</td>
+</tr>
+<tr><td>Total time:</td><td>0 seconds (201 ms)</td>
+</tr><tr>
+<td>Included groups:</td><td></td>
+</tr><tr>
+<td>Excluded groups:</td><td></td>
+</tr>
+</table><p/>
+<small><i>(Hover the method name to see the test class name)</i></small><p/>
+<table width='100%' border='1' class='invocation-passed'>
+<tr><td colspan='4' align='center'><b>PASSED TESTS</b></td></tr>
+<tr><td><b>Test method</b></td>
+<td width="30%"><b>Exception</b></td>
+<td width="10%"><b>Time (seconds)</b></td>
+<td><b>Instance</b></td>
+</tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: , [B@dc41c5, </td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters:   , [B@6214f5, </td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters:  	
+, [B@14e113b, </td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: 12, [B@4d76b4, 12</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: AB, [B@1ac5f13, ab</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: AB, [B@195dd5b, ab</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters:  1 2 3 4 , [B@1f78b68, 1234</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: ac
+dc
+
+, [B@e183e9, acdc</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: 0, null, null</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: 1g, null, null</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: 3+, null, null</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: 987654321, null, null</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: +00, null, null</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.ByteArrayEncoderTest.testByteArrayEncoding()'><b>testByteArrayEncoding</b><br>Test class: org.dellroad.stuff.string.ByteArrayEncoderTest<br>Parameters: -00, null, null</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.ByteArrayEncoderTest@16a9b9c</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 2h, 7200000</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 7.254s, 7254</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 3d, 259200000</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 3d17h4m3.01s, 320643010</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 1.001s, 1001</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 1.03s, 1030</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 1.3s, 1300</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 9.300s, 9300</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 6s, 6000</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: .503s, 503</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 180d, 15552000000</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 106751991167d7h12m55.807s, 9223372036854775807</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 106751991167d7h12m55.808s, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 123, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 7d3m15h, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 123.456, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 3m2h, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 15 s, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 0.5h, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: asdf, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: , -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: s, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.jibx.ParseUtilTest.testParse()'><b>testParse</b><br>Test class: org.dellroad.stuff.jibx.ParseUtilTest<br>Parameters: 35ms, -1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.jibx.ParseUtilTest@1e7c5cb</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, , null</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false,  !@#$%^&*()_+=asdfajsADSFASDF298734?></.,~`][}|}, null</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false,  	
+ , null</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: true,  	
+ ,  \t\r\n </td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false,  \ ,  \b\f\\ </td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: true,  	\ ,  \b\t\\ </td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, \, \\</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, 
+, 
+</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: true, 
+, \n</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, \foo\, \\foo\\</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, foo\bar, foo\\bar</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, 	
+ !????????, \b	
+\u000b\f\u000e\u001f !??\ud800\udabc\udfff???\ufffe</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \\\</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \ </td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \1234</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \u</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \u1</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \u12</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \u123</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \u123g</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.string.StringEncoderTest.testStringEncode()'><b>testStringEncode</b><br>Test class: org.dellroad.stuff.string.StringEncoderTest<br>Parameters: false, null, foobar \uz000</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.string.StringEncoderTest@e2291</td></tr>
+<tr>
+<td title='org.dellroad.stuff.validation.SelfValidatingTest.testValidation()'><b>testValidation</b><br>Test class: org.dellroad.stuff.validation.SelfValidatingTest</td>
+<td></td>
+<td>0</td>
+<td>org.dellroad.stuff.validation.SelfValidatingTest@1ff92f5</td></tr>
+</table><p>
+</body>
+</html>
