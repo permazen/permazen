@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id$ -->
+<suite name="Unit Test Suite" verbose="1">
+
+    <parameter name="deleteTempDirs" value="true"/>
+    <parameter name="randomSeed" value=""/>
+
+    <test name="Unit Tests">
+        <packages>
+            <package name="org.dellroad.stuff.jibx"/>
+            <package name="org.dellroad.stuff.string"/>
+            <package name="org.dellroad.stuff.validation"/>
+        </packages>
+    </test>
+</suite>
+

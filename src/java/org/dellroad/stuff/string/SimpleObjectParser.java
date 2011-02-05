@@ -1,0 +1,215 @@
+
+/*
+ * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.
+ *
+ * $Id$
+ */
+
+package org.dellroad.stuff.string;
+
+import java.beans.BeanInfo;
+import java.beans.IndexedPropertyDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.dellroad.stuff.java.Primitive;
+
+/**
+ * Parses strings using regular expressions into new instances of some class by parsing substrings.
+ * Primitive and String values are handled automatically. Other property types can be handled by
+ * overriding {@link #setProperty}.
+ */
+public class SimpleObjectParser<T> {
+
+    private final Class<T> targetClass;
+    private final HashMap<String, PropertyDescriptor> propertyMap = new HashMap<String, PropertyDescriptor>();
+
+    /**
+     * Constructor.
+     *
+     * @param targetClass class whose instances we will create
+     * @throws IllegalArgumentException if targetClass has no default constructor
+     */
+    public SimpleObjectParser(Class<T> targetClass) {
+        this.targetClass = targetClass;
+        try {
+            targetClass.newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(targetClass + " has no usable default constructor");
+        }
+        buildPropertyMap();
+    }
+
+    /**
+     * Get the target class.
+     */
+    public Class<T> getTargetClass() {
+        return this.targetClass;
+    }
+
+    /**
+     * Parse the given text
+     *
+     * @param text                string to parse
+     * @param pattern             pattern with substring matching groups that match object properties
+     * @param patternMap          mapping from pattern substring group index to object property name
+     * @param allowSubstringMatch if false, entire text must match, otherwise only a (the first) substring need match
+     * @return parsed object or null if parse fails
+     * @throws IllegalArgumentException if the map contains a property that is not a parseable
+     *                                  property of this instance's target class
+     * @throws IllegalArgumentException if a subgroup index key in patternMap is out of bounds
+     */
+    public T parse(String text, Pattern pattern, Map<Integer, String> patternMap, boolean allowSubstringMatch) {
+
+        // Compose given map with target class' property map
+        HashMap<Integer, PropertyDescriptor> subgroupMap = new HashMap<Integer, PropertyDescriptor>();
+        for (Map.Entry<Integer, String> entry : patternMap.entrySet()) {
+            String propName = entry.getValue();
+            PropertyDescriptor property = this.propertyMap.get(propName);
+            if (property == null)
+                throw new IllegalArgumentException("parseable property \"" + propName + "\" not found in " + this.targetClass);
+            subgroupMap.put(entry.getKey(), property);
+        }
+
+        // Attempt to match the string
+        Matcher matcher = pattern.matcher(text);
+        boolean matches = allowSubstringMatch ? matcher.find() : matcher.matches();
+        if (!matches)
+            return null;
+
+        // Create instance
+        T obj;
+        try {
+            obj = targetClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("unexpected exception", e);
+        }
+
+        // Set fields based on matching substrings
+        for (Map.Entry<Integer, PropertyDescriptor> entry : subgroupMap.entrySet()) {
+
+            // Get substring
+            String substring;
+            try {
+                substring = matcher.group(entry.getKey());
+            } catch (IndexOutOfBoundsException e) {
+                throw new IllegalArgumentException(
+                  "regex subgroup " + entry.getKey() + " does not exist in pattern `" + pattern + "'");
+            }
+
+            // If substring was not matched, don't set property
+            if (substring == null)
+                continue;
+
+            // Set property from substring
+            this.setProperty(obj, entry.getValue(), substring);
+        }
+
+        // Post-process
+        this.postProcess(obj);
+
+        // Done
+        return obj;
+    }
+
+    /**
+     * Get the mapping from property name to setter method.
+     */
+    public Map<String, PropertyDescriptor> getPropertyMap() {
+        return Collections.unmodifiableMap(this.propertyMap);
+    }
+
+    /**
+     * Set a property value.
+     * <p/>
+     * <p>
+     * The implementation in {@link SimpleObjectParser} simply invokes {@link #setSimpleProperty}.
+     * Other property types can be handled by overriding this method.
+     * </p>
+     *
+     * @param obj       newly created instance
+     * @param property  descriptor for the property being set
+     * @param substring matched substring
+     * @throws IllegalArgumentException if substring cannot be successfully parsed
+     * @throws IllegalArgumentException if an exception is thrown attempting to set the property
+     */
+    protected void setProperty(T obj, PropertyDescriptor property, String substring) {
+        setSimpleProperty(obj, property, substring);
+    }
+
+    /**
+     * Set a primitive or string property value.
+     * <p/>
+     * <p>
+     * The implementation in {@link SimpleObjectParser} handles primitives using the corresponding
+     * {@code valueOf} method; String values are handled by setting the value directly.
+     * </p>
+     *
+     * @throws IllegalArgumentException if property is not a primitive or String property.
+     * @throws IllegalArgumentException if substring cannot be successfully parsed (if primitive)
+     * @throws IllegalArgumentException if an exception is thrown attempting to set the property
+     */
+    protected void setSimpleProperty(T obj, PropertyDescriptor property, String substring) {
+
+        // Parse substring
+        Object value;
+        if (property.getPropertyType() == String.class)
+            value = substring;
+        else {
+            Primitive prim = Primitive.get(property.getPropertyType());
+            if (prim == null) {
+                throw new IllegalArgumentException(
+                  "property `" + property.getName() + "' of " + this.targetClass + " is not a primitive or String");
+            }
+            value = prim.parseValue(substring);
+        }
+
+        // Set value
+        try {
+            property.getWriteMethod().invoke(obj, value);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("can't set property `" + property.getName() + "' of " + this.targetClass, e);
+        }
+    }
+
+    /**
+     * Post-process newly created instances. The instance's properties will have already been
+     * set by a successful parse.
+     * <p/>
+     * <p>
+     * The implementation in {@link SimpleObjectParser} does nothing. Subclasses may override if needed.
+     * </p>
+     */
+    protected void postProcess(T obj) {
+    }
+
+    private void buildPropertyMap() {
+
+        // Introspect target class
+        BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(this.targetClass);
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Build map from property name -> setter method
+        for (PropertyDescriptor property : beanInfo.getPropertyDescriptors()) {
+            if (property instanceof IndexedPropertyDescriptor)
+                continue;
+            Method setter = property.getWriteMethod();
+            if (setter == null)
+                continue;
+            Class<?> type = property.getPropertyType();
+            this.propertyMap.put(property.getName(), property);
+        }
+    }
+}
+

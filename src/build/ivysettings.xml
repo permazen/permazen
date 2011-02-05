@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<ivysettings>
+    <resolvers>
+
+        <!-- Ivy RoundUp -->
+        <packager name="ivyroundup"
+          restricted="false"
+          buildRoot="${user.home}/.ivy2/packager/build"
+          resourceCache="${user.home}/.ivy2/packager/cache">
+            <ivy      pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
+            <artifact pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
+        </packager>
+    </resolvers>
+    <modules>
+        <module organisation=".*" name=".*" resolver="ivyroundup"/>
+    </modules>
+    <caches useOrigin="true"/>
+</ivysettings>
+

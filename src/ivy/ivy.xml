@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<ivy-module version="1.0">
+
+    <info organisation="org.dellroad" module="dellroad-stuff">
+        <license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
+        <description homepage="http://dellroad-stuff.googlecode.com/"/>
+    </info>
+
+    <configurations>
+        <conf name="build" transitive="false" description="JARs required at build time"/>
+        <conf name="test" extends="build" description="JARs required during testing"/>
+    </configurations>
+
+    <dependencies>
+        <dependency force="true" org="com.vaadin" name="vaadin" rev="6.5.0" conf="build->default"/>
+        <dependency force="true" org="javax.servlet" name="servletapi" rev="2.5" conf="build->default"/>
+        <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="build->default"/>
+        <dependency force="true" org="net.sourceforge.jibx" name="jibx" rev="1.2.2" conf="build->runtime-base"/>
+        <dependency force="true" org="net.sourceforge.java-readline" name="java-readline" rev="0.8.0" conf="build->default"/>
+        <dependency force="true" org="org.slf4j" name="slf4j" rev="1.6.1" conf="build,test->default"/>
+        <dependency force="true" org="org.springframework" name="spring" rev="3.0+"
+          conf="build->context-support,expression,orm,tx,web-servlet"/>
+        <dependency force="true" org="org.hibernate" name="hibernate-validator" rev="4.1.0.Final" conf="test->default"/>
+    </dependencies>
+
+</ivy-module>
