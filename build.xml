@@ -75,6 +75,8 @@
                 <link href="http://download.oracle.com/javase/6/docs/api/"/>
                 <link href="http://download.oracle.com/javaee/6/api/"/>
                 <link href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/"/>
+                <link href="http://jibx.sourceforge.net/api/"/>
+                <link href="http://vaadin.com/api/"/>
                 <link href="http://www.slf4j.org/api/"/>
             </links>
         </dellroad:javadoc>
