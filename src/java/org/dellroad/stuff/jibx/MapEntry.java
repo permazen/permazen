@@ -10,6 +10,8 @@ package org.dellroad.stuff.jibx;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.jibx.runtime.JiBXParseException;
+
 /**
  * Utility class for modeling {@link Map} properties in JiBX.
  *
@@ -17,69 +19,70 @@ import java.util.Map;
  * For example, suppose you have a class {@code Company} with a property named {@code directory} that has
  * type {@code Map<String, Person>}.  Then you would define these methods in {@code Company.java}:
  *
- * <blockquote><code>
+ * <blockquote><pre>
  * // Getter and setter
- * public Map<String, Person> getDirectory() {
+ * public Map&lt;String, Person&gt; getDirectory() {
  *     return this.directory;
  * }
- * public void setDirectory(Map<String, Person> directory) {
+ * public void setDirectory(Map&lt;String, Person&gt; directory) {
  *     this.directory = directory;
  * }
  *
  * // JiBX "add-method"
- * public void addDirectoryEntry(MapEntry<String, Person> entry) {
- *     MapEntry.add(this.directory, entry);
+ * public void addDirectoryEntry(MapEntry&lt;String, Person&gt; direntry) {
+ *     MapEntry.add(this.directory, direntry);
  * }
  *
  * // JiBX "iter-method"
- * public Iterator<MapEntry<String, Person> iterateDirectory() {
+ * public Iterator&lt;MapEntry&lt;String, Person&gt;&gt; iterateDirectory() {
  *     return MapEntry.iterate(this.directory);
  * }
- * </code></blockquote>
+ * </pre></blockquote>
  *
  * <p>
  * Then in your JiBX binding definition, you would do something like this:
  *
- * <blockquote><code>
+ * <blockquote><pre>
  * &lt;binding package="com.example"&gt;
  *
- *     &lt;!-- Include XML mapping definition for a Person object --&gt;
+ *     &lt;!-- Include XML mapping definition for a Person object with type-name "person" --&gt;
  *     &lt;include path="person.xml"/&gt;
  *
  *     &lt;!-- Define XML mapping for one entry in the directory map --&gt;
  *     &lt;mapping abstract="true" type-name="directory_entry" class="org.dellroad.stuff.jibx.MapEntry"&gt;
  *         &lt;value name="name" field="key" type="java.lang.String" style="attribute"/&gt;
- *         &lt;structure name="person" map-as="person"/&gt;
+ *         &lt;structure name="Person" field="value" map-as="person"/&gt;
  *     &lt;/mapping&gt;
  *
  *     &lt;!-- Define XML mapping for a Company object --&gt;
  *     &lt;mapping abstract="true" type-name="company" class="com.example.Company"&gt;
- *         &lt;collection name="directory" item-type="org.dellroad.stuff.jibx.MapEntry"
+ *         &lt;collection name="Directory" item-type="org.dellroad.stuff.jibx.MapEntry"
  *           add-method="addDirectoryEntry" iter-method="iterateDirectory"&gt;
- *             &lt;structure name="entry" map-as="directory_entry"/&gt;
+ *             &lt;structure name="DirectoryEntry" map-as="directory_entry"/&gt;
  *         &lt;/collection&gt;
  *         &lt;!-- other properties... --&gt;
  *     &lt;/mapping&gt;
  * &lt;/binding&gt;
- * </code></blockquote>
+ * </pre></blockquote>
  *
- * The resulting XML would look like this:
- * <blockquote><code>
- * &lt;company&gt;
- *     &lt;directory&gt;
- *         &lt;entry name="George Washington"&gt;
- *             &lt;person&gt;
+ * Then the resulting XML would look something like this:
+ * <blockquote><pre>
+ * &lt;Company&gt;
+ *     &lt;Directory&gt;
+ *         &lt;DirectoryEntry name="George Washington"&gt;
+ *             &lt;Person&gt;
  *                  &lt;!-- properties of George Washington... --&gt;
- *             &lt;/person&gt;
- *         &lt;/entry&gt;
- *         &lt;entry name="Besty Ross"&gt;
- *             &lt;person&gt;
+ *             &lt;/Person&gt;
+ *         &lt;/DirectoryEntry&gt;
+ *         &lt;DirectoryEntry name="Besty Ross"&gt;
+ *             &lt;Person&gt;
  *                  &lt;!-- properties of Besty Ross... --&gt;
- *             &lt;/person&gt;
- *         &lt;/entry&gt;
- *     &lt;/directory&gt;
+ *             &lt;/Person&gt;
+ *         &lt;/DirectoryEntry&gt;
+ *     &lt;/Directory&gt;
  *     &lt;!-- other properties... --&gt;
- * &lt;/company&gt;
+ * &lt;/Company&gt;
+ * </pre></blockquote>
  */
 public class MapEntry<K, V> {
 
@@ -154,13 +157,33 @@ public class MapEntry<K, V> {
 
     /**
      * Helper method intended to be used by a custom JiBX "add-method".
-     * The new entry is added to the map, replacing any existing entry with the same key.
+     * If there is an existing entry with the same key, a {@link JiBXParseException} is thrown.
      *
      * @param map map to which to add an new entry
      * @param entry new entry to add
+     * @throws JiBXParseException if the map already contains an entry with the given key
      */
-    public static <K, V> void add(Map<K, V> map, MapEntry<? extends K, ? extends V> entry) {
-        map.put(entry.getKey(), entry.getValue());
+    public static <K, V> void add(Map<K, V> map, MapEntry<? extends K, ? extends V> entry) throws JiBXParseException {
+        MapEntry.add(map, entry, false);
+    }
+
+    /**
+     * Helper method intended to be used by a custom JiBX "add-method".
+     *
+     * @param map map to which to add an new entry
+     * @param entry new entry to add
+     * @param allowDuplicate {@code true} to replace any existing entry having the same key,
+     *  or {@code false} to throw a {@link JiBXParseException} if there is an existing entry
+     * @throws JiBXParseException if {@code allowDuplicate} is {@code false} and an entry
+     *  with the same key already exists in {@code map}
+     */
+    public static <K, V> void add(Map<K, V> map, MapEntry<? extends K, ? extends V> entry, boolean allowDuplicate)
+      throws JiBXParseException {
+        K key = entry.getKey();
+        V value = entry.getValue();
+        if (!allowDuplicate && map.containsKey(key))
+            throw new JiBXParseException("duplicate key in map", "" + key);
+        map.put(key, value);
     }
 }
 
