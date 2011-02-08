@@ -30,7 +30,7 @@
 <FONT color="green">027</FONT>     * {@link SchemaUpdater} optimized for use with Spring. It is required that this updater and all of its<a name="line.27"></a>
 <FONT color="green">028</FONT>     * schema updates are defined in the same {@link ListableBeanFactory}.<a name="line.28"></a>
 <FONT color="green">029</FONT>     * &lt;ul&gt;<a name="line.29"></a>
-<FONT color="green">030</FONT>     * &lt;li&gt;{@link #applyModification(DataSource, SchemaModification)} is overridden to use Spring's {@link JdbcTemplate}<a name="line.30"></a>
+<FONT color="green">030</FONT>     * &lt;li&gt;{@link #applyAction(DataSource, DatabaseAction)} is overridden to use Spring's {@link JdbcTemplate}<a name="line.30"></a>
 <FONT color="green">031</FONT>     *  so Spring {@link org.springframework.dao.DataAccessException}s are thrown.&lt;/li&gt;<a name="line.31"></a>
 <FONT color="green">032</FONT>     * &lt;li&gt;{@link #databaseNeedsInitialization} is overridden to catch exceptions more precisely to filter out<a name="line.32"></a>
 <FONT color="green">033</FONT>     *  false positives.&lt;/li&gt;<a name="line.33"></a>
@@ -83,18 +83,18 @@
 <FONT color="green">080</FONT>        }<a name="line.80"></a>
 <FONT color="green">081</FONT>    <a name="line.81"></a>
 <FONT color="green">082</FONT>        /**<a name="line.82"></a>
-<FONT color="green">083</FONT>         * Apply a schema modification to a {@link DataSource}.<a name="line.83"></a>
+<FONT color="green">083</FONT>         * Apply a {@link DatabaseAction} to a {@link DataSource}.<a name="line.83"></a>
 <FONT color="green">084</FONT>         *<a name="line.84"></a>
 <FONT color="green">085</FONT>         * &lt;p&gt;<a name="line.85"></a>
 <FONT color="green">086</FONT>         * The implementation in {@link SpringSchemaUpdater} uses {@link JdbcTemplate} to apply the modification so that<a name="line.86"></a>
 <FONT color="green">087</FONT>         * Spring {@link org.springframework.dao.DataAccessException}s are thrown in case of errors.<a name="line.87"></a>
 <FONT color="green">088</FONT>         */<a name="line.88"></a>
 <FONT color="green">089</FONT>        @Override<a name="line.89"></a>
-<FONT color="green">090</FONT>        protected void applyModification(DataSource dataSource, final SchemaModification schemaMod) throws SQLException {<a name="line.90"></a>
+<FONT color="green">090</FONT>        protected void applyAction(DataSource dataSource, final DatabaseAction action) throws SQLException {<a name="line.90"></a>
 <FONT color="green">091</FONT>            new JdbcTemplate(dataSource).execute(new ConnectionCallback&lt;Void&gt;() {<a name="line.91"></a>
 <FONT color="green">092</FONT>                @Override<a name="line.92"></a>
 <FONT color="green">093</FONT>                public Void doInConnection(Connection c) throws SQLException {<a name="line.93"></a>
-<FONT color="green">094</FONT>                    SpringSchemaUpdater.this.applyModification(c, schemaMod);<a name="line.94"></a>
+<FONT color="green">094</FONT>                    action.apply(c);<a name="line.94"></a>
 <FONT color="green">095</FONT>                    return null;<a name="line.95"></a>
 <FONT color="green">096</FONT>                }<a name="line.96"></a>
 <FONT color="green">097</FONT>            });<a name="line.97"></a>
@@ -105,31 +105,32 @@
 <FONT color="green">102</FONT>         * (including implied indirect constraints) between them.<a name="line.102"></a>
 <FONT color="green">103</FONT>         *<a name="line.103"></a>
 <FONT color="green">104</FONT>         * &lt;p&gt;<a name="line.104"></a>
-<FONT color="green">105</FONT>         * The {@link Comparator} returned by the implementation in {@link SchemaUpdater} simply sorts updates by name.<a name="line.105"></a>
-<FONT color="green">106</FONT>         */<a name="line.106"></a>
-<FONT color="green">107</FONT>        @Override<a name="line.107"></a>
-<FONT color="green">108</FONT>        protected Comparator&lt;SchemaUpdate&gt; getOrderingTieBreaker() {<a name="line.108"></a>
-<FONT color="green">109</FONT>            String[] beanNames = this.beanFactory.getBeanDefinitionNames();<a name="line.109"></a>
-<FONT color="green">110</FONT>            final Map&lt;String, Integer&gt; sort = new HashMap&lt;String, Integer&gt;(beanNames.length);<a name="line.110"></a>
-<FONT color="green">111</FONT>            for (int i = 0; i &lt; beanNames.length; i++)<a name="line.111"></a>
-<FONT color="green">112</FONT>                sort.put(beanNames[i], i);<a name="line.112"></a>
-<FONT color="green">113</FONT>            return new Comparator&lt;SchemaUpdate&gt;() {<a name="line.113"></a>
-<FONT color="green">114</FONT>                @Override<a name="line.114"></a>
-<FONT color="green">115</FONT>                public int compare(SchemaUpdate update1, SchemaUpdate update2) {<a name="line.115"></a>
-<FONT color="green">116</FONT>                    String[] names = new String[] { update1.getName(), update2.getName() };<a name="line.116"></a>
-<FONT color="green">117</FONT>                    Integer[] indexes = new Integer[] { sort.get(update1.getName()), sort.get(update2.getName()) };<a name="line.117"></a>
-<FONT color="green">118</FONT>                    for (int i = 0; i &lt; 2; i++) {<a name="line.118"></a>
-<FONT color="green">119</FONT>                        if (indexes[i] == null) {<a name="line.119"></a>
-<FONT color="green">120</FONT>                            throw new IllegalArgumentException("failed to find update `" + names[i]<a name="line.120"></a>
-<FONT color="green">121</FONT>                              + "' in bean factory " + SpringSchemaUpdater.this.beanFactory);<a name="line.121"></a>
-<FONT color="green">122</FONT>                        }<a name="line.122"></a>
-<FONT color="green">123</FONT>                    }<a name="line.123"></a>
-<FONT color="green">124</FONT>                    return indexes[0] - indexes[1];<a name="line.124"></a>
-<FONT color="green">125</FONT>                };<a name="line.125"></a>
-<FONT color="green">126</FONT>            };<a name="line.126"></a>
-<FONT color="green">127</FONT>        }<a name="line.127"></a>
-<FONT color="green">128</FONT>    }<a name="line.128"></a>
-<FONT color="green">129</FONT>    <a name="line.129"></a>
+<FONT color="green">105</FONT>         * The {@link Comparator} returned by the implementation in {@link SpringSchemaUpdater} sorts<a name="line.105"></a>
+<FONT color="green">106</FONT>         * updates in the same order that they appear in the {@link BeanFactory}.<a name="line.106"></a>
+<FONT color="green">107</FONT>         */<a name="line.107"></a>
+<FONT color="green">108</FONT>        @Override<a name="line.108"></a>
+<FONT color="green">109</FONT>        protected Comparator&lt;SchemaUpdate&gt; getOrderingTieBreaker() {<a name="line.109"></a>
+<FONT color="green">110</FONT>            String[] beanNames = this.beanFactory.getBeanDefinitionNames();<a name="line.110"></a>
+<FONT color="green">111</FONT>            final Map&lt;String, Integer&gt; sort = new HashMap&lt;String, Integer&gt;(beanNames.length);<a name="line.111"></a>
+<FONT color="green">112</FONT>            for (int i = 0; i &lt; beanNames.length; i++)<a name="line.112"></a>
+<FONT color="green">113</FONT>                sort.put(beanNames[i], i);<a name="line.113"></a>
+<FONT color="green">114</FONT>            return new Comparator&lt;SchemaUpdate&gt;() {<a name="line.114"></a>
+<FONT color="green">115</FONT>                @Override<a name="line.115"></a>
+<FONT color="green">116</FONT>                public int compare(SchemaUpdate update1, SchemaUpdate update2) {<a name="line.116"></a>
+<FONT color="green">117</FONT>                    String[] names = new String[] { update1.getName(), update2.getName() };<a name="line.117"></a>
+<FONT color="green">118</FONT>                    Integer[] indexes = new Integer[] { sort.get(update1.getName()), sort.get(update2.getName()) };<a name="line.118"></a>
+<FONT color="green">119</FONT>                    for (int i = 0; i &lt; 2; i++) {<a name="line.119"></a>
+<FONT color="green">120</FONT>                        if (indexes[i] == null) {<a name="line.120"></a>
+<FONT color="green">121</FONT>                            throw new IllegalArgumentException("failed to find update `" + names[i]<a name="line.121"></a>
+<FONT color="green">122</FONT>                              + "' in bean factory " + SpringSchemaUpdater.this.beanFactory);<a name="line.122"></a>
+<FONT color="green">123</FONT>                        }<a name="line.123"></a>
+<FONT color="green">124</FONT>                    }<a name="line.124"></a>
+<FONT color="green">125</FONT>                    return indexes[0] - indexes[1];<a name="line.125"></a>
+<FONT color="green">126</FONT>                };<a name="line.126"></a>
+<FONT color="green">127</FONT>            };<a name="line.127"></a>
+<FONT color="green">128</FONT>        }<a name="line.128"></a>
+<FONT color="green">129</FONT>    }<a name="line.129"></a>
+<FONT color="green">130</FONT>    <a name="line.130"></a>
 
 
 

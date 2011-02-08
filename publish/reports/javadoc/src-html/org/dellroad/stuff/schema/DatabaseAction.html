@@ -14,12 +14,12 @@
 <FONT color="green">011</FONT>    import java.sql.SQLException;<a name="line.11"></a>
 <FONT color="green">012</FONT>    <a name="line.12"></a>
 <FONT color="green">013</FONT>    /**<a name="line.13"></a>
-<FONT color="green">014</FONT>     * Database modification interface.<a name="line.14"></a>
+<FONT color="green">014</FONT>     * Database action interface.<a name="line.14"></a>
 <FONT color="green">015</FONT>     */<a name="line.15"></a>
-<FONT color="green">016</FONT>    public interface SchemaModification {<a name="line.16"></a>
+<FONT color="green">016</FONT>    public interface DatabaseAction {<a name="line.16"></a>
 <FONT color="green">017</FONT>    <a name="line.17"></a>
 <FONT color="green">018</FONT>        /**<a name="line.18"></a>
-<FONT color="green">019</FONT>         * Apply this modification.<a name="line.19"></a>
+<FONT color="green">019</FONT>         * Apply this action to the database via the provided {@link Connection}.<a name="line.19"></a>
 <FONT color="green">020</FONT>         *<a name="line.20"></a>
 <FONT color="green">021</FONT>         * @param c connection to the database<a name="line.21"></a>
 <FONT color="green">022</FONT>         * @throws SQLException if the update fails<a name="line.22"></a>
