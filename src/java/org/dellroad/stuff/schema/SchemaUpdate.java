@@ -30,7 +30,7 @@ import java.util.Set;
  * already seen the previous version of the update must be manually corrected so they are in the
  * same state that the new version of the update would have left them.
  */
-public interface SchemaUpdate extends SchemaModification {
+public interface SchemaUpdate extends DatabaseAction {
 
     /**
      * Get the unique name of this update. This name must be unique among all updates ever applied to the database

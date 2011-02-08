@@ -26,20 +26,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Database schema updater that manages initializing and updates to a database schema, automatically
- * initialzing the database schema when empty and ordering and applying updates according to their
- * predecessor constraints, keeping track of which updates have already been applied.
+ * Database schema updater that manages initializing and updates to a database schema.
  *
  * <p>
- * Updates that have been applied are recorded in a special <i>update table</i>, which contains
- * two columns for the unique update name and application timestamp. The table and column names
+ * Instances will:
+ * <ul>
+ * <li> Automatically initialze a database schema when empty;</li>
+ * <li> Automatically apply {@link SchemaUpdate}s when needed, properly according to their predecessor constraints; and</li>
+ * <li> Automatically keep track of which {@link SchemaUpdate}s have already been applied across restarts</li>
+ * </ul>
+ *
+ * <p>
+ * Applied updates are recorded in a special <i>update table</i>, which contains two columns: one for the unique
+ * {@link SchemaUpdate#getName update name} and one for a timestamp. The update table and column names
  * are configurable via {@link #setUpdateTableName setUpdateTableName()}, {@link #setUpdateNameColumn setUpdateNameColumn()},
  * and {@link #setUpdateTimeColumn setUpdateTimeColumn()}.
  *
  * <p>
- * This class detects a completely uninitialized database by the absence of the update table.
- * With an uninitialized database, the supplied {@link #setDatabaseInitialization database initialization}
- * and {@link #setUpdateTableInitialization update table initialization} updates are applied first.
+ * By default, this class detects a completely uninitialized database by the absence of the update table itself
+ * in the schema (see {@link #databaseNeedsInitialization}).
+ * When an uninitialized database is encountered, the configured {@link #setDatabaseInitialization database initialization}
+ * and {@link #setUpdateTableInitialization update table initialization} actions are applied first to initialize
+ * the database schema.
  */
 public class SchemaUpdater {
 
@@ -65,8 +73,8 @@ public class SchemaUpdater {
     private String updateTimeColumn = DEFAULT_UPDATE_TIME_COLUMN;
 
     private Set<SchemaUpdate> updates;
-    private SchemaModification databaseInitialization;
-    private SchemaModification updateTableInitialization;
+    private DatabaseAction databaseInitialization;
+    private DatabaseAction updateTableInitialization;
     private boolean ignoreUnrecognizedUpdates;
 
     /**
@@ -134,13 +142,13 @@ public class SchemaUpdater {
      *
      * @see #setUpdateTableInitialization setUpdateTableInitialization()
      */
-    public SchemaModification getUpdateTableInitialization() {
+    public DatabaseAction getUpdateTableInitialization() {
         return this.updateTableInitialization;
     }
 
     /**
      * Configure how the update table itself gets initialized. This update is run when no update table found,
-     * which (we assume) implies an empty database with no tables or content.
+     * which (we assume) implies an empty database with no tables or content. This is a required property.
      *
      * <p>
      * This initialization should create the update table where the name column is the primary key.
@@ -156,7 +164,7 @@ public class SchemaUpdater {
      * @see #setUpdateNameColumn setUpdateNameColumn()
      * @see #setUpdateTimeColumn setUpdateTimeColumn()
      */
-    public void setUpdateTableInitialization(SchemaModification updateTableInitialization) {
+    public void setUpdateTableInitialization(DatabaseAction updateTableInitialization) {
         this.updateTableInitialization = updateTableInitialization;
     }
 
@@ -165,18 +173,19 @@ public class SchemaUpdater {
      *
      * @see #setDatabaseInitialization setDatabaseInitialization()
      */
-    public SchemaModification getDatabaseInitialization() {
+    public DatabaseAction getDatabaseInitialization() {
         return this.databaseInitialization;
     }
 
     /**
      * Configure how an empty database gets initialized. This update is run when no update table found,
-     * which (we assume) implies an empty database with no tables or content.
+     * which (we assume) implies an empty database with no tables or content. This is a required property.
      *
      * <p>
-     * This script is expected to initialize the database (i.e., creating all the tables) and
-     * is assumed to be "up to date" with respect to the configured schema updates, i.e.,
-     * when the script completes we assum all updates have already been (implicitly) applied.
+     * This script is expected to initialize the database schema (i.e., creating all the tables) and
+     * when completed the database is assumed to be "up to date" with respect to the configured schema updates.
+     * That is, when this action completes we assum all updates have already been (implicitly) applied
+     * (and they will be recorded as such).
      *
      * <p>
      * Note this script is <i>not</i> expected to create the update table that tracks schema updates;
@@ -184,7 +193,7 @@ public class SchemaUpdater {
      *
      * @param databaseInitialization application database schema initialization
      */
-    public void setDatabaseInitialization(SchemaModification databaseInitialization) {
+    public void setDatabaseInitialization(DatabaseAction databaseInitialization) {
         this.databaseInitialization = databaseInitialization;
     }
 
@@ -203,13 +212,18 @@ public class SchemaUpdater {
      * This should be the set of all updates that may need to be applied to the database.
      *
      * <p>
-     * For any given application, ideally this set should be "write only" in the sense that once an update is added to the set,
-     * the update and its name should never change. Furthermore, if not configured to {@link #setIgnoreUnrecognizedUpdates ignore
-     * unrecognized updates already applied} (the default behavior), then updates must never be removed from this set
-     * as the application evolves.
+     * For any given application, ideally this set should be "write only" in the sense that once an update is added to the set
+     * and applied to one or more actual databases, the update and its name should thereafter never change. Otherwise,
+     * it would be possible for different databases to have inconsistent schemas even though the same updates were recorded.
+     *
+     * <p>
+     * Furthermore, if not configured to {@link #setIgnoreUnrecognizedUpdates ignore unrecognized updates already applied}
+     * (the default behavior), then updates must never be removed from this set as the application evolves;
+     * see {@link #setIgnoreUnrecognizedUpdates} for more information on the rationale.
      *
      * @param updates all schema updates
      * @see #getUpdates
+     * @see #setIgnoreUnrecognizedUpdates
      */
     public void setUpdates(Set<SchemaUpdate> updates) {
         this.updates = updates;
@@ -226,15 +240,17 @@ public class SchemaUpdater {
     }
 
     /**
-     * Configure behavior when an unknown update is found and registered as having already been applied in the database.
+     * Configure behavior when an unknown update is registered as having already been applied in the database.
      *
      * <p>
-     * The default behavior is <code>false</code>, which results in an exception being thrown to protect against
+     * The default behavior is <code>false</code>, which results in an exception being thrown. This protects against
      * accidental downgrades (i.e., running older code against a database with a newer schema), which are not supported.
+     * However, this also requires that all updates that might ever possibly have been applied to the database be
+     * present in the set of configured updates.
      *
      * <p>
      * Setting this to <code>true</code> will result in unrecognized updates simply being ignored.
-     * This setting loses the downgrade protection but allows ancient (obsolete) schema updates to drop off the list.
+     * This setting loses the downgrade protection but allows obsolete schema updates to be dropped over time.
      *
      * @param ignoreUnrecognizedUpdates whether to ignore unrecognized updates
      * @see #isIgnoreUnrecognizedUpdates
@@ -245,6 +261,11 @@ public class SchemaUpdater {
 
     /**
      * Perform database schema initialization and updates.
+     *
+     * <p>
+     * This method applies the following logic: if the {@link #databaseNeedsInitialization database needs initialization},
+     * then {@link #initializeDatabase} the database; then, {@link #applySchemaUpdates apply schema updates} as needed.
+     * The database initialization step and each schema update is applied within its own transaction.
      *
      * @throws SQLException if an update fails
      * @throws IllegalStateException if the database needs initialization and either the
@@ -269,8 +290,8 @@ public class SchemaUpdater {
      *
      * <p>
      * The implementation in {@link SchemaUpdater} simply invokes <code>SELECT COUNT(*) FROM <i>UPDATETABLE</i></code>
-     * and checks for success or failure. Subclasses may wish to override with a more discriminating implementation
-     * that distguishes {@link SQLException}s caused by a missing update table from other causes.
+     * and checks for success or failure. Subclasses may wish to override with a more discriminating implementation.
+     * This implementation does not distguish {@link SQLException}s caused by a missing update table from other causes.
      */
     public boolean databaseNeedsInitialization(DataSource dataSource) throws SQLException {
         Connection c = dataSource.getConnection();
@@ -293,51 +314,23 @@ public class SchemaUpdater {
     }
 
     /**
-     * Apply a schema modification to a {@link DataSource}.
+     * Apply a {@link DatabaseAction} to a {@link DataSource}.
      *
      * <p>
-     * The implementation in {@link SchemaUpdater} simply invokes {@link #applyModification(Connection, SchemaModification)}
-     * after acquiring a {@link Connection} from the given {@link DataSource} (and closing it in any event when done).
+     * The implementation in {@link SchemaUpdater} invokes {@link ActionUtils#applyAction}.
      */
-    protected void applyModification(DataSource dataSource, SchemaModification schemaMod) throws SQLException {
-        Connection c = dataSource.getConnection();
-        try {
-            this.applyModification(c, schemaMod);
-        } finally {
-            c.close();
-        }
+    protected void applyAction(DataSource dataSource, DatabaseAction action) throws SQLException {
+        ActionUtils.applyAction(dataSource, action);
     }
 
     /**
-     * Apply a schema modification to a {@link Connection}.
+     * Apply a {@link DatabaseAction} to a {@link DataSource} within a transaction.
      *
      * <p>
-     * The implementation in {@link SchemaUpdater} simply invokes {@link SchemaModification#apply}.
+     * The implementation in {@link SchemaUpdater} invokes {@link ActionUtils#applyInTransaction}.
      */
-    protected void applyModification(Connection c, SchemaModification schemaMod) throws SQLException {
-        schemaMod.apply(c);
-    }
-
-    /**
-     * Apply a schema modification within a transaction.
-     *
-     * <p>
-     * The implementation in {@link SchemaUpdater} does the standard JDBC thing using serializable isolation.
-     */
-    protected void applyInTransaction(DataSource dataSource, SchemaModification schemaMod) throws SQLException {
-        Connection c = dataSource.getConnection();
-        boolean success = false;
-        try {
-            c.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-            c.setAutoCommit(false);
-            this.applyModification(c, schemaMod);
-            c.commit();
-            success = true;
-        } finally {
-            if (!success)
-                c.rollback();
-            c.close();
-        }
+    protected void applyInTransaction(DataSource dataSource, DatabaseAction action) throws SQLException {
+        ActionUtils.applyInTransaction(dataSource, action);
     }
 
     /**
@@ -409,18 +402,18 @@ public class SchemaUpdater {
             throw new IllegalArgumentException("database needs initialization but no update table initialization is configured");
 
         // Initialize schema within a transaction
-        this.applyInTransaction(dataSource, new SchemaModification() {
+        this.applyInTransaction(dataSource, new DatabaseAction() {
 
             @Override
             public void apply(Connection c) throws SQLException {
 
                 // Initialize application schema
                 SchemaUpdater.this.log.info("intializing database schema");
-                SchemaUpdater.this.applyModification(dataSource, SchemaUpdater.this.getDatabaseInitialization());
+                SchemaUpdater.this.applyAction(dataSource, SchemaUpdater.this.getDatabaseInitialization());
 
                 // Initialize update table
                 SchemaUpdater.this.log.info("intializing update table");
-                SchemaUpdater.this.applyModification(dataSource, SchemaUpdater.this.getUpdateTableInitialization());
+                SchemaUpdater.this.applyAction(dataSource, SchemaUpdater.this.getUpdateTableInitialization());
 
                 // Record all schema updates as having already been applied
                 for (SchemaUpdate update : SchemaUpdater.this.getUpdates())
@@ -493,12 +486,12 @@ public class SchemaUpdater {
         // Apply updates
         for (SchemaUpdate update0 : updateList) {
             final SchemaUpdate update = update0;
-            this.applyInTransaction(dataSource, new SchemaModification() {
+            this.applyInTransaction(dataSource, new DatabaseAction() {
 
                 @Override
                 public void apply(Connection c) throws SQLException {
                     SchemaUpdater.this.log.info("applying schema update `" + update.getName() + "'");
-                    SchemaUpdater.this.applyModification(c, update);
+                    update.apply(c);
                     SchemaUpdater.this.recordUpdateApplied(c, update);
                 }
             });

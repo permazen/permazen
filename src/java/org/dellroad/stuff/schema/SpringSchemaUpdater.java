@@ -27,7 +27,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * {@link SchemaUpdater} optimized for use with Spring. It is required that this updater and all of its
  * schema updates are defined in the same {@link ListableBeanFactory}.
  * <ul>
- * <li>{@link #applyModification(DataSource, SchemaModification)} is overridden to use Spring's {@link JdbcTemplate}
+ * <li>{@link #applyAction(DataSource, DatabaseAction)} is overridden to use Spring's {@link JdbcTemplate}
  *  so Spring {@link org.springframework.dao.DataAccessException}s are thrown.</li>
  * <li>{@link #databaseNeedsInitialization} is overridden to catch exceptions more precisely to filter out
  *  false positives.</li>
@@ -80,18 +80,18 @@ public class SpringSchemaUpdater extends SchemaUpdater implements BeanFactoryAwa
     }
 
     /**
-     * Apply a schema modification to a {@link DataSource}.
+     * Apply a {@link DatabaseAction} to a {@link DataSource}.
      *
      * <p>
      * The implementation in {@link SpringSchemaUpdater} uses {@link JdbcTemplate} to apply the modification so that
      * Spring {@link org.springframework.dao.DataAccessException}s are thrown in case of errors.
      */
     @Override
-    protected void applyModification(DataSource dataSource, final SchemaModification schemaMod) throws SQLException {
+    protected void applyAction(DataSource dataSource, final DatabaseAction action) throws SQLException {
         new JdbcTemplate(dataSource).execute(new ConnectionCallback<Void>() {
             @Override
             public Void doInConnection(Connection c) throws SQLException {
-                SpringSchemaUpdater.this.applyModification(c, schemaMod);
+                action.apply(c);
                 return null;
             }
         });
@@ -102,7 +102,8 @@ public class SpringSchemaUpdater extends SchemaUpdater implements BeanFactoryAwa
      * (including implied indirect constraints) between them.
      *
      * <p>
-     * The {@link Comparator} returned by the implementation in {@link SchemaUpdater} simply sorts updates by name.
+     * The {@link Comparator} returned by the implementation in {@link SpringSchemaUpdater} sorts
+     * updates in the same order that they appear in the {@link BeanFactory}.
      */
     @Override
     protected Comparator<SchemaUpdate> getOrderingTieBreaker() {

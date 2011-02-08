@@ -12,17 +12,22 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Update that executes a provided SQL script.
+ * A {@link DatabaseAction} that executes a provided SQL script.
  *
  * <p>
  * The script may contain multiple SQL statements, in which case individual statements will be parsed out
- * and executed individually in order. However,this requires proper configuration of a {@link #setSplitPattern split pattern}.
+ * and executed individually in order. However, this requires proper configuration of a {@link #setSplitPattern split pattern}.
  */
-public class SQLUpdate extends AbstractSchemaUpdate {
+public class SQLDatabaseAction implements DatabaseAction {
 
-    String sqlScript;
-    String splitPattern;
+    protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    private String sqlScript;
+    private String splitPattern;
 
     /**
      * Configure the SQL script. This is a required property.

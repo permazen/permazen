@@ -11,12 +11,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Database modification interface.
+ * Database action interface.
  */
-public interface SchemaModification {
+public interface DatabaseAction {
 
     /**
-     * Apply this modification.
+     * Apply this action to the database via the provided {@link Connection}.
      *
      * @param c connection to the database
      * @throws SQLException if the update fails

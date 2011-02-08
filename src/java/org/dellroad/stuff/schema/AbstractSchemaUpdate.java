@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * Support superclass for {@link SchemaUpdate}s implementations providing standard Java bean property
  * implementations of {@link #getName} and {@link #getRequiredPredecessors}.
  */
-public abstract class AbstractSchemaUpdate implements SchemaUpdate {
+public abstract class AbstractSchemaUpdate implements ModifiableSchemaUpdate {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 

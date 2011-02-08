@@ -12,6 +12,7 @@ import java.util.HashSet;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 /**
@@ -32,26 +33,40 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
  * <p>
  * Also, the containing {@link BeanFactory} must be a {@link ConfigurableBeanFactory} (normally this is always the case).
  */
-public abstract class AbstractSpringSchemaUpdate extends AbstractSchemaUpdate implements BeanNameAware, BeanFactoryAware {
+public abstract class AbstractSpringSchemaUpdate extends AbstractSchemaUpdate
+  implements BeanNameAware, BeanFactoryAware, InitializingBean {
+
+    protected String beanName;
+    protected BeanFactory beanFactory;
 
     @Override
     public void setBeanName(String beanName) {
-        this.setName(beanName);
+        this.beanName = beanName;
     }
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
-        AbstractSpringSchemaUpdate.setRequiredPredecessorsFromDependencies(this, beanFactory);
+        this.beanFactory = beanFactory;
+    }
+
+    /**
+     * Configures the update name and required predecessors based on the Spring bean's name and
+     * {@link BeanFactory} dependencies.
+     */
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.setName(this.beanName);
+        AbstractSpringSchemaUpdate.setRequiredPredecessorsFromDependencies(this, this.beanFactory);
     }
 
     /**
      * Infer required predecessors from Spring dependencies.
      *
-     * @param update the update in question; it's name must be configured and will be used to query for Spring dependencies
-     * @param beanFactory the bean factory containing the update and the update's depdendencies
+     * @param update the update in question; it's name must be configured and will be used to query for dependencies
+     * @param beanFactory the bean factory containing the update and all the update's depdendencies
      * @throws IllegalArgumentException if {@code beanFactory} is not a {@link ConfigurableBeanFactory}
      */
-    public static void setRequiredPredecessorsFromDependencies(AbstractSchemaUpdate update, BeanFactory beanFactory) {
+    public static void setRequiredPredecessorsFromDependencies(ModifiableSchemaUpdate update, BeanFactory beanFactory) {
 
         // Check factory type
         if (!(beanFactory instanceof ConfigurableBeanFactory))
