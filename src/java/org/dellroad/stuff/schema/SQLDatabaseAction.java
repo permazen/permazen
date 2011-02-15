@@ -32,6 +32,9 @@ public class SQLDatabaseAction implements DatabaseAction {
     /**
      * Configure the SQL script. This is a required property.
      *
+     * <p>
+     * For scripts in external resources, consider {@link org.dellroad.stuff.spring.ResourceReaderFactoryBean}.
+     *
      * @param sqlScript script containing one or more SQL statements; if more than one statement is present,
      *  a {@link #setSplitPattern split pattern} must also be configured
      * @see #setSplitPattern setSplitPattern()
@@ -46,7 +49,7 @@ public class SQLDatabaseAction implements DatabaseAction {
      *
      * <p>
      * For example, assuming statements are terminated by semi-colons and each SQL statement starts on a new line,
-     * a reasonable setting would be <code>";[ \t\r]*\n\s+"</code>.
+     * a reasonable setting would be <code>";[ \t\r]*\n\s*"</code>.
      *
      * @throws java.util.regex.PatternSyntaxException if the pattern is not a valid Java regular expression
      */

@@ -24,16 +24,17 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * {@link SchemaUpdater} optimized for use with Spring. It is required that this updater and all of its
- * schema updates are defined in the same {@link ListableBeanFactory}.
+ * {@link SchemaUpdater} optimized for use with Spring.
  * <ul>
  * <li>{@link #applyAction(DataSource, DatabaseAction)} is overridden to use Spring's {@link JdbcTemplate}
  *  so Spring {@link org.springframework.dao.DataAccessException}s are thrown.</li>
- * <li>{@link #databaseNeedsInitialization} is overridden to catch exceptions more precisely to filter out
- *  false positives.</li>
+ * <li>{@link #databaseNeedsInitialization databaseNeedsInitialization()} is overridden to catch exceptions
+ *  more precisely to filter out false positives.</li>
  * <li>{@link #getOrderingTieBreaker} is overridden to break ties by ordering updates in the same order
  *  as they are defined in the bean factory.</li>
  * <li>This class implements {@link InitializingBean} and verifies all required properties are set.</li>
+ * <li>If no updates are {@link #setUpdates explicitly configured}, then all {@link SchemaUpdate}s found
+ *  in the containing bean factory are automatically configured.
  * </ul>
  *
  * <p>
@@ -45,12 +46,14 @@ public class SpringSchemaUpdater extends SchemaUpdater implements BeanFactoryAwa
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (this.getUpdates() == null)
-            throw new Exception("no updates configured");
+        if (this.beanFactory == null)
+            throw new Exception("no bean factory configured");
         if (this.getDatabaseInitialization() == null)
             throw new Exception("no database initialization configured");
         if (this.getUpdateTableInitialization() == null)
             throw new Exception("no update table initialization configured");
+        if (this.getUpdates() == null)
+            this.setUpdates(this.beanFactory.getBeansOfType(SchemaUpdate.class).values());
     }
 
     @Override

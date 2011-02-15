@@ -43,7 +43,8 @@ public final class ParseUtil {
     }
 
     /**
-     * Deserialize a {@link String} allowing arbitrary characters via backslash escapes
+     * Deserialize a {@link String}, allowing arbitrary characters via backslash escapes.
+     * The string will be decoded by {@link StringEncoder#decode}.
      *
      * @see StringEncoder#decode
      */
@@ -56,9 +57,10 @@ public final class ParseUtil {
     }
 
     /**
-     * Serialize an {@link String}.
+     * Serialize a {@link String}.
+     * The string will be encoded by {@link StringEncoder#encode}.
      *
-     * @see StringEncoder#decode
+     * @see StringEncoder#encode
      */
     public static String serializeString(String string) {
         return StringEncoder.encode(string, false);

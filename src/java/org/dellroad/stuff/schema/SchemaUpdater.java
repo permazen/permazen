@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,25 +30,33 @@ import org.slf4j.LoggerFactory;
  * Database schema updater that manages initializing and updates to a database schema.
  *
  * <p>
- * Instances will:
+ * The primary method is {@link #initializeAndUpdateDatabase}, at which time instances will:
  * <ul>
  * <li> Automatically initialze a database schema when empty;</li>
- * <li> Automatically apply {@link SchemaUpdate}s when needed, properly according to their predecessor constraints; and</li>
+ * <li> Automatically apply {@link SchemaUpdate}s when needed, properly ordered according to their predecessor constraints; and</li>
  * <li> Automatically keep track of which {@link SchemaUpdate}s have already been applied across restarts</li>
  * </ul>
+ * </p>
+ *
+ * <p>
+ * Required properties are the {@link #setDatabaseInitialization database initialization},
+ * {@link #setUpdateTableInitialization update table initialization}, and the {@link #setUpdates updates} themselves.
+ * </p>
  *
  * <p>
  * Applied updates are recorded in a special <i>update table</i>, which contains two columns: one for the unique
  * {@link SchemaUpdate#getName update name} and one for a timestamp. The update table and column names
  * are configurable via {@link #setUpdateTableName setUpdateTableName()}, {@link #setUpdateNameColumn setUpdateNameColumn()},
  * and {@link #setUpdateTimeColumn setUpdateTimeColumn()}.
+ * </p>
  *
  * <p>
  * By default, this class detects a completely uninitialized database by the absence of the update table itself
- * in the schema (see {@link #databaseNeedsInitialization}).
+ * in the schema (see {@link #databaseNeedsInitialization databaseNeedsInitialization()}).
  * When an uninitialized database is encountered, the configured {@link #setDatabaseInitialization database initialization}
  * and {@link #setUpdateTableInitialization update table initialization} actions are applied first to initialize
  * the database schema.
+ * </p>
  */
 public class SchemaUpdater {
 
@@ -72,7 +81,7 @@ public class SchemaUpdater {
     private String updateNameColumn = DEFAULT_UPDATE_NAME_COLUMN;
     private String updateTimeColumn = DEFAULT_UPDATE_TIME_COLUMN;
 
-    private Set<SchemaUpdate> updates;
+    private Collection<SchemaUpdate> updates;
     private DatabaseAction databaseInitialization;
     private DatabaseAction updateTableInitialization;
     private boolean ignoreUnrecognizedUpdates;
@@ -203,7 +212,7 @@ public class SchemaUpdater {
      * @return configured schema updates
      * @see #setUpdates setUpdates()
      */
-    public Set<SchemaUpdate> getUpdates() {
+    public Collection<SchemaUpdate> getUpdates() {
         return this.updates;
     }
 
@@ -221,11 +230,11 @@ public class SchemaUpdater {
      * (the default behavior), then updates must never be removed from this set as the application evolves;
      * see {@link #setIgnoreUnrecognizedUpdates} for more information on the rationale.
      *
-     * @param updates all schema updates
+     * @param updates all schema updates; each update must have a unique {@link SchemaUpdate#getName name}.
      * @see #getUpdates
      * @see #setIgnoreUnrecognizedUpdates
      */
-    public void setUpdates(Set<SchemaUpdate> updates) {
+    public void setUpdates(Collection<SchemaUpdate> updates) {
         this.updates = updates;
     }
 
@@ -264,7 +273,7 @@ public class SchemaUpdater {
      *
      * <p>
      * This method applies the following logic: if the {@link #databaseNeedsInitialization database needs initialization},
-     * then {@link #initializeDatabase} the database; then, {@link #applySchemaUpdates apply schema updates} as needed.
+     * then {@link #initializeDatabase initialize} the database; then, {@link #applySchemaUpdates apply schema updates} as needed.
      * The database initialization step and each schema update is applied within its own transaction.
      *
      * @throws SQLException if an update fails
@@ -429,6 +438,13 @@ public class SchemaUpdater {
         if (this.getUpdates() == null)
             throw new IllegalArgumentException("schema updates set is not configured");
 
+        // Create map of updates by name
+        HashMap<String, SchemaUpdate> updateMap = new HashMap<String, SchemaUpdate>(this.getUpdates().size());
+        for (SchemaUpdate update : this.getUpdates()) {
+            if (updateMap.put(update.getName(), update) != null)
+                throw new IllegalArgumentException("duplicate schema update name `" + update.getName() + "'");
+        }
+
         // Verify updates are transitively closed under predecessor constraints
         for (SchemaUpdate update : this.getUpdates()) {
             for (SchemaUpdate predecessor : update.getRequiredPredecessors()) {
@@ -437,13 +453,6 @@ public class SchemaUpdater {
                       + "' has a required predecessor `" + predecessor.getName() + "' that is not a configured update");
                 }
             }
-        }
-
-        // Create map of updates by name
-        HashMap<String, SchemaUpdate> updateMap = new HashMap<String, SchemaUpdate>(this.getUpdates().size());
-        for (SchemaUpdate update : this.getUpdates()) {
-            if (updateMap.put(update.getName(), update) != null)
-                throw new IllegalArgumentException("duplicate schema update name `" + update.getName() + "'");
         }
 
         // Determine which updates have already been applied

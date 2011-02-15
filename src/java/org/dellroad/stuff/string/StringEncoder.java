@@ -32,6 +32,7 @@ public final class StringEncoder {
      * @param escapeTABNLCR escape tab, newline, and carriage return characters as well
      * @return the encoded version of {@code value}, or {@code null} if {@code value} was {@code null}
      * @see #decode
+     * @see #isValidXMLChar
      */
     public static String encode(String value, boolean escapeTABNLCR) {
         if (value == null)
