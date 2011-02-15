@@ -9,6 +9,7 @@ package org.dellroad.stuff.main;
 
 import java.io.EOFException;
 import java.io.File;
+import java.util.ArrayList;
 
 import org.gnu.readline.Readline;
 import org.gnu.readline.ReadlineLibrary;
@@ -135,6 +136,37 @@ public abstract class MainClass {
     protected final void errout(String message) {
         System.err.println(getClass().getSimpleName() + ": " + message);
         System.exit(1);
+    }
+
+    /**
+     * Parse command line flags of the form {@code -Dname=value} and set the corresponding system properties.
+     * Parsing stops at the first argument not starting with a dash (or {@code --}).
+     *
+     * @return command line with all the property-setting flags removed
+     */
+    protected String[] parsePropertyFlags(String[] args) {
+        ArrayList<String> list = new ArrayList<String>(args.length);
+        boolean done = false;
+        for (String arg : args) {
+            if (done) {
+                list.add(arg);
+                continue;
+            }
+            if (arg.equals("--") || arg.length() == 0 || arg.charAt(0) != '-') {
+                list.add(arg);
+                done = true;
+                continue;
+            }
+            if (arg.startsWith("-D")) {
+                int eq = arg.indexOf('=');
+                if (eq < 3)
+                    usageError();
+                System.setProperty(arg.substring(2, eq), arg.substring(eq + 1));
+                continue;
+            }
+            list.add(arg);
+        }
+        return list.toArray(new String[list.size()]);
     }
 
     /**
