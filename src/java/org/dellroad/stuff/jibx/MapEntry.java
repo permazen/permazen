@@ -29,12 +29,12 @@ import org.jibx.runtime.JiBXParseException;
  * }
  *
  * // JiBX "add-method"
- * public void addDirectoryEntry(MapEntry&lt;String, Person&gt; direntry) {
+ * void addDirectoryEntry(MapEntry&lt;String, Person&gt; direntry) throws JiBXParseException {
  *     MapEntry.add(this.directory, direntry);
  * }
  *
  * // JiBX "iter-method"
- * public Iterator&lt;MapEntry&lt;String, Person&gt;&gt; iterateDirectory() {
+ * Iterator&lt;MapEntry&lt;String, Person&gt;&gt; iterateDirectory() {
  *     return MapEntry.iterate(this.directory);
  * }
  * </pre></blockquote>
