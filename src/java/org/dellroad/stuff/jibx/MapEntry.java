@@ -13,14 +13,23 @@ import java.util.Map;
 import org.jibx.runtime.JiBXParseException;
 
 /**
- * Utility class for modeling {@link Map} properties in JiBX.
+ * Utility class that makes it slightly easier to model {@link Map} properties in JiBX.
  *
  * <p>
- * For example, suppose you have a class {@code Company} with a property named {@code directory} that has
- * type {@code Map<String, Person>}.  Then you would define these methods in {@code Company.java}:
+ * For example, suppose you have a class {@code Company} and want to add a property named {@code directory} that has
+ * type {@code Map<String, Person>}. Because JiBX modifies class files, you first need to create a subclass
+ * of this class that can be modified:
  *
  * <blockquote><pre>
- * // Getter and setter
+ * public class DirectoryEntry extends MapEntry&lt;String, Person&gt; {
+ * }
+ * </pre></blockquote>
+ *
+ * <p>
+ * Next you would define these methods in {@code Company.java}:
+ *
+ * <blockquote><pre>
+ * // Getter and setter for the "directory" property
  * public Map&lt;String, Person&gt; getDirectory() {
  *     return this.directory;
  * }
@@ -28,12 +37,12 @@ import org.jibx.runtime.JiBXParseException;
  *     this.directory = directory;
  * }
  *
- * // JiBX "add-method"
+ * // JiBX "add-method" that adds a new entry to the directory
  * void addDirectoryEntry(MapEntry&lt;String, Person&gt; direntry) throws JiBXParseException {
  *     MapEntry.add(this.directory, direntry);
  * }
  *
- * // JiBX "iter-method"
+ * // JiBX "iter-method" that iterates all entries in the directory
  * Iterator&lt;MapEntry&lt;String, Person&gt;&gt; iterateDirectory() {
  *     return MapEntry.iterate(this.directory);
  * }
@@ -49,14 +58,14 @@ import org.jibx.runtime.JiBXParseException;
  *     &lt;include path="person.xml"/&gt;
  *
  *     &lt;!-- Define XML mapping for one entry in the directory map --&gt;
- *     &lt;mapping abstract="true" type-name="directory_entry" class="org.dellroad.stuff.jibx.MapEntry"&gt;
- *         &lt;value name="name" field="key" type="java.lang.String" style="attribute"/&gt;
- *         &lt;structure name="Person" field="value" map-as="person"/&gt;
+ *     &lt;mapping abstract="true" type-name="directory_entry" class="com.example.DirectoryEntry"&gt;
+ *         &lt;value name="name" get-method="getKey" set-method="setKey" type="java.lang.String" style="attribute"/&gt;
+ *         &lt;structure name="Person" get-method="getValue" set-method="setValue" map-as="person"/&gt;
  *     &lt;/mapping&gt;
  *
  *     &lt;!-- Define XML mapping for a Company object --&gt;
  *     &lt;mapping abstract="true" type-name="company" class="com.example.Company"&gt;
- *         &lt;collection name="Directory" item-type="org.dellroad.stuff.jibx.MapEntry"
+ *         &lt;collection name="Directory" item-type="com.example.DirectoryEntry"
  *           add-method="addDirectoryEntry" iter-method="iterateDirectory"&gt;
  *             &lt;structure name="DirectoryEntry" map-as="directory_entry"/&gt;
  *         &lt;/collection&gt;
@@ -88,23 +97,6 @@ public class MapEntry<K, V> {
 
     private K key;
     private V value;
-
-    /**
-     * Default constructor. Initializes both key and value to {@code null}.
-     */
-    public MapEntry() {
-    }
-
-    /**
-     * Primary constructor.
-     *
-     * @param key map entry key
-     * @param value map entry value
-     */
-    public MapEntry(K key, V value) {
-        this.key = key;
-        this.value = value;
-    }
 
     /**
      * Get this map entry's key.
@@ -145,7 +137,10 @@ public class MapEntry<K, V> {
             @Override
             public MapEntry<K, V> next() {
                 Map.Entry<K, V> entry = entryIterator.next();
-                return new MapEntry<K, V>(entry.getKey(), entry.getValue());
+                MapEntry<K, V> mapEntry = new MapEntry<K, V>();
+                mapEntry.setKey(entry.getKey());
+                mapEntry.setValue(entry.getValue());
+                return mapEntry;
             }
 
             @Override
