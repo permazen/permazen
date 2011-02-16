@@ -11,25 +11,25 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * A {@link SchemaUpdate} that performs its update using a {@link SQLDatabaseAction}.
+ * A {@link SchemaUpdate} that performs its update using a configured {@link DatabaseAction} delegate.
  */
-public class SQLSchemaUpdate extends AbstractSchemaUpdate {
+public class DelegatingSchemaUpdate extends AbstractSchemaUpdate {
 
-    private SQLDatabaseAction action;
+    private DatabaseAction action;
 
     /**
      * Configure the {@link SQLDatabaseAction}. This is a required property.
      *
      * @see SQLDatabaseAction
      */
-    public void setSQLDatabaseAction(SQLDatabaseAction action) {
+    public void setDatabaseAction(DatabaseAction action) {
         this.action = action;
     }
 
     @Override
     public void apply(Connection c) throws SQLException {
         if (this.action == null)
-            throw new IllegalArgumentException("no SQLDatabaseAction configured");
+            throw new IllegalArgumentException("no DatabaseAction configured");
         this.action.apply(c);
     }
 }
