@@ -32,7 +32,7 @@ public abstract class MainClass {
      *
      * @return exit value
      */
-    protected abstract int run(String[] args) throws Exception;
+    public abstract int run(String[] args) throws Exception;
 
     /**
      * Enter command loop. Commands are read using GNU libreadline and handed off
