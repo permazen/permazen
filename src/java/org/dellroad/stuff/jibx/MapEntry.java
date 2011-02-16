@@ -17,8 +17,10 @@ import org.jibx.runtime.JiBXParseException;
  *
  * <p>
  * For example, suppose you have a class {@code Company} and want to add a property named {@code directory} that has
- * type {@code Map<String, Person>}. Because JiBX modifies class files, you first need to create a subclass
- * of this class that can be modified:
+ * type {@code Map<String, Person>}.
+ *
+ * <p>
+ * Because JiBX modifies class files, you first need to create a subclass of this class that can be modified:
  *
  * <blockquote><pre>
  * public class DirectoryEntry extends MapEntry&lt;String, Person&gt; {
