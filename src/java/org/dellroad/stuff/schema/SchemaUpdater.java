@@ -30,11 +30,12 @@ import org.slf4j.LoggerFactory;
  * Database schema updater that manages initializing and updates to a database schema.
  *
  * <p>
- * The primary method is {@link #initializeAndUpdateDatabase}, at which time instances will:
+ * The primary method is {@link #initializeAndUpdateDatabase initializeAndUpdateDatabase()}, which will:
  * <ul>
- * <li> Automatically initialze a database schema when empty;</li>
- * <li> Automatically apply {@link SchemaUpdate}s when needed, properly ordered according to their predecessor constraints; and</li>
- * <li> Automatically keep track of which {@link SchemaUpdate}s have already been applied across restarts</li>
+ * <li> Automatically initialize an empty database when necessary;</li>
+ * <li> Automatically apply configured {@link SchemaUpdate}s as needed, ordered properly according to
+ *      their predecessor constraints; and</li>
+ * <li> Automatically keep track of which {@link SchemaUpdate}s have already been applied across restarts.</li>
  * </ul>
  * </p>
  *
@@ -46,8 +47,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Applied updates are recorded in a special <i>update table</i>, which contains two columns: one for the unique
  * {@link SchemaUpdate#getName update name} and one for a timestamp. The update table and column names
- * are configurable via {@link #setUpdateTableName setUpdateTableName()}, {@link #setUpdateNameColumn setUpdateNameColumn()},
- * and {@link #setUpdateTimeColumn setUpdateTimeColumn()}.
+ * are configurable via {@link #setUpdateTableName setUpdateTableName()},
+ * {@link #setUpdateTableNameColumn setUpdateTableNameColumn()}, and {@link #setUpdateTableTimeColumn setUpdateTableTimeColumn()}.
  * </p>
  *
  * <p>
@@ -68,18 +69,18 @@ public class SchemaUpdater {
     /**
      * Default name of the column in the updates table holding the unique update name, <code>{@value}</code>.
      */
-    public static final String DEFAULT_UPDATE_NAME_COLUMN = "updateName";
+    public static final String DEFAULT_UPDATE_TABLE_NAME_COLUMN = "updateName";
 
     /**
      * Default name of the column in the updates table holding the update's time applied, <code>{@value}</code>.
      */
-    public static final String DEFAULT_UPDATE_TIME_COLUMN = "updateTime";
+    public static final String DEFAULT_UPDATE_TABLE_TIME_COLUMN = "updateTime";
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private String updateTableName = DEFAULT_UPDATE_TABLE_NAME;
-    private String updateNameColumn = DEFAULT_UPDATE_NAME_COLUMN;
-    private String updateTimeColumn = DEFAULT_UPDATE_TIME_COLUMN;
+    private String updateTableNameColumn = DEFAULT_UPDATE_TABLE_NAME_COLUMN;
+    private String updateTableTimeColumn = DEFAULT_UPDATE_TABLE_TIME_COLUMN;
 
     private Collection<SchemaUpdate> updates;
     private DatabaseAction databaseInitialization;
@@ -109,41 +110,41 @@ public class SchemaUpdater {
     /**
      * Get the name of the update name column in the table that keeps track of applied updates.
      *
-     * @see #setUpdateNameColumn setUpdateNameColumn()
+     * @see #setUpdateTableNameColumn setUpdateTableNameColumn()
      */
-    public String getUpdateNameColumn() {
-        return this.updateNameColumn;
+    public String getUpdateTableNameColumn() {
+        return this.updateTableNameColumn;
     }
 
     /**
      * Set the name of the update name column in the table that keeps track of applied updates.
-     * Default value is {@link #DEFAULT_UPDATE_NAME_COLUMN}.
+     * Default value is {@link #DEFAULT_UPDATE_TABLE_NAME_COLUMN}.
      *
      * <p>
      * This name must be consistent with the {@link #setUpdateTableInitialization update table initialization}.
      */
-    public void setUpdateNameColumn(String updateNameColumn) {
-        this.updateNameColumn = updateNameColumn;
+    public void setUpdateTableNameColumn(String updateTableNameColumn) {
+        this.updateTableNameColumn = updateTableNameColumn;
     }
 
     /**
      * Get the name of the update timestamp column in the table that keeps track of applied updates.
      *
-     * @see #setUpdateTimeColumn setUpdateTimeColumn()
+     * @see #setUpdateTableTimeColumn setUpdateTableTimeColumn()
      */
-    public String getUpdateTimeColumn() {
-        return this.updateTimeColumn;
+    public String getUpdateTableTimeColumn() {
+        return this.updateTableTimeColumn;
     }
 
     /**
      * Set the name of the update timestamp column in the table that keeps track of applied updates.
-     * Default value is {@link #DEFAULT_UPDATE_TIME_COLUMN}.
+     * Default value is {@link #DEFAULT_UPDATE_TABLE_TIME_COLUMN}.
      *
      * <p>
      * This name must be consistent with the {@link #setUpdateTableInitialization update table initialization}.
      */
-    public void setUpdateTimeColumn(String updateTimeColumn) {
-        this.updateTimeColumn = updateTimeColumn;
+    public void setUpdateTableTimeColumn(String updateTableTimeColumn) {
+        this.updateTableTimeColumn = updateTableTimeColumn;
     }
 
     /**
@@ -165,13 +166,13 @@ public class SchemaUpdater {
      *
      * <p>
      * The table and column names must be consistent with the values configured via
-     * {@link #setUpdateTableName setUpdateTableName()}, {@link #setUpdateNameColumn setUpdateNameColumn()},
-     * and {@link #setUpdateTimeColumn setUpdateTimeColumn()}.
+     * {@link #setUpdateTableName setUpdateTableName()}, {@link #setUpdateTableNameColumn setUpdateTableNameColumn()},
+     * and {@link #setUpdateTableTimeColumn setUpdateTableTimeColumn()}.
      *
      * @param updateTableInitialization update table schema initialization
      * @see #setUpdateTableName setUpdateTableName()
-     * @see #setUpdateNameColumn setUpdateNameColumn()
-     * @see #setUpdateTimeColumn setUpdateTimeColumn()
+     * @see #setUpdateTableNameColumn setUpdateTableNameColumn()
+     * @see #setUpdateTableTimeColumn setUpdateTableTimeColumn()
      */
     public void setUpdateTableInitialization(DatabaseAction updateTableInitialization) {
         this.updateTableInitialization = updateTableInitialization;
@@ -354,7 +355,7 @@ public class SchemaUpdater {
      */
     protected void recordUpdateApplied(Connection c, SchemaUpdate update) throws SQLException {
         PreparedStatement s = c.prepareStatement("INSERT INTO " + this.getUpdateTableName()
-          + " (" + this.getUpdateNameColumn() + ", " + this.getUpdateTimeColumn() + ") VALUES (?, ?)");
+          + " (" + this.getUpdateTableNameColumn() + ", " + this.getUpdateTableTimeColumn() + ") VALUES (?, ?)");
         try {
             s.setString(1, update.getName());
             s.setDate(2, new java.sql.Date(new Date().getTime()));
@@ -379,7 +380,8 @@ public class SchemaUpdater {
         Statement s = c.createStatement();
         try {
             HashSet<String> updateNames = new HashSet<String>();
-            ResultSet resultSet = s.executeQuery("SELECT " + this.getUpdateNameColumn() + " FROM " + this.getUpdateTableName());
+            ResultSet resultSet = s.executeQuery("SELECT " + this.getUpdateTableNameColumn()
+              + " FROM " + this.getUpdateTableName());
             while (resultSet.next())
                 updateNames.add(resultSet.getString(1));
             return updateNames;
