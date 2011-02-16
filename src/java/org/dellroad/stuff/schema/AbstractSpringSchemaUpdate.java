@@ -12,7 +12,9 @@ import java.util.HashSet;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 /**
@@ -76,8 +78,15 @@ public abstract class AbstractSpringSchemaUpdate extends AbstractSchemaUpdate
         // Find required predecessors defined as Spring dependencies
         String[] predecessorNames = configurableBeanFactory.getDependenciesForBean(update.getName());
         HashSet<SchemaUpdate> predecessors = new HashSet<SchemaUpdate>(predecessorNames.length);
-        for (String predecessorName : predecessorNames)
-            predecessors.add(configurableBeanFactory.getBean(predecessorName, SchemaUpdate.class));
+        for (String predecessorName : predecessorNames) {
+            try {
+                predecessors.add(configurableBeanFactory.getBean(predecessorName, SchemaUpdate.class));
+            } catch (NoSuchBeanDefinitionException e) {
+                continue;
+            } catch (BeanNotOfRequiredTypeException e) {
+                continue;
+            }
+        }
         update.setRequiredPredecessors(predecessors);
     }
 }
