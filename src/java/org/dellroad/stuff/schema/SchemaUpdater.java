@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -488,14 +489,20 @@ public class SchemaUpdater {
         }
 
         // Log result
-        if (updates.isEmpty())
+        if (updates.isEmpty()) {
             this.log.info("no schema updates are required");
-        else
-            this.log.info("applying required schema updates: " + updateMap.keySet());
+            return;
+        }
 
         // Sort updates in the order we want to apply them
         List<SchemaUpdate> updateList = new TopologicalSorter<SchemaUpdate>(
           updateMap.values(), new SchemaUpdateEdgeLister(), this.getOrderingTieBreaker()).sortEdgesReversed();
+
+        // Show the updates we're going to apply (in the right order)
+        List<String> updateNames = new ArrayList<String>(updateList.size());
+        for (SchemaUpdate update : updateList)
+            updateNames.add(update.getName());
+        this.log.info("applying required schema updates: " + updateNames);
 
         // Apply updates
         for (SchemaUpdate update0 : updateList) {
