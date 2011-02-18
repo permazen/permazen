@@ -68,12 +68,12 @@ public class SQLDatabaseAction implements DatabaseAction {
             if (sql.length() == 0)
                 continue;
             String sep = sql.indexOf('\n') != -1 ? "\n" : " ";
-            this.log.info("applying SQL update:" + sep + sql);
+            this.log.info("executing SQL statement:" + sep + sql);
             Statement statement = c.createStatement();
             try {
                 statement.execute(sql);
             } catch (SQLException e) {
-                this.log.error("SQL update failed: " + sql, e);
+                this.log.error("SQL statement failed: " + sql, e);
                 throw e;
             } finally {
                 statement.close();
