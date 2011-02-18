@@ -170,6 +170,21 @@ public class SchemaUpdater {
      * {@link #setUpdateTableName setUpdateTableName()}, {@link #setUpdateTableNameColumn setUpdateTableNameColumn()},
      * and {@link #setUpdateTableTimeColumn setUpdateTableTimeColumn()}.
      *
+     * <p>
+     * For convenience, pre-defined initialization scripts using the default table and column names are available
+     * at the following resource locations. These can be used to configure a {@link SQLDatabaseAction}:
+     * <table border="1" cellspacing="0" cellpadding="4">
+     * <tr>
+     * <th>Database</th>
+     * <th>Resource</th>
+     * </tr>
+     * <tr>
+     * </tr>
+     * <td>MySQL (InnoDB)</td>
+     * <td><code>classpath:org/dellroad/stuff/schema/updateTable-mysql.sql</code></td>
+     * </tr>
+     * </table>
+     *
      * @param updateTableInitialization update table schema initialization
      * @see #setUpdateTableName setUpdateTableName()
      * @see #setUpdateTableNameColumn setUpdateTableNameColumn()

@@ -26,8 +26,6 @@ class SQLBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     private static final String RESOURCE_ATTRIBUTE = "resource";
     private static final String CHARSET_ATTRIBUTE = "charset";
 
-    private static final String DEFAULT_SPLIT_PATTERN = ";[ \\t\\r]*\\n\\s*";
-
     @Override
     protected Class<?> getBeanClass(Element element) {
         return SQLDatabaseAction.class;
@@ -36,12 +34,10 @@ class SQLBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
-        // Get "split-pattern" attribute, applying default if none given
-        String splitPattern = DEFAULT_SPLIT_PATTERN;
+        // Get "split-pattern" attribute
         Attr attr = element.getAttributeNodeNS(null, SPLIT_PATTERN_ATTRIBUTE);
         if (attr != null)
-            splitPattern = attr.getValue();
-        builder.addPropertyValue("splitPattern", splitPattern);
+            builder.addPropertyValue("splitPattern", attr.getValue());
 
         // Get "resource" attribute or nested SQL
         attr = element.getAttributeNodeNS(null, RESOURCE_ATTRIBUTE);

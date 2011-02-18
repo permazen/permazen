@@ -16,24 +16,68 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link DatabaseAction} that executes a provided SQL script.
+ * A {@link DatabaseAction} that executes a configured SQL script.
  *
  * <p>
- * The script may contain multiple SQL statements, in which case individual statements will be parsed out
- * and executed individually in order. However, this requires proper configuration of a {@link #setSplitPattern split pattern}.
+ * The script may contain multiple SQL statements, in which case individual statements will be parsed out and
+ * executed individually in order. However, this requires proper configuration of the {@link #setSplitPattern split pattern}.
+ *
+ * <p>
+ * When using Spring, beans of this type can be created succintly using the <code>&lt;dellroad-stuff:sql&gt;</code> custom
+ * XML element. The split pattern may be configured via the {@code split-pattern} attribute, and the SQL script is specified
+ * either directly via inline text or using the {@code resource} attribute. In the latter case, the character encoding can
+ * specified via the {@code charset} attribute (default is {@code "UTF-8"}).
+ *
+ * <p>
+ * For example:
+ * <blockquote><pre>
+ *  &lt;beans xmlns="http://www.springframework.org/schema/beans"
+ *    <b>xmlns:dellroad-stuff="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"</b>
+ *    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ *    xsi:schemaLocation="
+ *      http://www.springframework.org/schema/beans
+ *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+ *      <b>http://dellroad-stuff.googlecode.com/schema/dellroad-stuff
+ *        http://dellroad-stuff.googlecode.com/svn/wiki/schemas/dellroad-stuff-1.0.xsd</b>"&gt;
+ *
+ *      &lt;!-- Schema update to add the 'phone' column to the 'User' table --&gt;
+ *      &lt;bean id="addPhoneColumnUpdate" class="org.dellroad.stuff.schema.SpringDelegatingSchemaUpdate"&gt;
+ *          &lt;property name="databaseAction"&gt;
+ *              <b>&lt;dellroad-stuff:sql&gt;ALTER TABLE User ADD phone VARCHAR(64)&lt;/dellroad-stuff:sql&gt;</b>
+ *          &lt;/property&gt;
+ *      &lt;/bean&gt;
+ *
+ *      &lt;!-- Schema update to run some complicated external SQL script --&gt;
+ *      &lt;bean id="majorChanges" depends-on="addPhoneColumnUpdate"
+ *        class="org.dellroad.stuff.schema.SpringDelegatingSchemaUpdate"&gt;
+ *          &lt;property name="databaseAction"&gt;
+ *              <b>&lt;dellroad-stuff:sql resource="classpath:majorSurgery.sql" split-pattern=";\n"/&gt;</b>
+ *          &lt;/property&gt;
+ *      &lt;/bean&gt;
+ *
+ *      &lt;!-- more beans... --&gt;
+ *
+ *  &lt;/beans&gt;
+ * </pre></blockquote>
  */
 public class SQLDatabaseAction implements DatabaseAction {
+
+    /**
+     * The default split pattern: <code>{@value}</code>.
+     */
+    public static final String DEFAULT_SPLIT_PATTERN = ";[ \\t\\r]*\\n\\s*";
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private String sqlScript;
-    private String splitPattern;
+    private String splitPattern = DEFAULT_SPLIT_PATTERN;
 
     /**
      * Configure the SQL script. This is a required property.
      *
      * <p>
-     * For scripts in external resources, consider {@link org.dellroad.stuff.spring.ResourceReaderFactoryBean}.
+     * For scripts in external resources, consider {@link org.dellroad.stuff.spring.ResourceReaderFactoryBean}
+     * or use the <code>&lt;dellroad-stuff:sql&gt;</code> element.
      *
      * @param sqlScript script containing one or more SQL statements; if more than one statement is present,
      *  a {@link #setSplitPattern split pattern} must also be configured
@@ -45,16 +89,21 @@ public class SQLDatabaseAction implements DatabaseAction {
 
     /**
      * Set the <i>split pattern</i> used to split apart a script containing multiple SQL statements into individual statements.
-     * If this property is not set, the script is assumed to contain a single SQL statement.
      *
      * <p>
-     * For example, assuming statements are terminated by semi-colons and each SQL statement starts on a new line,
-     * a reasonable setting would be <code>";[ \t\r]*\n\s*"</code>.
+     * The default value for this property is <code>";[ \t\r]*\n\s*"</code>, which should handle cases where
+     * SQL statements are terminated by semi-colons and each SQL statement starts on a new line.
+     *
+     * <p>
+     * If this is set to {@code null}, or the script does not contain any instances of the regular expression,
+     * the script is assumed to contain a single SQL statement. SQL statements are whitespace-trimmed and any
+     * "statements" that consist entirely of whitespace are ignored.
      *
      * @throws java.util.regex.PatternSyntaxException if the pattern is not a valid Java regular expression
      */
     public void setSplitPattern(String splitPattern) {
-        Pattern.compile(splitPattern);
+        if (splitPattern != null)
+            Pattern.compile(splitPattern);
         this.splitPattern = splitPattern;
     }
 
