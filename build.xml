@@ -47,6 +47,10 @@
             <fileset dir="build/resources"/>
             <fileset dir="src/java" includes="**/*.xml"/>
             <fileset dir="src/java" includes="**/*.xsd"/>
+            <fileset dir="src/java">
+                <include name="org/dellroad/stuff/spring/schema-1.0.xsd"/>
+            </fileset>
+            <metainf dir="src/java/org/dellroad/stuff/spring" includes="spring.*"/>
         </jar>
         <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">
             <fileset dir="src/java" includes="**/*"/>

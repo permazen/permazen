@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id$ -->
+<xsd:schema xmlns="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:annotation>
+        <xsd:documentation><![CDATA[
+    Defines the DellRoad Stuff XML namespace elements for the Spring Framework.
+        ]]></xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:element name="sql">
+        <xsd:annotation>
+            <xsd:documentation source="java:org.dellroad.stuff.spring.SQLDatabaseActionFactoryBean">
+                <![CDATA[
+    Creates a SQLDatabaseAction bean using an inline SQL script or the specified resource.
+                ]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="id" type="xsd:ID">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+    Unique bean name for this factory bean.
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="split-pattern" type="xsd:string" use="optional">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+    Specifies the regular expression that splits the SQL script into individual SQL statements.
+    The default value for this attribute is ";[ \t\r]*\n\s*".
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="resource" type="xsd:string" use="optional">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+    Specifies the SQL script by reference to a Spring resource.
+    When this attribute is specified, nested content is not allowed (and vice-versa).
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="charset" type="xsd:string" use="optional">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+    When the SQL script is specified using the `resource' attribute, this specifies the character encoding.
+    By default, UTF-8 is assumed.
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>
