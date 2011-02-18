@@ -450,6 +450,7 @@ public class SchemaUpdater {
             if (updateMap.put(update.getName(), update) != null)
                 throw new IllegalArgumentException("duplicate schema update name `" + update.getName() + "'");
         }
+        this.log.debug("these are all known schema updates: " + updateMap.keySet());
 
         // Verify updates are transitively closed under predecessor constraints
         for (SchemaUpdate update : this.getUpdates()) {
@@ -461,6 +462,10 @@ public class SchemaUpdater {
             }
         }
 
+        // Sort updates in the order we should to apply them
+        List<SchemaUpdate> updateList = new TopologicalSorter<SchemaUpdate>(
+          updateMap.values(), new SchemaUpdateEdgeLister(), this.getOrderingTieBreaker()).sortEdgesReversed();
+
         // Determine which updates have already been applied
         Set<String> appliedUpdates;
         Connection c = dataSource.getConnection();
@@ -469,42 +474,39 @@ public class SchemaUpdater {
         } finally {
             c.close();
         }
+        this.log.debug("these are the already-applied schema updates: " + appliedUpdates);
 
         // Check whether any unknown updates have been applied; remove already-applied updates from our update map
         HashSet<String> unknown = new HashSet<String>();
         for (String updateName : appliedUpdates) {
-            if (updateMap.remove(updateName) == null)
+            if (!updateMap.containsKey(updateName))
                 unknown.add(updateName);
         }
         if (!unknown.isEmpty()) {
             if (!this.isIgnoreUnrecognizedUpdates())
                 throw new IllegalStateException(unknown.size() + " unrecognized update(s) have already been applied: " + unknown);
-            this.log.info("ignoring " + unknown.size() + " unrecognized update(s) already applied");
+            this.log.info("ignoring " + unknown.size() + " unrecognized update(s) already applied: " + unknown);
         }
 
-        // Any updates needed?
-        if (updateMap.isEmpty()) {
-            this.log.info("no schema updates are required");
-            return;
-        }
-
-        // Log result
-        if (updates.isEmpty()) {
-            this.log.info("no schema updates are required");
-            return;
-        }
-
-        // Sort updates in the order we want to apply them
-        List<SchemaUpdate> updateList = new TopologicalSorter<SchemaUpdate>(
-          updateMap.values(), new SchemaUpdateEdgeLister(), this.getOrderingTieBreaker()).sortEdgesReversed();
-
-        // Show the updates we're going to apply (in the right order)
+        // Elide the already-applied updates from the list
         List<String> updateNames = new ArrayList<String>(updateList.size());
-        for (SchemaUpdate update : updateList)
-            updateNames.add(update.getName());
-        this.log.info("applying required schema updates: " + updateNames);
+        ArrayList<SchemaUpdate> trimmedList = new ArrayList<SchemaUpdate>(updateList.size());
+        for (SchemaUpdate update : updateList) {
+            if (!appliedUpdates.contains(update.getName())) {
+                trimmedList.add(update);
+                updateNames.add(update.getName());
+            }
+        }
+        updateList = trimmedList;
+
+        // Now any updates needed?
+        if (updateList.isEmpty()) {
+            this.log.info("no schema updates are required");
+            return;
+        }
 
         // Apply updates
+        this.log.info("applying these " + updateNames.size() + " schema update(s): " + updateNames);
         for (SchemaUpdate update0 : updateList) {
             final SchemaUpdate update = update0;
             this.applyInTransaction(dataSource, new DatabaseAction() {
