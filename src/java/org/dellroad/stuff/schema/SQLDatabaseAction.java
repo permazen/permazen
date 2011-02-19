@@ -40,22 +40,13 @@ import org.slf4j.LoggerFactory;
  *      <b>http://dellroad-stuff.googlecode.com/schema/dellroad-stuff
  *        http://dellroad-stuff.googlecode.com/svn/wiki/schemas/dellroad-stuff-1.0.xsd</b>"&gt;
  *
- *      &lt;!-- Schema update to add the 'phone' column to the 'User' table --&gt;
- *      &lt;bean id="addPhoneColumnUpdate" class="org.dellroad.stuff.schema.SpringDelegatingSchemaUpdate"&gt;
- *          &lt;property name="databaseAction"&gt;
- *              <b>&lt;dellroad-stuff:sql&gt;ALTER TABLE User ADD phone VARCHAR(64)&lt;/dellroad-stuff:sql&gt;</b>
- *          &lt;/property&gt;
- *      &lt;/bean&gt;
+ *      &lt;!-- SQL action that clears the audit log --&gt;
+ *      <b>&lt;dellroad-stuff:sql&gt;DELETE * FROM AUDIT_LOG&lt;/dellroad-stuff:sql&gt;</b>
  *
- *      &lt;!-- Schema update to run some complicated external SQL script --&gt;
- *      &lt;bean id="majorChanges" depends-on="addPhoneColumnUpdate"
- *        class="org.dellroad.stuff.schema.SpringDelegatingSchemaUpdate"&gt;
- *          &lt;property name="databaseAction"&gt;
- *              <b>&lt;dellroad-stuff:sql resource="classpath:majorSurgery.sql" split-pattern=";\n"/&gt;</b>
- *          &lt;/property&gt;
- *      &lt;/bean&gt;
+ *      &lt;!-- A more complicated external SQL script --&gt;
+ *      <b>&lt;dellroad-stuff:sql resource="classpath:reset.sql" split-pattern=";\n"/&gt;</b>
  *
- *      &lt;!-- more beans... --&gt;
+ *      &lt;!-- other beans... --&gt;
  *
  *  &lt;/beans&gt;
  * </pre></blockquote>

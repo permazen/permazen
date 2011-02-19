@@ -26,8 +26,22 @@ class SQLBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     private static final String RESOURCE_ATTRIBUTE = "resource";
     private static final String CHARSET_ATTRIBUTE = "charset";
 
+    private boolean ignoreId;
+
+    public SQLBeanDefinitionParser() {
+    }
+
+    SQLBeanDefinitionParser(boolean ignoreId) {
+        this.ignoreId = ignoreId;
+    }
+
     @Override
-    protected Class<?> getBeanClass(Element element) {
+    protected boolean shouldGenerateId() {
+        return this.ignoreId ? true : super.shouldGenerateId();
+    }
+
+    @Override
+    protected Class<SQLDatabaseAction> getBeanClass(Element element) {
         return SQLDatabaseAction.class;
     }
 

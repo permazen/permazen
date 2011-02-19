@@ -12,7 +12,7 @@
         ]]></xsd:documentation>
     </xsd:annotation>
 
-    <xsd:element name="sql">
+    <xsd:element name="sql" type="sql-type">
         <xsd:annotation>
             <xsd:documentation source="java:org.dellroad.stuff.spring.SQLDatabaseActionFactoryBean">
                 <![CDATA[
@@ -20,43 +20,55 @@
                 ]]>
             </xsd:documentation>
         </xsd:annotation>
-        <xsd:complexType>
-            <xsd:simpleContent>
-                <xsd:extension base="xsd:string">
-                    <xsd:attribute name="id" type="xsd:ID">
-                        <xsd:annotation>
-                            <xsd:documentation><![CDATA[
+    </xsd:element>
+
+    <xsd:element name="sql-update" type="sql-type">
+        <xsd:annotation>
+            <xsd:documentation source="java:org.dellroad.stuff.spring.SpringDelegatingSchemaUpdateFactoryBean">
+                <![CDATA[
+    Creates a SpringDelegatingSchemaUpdate bean that delegates to an SQLDatabaseAction bean
+    using an inline SQL script or the specified resource.
+                ]]>
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="sql-type">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="id" type="xsd:ID">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[
     Unique bean name for this factory bean.
-                            ]]></xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
-                    <xsd:attribute name="split-pattern" type="xsd:string" use="optional">
-                        <xsd:annotation>
-                            <xsd:documentation><![CDATA[
+                        ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="split-pattern" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[
     Specifies the regular expression that splits the SQL script into individual SQL statements.
     The default value for this attribute is ";[ \t\r]*\n\s*".
-                            ]]></xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
-                    <xsd:attribute name="resource" type="xsd:string" use="optional">
-                        <xsd:annotation>
-                            <xsd:documentation><![CDATA[
+                        ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="resource" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[
     Specifies the SQL script by reference to a Spring resource.
     When this attribute is specified, nested content is not allowed (and vice-versa).
-                            ]]></xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
-                    <xsd:attribute name="charset" type="xsd:string" use="optional">
-                        <xsd:annotation>
-                            <xsd:documentation><![CDATA[
+                        ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="charset" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[
     When the SQL script is specified using the `resource' attribute, this specifies the character encoding.
     By default, UTF-8 is assumed.
-                            ]]></xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
-                </xsd:extension>
-            </xsd:simpleContent>
-        </xsd:complexType>
-    </xsd:element>
+                        ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
 
 </xsd:schema>
