@@ -36,6 +36,9 @@
         <mkdir dir="build/resources"/>
         <copy todir="build/resources">
             <fileset dir="src/properties" includes="${ant.project.name}.properties"/>
+            <fileset dir="src/java" includes="**/*.xml"/>
+            <fileset dir="src/java" includes="**/*.xsd"/>
+            <fileset dir="src/java" includes="**/*.sql"/>
             <filterset>
                 <filter token="VERSION" value="${full.version}"/>
             </filterset>
@@ -45,11 +48,6 @@
         <jar destfile="build/dist/${ant.project.name}-${full.version}.jar">
             <fileset dir="build/classes"/>
             <fileset dir="build/resources"/>
-            <fileset dir="src/java" includes="**/*.xml"/>
-            <fileset dir="src/java" includes="**/*.xsd"/>
-            <fileset dir="src/java">
-                <include name="org/dellroad/stuff/spring/schema-1.0.xsd"/>
-            </fileset>
             <metainf dir="src/java/org/dellroad/stuff/spring" includes="spring.*"/>
         </jar>
         <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">

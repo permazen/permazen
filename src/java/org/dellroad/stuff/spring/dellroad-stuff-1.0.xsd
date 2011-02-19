@@ -2,9 +2,14 @@
 
 <!-- $Id$ -->
 <xsd:schema xmlns="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"
-    elementFormDefault="qualified" attributeFormDefault="unqualified">
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  targetNamespace="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"
+      schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"/>
 
     <xsd:annotation>
         <xsd:documentation><![CDATA[
@@ -36,13 +41,8 @@
     <xsd:complexType name="sql-type">
         <xsd:simpleContent>
             <xsd:extension base="xsd:string">
-                <xsd:attribute name="id" type="xsd:ID">
-                    <xsd:annotation>
-                        <xsd:documentation><![CDATA[
-    Unique bean name for this factory bean.
-                        ]]></xsd:documentation>
-                    </xsd:annotation>
-                </xsd:attribute>
+                <xsd:attribute name="id" type="xsd:ID"/>
+                <xsd:attributeGroup ref="beans:beanAttributes"/>
                 <xsd:attribute name="split-pattern" type="xsd:string" use="optional">
                     <xsd:annotation>
                         <xsd:documentation><![CDATA[
