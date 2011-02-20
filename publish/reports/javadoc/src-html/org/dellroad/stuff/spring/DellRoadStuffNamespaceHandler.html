@@ -18,16 +18,22 @@
 <FONT color="green">015</FONT>     *<a name="line.15"></a>
 <FONT color="green">016</FONT>     * &lt;p&gt;<a name="line.16"></a>
 <FONT color="green">017</FONT>     * This adds support for the &lt;code&gt;&amp;lt;dellroad-stuff:sql/&amp;gt;&lt;/code&gt; XML tag, which defines a<a name="line.17"></a>
-<FONT color="green">018</FONT>     * {@link org.dellroad.stuff.schema.SQLDatabaseAction} bean.<a name="line.18"></a>
-<FONT color="green">019</FONT>     * &lt;/p&gt;<a name="line.19"></a>
+<FONT color="green">018</FONT>     * {@link org.dellroad.stuff.schema.SQLDatabaseAction} bean, and the &lt;code&gt;&amp;lt;dellroad-stuff:sql-update/&amp;gt;&lt;/code&gt; XML tag,<a name="line.18"></a>
+<FONT color="green">019</FONT>     * which wraps the same thing in a {@link org.dellroad.stuff.schema.SpringDelegatingSchemaUpdate} bean.<a name="line.19"></a>
 <FONT color="green">020</FONT>     */<a name="line.20"></a>
 <FONT color="green">021</FONT>    public class DellRoadStuffNamespaceHandler extends NamespaceHandlerSupport {<a name="line.21"></a>
 <FONT color="green">022</FONT>    <a name="line.22"></a>
-<FONT color="green">023</FONT>        public void init() {<a name="line.23"></a>
-<FONT color="green">024</FONT>            registerBeanDefinitionParser("sql", new SQLBeanDefinitionParser());<a name="line.24"></a>
-<FONT color="green">025</FONT>        }<a name="line.25"></a>
-<FONT color="green">026</FONT>    }<a name="line.26"></a>
+<FONT color="green">023</FONT>        public static final String NAMESPACE_URI = "http://dellroad-stuff.googlecode.com/schema/dellroad-stuff";<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>        public static final String SQL_ELEMENT_NAME = "sql";<a name="line.25"></a>
+<FONT color="green">026</FONT>        public static final String SQL_UPDATE_ELEMENT_NAME = "sql-update";<a name="line.26"></a>
 <FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>        public void init() {<a name="line.28"></a>
+<FONT color="green">029</FONT>            registerBeanDefinitionParser(SQL_ELEMENT_NAME, new SQLBeanDefinitionParser());<a name="line.29"></a>
+<FONT color="green">030</FONT>            registerBeanDefinitionParser(SQL_UPDATE_ELEMENT_NAME, new SQLUpdateBeanDefinitionParser());<a name="line.30"></a>
+<FONT color="green">031</FONT>        }<a name="line.31"></a>
+<FONT color="green">032</FONT>    }<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
 
 
 

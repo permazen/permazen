@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite hostname="ecx.dellroad.org" name="org.dellroad.stuff.jibx.ParseUtilTest" tests="60" failures="0" timestamp="18 Feb 2011 15:24:11 GMT" time="0.205" errors="0">
-  <testcase name="testParse" time="0.01" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testParse" time="0.004" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
+<testsuite hostname="ecx.dellroad.org" name="org.dellroad.stuff.jibx.ParseUtilTest" tests="60" failures="0" timestamp="20 Feb 2011 21:56:17 GMT" time="0.216" errors="0">
+  <testcase name="testParse" time="0.011" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
+  <testcase name="testParse" time="0.005" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
@@ -11,53 +11,53 @@
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
+  <testcase name="testParse" time="0.002" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.002" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
-  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
-  <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
-  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
-  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
-  <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
-  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
-  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.004" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.004" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.004" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testValidation" time="0.044" classname="org.dellroad.stuff.validation.SelfValidatingTest"/>
+  <testcase name="testValidation" time="0.05" classname="org.dellroad.stuff.validation.SelfValidatingTest"/>
 </testsuite>
