@@ -17,7 +17,7 @@
         ]]></xsd:documentation>
     </xsd:annotation>
 
-    <xsd:element name="sql" type="sql-type">
+    <xsd:element name="sql">
         <xsd:annotation>
             <xsd:documentation source="java:org.dellroad.stuff.spring.SQLDatabaseActionFactoryBean">
                 <![CDATA[
@@ -25,9 +25,16 @@
                 ]]>
             </xsd:documentation>
         </xsd:annotation>
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="sql-base-type">
+                    <xsd:attribute name="id" type="xsd:ID"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="sql-update" type="sql-type">
+    <xsd:element name="sql-update">
         <xsd:annotation>
             <xsd:documentation source="java:org.dellroad.stuff.spring.SpringDelegatingSchemaUpdateFactoryBean">
                 <![CDATA[
@@ -36,9 +43,16 @@
                 ]]>
             </xsd:documentation>
         </xsd:annotation>
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="sql-base-type">
+                    <xsd:attribute name="id" type="xsd:ID" usage="required"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
     </xsd:element>
 
-    <xsd:complexType name="sql-type">
+    <xsd:complexType name="sql-base-type">
         <xsd:simpleContent>
             <xsd:extension base="xsd:string">
                 <xsd:attribute name="id" type="xsd:ID"/>
