@@ -14,22 +14,11 @@ import org.jibx.runtime.JiBXParseException;
 
 /**
  * Utility class that makes it slightly easier to model {@link Map} properties in JiBX.
+ * This class can be used to represent entries in the map, each of which is modeled in XML as a separate XML element.
  *
  * <p>
- * For example, suppose you have a class {@code Company} and want to add a property named {@code directory} that has
- * type {@code Map<String, Person>}.
- *
- * <p>
- * Because JiBX modifies class files, you first need to create a subclass of this class that can be modified:
- *
- * <blockquote><pre>
- * public class DirectoryEntry extends MapEntry&lt;String, Person&gt; {
- * }
- * </pre></blockquote>
- *
- * <p>
- * Next you would define these methods in {@code Company.java}:
- *
+ * For example, suppose you have a class {@code Company} and want to add a {@code directory} property that has
+ * type {@code Map<String, Person>}:
  * <blockquote><pre>
  * // Getter and setter for the "directory" property
  * public Map&lt;String, Person&gt; getDirectory() {
@@ -38,28 +27,39 @@ import org.jibx.runtime.JiBXParseException;
  * public void setDirectory(Map&lt;String, Person&gt; directory) {
  *     this.directory = directory;
  * }
+ * </pre></blockquote>
  *
+ * <p>
+ * Because the JiBX binding process modifies class files, you first need to create your own subclass of {@link MapEntry}
+ * that can be modified:
+ * <blockquote><pre>
+ * public class DirectoryEntry extends MapEntry&lt;String, Person&gt; {
+ * }
+ * </pre></blockquote>
+ *
+ * <p>
+ * Next, you would add these JiBX helper methods in {@code Company.java}:
+ * <blockquote><pre>
  * // JiBX "add-method" that adds a new entry to the directory
- * void addDirectoryEntry(MapEntry&lt;String, Person&gt; direntry) throws JiBXParseException {
+ * void addDirectoryEntry(DirectoryEntry direntry) throws JiBXParseException {
  *     MapEntry.add(this.directory, direntry);
  * }
  *
  * // JiBX "iter-method" that iterates all entries in the directory
- * Iterator&lt;MapEntry&lt;String, Person&gt;&gt; iterateDirectory() {
- *     return MapEntry.iterate(this.directory);
+ * Iterator&lt;DirectoryEntry&gt; iterateDirectory() {
+ *     return MapEntry.iterate(this.directory, DirectoryEntry.class);
  * }
  * </pre></blockquote>
  *
  * <p>
  * Then in your JiBX binding definition, you would do something like this:
- *
  * <blockquote><pre>
  * &lt;binding package="com.example"&gt;
  *
- *     &lt;!-- Include XML mapping definition for a Person object with type-name "person" --&gt;
+ *     &lt;!-- Include XML mapping definition for a Person object (having type-name "person") --&gt;
  *     &lt;include path="person.xml"/&gt;
  *
- *     &lt;!-- Define XML mapping for one entry in the directory map --&gt;
+ *     &lt;!-- Define the XML mapping for one entry in the "directory" map --&gt;
  *     &lt;mapping abstract="true" type-name="directory_entry" class="com.example.DirectoryEntry"&gt;
  *         &lt;value name="name" get-method="getKey" set-method="setKey" type="java.lang.String" style="attribute"/&gt;
  *         &lt;structure name="Person" get-method="getValue" set-method="setValue" map-as="person"/&gt;
@@ -76,7 +76,7 @@ import org.jibx.runtime.JiBXParseException;
  * &lt;/binding&gt;
  * </pre></blockquote>
  *
- * Then the resulting XML would look something like this:
+ * Then the resulting XML would end up looking something like this:
  * <blockquote><pre>
  * &lt;Company&gt;
  *     &lt;Directory&gt;
@@ -124,12 +124,15 @@ public class MapEntry<K, V> {
      * Helper method intended to be used by a custom JiBX "iter-method".
      * This method returns an iterator that iterates over all entries in the given map.
      *
+     * @param <K> type of map keys
+     * @param <V> type of map values
      * @param map map to iterate
+     * @param entryClass the subclass of {@link MapEntry} used for iterated elements; must have a default constructor
      * @return map entry iterator
      */
-    public static <K, V> Iterator<MapEntry<K, V>> iterate(Map<K, V> map) {
+    public static <K, V, E extends MapEntry<K, V>> Iterator<E> iterate(Map<K, V> map, final Class<E> entryClass) {
         final Iterator<Map.Entry<K, V>> entryIterator = map.entrySet().iterator();
-        return new Iterator<MapEntry<K, V>>() {
+        return new Iterator<E>() {
 
             @Override
             public boolean hasNext() {
@@ -137,9 +140,14 @@ public class MapEntry<K, V> {
             }
 
             @Override
-            public MapEntry<K, V> next() {
+            public E next() {
                 Map.Entry<K, V> entry = entryIterator.next();
-                MapEntry<K, V> mapEntry = new MapEntry<K, V>();
+                E mapEntry;
+                try {
+                    mapEntry = entryClass.newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException("unexpected exception", e);
+                }
                 mapEntry.setKey(entry.getKey());
                 mapEntry.setValue(entry.getValue());
                 return mapEntry;
