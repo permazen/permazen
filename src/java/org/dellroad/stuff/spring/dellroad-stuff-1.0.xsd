@@ -28,7 +28,7 @@
         <xsd:complexType>
             <xsd:simpleContent>
                 <xsd:extension base="sql-base-type">
-                    <xsd:attribute name="id" type="xsd:ID"/>
+                    <xsd:attribute name="id" type="xsd:ID" use="optional"/>
                 </xsd:extension>
             </xsd:simpleContent>
         </xsd:complexType>
@@ -46,7 +46,7 @@
         <xsd:complexType>
             <xsd:simpleContent>
                 <xsd:extension base="sql-base-type">
-                    <xsd:attribute name="id" type="xsd:ID" usage="required"/>
+                    <xsd:attribute name="id" type="xsd:ID" use="required"/>
                 </xsd:extension>
             </xsd:simpleContent>
         </xsd:complexType>
@@ -55,7 +55,6 @@
     <xsd:complexType name="sql-base-type">
         <xsd:simpleContent>
             <xsd:extension base="xsd:string">
-                <xsd:attribute name="id" type="xsd:ID"/>
                 <xsd:attributeGroup ref="beans:beanAttributes"/>
                 <xsd:attribute name="split-pattern" type="xsd:string" use="optional">
                     <xsd:annotation>
