@@ -26,16 +26,56 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * {@link SchemaUpdater} optimized for use with Spring.
  * <ul>
- * <li>{@link #applyAction(DataSource, DatabaseAction)} is overridden to use Spring's {@link JdbcTemplate}
+ * <li>{@link #databaseNeedsInitialization databaseNeedsInitialization()} and
+ *  {@link #applyAction(DataSource, DatabaseAction) applyAction()} are overridden to use Spring's {@link JdbcTemplate}
  *  so Spring {@link org.springframework.dao.DataAccessException}s are thrown.</li>
  * <li>{@link #databaseNeedsInitialization databaseNeedsInitialization()} is overridden to catch exceptions
- *  more precisely to filter out false positives.</li>
+ *  and more precisely to filter out false positives.</li>
  * <li>{@link #getOrderingTieBreaker} is overridden to break ties by ordering updates in the same order
  *  as they are defined in the bean factory.</li>
  * <li>This class implements {@link InitializingBean} and verifies all required properties are set.</li>
  * <li>If no updates are {@link #setUpdates explicitly configured}, then all {@link SchemaUpdate}s found
  *  in the containing bean factory are automatically configured.
  * </ul>
+ *
+ * <p>
+ * An example of how this class can be combined with custom XML to define an updater, all its updates,
+ * and a {@link SchemaUpdatingDataSource} that automatically updates the database schema:
+ * <blockquote><pre>
+ *  &lt;beans xmlns="http://www.springframework.org/schema/beans"
+ *    <b>xmlns:dellroad-stuff="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"</b>
+ *    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ *    xmlns:p="http://www.springframework.org/schema/p"
+ *    xsi:schemaLocation="
+ *      http://www.springframework.org/schema/beans
+ *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+ *      <b>http://dellroad-stuff.googlecode.com/schema/dellroad-stuff
+ *        http://dellroad-stuff.googlecode.com/svn/wiki/schemas/dellroad-stuff-1.0.xsd</b>"&gt;
+ *
+ *     &lt;!-- DataSource that automatically updates the database schema --&gt;
+ *     <b>&lt;bean id="dataSource" class="org.dellroad.stuff.schema.SchemaUpdatingDataSource"
+ *       p:schemaUpdater-ref="schemaUpdater"/&gt;</b>
+ *
+ *     &lt;!-- Database updater; note use of dellroad-stuff's update table initialization for MySQL --&gt;
+ *     <b>&lt;bean id="schemaUpdater" class="org.dellroad.stuff.schema.SpringSchemaUpdater"&gt;
+ *         &lt;property name="databaseInitialization"&gt;
+ *             &lt;dellroad-stuff:sql resource="classpath:databaseInit.sql"/&gt;
+ *         &lt;/property&gt;
+ *         &lt;property name="updateTableInitialization"&gt;
+ *             &lt;dellroad-stuff:sql resource="classpath:org/dellroad/stuff/schema/updateTable-mysql.sql"/&gt;
+ *         &lt;/property&gt;
+ *     &lt;/bean&gt;</b>
+ *
+ *      &lt;!-- Schema update to add the 'phone' column to the 'User' table --&gt;
+ *      <b>&lt;dellroad-stuff:sql-update id="addPhone"&gt;ALTER TABLE User ADD phone VARCHAR(64)&lt;/dellroad-stuff:sql-update&gt;</b>
+ *
+ *      &lt;!-- Schema update to run some complicated external SQL script --&gt;
+ *      <b>&lt;dellroad-stuff:sql-update id="majorChanges" depends-on="addPhone" resource="classpath:majorChanges.sql"/&gt;</b>
+ *
+ *      &lt;!-- add more schema updates over time as needed... --&gt;
+ *
+ *  &lt;/beans&gt;
+ * </pre></blockquote>
  *
  * <p>
  * It is required that this updater and all of its schema updates are defined in the same {@link ListableBeanFactory}.
@@ -69,9 +109,11 @@ public class SpringSchemaUpdater extends SchemaUpdater implements BeanFactoryAwa
      * <p>
      * The implementation in {@link SpringSchemaUpdater} invokes <code>SELECT COUNT(*) FROM <i>UPDATETABLE</i></code>
      * and checks for a {@link BadSqlGrammarException}.
+     *
+     * @throws org.springframework.dao.DataAccessException if there is any other problem
      */
     @Override
-    public boolean databaseNeedsInitialization(DataSource dataSource) throws SQLException {
+    public boolean databaseNeedsInitialization(DataSource dataSource) {
         try {
             long numUpdates = new JdbcTemplate(dataSource).queryForLong("SELECT COUNT(*) FROM " + this.getUpdateTableName());
             this.log.info("detected already initialized database, with " + numUpdates + " update(s) already applied");
@@ -88,9 +130,11 @@ public class SpringSchemaUpdater extends SchemaUpdater implements BeanFactoryAwa
      * <p>
      * The implementation in {@link SpringSchemaUpdater} uses {@link JdbcTemplate} to apply the modification so that
      * Spring {@link org.springframework.dao.DataAccessException}s are thrown in case of errors.
+     *
+     * @throws org.springframework.dao.DataAccessException if there is any problem
      */
     @Override
-    protected void applyAction(DataSource dataSource, final DatabaseAction action) throws SQLException {
+    protected void applyAction(DataSource dataSource, final DatabaseAction action) {
         new JdbcTemplate(dataSource).execute(new ConnectionCallback<Void>() {
             @Override
             public Void doInConnection(Connection c) throws SQLException {
