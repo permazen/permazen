@@ -20,9 +20,14 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  */
 public class DellRoadStuffNamespaceHandler extends NamespaceHandlerSupport {
 
+    public static final String NAMESPACE_URI = "http://dellroad-stuff.googlecode.com/schema/dellroad-stuff";
+
+    public static final String SQL_ELEMENT_NAME = "sql";
+    public static final String SQL_UPDATE_ELEMENT_NAME = "sql-update";
+
     public void init() {
-        registerBeanDefinitionParser("sql", new SQLBeanDefinitionParser());
-        registerBeanDefinitionParser("sql-update", new SQLUpdateBeanDefinitionParser());
+        registerBeanDefinitionParser(SQL_ELEMENT_NAME, new SQLBeanDefinitionParser());
+        registerBeanDefinitionParser(SQL_UPDATE_ELEMENT_NAME, new SQLUpdateBeanDefinitionParser());
     }
 }
 

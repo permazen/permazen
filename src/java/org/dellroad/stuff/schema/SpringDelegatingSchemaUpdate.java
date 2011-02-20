@@ -38,8 +38,7 @@ import java.sql.SQLException;
  *      <b>&lt;dellroad-stuff:sql-update id="addPhone"&gt;ALTER TABLE User ADD phone VARCHAR(64)&lt;/dellroad-stuff:sql-update&gt;</b>
  *
  *      &lt;!-- Schema update to run some complicated external SQL script --&gt;
- *      <b>&lt;dellroad-stuff:sql-update id="majorChanges" depends-on="addPhoneColumnUpdate"
- *          resource="classpath:majorChanges.sql"/&gt;</b>
+ *      <b>&lt;dellroad-stuff:sql-update id="majorChanges" depends-on="addPhone" resource="classpath:majorChanges.sql"/&gt;</b>
  *
  *      &lt;!-- more beans... --&gt;
  *

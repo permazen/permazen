@@ -27,11 +27,13 @@ class SQLBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     private static final String CHARSET_ATTRIBUTE = "charset";
 
     private boolean ignoreId;
+    private String name = DellRoadStuffNamespaceHandler.SQL_ELEMENT_NAME;
 
     public SQLBeanDefinitionParser() {
     }
 
-    SQLBeanDefinitionParser(boolean ignoreId) {
+    SQLBeanDefinitionParser(String name, boolean ignoreId) {
+        this.name = name;
         this.ignoreId = ignoreId;
     }
 
@@ -95,8 +97,8 @@ class SQLBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     }
 
     private void bogus() {
-        throw new BeanDefinitionValidationException("<dellroad-stuff:sql> beans must have either a \"resource\" attribute"
-          + " or nested SQL content (but not both)");
+        throw new BeanDefinitionValidationException("<dellroad-stuff:" + this.name + "> beans must have either"
+          + " a \"resource\" attribute or nested SQL content (but not both)");
     }
 }
 
