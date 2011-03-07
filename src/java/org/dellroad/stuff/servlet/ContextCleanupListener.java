@@ -22,6 +22,7 @@ import org.springframework.web.util.IntrospectorCleanupListener;
  *
  * @see <a href="http://opensource.atlassian.com/confluence/spring/pages/viewpage.action?pageId=2669">Spring Wiki Discussion of
  *      ClassLoader Memory Leaks</a>
+ * @since 1.0.49
  */
 public class ContextCleanupListener extends IntrospectorCleanupListener {
 

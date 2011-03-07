@@ -17,21 +17,23 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * {@link ApplicationServlet} that autowires and configures the {@link Application}
- * objects it creates using the associated Spring {@link WebApplicationContext}.
- * This allows a Vaadin application to be configured normally as a Spring bean.
- *
- * <p>
- * For example, annotations such as
+ * {@link ApplicationServlet} that acquires {@link Application} instances from an
+ * associated Spring {@link WebApplicationContext}.
+ * This allows a Vaadin application to be configured as a normal bean inside
+ * a Spring application context, where annotations such as
  * <code>{@link org.springframework.beans.factory.annotation.Autowired @Autowired}</code>,
  * <code>{@link org.springframework.beans.factory.annotation.Required @Required}</code>, etc.
  * and interfaces such as {@link org.springframework.beans.factory.BeanFactoryAware BeanFactoryAware},
- * etc. will work on your {@link Application} instances.
+ * etc. will work.
+ * </p>
+ *
+ * <p>
+ * Important: The application bean must be declared in the associated {@link WebApplicationContext}
+ * with <code>scope="session"</code>, and it must be the only instance of the configured application class.
  * </p>
  *
  * <p>
@@ -43,10 +45,15 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *      &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
  *  &lt;/listener&gt;
  *
+ *  &lt;!-- Spring web request listener: makes the current web request available in a private ThreadLocal --&gt;
+ *  &lt;listener&gt;
+ *      &lt;listener-class&gt;org.springframework.web.context.request.RequestContextListener&lt;/listener-class&gt;
+ *  &lt;/listener&gt;
+ *
  *  &lt;!-- Vaadin servlet --&gt;
  *  &lt;servlet&gt;
  *      &lt;servlet-name&gt;myapp&lt;/servlet-name&gt;
- *      &lt;servlet-class&gt;org.dellroad.stuff.vaadin.AutowiringApplicationServlet&lt;/servlet-class&gt;
+ *      &lt;servlet-class&gt;org.dellroad.stuff.vaadin.WebContextApplicationServlet&lt;/servlet-class&gt;
  *      &lt;init-param&gt;
  *          &lt;param-name&gt;application&lt;/param-name&gt;
  *          &lt;param-value&gt;some.spring.configured.Application&lt;/param-value&gt;
@@ -61,6 +68,16 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
  *  &lt;/servlet-mapping&gt;
  * </pre></blockquote>
+ * with this application context:
+ * <blockquote><pre>
+ *  &lt;!-- Activate Spring annotation support --&gt;
+ *  &lt;context:annotation-config/&gt;
+ *
+ *  &lt;!-- Define Vaadin application bean --&gt;
+ *  &lt;bean class="some.spring.configured.Application" scope="session"/&gt;
+ *
+ *  &lt;!-- Define other beans... --&gt;
+ * </pre></blockquote>
  * </p>
  *
  * <p>
@@ -72,7 +89,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *
  *  &lt;!-- Define controller bean for Vaadin application --&gt;
  *  &lt;bean id="applicationController" class="org.springframework.web.servlet.mvc.ServletWrappingController"
- *     p:servletClass="org.dellroad.stuff.vaadin.AutowiringApplicationServlet"&gt;
+ *     p:servletClass="org.dellroad.stuff.vaadin.WebContextApplicationServlet"&gt;
  *      &lt;property name="initParameters"&gt;
  *          &lt;props&gt;
  *              &lt;prop key="application"&gt;some.spring.configured.Application&lt;/prop&gt;
@@ -80,17 +97,21 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *          &lt;/props&gt;
  *      &lt;/property&gt;
  *  &lt;/bean&gt;
+ *
+ *  &lt;!-- Define Vaadin application bean --&gt;
+ *  &lt;bean class="some.spring.configured.Application" scope="session"/&gt;
+ *
+ *  &lt;!-- Define other beans... --&gt;
  * </pre></blockquote>
  *
  * @see org.springframework.web.servlet.mvc.ContextLoaderListener
  * @see org.springframework.web.servlet.DispatcherServlet
  * @see org.springframework.web.servlet.mvc.ServletWrappingController
- * @see AutowireCapableBeanFactory
- * @deprecated {@link WebContextApplicationServlet} provides a cleaner and simpler way to do the same thing
+ * @see WebApplicationContext
+ * @since 1.0.50
  */
-@Deprecated
 @SuppressWarnings("serial")
-public class AutowiringApplicationServlet extends ApplicationServlet {
+public class WebContextApplicationServlet extends ApplicationServlet {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -125,46 +146,31 @@ public class AutowiringApplicationServlet extends ApplicationServlet {
     }
 
     /**
-     * Get the {@link AutowireCapableBeanFactory} associated with the containing Spring {@link WebApplicationContext}.
-     * This only works after the servlet has been initialized (via {@link #init init()}).
-     *
-     * @throws ServletException if the operation fails
-     */
-    protected final AutowireCapableBeanFactory getAutowireCapableBeanFactory() throws ServletException {
-        try {
-            return getWebApplicationContext().getAutowireCapableBeanFactory();
-        } catch (IllegalStateException e) {
-            throw new ServletException("containing context " + getWebApplicationContext() + " is not autowire-capable", e);
-        }
-    }
-
-    /**
      * Create and configure a new instance of the configured application class.
      *
      * <p>
-     * The implementation in {@link AutowiringApplicationServlet} delegates to
-     * {@link #getAutowireCapableBeanFactory getAutowireCapableBeanFactory()}, then invokes
-     * {@link AutowireCapableBeanFactory#createBean AutowireCapableBeanFactory.createBean()}
-     * using the configured {@link Application} class.
+     * The implementation in {@link WebContextApplicationServlet} invokes
+     * {@link org.springframework.beans.factory.BeanFactory#getBean(Class) BeanFactory.getBean()}
+     * on the associated {@link WebApplicationContext} class to acquire an instance of the class
+     * configured via the {@code application} servlet parameter.
      * </p>
      *
      * @param request the triggering {@link HttpServletRequest}
-     * @throws ServletException if creation or autowiring fails
+     * @throws ServletException if bean creation fails
      */
     @Override
     protected Application getNewApplication(HttpServletRequest request) throws ServletException {
-        Class<? extends Application> cl;
+        Class<? extends Application> applicationClass;
         try {
-            cl = getApplicationClass();
+            applicationClass = this.getApplicationClass();
         } catch (ClassNotFoundException e) {
             throw new ServletException("failed to create new instance of application class", e);
         }
-        log.debug("creating new instance of " + cl);
-        AutowireCapableBeanFactory beanFactory = getAutowireCapableBeanFactory();
+        log.debug("acquiring new instance of " + applicationClass + " from " + this.webApplicationContext);
         try {
-            return beanFactory.createBean(cl);
+            return this.getWebApplicationContext().getBean(applicationClass);
         } catch (BeansException e) {
-            throw new ServletException("failed to create new instance of " + cl, e);
+            throw new ServletException("failed to acquire new instance of " + applicationClass, e);
         }
     }
 }
