@@ -183,7 +183,9 @@ public final class ParseUtil {
      * To deserialize an enum of type {@code Foo}, use the static method {@code Foo.valueOf()}.
      *
      * @see <a href="http://jira.codehaus.org/browse/JIBX-408">JIBX-408</a>
+     * @deprecated <a href="http://jira.codehaus.org/browse/JIBX-408">JIBX-408</a> has been fixed in JiBX version 1.2.3
      */
+    @Deprecated
     public static <T extends Enum<T>> String serializeEnum(T value) {
         return value.name();
     }
