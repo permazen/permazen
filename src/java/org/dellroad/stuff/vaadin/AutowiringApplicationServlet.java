@@ -46,7 +46,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *  &lt;!-- Vaadin servlet --&gt;
  *  &lt;servlet&gt;
  *      &lt;servlet-name&gt;myapp&lt;/servlet-name&gt;
- *      &lt;servlet-class&gt;com.example.AutowiringApplicationServlet&lt;/servlet-class&gt;
+ *      &lt;servlet-class&gt;org.dellroad.stuff.vaadin.AutowiringApplicationServlet&lt;/servlet-class&gt;
  *      &lt;init-param&gt;
  *          &lt;param-name&gt;application&lt;/param-name&gt;
  *          &lt;param-value&gt;some.spring.configured.Application&lt;/param-value&gt;
@@ -72,7 +72,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *
  *  &lt;!-- Define controller bean for Vaadin application --&gt;
  *  &lt;bean id="applicationController" class="org.springframework.web.servlet.mvc.ServletWrappingController"
- *     p:servletClass="com.example.AutowiringApplicationServlet"&gt;
+ *     p:servletClass="org.dellroad.stuff.vaadin.AutowiringApplicationServlet"&gt;
  *      &lt;property name="initParameters"&gt;
  *          &lt;props&gt;
  *              &lt;prop key="application"&gt;some.spring.configured.Application&lt;/prop&gt;
