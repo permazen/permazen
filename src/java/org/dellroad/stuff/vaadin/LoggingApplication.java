@@ -30,6 +30,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 /**
  * {@link Application} subclass that provides subclasses with a {@link Logger}
  * and logs and displays any exceptions thrown in an overlay error window.
+ *
+ * @since 1.0.51
  */
 @SuppressWarnings("serial")
 public abstract class LoggingApplication extends Application {
