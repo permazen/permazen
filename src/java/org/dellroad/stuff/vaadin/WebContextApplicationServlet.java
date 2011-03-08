@@ -33,7 +33,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *
  * <p>
  * Important: The application bean must be declared in the associated {@link WebApplicationContext}
- * with <code>scope="session"</code>, and it must be the only instance of the configured application class.
+ * with <code>scope="prototype"</code> (or <code>scope="session"</code> if you prefer), and it must be
+ * the only instance of the configured application class.
  * </p>
  *
  * <p>
@@ -74,7 +75,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *  &lt;context:annotation-config/&gt;
  *
  *  &lt;!-- Define Vaadin application bean --&gt;
- *  &lt;bean class="some.spring.configured.Application" scope="session"/&gt;
+ *  &lt;bean class="some.spring.configured.Application" scope="prototype"/&gt;
  *
  *  &lt;!-- Define other beans... --&gt;
  * </pre></blockquote>
@@ -99,7 +100,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *  &lt;/bean&gt;
  *
  *  &lt;!-- Define Vaadin application bean --&gt;
- *  &lt;bean class="some.spring.configured.Application" scope="session"/&gt;
+ *  &lt;bean class="some.spring.configured.Application" scope="prototype"/&gt;
  *
  *  &lt;!-- Define other beans... --&gt;
  * </pre></blockquote>
