@@ -11,7 +11,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * Implements the validation logic for the @{@link SelfValidates} annotation.
+ * Implements the validation logic for the {@link SelfValidates @SelfValidates} annotation.
  *
  * @see SelfValidates
  */
