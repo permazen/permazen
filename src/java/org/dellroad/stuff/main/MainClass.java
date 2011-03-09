@@ -50,8 +50,14 @@ public abstract class MainClass {
         Readline.setThrowExceptionOnUnsupportedMethod(false);
 
         // Read init file(s)
-        String[] files = new String[] { System.getenv("INPUTRC"),
-          new File(new File(System.getProperty("user.home")), ".inputrc").getAbsolutePath(), "/etc/.inputrc" };
+        ArrayList<String> files = new ArrayList<String>(3);
+        String var = System.getenv("INPUTRC");
+        if (var != null)
+            files.add(var);
+        String home = System.getProperty("user.home");
+        if (home != null)
+            files.add(new File(new File(home), ".inputrc").getAbsolutePath());
+        files.add("/etc/.inputrc");
         for (String file : files) {
             try {
                 Readline.readInitFile(file);
