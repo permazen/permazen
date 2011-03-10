@@ -1,0 +1,36 @@
+
+Version 1.0.60 Released March 10, 2011
+
+    - Fix bug that caused libreadline-java native code to crash
+    - Added Vaadin LoggingApplication support superclass
+    - Added WebContextApplicationServlet as a replacement for
+      AutowiringApplicationServlet, which is now deprecated
+    - Update and fix extractSchemaUpdates.xsl
+    - Added ContextCleanupListener
+    - Javadoc fixes and improvements
+
+Version 1.0.43 Released Februrary 20, 2011
+
+    - Added AsyncInputStream
+    - Added extractSchemaUpdates.xsl to extract SQL for "schemacheck"
+    - Add suport for the <dellroad-stuff:sql-update> XML tag
+    - Fix bugs in the custom Spring tag XSD schema
+    - Fix bugs in MapEntry that made it not work for marshalling
+    - Javadoc fixes and improvements
+
+Version 1.0.33 Released Februrary 18, 2011
+
+    - Improvements and bug fixes to schema updates
+    - Add Spring XML custom tags for schema updates
+    - Make MainClass.run() public
+    - Added MainClass.parsePropertyFlags()
+    - Added ResourceReaderFactoryBean
+    - Improvements to MapEntry
+    - Added JiBXUtil
+    - Javadoc fixes and improvements
+
+Version 1.0.3 Released February 5, 2011
+
+    - Initial release
+
+$Id$
