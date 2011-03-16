@@ -20,6 +20,8 @@ import org.jibx.runtime.JiBXParseException;
  * For example, suppose you have a class {@code Company} and want to add a {@code directory} property that has
  * type {@code Map<String, Person>}:
  * <blockquote><pre>
+ * private Map&lt;String, Person&gt; = new HashMap&lt;String, Person&gt;();
+ *
  * // Getter and setter for the "directory" property
  * public Map&lt;String, Person&gt; getDirectory() {
  *     return this.directory;
@@ -94,6 +96,9 @@ import org.jibx.runtime.JiBXParseException;
  *     &lt;!-- other properties... --&gt;
  * &lt;/Company&gt;
  * </pre></blockquote>
+ * <p>
+ * Note that during unmarshalling, the <code>Map</code> itself is not created; it is expected to already exist
+ * and be empty. This will be the case if you provide a field initializer as in the example above.
  */
 public class MapEntry<K, V> {
 
