@@ -26,5 +26,13 @@ public class SelfValidationException extends Exception {
     public SelfValidationException(String message) {
         super(message);
     }
+
+    public SelfValidationException(Throwable cause) {
+        super(cause);
+    }
+
+    public SelfValidationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
 
