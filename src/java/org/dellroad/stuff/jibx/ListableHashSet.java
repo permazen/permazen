@@ -22,6 +22,7 @@ import org.jibx.runtime.JiBXException;
  *
  * @since 1.0.64
  */
+@SuppressWarnings("serial")
 public class ListableHashSet<E> extends LinkedHashSet<E> {
 
     public ListableHashSet() {

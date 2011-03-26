@@ -1,4 +1,8 @@
 
+Version Next
+
+    - Added PrimitiveSwitchAdapter, ListableHashSet, NamedArgumentFormatter
+
 Version 1.0.60 Released March 10, 2011
 
     - Fix bug that caused libreadline-java native code to crash
