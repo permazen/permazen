@@ -304,6 +304,11 @@ public class AsyncOutputStream extends FilterOutputStream {
 
                 // Auto-restart if thread exits unexpectedly
                 if (this.exception == null && isWorkOutstanding()) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
                     this.log.warn(this.name + " auto-restart background thread");
                     wakeupAsyncThread();
                 }
