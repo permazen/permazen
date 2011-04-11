@@ -42,6 +42,9 @@ public class AsyncOutputStream extends FilterOutputStream {
     // Async thread linger time, to avoid rapid stop/start cycles
     private static final long THREAD_LINGER_TIME = 10000;               // 10 sec.
 
+    // Restart delay time
+    private static final long RESTART_DELAY_TIME = 1000;                // 1 sec.
+
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private final String name;
@@ -305,7 +308,7 @@ public class AsyncOutputStream extends FilterOutputStream {
                 // Auto-restart if thread exits unexpectedly
                 if (this.exception == null && isWorkOutstanding()) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(RESTART_DELAY_TIME);
                     } catch (InterruptedException e) {
                         // ignore
                     }
