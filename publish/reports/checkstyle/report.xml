@@ -23,6 +23,8 @@
 </file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/PrimitiveSwitch.java">
 </file>
+<file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/PrimitiveSwitchAdapter.java">
+</file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/TimedWait.java">
 </file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/package-info.java">
@@ -30,8 +32,10 @@
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/JiBXUtil.java">
 <error line="97" column="30" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
+<file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/ListableHashSet.java">
+</file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/MapEntry.java">
-<error line="135" column="16" severity="info" message="Anonymous inner class length is 26 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+<error line="140" column="16" severity="info" message="Anonymous inner class length is 26 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/ParseUtil.java">
 <error line="125" column="18" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -166,6 +170,8 @@
 <error line="59" column="62" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="92" column="46" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="96" column="54" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
+<file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/NamedArgumentFormatter.java">
 </file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/SimpleObjectParser.java">
 </file>
