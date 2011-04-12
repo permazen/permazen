@@ -1,7 +1,10 @@
 
 Version Next
 
+Version 1.0.68 Released April 11, 2011
+
     - Added PrimitiveSwitchAdapter, ListableHashSet, NamedArgumentFormatter
+    - Avoid spin loop in AsyncOutputStream from unexpected exceptions
 
 Version 1.0.60 Released March 10, 2011
 
