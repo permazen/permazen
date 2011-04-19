@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Presents an {@link InputStream} interface given a callback that can write to an {@link OutputStream}.
  * A separate thread is created to perform the actual writing.
+ *
+ * @since 1.0.74
  */
 public class NullModemInputStream extends PipedInputStream {
 
