@@ -18,13 +18,14 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncInputStream {
 
+    private static final int BUFFER_SIZE = 4096;
+
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private final InputStream input;
     private final String name;
     private final Listener listener;
 
-    private final Thread thread;                // async reader thread
     private boolean closed;                     // this instance has been close()'d
 
     /**
@@ -45,14 +46,13 @@ public class AsyncInputStream {
         this.input = input;
         this.name = name;
         this.listener = listener;
-        this.thread = new Thread(this.name) {
+        new Thread(this.name) {
 
             @Override
             public void run() {
                 AsyncInputStream.this.threadMain();
             }
-        };
-        this.thread.start();
+        }.start();
     }
 
     /**
@@ -75,11 +75,15 @@ public class AsyncInputStream {
     private void threadMain() {
         try {
             this.runLoop();
-        } catch (IOException e) {
+        } catch (Throwable t) {
+            synchronized (this) {
+                if (this.closed)
+                    return;
+            }
             try {
-                this.listener.handleException(e);
-            } catch (Exception e2) {
-                this.log.error(this.name + ": caught unexpected exception", e2);
+                this.listener.handleException(t);
+            } catch (Exception e) {
+                this.log.error(this.name + ": caught unexpected exception", e);
             }
         }
     }
@@ -88,22 +92,14 @@ public class AsyncInputStream {
      * Async reader thread main loop.
      */
     private void runLoop() throws IOException {
-        byte[] buf = new byte[4096];
+        byte[] buf = new byte[BUFFER_SIZE];
         while (true) {
             int r = this.input.read(buf);
             if (r == -1) {
-                try {
-                    this.listener.handleEOF();
-                } catch (Exception e) {
-                    this.log.error(this.name + ": caught unexpected exception", e);
-                }
+                this.listener.handleEOF();
                 break;
             }
-            try {
-                this.listener.handleInput(buf, 0, r);
-            } catch (Exception e) {
-                this.log.error(this.name + ": caught unexpected exception", e);
-            }
+            this.listener.handleInput(buf, 0, r);
         }
     }
 
@@ -123,12 +119,12 @@ public class AsyncInputStream {
         void handleInput(byte[] buf, int off, int len);
 
         /**
-         * Handle an {@link IOException} detected on the underlying input.
+         * Handle an exception detected on the underlying input.
          * No further events will be delivered.
          *
-         * @param e the exception received
+         * @param e the exception received (usually {@link IOException} but could also be any other {@link RuntimeException})
          */
-        void handleException(IOException e);
+        void handleException(Throwable e);
 
         /**
          * Handle end-of-file detected on the underlying input.
