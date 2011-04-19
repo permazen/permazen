@@ -1,5 +1,5 @@
 
-Version Next
+Version 1.0.74 Released April 19, 2011
 
     - AsyncInputStream now reports ALL exceptions to handleException()
     - Simplified and fixed bugs in AsyncOutputStream
