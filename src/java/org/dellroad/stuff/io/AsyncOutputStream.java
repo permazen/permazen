@@ -62,10 +62,21 @@ public class AsyncOutputStream extends FilterOutputStream {
             throw new IllegalArgumentException("null output");
         this.name = name;
         this.buf = new byte[bufsize];
+
+        // Start worker thread
+        this.thread = new Thread(this.name) {
+            @Override
+            public void run() {
+                AsyncOutputStream.this.threadMain();
+            }
+        };
+        this.thread.setDaemon(true);
+        this.thread.start();
     }
 
     /**
      * Write data.
+     *
      * <p>
      * This method will never block. To effect a normal blocking write, use {@link #waitForSpace} first.
      * </p>
@@ -77,11 +88,12 @@ public class AsyncOutputStream extends FilterOutputStream {
      */
     @Override
     public void write(int b) throws IOException {
-        this.write(new byte[]{(byte)b}, 0, 1);
+        this.write(new byte[] { (byte)b }, 0, 1);
     }
 
     /**
      * Write data.
+     *
      * <p>
      * This method will never block. To effect a normal blocking write, invoke {@link #waitForSpace} first.
      * </p>
@@ -110,14 +122,13 @@ public class AsyncOutputStream extends FilterOutputStream {
         System.arraycopy(data, off, this.buf, this.count, len);
         this.count += len;
 
-        // Create/wakeup async thread
-        this.wakeupAsyncThread();
+        // Wakeup writer thread
+        this.notifyAll();
     }
 
     /**
      * Flush output. This method will cause the underlying stream to be flushed once all of the data written to this
      * instance at the time this method is invoked has been written to it.
-     * <p/>
      *
      * <p>
      * If additional data is written and then a second flush is requested before the first flush has actually occurred,
@@ -135,25 +146,18 @@ public class AsyncOutputStream extends FilterOutputStream {
      */
     @Override
     public synchronized void flush() throws IOException {
-
-        // Check exception conditions
         this.checkExceptions();
-
-        // Indicate flush request
         this.flushMark = this.count;
-
-        // Create/wakeup async thread
-        this.wakeupAsyncThread();
+        this.notifyAll();                               // wake up writer thread
     }
 
     /**
-     * Close this instance. This method invokes {@link #flush} and then closes this instance
-     * as well as the underlying output stream.
-     * <p/>
+     * Close this instance. This will (eventually) close the underlying output stream.
+     *
      * <p>
      * If this instance has already been closed, nothing happens.
      * </p>
-     * <p/>
+     *
      * <p>
      * This method will never block. To block until the underlying close operation completes, invoke {@link #waitForIdle}.
      * </p>
@@ -164,8 +168,8 @@ public class AsyncOutputStream extends FilterOutputStream {
     public synchronized void close() throws IOException {
         if (this.closed)
             return;
-        this.flush();
         this.closed = true;
+        this.notifyAll();                               // wake up writer thread
     }
 
     /**
@@ -190,9 +194,12 @@ public class AsyncOutputStream extends FilterOutputStream {
      * Get the number of free bytes remaining in the output buffer.
      *
      * @return current number of available bytes in the output buffer
+     * @throws IOException              if this instance is or has been closed
+     * @throws IOException              if an exception has been detected on the underlying stream
      * @see #waitForSpace
      */
-    public synchronized int availableBufferSpace() {
+    public synchronized int availableBufferSpace() throws IOException {
+        this.checkExceptions();
         return this.buf.length - this.count;
     }
 
@@ -200,10 +207,13 @@ public class AsyncOutputStream extends FilterOutputStream {
      * Determine if there is outstanding work still to be performed (writes, flushes, and/or close operations)
      * by the background thread.
      *
+     * @throws IOException              if this instance is or has been closed
+     * @throws IOException              if an exception has been detected on the underlying stream
      * @see #waitForIdle
      */
-    public synchronized boolean isWorkOutstanding() {
-        return this.count > 0 || this.flushMark != -1;
+    public synchronized boolean isWorkOutstanding() throws IOException {
+        this.checkExceptions();
+        return this.threadHasWork();
     }
 
     /**
@@ -225,7 +235,7 @@ public class AsyncOutputStream extends FilterOutputStream {
         return this.waitForPredicate(timeout, new Predicate() {
             @Override
             public boolean test() {
-                return AsyncOutputStream.this.availableBufferSpace() >= numBytes;
+                return AsyncOutputStream.this.buf.length - AsyncOutputStream.this.count >= numBytes;
             }
         });
     }
@@ -245,34 +255,9 @@ public class AsyncOutputStream extends FilterOutputStream {
         return this.waitForPredicate(timeout, new Predicate() {
             @Override
             public boolean test() {
-                return !AsyncOutputStream.this.isWorkOutstanding();
+                return !AsyncOutputStream.this.threadHasWork();
             }
         });
-    }
-
-    /**
-     * (Re)start or wakeup the async thread as necessary.
-     */
-    private synchronized void wakeupAsyncThread() {
-
-        // Is thread already running? If so, notify in case it's lingering
-        if (this.thread != null) {
-            this.notifyAll();                   // wake up thread sleeping in runLoop()
-            return;
-        }
-
-        // Is there anything for the thread to do?
-        if (!this.isWorkOutstanding())
-            return;
-
-        // Start a new thread
-        this.thread = new Thread(this.name) {
-            @Override
-            public void run() {
-                AsyncOutputStream.this.threadMain();
-            }
-        };
-        this.thread.start();
     }
 
     /**
@@ -289,22 +274,28 @@ public class AsyncOutputStream extends FilterOutputStream {
     }
 
     /**
+     * Determine if there is outstanding work still to be performed (writes, flushes, and/or close operations)
+     * by the background thread.
+     */
+    private boolean threadHasWork() {
+        return this.count > 0 || this.flushMark != -1 || this.closed;
+    }
+
+    /**
      * Writer thread main entry point.
      */
     private void threadMain() {
         try {
             this.runLoop();
-        } catch (IOException e) {
-            this.log.error(this.name + " caught exception", e);
-            synchronized (this) {
-                this.exception = e;
-                this.notifyAll();                       // wake up threads sleeping in waitForPredicate() to notice exception
-            }
         } catch (Throwable t) {
-            this.log.error(this.name + " caught unexpected exception, async thread is dead!", t);
+            synchronized (this) {
+                this.exception = t instanceof IOException ? (IOException)t : new IOException("caught unexpected exception", t);
+                this.notifyAll();                       // wake up sleepers in waitForSpace() and waitForIdle()
+            }
         } finally {
             synchronized (this) {
                 this.thread = null;
+                this.notifyAll();                       // wake up sleepers in waitForIdle()
             }
         }
     }
@@ -317,15 +308,21 @@ public class AsyncOutputStream extends FilterOutputStream {
 
             // Wait for something to do
             synchronized (this) {
-                while (!this.isWorkOutstanding())
-                    this.wait();                    // woken up by wakeupAsyncThread()
+                while (!this.threadHasWork())
+                    this.wait();                        // will be woken up by write(), flush(), or close()
             }
 
-            // Any data to write?
+            // Determine what needs to be done
             int wlen;
+            boolean flush;
+            boolean close;
             synchronized (this) {
                 wlen = this.count;
+                flush = this.flushMark == 0;
+                close = this.closed;
             }
+
+            // First priority: any data to write?
             if (wlen > 0) {
 
                 // Write data
@@ -335,41 +332,33 @@ public class AsyncOutputStream extends FilterOutputStream {
                 synchronized (this) {
                     System.arraycopy(this.buf, wlen, this.buf, 0, this.count - wlen);
                     this.count -= wlen;
-                    if (this.flushMark >= 0)
+                    if (this.flushMark != -1)
                         this.flushMark = Math.max(0, this.flushMark - wlen);
                     this.notifyAll();                   // wake up sleepers in waitForSpace() and waitForIdle()
                 }
-
-                // Write any just-arrived data before flushing
                 continue;
             }
 
-            // Flush/close required?
-            boolean needFlush = false;
-            boolean close = false;
-            synchronized (this) {
-                needFlush = this.flushMark == 0;
-                if (needFlush && this.closed)           // note: close() always implies flush()
-                    close = true;
-            }
-            if (needFlush) {
+            // Second priority: is a flush required?
+            if (flush) {
 
                 // Flush output
                 this.out.flush();
 
-                // Update state
+                // Update flush mark
                 synchronized (this) {
                     if (this.flushMark == 0) {
                         this.flushMark = -1;
                         this.notifyAll();               // wake up sleepers in waitForIdle()
                     }
                 }
+                continue;
+            }
 
-                // If we're closed, we're done
-                if (close) {
-                    this.out.close();
-                    break;
-                }
+            // Third priority:  is a close required?
+            if (close) {
+                this.out.close();
+                break;
             }
         }
     }

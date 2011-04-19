@@ -1,6 +1,10 @@
 
 Version Next
 
+    - AsyncInputStream now reports ALL exceptions to handleException()
+    - Simplified and fixed bugs in AsyncOutputStream
+    - Added NullModemInputStream
+
 Version 1.0.68 Released April 11, 2011
 
     - Added PrimitiveSwitchAdapter, ListableHashSet, NamedArgumentFormatter
