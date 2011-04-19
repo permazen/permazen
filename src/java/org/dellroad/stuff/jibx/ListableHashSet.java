@@ -15,7 +15,7 @@ import org.jibx.runtime.JiBXException;
 /**
  * {@link java.util.Set} implementation with these properties which make it suitable for use with JiBX:
  * <ul>
- * <li>Iteration order reflects addition order (this property is inherited from {@link LinkedHashSet}</li>
+ * <li>Iteration order reflects addition order (this property is inherited from {@link LinkedHashSet})</li>
  * <li>An {@link #addUnique} method that throws {@link JiBXException} if the item is already in the set
  *  (suitable for use as a JiBX {@code add-method})</li>
  * </ul>
