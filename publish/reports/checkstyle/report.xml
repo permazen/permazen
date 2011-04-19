@@ -7,11 +7,12 @@
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/graph/package-info.java">
 </file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/AsyncInputStream.java">
-<error line="91" column="31" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/AsyncOutputStream.java">
 </file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/BufferOverflowException.java">
+</file>
+<file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/NullModemInputStream.java">
 </file>
 <file name="/home/archie/projects/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/package-info.java">
 </file>

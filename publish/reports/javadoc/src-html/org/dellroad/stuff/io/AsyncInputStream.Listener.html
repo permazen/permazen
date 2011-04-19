@@ -21,41 +21,41 @@
 <FONT color="green">018</FONT>     */<a name="line.18"></a>
 <FONT color="green">019</FONT>    public class AsyncInputStream {<a name="line.19"></a>
 <FONT color="green">020</FONT>    <a name="line.20"></a>
-<FONT color="green">021</FONT>        protected final Logger log = LoggerFactory.getLogger(getClass());<a name="line.21"></a>
+<FONT color="green">021</FONT>        private static final int BUFFER_SIZE = 4096;<a name="line.21"></a>
 <FONT color="green">022</FONT>    <a name="line.22"></a>
-<FONT color="green">023</FONT>        private final InputStream input;<a name="line.23"></a>
-<FONT color="green">024</FONT>        private final String name;<a name="line.24"></a>
-<FONT color="green">025</FONT>        private final Listener listener;<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
-<FONT color="green">027</FONT>        private final Thread thread;                // async reader thread<a name="line.27"></a>
-<FONT color="green">028</FONT>        private boolean closed;                     // this instance has been close()'d<a name="line.28"></a>
-<FONT color="green">029</FONT>    <a name="line.29"></a>
-<FONT color="green">030</FONT>        /**<a name="line.30"></a>
-<FONT color="green">031</FONT>         * Constructor.<a name="line.31"></a>
-<FONT color="green">032</FONT>         *<a name="line.32"></a>
-<FONT color="green">033</FONT>         * @param input     underlying input stream<a name="line.33"></a>
-<FONT color="green">034</FONT>         * @param name      name for this instance; used to create the name of the background thread<a name="line.34"></a>
-<FONT color="green">035</FONT>         * @param listener  callback object for input events<a name="line.35"></a>
-<FONT color="green">036</FONT>         * @throws IllegalArgumentException if any parameter is null<a name="line.36"></a>
-<FONT color="green">037</FONT>         */<a name="line.37"></a>
-<FONT color="green">038</FONT>        public AsyncInputStream(InputStream input, String name, Listener listener) {<a name="line.38"></a>
-<FONT color="green">039</FONT>            if (input == null)<a name="line.39"></a>
-<FONT color="green">040</FONT>                throw new IllegalArgumentException("null input");<a name="line.40"></a>
-<FONT color="green">041</FONT>            if (name == null)<a name="line.41"></a>
-<FONT color="green">042</FONT>                throw new IllegalArgumentException("name input");<a name="line.42"></a>
-<FONT color="green">043</FONT>            if (listener == null)<a name="line.43"></a>
-<FONT color="green">044</FONT>                throw new IllegalArgumentException("null listener");<a name="line.44"></a>
-<FONT color="green">045</FONT>            this.input = input;<a name="line.45"></a>
-<FONT color="green">046</FONT>            this.name = name;<a name="line.46"></a>
-<FONT color="green">047</FONT>            this.listener = listener;<a name="line.47"></a>
-<FONT color="green">048</FONT>            this.thread = new Thread(this.name) {<a name="line.48"></a>
-<FONT color="green">049</FONT>    <a name="line.49"></a>
-<FONT color="green">050</FONT>                @Override<a name="line.50"></a>
-<FONT color="green">051</FONT>                public void run() {<a name="line.51"></a>
-<FONT color="green">052</FONT>                    AsyncInputStream.this.threadMain();<a name="line.52"></a>
-<FONT color="green">053</FONT>                }<a name="line.53"></a>
-<FONT color="green">054</FONT>            };<a name="line.54"></a>
-<FONT color="green">055</FONT>            this.thread.start();<a name="line.55"></a>
+<FONT color="green">023</FONT>        protected final Logger log = LoggerFactory.getLogger(getClass());<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>        private final InputStream input;<a name="line.25"></a>
+<FONT color="green">026</FONT>        private final String name;<a name="line.26"></a>
+<FONT color="green">027</FONT>        private final Listener listener;<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>        private boolean closed;                     // this instance has been close()'d<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>        /**<a name="line.31"></a>
+<FONT color="green">032</FONT>         * Constructor.<a name="line.32"></a>
+<FONT color="green">033</FONT>         *<a name="line.33"></a>
+<FONT color="green">034</FONT>         * @param input     underlying input stream<a name="line.34"></a>
+<FONT color="green">035</FONT>         * @param name      name for this instance; used to create the name of the background thread<a name="line.35"></a>
+<FONT color="green">036</FONT>         * @param listener  callback object for input events<a name="line.36"></a>
+<FONT color="green">037</FONT>         * @throws IllegalArgumentException if any parameter is null<a name="line.37"></a>
+<FONT color="green">038</FONT>         */<a name="line.38"></a>
+<FONT color="green">039</FONT>        public AsyncInputStream(InputStream input, String name, Listener listener) {<a name="line.39"></a>
+<FONT color="green">040</FONT>            if (input == null)<a name="line.40"></a>
+<FONT color="green">041</FONT>                throw new IllegalArgumentException("null input");<a name="line.41"></a>
+<FONT color="green">042</FONT>            if (name == null)<a name="line.42"></a>
+<FONT color="green">043</FONT>                throw new IllegalArgumentException("name input");<a name="line.43"></a>
+<FONT color="green">044</FONT>            if (listener == null)<a name="line.44"></a>
+<FONT color="green">045</FONT>                throw new IllegalArgumentException("null listener");<a name="line.45"></a>
+<FONT color="green">046</FONT>            this.input = input;<a name="line.46"></a>
+<FONT color="green">047</FONT>            this.name = name;<a name="line.47"></a>
+<FONT color="green">048</FONT>            this.listener = listener;<a name="line.48"></a>
+<FONT color="green">049</FONT>            new Thread(this.name) {<a name="line.49"></a>
+<FONT color="green">050</FONT>    <a name="line.50"></a>
+<FONT color="green">051</FONT>                @Override<a name="line.51"></a>
+<FONT color="green">052</FONT>                public void run() {<a name="line.52"></a>
+<FONT color="green">053</FONT>                    AsyncInputStream.this.threadMain();<a name="line.53"></a>
+<FONT color="green">054</FONT>                }<a name="line.54"></a>
+<FONT color="green">055</FONT>            }.start();<a name="line.55"></a>
 <FONT color="green">056</FONT>        }<a name="line.56"></a>
 <FONT color="green">057</FONT>    <a name="line.57"></a>
 <FONT color="green">058</FONT>        /**<a name="line.58"></a>
@@ -78,69 +78,65 @@
 <FONT color="green">075</FONT>        private void threadMain() {<a name="line.75"></a>
 <FONT color="green">076</FONT>            try {<a name="line.76"></a>
 <FONT color="green">077</FONT>                this.runLoop();<a name="line.77"></a>
-<FONT color="green">078</FONT>            } catch (IOException e) {<a name="line.78"></a>
-<FONT color="green">079</FONT>                try {<a name="line.79"></a>
-<FONT color="green">080</FONT>                    this.listener.handleException(e);<a name="line.80"></a>
-<FONT color="green">081</FONT>                } catch (Exception e2) {<a name="line.81"></a>
-<FONT color="green">082</FONT>                    this.log.error(this.name + ": caught unexpected exception", e2);<a name="line.82"></a>
-<FONT color="green">083</FONT>                }<a name="line.83"></a>
-<FONT color="green">084</FONT>            }<a name="line.84"></a>
-<FONT color="green">085</FONT>        }<a name="line.85"></a>
-<FONT color="green">086</FONT>    <a name="line.86"></a>
-<FONT color="green">087</FONT>        /**<a name="line.87"></a>
-<FONT color="green">088</FONT>         * Async reader thread main loop.<a name="line.88"></a>
-<FONT color="green">089</FONT>         */<a name="line.89"></a>
-<FONT color="green">090</FONT>        private void runLoop() throws IOException {<a name="line.90"></a>
-<FONT color="green">091</FONT>            byte[] buf = new byte[4096];<a name="line.91"></a>
-<FONT color="green">092</FONT>            while (true) {<a name="line.92"></a>
-<FONT color="green">093</FONT>                int r = this.input.read(buf);<a name="line.93"></a>
-<FONT color="green">094</FONT>                if (r == -1) {<a name="line.94"></a>
-<FONT color="green">095</FONT>                    try {<a name="line.95"></a>
-<FONT color="green">096</FONT>                        this.listener.handleEOF();<a name="line.96"></a>
-<FONT color="green">097</FONT>                    } catch (Exception e) {<a name="line.97"></a>
-<FONT color="green">098</FONT>                        this.log.error(this.name + ": caught unexpected exception", e);<a name="line.98"></a>
-<FONT color="green">099</FONT>                    }<a name="line.99"></a>
+<FONT color="green">078</FONT>            } catch (Throwable t) {<a name="line.78"></a>
+<FONT color="green">079</FONT>                synchronized (this) {<a name="line.79"></a>
+<FONT color="green">080</FONT>                    if (this.closed)<a name="line.80"></a>
+<FONT color="green">081</FONT>                        return;<a name="line.81"></a>
+<FONT color="green">082</FONT>                }<a name="line.82"></a>
+<FONT color="green">083</FONT>                try {<a name="line.83"></a>
+<FONT color="green">084</FONT>                    this.listener.handleException(t);<a name="line.84"></a>
+<FONT color="green">085</FONT>                } catch (Exception e) {<a name="line.85"></a>
+<FONT color="green">086</FONT>                    this.log.error(this.name + ": caught unexpected exception", e);<a name="line.86"></a>
+<FONT color="green">087</FONT>                }<a name="line.87"></a>
+<FONT color="green">088</FONT>            }<a name="line.88"></a>
+<FONT color="green">089</FONT>        }<a name="line.89"></a>
+<FONT color="green">090</FONT>    <a name="line.90"></a>
+<FONT color="green">091</FONT>        /**<a name="line.91"></a>
+<FONT color="green">092</FONT>         * Async reader thread main loop.<a name="line.92"></a>
+<FONT color="green">093</FONT>         */<a name="line.93"></a>
+<FONT color="green">094</FONT>        private void runLoop() throws IOException {<a name="line.94"></a>
+<FONT color="green">095</FONT>            byte[] buf = new byte[BUFFER_SIZE];<a name="line.95"></a>
+<FONT color="green">096</FONT>            while (true) {<a name="line.96"></a>
+<FONT color="green">097</FONT>                int r = this.input.read(buf);<a name="line.97"></a>
+<FONT color="green">098</FONT>                if (r == -1) {<a name="line.98"></a>
+<FONT color="green">099</FONT>                    this.listener.handleEOF();<a name="line.99"></a>
 <FONT color="green">100</FONT>                    break;<a name="line.100"></a>
 <FONT color="green">101</FONT>                }<a name="line.101"></a>
-<FONT color="green">102</FONT>                try {<a name="line.102"></a>
-<FONT color="green">103</FONT>                    this.listener.handleInput(buf, 0, r);<a name="line.103"></a>
-<FONT color="green">104</FONT>                } catch (Exception e) {<a name="line.104"></a>
-<FONT color="green">105</FONT>                    this.log.error(this.name + ": caught unexpected exception", e);<a name="line.105"></a>
-<FONT color="green">106</FONT>                }<a name="line.106"></a>
-<FONT color="green">107</FONT>            }<a name="line.107"></a>
-<FONT color="green">108</FONT>        }<a name="line.108"></a>
-<FONT color="green">109</FONT>    <a name="line.109"></a>
-<FONT color="green">110</FONT>        /**<a name="line.110"></a>
-<FONT color="green">111</FONT>         * Callback interface required by {@link AsyncInputStream}.<a name="line.111"></a>
-<FONT color="green">112</FONT>         */<a name="line.112"></a>
-<FONT color="green">113</FONT>        public interface Listener {<a name="line.113"></a>
-<FONT color="green">114</FONT>    <a name="line.114"></a>
-<FONT color="green">115</FONT>            /**<a name="line.115"></a>
-<FONT color="green">116</FONT>             * Handle new data read from the underlying input.<a name="line.116"></a>
-<FONT color="green">117</FONT>             * This method must not write to buffer bytes outside of the defined region.<a name="line.117"></a>
-<FONT color="green">118</FONT>             *<a name="line.118"></a>
-<FONT color="green">119</FONT>             * @param buf data buffer<a name="line.119"></a>
-<FONT color="green">120</FONT>             * @param off starting offset of data in buffer<a name="line.120"></a>
-<FONT color="green">121</FONT>             * @param len number of bytes of data<a name="line.121"></a>
-<FONT color="green">122</FONT>             */<a name="line.122"></a>
-<FONT color="green">123</FONT>            void handleInput(byte[] buf, int off, int len);<a name="line.123"></a>
-<FONT color="green">124</FONT>    <a name="line.124"></a>
-<FONT color="green">125</FONT>            /**<a name="line.125"></a>
-<FONT color="green">126</FONT>             * Handle an {@link IOException} detected on the underlying input.<a name="line.126"></a>
-<FONT color="green">127</FONT>             * No further events will be delivered.<a name="line.127"></a>
-<FONT color="green">128</FONT>             *<a name="line.128"></a>
-<FONT color="green">129</FONT>             * @param e the exception received<a name="line.129"></a>
-<FONT color="green">130</FONT>             */<a name="line.130"></a>
-<FONT color="green">131</FONT>            void handleException(IOException e);<a name="line.131"></a>
-<FONT color="green">132</FONT>    <a name="line.132"></a>
-<FONT color="green">133</FONT>            /**<a name="line.133"></a>
-<FONT color="green">134</FONT>             * Handle end-of-file detected on the underlying input.<a name="line.134"></a>
-<FONT color="green">135</FONT>             * No further events will be delivered.<a name="line.135"></a>
-<FONT color="green">136</FONT>             */<a name="line.136"></a>
-<FONT color="green">137</FONT>            void handleEOF();<a name="line.137"></a>
-<FONT color="green">138</FONT>        }<a name="line.138"></a>
-<FONT color="green">139</FONT>    }<a name="line.139"></a>
-<FONT color="green">140</FONT>    <a name="line.140"></a>
+<FONT color="green">102</FONT>                this.listener.handleInput(buf, 0, r);<a name="line.102"></a>
+<FONT color="green">103</FONT>            }<a name="line.103"></a>
+<FONT color="green">104</FONT>        }<a name="line.104"></a>
+<FONT color="green">105</FONT>    <a name="line.105"></a>
+<FONT color="green">106</FONT>        /**<a name="line.106"></a>
+<FONT color="green">107</FONT>         * Callback interface required by {@link AsyncInputStream}.<a name="line.107"></a>
+<FONT color="green">108</FONT>         */<a name="line.108"></a>
+<FONT color="green">109</FONT>        public interface Listener {<a name="line.109"></a>
+<FONT color="green">110</FONT>    <a name="line.110"></a>
+<FONT color="green">111</FONT>            /**<a name="line.111"></a>
+<FONT color="green">112</FONT>             * Handle new data read from the underlying input.<a name="line.112"></a>
+<FONT color="green">113</FONT>             * This method must not write to buffer bytes outside of the defined region.<a name="line.113"></a>
+<FONT color="green">114</FONT>             *<a name="line.114"></a>
+<FONT color="green">115</FONT>             * @param buf data buffer<a name="line.115"></a>
+<FONT color="green">116</FONT>             * @param off starting offset of data in buffer<a name="line.116"></a>
+<FONT color="green">117</FONT>             * @param len number of bytes of data<a name="line.117"></a>
+<FONT color="green">118</FONT>             */<a name="line.118"></a>
+<FONT color="green">119</FONT>            void handleInput(byte[] buf, int off, int len);<a name="line.119"></a>
+<FONT color="green">120</FONT>    <a name="line.120"></a>
+<FONT color="green">121</FONT>            /**<a name="line.121"></a>
+<FONT color="green">122</FONT>             * Handle an exception detected on the underlying input.<a name="line.122"></a>
+<FONT color="green">123</FONT>             * No further events will be delivered.<a name="line.123"></a>
+<FONT color="green">124</FONT>             *<a name="line.124"></a>
+<FONT color="green">125</FONT>             * @param e the exception received (usually {@link IOException} but could also be any other {@link RuntimeException})<a name="line.125"></a>
+<FONT color="green">126</FONT>             */<a name="line.126"></a>
+<FONT color="green">127</FONT>            void handleException(Throwable e);<a name="line.127"></a>
+<FONT color="green">128</FONT>    <a name="line.128"></a>
+<FONT color="green">129</FONT>            /**<a name="line.129"></a>
+<FONT color="green">130</FONT>             * Handle end-of-file detected on the underlying input.<a name="line.130"></a>
+<FONT color="green">131</FONT>             * No further events will be delivered.<a name="line.131"></a>
+<FONT color="green">132</FONT>             */<a name="line.132"></a>
+<FONT color="green">133</FONT>            void handleEOF();<a name="line.133"></a>
+<FONT color="green">134</FONT>        }<a name="line.134"></a>
+<FONT color="green">135</FONT>    }<a name="line.135"></a>
+<FONT color="green">136</FONT>    <a name="line.136"></a>
 
 
 
