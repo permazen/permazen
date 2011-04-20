@@ -1,3 +1,6 @@
+Next release
+
+    - Added BigFatLock.isLockHeld() and BigFatLockHeldAdvice
 
 Version 1.0.74 Released April 19, 2011
 

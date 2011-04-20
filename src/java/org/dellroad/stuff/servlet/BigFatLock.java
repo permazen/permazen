@@ -95,6 +95,13 @@ public final class BigFatLock extends OncePerRequestFilter {
         }
     }
 
+    /**
+     * Verify that the current thread is holding the big fat lock.
+     */
+    public static boolean isLockHeld() {
+        return Thread.holdsLock(BIG_FAT_LOCK);
+    }
+
     @Override
     public String toString() {
         return "BigFatLock@" + System.identityHashCode(this);
