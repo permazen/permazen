@@ -81,5 +81,29 @@ public class NullModemInputStream extends PipedInputStream {
          */
         void writeTo(OutputStream output) throws IOException;
     }
+
+    /**
+     * Ensure input and output streams are closed when this instance is no longer referenced.
+     *
+     * <p>
+     * This avoids a memory leak when an instance of this class is created but never read from.
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            try {
+                this.output.close();
+            } catch (IOException e) {
+                // ignore
+            }
+            try {
+                this.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        } finally {
+            super.finalize();
+        }
+    }
 }
 
