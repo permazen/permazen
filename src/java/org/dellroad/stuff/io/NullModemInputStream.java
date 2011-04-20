@@ -12,9 +12,6 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Presents an {@link InputStream} interface given a callback that can write to an {@link OutputStream}.
  * A separate thread is created to perform the actual writing.
@@ -23,9 +20,6 @@ import org.slf4j.LoggerFactory;
  */
 public class NullModemInputStream extends PipedInputStream {
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
-
-    private final CallableWriter writer;
     private final PipedOutputStream output;
 
     /**
@@ -34,35 +28,23 @@ public class NullModemInputStream extends PipedInputStream {
      * @param writer    {@link OutputStream} writer callback
      * @param name      name for this instance; used to create the name of the background thread
      */
-    public NullModemInputStream(CallableWriter writer, String name) {
+    public NullModemInputStream(final CallableWriter writer, String name) {
+
+        // Sanity check
         if (writer == null)
             throw new IllegalArgumentException("null writer");
-        this.writer = writer;
+
+        // Create output stream
         try {
             this.output = new PipedOutputStream(this);
         } catch (IOException e) {
             throw new RuntimeException("impossible case", e);
         }
-        Thread thread = new Thread(name) {
-            @Override
-            public void run() {
-                NullModemInputStream.this.threadMain();
-            }
-        };
+
+        // Launch writer thread
+        Thread thread = new WriterThread(writer, this.output, name);
         thread.setDaemon(true);
         thread.start();
-    }
-
-    /**
-     * Writer thread main entry point.
-     */
-    private void threadMain() {
-        try {
-            this.writer.writeTo(this.output);
-            this.output.close();
-        } catch (IOException e) {
-            // ignore - reader will get another IOException because pipe is about to be broken
-        }
     }
 
     /**
@@ -103,6 +85,31 @@ public class NullModemInputStream extends PipedInputStream {
             }
         } finally {
             super.finalize();
+        }
+    }
+
+    /**
+     * Writer thread. This is designed to not hold a reference to the {@link NullModemInputStream}.
+     */
+    private static class WriterThread extends Thread {
+
+        private final CallableWriter writer;
+        private final PipedOutputStream output;
+
+        WriterThread(CallableWriter writer, PipedOutputStream output, String name) {
+            super(name);
+            this.writer = writer;
+            this.output = output;
+        }
+
+        @Override
+        public void run() {
+            try {
+                this.writer.writeTo(this.output);
+                this.output.close();
+            } catch (IOException e) {
+                // ignore - reader will get another IOException because pipe is about to be broken
+            }
         }
     }
 }
