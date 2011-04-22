@@ -7,18 +7,19 @@
 
 package org.dellroad.stuff.io;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 /**
- * Presents an {@link InputStream} interface given a callback that can write to an {@link OutputStream}.
+ * Presents an {@link InputStream} interface given a {@link WriteCallback} that can write to an {@link OutputStream}.
  * A separate thread is created to perform the actual writing.
  *
  * @since 1.0.74
  */
-public class NullModemInputStream extends PipedInputStream {
+public class NullModemInputStream extends FilterInputStream {
 
     private final PipedOutputStream output;
 
@@ -28,17 +29,18 @@ public class NullModemInputStream extends PipedInputStream {
      * @param writer    {@link OutputStream} writer callback
      * @param name      name for this instance; used to create the name of the background thread
      */
-    public NullModemInputStream(final CallableWriter writer, String name) {
+    public NullModemInputStream(final WriteCallback writer, String name) {
+        super(new PipedInputStream());
 
         // Sanity check
         if (writer == null)
             throw new IllegalArgumentException("null writer");
 
-        // Create output stream
+        // Create other end of pipe
         try {
-            this.output = new PipedOutputStream(this);
+            this.output = new PipedOutputStream(this.getPipedInputStream());
         } catch (IOException e) {
-            throw new RuntimeException("impossible case", e);
+            throw new RuntimeException("unexpected exception", e);
         }
 
         // Launch writer thread
@@ -48,38 +50,24 @@ public class NullModemInputStream extends PipedInputStream {
     }
 
     /**
-     * Callback interface used by {@link NullModemInputStream}.
+     * Get the wrapped stream cast as a {@link PipedInputStream}.
      */
-    public interface CallableWriter {
-
-        /**
-         * Write the output to the given output stream.
-         *
-         * <p>
-         * This method will be invoked asynchronously by a dedicated writer thread.
-         * </p>
-         *
-         * @throws IOException if an I/O error occurs
-         */
-        void writeTo(OutputStream output) throws IOException;
+    protected PipedInputStream getPipedInputStream() {
+        return (PipedInputStream)this.in;
     }
 
     /**
-     * Ensure input and output streams are closed when this instance is no longer referenced.
+     * Ensure input stream is closed when this instance is no longer referenced.
      *
      * <p>
-     * This avoids a memory leak when an instance of this class is created but never read from.
+     * This ensures the writer thread wakes up (and exits, avoiding a memory leak) when an instance of this class
+     * is created but never read from.
      */
     @Override
     protected void finalize() throws Throwable {
         try {
             try {
-                this.output.close();
-            } catch (IOException e) {
-                // ignore
-            }
-            try {
-                this.close();
+                this.getPipedInputStream().close();
             } catch (IOException e) {
                 // ignore
             }
@@ -89,14 +77,31 @@ public class NullModemInputStream extends PipedInputStream {
     }
 
     /**
+     * Callback interface used by {@link NullModemInputStream}.
+     */
+    public interface WriteCallback {
+
+        /**
+         * Write the output to the given output stream.
+         *
+         * <p>
+         * This method will be invoked (once) asynchronously in a dedicated writer thread.
+         * </p>
+         *
+         * @throws IOException if an I/O error occurs
+         */
+        void writeTo(OutputStream output) throws IOException;
+    }
+
+    /**
      * Writer thread. This is designed to not hold a reference to the {@link NullModemInputStream}.
      */
     private static class WriterThread extends Thread {
 
-        private final CallableWriter writer;
+        private final WriteCallback writer;
         private final PipedOutputStream output;
 
-        WriterThread(CallableWriter writer, PipedOutputStream output, String name) {
+        WriterThread(WriteCallback writer, PipedOutputStream output, String name) {
             super(name);
             this.writer = writer;
             this.output = output;
@@ -106,9 +111,14 @@ public class NullModemInputStream extends PipedInputStream {
         public void run() {
             try {
                 this.writer.writeTo(this.output);
-                this.output.close();
             } catch (IOException e) {
                 // ignore - reader will get another IOException because pipe is about to be broken
+            } finally {
+                try {
+                    this.output.close();
+                } catch (IOException e) {
+                    // ignore
+                }
             }
         }
     }
