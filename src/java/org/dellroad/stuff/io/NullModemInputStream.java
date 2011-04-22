@@ -14,8 +14,8 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 /**
- * Presents an {@link InputStream} interface given a {@link WriteCallback} that can write to an {@link OutputStream}.
- * A separate thread is created to perform the actual writing.
+ * Presents an {@link java.io.InputStream InputStream} interface given a {@link WriteCallback} that can write to an
+ * {@link OutputStream}. A separate thread is created to perform the actual writing.
  *
  * @since 1.0.74
  */

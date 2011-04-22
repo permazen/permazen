@@ -14,8 +14,8 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 /**
- * Presents an {@link OutputStream} interface given a {@link ReadCallback} that can read from an {@link InputStream}.
- * A separate thread is created to perform the actual reading.
+ * Presents an {@link java.io.OutputStream OutputStream} interface given a {@link ReadCallback} that can read from an
+ * {@link InputStream}. A separate thread is created to perform the actual reading.
  *
  * <p>
  * If data is written beyond what the reader is willing to consume, an {@link IOException} is thrown.
