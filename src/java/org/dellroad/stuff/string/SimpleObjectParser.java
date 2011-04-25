@@ -114,8 +114,11 @@ public class SimpleObjectParser<T> {
 
         // Sanity check our parse attempt
         Pattern pattern = Pattern.compile(buf.toString());
-        if (pattern.matcher("").groupCount() != groupCount)
-            throw new PatternSyntaxException("can't parse named group regular expression", regex, 0);
+        int numGroups = pattern.matcher("").groupCount();
+        if (numGroups != groupCount) {
+            throw new PatternSyntaxException("the given regular expression is not supported (counted "
+              + groupCount + " != " + numGroups + " groups)", regex, 0);
+        }
 
         // Proceed
         return this.parse(text, pattern, patternMap, allowSubstringMatch);
