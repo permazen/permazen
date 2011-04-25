@@ -98,12 +98,19 @@
 <FONT color="green">095</FONT>            }<a name="line.95"></a>
 <FONT color="green">096</FONT>        }<a name="line.96"></a>
 <FONT color="green">097</FONT>    <a name="line.97"></a>
-<FONT color="green">098</FONT>        @Override<a name="line.98"></a>
-<FONT color="green">099</FONT>        public String toString() {<a name="line.99"></a>
-<FONT color="green">100</FONT>            return "BigFatLock@" + System.identityHashCode(this);<a name="line.100"></a>
-<FONT color="green">101</FONT>        }<a name="line.101"></a>
-<FONT color="green">102</FONT>    }<a name="line.102"></a>
-<FONT color="green">103</FONT>    <a name="line.103"></a>
+<FONT color="green">098</FONT>        /**<a name="line.98"></a>
+<FONT color="green">099</FONT>         * Verify that the current thread is holding the big fat lock.<a name="line.99"></a>
+<FONT color="green">100</FONT>         */<a name="line.100"></a>
+<FONT color="green">101</FONT>        public static boolean isLockHeld() {<a name="line.101"></a>
+<FONT color="green">102</FONT>            return Thread.holdsLock(BIG_FAT_LOCK);<a name="line.102"></a>
+<FONT color="green">103</FONT>        }<a name="line.103"></a>
+<FONT color="green">104</FONT>    <a name="line.104"></a>
+<FONT color="green">105</FONT>        @Override<a name="line.105"></a>
+<FONT color="green">106</FONT>        public String toString() {<a name="line.106"></a>
+<FONT color="green">107</FONT>            return "BigFatLock@" + System.identityHashCode(this);<a name="line.107"></a>
+<FONT color="green">108</FONT>        }<a name="line.108"></a>
+<FONT color="green">109</FONT>    }<a name="line.109"></a>
+<FONT color="green">110</FONT>    <a name="line.110"></a>
 
 
 
