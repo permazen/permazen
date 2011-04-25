@@ -119,6 +119,13 @@ public class SimpleObjectParserTest extends TestSupport {
                 null
             },
 
+            {
+                "b=true",
+                "(?s)b=({bval}(true|false))",
+                new ParseObj(true, 0, null),
+                null
+            },
+
             // Invalid usage
             {
                 "",

@@ -71,8 +71,8 @@ public class SimpleObjectParser<T> {
      * <p>
      * This method assumes the following about {@code regex}:
      * <ul>
-     * <li>All instances of an opening parenthesis not preceded by a backslash are actual grouped sub-expressions
-     * <li>In particular, all instances of substrings like <code>({foo}</code> are actual named group sub-expressions
+     * <li>All instances of an opening parenthesis not preceded by a backslash are actual grouped sub-expressions</li>
+     * <li>In particular, all instances of substrings like <code>({foo}</code> are actual named group sub-expressions</li>
      * </ul>
      *
      * @param text                string to parse
@@ -99,7 +99,9 @@ public class SimpleObjectParser<T> {
             int match = matcher.find(pos) ? matcher.start() : regex.length();
             String chunk = regex.substring(pos, match);
             for (int i = 0; i < chunk.length(); i++) {
-                if (chunk.charAt(i) == '(' && (i == 0 || chunk.charAt(i - 1) != '\\'))
+                if (chunk.charAt(i) == '('
+                  && (i == 0 || chunk.charAt(i - 1) != '\\')
+                  && (i == chunk.length() || chunk.charAt(i + 1) != '?'))
                     groupCount++;
             }
             buf.append(chunk);
