@@ -8,6 +8,7 @@
 
     <test name="Unit Tests">
         <packages>
+            <package name="org.dellroad.stuff.graph"/>
             <package name="org.dellroad.stuff.jibx"/>
             <package name="org.dellroad.stuff.string"/>
             <package name="org.dellroad.stuff.validation"/>
