@@ -106,8 +106,8 @@ public class SimpleObjectParserTest extends TestSupport {
             },
 
             {
-                "b=true (i=132) s=\"hello\"",
-                "b=({bval}true|false) \\(i=({ival}[0-9]+)\\) s=\"({sval}[^\"]*)\"",
+                "b=true (i=132) aaa s=\"hello\" bbb",
+                "b=({bval}true|false) \\(i=({ival}[0-9]+)\\) (a+) s=\"({sval}[^\"]*)\" (b+)",
                 new ParseObj(true, 132, "hello"),
                 null
             },
