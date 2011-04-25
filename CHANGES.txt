@@ -1,6 +1,8 @@
-Next release
+Version 1.0.88 Released April 25, 2011
 
+    - Added SimpleObjectParser.parse() method taking a "named subgroup" regex
     - Added BigFatLock.isLockHeld() and BigFatLockHeldAdvice
+    - Added NullModemOutputStream
 
 Version 1.0.74 Released April 19, 2011
 
