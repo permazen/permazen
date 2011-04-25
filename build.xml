@@ -60,7 +60,7 @@
     </target>
 
     <!-- Build Javadocs -->
-    <target name="javadoc" depends="javac">
+    <target name="javadoc" depends="javac" unless="javadoc.completed">
         <delete dir="build/javadoc"/>
         <mkdir dir="build/javadoc"/>
         <copy todir="build/javadoc">
@@ -82,23 +82,28 @@
                 <link href="http://www.slf4j.org/api/"/>
             </links>
         </dellroad:javadoc>
+        <property name="javadoc.completed" value="true"/>
     </target>
 
     <!-- Checkstyle the source -->
     <target name="checkstyle" description="Run checkstyle report"
-      depends="javac.classpath, unittest.classpath, checkstyle.classpath">
+      depends="javac.classpath, unittest.classpath, checkstyle.classpath"
+      unless="checkstyle.completed">
         <dellroad:checkstyle maxWarnings="5" maxErrors="0"/>
+        <property name="checkstyle.completed" value="true"/>
     </target>
 
     <!-- Run unit tests -->
     <target name="tests" description="Run unit tests"
-      depends="javac, unittest.classpath, testng.classpath, cobertura.classpath">
+      depends="javac, unittest.classpath, testng.classpath, cobertura.classpath"
+      unless="tests.completed">
         <copy todir="build/test" overwrite="true">
             <fileset dir="src/test">
                 <include name="**/*.xml"/>
             </fileset>
         </copy>
         <dellroad:unit-tests/>
+        <property name="checkstyle.completed" value="true"/>
     </target>
 
     <!-- Publish reports -->
@@ -119,6 +124,9 @@
             </fileset>
         </copy>
     </target>
+
+    <!-- Reports target -->
+    <target name="reports-project" depends="javadoc, checkstyle, tests"/>
 
     <!-- Default target -->
     <target name="build" depends="clean, jars, reports"/>
