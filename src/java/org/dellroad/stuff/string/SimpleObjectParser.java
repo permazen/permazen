@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.dellroad.stuff.java.Primitive;
 
@@ -25,6 +26,16 @@ import org.dellroad.stuff.java.Primitive;
  * Parses strings using regular expressions into new instances of some class by parsing substrings.
  * Primitive and String values are handled automatically. Other property types can be handled by
  * overriding {@link #setProperty}.
+ *
+ * <a name="namedgroup"/>
+ * <p>
+ * This class supports parsing using a <i>named group regular expression</i>, which is pattern string
+ * using normal {@link Pattern} regular expression syntax with one additional grouping construct of the
+ * form <code>({property}...)</code>, allowing the Java bean property name to be specified inside the
+ * curly braces at the start of a grouped subexpression.
+ *
+ * <p>
+ * Instances of this class are immutable and thread-safe.
  */
 public class SimpleObjectParser<T> {
 
@@ -55,7 +66,61 @@ public class SimpleObjectParser<T> {
     }
 
     /**
-     * Parse the given text
+     * Parse the given text using the provided <i>named group regular expression</i>.
+     *
+     * <p>
+     * This method assumes the following about {@code regex}:
+     * <ul>
+     * <li>All instances of an opening parenthesis not preceded by a backslash are actual grouped sub-expressions
+     * <li>In particular, all instances of substrings like <code>({foo}</code> are actual named group sub-expressions
+     * </ul>
+     *
+     * @param text                string to parse
+     * @param regex               named group regular expression containing object property names
+     * @param allowSubstringMatch if false, entire text must match, otherwise only a (the first) substring need match
+     * @return parsed object or null if parse fails
+     * @throws PatternSyntaxException if the regular expression with the named group property names removed is invalid
+     * @throws PatternSyntaxException if this method cannot successfully parse the regular expression
+     * @throws IllegalArgumentException if a named group specfiies a property that is not a parseable
+     *                                  property of this instance's target class
+     *
+     * @since 1.0.85
+     */
+    public T parse(String text, String regex, boolean allowSubstringMatch) {
+
+        // Scan regular expression for named sub-groups and parse them out
+        HashMap<Integer, String> patternMap = new HashMap<Integer, String>();
+        StringBuilder buf = new StringBuilder(regex.length());
+        Pattern namedGroup = Pattern.compile("\\(\\{(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*)\\}");
+        Matcher matcher = namedGroup.matcher(regex);
+        int pos = 0;
+        int groupCount = 0;
+        while (true) {
+            int match = matcher.find(pos) ? matcher.start() : regex.length();
+            String chunk = regex.substring(pos, match);
+            for (int i = 0; i < chunk.length(); i++) {
+                if (chunk.charAt(i) == '(' && (i == 0 || chunk.charAt(i - 1) != '\\'))
+                    groupCount++;
+            }
+            buf.append(chunk);
+            if (match == regex.length())
+                break;
+            buf.append('(');
+            patternMap.put(++groupCount, matcher.group(1));
+            pos = matcher.end();
+        }
+
+        // Sanity check our parse attempt
+        Pattern pattern = Pattern.compile(buf.toString());
+        if (pattern.matcher("").groupCount() != groupCount)
+            throw new PatternSyntaxException("can't parse named group regular expression", regex, 0);
+
+        // Proceed
+        return this.parse(text, pattern, patternMap, allowSubstringMatch);
+    }
+
+    /**
+     * Parse the given text using the provided pattern and mapping from pattern sub-group to Java bean property name.
      *
      * @param text                string to parse
      * @param pattern             pattern with substring matching groups that match object properties
