@@ -17,7 +17,7 @@ import static org.testng.Assert.assertNull;
 
 public class StringEncoderTest extends TestSupport {
 
-    @Test(dataProvider = "data")
+    @Test(dataProvider = "encode")
     public void testStringEncode(boolean tabcrlf, String original, String expectedEncoding) {
 
         // Sanity check our input
@@ -39,12 +39,13 @@ public class StringEncoderTest extends TestSupport {
             decoding = StringEncoder.decode(expectedEncoding);
             assertEquals(decoding, original);
         } catch (IllegalArgumentException e) {
-            assertNull(original);
+            if (original != null)
+                throw e;
         }
     }
 
-    @DataProvider(name = "data")
-    public Object[][] genTestCases() {
+    @DataProvider(name = "encode")
+    public Object[][] genEncodeCases() {
         return new Object[][] {
 
             // Identity encodings
@@ -83,6 +84,47 @@ public class StringEncoderTest extends TestSupport {
             new Object[] { false, null, "foobar \u005c\u005cu123" },
             new Object[] { false, null, "foobar \u005c\u005cu123g" },
             new Object[] { false, null, "foobar \u005c\u005cuz000" },
+        };
+    }
+
+    @Test(dataProvider = "quote")
+    public void testStringEnquote(String original, String expectedEnquoting) {
+
+        // Sanity check our input
+        assert original != null || expectedEnquoting != null;
+
+        // Encode original and compare with expected
+        if (original != null) {
+            String enquoted = StringEncoder.enquote(original);
+            assertEquals(enquoted, expectedEnquoting);
+        }
+
+        // Decode back and compare with original
+        String dequoted;
+        try {
+            dequoted = StringEncoder.dequote(expectedEnquoting);
+            assertEquals(dequoted, original);
+        } catch (IllegalArgumentException e) {
+            if (original != null)
+                throw e;
+        }
+    }
+
+    @DataProvider(name = "quote")
+    public Object[][] genQuoteCases() {
+        return new Object[][] {
+
+            // Valid enquotings
+            { "fred", "\"fred\"" },
+            { "field1\tfield2", "\"field1\\tfield2\"" },
+            { "a \"quote\"", "\"a \\\"quote\\\"\"" },
+            { "\"No\" Lard", "\"\\\"No\\\" Lard\"" },
+
+            // Invalid enquotings
+            { null, "fred" },
+            { null, "\\\"missing quote" },
+            { null, "missing quote\\\"" },
+            { null, "\\\"impossible \"embeded but not escaped\" quotes\\\"" },
         };
     }
 

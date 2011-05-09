@@ -7,6 +7,9 @@
 
 package org.dellroad.stuff.string;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Encodes/decodes Java strings, escaping control and XML-invalid characters.
  */
@@ -176,10 +179,11 @@ public final class StringEncoder {
      * <p/>
      * <p>
      * Note: the strings returned by this method are not suitable for decoding by {@link #decode}.
+     * Use {@link #dequote} instead.
      * </p>
      */
     public static String enquote(String string) {
-        return '"' + encode(string, true).replaceAll("\"", "\\\"") + '"';
+        return '"' + encode(string, true).replaceAll(Pattern.quote("\""), Matcher.quoteReplacement("\\\"")) + '"';
     }
 
     /**
@@ -192,6 +196,24 @@ public final class StringEncoder {
         for (int i = 0; i < len; i++)
             chars[i] = (char)(data[i] & 0xff);
         return enquote(new String(chars));
+    }
+
+    /**
+     * Dequote a string previously enquoted by {@link #enquote}.
+     *
+     * @param quotedString a string returned by {@link #enquote}
+     * @throws IllegalArgumentException if {@code quotedString} has an invalid format (i.e., it could not have
+     *  ever been returned by {@link #enquote})
+     */
+    public static String dequote(String quotedString) {
+        int len = quotedString.length();
+        if (len == 0 || quotedString.charAt(0) != '"' || quotedString.charAt(len - 1) != '"')
+            throw new IllegalArgumentException("invalid quoted string: not surrounded by quote characters");
+        quotedString = quotedString.substring(1, len - 1);
+        if (quotedString.matches("^(\"|.*[^\\\\]\").*$"))
+            throw new IllegalArgumentException("invalid quoted string: unescaped nested quote character");
+        quotedString = quotedString.replaceAll(Pattern.quote("\\\""), Matcher.quoteReplacement("\""));
+        return decode(quotedString);
     }
 
     /**
