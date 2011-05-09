@@ -66,6 +66,23 @@ public class SimpleObjectParser<T> {
     }
 
     /**
+     * Same as {@link #parse(Object, String, String, boolean)} but this method creates the target instance using
+     * the target type's default constructor.
+     *
+     * @throws RuntimeException if a new target instance cannot be created using the default constructor
+     * @since 1.0.85
+     */
+    public T parse(String text, String regex, boolean allowSubstringMatch) {
+        T target;
+        try {
+            target = this.targetClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("can't create instance of " + this.targetClass + " using default constructor", e);
+        }
+        return this.parse(target, text, regex, allowSubstringMatch);
+    }
+
+    /**
      * Parse the given text using the provided <i>named group regular expression</i>.
      *
      * <p>
@@ -75,18 +92,18 @@ public class SimpleObjectParser<T> {
      * <li>In particular, all instances of substrings like <code>({foo}</code> are actual named group sub-expressions</li>
      * </ul>
      *
+     * @param target              target instance
      * @param text                string to parse
      * @param regex               named group regular expression containing object property names
      * @param allowSubstringMatch if false, entire text must match, otherwise only a (the first) substring need match
      * @return parsed object or null if parse fails
      * @throws PatternSyntaxException if the regular expression with the named group property names removed is invalid
      * @throws PatternSyntaxException if this method cannot successfully parse the regular expression
-     * @throws IllegalArgumentException if a named group specfiies a property that is not a parseable
+     * @throws IllegalArgumentException if a named group specfies a property that is not a parseable
      *                                  property of this instance's target class
-     *
-     * @since 1.0.85
+     * @since 1.0.95
      */
-    public T parse(String text, String regex, boolean allowSubstringMatch) {
+    public T parse(T target, String text, String regex, boolean allowSubstringMatch) {
 
         // Scan regular expression for named sub-groups and parse them out
         HashMap<Integer, String> patternMap = new HashMap<Integer, String>();
@@ -121,12 +138,30 @@ public class SimpleObjectParser<T> {
         }
 
         // Proceed
-        return this.parse(text, pattern, patternMap, allowSubstringMatch);
+        return this.parse(target, text, pattern, patternMap, allowSubstringMatch);
+    }
+
+    /**
+     * Same as {@link #parse(Object, String, Pattern, Map, boolean)} but this method creates the target instance using
+     * the target type's default constructor.
+     *
+     * @throws RuntimeException if a new target instance cannot be created using the default constructor
+     * @since 1.0.85
+     */
+    public T parse(String text, Pattern pattern, Map<Integer, String> patternMap, boolean allowSubstringMatch) {
+        T target;
+        try {
+            target = this.targetClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("can't create instance of " + this.targetClass + " using default constructor", e);
+        }
+        return this.parse(target, text, pattern, patternMap, allowSubstringMatch);
     }
 
     /**
      * Parse the given text using the provided pattern and mapping from pattern sub-group to Java bean property name.
      *
+     * @param target              target instance
      * @param text                string to parse
      * @param pattern             pattern with substring matching groups that match object properties
      * @param patternMap          mapping from pattern substring group index to object property name
@@ -135,8 +170,9 @@ public class SimpleObjectParser<T> {
      * @throws IllegalArgumentException if the map contains a property that is not a parseable
      *                                  property of this instance's target class
      * @throws IllegalArgumentException if a subgroup index key in patternMap is out of bounds
+     * @since 1.0.95
      */
-    public T parse(String text, Pattern pattern, Map<Integer, String> patternMap, boolean allowSubstringMatch) {
+    public T parse(T target, String text, Pattern pattern, Map<Integer, String> patternMap, boolean allowSubstringMatch) {
 
         // Compose given map with target class' property map
         HashMap<Integer, PropertyDescriptor> subgroupMap = new HashMap<Integer, PropertyDescriptor>();
@@ -153,14 +189,6 @@ public class SimpleObjectParser<T> {
         boolean matches = allowSubstringMatch ? matcher.find() : matcher.matches();
         if (!matches)
             return null;
-
-        // Create instance
-        T obj;
-        try {
-            obj = targetClass.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("unexpected exception", e);
-        }
 
         // Set fields based on matching substrings
         for (Map.Entry<Integer, PropertyDescriptor> entry : subgroupMap.entrySet()) {
@@ -179,14 +207,14 @@ public class SimpleObjectParser<T> {
                 continue;
 
             // Set property from substring
-            this.setProperty(obj, entry.getValue(), substring);
+            this.setProperty(target, entry.getValue(), substring);
         }
 
         // Post-process
-        this.postProcess(obj);
+        this.postProcess(target);
 
         // Done
-        return obj;
+        return target;
     }
 
     /**
@@ -210,8 +238,8 @@ public class SimpleObjectParser<T> {
      * @throws IllegalArgumentException if substring cannot be successfully parsed
      * @throws IllegalArgumentException if an exception is thrown attempting to set the property
      */
-    protected void setProperty(T obj, PropertyDescriptor property, String substring) {
-        setSimpleProperty(obj, property, substring);
+    public void setProperty(T obj, PropertyDescriptor property, String substring) {
+        this.setSimpleProperty(obj, property, substring);
     }
 
     /**
@@ -226,7 +254,7 @@ public class SimpleObjectParser<T> {
      * @throws IllegalArgumentException if substring cannot be successfully parsed (if primitive)
      * @throws IllegalArgumentException if an exception is thrown attempting to set the property
      */
-    protected void setSimpleProperty(T obj, PropertyDescriptor property, String substring) {
+    public void setSimpleProperty(T obj, PropertyDescriptor property, String substring) {
 
         // Parse substring
         Object value;
