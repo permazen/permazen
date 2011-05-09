@@ -217,6 +217,25 @@ public final class StringEncoder {
     }
 
     /**
+     * Determine the length of a string previously enquoted by {@link #enquote} when it appears
+     * as the prefix of a longer string. This method assumes that the prefix is a valid quoted
+     * string; use {@link #dequote} to verify.
+     *
+     * @param string a string containing a prefix returned by {@link #enquote}
+     * @throws IllegalArgumentException if a starting or terminating quote character is not found
+     */
+    public static int enquotedLength(String string) {
+        int len = string.length();
+        if (len == 0 || string.charAt(0) != '"')
+            throw new IllegalArgumentException("invalid quoted string prefix: string does not begin with a quote character");
+        for (int i = 1; i < len; i++) {
+            if (string.charAt(i) == '"' && string.charAt(i - 1) != '\\')
+                return i + 1;
+        }
+        throw new IllegalArgumentException("invalid quoted string prefix: no terminating quote character found");
+    }
+
+    /**
      * Determine if the given character is a valid XML character according to the XML 1.0 specification.
      * <p/>
      * <p>

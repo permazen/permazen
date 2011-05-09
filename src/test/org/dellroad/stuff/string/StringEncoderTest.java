@@ -13,7 +13,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
 
 public class StringEncoderTest extends TestSupport {
 
@@ -49,20 +48,20 @@ public class StringEncoderTest extends TestSupport {
         return new Object[][] {
 
             // Identity encodings
-            new Object[] { false, "", null },
-            new Object[] { false, " !@#$%^&*()_+=asdfajsADSFASDF298734?></.,~`][}|}", null },
-            new Object[] { false, " \t\r\n ", null },
+            { false, "", null },
+            { false, " !@#$%^&*()_+=asdfajsADSFASDF298734?></.,~`][}|}", null },
+            { false, " \t\r\n ", null },
 
             // Other valid encodings
-            new Object[] { true,  " \t\r\n ", " \\t\\r\\n " },
-            new Object[] { false, " \b\f\\ ", " \\b\\f\\\\ " },
-            new Object[] { true,  " \b\t\\ ", " \\b\\t\\\\ " },
-            new Object[] { false, "\\", "\\\\" },
-            new Object[] { false, "\n", "\n" },
-            new Object[] { true,  "\n", "\\n" },
-            new Object[] { false, "\\foo\\", "\\\\foo\\\\" },
-            new Object[] { false, "foo\\bar", "foo\\\\bar" },
-            new Object[] { false,
+            { true,  " \t\r\n ", " \\t\\r\\n " },
+            { false, " \b\f\\ ", " \\b\\f\\\\ " },
+            { true,  " \b\t\\ ", " \\b\\t\\\\ " },
+            { false, "\\", "\\\\" },
+            { false, "\n", "\n" },
+            { true,  "\n", "\\n" },
+            { false, "\\foo\\", "\\\\foo\\\\" },
+            { false, "foo\\bar", "foo\\\\bar" },
+            { false,
               new String(new char[] {
                (char)0x0008, (char)0x0009, (char)0x000a, (char)0x000b, (char)0x000c, (char)0x000d, (char)0x000e,
                (char)0x001f, (char)0x0020, (char)0x0021, (char)0x1234, (char)0xd7ff, (char)0xd800, (char)0xdabc,
@@ -74,16 +73,16 @@ public class StringEncoderTest extends TestSupport {
             },
 
             // Invalid encodings
-            new Object[] { false, null, "foobar \\" },
-            new Object[] { false, null, "foobar \\\\\\" },
-            new Object[] { false, null, "foobar \\ " },
-            new Object[] { false, null, "foobar \\1234" },
-            new Object[] { false, null, "foobar \u005c\u005cu" },
-            new Object[] { false, null, "foobar \u005c\u005cu1" },
-            new Object[] { false, null, "foobar \u005c\u005cu12" },
-            new Object[] { false, null, "foobar \u005c\u005cu123" },
-            new Object[] { false, null, "foobar \u005c\u005cu123g" },
-            new Object[] { false, null, "foobar \u005c\u005cuz000" },
+            { false, null, "foobar \\" },
+            { false, null, "foobar \\\\\\" },
+            { false, null, "foobar \\ " },
+            { false, null, "foobar \\1234" },
+            { false, null, "foobar \u005c\u005cu" },
+            { false, null, "foobar \u005c\u005cu1" },
+            { false, null, "foobar \u005c\u005cu12" },
+            { false, null, "foobar \u005c\u005cu123" },
+            { false, null, "foobar \u005c\u005cu123g" },
+            { false, null, "foobar \u005c\u005cuz000" },
         };
     }
 
@@ -125,6 +124,37 @@ public class StringEncoderTest extends TestSupport {
             { null, "\\\"missing quote" },
             { null, "missing quote\\\"" },
             { null, "\\\"impossible \"embeded but not escaped\" quotes\\\"" },
+        };
+    }
+
+    @Test(dataProvider = "enquotedLength")
+    public void testEnquotedLength(String quoted, int expectedLength) {
+
+        // Get length
+        try {
+            int enquotedLength = StringEncoder.enquotedLength(quoted);
+            assertEquals(enquotedLength, expectedLength);
+        } catch (IllegalArgumentException e) {
+            if (expectedLength != -1)
+                throw e;
+        }
+    }
+
+    @DataProvider(name = "enquotedLength")
+    public Object[][] genQuotedLengthCases() {
+        return new Object[][] {
+
+            // Valid cases
+            { "\"quote\" extra", 7 },
+            { "\"a \\\"quote\\\"\"", 13 },
+            { "\"a \\\"quote\\\"\" then \"junk\" and \\\"more junk\\\" then", 13 },
+            { "\"quote with \\\"invalid\\XXXXescape\\\"\"", 35 },
+
+            // Inalid cases
+            { "not a quote\"", -1 },
+            { "not a quote\\\" either", -1 },
+            { "\"not a quote", -1 },
+            { "not a quote\"", -1 },
         };
     }
 
