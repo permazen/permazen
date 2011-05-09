@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed bug in SimpleObjectParser.parse() parsing regex like "..(({foo}.."
+
 Version 1.0.92 Released April 25, 2011
 
     - Added SimpleObjectParser.parse() method taking a "named subgroup" regex

@@ -101,7 +101,7 @@ public class SimpleObjectParser<T> {
             for (int i = 0; i < chunk.length(); i++) {
                 if (chunk.charAt(i) == '('
                   && (i == 0 || chunk.charAt(i - 1) != '\\')
-                  && (i == chunk.length() || chunk.charAt(i + 1) != '?'))
+                  && (i == chunk.length() - 1 || chunk.charAt(i + 1) != '?'))
                     groupCount++;
             }
             buf.append(chunk);
