@@ -8,7 +8,6 @@
 package org.dellroad.stuff.string;
 
 import org.dellroad.stuff.TestSupport;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
