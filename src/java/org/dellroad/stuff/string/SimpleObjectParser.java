@@ -45,17 +45,11 @@ public class SimpleObjectParser<T> {
     /**
      * Constructor.
      *
-     * @param targetClass class whose instances we will create
-     * @throws IllegalArgumentException if targetClass has no default constructor
+     * @param targetClass type of target object we will be parsing
      */
     public SimpleObjectParser(Class<T> targetClass) {
         this.targetClass = targetClass;
-        try {
-            targetClass.newInstance();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(targetClass + " has no usable default constructor");
-        }
-        buildPropertyMap();
+        this.buildPropertyMap();
     }
 
     /**
