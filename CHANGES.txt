@@ -1,5 +1,6 @@
-Version Next
+Version 1.0.100 Released May 10, 2011
 
+    - Added parse() methods taking explicit target to SimpleObjectParser
     - Fixed bug in SimpleObjectParser.parse() parsing regex like "..(({foo}.."
     - Fixed bug in StringEncoder.enquote(): nested quotes were not being escaped
     - Added StringEncoder.dequote() and StringEncoder.enquotedLength()
