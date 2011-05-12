@@ -17,13 +17,13 @@ public class ThreadParkingLot {
     private final HashSet<Thread> parkedThreads = new HashSet<Thread>();
 
     /**
-     * Park the current thread. Execution will halt until {@link #unpark} is invoked
-     * with the current thread, the given timeout expires, or the current thread is
-     * interrupted.
+     * Park the current thread on this instance. Execution will halt until {@link #unpark unpark()} is invoked
+     * by some other thread with the current thread as the parameter, the given non-zero timeout expires, or
+     * the current thread is interrupted.
      *
      * @param timeout maximum time to stay parked, or zero to park indefinitely
      * @return {@code true} if the thread was unparked by another thread, {@code false} if the timeout expired
-     * @throws IllegalArgumentException if timeout is negative
+     * @throws IllegalArgumentException if {@code timeout} is negative
      * @throws InterruptedException if the current thread is interrupted
      */
     public synchronized boolean park(long timeout) throws InterruptedException {
@@ -42,7 +42,7 @@ public class ThreadParkingLot {
     }
 
     /**
-     * Unpark the specified thread.
+     * Unpark a thread.
      *
      * @param thread the thread to unpark
      * @return {@code true} if {@code thread} was successfully unparked, {@code false} if {@code thread}
@@ -56,7 +56,10 @@ public class ThreadParkingLot {
     }
 
     /**
-     * Determine if the given thread is parked on this instance.
+     * Determine if the given thread is currently parked on this instance.
+     *
+     * @param thread the thread in question
+     * @return {@code true} if {@code thread} is currently parked on this instance, {@code false} otherwise
      */
     public synchronized boolean isParked(Thread thread) {
         return this.parkedThreads.contains(thread);
