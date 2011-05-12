@@ -11,6 +11,8 @@ import java.util.HashSet;
 
 /**
  * A place for threads to be parked and unparked.
+ *
+ * @since 1.0.102
  */
 public class ThreadParkingLot {
 
