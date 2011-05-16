@@ -706,7 +706,7 @@
 
     <!-- Find TestNG -->
     <target name="testng.classpath" unless="testng.classpath.resolved">
-        <dellroad:ivymodpath pathid="testng.classpath" rev="[5.10,6.0[" org="org.testng" mod="testng"/>
+        <dellroad:ivymodpath pathid="testng.classpath" rev="5.14.5" org="org.testng" mod="testng"/>
         <property name="testng.classpath.resolved" value="true"/>
     </target>
 
