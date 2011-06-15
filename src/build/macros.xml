@@ -311,10 +311,10 @@
             </sql>
 
             <!-- Dump schemas as flat files -->
-            <exec executable="/usr/bin/mysqldump" output="build/schemacheck/1.sql" logError="true" failonerror="true">
+            <exec executable="mysqldump" output="build/schemacheck/1.sql" logError="true" failonerror="true">
                 <arg line="-u schemacheck --password=schemacheck --host=localhost --no-data schemacheck_1"/>
             </exec>
-            <exec executable="/usr/bin/mysqldump" output="build/schemacheck/2.sql" logError="true" failonerror="true">
+            <exec executable="mysqldump" output="build/schemacheck/2.sql" logError="true" failonerror="true">
                 <arg line="-u schemacheck --password=schemacheck --host=localhost --no-data schemacheck_2"/>
             </exec>
 
@@ -353,7 +353,7 @@
             <fail message="ERROR: schema mismatch (see above for details)" unless="schemacheck.match"/>
 
             <!-- Show diff(1) of schema dumps -->
-            <exec executable="/usr/bin/diff" logError="true" failonerror="false">
+            <exec executable="diff" logError="true" failonerror="false">
                 <arg value="-u"/>
                 <arg value="-I"/>
                 <arg value="^-- Host: localhost"/>
