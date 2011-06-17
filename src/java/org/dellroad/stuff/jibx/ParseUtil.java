@@ -260,7 +260,7 @@ public final class ParseUtil {
     /**
      * Deserialize a Spring {@link Expression}.
      *
-     * @see #serializeURI
+     * @see #serializeExpression
      */
     public static Expression deserializeExpression(String string) throws JiBXParseException {
         SpelExpressionParser parser = new SpelExpressionParser();
