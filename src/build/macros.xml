@@ -407,7 +407,7 @@
             <source-preparation/>
             <!-- _topdir definition is a workaround for a bug in ant 1.7.0 Rpm.java, line 123 (missing space) -->
             <rpm topdir="build/rpm" specfile="@{specfile}" command="@{buildflag} --define '_topdir ${basedir}/build/rpm'
-              --define 'svn_revision ${svn_revision}' @{rpmflags}"
+              --define 'svn_revision ${svn_revision}' @{rpmflags}" rpmBuildCommand="rpmbuild"
               failOnError="true"/>
             <copy todir="dist" overwrite="true" verbose="true">
                 <fileset dir="build/rpm">
