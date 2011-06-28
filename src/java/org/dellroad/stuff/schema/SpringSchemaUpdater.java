@@ -54,7 +54,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  *
  *     &lt;!-- DataSource that automatically updates the database schema --&gt;
  *     <b>&lt;bean id="dataSource" class="org.dellroad.stuff.schema.SchemaUpdatingDataSource"
- *       p:schemaUpdater-ref="schemaUpdater"/&gt;</b>
+ *       p:dataSource-ref="realDataSource" p:schemaUpdater-ref="schemaUpdater"/&gt;</b>
  *
  *     &lt;!-- Database updater; note use of dellroad-stuff's update table initialization for MySQL --&gt;
  *     <b>&lt;bean id="schemaUpdater" class="org.dellroad.stuff.schema.SpringSchemaUpdater"&gt;
