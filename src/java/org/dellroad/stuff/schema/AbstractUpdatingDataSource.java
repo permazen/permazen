@@ -16,6 +16,9 @@ import javax.sql.DataSource;
 /**
  * A {@link DataSource} that wraps an inner {@link DataSource} and automatically performs some update
  * operation on the inner {@link DataSource} on first access.
+ *
+ * <p>
+ * The {@link #setDataSource dataSource} property is required.
  */
 public abstract class AbstractUpdatingDataSource implements DataSource {
 
