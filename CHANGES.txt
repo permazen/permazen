@@ -2,6 +2,7 @@ Version Next
 
     - Changed TimedWait to use nanoTime() instead of currentTimeMillis()
     - Added ThreadParkingLot
+    - Added ParseContext
     - Added DateEncoder
 
 Version 1.0.100 Released May 10, 2011
