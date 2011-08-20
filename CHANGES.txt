@@ -4,6 +4,7 @@ Version Next
     - Added ThreadParkingLot
     - Added ParseContext
     - Added DateEncoder
+    - Added DoubleFormat
 
 Version 1.0.100 Released May 10, 2011
 
