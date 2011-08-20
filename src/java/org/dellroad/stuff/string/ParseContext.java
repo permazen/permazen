@@ -83,7 +83,7 @@ public class ParseContext implements Cloneable {
      * </blockquote>
      */
     public void reset() {
-        setIndex(0);
+        this.setIndex(0);
     }
 
     /**
@@ -93,8 +93,18 @@ public class ParseContext implements Cloneable {
      * @throws IllegalArgumentException if the current input does not match
      */
     public Matcher matchPrefix(String regex) {
-        String s = getInput();
-        Matcher matcher = Pattern.compile(regex).matcher(s);
+        return this.matchPrefix(Pattern.compile(regex));
+    }
+
+    /**
+     * Match the current input against the given regular expression and advance past it.
+     *
+     * @param regex regular expression to match against the current input
+     * @throws IllegalArgumentException if the current input does not match
+     */
+    public Matcher matchPrefix(Pattern regex) {
+        String s = this.getInput();
+        Matcher matcher = regex.matcher(s);
         if (!matcher.lookingAt())
             throw buildException("expected input matching pattern `" + regex + "'");
         this.index += matcher.end();
@@ -129,7 +139,7 @@ public class ParseContext implements Cloneable {
      * @throws IllegalArgumentException if there are no more characters
      */
     public char read() {
-        char ch = peek();
+        char ch = this.peek();
         this.index++;
         return ch;
     }
@@ -144,7 +154,7 @@ public class ParseContext implements Cloneable {
         try {
             return this.input.charAt(this.index);
         } catch (StringIndexOutOfBoundsException e) {
-            throw buildException("truncated input");
+            throw this.buildException("truncated input");
         }
     }
 
@@ -167,8 +177,8 @@ public class ParseContext implements Cloneable {
      *  next character read is not {@code ch}
      */
     public void expect(char ch) {
-        if (read() != ch) {
-            unread();
+        if (this.read() != ch) {
+            this.unread();
             throw buildException("expected `" + ch + "'");
         }
     }
@@ -198,7 +208,7 @@ public class ParseContext implements Cloneable {
      * Create a generic exception for rejecting the current input.
      */
     public IllegalArgumentException buildException() {
-        return buildException(null);
+        return this.buildException(null);
     }
 
     /**
