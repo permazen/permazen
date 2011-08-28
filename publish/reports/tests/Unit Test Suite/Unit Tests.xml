@@ -1,59 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite hostname="ecx.dellroad.org" name="org.dellroad.stuff.graph.TopologicalSorterTest" tests="117" failures="0" timestamp="10 May 2011 16:42:59 GMT" time="0.281" errors="0">
-  <testcase name="testSort" time="0.003" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+<testsuite hostname="ecx.dellroad.org" name="org.dellroad.stuff.graph.TopologicalSorterTest" tests="118" failures="0" timestamp="28 Aug 2011 20:33:02 GMT" time="0.295" errors="0">
+  <testcase name="testSort" time="0.004" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.0" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.0" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.009" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
-  <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.0" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testSort" time="0.002" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.0" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.001" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.0" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
+  <testcase name="testSort" time="0.0" classname="org.dellroad.stuff.graph.TopologicalSorterTest"/>
   <testcase name="testAsyncInputStream" time="0.003" classname="org.dellroad.stuff.io.AsyncInputStreamTest"/>
-  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testParse" time="0.005" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testParse" time="0.004" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
+  <testcase name="testParse" time="0.003" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
+  <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
+  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
+  <testcase name="testParse" time="0.002" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
+  <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
+  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
-  <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.jibx.ParseUtilTest"/>
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
@@ -66,29 +65,31 @@
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
+  <testcase name="testByteArrayEncoding" time="0.001" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testByteArrayEncoding" time="0.0" classname="org.dellroad.stuff.string.ByteArrayEncoderTest"/>
   <testcase name="testNamedGroupParse" time="0.005" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
   <testcase name="testNamedGroupParse" time="0.001" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
+  <testcase name="testNamedGroupParse" time="0.006" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
   <testcase name="testNamedGroupParse" time="0.001" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
-  <testcase name="testNamedGroupParse" time="0.001" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
+  <testcase name="testNamedGroupParse" time="0.002" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
   <testcase name="testNamedGroupParse" time="0.0" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
   <testcase name="testNamedGroupParse" time="0.001" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
   <testcase name="testNamedGroupParse" time="0.0" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
   <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
-  <testcase name="testParse" time="0.001" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
   <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
+  <testcase name="testParse" time="0.0" classname="org.dellroad.stuff.string.SimpleObjectParserTest"/>
+  <testcase name="testEnquotedLength" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testEnquotedLength" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testEnquotedLength" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testEnquotedLength" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testEnquotedLength" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testEnquotedLength" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testEnquotedLength" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testEnquotedLength" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testEnquotedLength" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testEnquotedLength" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testEnquotedLength" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.002" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
@@ -103,18 +104,18 @@
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEncode" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEnquote" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEncode" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEnquote" time="0.003" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEnquote" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEnquote" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
+  <testcase name="testStringEnquote" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEnquote" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEnquote" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEnquote" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
   <testcase name="testStringEnquote" time="0.001" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEnquote" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEnquote" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testStringEnquote" time="0.0" classname="org.dellroad.stuff.string.StringEncoderTest"/>
-  <testcase name="testValidation" time="0.044" classname="org.dellroad.stuff.validation.SelfValidatingTest"/>
+  <testcase name="testValidation" time="0.097" classname="org.dellroad.stuff.validation.SelfValidatingTest"/>
 </testsuite>

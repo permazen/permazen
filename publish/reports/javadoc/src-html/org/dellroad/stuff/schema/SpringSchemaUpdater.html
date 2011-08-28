@@ -57,7 +57,7 @@
 <FONT color="green">054</FONT>     *<a name="line.54"></a>
 <FONT color="green">055</FONT>     *     &amp;lt;!-- DataSource that automatically updates the database schema --&amp;gt;<a name="line.55"></a>
 <FONT color="green">056</FONT>     *     &lt;b&gt;&amp;lt;bean id="dataSource" class="org.dellroad.stuff.schema.SchemaUpdatingDataSource"<a name="line.56"></a>
-<FONT color="green">057</FONT>     *       p:schemaUpdater-ref="schemaUpdater"/&amp;gt;&lt;/b&gt;<a name="line.57"></a>
+<FONT color="green">057</FONT>     *       p:dataSource-ref="realDataSource" p:schemaUpdater-ref="schemaUpdater"/&amp;gt;&lt;/b&gt;<a name="line.57"></a>
 <FONT color="green">058</FONT>     *<a name="line.58"></a>
 <FONT color="green">059</FONT>     *     &amp;lt;!-- Database updater; note use of dellroad-stuff's update table initialization for MySQL --&amp;gt;<a name="line.59"></a>
 <FONT color="green">060</FONT>     *     &lt;b&gt;&amp;lt;bean id="schemaUpdater" class="org.dellroad.stuff.schema.SpringSchemaUpdater"&amp;gt;<a name="line.60"></a>

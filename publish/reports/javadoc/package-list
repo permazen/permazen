@@ -9,5 +9,6 @@ org.dellroad.stuff.schema
 org.dellroad.stuff.servlet
 org.dellroad.stuff.spring
 org.dellroad.stuff.string
+org.dellroad.stuff.util
 org.dellroad.stuff.vaadin
 org.dellroad.stuff.validation
