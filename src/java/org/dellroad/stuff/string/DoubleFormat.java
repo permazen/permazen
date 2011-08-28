@@ -10,7 +10,7 @@ package org.dellroad.stuff.string;
 import java.util.regex.Pattern;
 
 /**
- * Java double string format regular expression. Adapted from the {@link Double.valueOf(String)} Javadoc.
+ * Java double string format regular expression. Adapted from the {@link Double#valueOf(String)} Javadoc.
  */
 public final class DoubleFormat {
 
