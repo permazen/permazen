@@ -18,7 +18,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * {@link ApplicationServlet} that acquires {@link Application} instances from an
+ * Vaadin {@link Application} servlet that acquires {@link Application} instances from an
  * associated Spring {@link WebApplicationContext}.
  * This allows a Vaadin application to be configured as a normal bean inside
  * a Spring application context, where annotations such as
