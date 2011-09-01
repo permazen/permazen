@@ -8,14 +8,11 @@
 package org.dellroad.stuff.vaadin;
 
 import com.vaadin.Application;
-import com.vaadin.terminal.gwt.server.ApplicationServlet;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -112,9 +109,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @since 1.0.50
  */
 @SuppressWarnings("serial")
-public class WebContextApplicationServlet extends ApplicationServlet {
-
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+public class WebContextApplicationServlet extends ContextApplicationServlet {
 
     private WebApplicationContext webApplicationContext;
 
@@ -160,14 +155,14 @@ public class WebContextApplicationServlet extends ApplicationServlet {
      * @throws ServletException if bean creation fails
      */
     @Override
-    protected Application getNewApplication(HttpServletRequest request) throws ServletException {
+    protected Application createNewApplication(HttpServletRequest request) throws ServletException {
         Class<? extends Application> applicationClass;
         try {
             applicationClass = this.getApplicationClass();
         } catch (ClassNotFoundException e) {
             throw new ServletException("failed to create new instance of application class", e);
         }
-        log.debug("acquiring new instance of " + applicationClass + " from " + this.webApplicationContext);
+        this.log.debug("acquiring new instance of " + applicationClass + " from " + this.webApplicationContext);
         try {
             return this.getWebApplicationContext().getBean(applicationClass);
         } catch (BeansException e) {

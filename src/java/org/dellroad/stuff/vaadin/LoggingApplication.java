@@ -8,24 +8,13 @@
 package org.dellroad.stuff.vaadin;
 
 import com.vaadin.Application;
-import com.vaadin.terminal.ErrorMessage;
-import com.vaadin.terminal.ParameterHandler;
-import com.vaadin.terminal.SystemError;
 import com.vaadin.terminal.Terminal;
-import com.vaadin.terminal.URIHandler;
-import com.vaadin.terminal.VariableOwner;
-import com.vaadin.terminal.gwt.server.ChangeVariablesErrorEvent;
-import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Window;
 
 import java.net.SocketException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 /**
  * {@link Application} subclass that provides subclasses with a {@link Logger}
@@ -46,40 +35,13 @@ public abstract class LoggingApplication extends Application {
     @Override
     public void terminalError(Terminal.ErrorEvent event) {
 
-        // Get exception
+        // Delegate to superclass
+        super.terminalError(event);
+
+        // Get exception; ignore client "hangups"
         final Throwable t = event.getThrowable();
-
-        // Ignore client "hangups"
-        if (t instanceof SocketException) {
-            HttpServletRequest request = getCurrentRequest();
-            log.warn("socket exception talking to " + request.getRemoteAddr() + ":" + request.getRemotePort() + ": " + t);
+        if (t instanceof SocketException)
             return;
-        }
-
-        // Log it
-        log.error("internal error in " + getClass().getSimpleName() + ": " + event, t);
-
-        // Note: the following code was copied from Application.java...
-
-        // Finds the original source of the error/exception
-        Object owner = null;
-        if (event instanceof VariableOwner.ErrorEvent)
-            owner = ((VariableOwner.ErrorEvent)event).getVariableOwner();
-        else if (event instanceof URIHandler.ErrorEvent)
-            owner = ((URIHandler.ErrorEvent)event).getURIHandler();
-        else if (event instanceof ParameterHandler.ErrorEvent)
-            owner = ((ParameterHandler.ErrorEvent)event).getParameterHandler();
-        else if (event instanceof ChangeVariablesErrorEvent)
-            owner = ((ChangeVariablesErrorEvent)event).getComponent();
-
-        // Shows the error in AbstractComponent
-        if (owner instanceof AbstractComponent) {
-            AbstractComponent component = (AbstractComponent)owner;
-            if (t instanceof ErrorMessage)
-                component.setComponentError((ErrorMessage)t);
-            else
-                component.setComponentError(new SystemError(t));
-        }
 
         // Notify user
         this.showError("Internal Error", "" + t);
@@ -102,12 +64,6 @@ public abstract class LoggingApplication extends Application {
         for (int i = 0; i < 100 && t.getCause() != null; i++)
             t = t.getCause();
         this.showError(title, t.getClass().getSimpleName() + ": " + t.getMessage());
-    }
-
-    public HttpServletRequest getCurrentRequest() {
-        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-        return (HttpServletRequest)requestAttributes.getAttribute(
-          RequestAttributes.REFERENCE_REQUEST, RequestAttributes.SCOPE_REQUEST);
     }
 }
 
