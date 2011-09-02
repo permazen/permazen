@@ -128,11 +128,16 @@ public class ContextApplicationServlet extends ApplicationServlet {
     }
 
     private void setCurrentApplication(HttpServletRequest request, Application application) {
-        if (ContextApplicationServlet.CURRENT_REQUEST.get() != request) {
-            this.log.warn("unexpected state: the current HTTP request (" + ContextApplicationServlet.CURRENT_REQUEST.get()
+
+        // Sanity check
+        HttpServletRequest currentRequest = ContextApplicationServlet.CURRENT_REQUEST.get();
+        if (currentRequest != request) {
+            this.log.warn("unexpected state: the current HTTP request (" + currentRequest
               + ") is not the same as the provided HTTP request (" + request + ")");
             return;
         }
+
+        // Set current application
         ContextApplicationServlet.CURRENT_APPLICATION.set(application);
     }
 
