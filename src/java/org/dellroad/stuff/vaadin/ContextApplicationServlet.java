@@ -156,6 +156,21 @@ public class ContextApplicationServlet extends ApplicationServlet {
     }
 
     /**
+     * Get the {@link Application} associated with the current thread, cast to the desired type.
+     *
+     * <p>
+     * If the current thread is handling a Vaadin web request, this method will return the associated {@link Application}.
+     * </p>
+     *
+     * @param type expected application type
+     * @return the {@link Application} associated with the current thread, or {@code null} if the current thread
+     *  is not servicing a Vaadin web request or the current Vaadin {@link Application} was not created by this servlet.
+     */
+    public static <A extends Application> A currentApplication(Class<A> type) {
+        return type.cast(ContextApplicationServlet.currentApplication());
+    }
+
+    /**
      * Get the {@link HttpServletRequest} associated with the current thread.
      *
      * <p>
