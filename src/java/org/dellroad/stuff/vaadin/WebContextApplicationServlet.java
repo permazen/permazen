@@ -102,6 +102,12 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *  &lt;!-- Define other beans... --&gt;
  * </pre></blockquote>
  *
+ * <p>
+ * Note: a nicer approach is to use Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable}
+ * annotation in combination with build-time (or runtime) AOP bytecode weaving. With that approach, all of your widget classes
+ * can be autowired, not just the {@link Application} class as with this class.
+ * </p>
+ *
  * @see org.springframework.web.servlet.mvc.ContextLoaderListener
  * @see org.springframework.web.servlet.DispatcherServlet
  * @see org.springframework.web.servlet.mvc.ServletWrappingController
