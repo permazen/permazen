@@ -3,6 +3,7 @@ Version Next
 
     - Added ContextApplicationServlet
     - Update for latest Vaadin version
+    - Add support for JiBX parsing of templated Spring EL expressions
 
 Version 1.0.119 Released Aug 28, 2011
 

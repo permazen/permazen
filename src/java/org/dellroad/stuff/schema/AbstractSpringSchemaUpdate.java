@@ -22,7 +22,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
  * name and required predecessors from their Spring bean attributes.
  *
  * <p>
- * Instances infer their {@link #getName name} and {@link #getRequiredPredecessors required predecessors} from
+ * Instances infer their {@linkplain #getName name} and {@linkplain #getRequiredPredecessors required predecessors} from
  * their Spring bean name (specified by the <code>id</code> XML attribute) and Spring dependencies (specified by
  * the <code>depends-on</code> XML attribute), respectively.
  *

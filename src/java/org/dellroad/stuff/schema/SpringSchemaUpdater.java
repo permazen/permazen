@@ -34,7 +34,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * <li>{@link #getOrderingTieBreaker} is overridden to break ties by ordering updates in the same order
  *  as they are defined in the bean factory.</li>
  * <li>This class implements {@link InitializingBean} and verifies all required properties are set.</li>
- * <li>If no updates are {@link #setUpdates explicitly configured}, then all {@link SchemaUpdate}s found
+ * <li>If no updates are {@linkplain #setUpdates explicitly configured}, then all {@link SchemaUpdate}s found
  *  in the containing bean factory are automatically configured.
  * </ul>
  *

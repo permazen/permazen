@@ -17,7 +17,7 @@ import java.sql.SQLException;
  * This class provides the combined functionality of {@link DelegatingSchemaUpdate} and {@link AbstractSpringSchemaUpdate}.
  *
  * <p>
- * When using Spring and setting the {@link #setDatabaseAction database action} to a {@link SQLDatabaseAction}, beans
+ * When using Spring and setting the {@linkplain #setDatabaseAction database action} to a {@link SQLDatabaseAction}, beans
  * can be created succintly using the <code>&lt;dellroad-stuff:sql-update&gt;</code> custom XML element, which works
  * just like <code>&lt;dellroad-stuff:sql&gt;</code> except that it wraps the resulting {@link SQLDatabaseAction}
  * inside an instance of this class as the delegate.
