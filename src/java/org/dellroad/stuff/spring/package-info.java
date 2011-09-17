@@ -11,8 +11,11 @@
  * <p>
  * This package also implements the <code>&lt;dellroad-stuff:sql&gt;</code> and <code>&lt;dellroad-stuff:sql-update&gt;</code>
  * custom Spring XML elements; see {@link org.dellroad.stuff.schema.SQLDatabaseAction SQLDatabaseAction} and
- * {@link org.dellroad.stuff.schema.SpringDelegatingSchemaUpdate SpringDelegatingSchemaUpdate}.
+ * {@link org.dellroad.stuff.schema.SpringSQLSchemaUpdate SpringSQLSchemaUpdate}.
  *
+ * @see org.dellroad.stuff.schema.SpringSchemaUpdater
+ * @see org.dellroad.stuff.schema.SQLDatabaseAction
+ * @see org.dellroad.stuff.schema.SpringSQLSchemaUpdate
  * @see <a href="http://www.springframework.org/">Spring Framework</a>
  */
 package org.dellroad.stuff.spring;

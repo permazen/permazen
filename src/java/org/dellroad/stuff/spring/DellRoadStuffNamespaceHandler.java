@@ -16,7 +16,7 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * <p>
  * This adds support for the <code>&lt;dellroad-stuff:sql/&gt;</code> XML tag, which defines a
  * {@link org.dellroad.stuff.schema.SQLDatabaseAction} bean, and the <code>&lt;dellroad-stuff:sql-update/&gt;</code> XML tag,
- * which wraps the same thing in a {@link org.dellroad.stuff.schema.SpringDelegatingSchemaUpdate} bean.
+ * which wraps the same thing in a {@link org.dellroad.stuff.schema.SpringSQLSchemaUpdate} bean.
  */
 public class DellRoadStuffNamespaceHandler extends NamespaceHandlerSupport {
 

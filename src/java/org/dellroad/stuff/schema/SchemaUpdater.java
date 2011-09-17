@@ -16,10 +16,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.sql.DataSource;
 
@@ -41,13 +44,13 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * Required properties are the {@link #setDatabaseInitialization database initialization},
- * {@link #setUpdateTableInitialization update table initialization}, and the {@link #setUpdates updates} themselves.
+ * Required properties are the {@linkplain #setDatabaseInitialization database initialization},
+ * {@linkplain #setUpdateTableInitialization update table initialization}, and the {@linkplain #setUpdates updates} themselves.
  * </p>
  *
  * <p>
  * Applied updates are recorded in a special <i>update table</i>, which contains two columns: one for the unique
- * {@link SchemaUpdate#getName update name} and one for a timestamp. The update table and column names
+ * {@linkplain SchemaUpdate#getName update name} and one for a timestamp. The update table and column names
  * are configurable via {@link #setUpdateTableName setUpdateTableName()},
  * {@link #setUpdateTableNameColumn setUpdateTableNameColumn()}, and {@link #setUpdateTableTimeColumn setUpdateTableTimeColumn()}.
  * </p>
@@ -55,8 +58,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * By default, this class detects a completely uninitialized database by the absence of the update table itself
  * in the schema (see {@link #databaseNeedsInitialization databaseNeedsInitialization()}).
- * When an uninitialized database is encountered, the configured {@link #setDatabaseInitialization database initialization}
- * and {@link #setUpdateTableInitialization update table initialization} actions are applied first to initialize
+ * When an uninitialized database is encountered, the configured {@linkplain #setDatabaseInitialization database initialization}
+ * and {@linkplain #setUpdateTableInitialization update table initialization} actions are applied first to initialize
  * the database schema.
  * </p>
  */
@@ -102,7 +105,7 @@ public class SchemaUpdater {
      * Default value is {@link #DEFAULT_UPDATE_TABLE_NAME}.
      *
      * <p>
-     * This name must be consistent with the {@link #setUpdateTableInitialization update table initialization}.
+     * This name must be consistent with the {@linkplain #setUpdateTableInitialization update table initialization}.
      */
     public void setUpdateTableName(String updateTableName) {
         this.updateTableName = updateTableName;
@@ -122,7 +125,7 @@ public class SchemaUpdater {
      * Default value is {@link #DEFAULT_UPDATE_TABLE_NAME_COLUMN}.
      *
      * <p>
-     * This name must be consistent with the {@link #setUpdateTableInitialization update table initialization}.
+     * This name must be consistent with the {@linkplain #setUpdateTableInitialization update table initialization}.
      */
     public void setUpdateTableNameColumn(String updateTableNameColumn) {
         this.updateTableNameColumn = updateTableNameColumn;
@@ -142,7 +145,7 @@ public class SchemaUpdater {
      * Default value is {@link #DEFAULT_UPDATE_TABLE_TIME_COLUMN}.
      *
      * <p>
-     * This name must be consistent with the {@link #setUpdateTableInitialization update table initialization}.
+     * This name must be consistent with the {@linkplain #setUpdateTableInitialization update table initialization}.
      */
     public void setUpdateTableTimeColumn(String updateTableTimeColumn) {
         this.updateTableTimeColumn = updateTableTimeColumn;
@@ -218,7 +221,7 @@ public class SchemaUpdater {
      *
      * <p>
      * Note this script is <i>not</i> expected to create the update table that tracks schema updates;
-     * that function is handled by the {@link #setUpdateTableInitialization update table initialization}.
+     * that function is handled by the {@linkplain #setUpdateTableInitialization update table initialization}.
      *
      * @param databaseInitialization application database schema initialization
      */
@@ -246,7 +249,7 @@ public class SchemaUpdater {
      * it would be possible for different databases to have inconsistent schemas even though the same updates were recorded.
      *
      * <p>
-     * Furthermore, if not configured to {@link #setIgnoreUnrecognizedUpdates ignore unrecognized updates already applied}
+     * Furthermore, if not configured to {@linkplain #setIgnoreUnrecognizedUpdates ignore unrecognized updates already applied}
      * (the default behavior), then updates must never be removed from this set as the application evolves;
      * see {@link #setIgnoreUnrecognizedUpdates} for more information on the rationale.
      *
@@ -292,15 +295,15 @@ public class SchemaUpdater {
      * Perform database schema initialization and updates.
      *
      * <p>
-     * This method applies the following logic: if the {@link #databaseNeedsInitialization database needs initialization},
-     * then {@link #initializeDatabase initialize} the database; then, {@link #applySchemaUpdates apply schema updates} as needed.
-     * The database initialization step and each schema update is applied within its own transaction.
+     * This method applies the following logic: if the {@linkplain #databaseNeedsInitialization database needs initialization},
+     * then {@linkplain #initializeDatabase initialize} the database; then, {@linkplain #applySchemaUpdates apply schema updates}
+     * as needed. The database initialization step and each schema update is applied within its own transaction.
      *
      * @throws SQLException if an update fails
      * @throws IllegalStateException if the database needs initialization and either the
-     *  {@link #setDatabaseInitialization database initialization} or
-     *  the {@link #setUpdateTableInitialization update table initialization} has not been configured
-     * @throws IllegalStateException if this instance is not configured to {@link #setIgnoreUnrecognizedUpdates ignore
+     *  {@linkplain #setDatabaseInitialization database initialization} or
+     *  the {@linkplain #setUpdateTableInitialization update table initialization} has not been configured
+     * @throws IllegalStateException if this instance is not configured to {@linkplain #setIgnoreUnrecognizedUpdates ignore
      * unrecognized updates} and an unrecognized update is registered in the update table as having already been applied
      * @throws IllegalArgumentException if two configured updates have the same name
      * @throws IllegalArgumentException if any configured update has a required predecessor which is not also a configured update
@@ -368,18 +371,20 @@ public class SchemaUpdater {
      * <p>
      * The implementation in {@link SchemaUpdater} does the standard JDBC thing using an INSERT statement
      * into the update table.
+     * </p>
+     *
+     * @param c SQL connection
+     * @param name update name
      */
-    protected void recordUpdateApplied(Connection c, SchemaUpdate update) throws SQLException {
+    protected void recordUpdateApplied(Connection c, String name) throws SQLException {
         PreparedStatement s = c.prepareStatement("INSERT INTO " + this.getUpdateTableName()
           + " (" + this.getUpdateTableNameColumn() + ", " + this.getUpdateTableTimeColumn() + ") VALUES (?, ?)");
         try {
-            s.setString(1, update.getName());
+            s.setString(1, name);
             s.setDate(2, new java.sql.Date(new Date().getTime()));
             int rows = s.executeUpdate();
-            if (rows != 1) {
-                throw new IllegalStateException("expected 1 row returned from INSERT but got zero for update `"
-                  + update.getName() + "'");
-            }
+            if (rows != 1)
+                throw new IllegalStateException("expected 1 row returned from INSERT but got zero for update `" + name + "'");
         } finally {
             s.close();
         }
@@ -422,6 +427,20 @@ public class SchemaUpdater {
         };
     }
 
+    /**
+     * Generate the update name for one action within a multi-action update.
+     *
+     * <p>
+     * The implementation in {@link SchemaUpdater} just adds a suffix using {@code index + 1}, padded to
+     * 5 digits, producing names like {@code name-00001}, {@code name-00002}, etc.
+     *
+     * @param update the schema update
+     * @param index the index of the action (zero based)
+     */
+    protected String generateMultiUpdateName(SchemaUpdate update, int index) {
+        return String.format("%s-%5d", update.getName(), index + 1);
+    }
+
     // Initialize the database
     private void initializeDatabase(final DataSource dataSource) throws SQLException {
 
@@ -435,7 +454,7 @@ public class SchemaUpdater {
         this.applyInTransaction(dataSource, new DatabaseAction() {
 
             @Override
-            public void apply(Connection c) throws SQLException {
+            public void apply(final Connection c) throws SQLException {
 
                 // Initialize application schema
                 SchemaUpdater.this.log.info("intializing database schema");
@@ -446,29 +465,34 @@ public class SchemaUpdater {
                 SchemaUpdater.this.applyAction(dataSource, SchemaUpdater.this.getUpdateTableInitialization());
 
                 // Record all schema updates as having already been applied
-                for (SchemaUpdate update : SchemaUpdater.this.getUpdates())
-                    SchemaUpdater.this.recordUpdateApplied(c, update);
+                for (SchemaUpdate update : SchemaUpdater.this.getUpdates()) {
+                    for (String name : SchemaUpdater.this.getUpdateNames(update))
+                        SchemaUpdater.this.recordUpdateApplied(c, name);
+                }
             }
         });
     }
 
     // Apply schema updates
-    private void applySchemaUpdates(DataSource dataSource) throws SQLException {
+    private void applySchemaUpdates(final DataSource dataSource) throws SQLException {
 
         // Sanity check
-        if (this.getUpdates() == null)
+        final Collection<SchemaUpdate> allUpdates = this.getUpdates();
+        if (allUpdates == null)
             throw new IllegalArgumentException("schema updates set is not configured");
 
-        // Create map of updates by name
-        HashMap<String, SchemaUpdate> updateMap = new HashMap<String, SchemaUpdate>(this.getUpdates().size());
-        for (SchemaUpdate update : this.getUpdates()) {
-            if (updateMap.put(update.getName(), update) != null)
-                throw new IllegalArgumentException("duplicate schema update name `" + update.getName() + "'");
+        // Create mapping from update name to update; multiple updates will have multiple names
+        TreeMap<String, SchemaUpdate> updateMap = new TreeMap<String, SchemaUpdate>();
+        for (SchemaUpdate update : allUpdates) {
+            for (String updateName : this.getUpdateNames(update)) {
+                if (updateMap.put(updateName, update) != null)
+                    throw new IllegalArgumentException("duplicate schema update name `" + updateName + "'");
+            }
         }
         this.log.debug("these are all known schema updates: " + updateMap.keySet());
 
         // Verify updates are transitively closed under predecessor constraints
-        for (SchemaUpdate update : this.getUpdates()) {
+        for (SchemaUpdate update : allUpdates) {
             for (SchemaUpdate predecessor : update.getRequiredPredecessors()) {
                 if (!this.getUpdates().contains(predecessor)) {
                     throw new IllegalArgumentException("schema update `" + update.getName()
@@ -478,8 +502,8 @@ public class SchemaUpdater {
         }
 
         // Sort updates in the order we should to apply them
-        List<SchemaUpdate> updateList = new TopologicalSorter<SchemaUpdate>(
-          updateMap.values(), new SchemaUpdateEdgeLister(), this.getOrderingTieBreaker()).sortEdgesReversed();
+        List<SchemaUpdate> updateList = new TopologicalSorter<SchemaUpdate>(allUpdates,
+          new SchemaUpdateEdgeLister(), this.getOrderingTieBreaker()).sortEdgesReversed();
 
         // Determine which updates have already been applied
         Set<String> appliedUpdates;
@@ -491,48 +515,168 @@ public class SchemaUpdater {
         }
         this.log.debug("these are the already-applied schema updates: " + appliedUpdates);
 
-        // Check whether any unknown updates have been applied; remove already-applied updates from our update map
-        HashSet<String> unknown = new HashSet<String>();
-        for (String updateName : appliedUpdates) {
-            if (!updateMap.containsKey(updateName))
-                unknown.add(updateName);
-        }
+        // Check whether any unknown updates have been applied
+        TreeSet<String> unknown = new TreeSet<String>(appliedUpdates);
+        unknown.removeAll(updateMap.keySet());
         if (!unknown.isEmpty()) {
             if (!this.isIgnoreUnrecognizedUpdates())
                 throw new IllegalStateException(unknown.size() + " unrecognized update(s) have already been applied: " + unknown);
             this.log.info("ignoring " + unknown.size() + " unrecognized update(s) already applied: " + unknown);
         }
 
-        // Elide the already-applied updates from the list
-        List<String> updateNames = new ArrayList<String>(updateList.size());
-        ArrayList<SchemaUpdate> trimmedList = new ArrayList<SchemaUpdate>(updateList.size());
-        for (SchemaUpdate update : updateList) {
-            if (!appliedUpdates.contains(update.getName())) {
-                trimmedList.add(update);
-                updateNames.add(update.getName());
-            }
+        // Remove the already-applied updates
+        updateMap.keySet().removeAll(appliedUpdates);
+        final LinkedHashSet<String> remainingUpdateNames = new LinkedHashSet<String>(updateMap.keySet());
+        HashSet<SchemaUpdate> remainingUpdates = new HashSet<SchemaUpdate>(updateMap.values());
+        for (Iterator<SchemaUpdate> i = updateList.iterator(); i.hasNext(); ) {
+            if (!remainingUpdates.contains(i.next()))
+                i.remove();
         }
-        updateList = trimmedList;
 
-        // Now any updates needed?
+        // Now are any updates needed?
         if (updateList.isEmpty()) {
             this.log.info("no schema updates are required");
             return;
         }
 
         // Apply updates
-        this.log.info("applying these " + updateNames.size() + " schema update(s): " + updateNames);
-        for (SchemaUpdate update0 : updateList) {
-            final SchemaUpdate update = update0;
-            this.applyInTransaction(dataSource, new DatabaseAction() {
-
+        this.log.info("applying these " + remainingUpdateNames.size() + " schema update(s): " + remainingUpdateNames);
+        for (SchemaUpdate nextUpdate : updateList) {
+            UpdateHandler updateHandler = new UpdateHandler(nextUpdate) {
                 @Override
-                public void apply(Connection c) throws SQLException {
-                    SchemaUpdater.this.log.info("applying schema update `" + update.getName() + "'");
-                    update.apply(c);
-                    SchemaUpdater.this.recordUpdateApplied(c, update);
+                protected void handleEmptyUpdate(final SchemaUpdate update) throws SQLException {
+                    assert !remainingUpdateNames.contains(update.getName());
+                    SchemaUpdater.this.applyInTransaction(dataSource, new DatabaseAction() {
+                        @Override
+                        public void apply(Connection c) throws SQLException {
+                            SchemaUpdater.this.log.info("recording empty schema update `" + update.getName() + "'");
+                            SchemaUpdater.this.recordUpdateApplied(c, update.getName());
+                        }
+                    });
                 }
-            });
+                @Override
+                protected void handleSingleUpdate(final SchemaUpdate update, final DatabaseAction action) throws SQLException {
+                    assert !remainingUpdateNames.contains(update.getName());
+                    SchemaUpdater.this.applyInTransaction(dataSource, new DatabaseAction() {
+                        @Override
+                        public void apply(Connection c) throws SQLException {
+                            SchemaUpdater.this.applyAndRecordUpdate(dataSource, update.getName(), action);
+                        }
+                    });
+                }
+                @Override
+                protected void handleSingleMultiUpdate(final SchemaUpdate update, final List<DatabaseAction> actions)
+                  throws SQLException {
+                    assert !remainingUpdateNames.contains(update.getName());
+                    SchemaUpdater.this.applyInTransaction(dataSource, new DatabaseAction() {
+                        @Override
+                        public void apply(Connection c) throws SQLException {
+                            SchemaUpdater.this.applyAndRecordUpdate(dataSource, update.getName(), new MultiAction(actions));
+                        }
+                    });
+                }
+                @Override
+                protected void handleMultiUpdate(SchemaUpdate update, final DatabaseAction action, int index) throws SQLException {
+                    final String updateName = SchemaUpdater.this.generateMultiUpdateName(update, index);
+                    if (!remainingUpdateNames.contains(updateName))                 // a partially completed multi-update
+                        return;
+                    SchemaUpdater.this.applyInTransaction(dataSource, new DatabaseAction() {
+                        @Override
+                        public void apply(Connection c) throws SQLException {
+                            SchemaUpdater.this.applyAndRecordUpdate(dataSource, updateName, action);
+                        }
+                    });
+                }
+            };
+            updateHandler.process();
+        }
+    }
+
+    private ArrayList<String> getUpdateNames(SchemaUpdate update) throws SQLException {
+        final ArrayList<String> names = new ArrayList<String>();
+        UpdateHandler updateHandler = new UpdateHandler(update) {
+            @Override
+            protected void handleSingleUpdate(SchemaUpdate update, DatabaseAction action) {
+                names.add(update.getName());
+            }
+            @Override
+            protected void handleMultiUpdate(SchemaUpdate update, DatabaseAction action, int index) {
+                names.add(SchemaUpdater.this.generateMultiUpdateName(update, index));
+            }
+        };
+        updateHandler.process();
+        return names;
+    }
+
+    private void applyAndRecordUpdate(DataSource dataSource, final String name, final DatabaseAction action) throws SQLException {
+        this.applyInTransaction(dataSource, new DatabaseAction() {
+            @Override
+            public void apply(Connection c) throws SQLException {
+                SchemaUpdater.this.log.info("applying schema update `" + name + "'");
+                action.apply(c);
+                SchemaUpdater.this.recordUpdateApplied(c, name);
+            }
+        });
+    }
+
+    private static class UpdateHandler {
+
+        private final SchemaUpdate update;
+        private final List<DatabaseAction> actions;
+
+        public UpdateHandler(SchemaUpdate update) {
+            this.update = update;
+            this.actions = update.getDatabaseActions();
+        }
+
+        public final void process() throws SQLException {
+            switch (this.actions.size()) {
+            case 0:
+                this.handleEmptyUpdate(this.update);
+                break;
+            case 1:
+                this.handleSingleUpdate(this.update, this.actions.get(0));
+                break;
+            default:
+                if (update.isSingleAction()) {
+                    this.handleSingleMultiUpdate(this.update, actions);
+                    break;
+                } else {
+                    int index = 0;
+                    for (DatabaseAction action : this.actions)
+                        this.handleMultiUpdate(this.update, action, index++);
+                }
+                break;
+            }
+        }
+
+        protected void handleEmptyUpdate(SchemaUpdate update) throws SQLException {
+            this.handleSingleUpdate(update, null);
+        }
+
+        protected void handleSingleUpdate(SchemaUpdate update, DatabaseAction action) throws SQLException {
+        }
+
+        protected void handleSingleMultiUpdate(SchemaUpdate update, List<DatabaseAction> actions) throws SQLException {
+            this.handleSingleUpdate(update, null);
+        }
+
+        protected void handleMultiUpdate(SchemaUpdate update, DatabaseAction action, int index) throws SQLException {
+        }
+    }
+
+    private static final class MultiAction implements DatabaseAction {
+
+        private final List<DatabaseAction> actions;
+
+        public MultiAction(List<DatabaseAction> actions) {
+            this.actions = actions;
+        }
+
+        @Override
+        public void apply(Connection c) throws SQLException {
+            for (DatabaseAction action : this.actions)
+                action.apply(c);
         }
     }
 }

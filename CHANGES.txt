@@ -4,6 +4,8 @@ Version Next
     - Added ContextApplicationServlet
     - Update for latest Vaadin version
     - Add support for JiBX parsing of templated Spring EL expressions
+    - Added "single-update" attribute to <dellroad-stuff:sql-update> tag
+    - Fixed bug in <dellroad-stuff:sql-update> parser ignoring "depends-on"
 
 Version 1.0.119 Released Aug 28, 2011
 

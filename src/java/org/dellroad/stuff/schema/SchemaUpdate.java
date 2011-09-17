@@ -7,16 +7,17 @@
 
 package org.dellroad.stuff.schema;
 
+import java.util.List;
 import java.util.Set;
 
-
 /**
- * A database update. Instances typically perform changes to the database schema, though non-schema updates
+ * A one-time database schema update. Instances typically perform changes to the database schema, though non-schema updates
  * that just manipulate the data in the database are perfectly valid as well.
  *
  * <p>
  * Each {@link SchemaUpdate} has a unique name among all updates ever applied to a single database, and zero
  * or more required predecessors, which are other dependent updates that must be applied first.
+ * </p>
  *
  * <p>
  * Once an update has been applied to a database, it must not be changed; otherwise, inconsistencies
@@ -24,13 +25,15 @@ import java.util.Set;
  * updated using the new version. If an update has been applied but had the wrong behavior, instead of
  * changing the update, it's better to create a new update that depends on the first as a predecessor
  * and corrects the mistake.
+ * </p>
  *
  * <p>
  * If you do have to change an update after it has been applied, then those databases that have
  * already seen the previous version of the update must be manually corrected so they are in the
  * same state that the new version of the update would have left them.
+ * </p>
  */
-public interface SchemaUpdate extends DatabaseAction {
+public interface SchemaUpdate {
 
     /**
      * Get the unique name of this update. This name must be unique among all updates ever applied to the database
@@ -47,5 +50,18 @@ public interface SchemaUpdate extends DatabaseAction {
      * @see #getName
      */
     Set<SchemaUpdate> getRequiredPredecessors();
+
+    /**
+     * Get the action(s) that comprise this update. Individual actions should be atomic database operations, i.e.,
+     * it should either finish completely, or else leave the database in a state where it can be tried again.
+     */
+    List<DatabaseAction> getDatabaseActions();
+
+    /**
+     * Determine whether, if this instance contains multiple individual actions, should they be applied in a single
+     * transaction and recorded as a single update. Normally this is false. Setting this to true can result in partially
+     * completed updates if an action fails.
+     */
+    boolean isSingleAction();
 }
 

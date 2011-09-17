@@ -10,6 +10,8 @@ package org.dellroad.stuff.schema;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -100,25 +102,63 @@ public class SQLDatabaseAction implements DatabaseAction {
 
     @Override
     public void apply(Connection c) throws SQLException {
+        for (String sql : this.splitSQL())
+            this.apply(c, sql);
+    }
+
+    /**
+     * Apply a single SQL statement.
+     */
+    protected void apply(Connection c, String sql) throws SQLException {
+        String sep = sql.indexOf('\n') != -1 ? "\n" : " ";
+        this.log.info("executing SQL statement:" + sep + sql);
+        Statement statement = c.createStatement();
+        try {
+            statement.execute(sql);
+        } catch (SQLException e) {
+            this.log.error("SQL statement failed: " + sql, e);
+            throw e;
+        } finally {
+            statement.close();
+        }
+    }
+
+    /**
+     * Split the SQL script into indivicual statements and return them as {@link DatabaseAction}s.
+     */
+    public List<DatabaseAction> split() {
+        ArrayList<DatabaseAction> list = new ArrayList<DatabaseAction>();
+        for (String sql0 : this.splitSQL()) {
+            final String sql = sql0;
+            list.add(new DatabaseAction() {
+                @Override
+                public void apply(Connection c) throws SQLException {
+                    SQLDatabaseAction.this.apply(c, sql);
+                }
+            });
+        }
+        return list;
+    }
+
+    /**
+     * Split the {@linkplain #setSQLScript configured SQL script} into individual SQL statements
+     * using the configured {@linkplain #setSplitPattern split pattern}.
+     *
+     * @return an array of individual SQL statements
+     * @throws IllegalArgumentException if no SQL script is configured
+     */
+    public String[] splitSQL() {
         if (this.sqlScript == null)
             throw new IllegalArgumentException("no SQL script configured");
-        String[] statements = this.splitPattern != null ? this.sqlScript.split(this.splitPattern) : new String[] { this.sqlScript };
-        for (int i = 0; i < statements.length; i++) {
-            String sql = statements[i].trim();
+        String[] sqls = this.splitPattern != null ? this.sqlScript.split(this.splitPattern) : new String[] { this.sqlScript };
+        ArrayList<String> list = new ArrayList<String>(sqls.length);
+        for (String sql : sqls) {
+            sql = sql.trim();
             if (sql.length() == 0)
                 continue;
-            String sep = sql.indexOf('\n') != -1 ? "\n" : " ";
-            this.log.info("executing SQL statement:" + sep + sql);
-            Statement statement = c.createStatement();
-            try {
-                statement.execute(sql);
-            } catch (SQLException e) {
-                this.log.error("SQL statement failed: " + sql, e);
-                throw e;
-            } finally {
-                statement.close();
-            }
+            list.add(sql);
         }
+        return list.toArray(new String[list.size()]);
     }
 }
 

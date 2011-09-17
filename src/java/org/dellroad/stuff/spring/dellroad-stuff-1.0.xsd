@@ -36,9 +36,9 @@
 
     <xsd:element name="sql-update">
         <xsd:annotation>
-            <xsd:documentation source="java:org.dellroad.stuff.spring.SpringDelegatingSchemaUpdateFactoryBean">
+            <xsd:documentation source="java:org.dellroad.stuff.spring.SpringSQLSchemaUpdateFactoryBean">
                 <![CDATA[
-    Creates a SpringDelegatingSchemaUpdate bean that delegates to an SQLDatabaseAction bean
+    Creates a SpringSQLSchemaUpdate bean that delegates to an SQLDatabaseAction bean
     using an inline SQL script or the specified resource.
                 ]]>
             </xsd:documentation>
@@ -47,6 +47,15 @@
             <xsd:simpleContent>
                 <xsd:extension base="sql-base-type">
                     <xsd:attribute name="id" type="xsd:ID" use="required"/>
+                    <xsd:attribute name="single-action" type="xsd:boolean" use="optional">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+        When a nested SQL script contains multiple statements, setting this flag to true
+        will all statements to be executed together in a single transaction, and recorded
+        as a single update.
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
                 </xsd:extension>
             </xsd:simpleContent>
         </xsd:complexType>

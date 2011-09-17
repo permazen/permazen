@@ -72,6 +72,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
  *      &lt;!-- Schema update to run some complicated external SQL script --&gt;
  *      <b>&lt;dellroad-stuff:sql-update id="majorChanges" depends-on="addPhone" resource="classpath:majorChanges.sql"/&gt;</b>
  *
+ *      &lt;!-- Multiple SQL commands that will be automatically separated into distinct updates --&gt;
+ *      <b>&lt;dellroad-stuff:sql-update id="renameColumn"&gt;
+ *          ALTER TABLE User ADD newName VARCHAR(64);
+ *          ALTER TABLE User SET newName = oldName;
+ *          ALTER TABLE User DROP oldName;
+ *      &lt;/dellroad-stuff:sql-update&gt;</b>
+ *
  *      &lt;!-- add more schema updates over time as needed... --&gt;
  *
  *  &lt;/beans&gt;

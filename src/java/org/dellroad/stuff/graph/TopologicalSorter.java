@@ -71,6 +71,7 @@ public class TopologicalSorter<E> {
      * This implementation runs in linear time in the number of nodes in the graph.
      * </p>
      *
+     * @return sorted, mutable list of nodes
      * @throws IllegalArgumentException if the partial ordering relation contains a cycle
      */
     public List<E> sort() {
@@ -99,6 +100,7 @@ public class TopologicalSorter<E> {
      * in either direction, then X will appear before Y if the tie breaker sorts X before Y.
      * </p>
      *
+     * @return sorted, mutable list of nodes
      * @throws IllegalArgumentException if the partial ordering relation contains a cycle
      */
     public List<E> sortEdgesReversed() {

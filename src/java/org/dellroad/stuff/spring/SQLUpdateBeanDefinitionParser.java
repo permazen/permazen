@@ -7,37 +7,45 @@
 
 package org.dellroad.stuff.spring;
 
-import org.dellroad.stuff.schema.SpringDelegatingSchemaUpdate;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionValidationException;
-import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
+import org.dellroad.stuff.schema.SpringSQLSchemaUpdate;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.w3c.dom.Attr;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
  * Parses <code>&lt;dellroad-stuff:sql-update&gt;</code> tags.
+ *
+ * @see SpringSQLSchemaUpdate
  */
-class SQLUpdateBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+class SQLUpdateBeanDefinitionParser extends AbstractBeanDefinitionParser {
+
+    private static final String SINGLE_ACTION_ATTRIBUTE = "single-action";
 
     @Override
-    protected Class<SpringDelegatingSchemaUpdate> getBeanClass(Element element) {
-        return SpringDelegatingSchemaUpdate.class;
-    }
-
-    @Override
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
 
         // Verify there is an "id" attribute
-        Attr attr = element.getAttributeNodeNS(null, "id");
-        if (attr == null) {
-            throw new BeanDefinitionValidationException("<dellroad-stuff:" + DellRoadStuffNamespaceHandler.SQL_UPDATE_ELEMENT_NAME
-              + "> beans must have an \"id\" attribute that provides the unique name of the update");
+        final String id = element.getAttribute(ID_ATTRIBUTE);
+        if (!StringUtils.hasText(id)) {
+            this.error(element, parserContext, "<" + element.getTagName() + "> beans must have an \""
+              + ID_ATTRIBUTE + "\" attribute that provides a unique name for the update");
         }
 
+        // Create bean definition for a SpringSQLSchemaUpdate bean
+        AbstractBeanDefinition update = this.createBeanDefinition(SpringSQLSchemaUpdate.class, element, parserContext);
+        this.parseStandardAttributes(update, element, parserContext);
+
         // Parse this element like a <dellroad-stuff:sql> element and then make that bean my delegate
-        builder.addPropertyValue("databaseAction", new SQLBeanDefinitionParser(
-          DellRoadStuffNamespaceHandler.SQL_UPDATE_ELEMENT_NAME, true).parse(element, parserContext));
+        update.getPropertyValues().add("SQLDatabaseAction", new SQLBeanDefinitionParser(true).parse(element, parserContext));
+
+        // Set single action property
+        final String singleAction = element.getAttribute(SINGLE_ACTION_ATTRIBUTE);
+        if (StringUtils.hasText(singleAction))
+            update.getPropertyValues().add("singleAction", Boolean.valueOf(singleAction));
+
+        // Done
+        return update;
     }
 }
 

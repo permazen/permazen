@@ -9,7 +9,6 @@ package org.dellroad.stuff.spring;
 
 import org.dellroad.stuff.schema.SQLDatabaseAction;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Attr;
@@ -27,13 +26,11 @@ class SQLBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     private static final String CHARSET_ATTRIBUTE = "charset";
 
     private boolean ignoreId;
-    private String name = DellRoadStuffNamespaceHandler.SQL_ELEMENT_NAME;
 
     public SQLBeanDefinitionParser() {
     }
 
-    SQLBeanDefinitionParser(String name, boolean ignoreId) {
-        this.name = name;
+    SQLBeanDefinitionParser(boolean ignoreId) {
         this.ignoreId = ignoreId;
     }
 
@@ -62,7 +59,7 @@ class SQLBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
             // Verify no nested content
             Node node = element.getFirstChild();
             if (node != null)
-                this.bogus();
+                this.bogus(element, parserContext);
 
             // Create resource reader
             BeanDefinitionBuilder resourceBuilder = BeanDefinitionBuilder.genericBeanDefinition(ResourceReaderFactoryBean.class);
@@ -77,28 +74,35 @@ class SQLBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
             builder.addPropertyValue("SQLScript", resourceBuilder.getBeanDefinition());
         } else {
 
-            // Verify at least one child node exists
-            Node node = element.getFirstChild();
-            if (node == null)
-                this.bogus();
-
-            // Concatenate all child nodes, which must be text
-            StringBuilder buf = new StringBuilder();
-            while (node != null) {
-                if (!(node instanceof Text))
-                    this.bogus();
-                buf.append(((Text)node).getData());
-                node = node.getNextSibling();
-            }
-
             // Configure SQL script
-            builder.addPropertyValue("SQLScript", buf.toString());
+            builder.addPropertyValue("SQLScript", this.getNestedSQL(element, parserContext));
         }
     }
 
-    private void bogus() {
-        throw new BeanDefinitionValidationException("<dellroad-stuff:" + this.name + "> beans must have either"
-          + " a \"resource\" attribute or nested SQL content (but not both)");
+    String getNestedSQL(Element element, ParserContext parserContext) {
+
+        // Verify at least one child node exists
+        Node node = element.getFirstChild();
+        if (node == null)
+            this.bogus(element, parserContext);
+
+        // Concatenate all child nodes, which must be text
+        StringBuilder buf = new StringBuilder();
+        while (node != null) {
+            if (!(node instanceof Text))
+                this.bogus(element, parserContext);
+            buf.append(((Text)node).getData());
+            node = node.getNextSibling();
+        }
+
+        // Done
+        return buf.toString();
+    }
+
+    private void bogus(Element element, ParserContext parserContext) {
+        String message = "<" + element.getTagName() + "> beans must have either"
+          + " a \"" + RESOURCE_ATTRIBUTE + "\" attribute or nested SQL content, but not both";
+        parserContext.getReaderContext().fatal(message, parserContext.extractSource(element));
     }
 }
 

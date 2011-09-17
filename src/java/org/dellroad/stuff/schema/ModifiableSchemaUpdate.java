@@ -17,5 +17,7 @@ public interface ModifiableSchemaUpdate extends SchemaUpdate {
     void setName(String name);
 
     void setRequiredPredecessors(Set<SchemaUpdate> requiredPredecessors);
+
+    void setSingleAction(boolean singleAction);
 }
 

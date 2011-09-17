@@ -23,11 +23,14 @@ public abstract class AbstractSchemaUpdate implements ModifiableSchemaUpdate {
 
     private String name;
     private Set<SchemaUpdate> requiredPredecessors = new HashSet<SchemaUpdate>();
+    private boolean singleAction;
 
     @Override
     public String getName() {
         return this.name;
     }
+
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -36,8 +39,20 @@ public abstract class AbstractSchemaUpdate implements ModifiableSchemaUpdate {
     public Set<SchemaUpdate> getRequiredPredecessors() {
         return this.requiredPredecessors;
     }
+
+    @Override
     public void setRequiredPredecessors(Set<SchemaUpdate> requiredPredecessors) {
         this.requiredPredecessors = requiredPredecessors;
+    }
+
+    @Override
+    public boolean isSingleAction() {
+        return this.singleAction;
+    }
+
+    @Override
+    public void setSingleAction(boolean singleAction) {
+        this.singleAction = singleAction;
     }
 }
 
