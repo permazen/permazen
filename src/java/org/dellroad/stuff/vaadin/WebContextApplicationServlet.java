@@ -8,11 +8,14 @@
 package org.dellroad.stuff.vaadin;
 
 import com.vaadin.Application;
+import com.vaadin.terminal.gwt.server.ApplicationServlet;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -115,7 +118,9 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @since 1.0.50
  */
 @SuppressWarnings("serial")
-public class WebContextApplicationServlet extends ContextApplicationServlet {
+public class WebContextApplicationServlet extends ApplicationServlet {
+
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private WebApplicationContext webApplicationContext;
 
@@ -161,7 +166,7 @@ public class WebContextApplicationServlet extends ContextApplicationServlet {
      * @throws ServletException if bean creation fails
      */
     @Override
-    protected Application createNewApplication(HttpServletRequest request) throws ServletException {
+    protected Application getNewApplication(HttpServletRequest request) throws ServletException {
         Class<? extends Application> applicationClass;
         try {
             applicationClass = this.getApplicationClass();
