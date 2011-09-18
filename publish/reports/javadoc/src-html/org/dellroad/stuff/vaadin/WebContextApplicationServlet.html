@@ -24,7 +24,7 @@
 <FONT color="green">021</FONT>    import org.springframework.web.context.support.WebApplicationContextUtils;<a name="line.21"></a>
 <FONT color="green">022</FONT>    <a name="line.22"></a>
 <FONT color="green">023</FONT>    /**<a name="line.23"></a>
-<FONT color="green">024</FONT>     * {@link ApplicationServlet} that acquires {@link Application} instances from an<a name="line.24"></a>
+<FONT color="green">024</FONT>     * Vaadin {@link Application} servlet that acquires {@link Application} instances from an<a name="line.24"></a>
 <FONT color="green">025</FONT>     * associated Spring {@link WebApplicationContext}.<a name="line.25"></a>
 <FONT color="green">026</FONT>     * This allows a Vaadin application to be configured as a normal bean inside<a name="line.26"></a>
 <FONT color="green">027</FONT>     * a Spring application context, where annotations such as<a name="line.27"></a>
@@ -108,77 +108,83 @@
 <FONT color="green">105</FONT>     *  &amp;lt;!-- Define other beans... --&amp;gt;<a name="line.105"></a>
 <FONT color="green">106</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.106"></a>
 <FONT color="green">107</FONT>     *<a name="line.107"></a>
-<FONT color="green">108</FONT>     * @see org.springframework.web.servlet.mvc.ContextLoaderListener<a name="line.108"></a>
-<FONT color="green">109</FONT>     * @see org.springframework.web.servlet.DispatcherServlet<a name="line.109"></a>
-<FONT color="green">110</FONT>     * @see org.springframework.web.servlet.mvc.ServletWrappingController<a name="line.110"></a>
-<FONT color="green">111</FONT>     * @see WebApplicationContext<a name="line.111"></a>
-<FONT color="green">112</FONT>     * @since 1.0.50<a name="line.112"></a>
-<FONT color="green">113</FONT>     */<a name="line.113"></a>
-<FONT color="green">114</FONT>    @SuppressWarnings("serial")<a name="line.114"></a>
-<FONT color="green">115</FONT>    public class WebContextApplicationServlet extends ApplicationServlet {<a name="line.115"></a>
-<FONT color="green">116</FONT>    <a name="line.116"></a>
-<FONT color="green">117</FONT>        protected final Logger log = LoggerFactory.getLogger(getClass());<a name="line.117"></a>
-<FONT color="green">118</FONT>    <a name="line.118"></a>
-<FONT color="green">119</FONT>        private WebApplicationContext webApplicationContext;<a name="line.119"></a>
-<FONT color="green">120</FONT>    <a name="line.120"></a>
-<FONT color="green">121</FONT>        /**<a name="line.121"></a>
-<FONT color="green">122</FONT>         * Initialize this servlet.<a name="line.122"></a>
-<FONT color="green">123</FONT>         *<a name="line.123"></a>
-<FONT color="green">124</FONT>         * @throws ServletException if there is no {@link WebApplicationContext} associated with this servlet's context<a name="line.124"></a>
-<FONT color="green">125</FONT>         */<a name="line.125"></a>
-<FONT color="green">126</FONT>        @Override<a name="line.126"></a>
-<FONT color="green">127</FONT>        public void init(ServletConfig config) throws ServletException {<a name="line.127"></a>
-<FONT color="green">128</FONT>            super.init(config);<a name="line.128"></a>
-<FONT color="green">129</FONT>            log.debug("finding containing WebApplicationContext");<a name="line.129"></a>
-<FONT color="green">130</FONT>            try {<a name="line.130"></a>
-<FONT color="green">131</FONT>                this.webApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(config.getServletContext());<a name="line.131"></a>
-<FONT color="green">132</FONT>            } catch (IllegalStateException e) {<a name="line.132"></a>
-<FONT color="green">133</FONT>                throw new ServletException("could not locate containing WebApplicationContext");<a name="line.133"></a>
-<FONT color="green">134</FONT>            }<a name="line.134"></a>
-<FONT color="green">135</FONT>        }<a name="line.135"></a>
-<FONT color="green">136</FONT>    <a name="line.136"></a>
-<FONT color="green">137</FONT>        /**<a name="line.137"></a>
-<FONT color="green">138</FONT>         * Get the containing Spring {@link WebApplicationContext}.<a name="line.138"></a>
-<FONT color="green">139</FONT>         * This only works after the servlet has been initialized (via {@link #init init()}).<a name="line.139"></a>
-<FONT color="green">140</FONT>         *<a name="line.140"></a>
-<FONT color="green">141</FONT>         * @throws ServletException if the operation fails<a name="line.141"></a>
-<FONT color="green">142</FONT>         */<a name="line.142"></a>
-<FONT color="green">143</FONT>        protected final WebApplicationContext getWebApplicationContext() throws ServletException {<a name="line.143"></a>
-<FONT color="green">144</FONT>            if (this.webApplicationContext == null)<a name="line.144"></a>
-<FONT color="green">145</FONT>                throw new ServletException("can't retrieve WebApplicationContext before init() is invoked");<a name="line.145"></a>
-<FONT color="green">146</FONT>            return this.webApplicationContext;<a name="line.146"></a>
-<FONT color="green">147</FONT>        }<a name="line.147"></a>
-<FONT color="green">148</FONT>    <a name="line.148"></a>
-<FONT color="green">149</FONT>        /**<a name="line.149"></a>
-<FONT color="green">150</FONT>         * Create and configure a new instance of the configured application class.<a name="line.150"></a>
-<FONT color="green">151</FONT>         *<a name="line.151"></a>
-<FONT color="green">152</FONT>         * &lt;p&gt;<a name="line.152"></a>
-<FONT color="green">153</FONT>         * The implementation in {@link WebContextApplicationServlet} invokes<a name="line.153"></a>
-<FONT color="green">154</FONT>         * {@link org.springframework.beans.factory.BeanFactory#getBean(Class) BeanFactory.getBean()}<a name="line.154"></a>
-<FONT color="green">155</FONT>         * on the associated {@link WebApplicationContext} class to acquire an instance of the class<a name="line.155"></a>
-<FONT color="green">156</FONT>         * configured via the {@code application} servlet parameter.<a name="line.156"></a>
-<FONT color="green">157</FONT>         * &lt;/p&gt;<a name="line.157"></a>
-<FONT color="green">158</FONT>         *<a name="line.158"></a>
-<FONT color="green">159</FONT>         * @param request the triggering {@link HttpServletRequest}<a name="line.159"></a>
-<FONT color="green">160</FONT>         * @throws ServletException if bean creation fails<a name="line.160"></a>
-<FONT color="green">161</FONT>         */<a name="line.161"></a>
-<FONT color="green">162</FONT>        @Override<a name="line.162"></a>
-<FONT color="green">163</FONT>        protected Application getNewApplication(HttpServletRequest request) throws ServletException {<a name="line.163"></a>
-<FONT color="green">164</FONT>            Class&lt;? extends Application&gt; applicationClass;<a name="line.164"></a>
-<FONT color="green">165</FONT>            try {<a name="line.165"></a>
-<FONT color="green">166</FONT>                applicationClass = this.getApplicationClass();<a name="line.166"></a>
-<FONT color="green">167</FONT>            } catch (ClassNotFoundException e) {<a name="line.167"></a>
-<FONT color="green">168</FONT>                throw new ServletException("failed to create new instance of application class", e);<a name="line.168"></a>
-<FONT color="green">169</FONT>            }<a name="line.169"></a>
-<FONT color="green">170</FONT>            log.debug("acquiring new instance of " + applicationClass + " from " + this.webApplicationContext);<a name="line.170"></a>
+<FONT color="green">108</FONT>     * &lt;p&gt;<a name="line.108"></a>
+<FONT color="green">109</FONT>     * Note: a nicer approach is to use Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable}<a name="line.109"></a>
+<FONT color="green">110</FONT>     * annotation in combination with build-time (or runtime) AOP bytecode weaving. With that approach, all of your widget classes<a name="line.110"></a>
+<FONT color="green">111</FONT>     * can be autowired, not just the {@link Application} class as with this class.<a name="line.111"></a>
+<FONT color="green">112</FONT>     * &lt;/p&gt;<a name="line.112"></a>
+<FONT color="green">113</FONT>     *<a name="line.113"></a>
+<FONT color="green">114</FONT>     * @see org.springframework.web.servlet.mvc.ContextLoaderListener<a name="line.114"></a>
+<FONT color="green">115</FONT>     * @see org.springframework.web.servlet.DispatcherServlet<a name="line.115"></a>
+<FONT color="green">116</FONT>     * @see org.springframework.web.servlet.mvc.ServletWrappingController<a name="line.116"></a>
+<FONT color="green">117</FONT>     * @see WebApplicationContext<a name="line.117"></a>
+<FONT color="green">118</FONT>     * @since 1.0.50<a name="line.118"></a>
+<FONT color="green">119</FONT>     */<a name="line.119"></a>
+<FONT color="green">120</FONT>    @SuppressWarnings("serial")<a name="line.120"></a>
+<FONT color="green">121</FONT>    public class WebContextApplicationServlet extends ApplicationServlet {<a name="line.121"></a>
+<FONT color="green">122</FONT>    <a name="line.122"></a>
+<FONT color="green">123</FONT>        protected final Logger log = LoggerFactory.getLogger(getClass());<a name="line.123"></a>
+<FONT color="green">124</FONT>    <a name="line.124"></a>
+<FONT color="green">125</FONT>        private WebApplicationContext webApplicationContext;<a name="line.125"></a>
+<FONT color="green">126</FONT>    <a name="line.126"></a>
+<FONT color="green">127</FONT>        /**<a name="line.127"></a>
+<FONT color="green">128</FONT>         * Initialize this servlet.<a name="line.128"></a>
+<FONT color="green">129</FONT>         *<a name="line.129"></a>
+<FONT color="green">130</FONT>         * @throws ServletException if there is no {@link WebApplicationContext} associated with this servlet's context<a name="line.130"></a>
+<FONT color="green">131</FONT>         */<a name="line.131"></a>
+<FONT color="green">132</FONT>        @Override<a name="line.132"></a>
+<FONT color="green">133</FONT>        public void init(ServletConfig config) throws ServletException {<a name="line.133"></a>
+<FONT color="green">134</FONT>            super.init(config);<a name="line.134"></a>
+<FONT color="green">135</FONT>            log.debug("finding containing WebApplicationContext");<a name="line.135"></a>
+<FONT color="green">136</FONT>            try {<a name="line.136"></a>
+<FONT color="green">137</FONT>                this.webApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(config.getServletContext());<a name="line.137"></a>
+<FONT color="green">138</FONT>            } catch (IllegalStateException e) {<a name="line.138"></a>
+<FONT color="green">139</FONT>                throw new ServletException("could not locate containing WebApplicationContext");<a name="line.139"></a>
+<FONT color="green">140</FONT>            }<a name="line.140"></a>
+<FONT color="green">141</FONT>        }<a name="line.141"></a>
+<FONT color="green">142</FONT>    <a name="line.142"></a>
+<FONT color="green">143</FONT>        /**<a name="line.143"></a>
+<FONT color="green">144</FONT>         * Get the containing Spring {@link WebApplicationContext}.<a name="line.144"></a>
+<FONT color="green">145</FONT>         * This only works after the servlet has been initialized (via {@link #init init()}).<a name="line.145"></a>
+<FONT color="green">146</FONT>         *<a name="line.146"></a>
+<FONT color="green">147</FONT>         * @throws ServletException if the operation fails<a name="line.147"></a>
+<FONT color="green">148</FONT>         */<a name="line.148"></a>
+<FONT color="green">149</FONT>        protected final WebApplicationContext getWebApplicationContext() throws ServletException {<a name="line.149"></a>
+<FONT color="green">150</FONT>            if (this.webApplicationContext == null)<a name="line.150"></a>
+<FONT color="green">151</FONT>                throw new ServletException("can't retrieve WebApplicationContext before init() is invoked");<a name="line.151"></a>
+<FONT color="green">152</FONT>            return this.webApplicationContext;<a name="line.152"></a>
+<FONT color="green">153</FONT>        }<a name="line.153"></a>
+<FONT color="green">154</FONT>    <a name="line.154"></a>
+<FONT color="green">155</FONT>        /**<a name="line.155"></a>
+<FONT color="green">156</FONT>         * Create and configure a new instance of the configured application class.<a name="line.156"></a>
+<FONT color="green">157</FONT>         *<a name="line.157"></a>
+<FONT color="green">158</FONT>         * &lt;p&gt;<a name="line.158"></a>
+<FONT color="green">159</FONT>         * The implementation in {@link WebContextApplicationServlet} invokes<a name="line.159"></a>
+<FONT color="green">160</FONT>         * {@link org.springframework.beans.factory.BeanFactory#getBean(Class) BeanFactory.getBean()}<a name="line.160"></a>
+<FONT color="green">161</FONT>         * on the associated {@link WebApplicationContext} class to acquire an instance of the class<a name="line.161"></a>
+<FONT color="green">162</FONT>         * configured via the {@code application} servlet parameter.<a name="line.162"></a>
+<FONT color="green">163</FONT>         * &lt;/p&gt;<a name="line.163"></a>
+<FONT color="green">164</FONT>         *<a name="line.164"></a>
+<FONT color="green">165</FONT>         * @param request the triggering {@link HttpServletRequest}<a name="line.165"></a>
+<FONT color="green">166</FONT>         * @throws ServletException if bean creation fails<a name="line.166"></a>
+<FONT color="green">167</FONT>         */<a name="line.167"></a>
+<FONT color="green">168</FONT>        @Override<a name="line.168"></a>
+<FONT color="green">169</FONT>        protected Application getNewApplication(HttpServletRequest request) throws ServletException {<a name="line.169"></a>
+<FONT color="green">170</FONT>            Class&lt;? extends Application&gt; applicationClass;<a name="line.170"></a>
 <FONT color="green">171</FONT>            try {<a name="line.171"></a>
-<FONT color="green">172</FONT>                return this.getWebApplicationContext().getBean(applicationClass);<a name="line.172"></a>
-<FONT color="green">173</FONT>            } catch (BeansException e) {<a name="line.173"></a>
-<FONT color="green">174</FONT>                throw new ServletException("failed to acquire new instance of " + applicationClass, e);<a name="line.174"></a>
+<FONT color="green">172</FONT>                applicationClass = this.getApplicationClass();<a name="line.172"></a>
+<FONT color="green">173</FONT>            } catch (ClassNotFoundException e) {<a name="line.173"></a>
+<FONT color="green">174</FONT>                throw new ServletException("failed to create new instance of application class", e);<a name="line.174"></a>
 <FONT color="green">175</FONT>            }<a name="line.175"></a>
-<FONT color="green">176</FONT>        }<a name="line.176"></a>
-<FONT color="green">177</FONT>    }<a name="line.177"></a>
-<FONT color="green">178</FONT>    <a name="line.178"></a>
+<FONT color="green">176</FONT>            this.log.debug("acquiring new instance of " + applicationClass + " from " + this.webApplicationContext);<a name="line.176"></a>
+<FONT color="green">177</FONT>            try {<a name="line.177"></a>
+<FONT color="green">178</FONT>                return this.getWebApplicationContext().getBean(applicationClass);<a name="line.178"></a>
+<FONT color="green">179</FONT>            } catch (BeansException e) {<a name="line.179"></a>
+<FONT color="green">180</FONT>                throw new ServletException("failed to acquire new instance of " + applicationClass, e);<a name="line.180"></a>
+<FONT color="green">181</FONT>            }<a name="line.181"></a>
+<FONT color="green">182</FONT>        }<a name="line.182"></a>
+<FONT color="green">183</FONT>    }<a name="line.183"></a>
+<FONT color="green">184</FONT>    <a name="line.184"></a>
 
 
 

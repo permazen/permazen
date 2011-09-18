@@ -44,24 +44,14 @@
 <FONT color="green">041</FONT>         *<a name="line.41"></a>
 <FONT color="green">042</FONT>         * &lt;p&gt;<a name="line.42"></a>
 <FONT color="green">043</FONT>         * This implementation does the standard JDBC thing using serializable isolation.<a name="line.43"></a>
-<FONT color="green">044</FONT>         */<a name="line.44"></a>
-<FONT color="green">045</FONT>        public static void applyInTransaction(DataSource dataSource, DatabaseAction action) throws SQLException {<a name="line.45"></a>
-<FONT color="green">046</FONT>            Connection c = dataSource.getConnection();<a name="line.46"></a>
-<FONT color="green">047</FONT>            boolean success = false;<a name="line.47"></a>
-<FONT color="green">048</FONT>            try {<a name="line.48"></a>
-<FONT color="green">049</FONT>                c.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);<a name="line.49"></a>
-<FONT color="green">050</FONT>                c.setAutoCommit(false);<a name="line.50"></a>
-<FONT color="green">051</FONT>                action.apply(c);<a name="line.51"></a>
-<FONT color="green">052</FONT>                c.commit();<a name="line.52"></a>
-<FONT color="green">053</FONT>                success = true;<a name="line.53"></a>
-<FONT color="green">054</FONT>            } finally {<a name="line.54"></a>
-<FONT color="green">055</FONT>                if (!success)<a name="line.55"></a>
-<FONT color="green">056</FONT>                    c.rollback();<a name="line.56"></a>
-<FONT color="green">057</FONT>                c.close();<a name="line.57"></a>
-<FONT color="green">058</FONT>            }<a name="line.58"></a>
-<FONT color="green">059</FONT>        }<a name="line.59"></a>
-<FONT color="green">060</FONT>    }<a name="line.60"></a>
-<FONT color="green">061</FONT>    <a name="line.61"></a>
+<FONT color="green">044</FONT>         *<a name="line.44"></a>
+<FONT color="green">045</FONT>         * @see TransactionalDatabaseAction<a name="line.45"></a>
+<FONT color="green">046</FONT>         */<a name="line.46"></a>
+<FONT color="green">047</FONT>        public static void applyInTransaction(DataSource dataSource, DatabaseAction action) throws SQLException {<a name="line.47"></a>
+<FONT color="green">048</FONT>            ActionUtils.applyAction(dataSource, new TransactionalDatabaseAction(action));<a name="line.48"></a>
+<FONT color="green">049</FONT>        }<a name="line.49"></a>
+<FONT color="green">050</FONT>    }<a name="line.50"></a>
+<FONT color="green">051</FONT>    <a name="line.51"></a>
 
 
 

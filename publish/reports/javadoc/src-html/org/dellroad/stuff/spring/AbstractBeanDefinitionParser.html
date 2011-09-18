@@ -1,0 +1,124 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.spring;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import org.springframework.beans.factory.support.AbstractBeanDefinition;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import org.springframework.beans.factory.support.BeanDefinitionBuilder;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import org.springframework.beans.factory.xml.ParserContext;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import org.w3c.dom.Element;<a name="line.14"></a>
+<FONT color="green">015</FONT>    <a name="line.15"></a>
+<FONT color="green">016</FONT>    /**<a name="line.16"></a>
+<FONT color="green">017</FONT>     * Support superclass for {@link org.springframework.beans.factory.xml.BeanDefinitionParser} implementations.<a name="line.17"></a>
+<FONT color="green">018</FONT>     */<a name="line.18"></a>
+<FONT color="green">019</FONT>    public abstract class AbstractBeanDefinitionParser extends org.springframework.beans.factory.xml.AbstractBeanDefinitionParser {<a name="line.19"></a>
+<FONT color="green">020</FONT>    <a name="line.20"></a>
+<FONT color="green">021</FONT>        /**<a name="line.21"></a>
+<FONT color="green">022</FONT>         * Create a new bean definition.<a name="line.22"></a>
+<FONT color="green">023</FONT>         *<a name="line.23"></a>
+<FONT color="green">024</FONT>         * @param beanClass bean type<a name="line.24"></a>
+<FONT color="green">025</FONT>         * @param element the element that the new bean definition is associated with<a name="line.25"></a>
+<FONT color="green">026</FONT>         * @param parserContext parser context<a name="line.26"></a>
+<FONT color="green">027</FONT>         */<a name="line.27"></a>
+<FONT color="green">028</FONT>        protected AbstractBeanDefinition createBeanDefinition(Class&lt;?&gt; beanClass, Element element, ParserContext parserContext) {<a name="line.28"></a>
+<FONT color="green">029</FONT>            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition();<a name="line.29"></a>
+<FONT color="green">030</FONT>            builder.getRawBeanDefinition().setBeanClass(beanClass);<a name="line.30"></a>
+<FONT color="green">031</FONT>            builder.getRawBeanDefinition().setSource(parserContext.extractSource(element));<a name="line.31"></a>
+<FONT color="green">032</FONT>            if (parserContext.isNested())<a name="line.32"></a>
+<FONT color="green">033</FONT>                builder.setScope(parserContext.getContainingBeanDefinition().getScope());<a name="line.33"></a>
+<FONT color="green">034</FONT>            if (parserContext.isDefaultLazyInit())<a name="line.34"></a>
+<FONT color="green">035</FONT>                builder.setLazyInit(true);<a name="line.35"></a>
+<FONT color="green">036</FONT>            return builder.getBeanDefinition();<a name="line.36"></a>
+<FONT color="green">037</FONT>        }<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>        /**<a name="line.39"></a>
+<FONT color="green">040</FONT>         * Parse the standard Spring bean attributes such as {@code scope}, {@code depends-on}, {@code abstract}, etc.<a name="line.40"></a>
+<FONT color="green">041</FONT>         *<a name="line.41"></a>
+<FONT color="green">042</FONT>         * @param beanDefinition bean definition to modify<a name="line.42"></a>
+<FONT color="green">043</FONT>         * @param element the XML element on which to look for attributes<a name="line.43"></a>
+<FONT color="green">044</FONT>         * @param parserContext parser context<a name="line.44"></a>
+<FONT color="green">045</FONT>         */<a name="line.45"></a>
+<FONT color="green">046</FONT>        protected void parseStandardAttributes(AbstractBeanDefinition beanDefinition, Element element, ParserContext parserContext) {<a name="line.46"></a>
+<FONT color="green">047</FONT>            BeanDefinitionParserDelegate delegate = new BeanDefinitionParserDelegate(parserContext.getReaderContext());<a name="line.47"></a>
+<FONT color="green">048</FONT>            delegate.parseBeanDefinitionAttributes(element, "", null, beanDefinition);<a name="line.48"></a>
+<FONT color="green">049</FONT>        }<a name="line.49"></a>
+<FONT color="green">050</FONT>    <a name="line.50"></a>
+<FONT color="green">051</FONT>        /**<a name="line.51"></a>
+<FONT color="green">052</FONT>         * Report an error and throw an exception.<a name="line.52"></a>
+<FONT color="green">053</FONT>         */<a name="line.53"></a>
+<FONT color="green">054</FONT>        protected void error(Element element, ParserContext parserContext, String message) {<a name="line.54"></a>
+<FONT color="green">055</FONT>            parserContext.getReaderContext().fatal(message, parserContext.extractSource(element));<a name="line.55"></a>
+<FONT color="green">056</FONT>        }<a name="line.56"></a>
+<FONT color="green">057</FONT>    }<a name="line.57"></a>
+<FONT color="green">058</FONT>    <a name="line.58"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

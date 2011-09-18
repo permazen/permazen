@@ -26,24 +26,44 @@
 <FONT color="green">023</FONT>    <a name="line.23"></a>
 <FONT color="green">024</FONT>        private String name;<a name="line.24"></a>
 <FONT color="green">025</FONT>        private Set&lt;SchemaUpdate&gt; requiredPredecessors = new HashSet&lt;SchemaUpdate&gt;();<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
-<FONT color="green">027</FONT>        @Override<a name="line.27"></a>
-<FONT color="green">028</FONT>        public String getName() {<a name="line.28"></a>
-<FONT color="green">029</FONT>            return this.name;<a name="line.29"></a>
-<FONT color="green">030</FONT>        }<a name="line.30"></a>
-<FONT color="green">031</FONT>        public void setName(String name) {<a name="line.31"></a>
-<FONT color="green">032</FONT>            this.name = name;<a name="line.32"></a>
-<FONT color="green">033</FONT>        }<a name="line.33"></a>
-<FONT color="green">034</FONT>    <a name="line.34"></a>
-<FONT color="green">035</FONT>        @Override<a name="line.35"></a>
-<FONT color="green">036</FONT>        public Set&lt;SchemaUpdate&gt; getRequiredPredecessors() {<a name="line.36"></a>
-<FONT color="green">037</FONT>            return this.requiredPredecessors;<a name="line.37"></a>
-<FONT color="green">038</FONT>        }<a name="line.38"></a>
-<FONT color="green">039</FONT>        public void setRequiredPredecessors(Set&lt;SchemaUpdate&gt; requiredPredecessors) {<a name="line.39"></a>
-<FONT color="green">040</FONT>            this.requiredPredecessors = requiredPredecessors;<a name="line.40"></a>
+<FONT color="green">026</FONT>        private boolean singleAction;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>        @Override<a name="line.28"></a>
+<FONT color="green">029</FONT>        public String getName() {<a name="line.29"></a>
+<FONT color="green">030</FONT>            return this.name;<a name="line.30"></a>
+<FONT color="green">031</FONT>        }<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>        @Override<a name="line.33"></a>
+<FONT color="green">034</FONT>        public void setName(String name) {<a name="line.34"></a>
+<FONT color="green">035</FONT>            this.name = name;<a name="line.35"></a>
+<FONT color="green">036</FONT>        }<a name="line.36"></a>
+<FONT color="green">037</FONT>    <a name="line.37"></a>
+<FONT color="green">038</FONT>        @Override<a name="line.38"></a>
+<FONT color="green">039</FONT>        public Set&lt;SchemaUpdate&gt; getRequiredPredecessors() {<a name="line.39"></a>
+<FONT color="green">040</FONT>            return this.requiredPredecessors;<a name="line.40"></a>
 <FONT color="green">041</FONT>        }<a name="line.41"></a>
-<FONT color="green">042</FONT>    }<a name="line.42"></a>
-<FONT color="green">043</FONT>    <a name="line.43"></a>
+<FONT color="green">042</FONT>    <a name="line.42"></a>
+<FONT color="green">043</FONT>        @Override<a name="line.43"></a>
+<FONT color="green">044</FONT>        public void setRequiredPredecessors(Set&lt;SchemaUpdate&gt; requiredPredecessors) {<a name="line.44"></a>
+<FONT color="green">045</FONT>            this.requiredPredecessors = requiredPredecessors;<a name="line.45"></a>
+<FONT color="green">046</FONT>        }<a name="line.46"></a>
+<FONT color="green">047</FONT>    <a name="line.47"></a>
+<FONT color="green">048</FONT>        @Override<a name="line.48"></a>
+<FONT color="green">049</FONT>        public boolean isSingleAction() {<a name="line.49"></a>
+<FONT color="green">050</FONT>            return this.singleAction;<a name="line.50"></a>
+<FONT color="green">051</FONT>        }<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
+<FONT color="green">053</FONT>        @Override<a name="line.53"></a>
+<FONT color="green">054</FONT>        public void setSingleAction(boolean singleAction) {<a name="line.54"></a>
+<FONT color="green">055</FONT>            this.singleAction = singleAction;<a name="line.55"></a>
+<FONT color="green">056</FONT>        }<a name="line.56"></a>
+<FONT color="green">057</FONT>    <a name="line.57"></a>
+<FONT color="green">058</FONT>        @Override<a name="line.58"></a>
+<FONT color="green">059</FONT>        public String toString() {<a name="line.59"></a>
+<FONT color="green">060</FONT>            return this.getClass().getSimpleName() + "[" + this.getName() + "]";<a name="line.60"></a>
+<FONT color="green">061</FONT>        }<a name="line.61"></a>
+<FONT color="green">062</FONT>    }<a name="line.62"></a>
+<FONT color="green">063</FONT>    <a name="line.63"></a>
 
 
 
