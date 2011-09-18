@@ -41,21 +41,11 @@ public final class ActionUtils {
      *
      * <p>
      * This implementation does the standard JDBC thing using serializable isolation.
+     *
+     * @see TransactionalDatabaseAction
      */
     public static void applyInTransaction(DataSource dataSource, DatabaseAction action) throws SQLException {
-        Connection c = dataSource.getConnection();
-        boolean success = false;
-        try {
-            c.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-            c.setAutoCommit(false);
-            action.apply(c);
-            c.commit();
-            success = true;
-        } finally {
-            if (!success)
-                c.rollback();
-            c.close();
-        }
+        ActionUtils.applyAction(dataSource, new TransactionalDatabaseAction(action));
     }
 }
 

@@ -8,7 +8,9 @@
 package org.dellroad.stuff.spring;
 
 import org.dellroad.stuff.schema.SpringSQLSchemaUpdate;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.ManagedSet;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
@@ -38,6 +40,20 @@ class SQLUpdateBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
         // Parse this element like a <dellroad-stuff:sql> element and then make that bean my delegate
         update.getPropertyValues().add("SQLDatabaseAction", new SQLBeanDefinitionParser(true).parse(element, parserContext));
+
+        // Set required predecessors (if any)
+        String[] predecessors = update.getDependsOn();
+        if (predecessors != null) {
+            final Object source = parserContext.extractSource(element);
+            ManagedSet<Object> predecessorSet = new ManagedSet<Object>(predecessors.length);
+            predecessorSet.setSource(source);
+            for (String predecessor : predecessors) {
+                RuntimeBeanReference beanReference = new RuntimeBeanReference(predecessor, false);
+                beanReference.setSource(source);
+                predecessorSet.add(beanReference);
+            }
+            update.getPropertyValues().add("requiredPredecessors", predecessorSet);
+        }
 
         // Set single action property
         final String singleAction = element.getAttribute(SINGLE_ACTION_ATTRIBUTE);

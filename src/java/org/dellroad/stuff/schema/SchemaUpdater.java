@@ -359,10 +359,11 @@ public class SchemaUpdater {
      * Apply a {@link DatabaseAction} to a {@link DataSource} within a transaction.
      *
      * <p>
-     * The implementation in {@link SchemaUpdater} invokes {@link ActionUtils#applyInTransaction}.
+     * The implementation in {@link SchemaUpdater} wraps the {@code action} within a
+     * {@link TransactionalDatabaseAction} and then delegates to {@link #applyAction}.
      */
     protected void applyInTransaction(DataSource dataSource, DatabaseAction action) throws SQLException {
-        ActionUtils.applyInTransaction(dataSource, action);
+        this.applyAction(dataSource, new TransactionalDatabaseAction(action));
     }
 
     /**
@@ -397,7 +398,7 @@ public class SchemaUpdater {
      * The implementation in {@link SchemaUpdater} does the standard JDBC thing using a SELECT statement
      * from the update table.
      */
-    protected HashSet<String> getAppliedUpdateNames(Connection c) throws SQLException {
+    protected Set<String> getAppliedUpdateNames(Connection c) throws SQLException {
         Statement s = c.createStatement();
         try {
             HashSet<String> updateNames = new HashSet<String>();
@@ -438,7 +439,7 @@ public class SchemaUpdater {
      * @param index the index of the action (zero based)
      */
     protected String generateMultiUpdateName(SchemaUpdate update, int index) {
-        return String.format("%s-%5d", update.getName(), index + 1);
+        return String.format("%s-%05d", update.getName(), index + 1);
     }
 
     // Initialize the database
@@ -526,7 +527,6 @@ public class SchemaUpdater {
 
         // Remove the already-applied updates
         updateMap.keySet().removeAll(appliedUpdates);
-        final LinkedHashSet<String> remainingUpdateNames = new LinkedHashSet<String>(updateMap.keySet());
         HashSet<SchemaUpdate> remainingUpdates = new HashSet<SchemaUpdate>(updateMap.values());
         for (Iterator<SchemaUpdate> i = updateList.iterator(); i.hasNext(); ) {
             if (!remainingUpdates.contains(i.next()))
@@ -539,13 +539,21 @@ public class SchemaUpdater {
             return;
         }
 
+        // Log which updates we're going to apply
+        final LinkedHashSet<String> remainingUpdateNames = new LinkedHashSet<String>(updateMap.size());
+        for (SchemaUpdate update : updateList) {
+            ArrayList<String> updateNames = this.getUpdateNames(update);
+            updateNames.removeAll(appliedUpdates);
+            remainingUpdateNames.addAll(updateNames);
+        }
+        this.log.info("applying " + remainingUpdateNames.size() + " schema update(s): " + remainingUpdateNames);
+
         // Apply updates
-        this.log.info("applying these " + remainingUpdateNames.size() + " schema update(s): " + remainingUpdateNames);
         for (SchemaUpdate nextUpdate : updateList) {
             UpdateHandler updateHandler = new UpdateHandler(nextUpdate) {
                 @Override
                 protected void handleEmptyUpdate(final SchemaUpdate update) throws SQLException {
-                    assert !remainingUpdateNames.contains(update.getName());
+                    assert remainingUpdateNames.contains(update.getName());
                     SchemaUpdater.this.applyInTransaction(dataSource, new DatabaseAction() {
                         @Override
                         public void apply(Connection c) throws SQLException {
@@ -556,7 +564,7 @@ public class SchemaUpdater {
                 }
                 @Override
                 protected void handleSingleUpdate(final SchemaUpdate update, final DatabaseAction action) throws SQLException {
-                    assert !remainingUpdateNames.contains(update.getName());
+                    assert remainingUpdateNames.contains(update.getName());
                     SchemaUpdater.this.applyInTransaction(dataSource, new DatabaseAction() {
                         @Override
                         public void apply(Connection c) throws SQLException {
@@ -567,7 +575,7 @@ public class SchemaUpdater {
                 @Override
                 protected void handleSingleMultiUpdate(final SchemaUpdate update, final List<DatabaseAction> actions)
                   throws SQLException {
-                    assert !remainingUpdateNames.contains(update.getName());
+                    assert remainingUpdateNames.contains(update.getName());
                     SchemaUpdater.this.applyInTransaction(dataSource, new DatabaseAction() {
                         @Override
                         public void apply(Connection c) throws SQLException {

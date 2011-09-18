@@ -23,7 +23,7 @@ public class UpdatingDataSource extends AbstractUpdatingDataSource {
     private boolean transactional = true;
 
     /**
-     * Configure the {@link DatabaseAction} that be applied to the database on first access. Required property.
+     * Configure the {@link DatabaseAction} to be applied to the database on first access. Required property.
      */
     public void setDatabaseAction(DatabaseAction action) {
         this.action = action;

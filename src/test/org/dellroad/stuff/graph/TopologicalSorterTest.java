@@ -76,6 +76,8 @@ public class TopologicalSorterTest extends TestSupport {
             new Object[] { "f,q,z>a,a>b,a>c", null, "fqzabc", "fqbcaz" },
             new Object[] { "z,y,x>a,a>b,a>c", null, "zyxabc", "zybcax" },
 
+            new Object[] { "a,c>b", Boolean.TRUE, "acb", "abc" },
+
             new Object[] { "a,b,c,d,e", Boolean.TRUE, "abcde", "abcde" },
             new Object[] { "e,d,c,b,a", Boolean.TRUE, "abcde", "abcde" },
             new Object[] { "a,b,c,d,e", Boolean.FALSE, "edcba", "edcba" },

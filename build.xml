@@ -26,13 +26,19 @@
         <property name="javac.classpath.resolved" value="true"/>
     </target>
 
-    <target name="unittest.classpath" unless="unittest.classpath.resolved">
-        <dellroad:ivypath pathid="unittest.classpath" conf="test"/>
+    <target name="unittest.classpath" depends="jar" unless="unittest.classpath.resolved">
+        <dellroad:ivypath pathid="unittest.classpath.base" conf="test"/>
+        <path id="unittest.classpath">
+            <path refid="unittest.classpath.base"/>
+            <pathelement path="build/dist/${ant.project.name}-${full.version}.jar"/>
+            <pathelement path="build/test"/>
+        </path>
         <property name="unittest.classpath.resolved" value="true"/>
     </target>
 
-    <!-- Build distribution files -->
-    <target name="jars" depends="javac, javadoc" unless="jars.completed">
+    <!-- Resources -->
+    <target name="resources" unless="resources.completed">
+        <delete dir="build/resources"/>
         <mkdir dir="build/resources"/>
         <copy todir="build/resources">
             <fileset dir="src/properties" includes="${ant.project.name}.properties"/>
@@ -43,16 +49,29 @@
                 <filter token="VERSION" value="${full.version}"/>
             </filterset>
         </copy>
-        <delete dir="build/dist"/>
+        <property name="resources.completed" value="true"/>
+    </target>
+
+    <!-- Main JAR -->
+    <target name="jar" depends="javac, resources" unless="jar.completed">
         <mkdir dir="build/dist"/>
+        <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
         <jar destfile="build/dist/${ant.project.name}-${full.version}.jar">
             <fileset dir="build/classes"/>
             <fileset dir="build/resources"/>
             <metainf dir="src/java/org/dellroad/stuff/spring" includes="spring.*"/>
         </jar>
+        <property name="jar.completed" value="true"/>
+    </target>
+
+    <!-- All distribution files -->
+    <target name="jars" depends="jar, javadoc" unless="jars.completed">
+        <mkdir dir="build/dist"/>
+        <delete file="build/dist/${ant.project.name}-sources-${full.version}.zip"/>
         <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">
             <fileset dir="src/java" includes="**/*"/>
         </zip>
+        <delete file="build/dist/${ant.project.name}-javadocs-${full.version}.zip"/>
         <zip destfile="build/dist/${ant.project.name}-javadocs-${full.version}.zip">
             <fileset dir="build/reports/javadoc" includes="**/*"/>
         </zip>

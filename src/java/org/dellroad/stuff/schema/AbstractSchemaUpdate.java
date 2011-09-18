@@ -54,5 +54,10 @@ public abstract class AbstractSchemaUpdate implements ModifiableSchemaUpdate {
     public void setSingleAction(boolean singleAction) {
         this.singleAction = singleAction;
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[" + this.getName() + "]";
+    }
 }
 
