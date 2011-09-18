@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * and logs and displays any exceptions thrown in an overlay error window,
  * as well as static methods to access the current {@link ContextApplication} instance.
  *
- * @since 1.0.131
+ * @since 1.0.134
  */
 @SuppressWarnings("serial")
 public abstract class ContextApplication extends Application implements HttpServletRequestListener {

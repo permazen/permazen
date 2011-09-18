@@ -1,5 +1,5 @@
 
-Version Next
+Version 1.0.134 Released Sep 18, 2011
 
     - Update for latest Vaadin version
     - Added ContextApplication Vaadin helper class
