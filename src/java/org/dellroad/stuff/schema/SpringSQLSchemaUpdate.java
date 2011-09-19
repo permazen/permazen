@@ -50,8 +50,8 @@ import java.util.List;
  *          ALTER TABLE User DROP oldName;
  *      &lt;/dellroad-stuff:sql-update&gt;</b>
  * </pre></blockquote>
- * This will create three separate update beans named <code>renameColumn-1</code>, <code>renameColumn-2</code>, and
- * <code>renameColumn-3</code>. You can disable this behavior by adding the attribute <code>single-action="true"</code>,
+ * This will create three separate update beans named <code>renameColumn-00001</code>, <code>renameColumn-00002</code>, and
+ * <code>renameColumn-00003</code>. You can disable this behavior by adding the attribute <code>single-action="true"</code>,
  * in which case all three of the statements will be executed together in the same transaction and recorded under the name
  * <code>renameColumn</code>; this means that they must all complete successfully or you could end up with a partially
  * completed update.
