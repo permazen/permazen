@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * The script may contain multiple SQL statements, in which case individual statements will be parsed out and
- * executed individually in order. However, this requires proper configuration of the {@link #setSplitPattern split pattern}.
+ * executed individually in order. However, this requires proper configuration of the {@linkplain #setSplitPattern split pattern}.
  *
  * <p>
  * When using Spring, beans of this type can be created succintly using the <code>&lt;dellroad-stuff:sql&gt;</code> custom
