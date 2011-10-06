@@ -13,6 +13,8 @@ import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.Window;
 
 import java.net.SocketException;
+import java.util.EventObject;
+import java.util.HashSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,6 +42,8 @@ public abstract class ContextApplication extends Application implements HttpServ
     private static final ThreadLocal<HttpServletResponse> CURRENT_RESPONSE = new ThreadLocal<HttpServletResponse>();
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    private final HashSet<CloseListener> closeListeners = new HashSet<CloseListener>();
 
 // Initialization
 
@@ -298,6 +302,83 @@ public abstract class ContextApplication extends Application implements HttpServ
      */
     public static HttpServletResponse currentResponse() {
         return ContextApplication.CURRENT_RESPONSE.get();
+    }
+
+// Listener stuff
+
+    /**
+     * Close this instance.
+     *
+     * <p>
+     * The implementation in {@link ContextApplication} first delegates to the superclass and then
+     * notifies any registered {@link CloseListener}s.
+     * </p>
+     */
+    @Override
+    public void close() {
+        super.close();
+        CloseEvent closeEvent = new CloseEvent(this);
+        for (CloseListener closeListener : this.getCloseListeners()) {
+            try {
+                closeListener.applicationClosed(closeEvent);
+            } catch (ThreadDeath t) {
+                throw t;
+            } catch (Throwable t) {
+                this.log.error("exception thrown by CloseListener", t);
+            }
+        }
+    }
+
+    /**
+     * Add a {@link CloseListener} to be notified when this instance is closed.
+     */
+    public void addListener(CloseListener listener) {
+        synchronized (this.closeListeners) {
+            this.closeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Remove a {@link CloseListener}.
+     */
+    public void removeListener(CloseListener listener) {
+        synchronized (this.closeListeners) {
+            this.closeListeners.remove(listener);
+        }
+    }
+
+    private HashSet<CloseListener> getCloseListeners() {
+        synchronized (this.closeListeners) {
+            return new HashSet<CloseListener>(this.closeListeners);
+        }
+    }
+
+    /**
+     * Implemented by listeners that wish to be notified when a {@link ContextApplication} is closed.
+     */
+    public interface CloseListener {
+
+        /**
+         * Notification upon {@link ContextApplication} closing.
+         */
+        void applicationClosed(CloseEvent closeEvent);
+    }
+
+    /**
+     * Event delivered to listeners when a {@link ContextApplication} is closed.
+     */
+    public static class CloseEvent extends EventObject {
+
+        public CloseEvent(ContextApplication application) {
+            super(application);
+        }
+
+        /**
+         * Get the {@link ContextApplication} that is being closed.
+         */
+        public ContextApplication getContextApplication() {
+            return (ContextApplication)super.getSource();
+        }
     }
 }
 
