@@ -25,10 +25,10 @@ import org.springframework.beans.factory.config.Scope;
  *
  * <p>
  * To enable this scope, simply add this bean to your application context as a singleton (it will register itself):
- * <blockquote><code>
+ * <blockquote><pre>
  *  &lt;!-- Enable the "vaadinApplication" custom scope --&gt;
  *  &lt;bean class="org.dellroad.stuff.vaadin.VaadinApplicationScope"/&gt;
- * </code></blockquote>
+ * </pre></blockquote>
  * Then declare scoped beans normally using the scope name {@code "vaadinApplication"}.
  * </p>
  */
