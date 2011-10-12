@@ -40,7 +40,7 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
     public static final String APPLICATION_KEY = "application";
 
     /**
-     * The name of this scope (i.e., <code>"{@value}"</code>).
+     * The name of this scope (i.e., <code>{@value}</code>).
      */
     public static final String SCOPE_NAME = "vaadinApplication";
 
