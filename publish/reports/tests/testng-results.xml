@@ -1,29 +1,12 @@
 <testng-results>
   <reporter-output>
   </reporter-output>
-  <suite name="Unit Test Suite" duration-ms="1153" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:04Z">
+  <suite name="Unit Test Suite" duration-ms="1076" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:06Z">
     <groups>
     </groups>
-    <test name="Unit Tests" duration-ms="1153" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:04Z">
-      <class name="org.dellroad.stuff.validation.SelfValidatingTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-        </test-method>
-        <test-method status="PASS" signature="testValidation()" name="testValidation" duration-ms="50" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-        </test-method>
-      </class>
+    <test name="Unit Tests" duration-ms="1076" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:06Z">
       <class name="org.dellroad.stuff.string.ByteArrayEncoderTest">
-        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-        </test-method>
-        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -32,26 +15,9 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[[B@1a8dfb3]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[]]>
-              </value>
-            </param>
-          </params>
+        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -60,7 +26,7 @@
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@1f68272]]>
+                <![CDATA[[B@9dd6e2]]>
               </value>
             </param>
             <param index="2">
@@ -70,26 +36,26 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[12]]>
+                <![CDATA[]]>
               </value>
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@103c29b]]>
+                <![CDATA[[B@37165f]]>
               </value>
             </param>
             <param index="2">
               <value>
-                <![CDATA[12]]>
+                <![CDATA[]]>
               </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -99,7 +65,7 @@
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@ee260b]]>
+                <![CDATA[[B@8698fa]]>
               </value>
             </param>
             <param index="2">
@@ -109,7 +75,7 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -118,7 +84,7 @@
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@1e8c585]]>
+                <![CDATA[[B@1ca1588]]>
               </value>
             </param>
             <param index="2">
@@ -128,7 +94,7 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -137,7 +103,7 @@
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@1dd7bc5]]>
+                <![CDATA[[B@4bb369]]>
               </value>
             </param>
             <param index="2">
@@ -147,7 +113,7 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -156,7 +122,7 @@
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@ffa6eb]]>
+                <![CDATA[[B@1efc208]]>
               </value>
             </param>
             <param index="2">
@@ -166,7 +132,26 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[12]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[[B@a56214]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[12]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -181,7 +166,7 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -196,7 +181,7 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -208,7 +193,7 @@ dc
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@27cd63]]>
+                <![CDATA[[B@1abdac9]]>
               </value>
             </param>
             <param index="2">
@@ -218,7 +203,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -233,37 +218,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[+00]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value is-null="true"/>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[987654321]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value is-null="true"/>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -278,11 +233,39 @@ dc
             </param>
           </params>
         </test-method>
-      </class>
-      <class name="org.dellroad.stuff.schema.SchemaUpdateTest">
-        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[+00]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+          </params>
         </test-method>
-        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)" name="testByteArrayEncoding" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[987654321]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
+      </class>
+      <class name="org.dellroad.stuff.validation.SelfValidatingTest">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -291,7 +274,24 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="509" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+        </test-method>
+        <test-method status="PASS" signature="testValidation()" name="testValidation" duration-ms="43" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+        </test-method>
+      </class>
+      <class name="org.dellroad.stuff.schema.SchemaUpdateTest">
+        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="2" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
+        </test-method>
+        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="514" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -300,9 +300,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testBasicSchemaUpdate()" name="testBasicSchemaUpdate" duration-ms="77" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testBasicSchemaUpdate()" name="testBasicSchemaUpdate" duration-ms="71" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
         </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -311,7 +311,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="67" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="51" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -320,9 +320,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEmptySchemaUpdate()" name="testEmptySchemaUpdate" duration-ms="3" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testEmptySchemaUpdate()" name="testEmptySchemaUpdate" duration-ms="3" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
         </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -331,7 +331,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="63" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="51" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -340,9 +340,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testInitializeSchemaUpdate()" name="testInitializeSchemaUpdate" duration-ms="2" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testInitializeSchemaUpdate()" name="testInitializeSchemaUpdate" duration-ms="3" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
         </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -351,7 +351,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="60" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="55" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -360,9 +360,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testMultiActionSchemaUpdate()" name="testMultiActionSchemaUpdate" duration-ms="16" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testMultiActionSchemaUpdate()" name="testMultiActionSchemaUpdate" duration-ms="14" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
         </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -371,7 +371,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="63" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)" name="openContext" is-config="true" duration-ms="44" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -380,9 +380,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testUnexpectedSchemaUpdate()" name="testUnexpectedSchemaUpdate" duration-ms="2" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testUnexpectedSchemaUpdate()" name="testUnexpectedSchemaUpdate" duration-ms="2" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
         </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)" name="closeContext" is-config="true" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -393,9 +393,9 @@ dc
         </test-method>
       </class>
       <class name="org.dellroad.stuff.string.SimpleObjectParserTest">
-        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="2" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
         </test-method>
-        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -404,7 +404,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="7" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="4" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -426,7 +426,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -448,7 +448,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -468,29 +468,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[b=true]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[(?s)b=({bval}(true|false))]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[ParseObj[b=true,i=0,s=null]]]>
-              </value>
-            </param>
-            <param index="3">
-              <value is-null="true"/>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -512,7 +490,29 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[b=true]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[(?s)b=({bval}(true|false))]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[ParseObj[b=true,i=0,s=null]]]>
+              </value>
+            </param>
+            <param index="3">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -534,7 +534,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -556,7 +556,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testNamedGroupParse" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -578,7 +578,32 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[b=true i=foo s="hello"]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[b=(true|false) i=([0-9]+) s="([^"]*)"]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[{1=bval, 2=ival, 3=sval}]]>
+              </value>
+            </param>
+            <param index="3">
+              <value is-null="true"/>
+            </param>
+            <param index="4">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -605,7 +630,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testParse" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -632,32 +657,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testParse" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[b=true i=foo s="hello"]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[b=(true|false) i=([0-9]+) s="([^"]*)"]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[{1=bval, 2=ival, 3=sval}]]>
-              </value>
-            </param>
-            <param index="3">
-              <value is-null="true"/>
-            </param>
-            <param index="4">
-              <value is-null="true"/>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testParse" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -686,7 +686,7 @@ dc
         </test-method>
       </class>
       <class name="org.dellroad.stuff.graph.TopologicalSorterTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="19" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="19" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -695,9 +695,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="70" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="82" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="6" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="5" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -721,7 +721,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -745,7 +745,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -767,7 +767,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -789,7 +789,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -813,7 +813,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -837,7 +837,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -859,7 +859,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -883,7 +883,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -907,7 +907,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -929,7 +929,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -951,7 +951,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -975,7 +975,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -999,7 +999,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1023,7 +1023,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1047,7 +1047,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1071,7 +1071,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1093,7 +1093,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1115,7 +1115,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1133,7 +1133,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1151,7 +1151,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1169,7 +1169,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1193,7 +1193,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1217,7 +1217,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1239,7 +1239,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1263,7 +1263,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1287,7 +1287,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1309,7 +1309,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1333,7 +1333,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1357,7 +1357,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)" name="testSort" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1381,7 +1381,7 @@ dc
         </test-method>
       </class>
       <class name="org.dellroad.stuff.io.AsyncInputStreamTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -1390,13 +1390,15 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="2" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
         </test-method>
-        <test-method status="PASS" signature="testAsyncInputStream()" name="testAsyncInputStream" duration-ms="4" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testAsyncInputStream()" name="testAsyncInputStream" duration-ms="3" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
         </test-method>
       </class>
       <class name="org.dellroad.stuff.string.StringEncoderTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+        </test-method>
+        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1405,23 +1407,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="2" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-        </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA["a \"quote\""]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[13]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1435,21 +1421,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA["a \"quote\"" then "junk" and \"more junk\" then]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[13]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1463,7 +1435,35 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA["a \"quote\""]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[13]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[not a quote"]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1477,35 +1477,21 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[not a quote"]]>
+                <![CDATA["a \"quote\"" then "junk" and \"more junk\" then]]>
               </value>
             </param>
             <param index="1">
               <value>
-                <![CDATA[-1]]>
+                <![CDATA[13]]>
               </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[not a quote"]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1519,7 +1505,21 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="2" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)" name="testEnquotedLength" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[not a quote"]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1536,7 +1536,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1553,7 +1553,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1571,7 +1571,26 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[ 	\ ]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[ \b\t\\ ]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1591,7 +1610,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1610,47 +1629,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[
-]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[
-]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[ 	\ ]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[ \b\t\\ ]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1669,7 +1648,66 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[\foo\]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[\\foo\\]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[foo\bar]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foo\\bar]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[
+]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[
+]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1689,45 +1727,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[\foo\]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[\\foo\\]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[foo\bar]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foo\\bar]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1750,58 +1750,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \\\]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \ ]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1818,7 +1767,58 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \\\]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \ ]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1835,7 +1835,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1852,41 +1852,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \u12]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \u123]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1903,7 +1869,24 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \u12]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1920,7 +1903,24 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)" name="testStringEncode" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \u123]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1934,7 +1934,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1948,7 +1948,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1962,7 +1962,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="1" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value>
@@ -1976,19 +1976,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
-          <params>
-            <param index="0">
-              <value is-null="true"/>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[fred]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="1" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value is-null="true"/>
@@ -2000,19 +1988,19 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value is-null="true"/>
             </param>
             <param index="1">
               <value>
-                <![CDATA[missing quote\"]]>
+                <![CDATA[fred]]>
               </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-09-18T11:00:04Z" finished-at="2011-09-18T11:00:04Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
           <params>
             <param index="0">
               <value is-null="true"/>
@@ -2024,9 +2012,21 @@ dc
             </param>
           </params>
         </test-method>
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)" name="testStringEnquote" duration-ms="0" started-at="2011-10-12T09:41:06Z" finished-at="2011-10-12T09:41:06Z">
+          <params>
+            <param index="0">
+              <value is-null="true"/>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[missing quote\"]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
       </class>
       <class name="org.dellroad.stuff.jibx.ParseUtilTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)" name="seedRandom" is-config="true" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2035,9 +2035,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="2" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="setUpValidator()" name="setUpValidator" is-config="true" duration-ms="2" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2051,7 +2051,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="5" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="3" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2065,7 +2065,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2079,7 +2079,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2093,7 +2093,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2107,7 +2107,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2121,7 +2121,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2135,7 +2135,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2149,7 +2149,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2163,21 +2163,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[.503s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[503]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2191,7 +2177,21 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[.503s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[503]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2205,7 +2205,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2219,21 +2219,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[123]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2247,7 +2233,21 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[123]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2261,21 +2261,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[3m2h]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2289,7 +2275,21 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[3m2h]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2303,7 +2303,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2317,7 +2317,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2331,7 +2331,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="1" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
@@ -2345,7 +2345,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-09-18T11:00:03Z" finished-at="2011-09-18T11:00:03Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)" name="testParse" duration-ms="0" started-at="2011-10-12T09:41:05Z" finished-at="2011-10-12T09:41:05Z">
           <params>
             <param index="0">
               <value>
