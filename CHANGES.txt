@@ -1,9 +1,10 @@
 
-Version Next
+Version 1.0.140 Released Oct 12, 2011
 
+    - Added PropertyDef
     - Added VaadinApplicationScope
     - Added VaadinApplicationListener
-    - Added PropertyDef
+    - Added CloseListener interface to ContextApplication
 
 Version 1.0.134 Released Sep 18, 2011
 
