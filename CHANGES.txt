@@ -1,4 +1,8 @@
 
+Version Next
+
+    - Added AbstractValidator and Sorted validation constraint
+
 Version 1.0.140 Released Oct 12, 2011
 
     - Added PropertyDef

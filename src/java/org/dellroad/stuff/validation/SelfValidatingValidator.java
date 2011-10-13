@@ -7,7 +7,6 @@
 
 package org.dellroad.stuff.validation;
 
-import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
@@ -15,11 +14,7 @@ import javax.validation.ConstraintValidatorContext;
  *
  * @see SelfValidates
  */
-public class SelfValidatingValidator implements ConstraintValidator<SelfValidates, SelfValidating> {
-
-    @Override
-    public void initialize(SelfValidates annotation) {
-    }
+public class SelfValidatingValidator extends AbstractValidator<SelfValidates, SelfValidating> {
 
     @Override
     public boolean isValid(SelfValidating value, ConstraintValidatorContext context) {
@@ -28,10 +23,8 @@ public class SelfValidatingValidator implements ConstraintValidator<SelfValidate
             return true;
         } catch (SelfValidationException e) {
             String message = e.getMessage();
-            if (message != null) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
-            }
+            if (message != null)
+                this.setViolation(context, message);
             return false;
         }
     }
