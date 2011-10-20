@@ -85,11 +85,14 @@ public final class JiBXUtil {
      */
     public static <T> void writeObject(T obj, Writer writer) throws JiBXException, IOException {
         IMarshallingContext marshallingContext = BindingDirectory.getFactory(obj.getClass()).createMarshallingContext();
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
         marshallingContext.setIndent(4);
-        marshallingContext.setOutput(new BufferedWriter(writer));
+        marshallingContext.setOutput(bufferedWriter);
         marshallingContext.startDocument(XML_ENCODING, null);
         ((IMarshallable)obj).marshal(marshallingContext);
         marshallingContext.getXmlWriter().flush();
+        bufferedWriter.newLine();
+        bufferedWriter.flush();
     }
 
     /**
