@@ -21,12 +21,9 @@ import java.util.regex.PatternSyntaxException;
 
 import org.dellroad.stuff.net.IPv4Util;
 import org.dellroad.stuff.string.ByteArrayEncoder;
+import org.dellroad.stuff.string.DateEncoder;
 import org.dellroad.stuff.string.StringEncoder;
 import org.jibx.runtime.JiBXParseException;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ParseException;
-import org.springframework.expression.ParserContext;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 /**
  * JiBX parsing utility methods. These methods can be used as JiBX value serializer/deserializer methods.
@@ -192,6 +189,28 @@ public final class ParseUtil {
     }
 
     /**
+     * Deserialize a byte array using {@link ByteArrayEncoder}.
+     *
+     * @see ByteArrayEncoder
+     */
+    public static byte[] deserializeByteArray(String string) throws JiBXParseException {
+        try {
+            return ByteArrayEncoder.decode(string);
+        } catch (IllegalArgumentException e) {
+            throw new JiBXParseException("invalid byte array", string, e);
+        }
+    }
+
+    /**
+     * Serialize a byte array using {@link ByteArrayEncoder}.
+     *
+     * @see ByteArrayEncoder
+     */
+    public static String serializeByteArray(byte[] array) {
+        return ByteArrayEncoder.encode(array);
+    }
+
+    /**
      * Deserialize a byte array using MAC address notation (colon-separated). Each byte must have two digits.
      *
      * @see #serializeByteArrayWithColons
@@ -259,51 +278,6 @@ public final class ParseUtil {
     }
 
     /**
-     * Deserialize a Spring {@link Expression}.
-     *
-     * @see #serializeExpression
-     */
-    public static Expression deserializeExpression(String string) throws JiBXParseException {
-        return ParseUtil.deserializeExpression(string, null);
-    }
-
-    /**
-     * Deserialize a Spring {@link Expression} as a template expression. Equivalent to
-     *  <blockquote><code>
-     *  deserializeExpression(string, ParserContext.TEMPLATE_EXPRESSION);
-     *  <code><blockquote>
-     *
-     * @see #serializeExpression
-     * @see #deserializeExpression(String, ParserContext)
-     */
-    public static Expression deserializeTemplateExpression(String string) throws JiBXParseException {
-        return ParseUtil.deserializeExpression(string, ParserContext.TEMPLATE_EXPRESSION);
-    }
-
-    /**
-     * Deserialize a Spring {@link Expression} using the supplied {@link ParserContext}.
-     *
-     * @see #serializeExpression
-     */
-    public static Expression deserializeExpression(String string, ParserContext context) throws JiBXParseException {
-        SpelExpressionParser parser = new SpelExpressionParser();
-        try {
-            return parser.parseExpression(string, context);
-        } catch (ParseException e) {
-            throw new JiBXParseException("invalid Spring EL expression", string, e);
-        }
-    }
-
-    /**
-     * Serialize a Spring {@link Expression}.
-     *
-     * @see #deserializeExpression
-     */
-    public static String serializeExpression(Expression expr) {
-        return expr.getExpressionString();
-    }
-
-    /**
      * Deserialize a {@link SimpleDateFormat}.
      *
      * @see #serializeSimpleDateFormat
@@ -349,6 +323,28 @@ public final class ParseUtil {
      */
     public static String serializeDate(Date date, String format) throws JiBXParseException {
         return deserializeSimpleDateFormat(format).format(date);
+    }
+
+    /**
+     * Deserialize a {@link Date} in the format supported by {@link DateEncoder}.
+     *
+     * @see DateEncoder
+     */
+    public static Date deserializeDate(String date) throws JiBXParseException {
+        try {
+            return DateEncoder.decode(date);
+        } catch (IllegalArgumentException e) {
+            throw new JiBXParseException("invalid date", date, e);
+        }
+    }
+
+    /**
+     * Serialize a {@link Date} in the format supported by {@link DateEncoder}.
+     *
+     * @see DateEncoder
+     */
+    public static String serializeDate(Date date) throws JiBXParseException {
+        return DateEncoder.encode(date);
     }
 
     /**

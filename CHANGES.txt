@@ -1,7 +1,10 @@
 
 Version Next
 
-    - Added AbstractValidator and Sorted validation constraint
+    - Added XMLMessage{Input,Output}Stream
+    - Added AbstractValidator and @Sorted validation constraint
+    - Fix bug where JiBXUtil.writeObject() was closing the output stream
+    - Refactored jibx sub-package to isolate Spring dependencies
 
 Version 1.0.140 Released Oct 12, 2011
 

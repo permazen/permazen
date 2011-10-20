@@ -16,16 +16,18 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IMarshallable;
+import org.jibx.runtime.IMarshallingContext;
+import org.jibx.runtime.IUnmarshallingContext;
 import org.jibx.runtime.JiBXException;
-import org.springframework.oxm.jibx.JibxMarshaller;
 
 /**
  * Some simplified API methods for JiBX XML encoding/decoding.
  */
 public final class JiBXUtil {
+
+    public static final String XML_ENCODING = "UTF-8";
 
     private JiBXUtil() {
     }
@@ -40,16 +42,9 @@ public final class JiBXUtil {
      * @throws JiBXException if there is a JiBX parse error
      * @throws IOException if an error occurs reading from {@code input}
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T readObject(Class<T> clazz, InputStream input) throws JiBXException, IOException {
-
-        // Set up JiBX
-        JibxMarshaller unmarshaller = new JibxMarshaller();
-        unmarshaller.setTargetClass(clazz);
-        unmarshaller.afterPropertiesSet();
-
-        // Read and parse XML
-        return (T)unmarshaller.unmarshal(new StreamSource(input));
+    public static <T> T readObject(Class<T> targetClass, InputStream input) throws JiBXException, IOException {
+        IUnmarshallingContext unmarshallingContext = BindingDirectory.getFactory(targetClass).createUnmarshallingContext();
+        return targetClass.cast(unmarshallingContext.unmarshalDocument(input, null));
     }
 
     /**
@@ -59,10 +54,10 @@ public final class JiBXUtil {
      * @throws JiBXException if there is a JiBX parse error
      * @throws IOException if an error occurs reading the referenced document
      */
-    public static <T> T readObject(Class<T> clazz, URL url) throws JiBXException, IOException {
+    public static <T> T readObject(Class<T> targetClass, URL url) throws JiBXException, IOException {
         InputStream in = url.openStream();
         try {
-            return JiBXUtil.readObject(clazz, in);
+            return JiBXUtil.readObject(targetClass, in);
         } finally {
             try {
                 in.close();
@@ -75,31 +70,26 @@ public final class JiBXUtil {
     /**
      * Write out the given instance encoded as a UTF-8 encoded XML document.
      *
-     * @param output output destination; will not be closed by this method
+     * @param output output destination; will <b>not</b> be closed by this method
      * @throws JiBXException if there is a JiBX encoding error
      * @throws IOException if an error occurs writing to {@code output}
      */
     public static <T> void writeObject(T obj, OutputStream output) throws JiBXException, IOException {
-        JiBXUtil.writeObject(obj, new OutputStreamWriter(output, "UTF-8"));
+        JiBXUtil.writeObject(obj, new OutputStreamWriter(output, XML_ENCODING));
     }
 
     /**
      * Write out the given instance encoded as an XML document with "UTF-8" as the declared encoding.
      *
-     * @param output output destination; will be closed by this method if successful
+     * @param writer output destination; will <b>not</b> be closed by this method
      */
-    public static <T> void writeObject(T obj, Writer output) throws JiBXException, IOException {
-
-        // Set up JiBX
-        JibxMarshaller marshaller = new JibxMarshaller();
-        marshaller.setTargetClass(obj.getClass());
-        marshaller.setEncoding("UTF-8");
-        marshaller.setIndent(4);
-        marshaller.afterPropertiesSet();
-
-        // Output XML
-        BufferedWriter bufferedWriter = new BufferedWriter(output);
-        marshaller.marshal(obj, new StreamResult(bufferedWriter));
+    public static <T> void writeObject(T obj, Writer writer) throws JiBXException, IOException {
+        IMarshallingContext marshallingContext = BindingDirectory.getFactory(obj.getClass()).createMarshallingContext();
+        marshallingContext.setIndent(4);
+        marshallingContext.setOutput(new BufferedWriter(writer));
+        marshallingContext.startDocument(XML_ENCODING, null);
+        ((IMarshallable)obj).marshal(marshallingContext);
+        marshallingContext.getXmlWriter().flush();
     }
 
     /**
@@ -110,6 +100,7 @@ public final class JiBXUtil {
     public static <T> String toString(T obj) throws IOException, JiBXException {
         final StringWriter w = new StringWriter();
         JiBXUtil.writeObject(obj, w);
+        w.close();
         return w.toString();
     }
 }
