@@ -14,16 +14,16 @@ import java.io.OutputStream;
 import org.jibx.runtime.JiBXException;
 
 /**
- * {@link OutputStream} over which XML documents are passed. This class is a companion to {@link XMLMessageOutputStream}.
+ * {@link OutputStream} over which XML documents are passed. This class is a companion to {@link XMLDocumentOutputStream}.
  *
  * <p>
  * XML documents are created from Java objects via {@link JiBXUtil#writeObject(Object, OutputStream) JiBXUtil.writeObject()}.
  * </p>
  *
  * @param <T> XML document type
- * @see XMLMessageInputStream
+ * @see XMLDocumentInputStream
  */
-public class XMLMessageOutputStream<T> {
+public class XMLDocumentOutputStream<T> {
 
     private final Class<T> type;
     private final BufferedOutputStream output;
@@ -34,7 +34,7 @@ public class XMLMessageOutputStream<T> {
      * @param type Java type for XML documents
      * @param output data destination
      */
-    public XMLMessageOutputStream(Class<T> type, OutputStream output) {
+    public XMLDocumentOutputStream(Class<T> type, OutputStream output) {
         if (type == null)
             throw new IllegalArgumentException("null type");
         if (output == null)
@@ -47,7 +47,7 @@ public class XMLMessageOutputStream<T> {
      * Write the object encoded as XML to the underlying output stream.
      * The underlying output stream is flushed.
      */
-    public void writeDocument(T obj) throws IOException, JiBXException {
+    public void write(T obj) throws IOException, JiBXException {
         JiBXUtil.writeObject(obj, this.output);
         this.output.flush();
     }

@@ -1,7 +1,7 @@
 
 Version Next
 
-    - Added XMLMessage{Input,Output}Stream
+    - Added XMLDocument{Input,Output}Stream
     - Added AbstractValidator and @Sorted validation constraint
     - Fix bug where JiBXUtil.writeObject() was closing the output stream
     - Refactored jibx sub-package to isolate Spring dependencies
