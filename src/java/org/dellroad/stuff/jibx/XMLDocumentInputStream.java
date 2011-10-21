@@ -11,6 +11,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.dellroad.stuff.io.InputStreamReader;
 import org.jibx.runtime.JiBXException;
 
 /**
@@ -26,7 +27,7 @@ import org.jibx.runtime.JiBXException;
 public class XMLDocumentInputStream<T> {
 
     private final Class<T> type;
-    private final BufferedInputStream input;
+    private final InputStreamReader input;
 
     /**
      * Constructor.
@@ -40,11 +41,27 @@ public class XMLDocumentInputStream<T> {
         if (input == null)
             throw new IllegalArgumentException("null input");
         this.type = type;
-        this.input = new BufferedInputStream(input);
+        this.input = new InputStreamReader(new BufferedInputStream(input));
     }
 
+    /**
+     * Read the next XML document, parsed and objectified.
+     *
+     * @return decoded object or {@code null} on EOF
+     */
     public T read() throws IOException, JiBXException {
-        return JiBXUtil.readObject(this.type, this.input);
+        InputStream xml = this.input.read();
+        if (xml == null)
+            return null;
+        try {
+            return JiBXUtil.readObject(this.type, xml);
+        } finally {
+            try {
+                xml.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
     }
 
     public void close() throws IOException {

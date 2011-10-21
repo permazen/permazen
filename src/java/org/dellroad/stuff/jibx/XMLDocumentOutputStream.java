@@ -11,6 +11,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.dellroad.stuff.io.OutputStreamWriter;
 import org.jibx.runtime.JiBXException;
 
 /**
@@ -26,7 +27,7 @@ import org.jibx.runtime.JiBXException;
 public class XMLDocumentOutputStream<T> {
 
     private final Class<T> type;
-    private final BufferedOutputStream output;
+    private final OutputStreamWriter output;
 
     /**
      * Constructor.
@@ -40,16 +41,17 @@ public class XMLDocumentOutputStream<T> {
         if (output == null)
             throw new IllegalArgumentException("null output");
         this.type = type;
-        this.output = new BufferedOutputStream(output);
+        this.output = new OutputStreamWriter(new BufferedOutputStream(output));
     }
 
     /**
      * Write the object encoded as XML to the underlying output stream.
      * The underlying output stream is flushed.
      */
-    public void write(T obj) throws IOException, JiBXException {
+    public synchronized void write(T obj) throws IOException, JiBXException {
+        this.output.start();
         JiBXUtil.writeObject(obj, this.output);
-        this.output.flush();
+        this.output.stop();
     }
 
     /**

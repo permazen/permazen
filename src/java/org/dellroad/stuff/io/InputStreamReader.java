@@ -222,8 +222,8 @@ public class InputStreamReader {
                 if (this.closed)
                     return;
                 this.closed = true;
+                this.checkInputClose();
             }
-            this.checkInputClose();
         }
 
         @Override

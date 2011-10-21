@@ -61,7 +61,7 @@ public class OutputStreamWriter extends FilterOutputStream {
     }
 
     /**
-     * End the current {@link OutputStream}.
+     * End the current {@link OutputStream}. This flushes the underlying output.
      * A new {@link OutputStream} will be created upon the next invocation of {@link #start}.
      *
      * @throws IOException if this instance is closed
@@ -75,6 +75,7 @@ public class OutputStreamWriter extends FilterOutputStream {
             throw new IOException("not started");
         this.started = false;
         this.writeControl(InputStreamReader.CONTROL_SEPARATOR);
+        this.flush();
     }
 
     /**

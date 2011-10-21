@@ -122,7 +122,7 @@
             </fileset>
         </copy>
         <dellroad:unit-tests/>
-        <property name="checkstyle.completed" value="true"/>
+        <property name="tests.completed" value="true"/>
     </target>
 
     <!-- Publish reports -->
