@@ -1,6 +1,7 @@
 
 Version 1.0.153 Released Oct 21, 2011
 
+    - Added SpringContextApplication
     - Added OutputStreamWriter and InputStreamReader
     - Added XMLDocument{Input,Output}Stream
     - Added AbstractValidator and @Sorted validation constraint
