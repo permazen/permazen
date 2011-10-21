@@ -24,8 +24,6 @@ import java.io.PipedOutputStream;
  */
 public class NullModemOutputStream extends FilterOutputStream {
 
-    private final PipedInputStream input;
-
     /**
      * Constructor.
      *
@@ -40,8 +38,9 @@ public class NullModemOutputStream extends FilterOutputStream {
             throw new IllegalArgumentException("null reader");
 
         // Create other end of pipe
+        PipedInputStream input;
         try {
-            this.input = new PipedInputStream(this.getPipedOutputStream());
+            input = new PipedInputStream(this.getPipedOutputStream());
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
         }
@@ -91,9 +90,10 @@ public class NullModemOutputStream extends FilterOutputStream {
          * This method will be invoked (once) asynchronously in a dedicated reader thread.
          * </p>
          *
+         * @param input input providing the data written to the corresponding {@link NullModemOutputStream}
          * @throws IOException if an I/O error occurs
          */
-        void readFrom(InputStream output) throws IOException;
+        void readFrom(InputStream input) throws IOException;
     }
 
     /**
