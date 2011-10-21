@@ -24,8 +24,8 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * on application startup.
  *
  * <p>
- * This setup works analagously to the way Spring's {@link import org.springframework.web.servlet.DispatcherServlet
- * DispatcherServlet} creates a per-servlet application context whose parent context is the context associated with
+ * This setup works analagously to the way Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}
+ * creates a per-servlet application context whose parent context is the context associated with
  * the overal servlet context. In this case, each new {@link SpringContextApplication} instance results in a new
  * application context being created. When an {@link SpringContextApplication} instance is closed, the corresponding
  * Spring application context is also closed.
