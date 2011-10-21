@@ -24,11 +24,11 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * on application startup.
  *
  * <p>
- * This setup works analagously to the way Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}
- * creates a per-servlet application context whose parent context is the context associated with
- * the overal servlet context. In this case, each new {@link SpringContextApplication} instance results in a new
- * application context being created. When an {@link SpringContextApplication} instance is closed, the corresponding
- * Spring application context is also closed.
+ * This setup works similar to the way Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}
+ * creates a per-servlet application context whose parent context is the one associated with the overal servlet context
+ * (e.g., the one created by {@link org.springframework.web.context.ContextLoaderListener ContextLoaderListener}.
+ * In this case, each new {@link SpringContextApplication} instance results in a new Spring application context being created.
+ * When a {@link SpringContextApplication} instance is closed, the corresponding Spring application context is also closed.
  * </p>
  *
  * <p>
@@ -37,7 +37,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * </p>
  *
  * <p>
- * For the application subclass {@code com.example.FooApplication}, this class will find and load an XML file named
+ * For the application subclass {@code com.example.FooApplication}, this class will look for an XML file named
  * {@code FooApplication.xml} to create the new Spring application context (this naming scheme {@linkplain #getApplicationName
  * can be overriden}).
  * </p>
