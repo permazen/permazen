@@ -1,0 +1,137 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.jibx;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.io.BufferedInputStream;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.io.IOException;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.io.InputStream;<a name="line.12"></a>
+<FONT color="green">013</FONT>    <a name="line.13"></a>
+<FONT color="green">014</FONT>    import org.dellroad.stuff.io.InputStreamReader;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import org.jibx.runtime.JiBXException;<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    /**<a name="line.17"></a>
+<FONT color="green">018</FONT>     * {@link InputStream} over which XML documents are passed. This class is a companion to {@link XMLDocumentOutputStream}.<a name="line.18"></a>
+<FONT color="green">019</FONT>     *<a name="line.19"></a>
+<FONT color="green">020</FONT>     * &lt;p&gt;<a name="line.20"></a>
+<FONT color="green">021</FONT>     * XML documents are converted into Java objects via {@link JiBXUtil#readObject(Class, InputStream) JiBXUtil.readObject()}.<a name="line.21"></a>
+<FONT color="green">022</FONT>     * &lt;/p&gt;<a name="line.22"></a>
+<FONT color="green">023</FONT>     *<a name="line.23"></a>
+<FONT color="green">024</FONT>     * @param &lt;T&gt; XML document type<a name="line.24"></a>
+<FONT color="green">025</FONT>     * @see XMLDocumentOutputStream<a name="line.25"></a>
+<FONT color="green">026</FONT>     */<a name="line.26"></a>
+<FONT color="green">027</FONT>    public class XMLDocumentInputStream&lt;T&gt; {<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>        private final Class&lt;T&gt; type;<a name="line.29"></a>
+<FONT color="green">030</FONT>        private final InputStreamReader input;<a name="line.30"></a>
+<FONT color="green">031</FONT>    <a name="line.31"></a>
+<FONT color="green">032</FONT>        /**<a name="line.32"></a>
+<FONT color="green">033</FONT>         * Constructor.<a name="line.33"></a>
+<FONT color="green">034</FONT>         *<a name="line.34"></a>
+<FONT color="green">035</FONT>         * @param type Java type for XML documents<a name="line.35"></a>
+<FONT color="green">036</FONT>         * @param input data source<a name="line.36"></a>
+<FONT color="green">037</FONT>         */<a name="line.37"></a>
+<FONT color="green">038</FONT>        public XMLDocumentInputStream(Class&lt;T&gt; type, InputStream input) {<a name="line.38"></a>
+<FONT color="green">039</FONT>            if (type == null)<a name="line.39"></a>
+<FONT color="green">040</FONT>                throw new IllegalArgumentException("null type");<a name="line.40"></a>
+<FONT color="green">041</FONT>            if (input == null)<a name="line.41"></a>
+<FONT color="green">042</FONT>                throw new IllegalArgumentException("null input");<a name="line.42"></a>
+<FONT color="green">043</FONT>            this.type = type;<a name="line.43"></a>
+<FONT color="green">044</FONT>            this.input = new InputStreamReader(new BufferedInputStream(input));<a name="line.44"></a>
+<FONT color="green">045</FONT>        }<a name="line.45"></a>
+<FONT color="green">046</FONT>    <a name="line.46"></a>
+<FONT color="green">047</FONT>        /**<a name="line.47"></a>
+<FONT color="green">048</FONT>         * Read the next XML document, parsed and objectified.<a name="line.48"></a>
+<FONT color="green">049</FONT>         *<a name="line.49"></a>
+<FONT color="green">050</FONT>         * @return decoded object or {@code null} on EOF<a name="line.50"></a>
+<FONT color="green">051</FONT>         */<a name="line.51"></a>
+<FONT color="green">052</FONT>        public T read() throws IOException, JiBXException {<a name="line.52"></a>
+<FONT color="green">053</FONT>            InputStream xml = this.input.read();<a name="line.53"></a>
+<FONT color="green">054</FONT>            if (xml == null)<a name="line.54"></a>
+<FONT color="green">055</FONT>                return null;<a name="line.55"></a>
+<FONT color="green">056</FONT>            try {<a name="line.56"></a>
+<FONT color="green">057</FONT>                return JiBXUtil.readObject(this.type, xml);<a name="line.57"></a>
+<FONT color="green">058</FONT>            } finally {<a name="line.58"></a>
+<FONT color="green">059</FONT>                try {<a name="line.59"></a>
+<FONT color="green">060</FONT>                    xml.close();<a name="line.60"></a>
+<FONT color="green">061</FONT>                } catch (IOException e) {<a name="line.61"></a>
+<FONT color="green">062</FONT>                    // ignore<a name="line.62"></a>
+<FONT color="green">063</FONT>                }<a name="line.63"></a>
+<FONT color="green">064</FONT>            }<a name="line.64"></a>
+<FONT color="green">065</FONT>        }<a name="line.65"></a>
+<FONT color="green">066</FONT>    <a name="line.66"></a>
+<FONT color="green">067</FONT>        public void close() throws IOException {<a name="line.67"></a>
+<FONT color="green">068</FONT>            this.input.close();<a name="line.68"></a>
+<FONT color="green">069</FONT>        }<a name="line.69"></a>
+<FONT color="green">070</FONT>    }<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
