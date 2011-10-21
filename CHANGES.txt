@@ -1,6 +1,7 @@
 
 Version Next
 
+    - Added OutputStreamWriter and InputStreamReader
     - Added XMLDocument{Input,Output}Stream
     - Added AbstractValidator and @Sorted validation constraint
     - Fix bug where JiBXUtil.writeObject() was closing the output stream
