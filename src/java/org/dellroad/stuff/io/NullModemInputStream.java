@@ -88,6 +88,7 @@ public class NullModemInputStream extends FilterInputStream {
          * This method will be invoked (once) asynchronously in a dedicated writer thread.
          * </p>
          *
+         * @param output output that sends data to the corresponding {@link NullModemInputStream}
          * @throws IOException if an I/O error occurs
          */
         void writeTo(OutputStream output) throws IOException;
