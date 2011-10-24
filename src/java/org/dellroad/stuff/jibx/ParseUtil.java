@@ -166,8 +166,13 @@ public final class ParseUtil {
         value = value % (60 * 1000);
         if (minutes > 0)
             b.append(minutes).append('m');
-        if (value != 0 || b.length() == 0)
-            b.append(String.format("%.3fs", (double)value / 1000.0));
+        long millis = value;
+        if (millis != 0 || b.length() == 0) {
+            if (millis >= 1000 && millis % 1000 == 0)
+                b.append(String.format("%ds", millis / 1000));
+            else
+                b.append(String.format("%.3fs", (double)millis / 1000.0));
+        }
         return b.toString();
     }
 
