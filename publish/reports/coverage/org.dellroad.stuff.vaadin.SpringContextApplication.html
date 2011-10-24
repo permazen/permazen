@@ -72,15 +72,15 @@
 <tr>  <td class="numLine">&nbsp;26</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * &lt;p&gt;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;27</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment"> * This setup works analagously to the way Spring's {@link import org.springframework.web.servlet.DispatcherServlet</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment"> * This setup works similar to the way Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;28</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment"> * DispatcherServlet} creates a per-servlet application context whose parent context is the context associated with</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment"> * creates a per-servlet application context whose parent context is the one associated with the overal servlet context</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;29</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment"> * the overal servlet context. In this case, each new {@link SpringContextApplication} instance results in a new</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment"> * (e.g., the one created by {@link org.springframework.web.context.ContextLoaderListener ContextLoaderListener}.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;30</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment"> * application context being created. When an {@link SpringContextApplication} instance is closed, the corresponding</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment"> * In this case, each new {@link SpringContextApplication} instance results in a new Spring application context being created.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;31</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment"> * Spring application context is also closed.</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment"> * When a {@link SpringContextApplication} instance is closed, the corresponding Spring application context is also closed.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;32</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * &lt;/p&gt;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;33</td>  <td class="nbHits">&nbsp;</td>
@@ -98,7 +98,7 @@
 <tr>  <td class="numLine">&nbsp;39</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * &lt;p&gt;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;40</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment"> * For the application subclass {@code com.example.FooApplication}, this class will find and load an XML file named</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment"> * For the application subclass {@code com.example.FooApplication}, this class will look for an XML file named</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;41</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * {@code FooApplication.xml} to create the new Spring application context (this naming scheme {@linkplain #getApplicationName</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;42</td>  <td class="nbHits">&nbsp;</td>
@@ -258,7 +258,7 @@
 <tr>  <td class="numLine">&nbsp;131</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * Post-process the given {@link WebApplicationContext} after initial creation but before the initial</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;132</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment">     * {@link WebApplicationContext#refresh refresh()}.</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment">     * {@link org.springframework.context.ConfigurableApplicationContext#refresh refresh()}.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;133</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     *</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;134</td>  <td class="nbHits">&nbsp;</td>
@@ -301,7 +301,7 @@
 <tr>  <td class="numLine">&nbsp;153</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * @see #postProcessWebApplicationContext</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;154</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment">     * @see WebApplicationContext#refresh</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment">     * @see org.springframework.context.ConfigurableApplicationContext#refresh</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;155</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;156</td>  <td class="nbHits">&nbsp;</td>
@@ -334,6 +334,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 1.9.4.1 on 10/21/11 2:42 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 1.9.4.1 on 10/24/11 3:45 PM.</div>
 </body>
 </html>

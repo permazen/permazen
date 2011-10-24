@@ -27,11 +27,11 @@
 <FONT color="green">024</FONT>     * on application startup.<a name="line.24"></a>
 <FONT color="green">025</FONT>     *<a name="line.25"></a>
 <FONT color="green">026</FONT>     * &lt;p&gt;<a name="line.26"></a>
-<FONT color="green">027</FONT>     * This setup works analagously to the way Spring's {@link import org.springframework.web.servlet.DispatcherServlet<a name="line.27"></a>
-<FONT color="green">028</FONT>     * DispatcherServlet} creates a per-servlet application context whose parent context is the context associated with<a name="line.28"></a>
-<FONT color="green">029</FONT>     * the overal servlet context. In this case, each new {@link SpringContextApplication} instance results in a new<a name="line.29"></a>
-<FONT color="green">030</FONT>     * application context being created. When an {@link SpringContextApplication} instance is closed, the corresponding<a name="line.30"></a>
-<FONT color="green">031</FONT>     * Spring application context is also closed.<a name="line.31"></a>
+<FONT color="green">027</FONT>     * This setup works similar to the way Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}<a name="line.27"></a>
+<FONT color="green">028</FONT>     * creates a per-servlet application context whose parent context is the one associated with the overal servlet context<a name="line.28"></a>
+<FONT color="green">029</FONT>     * (e.g., the one created by {@link org.springframework.web.context.ContextLoaderListener ContextLoaderListener}.<a name="line.29"></a>
+<FONT color="green">030</FONT>     * In this case, each new {@link SpringContextApplication} instance results in a new Spring application context being created.<a name="line.30"></a>
+<FONT color="green">031</FONT>     * When a {@link SpringContextApplication} instance is closed, the corresponding Spring application context is also closed.<a name="line.31"></a>
 <FONT color="green">032</FONT>     * &lt;/p&gt;<a name="line.32"></a>
 <FONT color="green">033</FONT>     *<a name="line.33"></a>
 <FONT color="green">034</FONT>     * &lt;p&gt;<a name="line.34"></a>
@@ -40,7 +40,7 @@
 <FONT color="green">037</FONT>     * &lt;/p&gt;<a name="line.37"></a>
 <FONT color="green">038</FONT>     *<a name="line.38"></a>
 <FONT color="green">039</FONT>     * &lt;p&gt;<a name="line.39"></a>
-<FONT color="green">040</FONT>     * For the application subclass {@code com.example.FooApplication}, this class will find and load an XML file named<a name="line.40"></a>
+<FONT color="green">040</FONT>     * For the application subclass {@code com.example.FooApplication}, this class will look for an XML file named<a name="line.40"></a>
 <FONT color="green">041</FONT>     * {@code FooApplication.xml} to create the new Spring application context (this naming scheme {@linkplain #getApplicationName<a name="line.41"></a>
 <FONT color="green">042</FONT>     * can be overriden}).<a name="line.42"></a>
 <FONT color="green">043</FONT>     * &lt;/p&gt;<a name="line.43"></a>
@@ -132,7 +132,7 @@
 <FONT color="green">129</FONT>    <a name="line.129"></a>
 <FONT color="green">130</FONT>        /**<a name="line.130"></a>
 <FONT color="green">131</FONT>         * Post-process the given {@link WebApplicationContext} after initial creation but before the initial<a name="line.131"></a>
-<FONT color="green">132</FONT>         * {@link WebApplicationContext#refresh refresh()}.<a name="line.132"></a>
+<FONT color="green">132</FONT>         * {@link org.springframework.context.ConfigurableApplicationContext#refresh refresh()}.<a name="line.132"></a>
 <FONT color="green">133</FONT>         *<a name="line.133"></a>
 <FONT color="green">134</FONT>         * &lt;p&gt;<a name="line.134"></a>
 <FONT color="green">135</FONT>         * The implementation in {@link SpringContextApplication} does nothing. Subclasses may override as necessary.<a name="line.135"></a>
@@ -154,7 +154,7 @@
 <FONT color="green">151</FONT>         *<a name="line.151"></a>
 <FONT color="green">152</FONT>         * @param context the associated {@link WebApplicationContext} just refreshed<a name="line.152"></a>
 <FONT color="green">153</FONT>         * @see #postProcessWebApplicationContext<a name="line.153"></a>
-<FONT color="green">154</FONT>         * @see WebApplicationContext#refresh<a name="line.154"></a>
+<FONT color="green">154</FONT>         * @see org.springframework.context.ConfigurableApplicationContext#refresh<a name="line.154"></a>
 <FONT color="green">155</FONT>         */<a name="line.155"></a>
 <FONT color="green">156</FONT>        protected void onRefresh(ApplicationContext context) {<a name="line.156"></a>
 <FONT color="green">157</FONT>        }<a name="line.157"></a>
