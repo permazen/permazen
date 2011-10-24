@@ -14,6 +14,10 @@ import java.io.InputStream;
 /**
  * Reads zero or more {@link InputStream}s serialized inside an underlying {@link InputStream} by an {@link OutputStreamWriter}.
  *
+ * <p>
+ * Instances of this class are thread safe, as are the {@link InputStream}s returned by {@link #read}.
+ * </p>
+ *
  * @see OutputStreamWriter
  */
 public class InputStreamReader {

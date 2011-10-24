@@ -15,6 +15,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Performs asynchonous reads on an {@link InputStream} and notifies of input events.
+ *
+ * <p>
+ * Reads are performed in a dedicated background thread, from which the configured listener is notified.
+ * The background thread runs until this instance is {@linkplain #close closed}, EOF or an exception is detected
+ * on the input, or a listener callback method throws an exception.
+ * </p>
+ *
+ * <p>
+ * Instances of this class are thread-safe. The {@link #close} method may be safely invoked re-entrantly from the
+ * listener callback methods.
+ * </p>
  */
 public class AsyncInputStream {
 
@@ -31,9 +42,13 @@ public class AsyncInputStream {
     /**
      * Constructor.
      *
+     * <p>
+     * If {@code listener} is null, this instance effectively reads and discards all of the input in a background thread.
+     * </p>
+     *
      * @param input     underlying input stream
      * @param name      name for this instance; used to create the name of the background thread
-     * @param listener  callback object for input events
+     * @param listener  callback object for input events, or null for none
      * @throws IllegalArgumentException if any parameter is null
      */
     public AsyncInputStream(InputStream input, String name, Listener listener) {
@@ -41,13 +56,10 @@ public class AsyncInputStream {
             throw new IllegalArgumentException("null input");
         if (name == null)
             throw new IllegalArgumentException("name input");
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
         this.input = input;
         this.name = name;
         this.listener = listener;
         new Thread(this.name) {
-
             @Override
             public void run() {
                 AsyncInputStream.this.threadMain();
@@ -81,7 +93,8 @@ public class AsyncInputStream {
                     return;
             }
             try {
-                this.listener.handleException(t);
+                if (this.listener != null)
+                    this.listener.handleException(t);
             } catch (Exception e) {
                 this.log.error(this.name + ": caught unexpected exception", e);
             }
@@ -96,10 +109,12 @@ public class AsyncInputStream {
         while (true) {
             int r = this.input.read(buf);
             if (r == -1) {
-                this.listener.handleEOF();
+                if (this.listener != null)
+                    this.listener.handleEOF();
                 break;
             }
-            this.listener.handleInput(buf, 0, r);
+            if (this.listener != null)
+                this.listener.handleInput(buf, 0, r);
         }
     }
 

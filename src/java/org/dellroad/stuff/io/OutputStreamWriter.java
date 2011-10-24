@@ -12,18 +12,23 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Writes zero or more {@link OutputStream}s serialized inside an underlying {@link OutputStream}
- * to be deserialized as distinct {@link java.io.InputStream}s on the other end by an {@link InputStreamReader}.
+ * Serializes zero or more {@link OutputStream}s inside a single underlying {@link OutputStream}. The results can be
+ * deserialized as equally many distinct {@link java.io.InputStream}s on the other end using an {@link InputStreamReader}.
+ * Each {@link OutputStream} may contain an arbitrary amount of data.
  *
  * <p>
  * To use this class, invoke {@link #start} to start a new {@link OutputStream}, write to it by writing to this
- * class normally, and then use {@link #stop} to close the current {@link OutputStream}. Another {@link OutputStream}
- * is started by invoking {@link #start} again.
+ * class normally, and then use {@link #stop} to close the current {@link OutputStream}. A new, subsequent {@link OutputStream}
+ * is created by invoking {@link #start} again.
  * </p>
  *
  * <p>
  * Each {@link OutputStream} written in this way will be read as distinct {@link java.io.InputStream} by the
  * {@link InputStreamReader} at the other end.
+ * </p>
+ *
+ * <p>
+ * Instances of this class are thread safe.
  * </p>
  *
  * @see InputStreamReader

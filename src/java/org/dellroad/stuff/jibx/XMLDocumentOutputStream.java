@@ -21,6 +21,10 @@ import org.jibx.runtime.JiBXException;
  * XML documents are created from Java objects via {@link JiBXUtil#writeObject(Object, OutputStream) JiBXUtil.writeObject()}.
  * </p>
  *
+ * <p>
+ * Instances of this class are thread-safe.
+ * </p>
+ *
  * @param <T> XML document type
  * @see XMLDocumentInputStream
  */

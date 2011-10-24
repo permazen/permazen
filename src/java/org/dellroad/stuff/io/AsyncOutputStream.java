@@ -21,16 +21,17 @@ import org.slf4j.LoggerFactory;
  * An {@link OutputStream} that performs writes using a background thread, so that
  * write, flush, and close operations never block.
  * <p/>
+ *
  * <p>
  * If the underlying output stream throws an {@link IOException} during any operation,
  * this instance will re-throw the exception for all subsequent operations.
  * </p>
- * <p/>
+ *
  * <p>
  * Instances use an internal buffer whose size is configured at construction time;
  * if the buffer overflows, a {@link BufferOverflowException} is thrown.
  * </p>
- * <p/>
+ *
  * <p>
  * Instances of this class are thread safe, and moreover writes are atomic: if multiple threads are writing
  * at the same time the bytes written in any single method invocation are written contiguously to the
