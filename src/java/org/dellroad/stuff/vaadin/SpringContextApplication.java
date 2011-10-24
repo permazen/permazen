@@ -129,7 +129,7 @@ public abstract class SpringContextApplication extends ContextApplication {
 
     /**
      * Post-process the given {@link WebApplicationContext} after initial creation but before the initial
-     * {@link WebApplicationContext#refresh refresh()}.
+     * {@link org.springframework.context.ConfigurableApplicationContext#refresh refresh()}.
      *
      * <p>
      * The implementation in {@link SpringContextApplication} does nothing. Subclasses may override as necessary.
@@ -151,7 +151,7 @@ public abstract class SpringContextApplication extends ContextApplication {
      *
      * @param context the associated {@link WebApplicationContext} just refreshed
      * @see #postProcessWebApplicationContext
-     * @see WebApplicationContext#refresh
+     * @see org.springframework.context.ConfigurableApplicationContext#refresh
      */
     protected void onRefresh(ApplicationContext context) {
     }
