@@ -57,7 +57,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * It is also possible to configure beans outside of this application context using AOP. Beans annotated with the
  * Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation, when their classes
  * have been build- or compile-time woven with the {@code VaadinConfigurableAspect} aspect (included in the
- * <code>dellroad-stuff-aspects</code> JAR file), will be configured with the per-Vaadin application context associated
+ * <code>dellroad-stuff</code> JAR file), will be configured with the per-Vaadin application context associated
  * with the currently running Vaadin application (see {@link ContextApplication#get} for details). This allows Vaadin
  * application code to invoke e.g. <code>new Foobar()</code>, where <code>Foobar</code> is marked
  * {@link org.springframework.beans.factory.annotation.Configurable @Configurable}, and have the new {@code Foobar} instance
