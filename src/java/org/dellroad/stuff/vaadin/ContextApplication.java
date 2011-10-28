@@ -215,12 +215,14 @@ public abstract class ContextApplication extends Application implements HttpServ
      * Get the {@link ContextApplication} instance associated with the current thread.
      *
      * <p>
-     * If the current thread is handling a Vaadin web request that is executing within an {@link ContextApplication} instance,
-     * then this method will return the associated {@link ContextApplication}.
+     * If the current thread is handling a Vaadin HTTP request that is executing within an {@link ContextApplication} instance,
+     * or is executing within {@link #invoke}, then this method will return the associated {@link ContextApplication}.
      * </p>
      *
      * @return the {@link ContextApplication} associated with the current thread, or {@code null} if the current thread
      *  is not servicing a Vaadin web request or the current Vaadin {@link Application} is not an {@link ContextApplication}
+     *
+     * @see #invoke
      */
     public static ContextApplication currentApplication() {
         return ContextApplication.CURRENT_APPLICATION.get();
@@ -243,7 +245,8 @@ public abstract class ContextApplication extends Application implements HttpServ
      *
      * <p>
      * If the current thread is handling a Vaadin web request that is executing within an {@link ContextApplication} instance,
-     * then this method will return the associated {@link ContextApplication}. Otherwise, an exception is thrown.
+     * or is executing within {@link #invoke}, then this method will return the associated {@link ContextApplication}.
+     * Otherwise, an exception is thrown.
      * </p>
      *
      * @return the {@link ContextApplication} associated with the current thread
