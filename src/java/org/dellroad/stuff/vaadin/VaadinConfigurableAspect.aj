@@ -1,14 +1,17 @@
 
 /*
- * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.
+ * Copyright (C) 2011 Archie L. Cobbs and other authors. All rights reserved.
  *
  * $Id: SpringContextApplication.java 160 2011-10-24 18:00:49Z archie.cobbs $
  */
 
 package org.dellroad.stuff.vaadin;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.aspectj.AbstractInterfaceDrivenDependencyInjectionAspect;
+import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
 import org.springframework.beans.factory.aspectj.ConfigurableObject;
 
 /**
@@ -38,19 +41,43 @@ import org.springframework.beans.factory.aspectj.ConfigurableObject;
  * @see ContextApplication#get
  * @see Configurable
  */
-public aspect VaadinConfigurableAspect extends AbstractInterfaceDrivenDependencyInjectionAspect {
+public aspect VaadinConfigurableAspect extends AbstractDependencyInjectionAspect {
 
-	public pointcut inConfigurableBean() : @this(Configurable);
+// Stuff copied from AbstractInterfaceDrivenDependencyInjectionAspect.aj
 
-	public pointcut preConstructionConfiguration() : preConstructionConfigurationSupport(*); 
+    public pointcut beanConstruction(Object bean) :
+        initialization(ConfigurableObject+.new(..)) && this(bean);
 
-	declare parents: @Configurable * implements ConfigurableObject;
+    public pointcut beanDeserialization(Object bean) :
+        execution(Object ConfigurableDeserializationSupport+.readResolve()) &&
+        this(bean);
 
-    @Override
-	public void configureBean(Object bean) {
-        SpringContextApplication.get().configureBean(bean);
+    public pointcut leastSpecificSuperTypeConstruction() : initialization(ConfigurableObject.new(..));
+
+    static interface ConfigurableDeserializationSupport extends Serializable {
     }
 
-	private pointcut preConstructionConfigurationSupport(Configurable c) : @this(c) && if(c.preConstruction());
+    public Object ConfigurableDeserializationSupport.readResolve() throws ObjectStreamException {
+        return this;
+    }
+
+// Stuff copied from AnnotationBeanConfigurerAspect.aj
+
+    public pointcut inConfigurableBean() : @this(Configurable);
+
+    public pointcut preConstructionConfiguration() : preConstructionConfigurationSupport(*);
+
+    declare parents: @Configurable * implements ConfigurableObject;
+
+    private pointcut preConstructionConfigurationSupport(Configurable c) : @this(c) && if(c.preConstruction());
+
+	declare parents: @Configurable Serializable+ implements ConfigurableDeserializationSupport;
+
+// Our implementation
+
+    @Override
+    public void configureBean(Object bean) {
+        SpringContextApplication.get().configureBean(bean);
+    }
 }
 
