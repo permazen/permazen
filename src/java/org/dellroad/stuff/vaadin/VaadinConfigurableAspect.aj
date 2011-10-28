@@ -9,6 +9,7 @@ package org.dellroad.stuff.vaadin;
 
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.aspectj.AbstractInterfaceDrivenDependencyInjectionAspect;
+import org.springframework.beans.factory.aspectj.ConfigurableObject;
 
 /**
  * Aspect that autowires classes marked with the Spring's {@link Configurable @Configurable} annotation to a
