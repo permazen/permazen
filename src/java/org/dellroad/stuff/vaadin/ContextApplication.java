@@ -41,7 +41,7 @@ public abstract class ContextApplication extends Application implements HttpServ
     private static final ThreadLocal<HttpServletRequest> CURRENT_REQUEST = new ThreadLocal<HttpServletRequest>();
     private static final ThreadLocal<HttpServletResponse> CURRENT_RESPONSE = new ThreadLocal<HttpServletResponse>();
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final HashSet<CloseListener> closeListeners = new HashSet<CloseListener>();
 
