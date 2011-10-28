@@ -9,9 +9,11 @@ package org.dellroad.stuff.vaadin;
 
 import javax.servlet.ServletContext;
 
-import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.AnnotationBeanWiringInfoResolver;
+import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.SourceFilteringListener;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
@@ -20,31 +22,51 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
- * {@link ContextApplication} implementation that loads and initializes an associated Spring {@link WebApplicationContext}
- * on application startup.
+ * Vaadin application implementation that loads and initializes an associated Spring {@link WebApplicationContext}
+ * on application startup. Each Vaadin application instance is given its own Spring application context, and all such
+ * application contexts share the same parent context, which is the one associated with the overal servlet web context
+ * (i.e., the one created by Spring's {@link org.springframework.web.context.ContextLoaderListener ContextLoaderListener}).
+ * A context is created when a new Vaadin application instance is initialized, and destroyed when it is closed.
  *
  * <p>
- * This setup works similar to the way Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}
- * creates a per-servlet application context whose parent context is the one associated with the overal servlet context
- * (e.g., the one created by {@link org.springframework.web.context.ContextLoaderListener ContextLoaderListener}.
- * In this case, each new {@link SpringContextApplication} instance results in a new Spring application context being created.
- * When a {@link SpringContextApplication} instance is closed, the corresponding Spring application context is also closed.
+ * This setup is analogous to how Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}
+ * creates per-servlet application contexts that are children of the overall servlet web context.
  * </p>
  *
  * <p>
- * By default, each instance of this class is itself autowired by the associated application context; this behavior
- * can be disabled by overriding {@link #isAutowire} to return {@code false}.
+ * For each Vaadin application {@code com.example.FooApplication} that subclasses this class, there should exist an XML
+ * file named {@code FooApplication.xml} in the {@code WEB-INF} directory that defines the per-Vaadin application Spring
+ * application context (this naming scheme {@linkplain #getApplicationName can be overriden}).
  * </p>
  *
  * <p>
- * For the application subclass {@code com.example.FooApplication}, this class will look for an XML file named
- * {@code FooApplication.xml} to create the new Spring application context (this naming scheme {@linkplain #getApplicationName
- * can be overriden}).
+ * This {@link SpringContextApplication} instance can itself be included in, and optionally configured by, the associated Spring
+ * application context by using a {@link ContextApplicationFactoryBean}:
+ *
+ * <blockquote><pre>
+ *      &lt;bean class="org.dellroad.stuff.vaadin.ContextApplicationFactoryBean" p:autowire="true"/&gt;
+ * </pre></blockquote>
+ * If the {@code autowire} property is set to {@code true}, then the {@link SpringContextApplication} instance
+ * (which already exists when the application context is created) will be autowired by the application context as well.
  * </p>
  *
  * <p>
- * Note: Requires Servlet 3.0.
+ * It is also possible to configure beans outside of this application context using AOP. Beans annotated with the
+ * Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation, when their classes
+ * have been build- or compile-time woven with the {@code VaadinConfigurableAspect} aspect (included in the
+ * <code>dellroad-stuff-aspects</code> JAR file), will be configured with the per-Vaadin application context associated
+ * with the currently running Vaadin application (see {@link ContextApplication#get} for details). This allows Vaadin
+ * application code to invoke e.g. <code>new Foobar()</code>, where <code>Foobar</code> is marked
+ * {@link org.springframework.beans.factory.annotation.Configurable @Configurable}, and have the new {@code Foobar} instance
+ * automatically configured by Spring for the current Vaadin application using its associated application context.
  * </p>
+ *
+ * <p>
+ * Note: This class requires Servlet 3.0.
+ * </p>
+ *
+ * @see ContextApplication#get
+ * @see ContextApplicationFactoryBean
  */
 @SuppressWarnings("serial")
 public abstract class SpringContextApplication extends ContextApplication {
@@ -59,6 +81,44 @@ public abstract class SpringContextApplication extends ContextApplication {
     }
 
     /**
+     * Get a {@link BeanConfigurerSupport} configured to use this instance's associated application context.
+     */
+    protected BeanConfigurerSupport getBeanConfigurerSupport() {
+
+        // Set up BeanConfigurerSupport based on our application context
+        final BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
+        beanConfigurerSupport.setBeanFactory(this.context.getBeanFactory());
+        beanConfigurerSupport.setBeanWiringInfoResolver(new AnnotationBeanWiringInfoResolver());
+        beanConfigurerSupport.afterPropertiesSet();
+
+        // Register listener to destroy the BeanConfigurerSupport when the application context closes
+        this.context.addApplicationListener(new SourceFilteringListener(context, new ApplicationListener<ContextClosedEvent>() {
+            @Override
+            public void onApplicationEvent(ContextClosedEvent event) {
+                beanConfigurerSupport.destroy();
+            }
+        }));
+
+        // Done
+        return beanConfigurerSupport;
+    }
+
+    /**
+     * Get the {@link SpringContextApplication} instance associated with the current thread or throw an exception if there is none.
+     *
+     * <p>
+     * Works just like {@link ContextApplication#get()} but returns this narrower type.
+     * </p>
+     *
+     * @return the {@link SpringContextApplication} associated with the current thread
+     * @throws IllegalStateException if the current thread is not servicing a Vaadin web request
+     *  or the current Vaadin {@link com.vaadin.Application} is not a {@link SpringContextApplication}
+     */
+    public static SpringContextApplication get() {
+        return ContextApplication.get(SpringContextApplication.class);
+    }
+
+    /**
      * Initializes the associated {@link WebApplicationContext}.
      */
     protected final void initApplication() {
@@ -70,26 +130,29 @@ public abstract class SpringContextApplication extends ContextApplication {
         ServletContext servletContext = ContextApplication.currentRequest().getServletContext();
         WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
 
-        // Create new application context for this Application instance
-        this.context = BeanUtils.instantiateClass(XmlWebApplicationContext.class);
-
-        // Configure application context
-        context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX
+        // Create and configure a new application context for this Application instance
+        this.context = new XmlWebApplicationContext();
+        this.context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX
           + servletContext.getContextPath() + "/" + this.getApplicationName());
-        context.setParent(parent);
-        context.setServletContext(servletContext);
+        this.context.setParent(parent);
+        this.context.setServletContext(servletContext);
         //context.setServletConfig(??);
-        context.setNamespace(this.getApplicationName());
-        context.addApplicationListener(new SourceFilteringListener(context, new ApplicationListener<ContextRefreshedEvent>() {
+        this.context.setNamespace(this.getApplicationName());
+
+        // Register listener to notify subclass on refresh events
+        this.context.addApplicationListener(new SourceFilteringListener(this.context,
+          new ApplicationListener<ContextRefreshedEvent>() {
             @Override
             public void onApplicationEvent(ContextRefreshedEvent event) {
                 SpringContextApplication.this.onRefresh(event.getApplicationContext());
             }
         }));
+
+        // Invoke any subclass setup
         this.postProcessWebApplicationContext(context);
 
         // Refresh context
-        context.refresh();
+        this.context.refresh();
 
         // Get notified of application shutdown so we can shut down the context as well
         this.addListener(new CloseListener() {
@@ -101,23 +164,8 @@ public abstract class SpringContextApplication extends ContextApplication {
             }
         });
 
-        // Autowire this bean from the context if desired
-        if (this.isAutowire())
-            this.context.getAutowireCapableBeanFactory().autowireBean(this);
-
         // Initialize subclass
         this.initSpringApplication(context);
-    }
-
-    /**
-     * Should this instance itself be autowired via the associated application context?
-     *
-     * <p>
-     * The implementation in {@link SpringContextApplication} returns true. Subclasses may override as necessary.
-     * </p>
-     */
-    protected boolean isAutowire() {
-        return true;
     }
 
     /**
@@ -157,11 +205,13 @@ public abstract class SpringContextApplication extends ContextApplication {
     }
 
     /**
-     * Get the name for this application. This is used as the name of the XML file defining the application context.
+     * Get the name for this application. This is used as the name of the XML file in {@code WEB-INF/} that
+     * defines the Spring application context associated with this instance.
      *
      * <p>
      * The implementation in {@link SpringContextApplication} returns this instance's class'
      * {@linkplain Class#getSimpleName simple name}.
+     * </p>
      */
     protected String getApplicationName() {
         return this.getClass().getSimpleName();

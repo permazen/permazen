@@ -64,8 +64,19 @@
         <property name="jar.completed" value="true"/>
     </target>
 
+    <!-- Aspects JAR -->
+    <target name="aspects-jar" depends="javac, resources" unless="aspects-jar.completed">
+        <mkdir dir="build/dist"/>
+        <delete file="build/dist/${ant.project.name}-aspects-${full.version}.jar"/>
+        <jar destfile="build/dist/${ant.project.name}-aspects-${full.version}.jar">
+            <fileset dir="src/java" includes="org/dellroad/stuff/vaadin/VaadinConfigurableAspect.aj"/>
+            <metainf dir="src/aop" includes="aop.xml"/>
+        </jar>
+        <property name="aspects-jar.completed" value="true"/>
+    </target>
+
     <!-- All distribution files -->
-    <target name="jars" depends="jar, javadoc" unless="jars.completed">
+    <target name="jars" depends="jar, aspects-jar, javadoc" unless="jars.completed">
         <mkdir dir="build/dist"/>
         <delete file="build/dist/${ant.project.name}-sources-${full.version}.zip"/>
         <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">
