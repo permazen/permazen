@@ -52,8 +52,31 @@
         <property name="resources.completed" value="true"/>
     </target>
 
+    <!-- Compile Aspects -->
+    <target name="aspects" depends="javac" unless="aspects.completed">
+        <taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
+            <classpath refid="javac.classpath"/>
+        </taskdef>
+        <path id="aspect.classpath">
+            <path refid="javac.classpath"/>
+            <pathelement location="build/classes"/>
+        </path>
+        <iajc srcdir="src/java"
+          destDir="build/classes"
+          classpathRef="aspect.classpath"
+          source="1.6"
+          target="1.6"
+          verbose="true"
+          showWeaveInfo="true"
+          failonerror="true">
+            <include name="**/*.aj"/>
+        </iajc>
+
+        <property name="aspects.completed" value="true"/>
+    </target>
+
     <!-- Main JAR -->
-    <target name="jar" depends="javac, resources" unless="jar.completed">
+    <target name="jar" depends="javac, aspects, resources" unless="jar.completed">
         <mkdir dir="build/dist"/>
         <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
         <jar destfile="build/dist/${ant.project.name}-${full.version}.jar">
@@ -64,19 +87,8 @@
         <property name="jar.completed" value="true"/>
     </target>
 
-    <!-- Aspects JAR -->
-    <target name="aspects-jar" depends="javac, resources" unless="aspects-jar.completed">
-        <mkdir dir="build/dist"/>
-        <delete file="build/dist/${ant.project.name}-aspects-${full.version}.jar"/>
-        <jar destfile="build/dist/${ant.project.name}-aspects-${full.version}.jar">
-            <fileset dir="src/java" includes="org/dellroad/stuff/vaadin/VaadinConfigurableAspect.aj"/>
-            <metainf dir="src/aop" includes="aop.xml"/>
-        </jar>
-        <property name="aspects-jar.completed" value="true"/>
-    </target>
-
     <!-- All distribution files -->
-    <target name="jars" depends="jar, aspects-jar, javadoc" unless="jars.completed">
+    <target name="jars" depends="jar, javadoc" unless="jars.completed">
         <mkdir dir="build/dist"/>
         <delete file="build/dist/${ant.project.name}-sources-${full.version}.zip"/>
         <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">
