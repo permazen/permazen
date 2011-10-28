@@ -1,4 +1,9 @@
 
+Version 1.0.173 Released Oct 28, 2011
+
+    - Added aspect for wiring @Configurable beans for SpringContextApplication
+    - Fixed bugs in SpringContextApplication
+
 Version 1.0.155 Released Oct 21, 2011
 
     - Added SpringContextApplication
