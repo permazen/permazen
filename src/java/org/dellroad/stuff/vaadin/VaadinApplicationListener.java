@@ -12,23 +12,31 @@ import org.springframework.context.event.SmartApplicationListener;
 
 /**
  * A Spring {@link org.springframework.context.ApplicationListener} support superclass customized for use by
- * objects that are part of a Vaadin application.
+ * listeners that are part of a Vaadin application when listening to non-Vaadin application event sources.
  *
  * <p>
- * Objects that are part of a Vaadin application should use this superclass for any listeners that are going to
- * be registered with non-Vaadin event sources. This will ensure that the listener is invoked with proper
- * application synchronization, {@linkplain VaadinApplicationScope scoping}, etc.
+ * Listeners that are part of a Vaadin application should use this superclass if they are going to be registered
+ * with non-Vaadin event sources. This will ensure that events are delivered {@linkplain ContextApplication#invoke
+ * in the proper Vaadin application context}.
  * </p>
  *
  * <p>
- * In addition, to avoid memory leaks, such listeners must be unregistered when the application closes.
- * This can be done by {@link ContextApplication#addListener registering for an application close notification}
- * or by defining the listener with {@link VaadinApplicationScope scope="vaadinApplication"} and a Spring
- * {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-method} that unregisters itself.
+ * Note: to avoid memory leaks, listeners must be explicitly unregistered when the associated Vaadin application closes.
+ * This can be done by explicitly {@linkplain ContextApplication#addListener registering for an application close notification}
+ * in which the listener is unregistered, or by unregistering the listener in the Spring
+ * {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-method} associated with a
+ * bean that has {@link VaadinApplicationScope scope="vaadinApplication"} or lives in a {@link SpringContextApplication}
+ * application context (so that the bean's destroy method will be invoked when the Vaadin application closes).
+ * </p>
+ *
+ * <p>
+ * Note: for event sources that are scoped to specific Vaadin application instances and will deliver events
+ * within the proper Vaadin application context, then the use of this listener superclass is not necessary.
  * </p>
  *
  * @see ContextApplication#invoke
  * @see VaadinApplicationScope
+ * @see SpringContextApplication
  */
 public abstract class VaadinApplicationListener<E extends ApplicationEvent> implements SmartApplicationListener {
 
@@ -91,7 +99,10 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent> impl
     }
 
     /**
-     * Handle an event in the application.
+     * Handle a listener event within the context of the {@link ContextApplication} with which this listener is associated.
+     * The current {@link ContextApplication} is also available via {@link ContextApplication#get}.
+     *
+     * @see ContextApplication#get
      */
     protected abstract void onApplicationEventInternal(E event);
 
