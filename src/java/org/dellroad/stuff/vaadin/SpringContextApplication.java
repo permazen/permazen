@@ -7,13 +7,16 @@
 
 package org.dellroad.stuff.vaadin;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+
 import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.annotation.AnnotationBeanWiringInfoResolver;
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.SourceFilteringListener;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
@@ -71,36 +74,26 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 @SuppressWarnings("serial")
 public abstract class SpringContextApplication extends ContextApplication {
 
-    private ConfigurableWebApplicationContext context;
+    private transient ConfigurableWebApplicationContext context;
 
     /**
-     * Get this instance's associated application context.
+     * Get this instance's associated Spring application context.
      */
     public ConfigurableWebApplicationContext getApplicationContext() {
         return this.context;
     }
 
     /**
-     * Get a {@link BeanConfigurerSupport} configured to use this instance's associated application context.
+     * Configure a bean using this instance's associated application context.
+     * Intended for use by aspects.
      */
-    protected BeanConfigurerSupport getBeanConfigurerSupport() {
-
-        // Set up BeanConfigurerSupport based on our application context
-        final BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
+    protected void configureBean(Object bean) {
+        BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
         beanConfigurerSupport.setBeanFactory(this.context.getBeanFactory());
         beanConfigurerSupport.setBeanWiringInfoResolver(new AnnotationBeanWiringInfoResolver());
         beanConfigurerSupport.afterPropertiesSet();
-
-        // Register listener to destroy the BeanConfigurerSupport when the application context closes
-        this.context.addApplicationListener(new SourceFilteringListener(context, new ApplicationListener<ContextClosedEvent>() {
-            @Override
-            public void onApplicationEvent(ContextClosedEvent event) {
-                beanConfigurerSupport.destroy();
-            }
-        }));
-
-        // Done
-        return beanConfigurerSupport;
+        beanConfigurerSupport.configureBean(bean);
+        beanConfigurerSupport.destroy();
     }
 
     /**
@@ -119,50 +112,12 @@ public abstract class SpringContextApplication extends ContextApplication {
     }
 
     /**
-     * Initializes the associated {@link WebApplicationContext}.
+     * Initializes the associated {@link ConfigurableWebApplicationContext}.
      */
     protected final void initApplication() {
 
-        // Logging
-        this.log.info("creating new application context for Vaadin application " + this.getApplicationName());
-
-        // Find the application context associated with the servlet; it will be the parent
-        ServletContext servletContext = ContextApplication.currentRequest().getServletContext();
-        WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-
-        // Create and configure a new application context for this Application instance
-        this.context = new XmlWebApplicationContext();
-        this.context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX
-          + servletContext.getContextPath() + "/" + this.getApplicationName());
-        this.context.setParent(parent);
-        this.context.setServletContext(servletContext);
-        //context.setServletConfig(??);
-        this.context.setNamespace(this.getApplicationName());
-
-        // Register listener to notify subclass on refresh events
-        this.context.addApplicationListener(new SourceFilteringListener(this.context,
-          new ApplicationListener<ContextRefreshedEvent>() {
-            @Override
-            public void onApplicationEvent(ContextRefreshedEvent event) {
-                SpringContextApplication.this.onRefresh(event.getApplicationContext());
-            }
-        }));
-
-        // Invoke any subclass setup
-        this.postProcessWebApplicationContext(context);
-
-        // Refresh context
-        this.context.refresh();
-
-        // Get notified of application shutdown so we can shut down the context as well
-        this.addListener(new CloseListener() {
-            @Override
-            public void applicationClosed(CloseEvent closeEvent) {
-                SpringContextApplication.this.log.info("closing application context associated with Vaadin application "
-                  + SpringContextApplication.this.getApplicationName());
-                SpringContextApplication.this.context.close();
-            }
-        });
+        // Load the context
+        this.loadContext();
 
         // Initialize subclass
         this.initSpringApplication(context);
@@ -215,6 +170,70 @@ public abstract class SpringContextApplication extends ContextApplication {
      */
     protected String getApplicationName() {
         return this.getClass().getSimpleName();
+    }
+
+// ApplicationContext setup
+
+    private void loadContext() {
+
+        // Logging
+        this.log.info("loading application context for Vaadin application " + this.getApplicationName());
+
+        // Sanity check
+        if (this.context != null)
+            throw new IllegalStateException("context already loaded");
+
+        // Find the application context associated with the servlet; it will be the parent
+        ServletContext servletContext = ContextApplication.currentRequest().getServletContext();
+        WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+
+        // Create and configure a new application context for this Application instance
+        this.context = new XmlWebApplicationContext();
+        this.context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX
+          + servletContext.getContextPath() + "/" + this.getApplicationName());
+        this.context.setParent(parent);
+        this.context.setServletContext(servletContext);
+        //context.setServletConfig(??);
+        this.context.setNamespace(this.getApplicationName());
+
+        // Register listener so we can notify subclass on refresh events
+        this.context.addApplicationListener(new SourceFilteringListener(this.context, new RefreshListener()));
+
+        // Invoke any subclass setup
+        this.postProcessWebApplicationContext(context);
+
+        // Refresh context
+        this.context.refresh();
+
+        // Get notified of application shutdown so we can shut down the context as well
+        this.addListener(new ContextCloseListener());
+    }
+
+// Serialization
+
+    private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
+        input.defaultReadObject();
+        this.loadContext();
+    }
+
+// Nested classes
+
+    // My refresh listener
+    private class RefreshListener implements ApplicationListener<ContextRefreshedEvent>, Serializable {
+        @Override
+        public void onApplicationEvent(ContextRefreshedEvent event) {
+            SpringContextApplication.this.onRefresh(event.getApplicationContext());
+        }
+    }
+
+    // My close listener
+    private class ContextCloseListener implements CloseListener, Serializable {
+        @Override
+        public void applicationClosed(CloseEvent closeEvent) {
+            SpringContextApplication.this.log.info("closing application context associated with Vaadin application "
+              + SpringContextApplication.this.getApplicationName());
+            SpringContextApplication.this.context.close();
+        }
     }
 }
 

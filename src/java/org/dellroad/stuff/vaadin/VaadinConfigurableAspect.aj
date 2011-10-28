@@ -48,7 +48,7 @@ public aspect VaadinConfigurableAspect extends AbstractInterfaceDrivenDependency
 
     @Override
 	public void configureBean(Object bean) {
-        SpringContextApplication.get().getBeanConfigurerSupport().configureBean(bean);
+        SpringContextApplication.get().configureBean(bean);
     }
 
 	private pointcut preConstructionConfigurationSupport(Configurable c) : @this(c) && if(c.preConstruction());
