@@ -23,9 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link Application} subclass that provides subclasses with a {@link Logger}
- * and logs and displays any exceptions thrown in an overlay error window,
- * as well as static methods to access the current {@link ContextApplication} instance.
+ * {@link Application} subclass that provides some basic infrastructure for Vaadin applications:
+ * <ul>
+ *  <li>Access to the currently running Vaadin application (via a {@link ContextApplication#get()})</li>
+ *  <li>A way to safely interact with a Vaadin application from a background thread (via {@link ContextApplication#invoke})</li>
+ *  <li>Support for Vaadin {@linkplain ContextApplication#addListener application close event notifications}</li>
+ *  <li>Displays any exceptions thrown in an overlay error window</li>
+ *  <li>A {@link Logger} to use</li>
+ * </ul>
  *
  * @since 1.0.134
  */

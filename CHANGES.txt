@@ -1,4 +1,8 @@
 
+Version Next
+
+    - Removed obsolete WebContextApplicationServlet
+
 Version 1.0.173 Released Oct 28, 2011
 
     - Added aspect for wiring @Configurable beans for SpringContextApplication
