@@ -21,7 +21,7 @@
  *     lifecycle management of Vaadin application beans</li>
  * <li>Autowiring of Spring-configured beans (both per-application and global, including the Vaadin application itself)
  *     into Vaadin application beans</li>
- * <li>An AOP aspect that allwos {@link org.springframework.beans.factory.annotation.Configurable @Configurable}
+ * <li>An AOP aspect that allows {@link org.springframework.beans.factory.annotation.Configurable @Configurable}
  *      application beans to be autowired on instantiation using the curent Vaadin application context</li>
  * <li>A safe and clearly defined interface for background threads needing to interact with a Vaadin application</li>
  * <li>A clearly defined interface for any thread to determine "the currently running Vaadin application"</li>
