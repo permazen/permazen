@@ -10,6 +10,10 @@
     <property name="library.version" value="1.0"/>
     <property name="javac.compiler.flags" value="-Xlint:all"/>
 
+    <!-- Other constants -->
+    <property name="vaadin.plugin.groupId" value="org.dellroad"/>
+    <property name="vaadin.plugin.artifactId" value="dellroad-stuff-vaadin"/>
+
     <!-- Import generic build macros -->
     <import file="${basedir}/src/build/macros.xml"/>
 
@@ -85,6 +89,32 @@
             <metainf dir="src/java/org/dellroad/stuff/spring" includes="spring.*"/>
         </jar>
         <property name="jar.completed" value="true"/>
+    </target>
+
+    <!-- Vaadin addon -->
+    <target name="addon" depends="javac, aspects, resources" unless="addon.completed">
+        <mkdir dir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}"/>
+        <copy todir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}">
+            <fileset dir="src/addon" includes="pom.xml"/>
+            <filterset>
+                <filter token="VERSION" value="${full.version}"/>
+                <filter token="GROUP_ID" value="${vaadin.plugin.groupId}"/>
+                <filter token="ARTIFACT_ID" value="${vaadin.plugin.artifactId}"/>
+            </filterset>
+        </copy>
+        <mkdir dir="build/dist"/>
+        <delete file="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar"/>
+        <jar destfile="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar">
+            <fileset dir="build/classes" includes="org/dellroad/stuff/vaadin/**/*"/>
+            <fileset dir="build/resources" includes="org/dellroad/stuff/vaadin/**/*"/>
+            <metainf dir="build/addon" includes="maven/**/*"/>
+            <manifest>
+                <attribute name="Vaadin-Package-Version" value="1"/>
+                <attribute name="Implementation-Title" value="Spring Stuff"/>
+                <attribute name="Implementation-Version" value="${full.version}"/>
+            </manifest>
+        </jar>
+        <property name="addon.completed" value="true"/>
     </target>
 
     <!-- All distribution files -->
@@ -171,7 +201,7 @@
     <target name="reports-project" depends="javadoc, checkstyle, tests"/>
 
     <!-- Default target -->
-    <target name="build" depends="clean, jars, reports"/>
+    <target name="build" depends="clean, jars, addon, reports"/>
 
 </project>
 

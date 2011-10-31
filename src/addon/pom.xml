@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+     Note: this file is constructed by hand (I don't use maven).
+     If you see any problems please email archie at dellroad.org.
+-->
+
+<!-- $Id$ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>@GROUP_ID@</groupId>
+    <artifactId>@ARTIFACT_ID@</artifactId>
+    <version>@VERSION@</version>
+    <name>Spring Stuff</name>
+    <url>http://dellroad-stuff.googlecode.com/</url>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>Google Code</system>
+        <url>http://code.google.com/p/dellroad-stuff/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:svn:http://dellroad-stuff.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://dellroad-stuff.googlecode.com/svn/trunk</developerConnection>
+        <url>http://dellroad-stuff.googlecode.com/svn/trunk</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>3.0.6.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>3.0.6.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>3.0.6.RELEASE</version>
+        </dependency>
+    </dependencies>
+</project>
