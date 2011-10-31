@@ -10,6 +10,7 @@ package org.dellroad.stuff.vaadin;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.ServletContext;
 
@@ -25,11 +26,16 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
- * Vaadin application implementation that loads and initializes an associated Spring {@link WebApplicationContext}
- * on application startup. Each Vaadin application instance is given its own Spring application context, and all such
+ * Vaadin application implementation that manages an associated Spring {@link WebApplicationContext}.
+ *
+ * <h3>Overview</h3>
+ *
+ * <p>
+ * Each Vaadin application instance is given its own Spring application context, and all such
  * application contexts share the same parent context, which is the one associated with the overal servlet web context
  * (i.e., the one created by Spring's {@link org.springframework.web.context.ContextLoaderListener ContextLoaderListener}).
  * A context is created when a new Vaadin application instance is initialized, and destroyed when it is closed.
+ * </p>
  *
  * <p>
  * This setup is analogous to how Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}
@@ -38,9 +44,11 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  *
  * <p>
  * For each Vaadin application {@code com.example.FooApplication} that subclasses this class, there should exist an XML
- * file named {@code FooApplication.xml} in the {@code WEB-INF} directory that defines the per-Vaadin application Spring
+ * file named {@code FooApplication.xml} in the {@code WEB-INF/} directory that defines the per-Vaadin application Spring
  * application context (this naming scheme {@linkplain #getApplicationName can be overriden}).
  * </p>
+ *
+ * <h3>Application as Bean</h3>
  *
  * <p>
  * This {@link SpringContextApplication} instance can itself be included in, and optionally configured by, the associated Spring
@@ -53,15 +61,24 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * (which already exists when the application context is created) will be autowired by the application context as well.
  * </p>
  *
+ * <h3>@Configurable Beans</h3>
+ *
  * <p>
- * It is also possible to configure beans outside of this application context using AOP. Beans annotated with the
- * Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation, when their classes
- * have been build- or compile-time woven with the {@code VaadinConfigurableAspect} aspect (included in the
- * <code>dellroad-stuff</code> JAR file), will be configured with the per-Vaadin application context associated
- * with the currently running Vaadin application (see {@link ContextApplication#get} for details). This allows Vaadin
- * application code to invoke e.g. <code>new Foobar()</code>, where <code>Foobar</code> is marked
- * {@link org.springframework.beans.factory.annotation.Configurable @Configurable}, and have the new {@code Foobar} instance
- * automatically configured by Spring for the current Vaadin application using its associated application context.
+ * It is also possible to configure beans outside of this application context using AOP, so that any invocation of
+ * {@code new FooBar()}, where the class {@code FooBar} is marked
+ * {@link org.springframework.beans.factory.annotation.Configurable @Configurable},
+ * will automagically cause the new {@code FooBar} object to be autowired by the application context associated with
+ * the {@linkplain ContextApplication#get() currently running application instance}.
+ * This includes lifecycle management; for example, any Spring
+ * {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-method} will be invoked on application close.
+ * </p>
+ *
+ * <p>
+ * For this to work, {@link org.springframework.beans.factory.annotation.Configurable @Configurable} classes must be woven
+ * (either at build time or runtime) using the
+ * <a href="http://www.eclipse.org/aspectj/doc/released/faq.php#compiler">AspectJ compiler</a> with the
+ * {@code VaadinConfigurableAspect} aspect (included in the <code>dellroad-stuff</code> JAR file).
+ * Your classes should <i>not</i> also be woven using Spring's {@code spring-aspects.jar}.
  * </p>
  *
  * <p>
@@ -70,9 +87,12 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  *
  * @see ContextApplication#get
  * @see ContextApplicationFactoryBean
+ * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">Example Code on GitHub</a>
  */
 @SuppressWarnings("serial")
 public abstract class SpringContextApplication extends ContextApplication {
+
+    private static final AtomicLong UNIQUE_INDEX = new AtomicLong();
 
     private transient ConfigurableWebApplicationContext context;
 
@@ -190,7 +210,8 @@ public abstract class SpringContextApplication extends ContextApplication {
         // Create and configure a new application context for this Application instance
         this.context = new XmlWebApplicationContext();
         this.context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX
-          + servletContext.getContextPath() + "/" + this.getApplicationName());
+          + servletContext.getContextPath() + "/" + this.getApplicationName() + "-"
+          + SpringContextApplication.UNIQUE_INDEX.incrementAndGet());
         this.context.setParent(parent);
         this.context.setServletContext(servletContext);
         //context.setServletConfig(??);
