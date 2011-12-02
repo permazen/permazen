@@ -65,8 +65,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  *
  * <p>
  * It is also possible to configure beans outside of this application context using AOP, so that any invocation of
- * {@code new FooBar()}, where the class {@code FooBar} is marked
- * {@link org.springframework.beans.factory.annotation.Configurable @Configurable},
+ * {@code new FooBar()}, where the class {@code FooBar} is marked {@link VaadinConfigurable @VaadinConfigurable},
  * will automagically cause the new {@code FooBar} object to be autowired by the application context associated with
  * the {@linkplain ContextApplication#get() currently running application instance}.
  * This includes lifecycle management; for example, any Spring
@@ -74,11 +73,10 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * </p>
  *
  * <p>
- * For this to work, {@link org.springframework.beans.factory.annotation.Configurable @Configurable} classes must be woven
+ * For this to work, {@link VaadinConfigurable @VaadinConfigurable} classes must be woven
  * (either at build time or runtime) using the
  * <a href="http://www.eclipse.org/aspectj/doc/released/faq.php#compiler">AspectJ compiler</a> with the
  * {@code VaadinConfigurableAspect} aspect (included in the <code>dellroad-stuff</code> JAR file).
- * Your classes should <i>not</i> also be woven using Spring's {@code spring-aspects.jar}.
  * </p>
  *
  * <p>

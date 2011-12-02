@@ -2,6 +2,10 @@
 Version Next
 
     - Removed obsolete WebContextApplicationServlet
+    - Added @VaadinConfigurable and re-targeted VaadinConfigurableAspect to
+      apply to @VaadinConfigurable beans instead of @Configurable beans; this
+      avoids a conflict when doing load-time weaving when spring-aspects.jar
+      is also on the classpath.
 
 Version 1.0.173 Released Oct 28, 2011
 

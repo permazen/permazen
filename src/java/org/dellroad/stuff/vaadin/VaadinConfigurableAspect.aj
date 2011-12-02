@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2011 Archie L. Cobbs and other authors. All rights reserved.
  *
- * $Id: SpringContextApplication.java 160 2011-10-24 18:00:49Z archie.cobbs $
+ * $Id$
  */
 
 package org.dellroad.stuff.vaadin;
@@ -10,12 +10,10 @@ package org.dellroad.stuff.vaadin;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
-import org.springframework.beans.factory.aspectj.ConfigurableObject;
 
 /**
- * Aspect that autowires classes marked with the Spring's {@link Configurable @Configurable} annotation to a
+ * Aspect that autowires classes marked with the {@link VaadinConfigurable @VaadinConfigurable} annotation to a
  * {@link SpringContextApplication} application context.
  *
  * <p>
@@ -39,39 +37,39 @@ import org.springframework.beans.factory.aspectj.ConfigurableObject;
  *
  * @see SpringContextApplication
  * @see ContextApplication#get
- * @see Configurable
+ * @see VaadinConfigurable
  */
 public aspect VaadinConfigurableAspect extends AbstractDependencyInjectionAspect {
 
 // Stuff copied from AbstractInterfaceDrivenDependencyInjectionAspect.aj
 
     public pointcut beanConstruction(Object bean) :
-        initialization(ConfigurableObject+.new(..)) && this(bean);
+        initialization(VaadinConfigurableObject+.new(..)) && this(bean);
 
     public pointcut beanDeserialization(Object bean) :
-        execution(Object ConfigurableDeserializationSupport+.readResolve()) &&
+        execution(Object VaadinConfigurableDeserializationSupport+.readResolve()) &&
         this(bean);
 
-    public pointcut leastSpecificSuperTypeConstruction() : initialization(ConfigurableObject.new(..));
+    public pointcut leastSpecificSuperTypeConstruction() : initialization(VaadinConfigurableObject.new(..));
 
-    static interface ConfigurableDeserializationSupport extends Serializable {
+    static interface VaadinConfigurableDeserializationSupport extends Serializable {
     }
 
-    public Object ConfigurableDeserializationSupport.readResolve() throws ObjectStreamException {
+    public Object VaadinConfigurableDeserializationSupport.readResolve() throws ObjectStreamException {
         return this;
     }
 
 // Stuff copied from AnnotationBeanConfigurerAspect.aj
 
-    public pointcut inConfigurableBean() : @this(Configurable);
+    public pointcut inConfigurableBean() : @this(VaadinConfigurable);
 
     public pointcut preConstructionConfiguration() : preConstructionConfigurationSupport(*);
 
-    declare parents: @Configurable * implements ConfigurableObject;
+    declare parents: @VaadinConfigurable * implements VaadinConfigurableObject;
 
-    private pointcut preConstructionConfigurationSupport(Configurable c) : @this(c) && if(c.preConstruction());
+    private pointcut preConstructionConfigurationSupport(VaadinConfigurable c) : @this(c) && if(c.preConstruction());
 
-	declare parents: @Configurable Serializable+ implements ConfigurableDeserializationSupport;
+	declare parents: @VaadinConfigurable Serializable+ implements VaadinConfigurableDeserializationSupport;
 
 // Our implementation
 

@@ -21,7 +21,7 @@
  *     lifecycle management of Vaadin application beans</li>
  * <li>Autowiring of Spring-configured beans (both per-application and global, including the Vaadin application itself)
  *     into Vaadin application beans</li>
- * <li>An AOP aspect that allows {@link org.springframework.beans.factory.annotation.Configurable @Configurable}
+ * <li>An AOP aspect that allows {@link org.dellroad.stuff.vaadin.VaadinConfigurable @VaadinConfigurable}
  *      application beans to be autowired on instantiation using the curent Vaadin application context</li>
  * <li>A safe and clearly defined interface for background threads needing to interact with a Vaadin application</li>
  * <li>A clearly defined interface for any thread to determine "the currently running Vaadin application"</li>
@@ -47,7 +47,7 @@
  *      {@link org.dellroad.stuff.vaadin.ContextApplication}) that creates a new Spring application context
  *      for each new Vaadin application instance. The parent context is the application context associated with the overall
  *      servlet context. This is analogous to what Spring's {@link org.springframework.web.servlet.DispatcherServlet} does.</li>
- *  <li>A new AOP aspect that works on {@link org.springframework.beans.factory.annotation.Configurable @Configurable} beans,
+ *  <li>A new AOP aspect that works on {@link org.dellroad.stuff.vaadin.VaadinConfigurable @VaadinConfigurable} beans,
  *      allowing them to be autowired by the {@link org.dellroad.stuff.vaadin.SpringContextApplication} application context
  *      associated with the current Vaadin application instance (note: <i>not</i> the parent context).</li>
  *  <li>{@link org.dellroad.stuff.vaadin.ContextApplicationFactoryBean}, a Spring factory bean that allows the
