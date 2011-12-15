@@ -52,6 +52,9 @@ public aspect VaadinConfigurableAspect extends AbstractDependencyInjectionAspect
 
     public pointcut leastSpecificSuperTypeConstruction() : initialization(VaadinConfigurableObject.new(..));
 
+    declare parents: 
+        VaadinConfigurableObject+ && Serializable+ implements VaadinConfigurableDeserializationSupport;
+
     static interface VaadinConfigurableDeserializationSupport extends Serializable {
     }
 
