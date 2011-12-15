@@ -20,14 +20,16 @@ import org.jibx.runtime.JiBXParseException;
  * For example, suppose you have a class {@code Company} and want to add a {@code directory} property that has
  * type {@code Map<String, Person>}:
  * <blockquote><pre>
- * private Map&lt;String, Person&gt; = new HashMap&lt;String, Person&gt;();
+ * public class Company {
+ *     private Map&lt;String, Person&gt; directory = new HashMap&lt;String, Person&gt;();
  *
- * // Getter and setter for the "directory" property
- * public Map&lt;String, Person&gt; getDirectory() {
- *     return this.directory;
- * }
- * public void setDirectory(Map&lt;String, Person&gt; directory) {
- *     this.directory = directory;
+ *     // Getter and setter for the "directory" property
+ *     public Map&lt;String, Person&gt; getDirectory() {
+ *         return this.directory;
+ *     }
+ *     public void setDirectory(Map&lt;String, Person&gt; directory) {
+ *         this.directory = directory;
+ *     }
  * }
  * </pre></blockquote>
  *
