@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.ServletContext;
 
-import org.springframework.beans.factory.annotation.AnnotationBeanWiringInfoResolver;
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -108,7 +107,7 @@ public abstract class SpringContextApplication extends ContextApplication {
     protected void configureBean(Object bean) {
         BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
         beanConfigurerSupport.setBeanFactory(this.context.getBeanFactory());
-        beanConfigurerSupport.setBeanWiringInfoResolver(new AnnotationBeanWiringInfoResolver());
+        beanConfigurerSupport.setBeanWiringInfoResolver(new VaadinConfigurableBeanWiringInfoResolver());
         beanConfigurerSupport.afterPropertiesSet();
         beanConfigurerSupport.configureBean(bean);
         beanConfigurerSupport.destroy();
