@@ -1,5 +1,5 @@
 
-Version Next
+Version 1.0.189 Released Dec 16, 2011
 
     - Removed obsolete WebContextApplicationServlet
     - Added @VaadinConfigurable and re-targeted VaadinConfigurableAspect to
