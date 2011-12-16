@@ -38,7 +38,7 @@
  *    <ul>
  *    <li>Access to the currently running Vaadin application (via a {@link org.dellroad.stuff.vaadin.ContextApplication#get()})</li>
  *    <li>A way to safely interact with a Vaadin application from a background thread (via
- *        {@link org.dellroad.stuff.vaadin.ContextApplication#invoke})</li>
+ *        {@link org.dellroad.stuff.vaadin.ContextApplication#invoke ContextApplication.invoke()})</li>
  *    <li>Support for Vaadin {@linkplain org.dellroad.stuff.vaadin.ContextApplication#addListener application
  *        close event notifications}</li>
  *    </ul>
@@ -46,15 +46,18 @@
  *  <li>{@link org.dellroad.stuff.vaadin.SpringContextApplication} (a sub-class of
  *      {@link org.dellroad.stuff.vaadin.ContextApplication}) that creates a new Spring application context
  *      for each new Vaadin application instance. The parent context is the application context associated with the overall
- *      servlet context. This is analogous to what Spring's {@link org.springframework.web.servlet.DispatcherServlet} does.</li>
+ *      servlet context. This is analogous to what Spring's {@link org.springframework.web.servlet.DispatcherServlet} does
+ *      for each servlet instance. Beans inside this context have a lifecycle which exactly tracks the Vaadin application,
+ *      eliminating a major source of thread and memory leaks.</li>
  *  <li>A new AOP aspect that works on {@link org.dellroad.stuff.vaadin.VaadinConfigurable @VaadinConfigurable} beans,
  *      allowing them to be autowired by the {@link org.dellroad.stuff.vaadin.SpringContextApplication} application context
- *      associated with the current Vaadin application instance (note: <i>not</i> the parent context).</li>
+ *      associated with the current Vaadin application instance (note: <i>not</i> just the parent context). Arbitrary
+ *      beans get autowired into the Vaadin application's context at the time of construction automagically.</li>
  *  <li>{@link org.dellroad.stuff.vaadin.ContextApplicationFactoryBean}, a Spring factory bean that allows the
  *      {@link org.dellroad.stuff.vaadin.SpringContextApplication} Vaadin application to itself appear within
- *      (and be autowired by) its associated application context</li>
+ *      (and be autowired by) its associated application context.</li>
  *  <li>{@link org.dellroad.stuff.vaadin.VaadinApplicationScope}, which adds a custom Spring scope so you can define application
- *      scoped beans with {@code scope="vaadinApplication"}</li>
+ *      scoped beans with {@code scope="vaadinApplication"}.</li>
  *  <li>{@link org.dellroad.stuff.vaadin.VaadinApplicationListener}, a support superclass for application scoped listeners
  *      that register to receive Spring {@linkplain org.springframework.context.ApplicationEvent application events}
  *      multicasted in a (non-application scoped) parent context.</li>
