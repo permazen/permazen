@@ -31,16 +31,19 @@
         ************* MACRO FOR FINDING ANT LIBRARIES ****************
 -->
 
+    <!-- Set variables -->
+    <property name="data.dir" value="/usr/share"/>
+
     <macrodef uri="urn:org.dellroad.ant" name="findantlib">
         <attribute name="property" description="Name of property to set"/>
         <attribute name="file" description="Name of library to look for"/>
         <sequential>
-            <condition property="@{property}" value="/usr/share/java/@{file}">
+            <condition property="@{property}" value="${data.dir}/java/@{file}">
                 <and>
                     <not>
                         <isset property="@{property}"/>
                     </not>
-                    <available file="/usr/share/java/@{file}" type="file"/>
+                    <available file="${data.dir}/java/@{file}" type="file"/>
                 </and>
             </condition>
             <condition property="@{property}" value="${ant.library.dir}/@{file}">
@@ -51,7 +54,7 @@
                     <available file="${ant.library.dir}/@{file}" type="file"/>
                 </and>
             </condition>
-            <fail message="ERROR: can't find @{file}; please install in /usr/share/java or ${ant.library.dir}, or pass -D@{property}=... on the command line">
+            <fail message="ERROR: can't find @{file}; please install in ${data.dir}/java or ${ant.library.dir}, or pass -D@{property}=... on the command line">
                 <condition>
                     <not>
                         <isset property="@{property}"/>
@@ -79,6 +82,19 @@
     <!-- Import ant-contrib ant tasks -->
     <dellroad:findantlib property="ant-contrib.jar" file="ant-contrib.jar"/>
     <taskdef uri="urn:net.sf.antcontrib" resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
+
+    <!-- Get the sed(1) 'extended regular expression' flag for this O/S ('-E' for BSDish, '-r' for Linux) -->
+    <exec outputproperty="sed.extended.flag" executable="/bin/sh" logError="true" failonerror="true">
+        <arg value="-c"/>
+        <arg value="case `uname -s` in
+            Darwin|*BSD)
+                printf '%s' -E;
+                ;;
+            *)
+                printf '%s' -r;
+                ;;
+            esac"/>
+    </exec>
 
 <!--
         ************* IVY CONFIGURATION ****************
@@ -210,6 +226,12 @@
         <antcontrib:then>
             <ivy:settings id="build-macros-ivy-settings" file="${basedir}/src/ivy/settings.xml"/>
         </antcontrib:then>
+        <antcontrib:elseif>
+            <available file="${data.dir}/ivy/settings.xml" type="file"/>
+            <antcontrib:then>
+                <ivy:settings id="build-macros-ivy-settings" file="${data.dir}/ivy/settings.xml"/>
+            </antcontrib:then>
+        </antcontrib:elseif>
         <antcontrib:else>
             <ivy:settings id="build-macros-ivy-settings" file="${build.macros.dir}/ivysettings.xml"/>
         </antcontrib:else>
@@ -226,7 +248,7 @@
         <sequential>
             <exec outputproperty="@{property}" executable="/bin/sh" logError="true" failonerror="true">
                 <arg value="-c"/>
-                <arg value="svnversion -c @{dir} | sed -e 's/^[0-9]\{1,\}://g' -e 's/^-1M$/0/g'"/>
+                <arg value="svnversion -c @{dir} | sed ${sed.extended.flag} -e 's/^[0-9]+://g' -e 's/^-1M$/0/g'"/>
             </exec>
         </sequential>
     </macrodef>
@@ -249,7 +271,7 @@
                         echo -n suse10.1;
                         ;;
                     openSUSE\ [0-9][0-9]\.[0-9]\ \(*)
-                        LABEL=`echo &quot;$${SREL}&quot; | sed 's|^openSUSE \([0-9]\{1,\}\.[0-9]\{1,\}\) (.*$$|\1|g'`;
+                        LABEL=`echo &quot;$${SREL}&quot; | sed ${sed.extended.flag} 's|^openSUSE ([0-9]+\.[0-9]+) \(.*$$|\1|g'`;
                         echo -n &quot;$${LABEL}&quot;;
                         ;;
                     *)
@@ -561,7 +583,7 @@
                         <excludes/>
                     </fileset>
                 </sourcefiles>
-                <targetfiles path="${dir}/report.xml"/>
+                <targetfiles path="@{dir}/report.xml"/>
                 <sequential>
 
                     <!-- Run checkstyle -->
@@ -706,7 +728,7 @@
 
     <!-- Find TestNG -->
     <target name="testng.classpath" unless="testng.classpath.resolved">
-        <dellroad:ivymodpath pathid="testng.classpath" rev="5.14.5" org="org.testng" mod="testng"/>
+        <dellroad:ivymodpath pathid="testng.classpath" rev="6.+" org="org.testng" mod="testng"/>
         <property name="testng.classpath.resolved" value="true"/>
     </target>
 
@@ -718,7 +740,7 @@
 
     <!-- Find Checkstyle -->
     <target name="checkstyle.classpath" unless="checkstyle.classpath.resolved">
-        <dellroad:ivymodpath pathid="checkstyle.classpath" rev="5.3" org="com.puppycrawl" mod="checkstyle"/>
+        <dellroad:ivymodpath pathid="checkstyle.classpath" rev="5.4" org="com.puppycrawl" mod="checkstyle"/>
         <property name="checkstyle.classpath.resolved" value="true"/>
     </target>
 
@@ -777,6 +799,7 @@
 
     <target name="reports" depends="reports-project">
         <dellroad:svnrevision property="svn_revision"/>
+        <dellroad:suseversion property="suse_version"/>
         <tstamp>
             <format property="current.time" pattern="EEEE dd MMM yyyy HH:mm:ss"/>
         </tstamp>
@@ -785,6 +808,7 @@
             <param name="basedir" expression="${basedir}"/>
             <param name="ant.project.name" expression="${ant.project.name}"/>
             <param name="svn.revision" expression="${svn_revision}"/>
+            <param name="suse.version" expression="${suse_version}"/>
             <param name="version" expression="${version}"/>
             <param name="timestamp" expression="${current.time}"/>
         </xslt>
