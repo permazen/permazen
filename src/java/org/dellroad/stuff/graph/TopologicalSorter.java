@@ -164,7 +164,7 @@ public class TopologicalSorter<E> {
     /**
      * Implemented by classes that can enumerate the outgoing edges from a node in a graph.
      */
-    public static interface EdgeLister<E> {
+    public interface EdgeLister<E> {
 
         /**
          * Get the set of all nodes X for which there is an edge from {@code node} to X.
