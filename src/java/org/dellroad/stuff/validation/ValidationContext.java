@@ -23,7 +23,7 @@ import javax.validation.Validator;
  * Subclasses are encouraged to provide additional application-specific information.
  *
  * <p>
- * Validation must be performed via {@link #validate(Validator, ValidationContext) validate()} for this class to work.
+ * Validation must be performed via {@link #validate(Validator) validate()} for this class to work.
  */
 public class ValidationContext<T> {
 
@@ -53,7 +53,7 @@ public class ValidationContext<T> {
     /**
      * Validate this instance's root object. This is a convenience method, equivalent to:
      *  <blockquote>
-     *  <code>{@link #validate validate}(Validation.buildDefaultValidatorFactory().getValidator())</code>
+     *  <code>{@link #validate(Validator) validate}(Validation.buildDefaultValidatorFactory().getValidator())</code>
      *  <blockquote>
      *
      * @throws IllegalStateException if this method is invoked re-entrantly
@@ -85,11 +85,11 @@ public class ValidationContext<T> {
 
     /**
      * Get the {@link ValidationContext} associated with the current thread, cast to the desired type.
-     * This method is only valid during invocations of {@link #validate(Validator, ValidationContext) validate()}.
+     * This method is only valid during invocations of {@link #validate(Validator) validate()}.
      *
      * @param type required type
      * @return current {@link ValidationContext}
-     * @throws IllegalStateException if {@link #validate(Validator, ValidationContext) validate()} is not currently executing
+     * @throws IllegalStateException if {@link #validate(Validator) validate()} is not currently executing
      * @throws ClassCastException if the current {@link ValidationContext} is not of type {@code type}
      */
     public static <T extends ValidationContext<?>> T getCurrentContext(Class<T> type) {
@@ -101,11 +101,11 @@ public class ValidationContext<T> {
 
     /**
      * Convenience method to get the root object being validated by the current thread.
-     * This method is only valid during invocations of {@link #validate(Validator, ValidationContext) validate()}.
+     * This method is only valid during invocations of {@link #validate(Validator) validate()}.
      * Subclasses may want to override to narrow the return type.
      *
      * @return current validation root object
-     * @throws IllegalStateException if {@link #validate(Validator, ValidationContext) validate()} is not currently executing
+     * @throws IllegalStateException if {@link #validate(Validator) validate()} is not currently executing
      */
     public static Object getCurrentRoot() {
         return ValidationContext.getCurrentContext(ValidationContext.class).getRoot();
