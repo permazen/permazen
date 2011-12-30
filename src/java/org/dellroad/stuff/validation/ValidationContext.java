@@ -51,37 +51,33 @@ public class ValidationContext<T> {
     }
 
     /**
-     * Convenience method. Equivalent to:
+     * Validate this instance's root object. This is a convenience method, equivalent to:
      *  <blockquote>
-     *  <code>{@link #validate ValidationContext.validate}(Validation.buildDefaultValidatorFactory().getValidator(), context)</code>
+     *  <code>{@link #validate validate}(Validation.buildDefaultValidatorFactory().getValidator())</code>
      *  <blockquote>
      *
      * @throws IllegalStateException if this method is invoked re-entrantly
-     * @throws IllegalArgumentException if {@code context} is null
      */
-    public static <T> Set<ConstraintViolation<T>> validate(ValidationContext<T> context) {
-        return ValidationContext.validate(Validation.buildDefaultValidatorFactory().getValidator(), context);
+    public Set<ConstraintViolation<T>> validate() {
+        return this.validate(Validation.buildDefaultValidatorFactory().getValidator());
     }
 
     /**
-     * Validate the given context's root object using the given {@link Validator}, making the context
+     * Validate this instance's root object using the given {@link Validator}, making the context
      * available to the current thread during the validation process via {@link #getCurrentContext}.
      *
      * @throws IllegalStateException if this method is invoked re-entrantly
-     * @throws IllegalArgumentException if {@code context} is null
      */
-    public static <T> Set<ConstraintViolation<T>> validate(Validator validator, ValidationContext<T> context) {
+    public Set<ConstraintViolation<T>> validate(Validator validator) {
 
         // Sanity check
         if (ValidationContext.CURRENT.get() != null)
             throw new IllegalStateException("re-entrant invocation is not allowed");
-        if (context == null)
-            throw new IllegalStateException("null context");
 
         // Set context, then validate
-        ValidationContext.CURRENT.set(context);
+        ValidationContext.CURRENT.set(this);
         try {
-            return validator.validate(context.getRoot());
+            return validator.validate(this.root);
         } finally {
             ValidationContext.CURRENT.remove();
         }
