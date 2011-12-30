@@ -350,7 +350,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
      *
      * @return new handler, or <code>null</code> to disconnect the socket immediately
      */
-    protected abstract SocketHandler getSocketHandler(Socket socket);
+    protected abstract SocketHandler getSocketHandler(Socket socket) throws IOException;
 
     // Information about one active connection
     private static class SocketInfo {
