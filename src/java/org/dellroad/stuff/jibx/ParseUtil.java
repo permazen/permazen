@@ -427,8 +427,11 @@ public final class ParseUtil {
 
     /**
      * Boolean parser that allows "yes" and "no" as well as the usual "true", "false", "0", "1".
+     * Comparisons are case-insensitive.
      *
      * @throws JiBXParseException if the value is not recognizable as a boolean
+     *
+     * @see #deserializeBooleanStrictly
      */
     public static boolean deserializeBoolean(String string) throws JiBXParseException {
         for (String s : BOOLEAN_TRUES) {
@@ -440,6 +443,19 @@ public final class ParseUtil {
                 return false;
         }
         throw new JiBXParseException("invalid Boolean value", string);
+    }
+
+    /**
+     * Deserialize a boolean strictly, only allowing the values {@code true} or {@code false}.
+     *
+     * @see #deserializeBoolean
+     */
+    public static boolean deserializeBooleanStrictly(String string) throws JiBXParseException {
+        if ("true".equals(string))
+            return true;
+        if ("false".equals(string))
+            return false;
+        throw new JiBXParseException("invalid boolean value; must be `true' or `false'", string);
     }
 
     /**
