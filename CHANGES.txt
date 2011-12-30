@@ -2,6 +2,7 @@
 Version Next
 
     - Added SocketAcceptor
+    - Added ValidationContext
 
 Version 1.0.189 Released Dec 16, 2011
 
