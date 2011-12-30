@@ -44,6 +44,9 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
     private Thread serverThread;
     private boolean started;
 
+    /**
+     * Verifies configuration and invokes {@link #start}.
+     */
     @Override
     public void afterPropertiesSet() throws Exception {
         if (this.port == 0)
@@ -55,6 +58,9 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
         this.start();
     }
 
+    /**
+     * Invokes {@link #stop}.
+     */
     @Override
     public void destroy() throws Exception {
         this.stop();
@@ -205,6 +211,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
                     }
                 };
                 handlerThread.setName(handler.getClass().getSimpleName() + "[" + socketDesc + "]");
+                socketInfo.setThread(handlerThread);
 
                 // Start handler thread and update active connections
                 synchronized (SocketAcceptor.this) {
@@ -244,6 +251,11 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
 
     /**
      * Stop accepting connections. Does nothing if already stopped.
+     *
+     * <p>
+     * Any currently active connections are stopped via {@link SocketHandler#stop SocketHandler.stop()},
+     * and this method waits until all such connections have returned from {@link SocketHandler#handleConnection
+     * SocketHandler.handleConnection()} before returning.
      */
     public synchronized void stop() {
 
@@ -268,7 +280,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
 
             // Notify handler
             try {
-                socketInfo.getHandler().stop(socketInfo.getSocket());
+                socketInfo.getHandler().stop(socketInfo.getThread(), socketInfo.getSocket());
             } catch (Throwable t) {
                 this.log.error("error stopping " + socketInfo.getHandler(), t);
             }
@@ -345,6 +357,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
 
         private final Socket socket;
         private final SocketHandler handler;
+        private Thread thread;
 
         SocketInfo(Socket socket, SocketHandler handler) {
             this.socket = socket;
@@ -357,6 +370,13 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
 
         public SocketHandler getHandler() {
             return this.handler;
+        }
+
+        public Thread getThread() {
+            return this.thread;
+        }
+        public void setThread(Thread thread) {
+            this.thread = thread;
         }
     }
 }

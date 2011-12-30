@@ -25,19 +25,31 @@ public interface SocketHandler {
 
     /**
      * Receive notification that the server is shutting down.
-     * This instance should exit from {@link #handleConnection} as soon as possible.
-     * One way to implement this method is to simply close the socket.
+     * This method should ensure that the thread currently executing {@link #handleConnection handleConnection()}
+     * returns as soon as possible.
      *
      * <p>
-     * It may be that {@link handleConnection} has already returned, in which case this
-     * method should do nothing.
+     * After this method returns, the {@code socket} will be closed (if not already). So one way to implement this method
+     * is to simply do nothing, which will trigger an {@link IOException} on the next access from within
+     * {@link #handleConnection handleConnection()}.
      *
      * <p>
-     * In any case, after this method returns, the socket will in fact be closed (if not already).
-     * So doing nothing is often sufficient.
+     * Alternately, set some flag that {@link #handleConnection handleConnection()} detects each time around its processing loop,
+     * or use {@link Thread#interrupt}, etc.
      *
+     * <p>
+     * In any case, it is important that {@link #handleConnection handleConnection()} thread does eventually return,
+     * otherwise the thread invoking {@link SocketAcceptor#stop SocketAcceptor.stop()} will hang.
+     *
+     * <p>
+     * Note: it may be that {@link #handleConnection handleConnection()} has already returned when this method is invoked,
+     * in which case this method should do nothing.
+     *
+     * <p>
+     *
+     * @param thread the thread invoking {@link #handleConnection handleConnection()}
      * @param socket connection socket
      */
-    void stop(Socket socket);
+    void stop(Thread thread, Socket socket);
 }
 
