@@ -7,14 +7,19 @@
 
 package org.dellroad.stuff.schema;
 
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Spring-enabled {@link SchemaUpdate} supporting updates via SQL statements.
+ * Spring-enabled SQL {@link SchemaUpdate}.
  *
  * <p>
- * Instances can be created succintly using the <code>&lt;dellroad-stuff:sql-update&gt;</code> custom XML element, which works
- * just like <code>&lt;dellroad-stuff:sql&gt;</code> except that it wraps the resulting {@link SQLDatabaseAction}
+ * The {@link #setSQLCommandList sqlCommandList} property is required.
+ *
+ * <p>
+ * Instances can be created succintly in Spring using the <code>&lt;dellroad-stuff:sql-update&gt;</code> custom XML element,
+ * which works just like <code>&lt;dellroad-stuff:sql&gt;</code> except that it wraps the resulting {@link SQLCommandList}
  * as a delegate inside an instance of this class.
  *
  * <p>
@@ -61,30 +66,36 @@ import java.util.List;
  * Note that if the nested SQL script only contains one SQL statement, any <code>single-action</code> attribute is
  * ignored and the bean's given name (e.g., <code>renameColumn</code>) is always used as the name of the single update.
  * </p>
+ *
+ * @see SQLCommandList
  */
-public class SpringSQLSchemaUpdate extends AbstractSpringSchemaUpdate {
+public class SpringSQLSchemaUpdate extends AbstractSpringSchemaUpdate<Connection> {
 
-    private SQLDatabaseAction action;
+    private SQLCommandList sqlCommandList;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
-        if (this.action == null)
-            throw new Exception("no DatabaseAction configured");
+        if (this.sqlCommandList == null)
+            throw new Exception("no SQLCommandList configured");
     }
 
     /**
-     * Configure the {@link SQLDatabaseAction}. This is a required property.
+     * Configure the {@link SQLCommandList}. This is a required property.
      *
      * @see DatabaseAction
      */
-    public void setSQLDatabaseAction(SQLDatabaseAction action) {
-        this.action = action;
+    public void setSQLCommandList(SQLCommandList sqlCommandList) {
+        this.sqlCommandList = sqlCommandList;
+    }
+
+    public SQLCommandList getSQLCommandList() {
+        return this.sqlCommandList;
     }
 
     @Override
-    public List<DatabaseAction> getDatabaseActions() {
-        return this.action.split();
+    public List<DatabaseAction<Connection>> getDatabaseActions() {
+        return new ArrayList<DatabaseAction<Connection>>(this.getSQLCommandList().split());
     }
 }
 

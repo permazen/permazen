@@ -9,26 +9,22 @@ package org.dellroad.stuff.schema;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * A {@link DatabaseAction} that executes a configured SQL script.
+ * Holds and executes a configured SQL script, possibly containing multiple statements.
  *
  * <p>
- * The script may contain multiple SQL statements, in which case individual statements will be parsed out and
- * executed individually in order. However, this requires proper configuration of the {@linkplain #setSplitPattern split pattern}.
+ * If the script contains multiple SQL statements, individual statements will be executed individually, in order, by
+ * {@link #apply apply()}; however, this requires proper configuration of the {@linkplain #setSplitPattern split pattern}.
  *
  * <p>
  * When using Spring, beans of this type can be created succintly using the <code>&lt;dellroad-stuff:sql&gt;</code> custom
- * XML element. The split pattern may be configured via the {@code split-pattern} attribute, and the SQL script is specified
- * either directly via inline text or using the {@code resource} attribute. In the latter case, the character encoding can
- * specified via the {@code charset} attribute (default is {@code "UTF-8"}).
+ * XML element. The {@linkplain #setSplitPattern split pattern} may be configured via the {@code split-pattern} attribute,
+ * and the SQL script is specified either directly via inline text or using the {@code resource} attribute. In the latter case,
+ * the character encoding can specified via the {@code charset} attribute (default is {@code "UTF-8"}).
  *
  * <p>
  * For example:
@@ -45,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *      &lt;!-- SQL action that clears the audit log --&gt;
  *      <b>&lt;dellroad-stuff:sql&gt;DELETE * FROM AUDIT_LOG&lt;/dellroad-stuff:sql&gt;</b>
  *
- *      &lt;!-- A more complicated external SQL script --&gt;
+ *      &lt;!-- A more complicated, externally referenced, SQL script --&gt;
  *      <b>&lt;dellroad-stuff:sql resource="classpath:reset.sql" split-pattern=";\n"/&gt;</b>
  *
  *      &lt;!-- other beans... --&gt;
@@ -53,17 +49,22 @@ import org.slf4j.LoggerFactory;
  *  &lt;/beans&gt;
  * </pre></blockquote>
  */
-public class SQLDatabaseAction implements DatabaseAction {
+public class SQLCommandList implements DatabaseAction<Connection> {
 
     /**
      * The default split pattern: <code>{@value}</code>.
      */
     public static final String DEFAULT_SPLIT_PATTERN = ";[ \\t\\r]*\\n\\s*";
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
-
     private String sqlScript;
     private String splitPattern = DEFAULT_SPLIT_PATTERN;
+
+    public SQLCommandList() {
+    }
+
+    public SQLCommandList(String sqlScript) {
+        this.setSQLScript(sqlScript);
+    }
 
     /**
      * Configure the SQL script. This is a required property.
@@ -100,43 +101,23 @@ public class SQLDatabaseAction implements DatabaseAction {
         this.splitPattern = splitPattern;
     }
 
+    /**
+     * Applies each individual SQL command in the script. Commands are separated
+     * using the {@link #setSplitPattern split pattern}.
+     */
     @Override
     public void apply(Connection c) throws SQLException {
+        for (SQLCommand sqlCommand : this.split())
+            sqlCommand.apply(c);
+    }
+
+    /**
+     * Split the SQL script into individual statements and return them as {@link DatabaseAction}s.
+     */
+    public List<SQLCommand> split() {
+        ArrayList<SQLCommand> list = new ArrayList<SQLCommand>();
         for (String sql : this.splitSQL())
-            this.apply(c, sql);
-    }
-
-    /**
-     * Apply a single SQL statement.
-     */
-    protected void apply(Connection c, String sql) throws SQLException {
-        String sep = sql.indexOf('\n') != -1 ? "\n" : " ";
-        this.log.info("executing SQL statement:" + sep + sql);
-        Statement statement = c.createStatement();
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            this.log.error("SQL statement failed: " + sql, e);
-            throw e;
-        } finally {
-            statement.close();
-        }
-    }
-
-    /**
-     * Split the SQL script into indivicual statements and return them as {@link DatabaseAction}s.
-     */
-    public List<DatabaseAction> split() {
-        ArrayList<DatabaseAction> list = new ArrayList<DatabaseAction>();
-        for (String sql0 : this.splitSQL()) {
-            final String sql = sql0;
-            list.add(new DatabaseAction() {
-                @Override
-                public void apply(Connection c) throws SQLException {
-                    SQLDatabaseAction.this.apply(c, sql);
-                }
-            });
-        }
+            list.add(new SQLCommand(sql));
         return list;
     }
 

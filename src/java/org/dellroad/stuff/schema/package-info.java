@@ -20,7 +20,7 @@
  * </p>
  *
  * <p>
- * See {@link org.dellroad.stuff.schema.SpringSchemaUpdater} for an example of how to declare your
+ * See {@link org.dellroad.stuff.schema.SpringSQLSchemaUpdater} for an example of how to declare your
  * {@link javax.sql.DataSource DataSource} and associated schema updates in a Spring application context.
  * </p>
  *
@@ -40,8 +40,8 @@
  * </p>
  *
  * <p>
- * The central classes are {@link org.dellroad.stuff.schema.SchemaUpdater} and
- * {@link org.dellroad.stuff.schema.SpringSchemaUpdater}.
+ * The central classes are {@link org.dellroad.stuff.schema.SQLSchemaUpdater} and
+ * {@link org.dellroad.stuff.schema.SpringSQLSchemaUpdater}.
  * </p>
  */
 package org.dellroad.stuff.schema;

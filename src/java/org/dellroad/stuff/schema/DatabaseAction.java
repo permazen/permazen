@@ -7,20 +7,19 @@
 
 package org.dellroad.stuff.schema;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 /**
  * Database action interface.
+ *
+ * @param <C> database connection type
  */
-public interface DatabaseAction {
+public interface DatabaseAction<C> {
 
     /**
-     * Apply this action to the database via the provided {@link Connection}.
+     * Apply this action to the database via the provided connection.
      *
-     * @param c connection to the database
-     * @throws SQLException if the update fails
+     * @param connection connection to the database
+     * @throws Exception if the action fails
      */
-    void apply(Connection c) throws SQLException;
+    void apply(C connection) throws Exception;
 }
 

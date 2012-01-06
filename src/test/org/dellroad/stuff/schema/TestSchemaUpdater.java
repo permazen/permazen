@@ -13,9 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.sql.DataSource;
-
-public class TestSchemaUpdater extends SpringSchemaUpdater {
+public class TestSchemaUpdater extends SpringSQLSchemaUpdater {
 
     public static final String PLACEHOLDER_SQL = "sql-statement-placeholder";
 
@@ -28,12 +26,12 @@ public class TestSchemaUpdater extends SpringSchemaUpdater {
     private Set<String> previousUpdates;
 
     @Override
-    public DatabaseAction getDatabaseInitialization() {
+    public SQLCommandList getDatabaseInitialization() {
         return this.databaseInitialization;
     }
 
     @Override
-    public DatabaseAction getUpdateTableInitialization() {
+    public SQLCommandList getUpdateTableInitialization() {
         return this.updateTableInitialization;
     }
 
@@ -44,7 +42,7 @@ public class TestSchemaUpdater extends SpringSchemaUpdater {
     }
 
     @Override
-    public boolean databaseNeedsInitialization(DataSource dataSource) {
+    public boolean databaseNeedsInitialization(Connection c) {
         return this.databaseNeedsInitialization;
     }
     public void setDatabaseNeedsInitialization(boolean databaseNeedsInitialization) {

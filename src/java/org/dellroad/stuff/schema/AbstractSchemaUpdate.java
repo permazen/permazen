@@ -10,19 +10,15 @@ package org.dellroad.stuff.schema;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * Support superclass for {@link SchemaUpdate}s implementations providing standard Java bean property
- * implementations of {@link #getName} and {@link #getRequiredPredecessors}.
+ * Support superclass for {@link SchemaUpdate} implementations with standard bean property implementations.
+ *
+ * @param <C> database connection type
  */
-public abstract class AbstractSchemaUpdate implements ModifiableSchemaUpdate {
-
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+public abstract class AbstractSchemaUpdate<C> implements SchemaUpdate<C> {
 
     private String name;
-    private Set<SchemaUpdate> requiredPredecessors = new HashSet<SchemaUpdate>();
+    private Set<SchemaUpdate<C>> requiredPredecessors = new HashSet<SchemaUpdate<C>>();
     private boolean singleAction;
 
     @Override
@@ -30,18 +26,16 @@ public abstract class AbstractSchemaUpdate implements ModifiableSchemaUpdate {
         return this.name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
     @Override
-    public Set<SchemaUpdate> getRequiredPredecessors() {
+    public Set<SchemaUpdate<C>> getRequiredPredecessors() {
         return this.requiredPredecessors;
     }
 
-    @Override
-    public void setRequiredPredecessors(Set<SchemaUpdate> requiredPredecessors) {
+    public void setRequiredPredecessors(Set<SchemaUpdate<C>> requiredPredecessors) {
         this.requiredPredecessors = requiredPredecessors;
     }
 
@@ -50,7 +44,6 @@ public abstract class AbstractSchemaUpdate implements ModifiableSchemaUpdate {
         return this.singleAction;
     }
 
-    @Override
     public void setSingleAction(boolean singleAction) {
         this.singleAction = singleAction;
     }

@@ -1,6 +1,7 @@
 
 Version Next
 
+    - Refactored schema package to make schema tracking not be SQL-specific
     - Added SocketAcceptor, ValidationContext, ExceptionLoggingFilter
     - Added ParseUtil.deserializeBooleanStrictly()
 

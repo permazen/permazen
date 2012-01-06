@@ -39,7 +39,7 @@ class SQLUpdateBeanDefinitionParser extends AbstractBeanDefinitionParser {
         this.parseStandardAttributes(update, element, parserContext);
 
         // Parse this element like a <dellroad-stuff:sql> element and then make that bean my delegate
-        update.getPropertyValues().add("SQLDatabaseAction", new SQLBeanDefinitionParser(true).parse(element, parserContext));
+        update.getPropertyValues().add("SQLCommandList", new SQLBeanDefinitionParser(true).parse(element, parserContext));
 
         // Set required predecessors (if any)
         String[] predecessors = update.getDependsOn();

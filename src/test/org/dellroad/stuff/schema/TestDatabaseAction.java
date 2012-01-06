@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 import org.testng.Assert;
 
-public class TestDatabaseAction implements DatabaseAction {
+public class TestDatabaseAction extends SQLCommandList {
 
     public static final SQLException TEST_EXCEPTION = new SQLException("test exception");
 
@@ -24,6 +24,7 @@ public class TestDatabaseAction implements DatabaseAction {
     }
 
     public TestDatabaseAction(boolean fail) {
+        super("test sql");
         this.fail = fail;
     }
 

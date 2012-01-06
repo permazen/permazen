@@ -9,32 +9,29 @@ package org.dellroad.stuff.schema;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.sql.DataSource;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 
 /**
- * {@link SchemaUpdater} optimized for use with Spring.
+ * {@link SQLSchemaUpdater} optimized for use with Spring.
  * <ul>
- * <li>{@link #databaseNeedsInitialization databaseNeedsInitialization()} and
- *  {@link #applyAction(DataSource, DatabaseAction) applyAction()} are overridden to use Spring's {@link JdbcTemplate}
- *  so Spring {@link org.springframework.dao.DataAccessException}s are thrown.</li>
- * <li>{@link #databaseNeedsInitialization databaseNeedsInitialization()} is overridden to catch exceptions
- *  and more precisely to filter out false positives.</li>
+ * <li>{@link #apply(Connection, DatabaseAction) apply()} is overridden so Spring {@link DataAccessException}s are thrown.</li>
+ * <li>{@link #indicatesUninitializedDatabase indicatesUninitializedDatabase()} is overridden to examine exceptions
+ *  and more precisely using Spring's exception translation infrastructure to filter out false positives.</li>
  * <li>{@link #getOrderingTieBreaker} is overridden to break ties by ordering updates in the same order
  *  as they are defined in the bean factory.</li>
  * <li>This class implements {@link InitializingBean} and verifies all required properties are set.</li>
- * <li>If no updates are {@linkplain #setUpdates explicitly configured}, then all {@link SchemaUpdate}s found
+ * <li>If no updates are {@linkplain #setUpdates explicitly configured}, then all {@link SpringSQLSchemaUpdate}s found
  *  in the containing bean factory are automatically configured.
  * </ul>
  *
@@ -56,8 +53,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
  *     <b>&lt;bean id="dataSource" class="org.dellroad.stuff.schema.SchemaUpdatingDataSource"
  *       p:dataSource-ref="realDataSource" p:schemaUpdater-ref="schemaUpdater"/&gt;</b>
  *
- *     &lt;!-- Database updater; note use of dellroad-stuff's update table initialization for MySQL --&gt;
- *     <b>&lt;bean id="schemaUpdater" class="org.dellroad.stuff.schema.SpringSchemaUpdater"&gt;
+ *     &lt;!--
+ *          Database updater bean. This is used on first access to the DataSource above. Notes:
+ *            - "databaseInitialization" is used to initialize the schema (first time only)
+ *            - "updateTableInitialization" is used to initialize the update table (first time only)
+ *            - In this example, we just use dellroad-stuff's update table initialization for MySQL
+ *            - The &lt;dellroad-stuff:sql-update&gt; beans below will be auto-detected
+ *     --&gt;
+ *     <b>&lt;bean id="schemaUpdater" class="org.dellroad.stuff.schema.SpringSQLSchemaUpdater"&gt;
  *         &lt;property name="databaseInitialization"&gt;
  *             &lt;dellroad-stuff:sql resource="classpath:databaseInit.sql"/&gt;
  *         &lt;/property&gt;
@@ -79,7 +82,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  *          ALTER TABLE User DROP oldName;
  *      &lt;/dellroad-stuff:sql-update&gt;</b>
  *
- *      &lt;!-- add more schema updates over time as needed... --&gt;
+ *      &lt;!-- Add more schema updates over time as needed and everything just works... --&gt;
  *
  *  &lt;/beans&gt;
  * </pre></blockquote>
@@ -87,7 +90,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * <p>
  * It is required that this updater and all of its schema updates are defined in the same {@link ListableBeanFactory}.
  */
-public class SpringSchemaUpdater extends SchemaUpdater implements BeanFactoryAware, InitializingBean {
+public class SpringSQLSchemaUpdater extends SQLSchemaUpdater implements BeanFactoryAware, InitializingBean {
 
     private ListableBeanFactory beanFactory;
 
@@ -99,8 +102,10 @@ public class SpringSchemaUpdater extends SchemaUpdater implements BeanFactoryAwa
             throw new Exception("no database initialization configured");
         if (this.getUpdateTableInitialization() == null)
             throw new Exception("no update table initialization configured");
-        if (this.getUpdates() == null)
-            this.setUpdates(this.beanFactory.getBeansOfType(SchemaUpdate.class).values());
+        if (this.getUpdates() == null) {
+            this.setUpdates(new ArrayList<SchemaUpdate<Connection>>(
+              this.beanFactory.getBeansOfType(SpringSQLSchemaUpdate.class).values()));
+        }
     }
 
     @Override
@@ -110,45 +115,46 @@ public class SpringSchemaUpdater extends SchemaUpdater implements BeanFactoryAwa
         this.beanFactory = (ListableBeanFactory)beanFactory;
     }
 
+
     /**
-     * Determine if the database needs initialization.
+     * Determine if an exception thrown during {@link #databaseNeedsInitialization} is consistent with
+     * an uninitialized database.
      *
      * <p>
-     * The implementation in {@link SpringSchemaUpdater} invokes <code>SELECT COUNT(*) FROM <i>UPDATETABLE</i></code>
-     * and checks for a {@link BadSqlGrammarException}.
-     *
-     * @throws org.springframework.dao.DataAccessException if there is any other problem
+     * The implementation in {@link SpringSQLSchemaUpdater} looks for a {@link BadSqlGrammarException}.
      */
     @Override
-    public boolean databaseNeedsInitialization(DataSource dataSource) {
+    protected boolean indicatesUninitializedDatabase(Connection c, SQLException e) throws SQLException {
+        return this.translate(e, c, null) instanceof BadSqlGrammarException;
+    }
+
+    /**
+     * Apply a {@link DatabaseAction} to a {@link Connection}.
+     *
+     * <p>
+     * The implementation in {@link SQLSchemaUpdater} invokes the action and delegates to
+     * {@link #translate(SQLException, Connection, String) translate()} to convert any {@link SQLException} thrown.
+     *
+     * @throws SQLException if an error occurs attempting to translate a thrown SQLException
+     * @throws DataAccessException if an error occurs accessing the database
+     * @see #translate(SQLException, Connection, String) translate()
+     */
+    @Override
+    protected void apply(Connection c, DatabaseAction<Connection> action) throws SQLException {
         try {
-            long numUpdates = new JdbcTemplate(dataSource).queryForLong("SELECT COUNT(*) FROM " + this.getUpdateTableName());
-            this.log.info("detected already initialized database, with " + numUpdates + " update(s) already applied");
-            return false;
-        } catch (BadSqlGrammarException e) {
-            log.warn("detected uninitialized database: update table `" + this.getUpdateTableName() + "' not found: " + e);
-            return true;
+            super.apply(c, action);
+        } catch (SQLException e) {
+            String sql = action instanceof SQLCommand ? ((SQLCommand)action).getSQL() : null;
+            throw this.translate(e, c, sql);
         }
     }
 
     /**
-     * Apply a {@link DatabaseAction} to a {@link DataSource}.
-     *
-     * <p>
-     * The implementation in {@link SpringSchemaUpdater} uses {@link JdbcTemplate} to apply the modification so that
-     * Spring {@link org.springframework.dao.DataAccessException}s are thrown in case of errors.
-     *
-     * @throws org.springframework.dao.DataAccessException if there is any problem
+     * Converts {@link SQLException}s into Spring {@link DataAccessException}s.
      */
-    @Override
-    protected void applyAction(DataSource dataSource, final DatabaseAction action) {
-        new JdbcTemplate(dataSource).execute(new ConnectionCallback<Void>() {
-            @Override
-            public Void doInConnection(Connection c) throws SQLException {
-                action.apply(c);
-                return null;
-            }
-        });
+    protected DataAccessException translate(SQLException e, Connection c, String sql) throws SQLException {
+        return new SQLErrorCodeSQLExceptionTranslator(c.getMetaData().getDatabaseProductName())
+          .translate("database access during schema update", sql, e);
     }
 
     /**
@@ -156,24 +162,24 @@ public class SpringSchemaUpdater extends SchemaUpdater implements BeanFactoryAwa
      * (including implied indirect constraints) between them.
      *
      * <p>
-     * The {@link Comparator} returned by the implementation in {@link SpringSchemaUpdater} sorts
+     * The {@link Comparator} returned by the implementation in {@link SpringSQLSchemaUpdater} sorts
      * updates in the same order that they appear in the {@link BeanFactory}.
      */
     @Override
-    protected Comparator<SchemaUpdate> getOrderingTieBreaker() {
+    protected Comparator<SchemaUpdate<Connection>> getOrderingTieBreaker() {
         String[] beanNames = this.beanFactory.getBeanDefinitionNames();
         final Map<String, Integer> sort = new HashMap<String, Integer>(beanNames.length);
         for (int i = 0; i < beanNames.length; i++)
             sort.put(beanNames[i], i);
-        return new Comparator<SchemaUpdate>() {
+        return new Comparator<SchemaUpdate<Connection>>() {
             @Override
-            public int compare(SchemaUpdate update1, SchemaUpdate update2) {
+            public int compare(SchemaUpdate<Connection> update1, SchemaUpdate<Connection> update2) {
                 String[] names = new String[] { update1.getName(), update2.getName() };
                 Integer[] indexes = new Integer[] { sort.get(update1.getName()), sort.get(update2.getName()) };
                 for (int i = 0; i < 2; i++) {
                     if (indexes[i] == null) {
                         throw new IllegalArgumentException("failed to find update `" + names[i]
-                          + "' in bean factory " + SpringSchemaUpdater.this.beanFactory);
+                          + "' in bean factory " + SpringSQLSchemaUpdater.this.beanFactory);
                     }
                 }
                 return indexes[0] - indexes[1];

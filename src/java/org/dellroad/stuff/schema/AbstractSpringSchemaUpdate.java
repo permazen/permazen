@@ -18,8 +18,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 /**
- * Support superclass for {@link SchemaUpdate}s declared in Spring {@link BeanFactory}s that infer their update
- * name and required predecessors from their Spring bean attributes.
+ * Support superclass for {@link SchemaUpdate}s declared in Spring {@link BeanFactory}s that infer their
+ * names and required predecessors from their Spring bean attributes.
  *
  * <p>
  * Instances infer their {@linkplain #getName name} and {@linkplain #getRequiredPredecessors required predecessors} from
@@ -27,15 +27,17 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
  * the <code>depends-on</code> XML attribute), respectively.
  *
  * <p>
- * The use of <code>depends-on</code> is an abuse of Spring's dependency notation for convenience. Normally
+ * Note: the use of <code>depends-on</code> is an abuse of Spring's dependency notation for convenience. Normally
  * <code>depends-on</code> refers to bean intialization ordering, whereas this class uses it to refer to schema update ordering.
  * Schema updates are not normally expected to have any initialization ordering requirements, so this abuse shouldn't matter.
  * If they do, this class should not be used.
  *
  * <p>
- * Also, the containing {@link BeanFactory} must be a {@link ConfigurableBeanFactory} (normally this is always the case).
+ * The containing {@link BeanFactory} must be a {@link ConfigurableBeanFactory} (normally this is always the case).
+ *
+ * @param <C> database connection type
  */
-public abstract class AbstractSpringSchemaUpdate extends AbstractSchemaUpdate
+public abstract class AbstractSpringSchemaUpdate<C> extends AbstractSchemaUpdate<C>
   implements BeanNameAware, BeanFactoryAware, InitializingBean {
 
     protected String beanName;
@@ -58,36 +60,36 @@ public abstract class AbstractSpringSchemaUpdate extends AbstractSchemaUpdate
     @Override
     public void afterPropertiesSet() throws Exception {
         this.setName(this.beanName);
-        AbstractSpringSchemaUpdate.setRequiredPredecessorsFromDependencies(this, this.beanFactory);
+        this.setRequiredPredecessorsFromDependencies();
     }
 
     /**
      * Infer required predecessors from Spring dependencies.
      *
-     * @param update the update in question; it's name must be configured and will be used to query for dependencies
-     * @param beanFactory the bean factory containing the update and all the update's depdendencies
-     * @throws IllegalArgumentException if {@code beanFactory} is not a {@link ConfigurableBeanFactory}
+     * @throws IllegalArgumentException if this instance's {@code beanFactory} is not yet configured,
+     *  or not a {@link ConfigurableBeanFactory}
      */
-    public static void setRequiredPredecessorsFromDependencies(ModifiableSchemaUpdate update, BeanFactory beanFactory) {
+    @SuppressWarnings("unchecked")
+    protected void setRequiredPredecessorsFromDependencies() {
 
         // Check factory type
-        if (!(beanFactory instanceof ConfigurableBeanFactory))
-            throw new IllegalArgumentException("BeanFactory is not a ConfigurableBeanFactory: " + beanFactory);
-        ConfigurableBeanFactory configurableBeanFactory = (ConfigurableBeanFactory)beanFactory;
+        if (!(this.beanFactory instanceof ConfigurableBeanFactory))
+            throw new IllegalArgumentException("BeanFactory is not a ConfigurableBeanFactory: " + this.beanFactory);
+        ConfigurableBeanFactory configurableBeanFactory = (ConfigurableBeanFactory)this.beanFactory;
 
         // Find required predecessors defined as Spring dependencies
-        String[] predecessorNames = configurableBeanFactory.getDependenciesForBean(update.getName());
-        HashSet<SchemaUpdate> predecessors = new HashSet<SchemaUpdate>(predecessorNames.length);
+        String[] predecessorNames = configurableBeanFactory.getDependenciesForBean(this.beanName);
+        HashSet<SchemaUpdate<C>> predecessors = new HashSet<SchemaUpdate<C>>(predecessorNames.length);
         for (String predecessorName : predecessorNames) {
             try {
-                predecessors.add(configurableBeanFactory.getBean(predecessorName, SchemaUpdate.class));
+                predecessors.add((SchemaUpdate<C>)configurableBeanFactory.getBean(predecessorName, SchemaUpdate.class));
             } catch (NoSuchBeanDefinitionException e) {
                 continue;
             } catch (BeanNotOfRequiredTypeException e) {
                 continue;
             }
         }
-        update.setRequiredPredecessors(predecessors);
+        this.setRequiredPredecessors(predecessors);
     }
 }
 

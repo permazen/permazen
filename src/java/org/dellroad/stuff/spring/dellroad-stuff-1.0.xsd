@@ -19,9 +19,9 @@
 
     <xsd:element name="sql">
         <xsd:annotation>
-            <xsd:documentation source="java:org.dellroad.stuff.spring.SQLDatabaseActionFactoryBean">
+            <xsd:documentation source="java:org.dellroad.stuff.spring.SQLBeanDefinitionParser">
                 <![CDATA[
-    Creates a SQLDatabaseAction bean using an inline SQL script or the specified resource.
+    Creates a SQLCommndList bean using an inline SQL script or the specified resource.
                 ]]>
             </xsd:documentation>
         </xsd:annotation>
@@ -36,9 +36,9 @@
 
     <xsd:element name="sql-update">
         <xsd:annotation>
-            <xsd:documentation source="java:org.dellroad.stuff.spring.SpringSQLSchemaUpdateFactoryBean">
+            <xsd:documentation source="java:org.dellroad.stuff.spring.SQLUpdateBeanDefinitionParser">
                 <![CDATA[
-    Creates a SpringSQLSchemaUpdate bean that delegates to an SQLDatabaseAction bean
+    Creates a SpringSQLSchemaUpdate bean that delegates to an SQLCommandList bean
     using an inline SQL script or the specified resource.
                 ]]>
             </xsd:documentation>

@@ -13,18 +13,18 @@ import javax.sql.DataSource;
 
 /**
  * A {@link DataSource} that wraps an inner {@link DataSource} and automatically intializes and updates
- * the database schema using a {@link SchemaUpdater} on first access.
+ * the database schema using a {@link SQLSchemaUpdater} on first access.
  *
- * @see SchemaUpdater
+ * @see SQLSchemaUpdater
  */
 public class SchemaUpdatingDataSource extends AbstractUpdatingDataSource {
 
-    private SchemaUpdater schemaUpdater;
+    private SQLSchemaUpdater schemaUpdater;
 
     /**
-     * Configure the {@link SchemaUpdater} that will initialize and update the database. Required property.
+     * Configure the {@link SQLSchemaUpdater} that will initialize and update the database. Required property.
      */
-    public void setSchemaUpdater(SchemaUpdater schemaUpdater) {
+    public void setSchemaUpdater(SQLSchemaUpdater schemaUpdater) {
         this.schemaUpdater = schemaUpdater;
     }
 
@@ -32,7 +32,13 @@ public class SchemaUpdatingDataSource extends AbstractUpdatingDataSource {
     protected void updateDataSource(DataSource dataSource) throws SQLException {
         if (this.schemaUpdater == null)
             throw new IllegalArgumentException("no SchemaUpdater configured");
-        this.schemaUpdater.initializeAndUpdateDatabase(dataSource);
+        try {
+            this.schemaUpdater.initializeAndUpdateDatabase(dataSource);
+        } catch (RuntimeException e) {
+            if (e.getMessage() == null && e.getCause() instanceof SQLException)     // unwrap checked exception
+                throw (SQLException)e.getCause();
+            throw e;
+        }
     }
 }
 

@@ -7,7 +7,7 @@
 
 package org.dellroad.stuff.spring;
 
-import org.dellroad.stuff.schema.SQLDatabaseAction;
+import org.dellroad.stuff.schema.SQLCommandList;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -40,8 +40,8 @@ class SQLBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     }
 
     @Override
-    protected Class<SQLDatabaseAction> getBeanClass(Element element) {
-        return SQLDatabaseAction.class;
+    protected Class<SQLCommandList> getBeanClass(Element element) {
+        return SQLCommandList.class;
     }
 
     @Override

@@ -32,8 +32,10 @@ import java.util.Set;
  * already seen the previous version of the update must be manually corrected so they are in the
  * same state that the new version of the update would have left them.
  * </p>
+ *
+ * @param <C> database connection type
  */
-public interface SchemaUpdate {
+public interface SchemaUpdate<C> {
 
     /**
      * Get the unique name of this update. This name must be unique among all updates ever applied to the database
@@ -49,18 +51,23 @@ public interface SchemaUpdate {
      * @return set of zero or more other updates
      * @see #getName
      */
-    Set<SchemaUpdate> getRequiredPredecessors();
+    Set<SchemaUpdate<C>> getRequiredPredecessors();
 
     /**
-     * Get the action(s) that comprise this update. Individual actions should be atomic database operations, i.e.,
-     * it should either finish completely, or else leave the database in a state where it can be tried again.
+     * Get the action(s) that comprise this update. Ideally, individual actions should be atomic database operations, i.e.,
+     * each one should either finish completely, or else leave the database in a state where it can be tried again.
+     * In any case, each action will be applied within its own transaction when transactions are supported by the database
+     * unless {@link #isSingleAction} returns true.
+     *
+     * @return a list of zero or more actions to apply
+     * @see #isSingleAction
      */
-    List<DatabaseAction> getDatabaseActions();
+    List<DatabaseAction<C>> getDatabaseActions();
 
     /**
      * Determine whether, if this instance contains multiple individual actions, should they be applied in a single
-     * transaction and recorded as a single update. Normally this is false. Setting this to true can result in partially
-     * completed updates if an action fails.
+     * transaction and recorded as a single update. Normally this is false. If true, partially completed updates
+     * can result if one of the action fails.
      */
     boolean isSingleAction();
 }
