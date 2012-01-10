@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.dellroad</groupId>
+  <artifactId>dellroad-stuff</artifactId>
+  <packaging>jar</packaging>
+  <name>DellRoad Stuff</name>
+  <version>@VERSION@</version>
+  <description>A dumping ground for various useful Java classes and ant build macros that have evolved over time from repeated use in several different projects.</description>
+  <url>http://code.google.com/p/dellroad-stuff/</url>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>scm:svn:http://code.google.com/p/dellroad-stuff/source/browse/</url>
+    <connection>scm:svn:http://dellroad-stuff.googlecode.com/svn/trunk</connection>
+    <developerConnection>scm:svn:https://dellroad-stuff.googlecode.com/svn/trunk</developerConnection>
+  </scm>
+  <developers>
+    <developer>
+      <id>archie</id>
+      <name>Archie Cobbs</name>
+      <email>archie@dellroad.org</email>
+    </developer>
+  </developers>
+  <dependencies/>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+</project>
