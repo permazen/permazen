@@ -430,56 +430,72 @@
 <FONT color="green">427</FONT>    <a name="line.427"></a>
 <FONT color="green">428</FONT>        /**<a name="line.428"></a>
 <FONT color="green">429</FONT>         * Boolean parser that allows "yes" and "no" as well as the usual "true", "false", "0", "1".<a name="line.429"></a>
-<FONT color="green">430</FONT>         *<a name="line.430"></a>
-<FONT color="green">431</FONT>         * @throws JiBXParseException if the value is not recognizable as a boolean<a name="line.431"></a>
-<FONT color="green">432</FONT>         */<a name="line.432"></a>
-<FONT color="green">433</FONT>        public static boolean deserializeBoolean(String string) throws JiBXParseException {<a name="line.433"></a>
-<FONT color="green">434</FONT>            for (String s : BOOLEAN_TRUES) {<a name="line.434"></a>
-<FONT color="green">435</FONT>                if (string.equalsIgnoreCase(s))<a name="line.435"></a>
-<FONT color="green">436</FONT>                    return true;<a name="line.436"></a>
-<FONT color="green">437</FONT>            }<a name="line.437"></a>
-<FONT color="green">438</FONT>            for (String s : BOOLEAN_FALSES) {<a name="line.438"></a>
-<FONT color="green">439</FONT>                if (string.equalsIgnoreCase(s))<a name="line.439"></a>
-<FONT color="green">440</FONT>                    return false;<a name="line.440"></a>
-<FONT color="green">441</FONT>            }<a name="line.441"></a>
-<FONT color="green">442</FONT>            throw new JiBXParseException("invalid Boolean value", string);<a name="line.442"></a>
-<FONT color="green">443</FONT>        }<a name="line.443"></a>
-<FONT color="green">444</FONT>    <a name="line.444"></a>
-<FONT color="green">445</FONT>        /**<a name="line.445"></a>
-<FONT color="green">446</FONT>         * Deserialize an array of integers separated by commas and/or whitespace.<a name="line.446"></a>
-<FONT color="green">447</FONT>         *<a name="line.447"></a>
-<FONT color="green">448</FONT>         * @see #serializeIntArray<a name="line.448"></a>
-<FONT color="green">449</FONT>         */<a name="line.449"></a>
-<FONT color="green">450</FONT>        public static int[] deserializeIntArray(String string) throws JiBXParseException {<a name="line.450"></a>
-<FONT color="green">451</FONT>            String[] ints = string.trim().split("(\\s*,\\s*|\\s+)");<a name="line.451"></a>
-<FONT color="green">452</FONT>            if (ints.length == 0 || ints[0].length() == 0)<a name="line.452"></a>
-<FONT color="green">453</FONT>                return new int[0];<a name="line.453"></a>
-<FONT color="green">454</FONT>            int[] array = new int[ints.length];<a name="line.454"></a>
-<FONT color="green">455</FONT>            try {<a name="line.455"></a>
-<FONT color="green">456</FONT>                for (int i = 0; i &lt; array.length; i++)<a name="line.456"></a>
-<FONT color="green">457</FONT>                    array[i] = Integer.parseInt(ints[i]);<a name="line.457"></a>
-<FONT color="green">458</FONT>            } catch (NumberFormatException e) {<a name="line.458"></a>
-<FONT color="green">459</FONT>                throw new JiBXParseException("invalid integer list", string, e);<a name="line.459"></a>
-<FONT color="green">460</FONT>            }<a name="line.460"></a>
-<FONT color="green">461</FONT>            return array;<a name="line.461"></a>
-<FONT color="green">462</FONT>        }<a name="line.462"></a>
-<FONT color="green">463</FONT>    <a name="line.463"></a>
-<FONT color="green">464</FONT>        /**<a name="line.464"></a>
-<FONT color="green">465</FONT>         * Serialize an array of integers. Example: "1, 2, 3".<a name="line.465"></a>
-<FONT color="green">466</FONT>         *<a name="line.466"></a>
-<FONT color="green">467</FONT>         * @see #deserializeIntArray<a name="line.467"></a>
-<FONT color="green">468</FONT>         */<a name="line.468"></a>
-<FONT color="green">469</FONT>        public static String serializeIntArray(int[] array) throws JiBXParseException {<a name="line.469"></a>
-<FONT color="green">470</FONT>            StringBuilder buf = new StringBuilder(array.length * 2);<a name="line.470"></a>
-<FONT color="green">471</FONT>            for (int i = 0; i &lt; array.length; i++) {<a name="line.471"></a>
-<FONT color="green">472</FONT>                if (i &gt; 0)<a name="line.472"></a>
-<FONT color="green">473</FONT>                    buf.append(", ");<a name="line.473"></a>
-<FONT color="green">474</FONT>                buf.append(array[i]);<a name="line.474"></a>
-<FONT color="green">475</FONT>            }<a name="line.475"></a>
-<FONT color="green">476</FONT>            return buf.toString();<a name="line.476"></a>
-<FONT color="green">477</FONT>        }<a name="line.477"></a>
-<FONT color="green">478</FONT>    }<a name="line.478"></a>
+<FONT color="green">430</FONT>         * Comparisons are case-insensitive.<a name="line.430"></a>
+<FONT color="green">431</FONT>         *<a name="line.431"></a>
+<FONT color="green">432</FONT>         * @throws JiBXParseException if the value is not recognizable as a boolean<a name="line.432"></a>
+<FONT color="green">433</FONT>         *<a name="line.433"></a>
+<FONT color="green">434</FONT>         * @see #deserializeBooleanStrictly<a name="line.434"></a>
+<FONT color="green">435</FONT>         */<a name="line.435"></a>
+<FONT color="green">436</FONT>        public static boolean deserializeBoolean(String string) throws JiBXParseException {<a name="line.436"></a>
+<FONT color="green">437</FONT>            for (String s : BOOLEAN_TRUES) {<a name="line.437"></a>
+<FONT color="green">438</FONT>                if (string.equalsIgnoreCase(s))<a name="line.438"></a>
+<FONT color="green">439</FONT>                    return true;<a name="line.439"></a>
+<FONT color="green">440</FONT>            }<a name="line.440"></a>
+<FONT color="green">441</FONT>            for (String s : BOOLEAN_FALSES) {<a name="line.441"></a>
+<FONT color="green">442</FONT>                if (string.equalsIgnoreCase(s))<a name="line.442"></a>
+<FONT color="green">443</FONT>                    return false;<a name="line.443"></a>
+<FONT color="green">444</FONT>            }<a name="line.444"></a>
+<FONT color="green">445</FONT>            throw new JiBXParseException("invalid Boolean value", string);<a name="line.445"></a>
+<FONT color="green">446</FONT>        }<a name="line.446"></a>
+<FONT color="green">447</FONT>    <a name="line.447"></a>
+<FONT color="green">448</FONT>        /**<a name="line.448"></a>
+<FONT color="green">449</FONT>         * Deserialize a boolean strictly, only allowing the values {@code true} or {@code false}.<a name="line.449"></a>
+<FONT color="green">450</FONT>         *<a name="line.450"></a>
+<FONT color="green">451</FONT>         * @see #deserializeBoolean<a name="line.451"></a>
+<FONT color="green">452</FONT>         */<a name="line.452"></a>
+<FONT color="green">453</FONT>        public static boolean deserializeBooleanStrictly(String string) throws JiBXParseException {<a name="line.453"></a>
+<FONT color="green">454</FONT>            if ("true".equals(string))<a name="line.454"></a>
+<FONT color="green">455</FONT>                return true;<a name="line.455"></a>
+<FONT color="green">456</FONT>            if ("false".equals(string))<a name="line.456"></a>
+<FONT color="green">457</FONT>                return false;<a name="line.457"></a>
+<FONT color="green">458</FONT>            throw new JiBXParseException("invalid boolean value; must be `true' or `false'", string);<a name="line.458"></a>
+<FONT color="green">459</FONT>        }<a name="line.459"></a>
+<FONT color="green">460</FONT>    <a name="line.460"></a>
+<FONT color="green">461</FONT>        /**<a name="line.461"></a>
+<FONT color="green">462</FONT>         * Deserialize an array of integers separated by commas and/or whitespace.<a name="line.462"></a>
+<FONT color="green">463</FONT>         *<a name="line.463"></a>
+<FONT color="green">464</FONT>         * @see #serializeIntArray<a name="line.464"></a>
+<FONT color="green">465</FONT>         */<a name="line.465"></a>
+<FONT color="green">466</FONT>        public static int[] deserializeIntArray(String string) throws JiBXParseException {<a name="line.466"></a>
+<FONT color="green">467</FONT>            String[] ints = string.trim().split("(\\s*,\\s*|\\s+)");<a name="line.467"></a>
+<FONT color="green">468</FONT>            if (ints.length == 0 || ints[0].length() == 0)<a name="line.468"></a>
+<FONT color="green">469</FONT>                return new int[0];<a name="line.469"></a>
+<FONT color="green">470</FONT>            int[] array = new int[ints.length];<a name="line.470"></a>
+<FONT color="green">471</FONT>            try {<a name="line.471"></a>
+<FONT color="green">472</FONT>                for (int i = 0; i &lt; array.length; i++)<a name="line.472"></a>
+<FONT color="green">473</FONT>                    array[i] = Integer.parseInt(ints[i]);<a name="line.473"></a>
+<FONT color="green">474</FONT>            } catch (NumberFormatException e) {<a name="line.474"></a>
+<FONT color="green">475</FONT>                throw new JiBXParseException("invalid integer list", string, e);<a name="line.475"></a>
+<FONT color="green">476</FONT>            }<a name="line.476"></a>
+<FONT color="green">477</FONT>            return array;<a name="line.477"></a>
+<FONT color="green">478</FONT>        }<a name="line.478"></a>
 <FONT color="green">479</FONT>    <a name="line.479"></a>
+<FONT color="green">480</FONT>        /**<a name="line.480"></a>
+<FONT color="green">481</FONT>         * Serialize an array of integers. Example: "1, 2, 3".<a name="line.481"></a>
+<FONT color="green">482</FONT>         *<a name="line.482"></a>
+<FONT color="green">483</FONT>         * @see #deserializeIntArray<a name="line.483"></a>
+<FONT color="green">484</FONT>         */<a name="line.484"></a>
+<FONT color="green">485</FONT>        public static String serializeIntArray(int[] array) throws JiBXParseException {<a name="line.485"></a>
+<FONT color="green">486</FONT>            StringBuilder buf = new StringBuilder(array.length * 2);<a name="line.486"></a>
+<FONT color="green">487</FONT>            for (int i = 0; i &lt; array.length; i++) {<a name="line.487"></a>
+<FONT color="green">488</FONT>                if (i &gt; 0)<a name="line.488"></a>
+<FONT color="green">489</FONT>                    buf.append(", ");<a name="line.489"></a>
+<FONT color="green">490</FONT>                buf.append(array[i]);<a name="line.490"></a>
+<FONT color="green">491</FONT>            }<a name="line.491"></a>
+<FONT color="green">492</FONT>            return buf.toString();<a name="line.492"></a>
+<FONT color="green">493</FONT>        }<a name="line.493"></a>
+<FONT color="green">494</FONT>    }<a name="line.494"></a>
+<FONT color="green">495</FONT>    <a name="line.495"></a>
 
 
 

@@ -10,87 +10,98 @@
 <FONT color="green">007</FONT>    <a name="line.7"></a>
 <FONT color="green">008</FONT>    package org.dellroad.stuff.schema;<a name="line.8"></a>
 <FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.util.List;<a name="line.10"></a>
-<FONT color="green">011</FONT>    <a name="line.11"></a>
-<FONT color="green">012</FONT>    /**<a name="line.12"></a>
-<FONT color="green">013</FONT>     * Spring-enabled {@link SchemaUpdate} supporting updates via SQL statements.<a name="line.13"></a>
-<FONT color="green">014</FONT>     *<a name="line.14"></a>
-<FONT color="green">015</FONT>     * &lt;p&gt;<a name="line.15"></a>
-<FONT color="green">016</FONT>     * Instances can be created succintly using the &lt;code&gt;&amp;lt;dellroad-stuff:sql-update&amp;gt;&lt;/code&gt; custom XML element, which works<a name="line.16"></a>
-<FONT color="green">017</FONT>     * just like &lt;code&gt;&amp;lt;dellroad-stuff:sql&amp;gt;&lt;/code&gt; except that it wraps the resulting {@link SQLDatabaseAction}<a name="line.17"></a>
-<FONT color="green">018</FONT>     * as a delegate inside an instance of this class.<a name="line.18"></a>
+<FONT color="green">010</FONT>    import java.sql.Connection;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.util.ArrayList;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.util.List;<a name="line.12"></a>
+<FONT color="green">013</FONT>    <a name="line.13"></a>
+<FONT color="green">014</FONT>    /**<a name="line.14"></a>
+<FONT color="green">015</FONT>     * Spring-enabled SQL {@link SchemaUpdate}.<a name="line.15"></a>
+<FONT color="green">016</FONT>     *<a name="line.16"></a>
+<FONT color="green">017</FONT>     * &lt;p&gt;<a name="line.17"></a>
+<FONT color="green">018</FONT>     * The {@link #setSQLCommandList sqlCommandList} property is required.<a name="line.18"></a>
 <FONT color="green">019</FONT>     *<a name="line.19"></a>
 <FONT color="green">020</FONT>     * &lt;p&gt;<a name="line.20"></a>
-<FONT color="green">021</FONT>     * For example:<a name="line.21"></a>
-<FONT color="green">022</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.22"></a>
-<FONT color="green">023</FONT>     *  &amp;lt;beans xmlns="http://www.springframework.org/schema/beans"<a name="line.23"></a>
-<FONT color="green">024</FONT>     *    &lt;b&gt;xmlns:dellroad-stuff="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"&lt;/b&gt;<a name="line.24"></a>
-<FONT color="green">025</FONT>     *    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"<a name="line.25"></a>
-<FONT color="green">026</FONT>     *    xsi:schemaLocation="<a name="line.26"></a>
-<FONT color="green">027</FONT>     *      http://www.springframework.org/schema/beans<a name="line.27"></a>
-<FONT color="green">028</FONT>     *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd<a name="line.28"></a>
-<FONT color="green">029</FONT>     *      &lt;b&gt;http://dellroad-stuff.googlecode.com/schema/dellroad-stuff<a name="line.29"></a>
-<FONT color="green">030</FONT>     *        http://dellroad-stuff.googlecode.com/svn/wiki/schemas/dellroad-stuff-1.0.xsd&lt;/b&gt;"&amp;gt;<a name="line.30"></a>
-<FONT color="green">031</FONT>     *<a name="line.31"></a>
-<FONT color="green">032</FONT>     *      &amp;lt;!-- Schema update to add the 'phone' column to the 'User' table --&amp;gt;<a name="line.32"></a>
-<FONT color="green">033</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql-update id="addPhone"&amp;gt;ALTER TABLE User ADD phone VARCHAR(64)&amp;lt;/dellroad-stuff:sql-update&amp;gt;&lt;/b&gt;<a name="line.33"></a>
-<FONT color="green">034</FONT>     *<a name="line.34"></a>
-<FONT color="green">035</FONT>     *      &amp;lt;!-- Schema update to run some complicated external SQL script --&amp;gt;<a name="line.35"></a>
-<FONT color="green">036</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql-update id="majorChanges" depends-on="addPhone" resource="classpath:majorChanges.sql"/&amp;gt;&lt;/b&gt;<a name="line.36"></a>
-<FONT color="green">037</FONT>     *<a name="line.37"></a>
-<FONT color="green">038</FONT>     *      &amp;lt;!-- more beans... --&amp;gt;<a name="line.38"></a>
+<FONT color="green">021</FONT>     * Instances can be created succintly in Spring using the &lt;code&gt;&amp;lt;dellroad-stuff:sql-update&amp;gt;&lt;/code&gt; custom XML element,<a name="line.21"></a>
+<FONT color="green">022</FONT>     * which works just like &lt;code&gt;&amp;lt;dellroad-stuff:sql&amp;gt;&lt;/code&gt; except that it wraps the resulting {@link SQLCommandList}<a name="line.22"></a>
+<FONT color="green">023</FONT>     * as a delegate inside an instance of this class.<a name="line.23"></a>
+<FONT color="green">024</FONT>     *<a name="line.24"></a>
+<FONT color="green">025</FONT>     * &lt;p&gt;<a name="line.25"></a>
+<FONT color="green">026</FONT>     * For example:<a name="line.26"></a>
+<FONT color="green">027</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.27"></a>
+<FONT color="green">028</FONT>     *  &amp;lt;beans xmlns="http://www.springframework.org/schema/beans"<a name="line.28"></a>
+<FONT color="green">029</FONT>     *    &lt;b&gt;xmlns:dellroad-stuff="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"&lt;/b&gt;<a name="line.29"></a>
+<FONT color="green">030</FONT>     *    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"<a name="line.30"></a>
+<FONT color="green">031</FONT>     *    xsi:schemaLocation="<a name="line.31"></a>
+<FONT color="green">032</FONT>     *      http://www.springframework.org/schema/beans<a name="line.32"></a>
+<FONT color="green">033</FONT>     *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd<a name="line.33"></a>
+<FONT color="green">034</FONT>     *      &lt;b&gt;http://dellroad-stuff.googlecode.com/schema/dellroad-stuff<a name="line.34"></a>
+<FONT color="green">035</FONT>     *        http://dellroad-stuff.googlecode.com/svn/wiki/schemas/dellroad-stuff-1.0.xsd&lt;/b&gt;"&amp;gt;<a name="line.35"></a>
+<FONT color="green">036</FONT>     *<a name="line.36"></a>
+<FONT color="green">037</FONT>     *      &amp;lt;!-- Schema update to add the 'phone' column to the 'User' table --&amp;gt;<a name="line.37"></a>
+<FONT color="green">038</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql-update id="addPhone"&amp;gt;ALTER TABLE User ADD phone VARCHAR(64)&amp;lt;/dellroad-stuff:sql-update&amp;gt;&lt;/b&gt;<a name="line.38"></a>
 <FONT color="green">039</FONT>     *<a name="line.39"></a>
-<FONT color="green">040</FONT>     *  &amp;lt;/beans&amp;gt;<a name="line.40"></a>
-<FONT color="green">041</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.41"></a>
-<FONT color="green">042</FONT>     * &lt;/p&gt;<a name="line.42"></a>
-<FONT color="green">043</FONT>     *<a name="line.43"></a>
-<FONT color="green">044</FONT>     * &lt;p&gt;<a name="line.44"></a>
-<FONT color="green">045</FONT>     * A multi-statement SQL script is normally treated as a set of individual updates. For example:<a name="line.45"></a>
-<FONT color="green">046</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.46"></a>
-<FONT color="green">047</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql-update id="renameColumn"&amp;gt;<a name="line.47"></a>
-<FONT color="green">048</FONT>     *          ALTER TABLE User ADD newName VARCHAR(64);<a name="line.48"></a>
-<FONT color="green">049</FONT>     *          ALTER TABLE User SET newName = oldName;<a name="line.49"></a>
-<FONT color="green">050</FONT>     *          ALTER TABLE User DROP oldName;<a name="line.50"></a>
-<FONT color="green">051</FONT>     *      &amp;lt;/dellroad-stuff:sql-update&amp;gt;&lt;/b&gt;<a name="line.51"></a>
-<FONT color="green">052</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.52"></a>
-<FONT color="green">053</FONT>     * This will create three separate update beans named &lt;code&gt;renameColumn-00001&lt;/code&gt;, &lt;code&gt;renameColumn-00002&lt;/code&gt;, and<a name="line.53"></a>
-<FONT color="green">054</FONT>     * &lt;code&gt;renameColumn-00003&lt;/code&gt;. You can disable this behavior by adding the attribute &lt;code&gt;single-action="true"&lt;/code&gt;,<a name="line.54"></a>
-<FONT color="green">055</FONT>     * in which case all three of the statements will be executed together in the same transaction and recorded under the name<a name="line.55"></a>
-<FONT color="green">056</FONT>     * &lt;code&gt;renameColumn&lt;/code&gt;; this means that they must all complete successfully or you could end up with a partially<a name="line.56"></a>
-<FONT color="green">057</FONT>     * completed update.<a name="line.57"></a>
-<FONT color="green">058</FONT>     * &lt;/p&gt;<a name="line.58"></a>
-<FONT color="green">059</FONT>     *<a name="line.59"></a>
-<FONT color="green">060</FONT>     * &lt;p&gt;<a name="line.60"></a>
-<FONT color="green">061</FONT>     * Note that if the nested SQL script only contains one SQL statement, any &lt;code&gt;single-action&lt;/code&gt; attribute is<a name="line.61"></a>
-<FONT color="green">062</FONT>     * ignored and the bean's given name (e.g., &lt;code&gt;renameColumn&lt;/code&gt;) is always used as the name of the single update.<a name="line.62"></a>
+<FONT color="green">040</FONT>     *      &amp;lt;!-- Schema update to run some complicated external SQL script --&amp;gt;<a name="line.40"></a>
+<FONT color="green">041</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql-update id="majorChanges" depends-on="addPhone" resource="classpath:majorChanges.sql"/&amp;gt;&lt;/b&gt;<a name="line.41"></a>
+<FONT color="green">042</FONT>     *<a name="line.42"></a>
+<FONT color="green">043</FONT>     *      &amp;lt;!-- more beans... --&amp;gt;<a name="line.43"></a>
+<FONT color="green">044</FONT>     *<a name="line.44"></a>
+<FONT color="green">045</FONT>     *  &amp;lt;/beans&amp;gt;<a name="line.45"></a>
+<FONT color="green">046</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.46"></a>
+<FONT color="green">047</FONT>     * &lt;/p&gt;<a name="line.47"></a>
+<FONT color="green">048</FONT>     *<a name="line.48"></a>
+<FONT color="green">049</FONT>     * &lt;p&gt;<a name="line.49"></a>
+<FONT color="green">050</FONT>     * A multi-statement SQL script is normally treated as a set of individual updates. For example:<a name="line.50"></a>
+<FONT color="green">051</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.51"></a>
+<FONT color="green">052</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql-update id="renameColumn"&amp;gt;<a name="line.52"></a>
+<FONT color="green">053</FONT>     *          ALTER TABLE User ADD newName VARCHAR(64);<a name="line.53"></a>
+<FONT color="green">054</FONT>     *          ALTER TABLE User SET newName = oldName;<a name="line.54"></a>
+<FONT color="green">055</FONT>     *          ALTER TABLE User DROP oldName;<a name="line.55"></a>
+<FONT color="green">056</FONT>     *      &amp;lt;/dellroad-stuff:sql-update&amp;gt;&lt;/b&gt;<a name="line.56"></a>
+<FONT color="green">057</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.57"></a>
+<FONT color="green">058</FONT>     * This will create three separate update beans named &lt;code&gt;renameColumn-00001&lt;/code&gt;, &lt;code&gt;renameColumn-00002&lt;/code&gt;, and<a name="line.58"></a>
+<FONT color="green">059</FONT>     * &lt;code&gt;renameColumn-00003&lt;/code&gt;. You can disable this behavior by adding the attribute &lt;code&gt;single-action="true"&lt;/code&gt;,<a name="line.59"></a>
+<FONT color="green">060</FONT>     * in which case all three of the statements will be executed together in the same transaction and recorded under the name<a name="line.60"></a>
+<FONT color="green">061</FONT>     * &lt;code&gt;renameColumn&lt;/code&gt;; this means that they must all complete successfully or you could end up with a partially<a name="line.61"></a>
+<FONT color="green">062</FONT>     * completed update.<a name="line.62"></a>
 <FONT color="green">063</FONT>     * &lt;/p&gt;<a name="line.63"></a>
-<FONT color="green">064</FONT>     */<a name="line.64"></a>
-<FONT color="green">065</FONT>    public class SpringSQLSchemaUpdate extends AbstractSpringSchemaUpdate {<a name="line.65"></a>
-<FONT color="green">066</FONT>    <a name="line.66"></a>
-<FONT color="green">067</FONT>        private SQLDatabaseAction action;<a name="line.67"></a>
-<FONT color="green">068</FONT>    <a name="line.68"></a>
-<FONT color="green">069</FONT>        @Override<a name="line.69"></a>
-<FONT color="green">070</FONT>        public void afterPropertiesSet() throws Exception {<a name="line.70"></a>
-<FONT color="green">071</FONT>            super.afterPropertiesSet();<a name="line.71"></a>
-<FONT color="green">072</FONT>            if (this.action == null)<a name="line.72"></a>
-<FONT color="green">073</FONT>                throw new Exception("no DatabaseAction configured");<a name="line.73"></a>
-<FONT color="green">074</FONT>        }<a name="line.74"></a>
+<FONT color="green">064</FONT>     *<a name="line.64"></a>
+<FONT color="green">065</FONT>     * &lt;p&gt;<a name="line.65"></a>
+<FONT color="green">066</FONT>     * Note that if the nested SQL script only contains one SQL statement, any &lt;code&gt;single-action&lt;/code&gt; attribute is<a name="line.66"></a>
+<FONT color="green">067</FONT>     * ignored and the bean's given name (e.g., &lt;code&gt;renameColumn&lt;/code&gt;) is always used as the name of the single update.<a name="line.67"></a>
+<FONT color="green">068</FONT>     * &lt;/p&gt;<a name="line.68"></a>
+<FONT color="green">069</FONT>     *<a name="line.69"></a>
+<FONT color="green">070</FONT>     * @see SQLCommandList<a name="line.70"></a>
+<FONT color="green">071</FONT>     */<a name="line.71"></a>
+<FONT color="green">072</FONT>    public class SpringSQLSchemaUpdate extends AbstractSpringSchemaUpdate&lt;Connection&gt; {<a name="line.72"></a>
+<FONT color="green">073</FONT>    <a name="line.73"></a>
+<FONT color="green">074</FONT>        private SQLCommandList sqlCommandList;<a name="line.74"></a>
 <FONT color="green">075</FONT>    <a name="line.75"></a>
-<FONT color="green">076</FONT>        /**<a name="line.76"></a>
-<FONT color="green">077</FONT>         * Configure the {@link SQLDatabaseAction}. This is a required property.<a name="line.77"></a>
-<FONT color="green">078</FONT>         *<a name="line.78"></a>
-<FONT color="green">079</FONT>         * @see DatabaseAction<a name="line.79"></a>
-<FONT color="green">080</FONT>         */<a name="line.80"></a>
-<FONT color="green">081</FONT>        public void setSQLDatabaseAction(SQLDatabaseAction action) {<a name="line.81"></a>
-<FONT color="green">082</FONT>            this.action = action;<a name="line.82"></a>
-<FONT color="green">083</FONT>        }<a name="line.83"></a>
-<FONT color="green">084</FONT>    <a name="line.84"></a>
-<FONT color="green">085</FONT>        @Override<a name="line.85"></a>
-<FONT color="green">086</FONT>        public List&lt;DatabaseAction&gt; getDatabaseActions() {<a name="line.86"></a>
-<FONT color="green">087</FONT>            return this.action.split();<a name="line.87"></a>
-<FONT color="green">088</FONT>        }<a name="line.88"></a>
-<FONT color="green">089</FONT>    }<a name="line.89"></a>
-<FONT color="green">090</FONT>    <a name="line.90"></a>
+<FONT color="green">076</FONT>        @Override<a name="line.76"></a>
+<FONT color="green">077</FONT>        public void afterPropertiesSet() throws Exception {<a name="line.77"></a>
+<FONT color="green">078</FONT>            super.afterPropertiesSet();<a name="line.78"></a>
+<FONT color="green">079</FONT>            if (this.sqlCommandList == null)<a name="line.79"></a>
+<FONT color="green">080</FONT>                throw new Exception("no SQLCommandList configured");<a name="line.80"></a>
+<FONT color="green">081</FONT>        }<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>        /**<a name="line.83"></a>
+<FONT color="green">084</FONT>         * Configure the {@link SQLCommandList}. This is a required property.<a name="line.84"></a>
+<FONT color="green">085</FONT>         *<a name="line.85"></a>
+<FONT color="green">086</FONT>         * @see DatabaseAction<a name="line.86"></a>
+<FONT color="green">087</FONT>         */<a name="line.87"></a>
+<FONT color="green">088</FONT>        public void setSQLCommandList(SQLCommandList sqlCommandList) {<a name="line.88"></a>
+<FONT color="green">089</FONT>            this.sqlCommandList = sqlCommandList;<a name="line.89"></a>
+<FONT color="green">090</FONT>        }<a name="line.90"></a>
+<FONT color="green">091</FONT>    <a name="line.91"></a>
+<FONT color="green">092</FONT>        public SQLCommandList getSQLCommandList() {<a name="line.92"></a>
+<FONT color="green">093</FONT>            return this.sqlCommandList;<a name="line.93"></a>
+<FONT color="green">094</FONT>        }<a name="line.94"></a>
+<FONT color="green">095</FONT>    <a name="line.95"></a>
+<FONT color="green">096</FONT>        @Override<a name="line.96"></a>
+<FONT color="green">097</FONT>        public List&lt;DatabaseAction&lt;Connection&gt;&gt; getDatabaseActions() {<a name="line.97"></a>
+<FONT color="green">098</FONT>            return new ArrayList&lt;DatabaseAction&lt;Connection&gt;&gt;(this.getSQLCommandList().split());<a name="line.98"></a>
+<FONT color="green">099</FONT>        }<a name="line.99"></a>
+<FONT color="green">100</FONT>    }<a name="line.100"></a>
+<FONT color="green">101</FONT>    <a name="line.101"></a>
 
 
 

@@ -16,17 +16,21 @@
 <FONT color="green">013</FONT>    <a name="line.13"></a>
 <FONT color="green">014</FONT>    /**<a name="line.14"></a>
 <FONT color="green">015</FONT>     * {@link EdgeLister} implementation reflecting {@link SchemaUpdate} predecessor constraints.<a name="line.15"></a>
-<FONT color="green">016</FONT>     * Graph edges will exist from each update to its predecessors. Note, this is the reverse of the actual<a name="line.16"></a>
-<FONT color="green">017</FONT>     * desired ordering of the updates.<a name="line.17"></a>
-<FONT color="green">018</FONT>     */<a name="line.18"></a>
-<FONT color="green">019</FONT>    public class SchemaUpdateEdgeLister implements EdgeLister&lt;SchemaUpdate&gt; {<a name="line.19"></a>
-<FONT color="green">020</FONT>    <a name="line.20"></a>
-<FONT color="green">021</FONT>        @Override<a name="line.21"></a>
-<FONT color="green">022</FONT>        public Set&lt;SchemaUpdate&gt; getOutEdges(SchemaUpdate update) {<a name="line.22"></a>
-<FONT color="green">023</FONT>            return update.getRequiredPredecessors();<a name="line.23"></a>
-<FONT color="green">024</FONT>        }<a name="line.24"></a>
-<FONT color="green">025</FONT>    }<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">016</FONT>     *<a name="line.16"></a>
+<FONT color="green">017</FONT>     * &lt;p&gt;<a name="line.17"></a>
+<FONT color="green">018</FONT>     * Graph edges will exist from each update to its predecessors. Note, this is the reverse of the actual<a name="line.18"></a>
+<FONT color="green">019</FONT>     * desired ordering of the updates.<a name="line.19"></a>
+<FONT color="green">020</FONT>     *<a name="line.20"></a>
+<FONT color="green">021</FONT>     * @param &lt;C&gt; database connection type<a name="line.21"></a>
+<FONT color="green">022</FONT>     */<a name="line.22"></a>
+<FONT color="green">023</FONT>    public class SchemaUpdateEdgeLister&lt;C&gt; implements EdgeLister&lt;SchemaUpdate&lt;C&gt;&gt; {<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>        @Override<a name="line.25"></a>
+<FONT color="green">026</FONT>        public Set&lt;SchemaUpdate&lt;C&gt;&gt; getOutEdges(SchemaUpdate&lt;C&gt; update) {<a name="line.26"></a>
+<FONT color="green">027</FONT>            return update.getRequiredPredecessors();<a name="line.27"></a>
+<FONT color="green">028</FONT>        }<a name="line.28"></a>
+<FONT color="green">029</FONT>    }<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
 
 
 

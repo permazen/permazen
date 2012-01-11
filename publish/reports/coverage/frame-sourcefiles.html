@@ -18,7 +18,10 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.spring.AbstractBeanDefinitionParser.html">AbstractBeanDefinitionParser</a> <i>(71%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.AbstractSchemaUpdate.html">AbstractSchemaUpdate</a> <i>(92%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.AbstractSchemaUpdate.html">AbstractSchemaUpdate</a> <i>(91%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.AbstractSchemaUpdater.html">AbstractSchemaUpdater</a> <i>(92%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.AbstractSpringSchemaUpdate.html">AbstractSpringSchemaUpdate</a> <i>(86%)</i></td>
@@ -28,9 +31,6 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.validation.AbstractValidator.html">AbstractValidator</a> <i>(54%)</i></td>
-</tr>
-<tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.ActionUtils.html">ActionUtils</a> <i>(0%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.io.AsyncInputStream.html">AsyncInputStream</a> <i>(56%)</i></td>
@@ -84,6 +84,9 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.validation.EmailAddress.html">EmailAddress</a> <i>(N/A)</i></td>
 </tr>
 <tr>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.servlet.ExceptionLoggingFilter.html">ExceptionLoggingFilter</a> <i>(0%)</i></td>
+</tr>
+<tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.validation.HostOrIP.html">HostOrIP</a> <i>(N/A)</i></td>
 </tr>
 <tr>
@@ -93,7 +96,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.net.IPv4Util.html">IPv4Util</a> <i>(0%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.io.InputStreamReader.html">InputStreamReader</a> <i>(60%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.io.InputStreamReader.html">InputStreamReader</a> <i>(63%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.jibx.JiBXUtil.html">JiBXUtil</a> <i>(0%)</i></td>
@@ -109,9 +112,6 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.jibx.MapEntry.html">MapEntry</a> <i>(0%)</i></td>
-</tr>
-<tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.ModifiableSchemaUpdate.html">ModifiableSchemaUpdate</a> <i>(N/A)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.string.NamedArgumentFormatter.html">NamedArgumentFormatter</a> <i>(0%)</i></td>
@@ -132,7 +132,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.string.ParseContext.html">ParseContext</a> <i>(0%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.jibx.ParseUtil.html">ParseUtil</a> <i>(27%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.jibx.ParseUtil.html">ParseUtil</a> <i>(26%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.java.Predicate.html">Predicate</a> <i>(N/A)</i></td>
@@ -159,7 +159,13 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.spring.SQLBeanDefinitionParser.html">SQLBeanDefinitionParser</a> <i>(56%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SQLDatabaseAction.html">SQLDatabaseAction</a> <i>(72%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SQLCommand.html">SQLCommand</a> <i>(83%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SQLCommandList.html">SQLCommandList</a> <i>(70%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SQLSchemaUpdater.html">SQLSchemaUpdater</a> <i>(29%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.spring.SQLUpdateBeanDefinitionParser.html">SQLUpdateBeanDefinitionParser</a> <i>(95%)</i></td>
@@ -169,9 +175,6 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SchemaUpdateEdgeLister.html">SchemaUpdateEdgeLister</a> <i>(100%)</i></td>
-</tr>
-<tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SchemaUpdater.html">SchemaUpdater</a> <i>(71%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SchemaUpdatingDataSource.html">SchemaUpdatingDataSource</a> <i>(0%)</i></td>
@@ -192,6 +195,12 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.string.SimpleObjectParser.html">SimpleObjectParser</a> <i>(85%)</i></td>
 </tr>
 <tr>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.net.SocketAcceptor.html">SocketAcceptor</a> <i>(0%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.net.SocketHandler.html">SocketHandler</a> <i>(N/A)</i></td>
+</tr>
+<tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.validation.Sorted.html">Sorted</a> <i>(N/A)</i></td>
 </tr>
 <tr>
@@ -204,10 +213,10 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.jibx.SpringParseUtil.html">SpringParseUtil</a> <i>(0%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SpringSQLSchemaUpdate.html">SpringSQLSchemaUpdate</a> <i>(87%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SpringSQLSchemaUpdate.html">SpringSQLSchemaUpdate</a> <i>(88%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SpringSchemaUpdater.html">SpringSchemaUpdater</a> <i>(70%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.SpringSQLSchemaUpdater.html">SpringSQLSchemaUpdater</a> <i>(70%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.string.StringEncoder.html">StringEncoder</a> <i>(90%)</i></td>
@@ -220,12 +229,6 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.graph.TopologicalSorter.html">TopologicalSorter</a> <i>(95%)</i></td>
-</tr>
-<tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.TransactionalDatabaseAction.html">TransactionalDatabaseAction</a> <i>(85%)</i></td>
-</tr>
-<tr>
-<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.schema.UpdatingDataSource.html">UpdatingDataSource</a> <i>(0%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.vaadin.VaadinApplicationListener.html">VaadinApplicationListener</a> <i>(0%)</i></td>
@@ -244,6 +247,9 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.vaadin.VaadinConfigurableObject.html">VaadinConfigurableObject</a> <i>(N/A)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.validation.ValidationContext.html">ValidationContext</a> <i>(0%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.dellroad.stuff.Version.html">Version</a> <i>(0%)</i></td>

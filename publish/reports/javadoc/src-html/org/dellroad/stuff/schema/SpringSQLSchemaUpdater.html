@@ -1,0 +1,256 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.schema;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.sql.Connection;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.sql.SQLException;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.util.ArrayList;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import java.util.Comparator;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import java.util.HashMap;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import java.util.Map;<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    import org.springframework.beans.factory.BeanFactory;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import org.springframework.beans.factory.BeanFactoryAware;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import org.springframework.beans.factory.InitializingBean;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import org.springframework.beans.factory.ListableBeanFactory;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import org.springframework.dao.DataAccessException;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import org.springframework.jdbc.BadSqlGrammarException;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    /**<a name="line.25"></a>
+<FONT color="green">026</FONT>     * {@link SQLSchemaUpdater} optimized for use with Spring.<a name="line.26"></a>
+<FONT color="green">027</FONT>     * &lt;ul&gt;<a name="line.27"></a>
+<FONT color="green">028</FONT>     * &lt;li&gt;{@link #apply(Connection, DatabaseAction) apply()} is overridden so Spring {@link DataAccessException}s are thrown.&lt;/li&gt;<a name="line.28"></a>
+<FONT color="green">029</FONT>     * &lt;li&gt;{@link #indicatesUninitializedDatabase indicatesUninitializedDatabase()} is overridden to examine exceptions<a name="line.29"></a>
+<FONT color="green">030</FONT>     *  and more precisely using Spring's exception translation infrastructure to filter out false positives.&lt;/li&gt;<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;li&gt;{@link #getOrderingTieBreaker} is overridden to break ties by ordering updates in the same order<a name="line.31"></a>
+<FONT color="green">032</FONT>     *  as they are defined in the bean factory.&lt;/li&gt;<a name="line.32"></a>
+<FONT color="green">033</FONT>     * &lt;li&gt;This class implements {@link InitializingBean} and verifies all required properties are set.&lt;/li&gt;<a name="line.33"></a>
+<FONT color="green">034</FONT>     * &lt;li&gt;If no updates are {@linkplain #setUpdates explicitly configured}, then all {@link SpringSQLSchemaUpdate}s found<a name="line.34"></a>
+<FONT color="green">035</FONT>     *  in the containing bean factory are automatically configured.<a name="line.35"></a>
+<FONT color="green">036</FONT>     * &lt;/ul&gt;<a name="line.36"></a>
+<FONT color="green">037</FONT>     *<a name="line.37"></a>
+<FONT color="green">038</FONT>     * &lt;p&gt;<a name="line.38"></a>
+<FONT color="green">039</FONT>     * An example of how this class can be combined with custom XML to define an updater, all its updates,<a name="line.39"></a>
+<FONT color="green">040</FONT>     * and a {@link SchemaUpdatingDataSource} that automatically updates the database schema:<a name="line.40"></a>
+<FONT color="green">041</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.41"></a>
+<FONT color="green">042</FONT>     *  &amp;lt;beans xmlns="http://www.springframework.org/schema/beans"<a name="line.42"></a>
+<FONT color="green">043</FONT>     *    &lt;b&gt;xmlns:dellroad-stuff="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"&lt;/b&gt;<a name="line.43"></a>
+<FONT color="green">044</FONT>     *    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"<a name="line.44"></a>
+<FONT color="green">045</FONT>     *    xmlns:p="http://www.springframework.org/schema/p"<a name="line.45"></a>
+<FONT color="green">046</FONT>     *    xsi:schemaLocation="<a name="line.46"></a>
+<FONT color="green">047</FONT>     *      http://www.springframework.org/schema/beans<a name="line.47"></a>
+<FONT color="green">048</FONT>     *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd<a name="line.48"></a>
+<FONT color="green">049</FONT>     *      &lt;b&gt;http://dellroad-stuff.googlecode.com/schema/dellroad-stuff<a name="line.49"></a>
+<FONT color="green">050</FONT>     *        http://dellroad-stuff.googlecode.com/svn/wiki/schemas/dellroad-stuff-1.0.xsd&lt;/b&gt;"&amp;gt;<a name="line.50"></a>
+<FONT color="green">051</FONT>     *<a name="line.51"></a>
+<FONT color="green">052</FONT>     *     &amp;lt;!-- DataSource that automatically updates the database schema --&amp;gt;<a name="line.52"></a>
+<FONT color="green">053</FONT>     *     &lt;b&gt;&amp;lt;bean id="dataSource" class="org.dellroad.stuff.schema.SchemaUpdatingDataSource"<a name="line.53"></a>
+<FONT color="green">054</FONT>     *       p:dataSource-ref="realDataSource" p:schemaUpdater-ref="schemaUpdater"/&amp;gt;&lt;/b&gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>     *<a name="line.55"></a>
+<FONT color="green">056</FONT>     *     &amp;lt;!--<a name="line.56"></a>
+<FONT color="green">057</FONT>     *          Database updater bean. This is used on first access to the DataSource above. Notes:<a name="line.57"></a>
+<FONT color="green">058</FONT>     *            - "databaseInitialization" is used to initialize the schema (first time only)<a name="line.58"></a>
+<FONT color="green">059</FONT>     *            - "updateTableInitialization" is used to initialize the update table (first time only)<a name="line.59"></a>
+<FONT color="green">060</FONT>     *            - In this example, we just use dellroad-stuff's update table initialization for MySQL<a name="line.60"></a>
+<FONT color="green">061</FONT>     *            - The &amp;lt;dellroad-stuff:sql-update&amp;gt; beans below will be auto-detected<a name="line.61"></a>
+<FONT color="green">062</FONT>     *     --&amp;gt;<a name="line.62"></a>
+<FONT color="green">063</FONT>     *     &lt;b&gt;&amp;lt;bean id="schemaUpdater" class="org.dellroad.stuff.schema.SpringSQLSchemaUpdater"&amp;gt;<a name="line.63"></a>
+<FONT color="green">064</FONT>     *         &amp;lt;property name="databaseInitialization"&amp;gt;<a name="line.64"></a>
+<FONT color="green">065</FONT>     *             &amp;lt;dellroad-stuff:sql resource="classpath:databaseInit.sql"/&amp;gt;<a name="line.65"></a>
+<FONT color="green">066</FONT>     *         &amp;lt;/property&amp;gt;<a name="line.66"></a>
+<FONT color="green">067</FONT>     *         &amp;lt;property name="updateTableInitialization"&amp;gt;<a name="line.67"></a>
+<FONT color="green">068</FONT>     *             &amp;lt;dellroad-stuff:sql resource="classpath:org/dellroad/stuff/schema/updateTable-mysql.sql"/&amp;gt;<a name="line.68"></a>
+<FONT color="green">069</FONT>     *         &amp;lt;/property&amp;gt;<a name="line.69"></a>
+<FONT color="green">070</FONT>     *     &amp;lt;/bean&amp;gt;&lt;/b&gt;<a name="line.70"></a>
+<FONT color="green">071</FONT>     *<a name="line.71"></a>
+<FONT color="green">072</FONT>     *      &amp;lt;!-- Schema update to add the 'phone' column to the 'User' table --&amp;gt;<a name="line.72"></a>
+<FONT color="green">073</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql-update id="addPhone"&amp;gt;ALTER TABLE User ADD phone VARCHAR(64)&amp;lt;/dellroad-stuff:sql-update&amp;gt;&lt;/b&gt;<a name="line.73"></a>
+<FONT color="green">074</FONT>     *<a name="line.74"></a>
+<FONT color="green">075</FONT>     *      &amp;lt;!-- Schema update to run some complicated external SQL script --&amp;gt;<a name="line.75"></a>
+<FONT color="green">076</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql-update id="majorChanges" depends-on="addPhone" resource="classpath:majorChanges.sql"/&amp;gt;&lt;/b&gt;<a name="line.76"></a>
+<FONT color="green">077</FONT>     *<a name="line.77"></a>
+<FONT color="green">078</FONT>     *      &amp;lt;!-- Multiple SQL commands that will be automatically separated into distinct updates --&amp;gt;<a name="line.78"></a>
+<FONT color="green">079</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql-update id="renameColumn"&amp;gt;<a name="line.79"></a>
+<FONT color="green">080</FONT>     *          ALTER TABLE User ADD newName VARCHAR(64);<a name="line.80"></a>
+<FONT color="green">081</FONT>     *          ALTER TABLE User SET newName = oldName;<a name="line.81"></a>
+<FONT color="green">082</FONT>     *          ALTER TABLE User DROP oldName;<a name="line.82"></a>
+<FONT color="green">083</FONT>     *      &amp;lt;/dellroad-stuff:sql-update&amp;gt;&lt;/b&gt;<a name="line.83"></a>
+<FONT color="green">084</FONT>     *<a name="line.84"></a>
+<FONT color="green">085</FONT>     *      &amp;lt;!-- Add more schema updates over time as needed and everything just works... --&amp;gt;<a name="line.85"></a>
+<FONT color="green">086</FONT>     *<a name="line.86"></a>
+<FONT color="green">087</FONT>     *  &amp;lt;/beans&amp;gt;<a name="line.87"></a>
+<FONT color="green">088</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.88"></a>
+<FONT color="green">089</FONT>     *<a name="line.89"></a>
+<FONT color="green">090</FONT>     * &lt;p&gt;<a name="line.90"></a>
+<FONT color="green">091</FONT>     * It is required that this updater and all of its schema updates are defined in the same {@link ListableBeanFactory}.<a name="line.91"></a>
+<FONT color="green">092</FONT>     */<a name="line.92"></a>
+<FONT color="green">093</FONT>    public class SpringSQLSchemaUpdater extends SQLSchemaUpdater implements BeanFactoryAware, InitializingBean {<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>        private ListableBeanFactory beanFactory;<a name="line.95"></a>
+<FONT color="green">096</FONT>    <a name="line.96"></a>
+<FONT color="green">097</FONT>        @Override<a name="line.97"></a>
+<FONT color="green">098</FONT>        public void afterPropertiesSet() throws Exception {<a name="line.98"></a>
+<FONT color="green">099</FONT>            if (this.beanFactory == null)<a name="line.99"></a>
+<FONT color="green">100</FONT>                throw new Exception("no bean factory configured");<a name="line.100"></a>
+<FONT color="green">101</FONT>            if (this.getDatabaseInitialization() == null)<a name="line.101"></a>
+<FONT color="green">102</FONT>                throw new Exception("no database initialization configured");<a name="line.102"></a>
+<FONT color="green">103</FONT>            if (this.getUpdateTableInitialization() == null)<a name="line.103"></a>
+<FONT color="green">104</FONT>                throw new Exception("no update table initialization configured");<a name="line.104"></a>
+<FONT color="green">105</FONT>            if (this.getUpdates() == null) {<a name="line.105"></a>
+<FONT color="green">106</FONT>                this.setUpdates(new ArrayList&lt;SchemaUpdate&lt;Connection&gt;&gt;(<a name="line.106"></a>
+<FONT color="green">107</FONT>                  this.beanFactory.getBeansOfType(SpringSQLSchemaUpdate.class).values()));<a name="line.107"></a>
+<FONT color="green">108</FONT>            }<a name="line.108"></a>
+<FONT color="green">109</FONT>        }<a name="line.109"></a>
+<FONT color="green">110</FONT>    <a name="line.110"></a>
+<FONT color="green">111</FONT>        @Override<a name="line.111"></a>
+<FONT color="green">112</FONT>        public void setBeanFactory(BeanFactory beanFactory) {<a name="line.112"></a>
+<FONT color="green">113</FONT>            if (!(beanFactory instanceof ListableBeanFactory))<a name="line.113"></a>
+<FONT color="green">114</FONT>                throw new IllegalArgumentException("containing BeanFactory is not a ListableBeanFactory: " + beanFactory);<a name="line.114"></a>
+<FONT color="green">115</FONT>            this.beanFactory = (ListableBeanFactory)beanFactory;<a name="line.115"></a>
+<FONT color="green">116</FONT>        }<a name="line.116"></a>
+<FONT color="green">117</FONT>    <a name="line.117"></a>
+<FONT color="green">118</FONT>    <a name="line.118"></a>
+<FONT color="green">119</FONT>        /**<a name="line.119"></a>
+<FONT color="green">120</FONT>         * Determine if an exception thrown during {@link #databaseNeedsInitialization} is consistent with<a name="line.120"></a>
+<FONT color="green">121</FONT>         * an uninitialized database.<a name="line.121"></a>
+<FONT color="green">122</FONT>         *<a name="line.122"></a>
+<FONT color="green">123</FONT>         * &lt;p&gt;<a name="line.123"></a>
+<FONT color="green">124</FONT>         * The implementation in {@link SpringSQLSchemaUpdater} looks for a {@link BadSqlGrammarException}.<a name="line.124"></a>
+<FONT color="green">125</FONT>         */<a name="line.125"></a>
+<FONT color="green">126</FONT>        @Override<a name="line.126"></a>
+<FONT color="green">127</FONT>        protected boolean indicatesUninitializedDatabase(Connection c, SQLException e) throws SQLException {<a name="line.127"></a>
+<FONT color="green">128</FONT>            return this.translate(e, c, null) instanceof BadSqlGrammarException;<a name="line.128"></a>
+<FONT color="green">129</FONT>        }<a name="line.129"></a>
+<FONT color="green">130</FONT>    <a name="line.130"></a>
+<FONT color="green">131</FONT>        /**<a name="line.131"></a>
+<FONT color="green">132</FONT>         * Apply a {@link DatabaseAction} to a {@link Connection}.<a name="line.132"></a>
+<FONT color="green">133</FONT>         *<a name="line.133"></a>
+<FONT color="green">134</FONT>         * &lt;p&gt;<a name="line.134"></a>
+<FONT color="green">135</FONT>         * The implementation in {@link SQLSchemaUpdater} invokes the action and delegates to<a name="line.135"></a>
+<FONT color="green">136</FONT>         * {@link #translate(SQLException, Connection, String) translate()} to convert any {@link SQLException} thrown.<a name="line.136"></a>
+<FONT color="green">137</FONT>         *<a name="line.137"></a>
+<FONT color="green">138</FONT>         * @throws SQLException if an error occurs attempting to translate a thrown SQLException<a name="line.138"></a>
+<FONT color="green">139</FONT>         * @throws DataAccessException if an error occurs accessing the database<a name="line.139"></a>
+<FONT color="green">140</FONT>         * @see #translate(SQLException, Connection, String) translate()<a name="line.140"></a>
+<FONT color="green">141</FONT>         */<a name="line.141"></a>
+<FONT color="green">142</FONT>        @Override<a name="line.142"></a>
+<FONT color="green">143</FONT>        protected void apply(Connection c, DatabaseAction&lt;Connection&gt; action) throws SQLException {<a name="line.143"></a>
+<FONT color="green">144</FONT>            try {<a name="line.144"></a>
+<FONT color="green">145</FONT>                super.apply(c, action);<a name="line.145"></a>
+<FONT color="green">146</FONT>            } catch (SQLException e) {<a name="line.146"></a>
+<FONT color="green">147</FONT>                String sql = action instanceof SQLCommand ? ((SQLCommand)action).getSQL() : null;<a name="line.147"></a>
+<FONT color="green">148</FONT>                throw this.translate(e, c, sql);<a name="line.148"></a>
+<FONT color="green">149</FONT>            }<a name="line.149"></a>
+<FONT color="green">150</FONT>        }<a name="line.150"></a>
+<FONT color="green">151</FONT>    <a name="line.151"></a>
+<FONT color="green">152</FONT>        /**<a name="line.152"></a>
+<FONT color="green">153</FONT>         * Converts {@link SQLException}s into Spring {@link DataAccessException}s.<a name="line.153"></a>
+<FONT color="green">154</FONT>         */<a name="line.154"></a>
+<FONT color="green">155</FONT>        protected DataAccessException translate(SQLException e, Connection c, String sql) throws SQLException {<a name="line.155"></a>
+<FONT color="green">156</FONT>            return new SQLErrorCodeSQLExceptionTranslator(c.getMetaData().getDatabaseProductName())<a name="line.156"></a>
+<FONT color="green">157</FONT>              .translate("database access during schema update", sql, e);<a name="line.157"></a>
+<FONT color="green">158</FONT>        }<a name="line.158"></a>
+<FONT color="green">159</FONT>    <a name="line.159"></a>
+<FONT color="green">160</FONT>        /**<a name="line.160"></a>
+<FONT color="green">161</FONT>         * Get the preferred ordering of two updates that do not have any predecessor constraints<a name="line.161"></a>
+<FONT color="green">162</FONT>         * (including implied indirect constraints) between them.<a name="line.162"></a>
+<FONT color="green">163</FONT>         *<a name="line.163"></a>
+<FONT color="green">164</FONT>         * &lt;p&gt;<a name="line.164"></a>
+<FONT color="green">165</FONT>         * The {@link Comparator} returned by the implementation in {@link SpringSQLSchemaUpdater} sorts<a name="line.165"></a>
+<FONT color="green">166</FONT>         * updates in the same order that they appear in the {@link BeanFactory}.<a name="line.166"></a>
+<FONT color="green">167</FONT>         */<a name="line.167"></a>
+<FONT color="green">168</FONT>        @Override<a name="line.168"></a>
+<FONT color="green">169</FONT>        protected Comparator&lt;SchemaUpdate&lt;Connection&gt;&gt; getOrderingTieBreaker() {<a name="line.169"></a>
+<FONT color="green">170</FONT>            String[] beanNames = this.beanFactory.getBeanDefinitionNames();<a name="line.170"></a>
+<FONT color="green">171</FONT>            final Map&lt;String, Integer&gt; sort = new HashMap&lt;String, Integer&gt;(beanNames.length);<a name="line.171"></a>
+<FONT color="green">172</FONT>            for (int i = 0; i &lt; beanNames.length; i++)<a name="line.172"></a>
+<FONT color="green">173</FONT>                sort.put(beanNames[i], i);<a name="line.173"></a>
+<FONT color="green">174</FONT>            return new Comparator&lt;SchemaUpdate&lt;Connection&gt;&gt;() {<a name="line.174"></a>
+<FONT color="green">175</FONT>                @Override<a name="line.175"></a>
+<FONT color="green">176</FONT>                public int compare(SchemaUpdate&lt;Connection&gt; update1, SchemaUpdate&lt;Connection&gt; update2) {<a name="line.176"></a>
+<FONT color="green">177</FONT>                    String[] names = new String[] { update1.getName(), update2.getName() };<a name="line.177"></a>
+<FONT color="green">178</FONT>                    Integer[] indexes = new Integer[] { sort.get(update1.getName()), sort.get(update2.getName()) };<a name="line.178"></a>
+<FONT color="green">179</FONT>                    for (int i = 0; i &lt; 2; i++) {<a name="line.179"></a>
+<FONT color="green">180</FONT>                        if (indexes[i] == null) {<a name="line.180"></a>
+<FONT color="green">181</FONT>                            throw new IllegalArgumentException("failed to find update `" + names[i]<a name="line.181"></a>
+<FONT color="green">182</FONT>                              + "' in bean factory " + SpringSQLSchemaUpdater.this.beanFactory);<a name="line.182"></a>
+<FONT color="green">183</FONT>                        }<a name="line.183"></a>
+<FONT color="green">184</FONT>                    }<a name="line.184"></a>
+<FONT color="green">185</FONT>                    return indexes[0] - indexes[1];<a name="line.185"></a>
+<FONT color="green">186</FONT>                };<a name="line.186"></a>
+<FONT color="green">187</FONT>            };<a name="line.187"></a>
+<FONT color="green">188</FONT>        }<a name="line.188"></a>
+<FONT color="green">189</FONT>    }<a name="line.189"></a>
+<FONT color="green">190</FONT>    <a name="line.190"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
