@@ -18,12 +18,12 @@ import org.dellroad.stuff.graph.TopologicalSorter.EdgeLister;
  * Graph edges will exist from each update to its predecessors. Note, this is the reverse of the actual
  * desired ordering of the updates.
  *
- * @param <C> database connection type
+ * @param <T> database transaction type
  */
-public class SchemaUpdateEdgeLister<C> implements EdgeLister<SchemaUpdate<C>> {
+public class SchemaUpdateEdgeLister<T> implements EdgeLister<SchemaUpdate<T>> {
 
     @Override
-    public Set<SchemaUpdate<C>> getOutEdges(SchemaUpdate<C> update) {
+    public Set<SchemaUpdate<T>> getOutEdges(SchemaUpdate<T> update) {
         return update.getRequiredPredecessors();
     }
 }

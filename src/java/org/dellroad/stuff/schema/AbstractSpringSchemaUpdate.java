@@ -35,9 +35,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
  * <p>
  * The containing {@link BeanFactory} must be a {@link ConfigurableBeanFactory} (normally this is always the case).
  *
- * @param <C> database connection type
+ * @param <T> database transaction type
  */
-public abstract class AbstractSpringSchemaUpdate<C> extends AbstractSchemaUpdate<C>
+public abstract class AbstractSpringSchemaUpdate<T> extends AbstractSchemaUpdate<T>
   implements BeanNameAware, BeanFactoryAware, InitializingBean {
 
     protected String beanName;
@@ -79,10 +79,10 @@ public abstract class AbstractSpringSchemaUpdate<C> extends AbstractSchemaUpdate
 
         // Find required predecessors defined as Spring dependencies
         String[] predecessorNames = configurableBeanFactory.getDependenciesForBean(this.beanName);
-        HashSet<SchemaUpdate<C>> predecessors = new HashSet<SchemaUpdate<C>>(predecessorNames.length);
+        HashSet<SchemaUpdate<T>> predecessors = new HashSet<SchemaUpdate<T>>(predecessorNames.length);
         for (String predecessorName : predecessorNames) {
             try {
-                predecessors.add((SchemaUpdate<C>)configurableBeanFactory.getBean(predecessorName, SchemaUpdate.class));
+                predecessors.add((SchemaUpdate<T>)configurableBeanFactory.getBean(predecessorName, SchemaUpdate.class));
             } catch (NoSuchBeanDefinitionException e) {
                 continue;
             } catch (BeanNotOfRequiredTypeException e) {

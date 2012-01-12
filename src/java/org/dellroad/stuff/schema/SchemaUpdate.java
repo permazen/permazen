@@ -33,9 +33,9 @@ import java.util.Set;
  * same state that the new version of the update would have left them.
  * </p>
  *
- * @param <C> database connection type
+ * @param <T> database transaction type
  */
-public interface SchemaUpdate<C> {
+public interface SchemaUpdate<T> {
 
     /**
      * Get the unique name of this update. This name must be unique among all updates ever applied to the database
@@ -51,7 +51,7 @@ public interface SchemaUpdate<C> {
      * @return set of zero or more other updates
      * @see #getName
      */
-    Set<SchemaUpdate<C>> getRequiredPredecessors();
+    Set<SchemaUpdate<T>> getRequiredPredecessors();
 
     /**
      * Get the action(s) that comprise this update. Ideally, individual actions should be atomic database operations, i.e.,
@@ -62,7 +62,7 @@ public interface SchemaUpdate<C> {
      * @return a list of zero or more actions to apply
      * @see #isSingleAction
      */
-    List<DatabaseAction<C>> getDatabaseActions();
+    List<DatabaseAction<T>> getDatabaseActions();
 
     /**
      * Determine whether, if this instance contains multiple individual actions, should they be applied in a single

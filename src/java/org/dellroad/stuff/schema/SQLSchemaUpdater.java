@@ -204,7 +204,7 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
     }
 
     @Override
-    protected void apply(final Connection c, final DatabaseAction<Connection> action) throws SQLException {
+    protected void apply(Connection c, DatabaseAction<Connection> action) throws SQLException {
         try {
             super.apply(c, action);
         } catch (SQLException e) {
@@ -243,48 +243,21 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
     }
 
     /**
-     * Open a connection to the database.
-     *
-     * <p>
-     * The implementation in {@link SQLSchemaUpdater} just invokes {@link DataSource#getConnection}.
-     *
-     * @param database the database
-     * @throws SQLException if an error occurs while accessing the database
-     */
-    @Override
-    protected Connection openConnection(DataSource database) throws SQLException {
-        return database.getConnection();
-    }
-
-    /**
-     * Close a connection to the database.
-     *
-     * <p>
-     * The implementation in {@link SQLSchemaUpdater} just invokes {@link Connection#close}.
-     *
-     * @param c the connection to close
-     * @throws SQLException if an error occurs while accessing the database
-     */
-    @Override
-    protected void closeConnection(Connection c) throws SQLException {
-        c.close();
-    }
-
-    /**
      * Begin a transaction on the given connection.
      *
      * <p>
      * The implementation in {@link SQLSchemaUpdater} creates a serializable-level transaction.
      *
-     * @param c the connection on which to open the transaction
-     * @return transaction handle
+     * @param dataSource the database on which to open the transaction
+     * @return new {@link Connection} with an open transaction
      * @throws SQLException if an error occurs while accessing the database
      */
     @Override
-    protected Object openTransaction(Connection c) throws SQLException {
+    protected Connection openTransaction(DataSource dataSource) throws SQLException {
+        Connection c = dataSource.getConnection();
         c.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
         c.setAutoCommit(false);
-        return null;
+        return c;
     }
 
     /**
@@ -294,12 +267,12 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
      * The implementation in {@link SQLSchemaUpdater} just invokes {@link Connection#commit}.
      *
      * @param c the connection on which to commit the transaction
-     * @param handle transaction handle returned from {@link #openTransaction openTransaction()}.
      * @throws SQLException if an error occurs while accessing the database
      */
     @Override
-    protected void commitTransaction(Connection c, Object handle) throws SQLException {
+    protected void commitTransaction(Connection c) throws SQLException {
         c.commit();
+        c.close();
     }
 
     /**
@@ -310,12 +283,12 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
      * The implementation in {@link SQLSchemaUpdater} just invokes {@link Connection#rollback}.
      *
      * @param c the connection on which to roll back the transaction
-     * @param handle transaction handle returned from {@link #openTransaction openTransaction()}.
      * @throws SQLException if an error occurs while accessing the database
      */
     @Override
-    protected void rollbackTransaction(Connection c, Object handle) throws SQLException {
+    protected void rollbackTransaction(Connection c) throws SQLException {
         c.rollback();
+        c.close();
     }
 
     /**
@@ -388,19 +361,19 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
      * </p>
      *
      * @param c SQL connection
-     * @param name update name
+     * @param updateName update name
      * @throws IllegalStateException if the update has already been recorded in the database
      * @throws SQLException if an error occurs while accessing the database
      */
     @Override
-    protected void recordUpdateApplied(Connection c, final String name) throws SQLException {
+    protected void recordUpdateApplied(Connection c, final String updateName) throws SQLException {
         this.apply(c, new SQLCommand("INSERT INTO " + this.getUpdateTableName()
           + " (" + this.getUpdateTableNameColumn() + ", " + this.getUpdateTableTimeColumn() + ") VALUES (?, ?)") {
             @Override
             public void apply(Connection c) throws SQLException {
                 PreparedStatement s = c.prepareStatement(this.getSQL());
                 try {
-                    s.setString(1, name);
+                    s.setString(1, updateName);
                     s.setDate(2, new java.sql.Date(new Date().getTime()));
                     int rows = s.executeUpdate();
                     if (rows != 1)

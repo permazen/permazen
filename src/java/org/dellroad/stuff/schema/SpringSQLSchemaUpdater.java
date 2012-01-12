@@ -11,9 +11,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
+import org.dellroad.stuff.spring.BeanNameComparator;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
@@ -167,23 +166,12 @@ public class SpringSQLSchemaUpdater extends SQLSchemaUpdater implements BeanFact
      */
     @Override
     protected Comparator<SchemaUpdate<Connection>> getOrderingTieBreaker() {
-        String[] beanNames = this.beanFactory.getBeanDefinitionNames();
-        final Map<String, Integer> sort = new HashMap<String, Integer>(beanNames.length);
-        for (int i = 0; i < beanNames.length; i++)
-            sort.put(beanNames[i], i);
+        final BeanNameComparator beanNameComparator = new BeanNameComparator(this.beanFactory);
         return new Comparator<SchemaUpdate<Connection>>() {
             @Override
             public int compare(SchemaUpdate<Connection> update1, SchemaUpdate<Connection> update2) {
-                String[] names = new String[] { update1.getName(), update2.getName() };
-                Integer[] indexes = new Integer[] { sort.get(update1.getName()), sort.get(update2.getName()) };
-                for (int i = 0; i < 2; i++) {
-                    if (indexes[i] == null) {
-                        throw new IllegalArgumentException("failed to find update `" + names[i]
-                          + "' in bean factory " + SpringSQLSchemaUpdater.this.beanFactory);
-                    }
-                }
-                return indexes[0] - indexes[1];
-            };
+                return beanNameComparator.compare(update1.getName(), update2.getName());
+            }
         };
     }
 }

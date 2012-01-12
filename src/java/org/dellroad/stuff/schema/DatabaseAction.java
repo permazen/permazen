@@ -10,16 +10,16 @@ package org.dellroad.stuff.schema;
 /**
  * Database action interface.
  *
- * @param <C> database connection type
+ * @param <T> database transaction type
  */
-public interface DatabaseAction<C> {
+public interface DatabaseAction<T> {
 
     /**
-     * Apply this action to the database via the provided connection.
+     * Apply this action to the database using the provided open transaction.
      *
-     * @param connection connection to the database
+     * @param transaction open transaction
      * @throws Exception if the action fails
      */
-    void apply(C connection) throws Exception;
+    void apply(T transaction) throws Exception;
 }
 

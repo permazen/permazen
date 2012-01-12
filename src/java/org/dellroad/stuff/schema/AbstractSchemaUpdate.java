@@ -13,12 +13,12 @@ import java.util.Set;
 /**
  * Support superclass for {@link SchemaUpdate} implementations with standard bean property implementations.
  *
- * @param <C> database connection type
+ * @param <T> database transaction type
  */
-public abstract class AbstractSchemaUpdate<C> implements SchemaUpdate<C> {
+public abstract class AbstractSchemaUpdate<T> implements SchemaUpdate<T> {
 
     private String name;
-    private Set<SchemaUpdate<C>> requiredPredecessors = new HashSet<SchemaUpdate<C>>();
+    private Set<SchemaUpdate<T>> requiredPredecessors = new HashSet<SchemaUpdate<T>>();
     private boolean singleAction;
 
     @Override
@@ -31,11 +31,11 @@ public abstract class AbstractSchemaUpdate<C> implements SchemaUpdate<C> {
     }
 
     @Override
-    public Set<SchemaUpdate<C>> getRequiredPredecessors() {
+    public Set<SchemaUpdate<T>> getRequiredPredecessors() {
         return this.requiredPredecessors;
     }
 
-    public void setRequiredPredecessors(Set<SchemaUpdate<C>> requiredPredecessors) {
+    public void setRequiredPredecessors(Set<SchemaUpdate<T>> requiredPredecessors) {
         this.requiredPredecessors = requiredPredecessors;
     }
 
