@@ -114,7 +114,6 @@ public class SpringSQLSchemaUpdater extends SQLSchemaUpdater implements BeanFact
         this.beanFactory = (ListableBeanFactory)beanFactory;
     }
 
-
     /**
      * Determine if an exception thrown during {@link #databaseNeedsInitialization} is consistent with
      * an uninitialized database.
