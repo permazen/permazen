@@ -62,7 +62,7 @@ public interface SchemaUpdate<T> {
      * @return a list of zero or more actions to apply
      * @see #isSingleAction
      */
-    List<DatabaseAction<T>> getDatabaseActions();
+    List<? extends DatabaseAction<T>> getDatabaseActions();
 
     /**
      * Determine whether, if this instance contains multiple individual actions, should they be applied in a single

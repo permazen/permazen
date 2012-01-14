@@ -52,7 +52,7 @@ public abstract class AbstractSchemaUpdater<D, T> {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private Collection<SchemaUpdate<T>> updates;
+    private Collection<? extends SchemaUpdate<T>> updates;
     private boolean ignoreUnrecognizedUpdates;
 
     /**
@@ -61,7 +61,7 @@ public abstract class AbstractSchemaUpdater<D, T> {
      * @return configured updates
      * @see #setUpdates setUpdates()
      */
-    public Collection<SchemaUpdate<T>> getUpdates() {
+    public Collection<? extends SchemaUpdate<T>> getUpdates() {
         return this.updates;
     }
 
@@ -83,7 +83,7 @@ public abstract class AbstractSchemaUpdater<D, T> {
      * @see #getUpdates
      * @see #setIgnoreUnrecognizedUpdates
      */
-    public void setUpdates(Collection<SchemaUpdate<T>> updates) {
+    public void setUpdates(Collection<? extends SchemaUpdate<T>> updates) {
         this.updates = updates;
     }
 
@@ -452,7 +452,7 @@ public abstract class AbstractSchemaUpdater<D, T> {
         }
 
         @Override
-        protected void handleSingleMultiUpdate(T transaction, final List<DatabaseAction<T>> actions)
+        protected void handleSingleMultiUpdate(T transaction, final List<? extends DatabaseAction<T>> actions)
           throws Exception {
             assert this.remainingUpdateNames.contains(this.update.getName());
             AbstractSchemaUpdater.this.applyAndRecordUpdate(transaction, this.update.getName(), new DatabaseAction<T>() {
@@ -478,7 +478,7 @@ public abstract class AbstractSchemaUpdater<D, T> {
 
         protected final SchemaUpdate<T> update;
 
-        private final List<DatabaseAction<T>> actions;
+        private final List<? extends DatabaseAction<T>> actions;
 
         public UpdateHandler(SchemaUpdate<T> update) {
             this.update = update;
@@ -513,7 +513,7 @@ public abstract class AbstractSchemaUpdater<D, T> {
         protected void handleSingleUpdate(T transaction, DatabaseAction<T> action) throws Exception {
         }
 
-        protected void handleSingleMultiUpdate(T transaction, List<DatabaseAction<T>> actions) throws Exception {
+        protected void handleSingleMultiUpdate(T transaction, List<? extends DatabaseAction<T>> actions) throws Exception {
             this.handleSingleUpdate(transaction, null);
         }
 

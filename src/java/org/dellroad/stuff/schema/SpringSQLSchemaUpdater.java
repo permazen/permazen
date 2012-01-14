@@ -9,7 +9,6 @@ package org.dellroad.stuff.schema;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Comparator;
 
 import org.dellroad.stuff.spring.BeanNameComparator;
@@ -87,7 +86,8 @@ import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
  * </pre></blockquote>
  *
  * <p>
- * It is required that this updater and all of its schema updates are defined in the same {@link ListableBeanFactory}.
+ * In the case no schema updates are explicitly configured, it is required that this updater and all of its
+ * schema updates are defined in the same {@link ListableBeanFactory}.
  */
 public class SpringSQLSchemaUpdater extends SQLSchemaUpdater implements BeanFactoryAware, InitializingBean {
 
@@ -95,23 +95,23 @@ public class SpringSQLSchemaUpdater extends SQLSchemaUpdater implements BeanFact
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (this.beanFactory == null)
-            throw new Exception("no bean factory configured");
         if (this.getDatabaseInitialization() == null)
             throw new Exception("no database initialization configured");
         if (this.getUpdateTableInitialization() == null)
             throw new Exception("no update table initialization configured");
         if (this.getUpdates() == null) {
-            this.setUpdates(new ArrayList<SchemaUpdate<Connection>>(
-              this.beanFactory.getBeansOfType(SpringSQLSchemaUpdate.class).values()));
+            if (this.beanFactory == null) {
+                throw new IllegalArgumentException("no updates explicitly configured and the containing BeanFactory"
+                  + " is not a ListableBeanFactory: " + this.beanFactory);
+            }
+            this.setUpdates(this.beanFactory.getBeansOfType(SpringSQLSchemaUpdate.class).values());
         }
     }
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
-        if (!(beanFactory instanceof ListableBeanFactory))
-            throw new IllegalArgumentException("containing BeanFactory is not a ListableBeanFactory: " + beanFactory);
-        this.beanFactory = (ListableBeanFactory)beanFactory;
+        if (beanFactory instanceof ListableBeanFactory)
+            this.beanFactory = (ListableBeanFactory)beanFactory;
     }
 
     /**
@@ -160,11 +160,15 @@ public class SpringSQLSchemaUpdater extends SQLSchemaUpdater implements BeanFact
      * (including implied indirect constraints) between them.
      *
      * <p>
-     * The {@link Comparator} returned by the implementation in {@link SpringSQLSchemaUpdater} sorts
-     * updates in the same order that they appear in the {@link BeanFactory}.
+     * In the case no schema updates are explicitly configured, the {@link Comparator} returned by the
+     * implementation in {@link SpringSQLSchemaUpdater} sorts updates in the same order that they appear
+     * in the containing {@link ListableBeanFactory}. Otherwise, the {@linkplain AbstractSchemaUpdater#getOrderingTieBreaker
+     * superclass method} is used.
      */
     @Override
     protected Comparator<SchemaUpdate<Connection>> getOrderingTieBreaker() {
+        if (this.beanFactory == null)
+            return super.getOrderingTieBreaker();
         final BeanNameComparator beanNameComparator = new BeanNameComparator(this.beanFactory);
         return new Comparator<SchemaUpdate<Connection>>() {
             @Override
