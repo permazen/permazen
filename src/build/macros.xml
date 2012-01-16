@@ -4,6 +4,7 @@
   xmlns:antcontrib="urn:net.sf.antcontrib"
   xmlns:dellroad="urn:org.dellroad.ant"
   xmlns:ivy="urn:org.apache.ivy.ant"
+  xmlns:jibx="urn:net.sourceforge.jibx"
   xmlns:testng="urn:org.testng"
   xmlns:cobertura="urn:net.sf.cobertura"
   xmlns:findbugs="urn:edu.umd.cs.findbugs"
@@ -384,6 +385,32 @@
                 <arg value="build/schemacheck/1.sql"/>
                 <arg value="build/schemacheck/2.sql"/>
             </exec>
+        </sequential>
+    </macrodef>
+
+    <!--
+        JiBX binding for a single JiBX binding unit
+
+        Requires:
+            path "jibx-bind.classpath"
+    -->
+    <macrodef uri="urn:org.dellroad.ant" name="jibx-bind">
+        <attribute name="name" default="classes" description="Name of what we're binding"/>
+        <element name="classes" description="Path(s) for target classes to bind"/>
+        <element name="bindings" description="Fileset includes for binding files"/>
+        <sequential>
+            <taskdef uri="urn:net.sourceforge.jibx" name="bind"
+              classname="org.jibx.binding.ant.CompileTask" classpathref="jibx-bind.classpath"/>
+            <echo message="performing JiBX binding for @{name}"/>
+            <jibx:bind verbose="false" load="true">
+                <classpath>
+                    <classes/>
+                    <path refid="jibx-bind.classpath"/>
+                </classpath>
+                <bindingfileset dir="${basedir}">
+                    <bindings/>
+                </bindingfileset>
+            </jibx:bind> 
         </sequential>
     </macrodef>
 
