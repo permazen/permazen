@@ -178,6 +178,14 @@ public abstract class AbstractSchemaUpdater<D, T> {
     }
 
     /**
+     * Determine if the given schema update name is valid. Valid names are non-empty and
+     * have no leading or trailing whitespace.
+     */
+    public static boolean isValidUpdateName(String updateName) {
+        return updateName.length() > 0 && updateName.trim().length() == updateName.length();
+    }
+
+    /**
      * Determine if the database needs initialization.
      *
      * <p>
@@ -326,6 +334,8 @@ public abstract class AbstractSchemaUpdater<D, T> {
         TreeMap<String, SchemaUpdate<T>> updateMap = new TreeMap<String, SchemaUpdate<T>>();
         for (SchemaUpdate<T> update : allUpdates) {
             for (String updateName : this.getUpdateNames(update)) {
+                if (!isValidUpdateName(updateName))
+                    throw new IllegalArgumentException("illegal schema update name `" + updateName + "'");
                 if (updateMap.put(updateName, update) != null)
                     throw new IllegalArgumentException("duplicate schema update name `" + updateName + "'");
             }
