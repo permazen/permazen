@@ -1,6 +1,7 @@
 
 Version Next
 
+    - Added PersistentObject classes
     - Relax requirement for ListableBeanFactory in SpringSQLSchemaUpdater
 
 Version 1.0.207 Released Jan 10, 2012

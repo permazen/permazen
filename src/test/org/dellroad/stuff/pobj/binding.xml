@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<binding name="binding" package="org.dellroad.stuff.pobj">
+    <mapping name="RootObject" class="org.dellroad.stuff.pobj.RootObject">
+        <value name="name" field="name"/>
+        <value name="verbose" field="verbose"/>
+    </mapping>
+</binding>

@@ -31,13 +31,13 @@
         <property name="javac.classpath.resolved" value="true"/>
     </target>
 
+    <target name="jibx-bind.classpath" unless="jibx-bind.classpath.resolved">
+        <dellroad:ivypath pathid="jibx-bind.classpath" conf="jibx-bind"/>
+        <property name="jibx-bind.classpath.resolved" value="true"/>
+    </target>
+
     <target name="unittest.classpath" depends="jar" unless="unittest.classpath.resolved">
-        <dellroad:ivypath pathid="unittest.classpath.base" conf="test"/>
-        <path id="unittest.classpath">
-            <path refid="unittest.classpath.base"/>
-            <pathelement path="build/dist/${ant.project.name}-${full.version}.jar"/>
-            <pathelement path="build/test"/>
-        </path>
+        <dellroad:ivypath pathid="unittest.classpath" conf="test"/>
         <property name="unittest.classpath.resolved" value="true"/>
     </target>
 
@@ -55,6 +55,19 @@
             </filterset>
         </copy>
         <property name="resources.completed" value="true"/>
+    </target>
+
+    <!-- Compile JiBX bindings -->
+    <target name="jibx-bind" depends="javac, jibx-bind.classpath" unless="jibx-bind.completed">
+        <dellroad:jibx-bind name="test classes">
+            <classes>
+                <pathelement location="${basedir}/build/test"/>
+            </classes>
+            <bindings>
+                <include name="src/test/org/dellroad/stuff/pobj/binding.xml"/>
+            </bindings>
+        </dellroad:jibx-bind>
+        <property name="jibx-bind.completed" value="true"/>
     </target>
 
     <!-- Compile Aspects -->
@@ -80,7 +93,7 @@
     </target>
 
     <!-- Main JAR -->
-    <target name="jar" depends="javac, aspects, resources" unless="jar.completed">
+    <target name="jar" depends="javac, jibx-bind, aspects, resources" unless="jar.completed">
         <mkdir dir="build/dist"/>
         <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
         <jar destfile="build/dist/${ant.project.name}-${full.version}.jar">
@@ -172,9 +185,12 @@
       depends="javac, unittest.classpath, testng.classpath, cobertura.classpath"
       unless="tests.completed">
         <copy todir="build/test" overwrite="true">
-            <fileset dir="src/test">
-                <include name="**/*.xml"/>
-            </fileset>
+            <fileset dir="src/test" includes="**/*.xsl"/>
+            <fileset dir="src/test" includes="**/*.xml"/>
+        </copy>
+        <mkdir dir="build/test/META-INF"/>
+        <copy todir="build/test/META-INF">
+            <fileset dir="src/java/org/dellroad/stuff/spring" includes="spring.*"/>
         </copy>
         <dellroad:unit-tests/>
         <property name="tests.completed" value="true"/>

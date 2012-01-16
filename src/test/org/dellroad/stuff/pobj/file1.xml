@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id$ -->
+<foo bar="123" jan="This is a test">
+    <parameter name="haha" value="true"/>
+    <parameter name="lola" value=""/>
+
+    <fumble name="football">
+        <ski-package>
+            <package name="mountain"/>
+            <package name="valley"/>
+        </ski-package>
+    </fumble>
+    <airfare>
+        ok <why/> not
+    </airfare>
+</suite>
+

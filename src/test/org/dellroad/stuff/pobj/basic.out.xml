@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id$ -->
+<RootObject xmlns:pobj="http://dellroad-stuff.googlecode.com/ns/persistentObject">
+    <pobj:updates>
+        <pobj:update>update0</pobj:update>
+        <pobj:update>update2</pobj:update>
+        <pobj:update>update1</pobj:update>
+    </pobj:updates>
+    <name>default.new</name>
+    <verbose>true</verbose>
+</RootObject>
