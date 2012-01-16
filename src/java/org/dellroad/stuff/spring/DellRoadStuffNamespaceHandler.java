@@ -14,9 +14,12 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * for the <code>dellroad-stuff</code> XML namespace.
  *
  * <p>
- * This adds support for the <code>&lt;dellroad-stuff:sql/&gt;</code> XML tag, which defines a
- * {@link org.dellroad.stuff.schema.SQLCommandList} bean, and the <code>&lt;dellroad-stuff:sql-update/&gt;</code> XML tag,
- * which wraps the same thing in a {@link org.dellroad.stuff.schema.SpringSQLSchemaUpdate} bean.
+ * This adds support for the following Spring custom XML tags:
+ * <ul>
+ *  <li><code>&lt;dellroad-stuff:sql/&gt;</code>, which defines a {@link org.dellroad.stuff.schema.SQLCommandList} bean</li>
+ *  <li><code>&lt;dellroad-stuff:sql-update/&gt;</code>, which wraps a {@link org.dellroad.stuff.schema.SQLCommandList}
+ *  in a {@link org.dellroad.stuff.schema.SpringSQLSchemaUpdate} bean</li>
+ * </ul>
  */
 public class DellRoadStuffNamespaceHandler extends NamespaceHandlerSupport {
 
@@ -25,9 +28,10 @@ public class DellRoadStuffNamespaceHandler extends NamespaceHandlerSupport {
     public static final String SQL_ELEMENT_NAME = "sql";
     public static final String SQL_UPDATE_ELEMENT_NAME = "sql-update";
 
+    @Override
     public void init() {
-        registerBeanDefinitionParser(SQL_ELEMENT_NAME, new SQLBeanDefinitionParser());
-        registerBeanDefinitionParser(SQL_UPDATE_ELEMENT_NAME, new SQLUpdateBeanDefinitionParser());
+        this.registerBeanDefinitionParser(SQL_ELEMENT_NAME, new SQLBeanDefinitionParser());
+        this.registerBeanDefinitionParser(SQL_UPDATE_ELEMENT_NAME, new SQLUpdateBeanDefinitionParser());
     }
 }
 
