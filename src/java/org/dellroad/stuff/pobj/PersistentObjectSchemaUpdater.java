@@ -202,7 +202,9 @@ public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpd
                 XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(result);
                 UpdatesXMLEventWriter updatesWriter = new UpdatesXMLEventWriter(eventWriter,
                   PersistentObjectSchemaUpdater.this.updateNames);
-                PersistentObjectSchemaUpdater.this.serialize(obj, new StAXResult(updatesWriter));
+                StAXResult staxResult = new StAXResult(updatesWriter);
+                staxResult.setSystemId(result.getSystemId());
+                PersistentObjectSchemaUpdater.this.serialize(obj, staxResult);
                 updatesWriter.close();
             } catch (XMLStreamException e) {
                 throw new PersistentObjectException(e);
@@ -217,7 +219,9 @@ public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpd
             try {
                 XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(source);
                 UpdatesXMLEventReader updatesReader = new UpdatesXMLEventReader(eventReader);
-                return PersistentObjectSchemaUpdater.this.deserialize(new StAXSource(updatesReader));
+                StAXSource staxSource = new StAXSource(updatesReader);
+                staxSource.setSystemId(source.getSystemId());
+                return PersistentObjectSchemaUpdater.this.deserialize(staxSource);
             } catch (XMLStreamException e) {
                 throw new PersistentObjectException(e);
             }

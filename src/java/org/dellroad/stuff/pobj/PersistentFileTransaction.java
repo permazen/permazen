@@ -175,8 +175,10 @@ public class PersistentFileTransaction {
 
         // Set up source and result
         StreamSource source = new StreamSource(new ByteArrayInputStream(this.current));
+        source.setSystemId(file.toURI().toString());
         ByteArrayOutputStream buffer = new ByteArrayOutputStream(FILE_BUFFER_SIZE);
         StreamResult result = new StreamResult(buffer);
+        result.setSystemId(file.toURI().toString());
 
         // Apply transform
         transformer.transform(source, result);
