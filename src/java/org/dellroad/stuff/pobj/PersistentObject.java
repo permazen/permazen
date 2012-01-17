@@ -222,21 +222,6 @@ public abstract class PersistentObject<T> {
     }
 
     /**
-     * Atomically read the root object as XML.
-     *
-     * <p>
-     * If there is no persistent file and no value has been set, null will be returned.
-     *
-     * @return the current root instance in XML form, or null if no value has ever been written
-     * @throws IllegalStateException if this instance is not started
-     * @throws PersistentObjectException if an error occurs
-     */
-    public synchronized Source getRootAsXML() {
-        T obj = this.getRoot();
-        return obj != null ? this.convertToXML(obj) : null;
-    }
-
-    /**
      * Atomically update the root object.
      *
      * <p>
@@ -325,7 +310,15 @@ public abstract class PersistentObject<T> {
      * @throws PersistentObjectException if an error occurs
      */
     public T copy(T original) {
-        return this.convertFromXML(this.convertToXML(original));
+        if (original == null)
+            throw new IllegalArgumentException("null original");
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(32 * 1024 - 32);
+        this.serialize(original, new StreamResult(buffer));
+        StreamSource source = new StreamSource(new ByteArrayInputStream(buffer.toByteArray()));
+        T copy = this.deserialize(source);
+        if (copy == null)
+            throw new PersistentObjectException("null object returned by deserialize()");
+        return copy;
     }
 
     /**
@@ -364,35 +357,6 @@ public abstract class PersistentObject<T> {
     }
 
     /**
-     * Convert the given object to XML. Delegates to {@link #serialize serialize()} for the conversion.
-     *
-     * @throws IllegalArgumentException if {@code obj} is null
-     * @throws PersistentObjectException if an error occurs
-     */
-    public synchronized Source convertToXML(T obj) {
-        if (obj == null)
-            throw new IllegalArgumentException("null obj");
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(32 * 1024 - 32);
-        this.serialize(obj, new StreamResult(buffer));
-        return new StreamSource(new ByteArrayInputStream(buffer.toByteArray()));
-    }
-
-    /**
-     * Convert the given object from XML. Delegates to {@link #deserialize deserialize()} for the conversion.
-     *
-     * @throws IllegalArgumentException if {@code source} is null
-     * @throws PersistentObjectException if an error occurs
-     */
-    public synchronized T convertFromXML(Source source) {
-        if (source == null)
-            throw new IllegalArgumentException("null source");
-        T obj = this.deserialize(source);
-        if (obj == null)
-            throw new PersistentObjectException("null object returned by deserialize()");
-        return obj;
-    }
-
-    /**
      * Serialize an instance of the given root object.
      *
      * @param obj object to serialize; must not be modified
@@ -421,9 +385,6 @@ public abstract class PersistentObject<T> {
     /**
      * Read the persistent file.
      *
-     * <p>
-     * Delegates to {@link #createSource createSource()} to create an XML source.
-     *
      * @throws PersistentObjectException if an error occurs
      */
     protected T read() {
@@ -440,7 +401,9 @@ public abstract class PersistentObject<T> {
         // Parse XML
         T obj;
         try {
-            obj = this.deserialize(this.createSource(this.persistentFile, input));
+            StreamSource source = new StreamSource(input);
+            source.setSystemId(this.persistentFile);
+            obj = this.deserialize(source);
         } finally {
             try {
                 input.close();
@@ -462,9 +425,6 @@ public abstract class PersistentObject<T> {
      *
      * <p>
      * A temporary file is created in the same directory and then renamed to provide for an atomic update.
-     *
-     * <p>
-     * Delegates to {@link #createResult createResult()} to create an XML result.
      *
      * @throws IllegalArgumentException if {@code obj} is null
      * @throws PersistentObjectException if an error occurs
@@ -496,7 +456,9 @@ public abstract class PersistentObject<T> {
             // Serialize to XML
             this.log.info(this + ": saving persistent object");
             try {
-                this.serialize(obj, this.createResult(tempFile, output));
+                StreamResult result = new StreamResult(output);
+                result.setSystemId(tempFile);
+                this.serialize(obj, result);
                 try {
                     output.close();
                 } catch (IOException e) {
@@ -522,38 +484,6 @@ public abstract class PersistentObject<T> {
             if (tempFile != null)
                 tempFile.delete();
         }
-    }
-
-    /**
-     * Given the provided {@link BufferedInputStream} opened to the persistent XML file, build a {@link Source}
-     * that reads it.
-     *
-     * <p>
-     * The implementation in {@link PersistentObject} creates a {@link StreamSource}.
-     *
-     * @param file file to be read
-     * @param input buffered input from file
-     */
-    protected Source createSource(File file, BufferedInputStream input) {
-        StreamSource source = new StreamSource(input);
-        source.setSystemId(file);
-        return source;
-    }
-
-    /**
-     * Given the provided {@link BufferedOutputStream} opened to the persistent XML file, build a {@link Result}
-     * that writes to it.
-     *
-     * <p>
-     * The implementation in {@link PersistentObject} creates a {@link StreamResult}.
-     *
-     * @param file file to be written
-     * @param output buffered output to file
-     */
-    protected Result createResult(File file, BufferedOutputStream output) {
-        StreamResult result = new StreamResult(output);
-        result.setSystemId(file);
-        return result;
     }
 
     /**
