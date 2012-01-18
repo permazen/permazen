@@ -98,6 +98,9 @@ public class PersistentObjectTest extends TestSupport {
         // Write it back
         pobj.setRoot(root, version);
 
+        // Verify value was copied correctly
+        assert pobj.getRoot().equals(root) : "what got set is not what I wrote";
+
         // Verify root was copied when written
         root.setVerbose(!root.isVerbose());
         assert pobj.getRoot().isVerbose() != root.isVerbose() : "root not copied when written";
@@ -109,6 +112,9 @@ public class PersistentObjectTest extends TestSupport {
         } catch (PersistentObjectVersionException e) {
             // expected
         }
+
+        // Verify value did not get set
+        assert !pobj.getRoot().equals(root) : "value changed unexpectedly";
 
         // Verify result
         InputStreamReader reader1 = new InputStreamReader(new FileInputStream(this.actualFile), "UTF-8");
