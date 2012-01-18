@@ -41,10 +41,10 @@ public class PersistentFileTransaction {
 
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
+    private final ArrayList<String> updates = new ArrayList<String>();
     private final File file;
 
     private byte[] current;
-    private ArrayList<String> updates;
     private boolean modified;
 
     /**
@@ -126,7 +126,7 @@ public class PersistentFileTransaction {
 
         // Done
         this.current = null;
-        this.updates = null;
+        this.updates.clear();
         this.modified = false;
     }
 
@@ -135,7 +135,7 @@ public class PersistentFileTransaction {
      */
     public void rollback() {
         this.current = null;
-        this.updates = null;
+        this.updates.clear();
         this.modified = false;
     }
 
@@ -145,7 +145,7 @@ public class PersistentFileTransaction {
      * @return unmodifiable list of updates
      */
     public List<String> getUpdates() {
-        return this.updates != null ? Collections.unmodifiableList(this.updates) : null;
+        return Collections.unmodifiableList(this.updates);
     }
 
     /**
@@ -212,7 +212,8 @@ public class PersistentFileTransaction {
 
         // Save current content (without updates) and updates list
         this.current = buffer.toByteArray();
-        this.updates = new ArrayList<String>(fileUpdates);
+        this.updates.clear();
+        this.updates.addAll(fileUpdates);
     }
 }
 
