@@ -239,6 +239,8 @@
             <fileset dir="src/mvn" includes="pom.xml"/>
             <filterset>
                 <filter token="VERSION" value="${full.version}"/>
+                <filter token="GROUP_ID" value="${vaadin.plugin.groupId}"/>
+                <filter token="ARTIFACT_ID" value="${vaadin.plugin.artifactId}"/>
             </filterset>
         </copy>
 
