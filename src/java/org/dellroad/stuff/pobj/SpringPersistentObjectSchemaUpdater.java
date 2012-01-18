@@ -25,8 +25,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.core.io.Resource;
 
 /**
- * {@link PersistentObjectSchemaUpdater} optimized for use with Spring.
- *
+ * {@link PersistentObjectSchemaUpdater} optimized for use with Spring:
  * <ul>
  * <li>{@link #getOrderingTieBreaker} is overridden to break ties by ordering updates in the same order
  *  as they are defined in the bean factory.</li>
@@ -55,6 +54,9 @@ import org.springframework.core.io.Resource;
  *          p:file="/var/example/pobj.xml" p:delegate-ref="delegate"
  *          p:initialXML="classpath:com/example/initial-pobj.xml"&gt;</b>
  *
+ *      &lt;!-- Persistent object bean --&gt;
+ *      <b>&lt;bean scope="prototype" factory-bean="schemaUpdater" factory-method="getPersistentObject"/&gt;</b>
+ *
  *      &lt;!-- Schema update #1 --&gt;
  *      <b>&lt;bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"
  *        id="update1" transform="classpath:com/example/updates/update1.xsl"&gt;</b>
@@ -69,8 +71,8 @@ import org.springframework.core.io.Resource;
  * </pre></blockquote>
  *
  * <p>
- * The {@link PersistentObject} itself, fully updated, is accessible via {@link #getPersistentObject}
- * or as the <code>persistentObject</code> bean in the above example.
+ * The {@link PersistentObject} itself, fully updated, is accessible via {@link #getPersistentObject}.
+ * or, in the above example, via the <code>persistentObject</code> bean.
  *
  * @param <T> type of the root persistent object
  */

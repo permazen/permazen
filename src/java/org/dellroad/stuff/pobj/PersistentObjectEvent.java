@@ -37,7 +37,9 @@ public class PersistentObjectEvent<T> extends EventObject {
     }
 
     /**
-     * Get the version that this event is associated with.
+     * Get the version that this event is associated with. This will be the version of the {@linkplain #getNewRoot new root}.
+     *
+     * <p>
      * The {@link PersistentObject} class always delivers notifications in order, so this
      * number should always increase over time.
      */
@@ -47,6 +49,9 @@ public class PersistentObjectEvent<T> extends EventObject {
 
     /**
      * Get the old root prior to the update.
+     *
+     * <p>
+     * The caller must not modify the returned object, as it is shared among all listeners.
      */
     public T getOldRoot() {
         return this.oldRoot;
@@ -54,6 +59,9 @@ public class PersistentObjectEvent<T> extends EventObject {
 
     /**
      * Get the new root after to the update.
+     *
+     * <p>
+     * The caller must not modify the returned object, as it is shared among all listeners.
      */
     public T getNewRoot() {
         return this.newRoot;

@@ -18,7 +18,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.dellroad.stuff.xml.AnnotatedXMLEventReader;
 
 /**
- * {@link AnnotatedXMLEventReader} that reads the nested schema update list.
+ * {@link AnnotatedXMLEventReader} that reads the nested schema update list. Used by {@link PersistentObjectSchemaUpdater}.
  */
 public class UpdatesXMLEventReader extends AnnotatedXMLEventReader {
 

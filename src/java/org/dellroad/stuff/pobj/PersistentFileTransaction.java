@@ -33,7 +33,7 @@ import javax.xml.transform.stream.StreamSource;
  * Represents an open "transaction" on a {@link PersistentObject}'s persistent file.
  *
  * <p>
- * This class is used by {@link PersistentObjectSchemaUpdater} and should normally not be used directly.
+ * This class is used by {@link PersistentObjectSchemaUpdater} and would normally not be used directly.
  */
 public class PersistentFileTransaction {
 

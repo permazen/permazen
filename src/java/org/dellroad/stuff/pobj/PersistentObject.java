@@ -33,30 +33,30 @@ import org.slf4j.LoggerFactory;
  * Main class for Simple XML Persistence Objects (POBJ).
  *
  * <p>
- * The model is that there is a root Java object which, together with the tree of objects is points to,
- * represents the current "database" state. XML (de)serializers provide correspondence between the in-memory
- * Java object tree and an XML document, and define what the "tree" is. Just like the persistent XML file that
- * backs it, the object tree is read and written in its entirety, atomically, and so is always treated as "one thing".
- * In other words, the object tree is passed by value.
+ * Instances model an in-memory "database" represented by a root Java object and the graph of other objects that
+ * it references. The object graph is backed by a persitent XML file, which is read at initialization time and
+ * written to after each change.
  *
  * <p>
- * When object tree is updated, it must pass validation checks, and then the persistent file is updated and
- * listener notifications are sent out.
+ * Changes are applied "wholesale" to the entire object graph, and are serialized and atomic. In other words, the
+ * entire object graph is read from, and written to, this class by value. As a result, it is not possible to change
+ * the contents of the "database" except through this API.
+ *
+ * <p>
+ * When object graph is updated, it must pass validation checks, and then the persistent XML file is updated and
+ * listener notifications are sent out. Support for delayed write-back of the persistent XML file is included: this
+ * allows modifications that occur in rapid succession to be consolidated into a single filesystem write operation.
+ * In any case, file system writes use the {@link File#renameTo File.renameTo()} for atomicity on systems that
+ * support it (e.g., all UNIX operating systems).
  *
  * <p>
  * Support for optimistic locking is included. There is a current version number which is incremented each
- * time the object tree is updated.
+ * time the object graph is updated, and writes may optionally specify this number to ensure no intervening changes
+ * have occurred.
  *
  * <p>
- * Support for delayed write-back is included. This allows modifications that occur in rapid succession to be consolidated
- * into a single filesystem write operation.
- *
- * <p>
- * File system writes use the rename operation for atomicity.
- *
- * <p>
- * Instances must be supplied with a {@link PersistentObjectDelegate} that knows how to validate the root object
- * and perform the XML conversions.
+ * Instances must be configured with a {@link PersistentObjectDelegate} that knows how to validate the object graph
+ * and perform conversions to and from XML.
  *
  * @param <T> type of the root persistent object
  * @see org.dellroad.stuff.pobj
@@ -124,6 +124,8 @@ public class PersistentObject<T> {
      *
      * <p>
      * This returns a value which increases monotonically with each update.
+     * The version number is not persisted with the persistent file; each instance of this class keeps
+     * its own version count.
      */
     public synchronized long getVersion() {
         return this.version;
@@ -157,7 +159,7 @@ public class PersistentObject<T> {
     /**
      * Stop this instance. Does nothing if already stopped.
      *
-     * @throws PersistentObjectException if a delayed write back is pending and error occurs in {@link #write}
+     * @throws PersistentObjectException if a delayed write back is pending and error occurs while performing the write
      */
     public synchronized void stop() {
 
@@ -191,12 +193,12 @@ public class PersistentObject<T> {
      * If there is no persistent file and no value has been set, null will be returned.
      * This condition is checked on each invocation of this method, so the persistent file
      * is allowed to appear at any time. However, this is the only case where modifications
-     * to the underlying file are allowed while this instance is started.
+     * to the underlying file should be allowed while this instance is started.
      *
      * <p>
      * This returns a deep copy of the current root object; any subsequent modifications are not written back.
      *
-     * @return the current root instance, or be null if no value has ever been written
+     * @return the current root instance, or null if no file was found and no value has been written yet
      * @throws IllegalStateException if this instance is not started
      * @throws PersistentObjectException if an error occurs
      */
@@ -220,9 +222,11 @@ public class PersistentObject<T> {
      * Get a shared copy of the root object.
      *
      * <p>
-     * This returns a copy of the root object, but it returns the same copy each time (until the next change).
-     * This method is more efficient than {@link #getRoot} when used by callers who mutually agree not to
-     * modify the returned object.
+     * This returns a copy of the root object, but it returns the same copy each time until the next change.
+     * This method is more efficient than {@link #getRoot}, but all callers must agree not to modify the returned object
+     * or any object in its graph of references.
+     *
+     * @return shared copy of the root instance; or null if no file was found and no value has been written yet
      */
     public synchronized T getSharedRoot() {
         if (this.sharedRoot == null)
@@ -237,12 +241,12 @@ public class PersistentObject<T> {
      * The given object is deep-copied and the copy replaces the current root.
      *
      * <p>
-     * If {@code version} is non-zero, then if the current version is not equal to it,
+     * If {@code expectedVersion} is non-zero, then if the current version is not equal to it,
      * a {@link PersistentObjectVersionException} exception is thrown. This mechanism
      * can be used for optimistic locking.
      *
      * @param newRoot new persistent object
-     * @param expectedVersion expected current version number, or zero for none
+     * @param expectedVersion expected current version number, or zero to ignore the current version number
      * @throws IllegalArgumentException if {@code newRoot} is null
      * @throws IllegalArgumentException if {@code version} is negative
      * @throws IllegalStateException if this instance is not started
@@ -309,7 +313,7 @@ public class PersistentObject<T> {
     }
 
     /**
-     * Add a listener.
+     * Add a listener to be notified each time the object graph changes.
      *
      * @throws IllegalArgumentException if {@code listener} is null
      */
@@ -322,7 +326,7 @@ public class PersistentObject<T> {
     }
 
     /**
-     * Remove a listener.
+     * Remove a listener added via {@link #addListener addListener()}.
      */
     public void removeListener(PersistentObjectListener<T> listener) {
         synchronized (this.listeners) {
@@ -331,7 +335,7 @@ public class PersistentObject<T> {
     }
 
     /**
-     * Get a simple string description of this instance. Used for (among other things) log messages.
+     * Get a simple string description of this instance. This description appears in all log messages.
      */
     @Override
     public String toString() {
@@ -391,7 +395,8 @@ public class PersistentObject<T> {
      * Write the persistent file.
      *
      * <p>
-     * A temporary file is created in the same directory and then renamed to provide for an atomic update.
+     * A temporary file is created in the same directory and then renamed to provide for an atomic update
+     * (on supporting operating systems).
      *
      * @throws IllegalArgumentException if {@code obj} is null
      * @throws PersistentObjectException if an error occurs
@@ -458,7 +463,7 @@ public class PersistentObject<T> {
     }
 
     /**
-     * Notify listeners.
+     * Notify listeners of a change in value.
      *
      * @param newVersion the version number associated with the new root
      */

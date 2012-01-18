@@ -16,7 +16,7 @@ import org.dellroad.stuff.xml.AnnotatedXMLEventWriter;
 
 /**
  * {@link AnnotatedXMLEventWriter} that inserts the schema update list into the document
- * using an {@link XMLConstants#UPDATES_ELEMENT_NAME} annotation element.
+ * using an {@link XMLConstants#UPDATES_ELEMENT_NAME} annotation element. Used by {@link PersistentObjectSchemaUpdater}.
  */
 public class UpdatesXMLEventWriter extends AnnotatedXMLEventWriter {
 

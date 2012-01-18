@@ -10,7 +10,7 @@ package org.dellroad.stuff.pobj;
 import javax.xml.namespace.QName;
 
 /**
- * XML constants used by {@link PersistentObject}.
+ * XML constants used by {@link PersistentObjectSchemaUpdater}.
  */
 public final class XMLConstants {
 
