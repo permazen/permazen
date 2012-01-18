@@ -15,6 +15,7 @@ Version 1.0.207 Released Jan 10, 2012
     - Refactored schema package to make schema tracking not be SQL-specific
     - Added SocketAcceptor, ValidationContext, ExceptionLoggingFilter
     - Added ParseUtil.deserializeBooleanStrictly()
+    - Releases are now published in Maven
 
 Version 1.0.189 Released Dec 16, 2011
 
