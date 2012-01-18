@@ -245,7 +245,9 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
             this.log.info("acceptor thread " + Thread.currentThread().getName() + " exiting");
             this.closeServerSocket();
             this.serverThread = null;
-            this.notifyAll();
+            synchronized (this) {
+                this.notifyAll();
+            }
         }
     }
 
