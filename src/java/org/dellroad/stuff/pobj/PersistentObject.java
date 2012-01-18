@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Instances model an in-memory "database" represented by a root Java object and the graph of other objects that
- * it references. The object graph is backed by a persitent XML file, which is read at initialization time and
+ * it references. The object graph is backed by a persistent XML file, which is read at initialization time and
  * written to after each change.
  *
  * <p>
