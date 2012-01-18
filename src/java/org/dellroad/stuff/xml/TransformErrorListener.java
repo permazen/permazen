@@ -19,8 +19,10 @@ import org.slf4j.Logger;
  * <p>
  * This class also optionally works around some stupid Xalan-J bugs:
  * <ul>
- * <li>Throw exceptions in the case of {@link #warning} also</li>
- * <li>When throwing exceptions, wrap them in {@link RuntimeException}s to avoid being swallowed</li>
+ * <li>Throw exceptions in the case of {@link #warning} also; this is required because Xalan-J
+ *  reports even <code>&lt;message terminate="yes"&gt;</code> messages as warnings</li>
+ * <li>When throwing exceptions, wrap them in {@link RuntimeException}s to avoid being swallowed;
+ *  otherwise Xalan-J will not terminate on a <code>&lt;message terminate="yes"&gt;</code></li>
  * </ul>
  */
 public class TransformErrorListener implements ErrorListener {
