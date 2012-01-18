@@ -1,0 +1,268 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.pobj;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.io.BufferedInputStream;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.io.IOException;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.io.InputStream;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import java.util.Collection;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import java.util.Comparator;<a name="line.14"></a>
+<FONT color="green">015</FONT>    <a name="line.15"></a>
+<FONT color="green">016</FONT>    import javax.xml.transform.stream.StreamSource;<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    import org.dellroad.stuff.schema.SchemaUpdate;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import org.dellroad.stuff.spring.BeanNameComparator;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import org.springframework.beans.factory.BeanFactory;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import org.springframework.beans.factory.BeanFactoryAware;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import org.springframework.beans.factory.DisposableBean;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import org.springframework.beans.factory.InitializingBean;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import org.springframework.beans.factory.ListableBeanFactory;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import org.springframework.core.io.Resource;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    /**<a name="line.27"></a>
+<FONT color="green">028</FONT>     * {@link PersistentObjectSchemaUpdater} optimized for use with Spring.<a name="line.28"></a>
+<FONT color="green">029</FONT>     *<a name="line.29"></a>
+<FONT color="green">030</FONT>     * &lt;ul&gt;<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;li&gt;{@link #getOrderingTieBreaker} is overridden to break ties by ordering updates in the same order<a name="line.31"></a>
+<FONT color="green">032</FONT>     *  as they are defined in the bean factory.&lt;/li&gt;<a name="line.32"></a>
+<FONT color="green">033</FONT>     * &lt;li&gt;This class implements {@link InitializingBean} and verifies all required properties are set.&lt;/li&gt;<a name="line.33"></a>
+<FONT color="green">034</FONT>     * &lt;li&gt;If no updates are {@linkplain #setUpdates explicitly configured}, then all {@link SpringPersistentObjectSchemaUpdate}s<a name="line.34"></a>
+<FONT color="green">035</FONT>     *  found in the containing bean factory are automatically configured; this requires that all of the schema updates<a name="line.35"></a>
+<FONT color="green">036</FONT>     *  are defined in the same {@link ListableBeanFactory}.&lt;/li&gt;<a name="line.36"></a>
+<FONT color="green">037</FONT>     * &lt;/ul&gt;<a name="line.37"></a>
+<FONT color="green">038</FONT>     *<a name="line.38"></a>
+<FONT color="green">039</FONT>     * &lt;p&gt;<a name="line.39"></a>
+<FONT color="green">040</FONT>     * An example of how this class can be combined with custom XML to define an updater and all its updates:<a name="line.40"></a>
+<FONT color="green">041</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.41"></a>
+<FONT color="green">042</FONT>     *  &amp;lt;beans xmlns="http://www.springframework.org/schema/beans"<a name="line.42"></a>
+<FONT color="green">043</FONT>     *    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"<a name="line.43"></a>
+<FONT color="green">044</FONT>     *    xmlns:p="http://www.springframework.org/schema/p"<a name="line.44"></a>
+<FONT color="green">045</FONT>     *    xsi:schemaLocation="<a name="line.45"></a>
+<FONT color="green">046</FONT>     *      http://www.springframework.org/schema/beans<a name="line.46"></a>
+<FONT color="green">047</FONT>     *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd&amp;gt;<a name="line.47"></a>
+<FONT color="green">048</FONT>     *<a name="line.48"></a>
+<FONT color="green">049</FONT>     *      &amp;lt;!-- Persistent object delegate; you supply the XML (un)marshaller --&amp;gt;<a name="line.49"></a>
+<FONT color="green">050</FONT>     *      &lt;b&gt;&amp;lt;bean id="delegate" class="org.dellroad.stuff.pobj.SpringDelegate"<a name="line.50"></a>
+<FONT color="green">051</FONT>     *          p:marshaller-ref="marshaller" p:unmarshaller-ref="unmarshaller"&amp;gt;&lt;/b&gt;<a name="line.51"></a>
+<FONT color="green">052</FONT>     *<a name="line.52"></a>
+<FONT color="green">053</FONT>     *      &amp;lt;!-- Persistent object schema updater --&amp;gt;<a name="line.53"></a>
+<FONT color="green">054</FONT>     *      &lt;b&gt;&amp;lt;bean id="schemaUpdater" class="org.dellroad.stuff.pobj.SpringPersistentObjectSchemaUpdater"<a name="line.54"></a>
+<FONT color="green">055</FONT>     *          p:file="/var/example/pobj.xml" p:delegate-ref="delegate"<a name="line.55"></a>
+<FONT color="green">056</FONT>     *          p:initialXML="classpath:com/example/initial-pobj.xml"&amp;gt;&lt;/b&gt;<a name="line.56"></a>
+<FONT color="green">057</FONT>     *<a name="line.57"></a>
+<FONT color="green">058</FONT>     *      &amp;lt;!-- Schema update #1 --&amp;gt;<a name="line.58"></a>
+<FONT color="green">059</FONT>     *      &lt;b&gt;&amp;lt;bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"<a name="line.59"></a>
+<FONT color="green">060</FONT>     *        id="update1" transform="classpath:com/example/updates/update1.xsl"&amp;gt;&lt;/b&gt;<a name="line.60"></a>
+<FONT color="green">061</FONT>     *<a name="line.61"></a>
+<FONT color="green">062</FONT>     *      &amp;lt;!-- Schema update #2 --&amp;gt;<a name="line.62"></a>
+<FONT color="green">063</FONT>     *      &lt;b&gt;&amp;lt;bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"<a name="line.63"></a>
+<FONT color="green">064</FONT>     *        id="update2" depends-on="update1" transform="classpath:com/example/updates/update2.xsl"&amp;gt;&lt;/b&gt;<a name="line.64"></a>
+<FONT color="green">065</FONT>     *<a name="line.65"></a>
+<FONT color="green">066</FONT>     *      &amp;lt;!-- Add more schema updates over time as needed and everything just works... --&amp;gt;<a name="line.66"></a>
+<FONT color="green">067</FONT>     *<a name="line.67"></a>
+<FONT color="green">068</FONT>     *  &amp;lt;/beans&amp;gt;<a name="line.68"></a>
+<FONT color="green">069</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.69"></a>
+<FONT color="green">070</FONT>     *<a name="line.70"></a>
+<FONT color="green">071</FONT>     * &lt;p&gt;<a name="line.71"></a>
+<FONT color="green">072</FONT>     * The {@link PersistentObject} itself, fully updated, is accessible via {@link #getPersistentObject}<a name="line.72"></a>
+<FONT color="green">073</FONT>     * or as the &lt;code&gt;persistentObject&lt;/code&gt; bean in the above example.<a name="line.73"></a>
+<FONT color="green">074</FONT>     *<a name="line.74"></a>
+<FONT color="green">075</FONT>     * @param &lt;T&gt; type of the root persistent object<a name="line.75"></a>
+<FONT color="green">076</FONT>     */<a name="line.76"></a>
+<FONT color="green">077</FONT>    public class SpringPersistentObjectSchemaUpdater&lt;T&gt; extends PersistentObjectSchemaUpdater&lt;T&gt;<a name="line.77"></a>
+<FONT color="green">078</FONT>      implements BeanFactoryAware, InitializingBean, DisposableBean {<a name="line.78"></a>
+<FONT color="green">079</FONT>    <a name="line.79"></a>
+<FONT color="green">080</FONT>        private ListableBeanFactory beanFactory;<a name="line.80"></a>
+<FONT color="green">081</FONT>        private T initialValue;<a name="line.81"></a>
+<FONT color="green">082</FONT>        private Resource initialXML;<a name="line.82"></a>
+<FONT color="green">083</FONT>    <a name="line.83"></a>
+<FONT color="green">084</FONT>        /**<a name="line.84"></a>
+<FONT color="green">085</FONT>         * Set the initial value to be used on an uninitialized persistent object.<a name="line.85"></a>
+<FONT color="green">086</FONT>         *<a name="line.86"></a>
+<FONT color="green">087</FONT>         * &lt;p&gt;<a name="line.87"></a>
+<FONT color="green">088</FONT>         * Either this or a {@linkplain #setInitialXML initial XML resource} should be configured<a name="line.88"></a>
+<FONT color="green">089</FONT>         * to handle the case that no persistent file exists yet.<a name="line.89"></a>
+<FONT color="green">090</FONT>         */<a name="line.90"></a>
+<FONT color="green">091</FONT>        public void setInitialValue(T initialValue) {<a name="line.91"></a>
+<FONT color="green">092</FONT>            this.initialValue = initialValue;<a name="line.92"></a>
+<FONT color="green">093</FONT>        }<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>        /**<a name="line.95"></a>
+<FONT color="green">096</FONT>         * Set the resource containing the initial value, encoded as XML, to be used on an uninitialized persistent object.<a name="line.96"></a>
+<FONT color="green">097</FONT>         * This can be used as an alternative to {@link #setInitialValue}.<a name="line.97"></a>
+<FONT color="green">098</FONT>         *<a name="line.98"></a>
+<FONT color="green">099</FONT>         * &lt;p&gt;<a name="line.99"></a>
+<FONT color="green">100</FONT>         * Either this or an explicit {@linkplain #setInitialValue initial value} should be configured<a name="line.100"></a>
+<FONT color="green">101</FONT>         * to handle the case that no persistent file exists yet.<a name="line.101"></a>
+<FONT color="green">102</FONT>         */<a name="line.102"></a>
+<FONT color="green">103</FONT>        public void setInitialXML(Resource resource) {<a name="line.103"></a>
+<FONT color="green">104</FONT>            this.initialXML = resource;<a name="line.104"></a>
+<FONT color="green">105</FONT>        }<a name="line.105"></a>
+<FONT color="green">106</FONT>    <a name="line.106"></a>
+<FONT color="green">107</FONT>        /**<a name="line.107"></a>
+<FONT color="green">108</FONT>         * Get the initial value for the persistent object when no persistent file is found.<a name="line.108"></a>
+<FONT color="green">109</FONT>         *<a name="line.109"></a>
+<FONT color="green">110</FONT>         * &lt;p&gt;<a name="line.110"></a>
+<FONT color="green">111</FONT>         * The implementation in {@link SpringPersistentObjectSchemaUpdater} returns the {@linkplain #setInitialValue initial value},<a name="line.111"></a>
+<FONT color="green">112</FONT>         * if any, otherwise it falls back to decoding the initial value from the {@linkplain #setInitialXML initial value<a name="line.112"></a>
+<FONT color="green">113</FONT>         * resource}, if any. If neither property is configured, a {@link PersistentObjectException} is thrown.<a name="line.113"></a>
+<FONT color="green">114</FONT>         */<a name="line.114"></a>
+<FONT color="green">115</FONT>        @Override<a name="line.115"></a>
+<FONT color="green">116</FONT>        protected T getInitialValue() {<a name="line.116"></a>
+<FONT color="green">117</FONT>    <a name="line.117"></a>
+<FONT color="green">118</FONT>            // If value is provided explicitly, just return it<a name="line.118"></a>
+<FONT color="green">119</FONT>            if (this.initialValue != null)<a name="line.119"></a>
+<FONT color="green">120</FONT>                return this.initialValue;<a name="line.120"></a>
+<FONT color="green">121</FONT>    <a name="line.121"></a>
+<FONT color="green">122</FONT>            // Use configured XML if available<a name="line.122"></a>
+<FONT color="green">123</FONT>            if (this.initialXML == null)<a name="line.123"></a>
+<FONT color="green">124</FONT>                return null;<a name="line.124"></a>
+<FONT color="green">125</FONT>            try {<a name="line.125"></a>
+<FONT color="green">126</FONT>                InputStream input = this.initialXML.getInputStream();<a name="line.126"></a>
+<FONT color="green">127</FONT>                try {<a name="line.127"></a>
+<FONT color="green">128</FONT>                    return this.delegate.deserialize(<a name="line.128"></a>
+<FONT color="green">129</FONT>                      new StreamSource(new BufferedInputStream(input), this.initialXML.getURI().toString()));<a name="line.129"></a>
+<FONT color="green">130</FONT>                } finally {<a name="line.130"></a>
+<FONT color="green">131</FONT>                    try {<a name="line.131"></a>
+<FONT color="green">132</FONT>                        input.close();<a name="line.132"></a>
+<FONT color="green">133</FONT>                    } catch (IOException e) {<a name="line.133"></a>
+<FONT color="green">134</FONT>                        // ignore<a name="line.134"></a>
+<FONT color="green">135</FONT>                    }<a name="line.135"></a>
+<FONT color="green">136</FONT>                }<a name="line.136"></a>
+<FONT color="green">137</FONT>            } catch (RuntimeException e) {<a name="line.137"></a>
+<FONT color="green">138</FONT>                throw e;<a name="line.138"></a>
+<FONT color="green">139</FONT>            } catch (Exception e) {<a name="line.139"></a>
+<FONT color="green">140</FONT>                throw new PersistentObjectException(e);<a name="line.140"></a>
+<FONT color="green">141</FONT>            }<a name="line.141"></a>
+<FONT color="green">142</FONT>        }<a name="line.142"></a>
+<FONT color="green">143</FONT>    <a name="line.143"></a>
+<FONT color="green">144</FONT>        @Override<a name="line.144"></a>
+<FONT color="green">145</FONT>        public void setBeanFactory(BeanFactory beanFactory) {<a name="line.145"></a>
+<FONT color="green">146</FONT>            if (beanFactory instanceof ListableBeanFactory)<a name="line.146"></a>
+<FONT color="green">147</FONT>                this.beanFactory = (ListableBeanFactory)beanFactory;<a name="line.147"></a>
+<FONT color="green">148</FONT>        }<a name="line.148"></a>
+<FONT color="green">149</FONT>    <a name="line.149"></a>
+<FONT color="green">150</FONT>        @Override<a name="line.150"></a>
+<FONT color="green">151</FONT>        @SuppressWarnings("unchecked")<a name="line.151"></a>
+<FONT color="green">152</FONT>        public void afterPropertiesSet() throws Exception {<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>            // Check config<a name="line.154"></a>
+<FONT color="green">155</FONT>            if (this.file == null)<a name="line.155"></a>
+<FONT color="green">156</FONT>                throw new IllegalArgumentException("no file configured");<a name="line.156"></a>
+<FONT color="green">157</FONT>            if (this.writeDelay &lt; 0)<a name="line.157"></a>
+<FONT color="green">158</FONT>                throw new IllegalArgumentException("negative writeDelay file configured");<a name="line.158"></a>
+<FONT color="green">159</FONT>            if (this.delegate == null)<a name="line.159"></a>
+<FONT color="green">160</FONT>                throw new IllegalArgumentException("no delegate configured");<a name="line.160"></a>
+<FONT color="green">161</FONT>            if (this.getUpdates() == null) {<a name="line.161"></a>
+<FONT color="green">162</FONT>                if (this.beanFactory == null) {<a name="line.162"></a>
+<FONT color="green">163</FONT>                    throw new IllegalArgumentException("no updates explicitly configured and the containing BeanFactory"<a name="line.163"></a>
+<FONT color="green">164</FONT>                      + " is not a ListableBeanFactory: " + this.beanFactory);<a name="line.164"></a>
+<FONT color="green">165</FONT>                }<a name="line.165"></a>
+<FONT color="green">166</FONT>                this.setUpdates((Collection&lt;SpringPersistentObjectSchemaUpdate&lt;T&gt;&gt;)(Object)this.beanFactory.getBeansOfType(<a name="line.166"></a>
+<FONT color="green">167</FONT>                  SpringPersistentObjectSchemaUpdate.class).values());<a name="line.167"></a>
+<FONT color="green">168</FONT>            }<a name="line.168"></a>
+<FONT color="green">169</FONT>    <a name="line.169"></a>
+<FONT color="green">170</FONT>            // Start<a name="line.170"></a>
+<FONT color="green">171</FONT>            this.start();<a name="line.171"></a>
+<FONT color="green">172</FONT>        }<a name="line.172"></a>
+<FONT color="green">173</FONT>    <a name="line.173"></a>
+<FONT color="green">174</FONT>        @Override<a name="line.174"></a>
+<FONT color="green">175</FONT>        public void destroy() {<a name="line.175"></a>
+<FONT color="green">176</FONT>            this.stop();<a name="line.176"></a>
+<FONT color="green">177</FONT>        }<a name="line.177"></a>
+<FONT color="green">178</FONT>    <a name="line.178"></a>
+<FONT color="green">179</FONT>        /**<a name="line.179"></a>
+<FONT color="green">180</FONT>         * Get the preferred ordering of two updates that do not have any predecessor constraints<a name="line.180"></a>
+<FONT color="green">181</FONT>         * (including implied indirect constraints) between them.<a name="line.181"></a>
+<FONT color="green">182</FONT>         *<a name="line.182"></a>
+<FONT color="green">183</FONT>         * &lt;p&gt;<a name="line.183"></a>
+<FONT color="green">184</FONT>         * In the case no schema updates are explicitly configured, the {@link Comparator} returned by the<a name="line.184"></a>
+<FONT color="green">185</FONT>         * implementation in {@link SpringPersistentObjectSchemaUpdater} sorts updates in the same order that they appear<a name="line.185"></a>
+<FONT color="green">186</FONT>         * in the containing {@link ListableBeanFactory}. Otherwise, the<a name="line.186"></a>
+<FONT color="green">187</FONT>         * {@linkplain org.dellroad.stuff.schema.AbstractSchemaUpdater#getOrderingTieBreaker superclass method} is used.<a name="line.187"></a>
+<FONT color="green">188</FONT>         */<a name="line.188"></a>
+<FONT color="green">189</FONT>        @Override<a name="line.189"></a>
+<FONT color="green">190</FONT>        protected Comparator&lt;SchemaUpdate&lt;PersistentFileTransaction&gt;&gt; getOrderingTieBreaker() {<a name="line.190"></a>
+<FONT color="green">191</FONT>            if (this.beanFactory == null)<a name="line.191"></a>
+<FONT color="green">192</FONT>                return super.getOrderingTieBreaker();<a name="line.192"></a>
+<FONT color="green">193</FONT>            final BeanNameComparator beanNameComparator = new BeanNameComparator(this.beanFactory);<a name="line.193"></a>
+<FONT color="green">194</FONT>            return new Comparator&lt;SchemaUpdate&lt;PersistentFileTransaction&gt;&gt;() {<a name="line.194"></a>
+<FONT color="green">195</FONT>                @Override<a name="line.195"></a>
+<FONT color="green">196</FONT>                public int compare(SchemaUpdate&lt;PersistentFileTransaction&gt; update1, SchemaUpdate&lt;PersistentFileTransaction&gt; update2) {<a name="line.196"></a>
+<FONT color="green">197</FONT>                    return beanNameComparator.compare(update1.getName(), update2.getName());<a name="line.197"></a>
+<FONT color="green">198</FONT>                }<a name="line.198"></a>
+<FONT color="green">199</FONT>            };<a name="line.199"></a>
+<FONT color="green">200</FONT>        }<a name="line.200"></a>
+<FONT color="green">201</FONT>    }<a name="line.201"></a>
+<FONT color="green">202</FONT>    <a name="line.202"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

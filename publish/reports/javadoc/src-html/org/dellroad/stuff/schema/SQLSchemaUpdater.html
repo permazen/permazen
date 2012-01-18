@@ -207,7 +207,7 @@
 <FONT color="green">204</FONT>        }<a name="line.204"></a>
 <FONT color="green">205</FONT>    <a name="line.205"></a>
 <FONT color="green">206</FONT>        @Override<a name="line.206"></a>
-<FONT color="green">207</FONT>        protected void apply(final Connection c, final DatabaseAction&lt;Connection&gt; action) throws SQLException {<a name="line.207"></a>
+<FONT color="green">207</FONT>        protected void apply(Connection c, DatabaseAction&lt;Connection&gt; action) throws SQLException {<a name="line.207"></a>
 <FONT color="green">208</FONT>            try {<a name="line.208"></a>
 <FONT color="green">209</FONT>                super.apply(c, action);<a name="line.209"></a>
 <FONT color="green">210</FONT>            } catch (SQLException e) {<a name="line.210"></a>
@@ -246,222 +246,195 @@
 <FONT color="green">243</FONT>        }<a name="line.243"></a>
 <FONT color="green">244</FONT>    <a name="line.244"></a>
 <FONT color="green">245</FONT>        /**<a name="line.245"></a>
-<FONT color="green">246</FONT>         * Open a connection to the database.<a name="line.246"></a>
+<FONT color="green">246</FONT>         * Begin a transaction on the given connection.<a name="line.246"></a>
 <FONT color="green">247</FONT>         *<a name="line.247"></a>
 <FONT color="green">248</FONT>         * &lt;p&gt;<a name="line.248"></a>
-<FONT color="green">249</FONT>         * The implementation in {@link SQLSchemaUpdater} just invokes {@link DataSource#getConnection}.<a name="line.249"></a>
+<FONT color="green">249</FONT>         * The implementation in {@link SQLSchemaUpdater} creates a serializable-level transaction.<a name="line.249"></a>
 <FONT color="green">250</FONT>         *<a name="line.250"></a>
-<FONT color="green">251</FONT>         * @param database the database<a name="line.251"></a>
-<FONT color="green">252</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.252"></a>
-<FONT color="green">253</FONT>         */<a name="line.253"></a>
-<FONT color="green">254</FONT>        @Override<a name="line.254"></a>
-<FONT color="green">255</FONT>        protected Connection openConnection(DataSource database) throws SQLException {<a name="line.255"></a>
-<FONT color="green">256</FONT>            return database.getConnection();<a name="line.256"></a>
-<FONT color="green">257</FONT>        }<a name="line.257"></a>
-<FONT color="green">258</FONT>    <a name="line.258"></a>
-<FONT color="green">259</FONT>        /**<a name="line.259"></a>
-<FONT color="green">260</FONT>         * Close a connection to the database.<a name="line.260"></a>
-<FONT color="green">261</FONT>         *<a name="line.261"></a>
-<FONT color="green">262</FONT>         * &lt;p&gt;<a name="line.262"></a>
-<FONT color="green">263</FONT>         * The implementation in {@link SQLSchemaUpdater} just invokes {@link Connection#close}.<a name="line.263"></a>
-<FONT color="green">264</FONT>         *<a name="line.264"></a>
-<FONT color="green">265</FONT>         * @param c the connection to close<a name="line.265"></a>
-<FONT color="green">266</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.266"></a>
-<FONT color="green">267</FONT>         */<a name="line.267"></a>
-<FONT color="green">268</FONT>        @Override<a name="line.268"></a>
-<FONT color="green">269</FONT>        protected void closeConnection(Connection c) throws SQLException {<a name="line.269"></a>
-<FONT color="green">270</FONT>            c.close();<a name="line.270"></a>
-<FONT color="green">271</FONT>        }<a name="line.271"></a>
-<FONT color="green">272</FONT>    <a name="line.272"></a>
-<FONT color="green">273</FONT>        /**<a name="line.273"></a>
-<FONT color="green">274</FONT>         * Begin a transaction on the given connection.<a name="line.274"></a>
-<FONT color="green">275</FONT>         *<a name="line.275"></a>
-<FONT color="green">276</FONT>         * &lt;p&gt;<a name="line.276"></a>
-<FONT color="green">277</FONT>         * The implementation in {@link SQLSchemaUpdater} creates a serializable-level transaction.<a name="line.277"></a>
-<FONT color="green">278</FONT>         *<a name="line.278"></a>
-<FONT color="green">279</FONT>         * @param c the connection on which to open the transaction<a name="line.279"></a>
-<FONT color="green">280</FONT>         * @return transaction handle<a name="line.280"></a>
-<FONT color="green">281</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.281"></a>
-<FONT color="green">282</FONT>         */<a name="line.282"></a>
-<FONT color="green">283</FONT>        @Override<a name="line.283"></a>
-<FONT color="green">284</FONT>        protected Object openTransaction(Connection c) throws SQLException {<a name="line.284"></a>
-<FONT color="green">285</FONT>            c.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);<a name="line.285"></a>
-<FONT color="green">286</FONT>            c.setAutoCommit(false);<a name="line.286"></a>
-<FONT color="green">287</FONT>            return null;<a name="line.287"></a>
-<FONT color="green">288</FONT>        }<a name="line.288"></a>
-<FONT color="green">289</FONT>    <a name="line.289"></a>
-<FONT color="green">290</FONT>        /**<a name="line.290"></a>
-<FONT color="green">291</FONT>         * Commit a previously opened transaction.<a name="line.291"></a>
-<FONT color="green">292</FONT>         *<a name="line.292"></a>
-<FONT color="green">293</FONT>         * &lt;p&gt;<a name="line.293"></a>
-<FONT color="green">294</FONT>         * The implementation in {@link SQLSchemaUpdater} just invokes {@link Connection#commit}.<a name="line.294"></a>
-<FONT color="green">295</FONT>         *<a name="line.295"></a>
-<FONT color="green">296</FONT>         * @param c the connection on which to commit the transaction<a name="line.296"></a>
-<FONT color="green">297</FONT>         * @param handle transaction handle returned from {@link #openTransaction openTransaction()}.<a name="line.297"></a>
-<FONT color="green">298</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.298"></a>
-<FONT color="green">299</FONT>         */<a name="line.299"></a>
-<FONT color="green">300</FONT>        @Override<a name="line.300"></a>
-<FONT color="green">301</FONT>        protected void commitTransaction(Connection c, Object handle) throws SQLException {<a name="line.301"></a>
-<FONT color="green">302</FONT>            c.commit();<a name="line.302"></a>
-<FONT color="green">303</FONT>        }<a name="line.303"></a>
-<FONT color="green">304</FONT>    <a name="line.304"></a>
-<FONT color="green">305</FONT>        /**<a name="line.305"></a>
-<FONT color="green">306</FONT>         * Roll back a previously opened transaction.<a name="line.306"></a>
-<FONT color="green">307</FONT>         * This method will also be invoked if {@link #commitTransaction commitTransaction()} throws an exception.<a name="line.307"></a>
-<FONT color="green">308</FONT>         *<a name="line.308"></a>
-<FONT color="green">309</FONT>         * &lt;p&gt;<a name="line.309"></a>
-<FONT color="green">310</FONT>         * The implementation in {@link SQLSchemaUpdater} just invokes {@link Connection#rollback}.<a name="line.310"></a>
-<FONT color="green">311</FONT>         *<a name="line.311"></a>
-<FONT color="green">312</FONT>         * @param c the connection on which to roll back the transaction<a name="line.312"></a>
-<FONT color="green">313</FONT>         * @param handle transaction handle returned from {@link #openTransaction openTransaction()}.<a name="line.313"></a>
-<FONT color="green">314</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.314"></a>
-<FONT color="green">315</FONT>         */<a name="line.315"></a>
-<FONT color="green">316</FONT>        @Override<a name="line.316"></a>
-<FONT color="green">317</FONT>        protected void rollbackTransaction(Connection c, Object handle) throws SQLException {<a name="line.317"></a>
-<FONT color="green">318</FONT>            c.rollback();<a name="line.318"></a>
-<FONT color="green">319</FONT>        }<a name="line.319"></a>
-<FONT color="green">320</FONT>    <a name="line.320"></a>
-<FONT color="green">321</FONT>        /**<a name="line.321"></a>
-<FONT color="green">322</FONT>         * Determine if the database needs initialization.<a name="line.322"></a>
-<FONT color="green">323</FONT>         *<a name="line.323"></a>
-<FONT color="green">324</FONT>         * &lt;p&gt;<a name="line.324"></a>
-<FONT color="green">325</FONT>         * The implementation in {@link SQLSchemaUpdater} simply invokes &lt;code&gt;SELECT COUNT(*) FROM &lt;i&gt;UPDATETABLE&lt;/i&gt;&lt;/code&gt;<a name="line.325"></a>
-<FONT color="green">326</FONT>         * and checks for success or failure. If an exception is thrown, {@link #indicatesUninitializedDatabase} is used<a name="line.326"></a>
-<FONT color="green">327</FONT>         * to distinguish between an exception caused by an uninitialized database and a truly unexpected one.<a name="line.327"></a>
-<FONT color="green">328</FONT>         *<a name="line.328"></a>
-<FONT color="green">329</FONT>         * @param c connection to the database<a name="line.329"></a>
-<FONT color="green">330</FONT>         * @throws SQLException if an unexpected error occurs while accessing the database<a name="line.330"></a>
-<FONT color="green">331</FONT>         */<a name="line.331"></a>
-<FONT color="green">332</FONT>        @Override<a name="line.332"></a>
-<FONT color="green">333</FONT>        protected boolean databaseNeedsInitialization(Connection c) throws SQLException {<a name="line.333"></a>
-<FONT color="green">334</FONT>            final boolean[] result = new boolean[1];<a name="line.334"></a>
-<FONT color="green">335</FONT>            this.apply(c, new SQLCommand("SELECT COUNT(*) FROM " + this.getUpdateTableName()) {<a name="line.335"></a>
-<FONT color="green">336</FONT>                @Override<a name="line.336"></a>
-<FONT color="green">337</FONT>                public void apply(Connection c) throws SQLException {<a name="line.337"></a>
-<FONT color="green">338</FONT>                    Statement s = c.createStatement();<a name="line.338"></a>
-<FONT color="green">339</FONT>                    try {<a name="line.339"></a>
-<FONT color="green">340</FONT>                        ResultSet resultSet;<a name="line.340"></a>
-<FONT color="green">341</FONT>                        try {<a name="line.341"></a>
-<FONT color="green">342</FONT>                            resultSet = s.executeQuery(this.getSQL());<a name="line.342"></a>
-<FONT color="green">343</FONT>                        } catch (SQLException e) {<a name="line.343"></a>
-<FONT color="green">344</FONT>                            if (SQLSchemaUpdater.this.indicatesUninitializedDatabase(c, e)) {<a name="line.344"></a>
-<FONT color="green">345</FONT>                                SQLSchemaUpdater.this.log.warn("detected an uninitialized database");<a name="line.345"></a>
-<FONT color="green">346</FONT>                                result[0] = true;<a name="line.346"></a>
-<FONT color="green">347</FONT>                                return;<a name="line.347"></a>
-<FONT color="green">348</FONT>                            }<a name="line.348"></a>
-<FONT color="green">349</FONT>                            throw e;<a name="line.349"></a>
-<FONT color="green">350</FONT>                        }<a name="line.350"></a>
-<FONT color="green">351</FONT>                        SQLSchemaUpdater.this.log.info("detected initialized database, with "<a name="line.351"></a>
-<FONT color="green">352</FONT>                          + resultSet.getLong(1) + " update(s) already applied");<a name="line.352"></a>
-<FONT color="green">353</FONT>                    } finally {<a name="line.353"></a>
-<FONT color="green">354</FONT>                        s.close();<a name="line.354"></a>
-<FONT color="green">355</FONT>                    }<a name="line.355"></a>
-<FONT color="green">356</FONT>                }<a name="line.356"></a>
-<FONT color="green">357</FONT>            });<a name="line.357"></a>
-<FONT color="green">358</FONT>            return result[0];<a name="line.358"></a>
-<FONT color="green">359</FONT>        }<a name="line.359"></a>
-<FONT color="green">360</FONT>    <a name="line.360"></a>
-<FONT color="green">361</FONT>        /**<a name="line.361"></a>
-<FONT color="green">362</FONT>         * Determine if an exception thrown during {@link #databaseNeedsInitialization} is consistent with<a name="line.362"></a>
-<FONT color="green">363</FONT>         * an uninitialized database.<a name="line.363"></a>
-<FONT color="green">364</FONT>         *<a name="line.364"></a>
-<FONT color="green">365</FONT>         * &lt;p&gt;<a name="line.365"></a>
-<FONT color="green">366</FONT>         * This should return true if the exception would be thrown by an SQL query that attempts to access a non-existent table.<a name="line.366"></a>
-<FONT color="green">367</FONT>         * For exceptions thrown by other causes, this should return false.<a name="line.367"></a>
-<FONT color="green">368</FONT>         *<a name="line.368"></a>
-<FONT color="green">369</FONT>         * &lt;p&gt;<a name="line.369"></a>
-<FONT color="green">370</FONT>         * The implementation in {@link SQLSchemaUpdater} always returns true. Subclasses are encouraged to override<a name="line.370"></a>
-<FONT color="green">371</FONT>         * with a more precise implementation.<a name="line.371"></a>
-<FONT color="green">372</FONT>         *<a name="line.372"></a>
-<FONT color="green">373</FONT>         * @param c connection on which the exception occurred<a name="line.373"></a>
-<FONT color="green">374</FONT>         * @param e exception thrown during database access in {@link #databaseNeedsInitialization}<a name="line.374"></a>
-<FONT color="green">375</FONT>         * @see #databaseNeedsInitialization<a name="line.375"></a>
-<FONT color="green">376</FONT>         * @throws SQLException if an error occurs<a name="line.376"></a>
-<FONT color="green">377</FONT>         */<a name="line.377"></a>
-<FONT color="green">378</FONT>        protected boolean indicatesUninitializedDatabase(Connection c, SQLException e) throws SQLException {<a name="line.378"></a>
-<FONT color="green">379</FONT>            return true;<a name="line.379"></a>
-<FONT color="green">380</FONT>        }<a name="line.380"></a>
-<FONT color="green">381</FONT>    <a name="line.381"></a>
-<FONT color="green">382</FONT>        /**<a name="line.382"></a>
-<FONT color="green">383</FONT>         * Record an update as having been applied.<a name="line.383"></a>
-<FONT color="green">384</FONT>         *<a name="line.384"></a>
-<FONT color="green">385</FONT>         * &lt;p&gt;<a name="line.385"></a>
-<FONT color="green">386</FONT>         * The implementation in {@link SQLSchemaUpdater} does the standard JDBC thing using an INSERT statement<a name="line.386"></a>
-<FONT color="green">387</FONT>         * into the update table.<a name="line.387"></a>
-<FONT color="green">388</FONT>         * &lt;/p&gt;<a name="line.388"></a>
-<FONT color="green">389</FONT>         *<a name="line.389"></a>
-<FONT color="green">390</FONT>         * @param c SQL connection<a name="line.390"></a>
-<FONT color="green">391</FONT>         * @param name update name<a name="line.391"></a>
-<FONT color="green">392</FONT>         * @throws IllegalStateException if the update has already been recorded in the database<a name="line.392"></a>
-<FONT color="green">393</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.393"></a>
-<FONT color="green">394</FONT>         */<a name="line.394"></a>
-<FONT color="green">395</FONT>        @Override<a name="line.395"></a>
-<FONT color="green">396</FONT>        protected void recordUpdateApplied(Connection c, final String name) throws SQLException {<a name="line.396"></a>
-<FONT color="green">397</FONT>            this.apply(c, new SQLCommand("INSERT INTO " + this.getUpdateTableName()<a name="line.397"></a>
-<FONT color="green">398</FONT>              + " (" + this.getUpdateTableNameColumn() + ", " + this.getUpdateTableTimeColumn() + ") VALUES (?, ?)") {<a name="line.398"></a>
-<FONT color="green">399</FONT>                @Override<a name="line.399"></a>
-<FONT color="green">400</FONT>                public void apply(Connection c) throws SQLException {<a name="line.400"></a>
-<FONT color="green">401</FONT>                    PreparedStatement s = c.prepareStatement(this.getSQL());<a name="line.401"></a>
-<FONT color="green">402</FONT>                    try {<a name="line.402"></a>
-<FONT color="green">403</FONT>                        s.setString(1, name);<a name="line.403"></a>
-<FONT color="green">404</FONT>                        s.setDate(2, new java.sql.Date(new Date().getTime()));<a name="line.404"></a>
-<FONT color="green">405</FONT>                        int rows = s.executeUpdate();<a name="line.405"></a>
-<FONT color="green">406</FONT>                        if (rows != 1)<a name="line.406"></a>
-<FONT color="green">407</FONT>                            throw new IllegalStateException("got " + rows + " != 1 rows for `" + this.getSQL() + "'");<a name="line.407"></a>
-<FONT color="green">408</FONT>                    } finally {<a name="line.408"></a>
-<FONT color="green">409</FONT>                        s.close();<a name="line.409"></a>
-<FONT color="green">410</FONT>                    }<a name="line.410"></a>
-<FONT color="green">411</FONT>                }<a name="line.411"></a>
-<FONT color="green">412</FONT>            });<a name="line.412"></a>
+<FONT color="green">251</FONT>         * @param dataSource the database on which to open the transaction<a name="line.251"></a>
+<FONT color="green">252</FONT>         * @return new {@link Connection} with an open transaction<a name="line.252"></a>
+<FONT color="green">253</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.253"></a>
+<FONT color="green">254</FONT>         */<a name="line.254"></a>
+<FONT color="green">255</FONT>        @Override<a name="line.255"></a>
+<FONT color="green">256</FONT>        protected Connection openTransaction(DataSource dataSource) throws SQLException {<a name="line.256"></a>
+<FONT color="green">257</FONT>            Connection c = dataSource.getConnection();<a name="line.257"></a>
+<FONT color="green">258</FONT>            c.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);<a name="line.258"></a>
+<FONT color="green">259</FONT>            c.setAutoCommit(false);<a name="line.259"></a>
+<FONT color="green">260</FONT>            return c;<a name="line.260"></a>
+<FONT color="green">261</FONT>        }<a name="line.261"></a>
+<FONT color="green">262</FONT>    <a name="line.262"></a>
+<FONT color="green">263</FONT>        /**<a name="line.263"></a>
+<FONT color="green">264</FONT>         * Commit a previously opened transaction.<a name="line.264"></a>
+<FONT color="green">265</FONT>         *<a name="line.265"></a>
+<FONT color="green">266</FONT>         * &lt;p&gt;<a name="line.266"></a>
+<FONT color="green">267</FONT>         * The implementation in {@link SQLSchemaUpdater} just invokes {@link Connection#commit}.<a name="line.267"></a>
+<FONT color="green">268</FONT>         *<a name="line.268"></a>
+<FONT color="green">269</FONT>         * @param c the connection on which to commit the transaction<a name="line.269"></a>
+<FONT color="green">270</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.270"></a>
+<FONT color="green">271</FONT>         */<a name="line.271"></a>
+<FONT color="green">272</FONT>        @Override<a name="line.272"></a>
+<FONT color="green">273</FONT>        protected void commitTransaction(Connection c) throws SQLException {<a name="line.273"></a>
+<FONT color="green">274</FONT>            c.commit();<a name="line.274"></a>
+<FONT color="green">275</FONT>            c.close();<a name="line.275"></a>
+<FONT color="green">276</FONT>        }<a name="line.276"></a>
+<FONT color="green">277</FONT>    <a name="line.277"></a>
+<FONT color="green">278</FONT>        /**<a name="line.278"></a>
+<FONT color="green">279</FONT>         * Roll back a previously opened transaction.<a name="line.279"></a>
+<FONT color="green">280</FONT>         * This method will also be invoked if {@link #commitTransaction commitTransaction()} throws an exception.<a name="line.280"></a>
+<FONT color="green">281</FONT>         *<a name="line.281"></a>
+<FONT color="green">282</FONT>         * &lt;p&gt;<a name="line.282"></a>
+<FONT color="green">283</FONT>         * The implementation in {@link SQLSchemaUpdater} just invokes {@link Connection#rollback}.<a name="line.283"></a>
+<FONT color="green">284</FONT>         *<a name="line.284"></a>
+<FONT color="green">285</FONT>         * @param c the connection on which to roll back the transaction<a name="line.285"></a>
+<FONT color="green">286</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.286"></a>
+<FONT color="green">287</FONT>         */<a name="line.287"></a>
+<FONT color="green">288</FONT>        @Override<a name="line.288"></a>
+<FONT color="green">289</FONT>        protected void rollbackTransaction(Connection c) throws SQLException {<a name="line.289"></a>
+<FONT color="green">290</FONT>            c.rollback();<a name="line.290"></a>
+<FONT color="green">291</FONT>            c.close();<a name="line.291"></a>
+<FONT color="green">292</FONT>        }<a name="line.292"></a>
+<FONT color="green">293</FONT>    <a name="line.293"></a>
+<FONT color="green">294</FONT>        /**<a name="line.294"></a>
+<FONT color="green">295</FONT>         * Determine if the database needs initialization.<a name="line.295"></a>
+<FONT color="green">296</FONT>         *<a name="line.296"></a>
+<FONT color="green">297</FONT>         * &lt;p&gt;<a name="line.297"></a>
+<FONT color="green">298</FONT>         * The implementation in {@link SQLSchemaUpdater} simply invokes &lt;code&gt;SELECT COUNT(*) FROM &lt;i&gt;UPDATETABLE&lt;/i&gt;&lt;/code&gt;<a name="line.298"></a>
+<FONT color="green">299</FONT>         * and checks for success or failure. If an exception is thrown, {@link #indicatesUninitializedDatabase} is used<a name="line.299"></a>
+<FONT color="green">300</FONT>         * to distinguish between an exception caused by an uninitialized database and a truly unexpected one.<a name="line.300"></a>
+<FONT color="green">301</FONT>         *<a name="line.301"></a>
+<FONT color="green">302</FONT>         * @param c connection to the database<a name="line.302"></a>
+<FONT color="green">303</FONT>         * @throws SQLException if an unexpected error occurs while accessing the database<a name="line.303"></a>
+<FONT color="green">304</FONT>         */<a name="line.304"></a>
+<FONT color="green">305</FONT>        @Override<a name="line.305"></a>
+<FONT color="green">306</FONT>        protected boolean databaseNeedsInitialization(Connection c) throws SQLException {<a name="line.306"></a>
+<FONT color="green">307</FONT>            final boolean[] result = new boolean[1];<a name="line.307"></a>
+<FONT color="green">308</FONT>            this.apply(c, new SQLCommand("SELECT COUNT(*) FROM " + this.getUpdateTableName()) {<a name="line.308"></a>
+<FONT color="green">309</FONT>                @Override<a name="line.309"></a>
+<FONT color="green">310</FONT>                public void apply(Connection c) throws SQLException {<a name="line.310"></a>
+<FONT color="green">311</FONT>                    Statement s = c.createStatement();<a name="line.311"></a>
+<FONT color="green">312</FONT>                    try {<a name="line.312"></a>
+<FONT color="green">313</FONT>                        ResultSet resultSet;<a name="line.313"></a>
+<FONT color="green">314</FONT>                        try {<a name="line.314"></a>
+<FONT color="green">315</FONT>                            resultSet = s.executeQuery(this.getSQL());<a name="line.315"></a>
+<FONT color="green">316</FONT>                        } catch (SQLException e) {<a name="line.316"></a>
+<FONT color="green">317</FONT>                            if (SQLSchemaUpdater.this.indicatesUninitializedDatabase(c, e)) {<a name="line.317"></a>
+<FONT color="green">318</FONT>                                SQLSchemaUpdater.this.log.warn("detected an uninitialized database");<a name="line.318"></a>
+<FONT color="green">319</FONT>                                result[0] = true;<a name="line.319"></a>
+<FONT color="green">320</FONT>                                return;<a name="line.320"></a>
+<FONT color="green">321</FONT>                            }<a name="line.321"></a>
+<FONT color="green">322</FONT>                            throw e;<a name="line.322"></a>
+<FONT color="green">323</FONT>                        }<a name="line.323"></a>
+<FONT color="green">324</FONT>                        SQLSchemaUpdater.this.log.info("detected initialized database, with "<a name="line.324"></a>
+<FONT color="green">325</FONT>                          + resultSet.getLong(1) + " update(s) already applied");<a name="line.325"></a>
+<FONT color="green">326</FONT>                    } finally {<a name="line.326"></a>
+<FONT color="green">327</FONT>                        s.close();<a name="line.327"></a>
+<FONT color="green">328</FONT>                    }<a name="line.328"></a>
+<FONT color="green">329</FONT>                }<a name="line.329"></a>
+<FONT color="green">330</FONT>            });<a name="line.330"></a>
+<FONT color="green">331</FONT>            return result[0];<a name="line.331"></a>
+<FONT color="green">332</FONT>        }<a name="line.332"></a>
+<FONT color="green">333</FONT>    <a name="line.333"></a>
+<FONT color="green">334</FONT>        /**<a name="line.334"></a>
+<FONT color="green">335</FONT>         * Determine if an exception thrown during {@link #databaseNeedsInitialization} is consistent with<a name="line.335"></a>
+<FONT color="green">336</FONT>         * an uninitialized database.<a name="line.336"></a>
+<FONT color="green">337</FONT>         *<a name="line.337"></a>
+<FONT color="green">338</FONT>         * &lt;p&gt;<a name="line.338"></a>
+<FONT color="green">339</FONT>         * This should return true if the exception would be thrown by an SQL query that attempts to access a non-existent table.<a name="line.339"></a>
+<FONT color="green">340</FONT>         * For exceptions thrown by other causes, this should return false.<a name="line.340"></a>
+<FONT color="green">341</FONT>         *<a name="line.341"></a>
+<FONT color="green">342</FONT>         * &lt;p&gt;<a name="line.342"></a>
+<FONT color="green">343</FONT>         * The implementation in {@link SQLSchemaUpdater} always returns true. Subclasses are encouraged to override<a name="line.343"></a>
+<FONT color="green">344</FONT>         * with a more precise implementation.<a name="line.344"></a>
+<FONT color="green">345</FONT>         *<a name="line.345"></a>
+<FONT color="green">346</FONT>         * @param c connection on which the exception occurred<a name="line.346"></a>
+<FONT color="green">347</FONT>         * @param e exception thrown during database access in {@link #databaseNeedsInitialization}<a name="line.347"></a>
+<FONT color="green">348</FONT>         * @see #databaseNeedsInitialization<a name="line.348"></a>
+<FONT color="green">349</FONT>         * @throws SQLException if an error occurs<a name="line.349"></a>
+<FONT color="green">350</FONT>         */<a name="line.350"></a>
+<FONT color="green">351</FONT>        protected boolean indicatesUninitializedDatabase(Connection c, SQLException e) throws SQLException {<a name="line.351"></a>
+<FONT color="green">352</FONT>            return true;<a name="line.352"></a>
+<FONT color="green">353</FONT>        }<a name="line.353"></a>
+<FONT color="green">354</FONT>    <a name="line.354"></a>
+<FONT color="green">355</FONT>        /**<a name="line.355"></a>
+<FONT color="green">356</FONT>         * Record an update as having been applied.<a name="line.356"></a>
+<FONT color="green">357</FONT>         *<a name="line.357"></a>
+<FONT color="green">358</FONT>         * &lt;p&gt;<a name="line.358"></a>
+<FONT color="green">359</FONT>         * The implementation in {@link SQLSchemaUpdater} does the standard JDBC thing using an INSERT statement<a name="line.359"></a>
+<FONT color="green">360</FONT>         * into the update table.<a name="line.360"></a>
+<FONT color="green">361</FONT>         * &lt;/p&gt;<a name="line.361"></a>
+<FONT color="green">362</FONT>         *<a name="line.362"></a>
+<FONT color="green">363</FONT>         * @param c SQL connection<a name="line.363"></a>
+<FONT color="green">364</FONT>         * @param updateName update name<a name="line.364"></a>
+<FONT color="green">365</FONT>         * @throws IllegalStateException if the update has already been recorded in the database<a name="line.365"></a>
+<FONT color="green">366</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.366"></a>
+<FONT color="green">367</FONT>         */<a name="line.367"></a>
+<FONT color="green">368</FONT>        @Override<a name="line.368"></a>
+<FONT color="green">369</FONT>        protected void recordUpdateApplied(Connection c, final String updateName) throws SQLException {<a name="line.369"></a>
+<FONT color="green">370</FONT>            this.apply(c, new SQLCommand("INSERT INTO " + this.getUpdateTableName()<a name="line.370"></a>
+<FONT color="green">371</FONT>              + " (" + this.getUpdateTableNameColumn() + ", " + this.getUpdateTableTimeColumn() + ") VALUES (?, ?)") {<a name="line.371"></a>
+<FONT color="green">372</FONT>                @Override<a name="line.372"></a>
+<FONT color="green">373</FONT>                public void apply(Connection c) throws SQLException {<a name="line.373"></a>
+<FONT color="green">374</FONT>                    PreparedStatement s = c.prepareStatement(this.getSQL());<a name="line.374"></a>
+<FONT color="green">375</FONT>                    try {<a name="line.375"></a>
+<FONT color="green">376</FONT>                        s.setString(1, updateName);<a name="line.376"></a>
+<FONT color="green">377</FONT>                        s.setDate(2, new java.sql.Date(new Date().getTime()));<a name="line.377"></a>
+<FONT color="green">378</FONT>                        int rows = s.executeUpdate();<a name="line.378"></a>
+<FONT color="green">379</FONT>                        if (rows != 1)<a name="line.379"></a>
+<FONT color="green">380</FONT>                            throw new IllegalStateException("got " + rows + " != 1 rows for `" + this.getSQL() + "'");<a name="line.380"></a>
+<FONT color="green">381</FONT>                    } finally {<a name="line.381"></a>
+<FONT color="green">382</FONT>                        s.close();<a name="line.382"></a>
+<FONT color="green">383</FONT>                    }<a name="line.383"></a>
+<FONT color="green">384</FONT>                }<a name="line.384"></a>
+<FONT color="green">385</FONT>            });<a name="line.385"></a>
+<FONT color="green">386</FONT>        }<a name="line.386"></a>
+<FONT color="green">387</FONT>    <a name="line.387"></a>
+<FONT color="green">388</FONT>        /**<a name="line.388"></a>
+<FONT color="green">389</FONT>         * Determine which updates have already been applied.<a name="line.389"></a>
+<FONT color="green">390</FONT>         *<a name="line.390"></a>
+<FONT color="green">391</FONT>         * &lt;p&gt;<a name="line.391"></a>
+<FONT color="green">392</FONT>         * The implementation in {@link SQLSchemaUpdater} does the standard JDBC thing using a SELECT statement<a name="line.392"></a>
+<FONT color="green">393</FONT>         * from the update table.<a name="line.393"></a>
+<FONT color="green">394</FONT>         *<a name="line.394"></a>
+<FONT color="green">395</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.395"></a>
+<FONT color="green">396</FONT>         */<a name="line.396"></a>
+<FONT color="green">397</FONT>        @Override<a name="line.397"></a>
+<FONT color="green">398</FONT>        protected Set&lt;String&gt; getAppliedUpdateNames(Connection c) throws SQLException {<a name="line.398"></a>
+<FONT color="green">399</FONT>            final HashSet&lt;String&gt; updateNames = new HashSet&lt;String&gt;();<a name="line.399"></a>
+<FONT color="green">400</FONT>            this.apply(c, new SQLCommand("SELECT " + this.getUpdateTableNameColumn() + " FROM " + this.getUpdateTableName()) {<a name="line.400"></a>
+<FONT color="green">401</FONT>                @Override<a name="line.401"></a>
+<FONT color="green">402</FONT>                public void apply(Connection c) throws SQLException {<a name="line.402"></a>
+<FONT color="green">403</FONT>                    Statement s = c.createStatement();<a name="line.403"></a>
+<FONT color="green">404</FONT>                    try {<a name="line.404"></a>
+<FONT color="green">405</FONT>                        for (ResultSet resultSet = s.executeQuery(this.getSQL()); resultSet.next(); )<a name="line.405"></a>
+<FONT color="green">406</FONT>                            updateNames.add(resultSet.getString(1));<a name="line.406"></a>
+<FONT color="green">407</FONT>                    } finally {<a name="line.407"></a>
+<FONT color="green">408</FONT>                        s.close();<a name="line.408"></a>
+<FONT color="green">409</FONT>                    }<a name="line.409"></a>
+<FONT color="green">410</FONT>                }<a name="line.410"></a>
+<FONT color="green">411</FONT>            });<a name="line.411"></a>
+<FONT color="green">412</FONT>            return updateNames;<a name="line.412"></a>
 <FONT color="green">413</FONT>        }<a name="line.413"></a>
 <FONT color="green">414</FONT>    <a name="line.414"></a>
-<FONT color="green">415</FONT>        /**<a name="line.415"></a>
-<FONT color="green">416</FONT>         * Determine which updates have already been applied.<a name="line.416"></a>
-<FONT color="green">417</FONT>         *<a name="line.417"></a>
-<FONT color="green">418</FONT>         * &lt;p&gt;<a name="line.418"></a>
-<FONT color="green">419</FONT>         * The implementation in {@link SQLSchemaUpdater} does the standard JDBC thing using a SELECT statement<a name="line.419"></a>
-<FONT color="green">420</FONT>         * from the update table.<a name="line.420"></a>
-<FONT color="green">421</FONT>         *<a name="line.421"></a>
-<FONT color="green">422</FONT>         * @throws SQLException if an error occurs while accessing the database<a name="line.422"></a>
-<FONT color="green">423</FONT>         */<a name="line.423"></a>
-<FONT color="green">424</FONT>        @Override<a name="line.424"></a>
-<FONT color="green">425</FONT>        protected Set&lt;String&gt; getAppliedUpdateNames(Connection c) throws SQLException {<a name="line.425"></a>
-<FONT color="green">426</FONT>            final HashSet&lt;String&gt; updateNames = new HashSet&lt;String&gt;();<a name="line.426"></a>
-<FONT color="green">427</FONT>            this.apply(c, new SQLCommand("SELECT " + this.getUpdateTableNameColumn() + " FROM " + this.getUpdateTableName()) {<a name="line.427"></a>
-<FONT color="green">428</FONT>                @Override<a name="line.428"></a>
-<FONT color="green">429</FONT>                public void apply(Connection c) throws SQLException {<a name="line.429"></a>
-<FONT color="green">430</FONT>                    Statement s = c.createStatement();<a name="line.430"></a>
-<FONT color="green">431</FONT>                    try {<a name="line.431"></a>
-<FONT color="green">432</FONT>                        for (ResultSet resultSet = s.executeQuery(this.getSQL()); resultSet.next(); )<a name="line.432"></a>
-<FONT color="green">433</FONT>                            updateNames.add(resultSet.getString(1));<a name="line.433"></a>
-<FONT color="green">434</FONT>                    } finally {<a name="line.434"></a>
-<FONT color="green">435</FONT>                        s.close();<a name="line.435"></a>
-<FONT color="green">436</FONT>                    }<a name="line.436"></a>
-<FONT color="green">437</FONT>                }<a name="line.437"></a>
-<FONT color="green">438</FONT>            });<a name="line.438"></a>
-<FONT color="green">439</FONT>            return updateNames;<a name="line.439"></a>
-<FONT color="green">440</FONT>        }<a name="line.440"></a>
-<FONT color="green">441</FONT>    <a name="line.441"></a>
-<FONT color="green">442</FONT>        // Initialize the database<a name="line.442"></a>
-<FONT color="green">443</FONT>        @Override<a name="line.443"></a>
-<FONT color="green">444</FONT>        protected void initializeDatabase(Connection c) throws SQLException {<a name="line.444"></a>
-<FONT color="green">445</FONT>    <a name="line.445"></a>
-<FONT color="green">446</FONT>            // Sanity check<a name="line.446"></a>
-<FONT color="green">447</FONT>            if (this.getDatabaseInitialization() == null)<a name="line.447"></a>
-<FONT color="green">448</FONT>                throw new IllegalArgumentException("database needs initialization but no database initialization is configured");<a name="line.448"></a>
-<FONT color="green">449</FONT>            if (this.getUpdateTableInitialization() == null)<a name="line.449"></a>
-<FONT color="green">450</FONT>                throw new IllegalArgumentException("database needs initialization but no update table initialization is configured");<a name="line.450"></a>
-<FONT color="green">451</FONT>    <a name="line.451"></a>
-<FONT color="green">452</FONT>            // Initialize application schema<a name="line.452"></a>
-<FONT color="green">453</FONT>            this.log.info("intializing database schema");<a name="line.453"></a>
-<FONT color="green">454</FONT>            this.apply(c, this.getDatabaseInitialization());<a name="line.454"></a>
-<FONT color="green">455</FONT>    <a name="line.455"></a>
-<FONT color="green">456</FONT>            // Initialize update table<a name="line.456"></a>
-<FONT color="green">457</FONT>            this.log.info("intializing update table");<a name="line.457"></a>
-<FONT color="green">458</FONT>            this.apply(c, this.getUpdateTableInitialization());<a name="line.458"></a>
-<FONT color="green">459</FONT>        }<a name="line.459"></a>
-<FONT color="green">460</FONT>    }<a name="line.460"></a>
-<FONT color="green">461</FONT>    <a name="line.461"></a>
+<FONT color="green">415</FONT>        // Initialize the database<a name="line.415"></a>
+<FONT color="green">416</FONT>        @Override<a name="line.416"></a>
+<FONT color="green">417</FONT>        protected void initializeDatabase(Connection c) throws SQLException {<a name="line.417"></a>
+<FONT color="green">418</FONT>    <a name="line.418"></a>
+<FONT color="green">419</FONT>            // Sanity check<a name="line.419"></a>
+<FONT color="green">420</FONT>            if (this.getDatabaseInitialization() == null)<a name="line.420"></a>
+<FONT color="green">421</FONT>                throw new IllegalArgumentException("database needs initialization but no database initialization is configured");<a name="line.421"></a>
+<FONT color="green">422</FONT>            if (this.getUpdateTableInitialization() == null)<a name="line.422"></a>
+<FONT color="green">423</FONT>                throw new IllegalArgumentException("database needs initialization but no update table initialization is configured");<a name="line.423"></a>
+<FONT color="green">424</FONT>    <a name="line.424"></a>
+<FONT color="green">425</FONT>            // Initialize application schema<a name="line.425"></a>
+<FONT color="green">426</FONT>            this.log.info("intializing database schema");<a name="line.426"></a>
+<FONT color="green">427</FONT>            this.apply(c, this.getDatabaseInitialization());<a name="line.427"></a>
+<FONT color="green">428</FONT>    <a name="line.428"></a>
+<FONT color="green">429</FONT>            // Initialize update table<a name="line.429"></a>
+<FONT color="green">430</FONT>            this.log.info("intializing update table");<a name="line.430"></a>
+<FONT color="green">431</FONT>            this.apply(c, this.getUpdateTableInitialization());<a name="line.431"></a>
+<FONT color="green">432</FONT>        }<a name="line.432"></a>
+<FONT color="green">433</FONT>    }<a name="line.433"></a>
+<FONT color="green">434</FONT>    <a name="line.434"></a>
 
 
 

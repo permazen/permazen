@@ -38,9 +38,9 @@
 <FONT color="green">035</FONT>     * &lt;p&gt;<a name="line.35"></a>
 <FONT color="green">036</FONT>     * The containing {@link BeanFactory} must be a {@link ConfigurableBeanFactory} (normally this is always the case).<a name="line.36"></a>
 <FONT color="green">037</FONT>     *<a name="line.37"></a>
-<FONT color="green">038</FONT>     * @param &lt;C&gt; database connection type<a name="line.38"></a>
+<FONT color="green">038</FONT>     * @param &lt;T&gt; database transaction type<a name="line.38"></a>
 <FONT color="green">039</FONT>     */<a name="line.39"></a>
-<FONT color="green">040</FONT>    public abstract class AbstractSpringSchemaUpdate&lt;C&gt; extends AbstractSchemaUpdate&lt;C&gt;<a name="line.40"></a>
+<FONT color="green">040</FONT>    public abstract class AbstractSpringSchemaUpdate&lt;T&gt; extends AbstractSchemaUpdate&lt;T&gt;<a name="line.40"></a>
 <FONT color="green">041</FONT>      implements BeanNameAware, BeanFactoryAware, InitializingBean {<a name="line.41"></a>
 <FONT color="green">042</FONT>    <a name="line.42"></a>
 <FONT color="green">043</FONT>        protected String beanName;<a name="line.43"></a>
@@ -82,10 +82,10 @@
 <FONT color="green">079</FONT>    <a name="line.79"></a>
 <FONT color="green">080</FONT>            // Find required predecessors defined as Spring dependencies<a name="line.80"></a>
 <FONT color="green">081</FONT>            String[] predecessorNames = configurableBeanFactory.getDependenciesForBean(this.beanName);<a name="line.81"></a>
-<FONT color="green">082</FONT>            HashSet&lt;SchemaUpdate&lt;C&gt;&gt; predecessors = new HashSet&lt;SchemaUpdate&lt;C&gt;&gt;(predecessorNames.length);<a name="line.82"></a>
+<FONT color="green">082</FONT>            HashSet&lt;SchemaUpdate&lt;T&gt;&gt; predecessors = new HashSet&lt;SchemaUpdate&lt;T&gt;&gt;(predecessorNames.length);<a name="line.82"></a>
 <FONT color="green">083</FONT>            for (String predecessorName : predecessorNames) {<a name="line.83"></a>
 <FONT color="green">084</FONT>                try {<a name="line.84"></a>
-<FONT color="green">085</FONT>                    predecessors.add((SchemaUpdate&lt;C&gt;)configurableBeanFactory.getBean(predecessorName, SchemaUpdate.class));<a name="line.85"></a>
+<FONT color="green">085</FONT>                    predecessors.add((SchemaUpdate&lt;T&gt;)configurableBeanFactory.getBean(predecessorName, SchemaUpdate.class));<a name="line.85"></a>
 <FONT color="green">086</FONT>                } catch (NoSuchBeanDefinitionException e) {<a name="line.86"></a>
 <FONT color="green">087</FONT>                    continue;<a name="line.87"></a>
 <FONT color="green">088</FONT>                } catch (BeanNotOfRequiredTypeException e) {<a name="line.88"></a>

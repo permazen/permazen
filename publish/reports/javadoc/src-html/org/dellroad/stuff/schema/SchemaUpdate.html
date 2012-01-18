@@ -36,9 +36,9 @@
 <FONT color="green">033</FONT>     * same state that the new version of the update would have left them.<a name="line.33"></a>
 <FONT color="green">034</FONT>     * &lt;/p&gt;<a name="line.34"></a>
 <FONT color="green">035</FONT>     *<a name="line.35"></a>
-<FONT color="green">036</FONT>     * @param &lt;C&gt; database connection type<a name="line.36"></a>
+<FONT color="green">036</FONT>     * @param &lt;T&gt; database transaction type<a name="line.36"></a>
 <FONT color="green">037</FONT>     */<a name="line.37"></a>
-<FONT color="green">038</FONT>    public interface SchemaUpdate&lt;C&gt; {<a name="line.38"></a>
+<FONT color="green">038</FONT>    public interface SchemaUpdate&lt;T&gt; {<a name="line.38"></a>
 <FONT color="green">039</FONT>    <a name="line.39"></a>
 <FONT color="green">040</FONT>        /**<a name="line.40"></a>
 <FONT color="green">041</FONT>         * Get the unique name of this update. This name must be unique among all updates ever applied to the database<a name="line.41"></a>
@@ -54,7 +54,7 @@
 <FONT color="green">051</FONT>         * @return set of zero or more other updates<a name="line.51"></a>
 <FONT color="green">052</FONT>         * @see #getName<a name="line.52"></a>
 <FONT color="green">053</FONT>         */<a name="line.53"></a>
-<FONT color="green">054</FONT>        Set&lt;SchemaUpdate&lt;C&gt;&gt; getRequiredPredecessors();<a name="line.54"></a>
+<FONT color="green">054</FONT>        Set&lt;SchemaUpdate&lt;T&gt;&gt; getRequiredPredecessors();<a name="line.54"></a>
 <FONT color="green">055</FONT>    <a name="line.55"></a>
 <FONT color="green">056</FONT>        /**<a name="line.56"></a>
 <FONT color="green">057</FONT>         * Get the action(s) that comprise this update. Ideally, individual actions should be atomic database operations, i.e.,<a name="line.57"></a>
@@ -65,7 +65,7 @@
 <FONT color="green">062</FONT>         * @return a list of zero or more actions to apply<a name="line.62"></a>
 <FONT color="green">063</FONT>         * @see #isSingleAction<a name="line.63"></a>
 <FONT color="green">064</FONT>         */<a name="line.64"></a>
-<FONT color="green">065</FONT>        List&lt;DatabaseAction&lt;C&gt;&gt; getDatabaseActions();<a name="line.65"></a>
+<FONT color="green">065</FONT>        List&lt;? extends DatabaseAction&lt;T&gt;&gt; getDatabaseActions();<a name="line.65"></a>
 <FONT color="green">066</FONT>    <a name="line.66"></a>
 <FONT color="green">067</FONT>        /**<a name="line.67"></a>
 <FONT color="green">068</FONT>         * Determine whether, if this instance contains multiple individual actions, should they be applied in a single<a name="line.68"></a>

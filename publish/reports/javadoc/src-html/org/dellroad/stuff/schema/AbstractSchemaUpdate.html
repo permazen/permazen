@@ -16,12 +16,12 @@
 <FONT color="green">013</FONT>    /**<a name="line.13"></a>
 <FONT color="green">014</FONT>     * Support superclass for {@link SchemaUpdate} implementations with standard bean property implementations.<a name="line.14"></a>
 <FONT color="green">015</FONT>     *<a name="line.15"></a>
-<FONT color="green">016</FONT>     * @param &lt;C&gt; database connection type<a name="line.16"></a>
+<FONT color="green">016</FONT>     * @param &lt;T&gt; database transaction type<a name="line.16"></a>
 <FONT color="green">017</FONT>     */<a name="line.17"></a>
-<FONT color="green">018</FONT>    public abstract class AbstractSchemaUpdate&lt;C&gt; implements SchemaUpdate&lt;C&gt; {<a name="line.18"></a>
+<FONT color="green">018</FONT>    public abstract class AbstractSchemaUpdate&lt;T&gt; implements SchemaUpdate&lt;T&gt; {<a name="line.18"></a>
 <FONT color="green">019</FONT>    <a name="line.19"></a>
 <FONT color="green">020</FONT>        private String name;<a name="line.20"></a>
-<FONT color="green">021</FONT>        private Set&lt;SchemaUpdate&lt;C&gt;&gt; requiredPredecessors = new HashSet&lt;SchemaUpdate&lt;C&gt;&gt;();<a name="line.21"></a>
+<FONT color="green">021</FONT>        private Set&lt;SchemaUpdate&lt;T&gt;&gt; requiredPredecessors = new HashSet&lt;SchemaUpdate&lt;T&gt;&gt;();<a name="line.21"></a>
 <FONT color="green">022</FONT>        private boolean singleAction;<a name="line.22"></a>
 <FONT color="green">023</FONT>    <a name="line.23"></a>
 <FONT color="green">024</FONT>        @Override<a name="line.24"></a>
@@ -34,11 +34,11 @@
 <FONT color="green">031</FONT>        }<a name="line.31"></a>
 <FONT color="green">032</FONT>    <a name="line.32"></a>
 <FONT color="green">033</FONT>        @Override<a name="line.33"></a>
-<FONT color="green">034</FONT>        public Set&lt;SchemaUpdate&lt;C&gt;&gt; getRequiredPredecessors() {<a name="line.34"></a>
+<FONT color="green">034</FONT>        public Set&lt;SchemaUpdate&lt;T&gt;&gt; getRequiredPredecessors() {<a name="line.34"></a>
 <FONT color="green">035</FONT>            return this.requiredPredecessors;<a name="line.35"></a>
 <FONT color="green">036</FONT>        }<a name="line.36"></a>
 <FONT color="green">037</FONT>    <a name="line.37"></a>
-<FONT color="green">038</FONT>        public void setRequiredPredecessors(Set&lt;SchemaUpdate&lt;C&gt;&gt; requiredPredecessors) {<a name="line.38"></a>
+<FONT color="green">038</FONT>        public void setRequiredPredecessors(Set&lt;SchemaUpdate&lt;T&gt;&gt; requiredPredecessors) {<a name="line.38"></a>
 <FONT color="green">039</FONT>            this.requiredPredecessors = requiredPredecessors;<a name="line.39"></a>
 <FONT color="green">040</FONT>        }<a name="line.40"></a>
 <FONT color="green">041</FONT>    <a name="line.41"></a>

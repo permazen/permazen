@@ -1,0 +1,128 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.pobj;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.util.EventObject;<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>    /**<a name="line.12"></a>
+<FONT color="green">013</FONT>     * Notification event emitted by a {@link PersistentObject} to listeners whenever there is an update to the root object.<a name="line.13"></a>
+<FONT color="green">014</FONT>     *<a name="line.14"></a>
+<FONT color="green">015</FONT>     * @param &lt;T&gt; type of the root persistent object<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    @SuppressWarnings("serial")<a name="line.17"></a>
+<FONT color="green">018</FONT>    public class PersistentObjectEvent&lt;T&gt; extends EventObject {<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>        private final long version;<a name="line.20"></a>
+<FONT color="green">021</FONT>        private final T oldRoot;<a name="line.21"></a>
+<FONT color="green">022</FONT>        private final T newRoot;<a name="line.22"></a>
+<FONT color="green">023</FONT>    <a name="line.23"></a>
+<FONT color="green">024</FONT>        public PersistentObjectEvent(PersistentObject&lt;T&gt; persistentObject, long version, T oldRoot, T newRoot) {<a name="line.24"></a>
+<FONT color="green">025</FONT>            super(persistentObject);<a name="line.25"></a>
+<FONT color="green">026</FONT>            this.version = version;<a name="line.26"></a>
+<FONT color="green">027</FONT>            this.oldRoot = oldRoot;<a name="line.27"></a>
+<FONT color="green">028</FONT>            this.newRoot = newRoot;<a name="line.28"></a>
+<FONT color="green">029</FONT>        }<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>        /**<a name="line.31"></a>
+<FONT color="green">032</FONT>         * Get the {@link PersistentObject} that originated this event.<a name="line.32"></a>
+<FONT color="green">033</FONT>         */<a name="line.33"></a>
+<FONT color="green">034</FONT>        @SuppressWarnings("unchecked")<a name="line.34"></a>
+<FONT color="green">035</FONT>        public PersistentObject&lt;T&gt; getSource() {<a name="line.35"></a>
+<FONT color="green">036</FONT>            return (PersistentObject&lt;T&gt;)super.getSource();<a name="line.36"></a>
+<FONT color="green">037</FONT>        }<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>        /**<a name="line.39"></a>
+<FONT color="green">040</FONT>         * Get the version that this event is associated with.<a name="line.40"></a>
+<FONT color="green">041</FONT>         * The {@link PersistentObject} class always delivers notifications in order, so this<a name="line.41"></a>
+<FONT color="green">042</FONT>         * number should always increase over time.<a name="line.42"></a>
+<FONT color="green">043</FONT>         */<a name="line.43"></a>
+<FONT color="green">044</FONT>        public long getVersion() {<a name="line.44"></a>
+<FONT color="green">045</FONT>            return this.version;<a name="line.45"></a>
+<FONT color="green">046</FONT>        }<a name="line.46"></a>
+<FONT color="green">047</FONT>    <a name="line.47"></a>
+<FONT color="green">048</FONT>        /**<a name="line.48"></a>
+<FONT color="green">049</FONT>         * Get the old root prior to the update.<a name="line.49"></a>
+<FONT color="green">050</FONT>         */<a name="line.50"></a>
+<FONT color="green">051</FONT>        public T getOldRoot() {<a name="line.51"></a>
+<FONT color="green">052</FONT>            return this.oldRoot;<a name="line.52"></a>
+<FONT color="green">053</FONT>        }<a name="line.53"></a>
+<FONT color="green">054</FONT>    <a name="line.54"></a>
+<FONT color="green">055</FONT>        /**<a name="line.55"></a>
+<FONT color="green">056</FONT>         * Get the new root after to the update.<a name="line.56"></a>
+<FONT color="green">057</FONT>         */<a name="line.57"></a>
+<FONT color="green">058</FONT>        public T getNewRoot() {<a name="line.58"></a>
+<FONT color="green">059</FONT>            return this.newRoot;<a name="line.59"></a>
+<FONT color="green">060</FONT>        }<a name="line.60"></a>
+<FONT color="green">061</FONT>    }<a name="line.61"></a>
+<FONT color="green">062</FONT>    <a name="line.62"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
