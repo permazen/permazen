@@ -60,7 +60,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * (which already exists when the application context is created) will be autowired by the application context as well.
  * </p>
  *
- * <h3>@Configurable Beans</h3>
+ * <h3>@VaadinConfigurable Beans</h3>
  *
  * <p>
  * It is also possible to configure beans outside of this application context using AOP, so that any invocation of
