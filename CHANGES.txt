@@ -1,8 +1,14 @@
 
-Version Next
+Version 1.0.227 Released Jan 18, 2012
 
-    - Added PersistentObject classes
-    - Relax requirement for ListableBeanFactory in SpringSQLSchemaUpdater
+    - Added new PersistentObject classes in org.dellroad.stuff.pobj
+    - Remove unnecessary methods openConnection() and closeConnection()
+      from AbstractSchemaUpdater and subclasses
+    - Only require ListableBeanFactory in SpringSQLSchemaUpdater when
+      schema updates are not specified explicitly
+    - Apply some minimal validation to schema update names
+    - Added AnnotatedXMLEvent{Reader, Writer}, TransformErrorListener
+    - Added new "jibx-bind" build macro
 
 Version 1.0.207 Released Jan 10, 2012
 
