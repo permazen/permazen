@@ -23,8 +23,8 @@
  * <li>Changes are atomic, serialized, wholesale updates</li>
  * <li>All updates must fully validate</li>
  * <li>Modification serial number allows for optimistic locking</li>
- * <li>Support for listener notifications on update with merge information</li>
- * <li>Support for automated intialization and schema update tracking using {@link org.dellroad.stuff.schema} classes</li>
+ * <li>Support for listener notifications on update</li>
+ * <li>Support for schema updates via XSLT transforms using the {@link org.dellroad.stuff.schema} classes</li>
  * </ul>
  *
  * <p>
