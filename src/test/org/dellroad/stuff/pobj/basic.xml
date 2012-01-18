@@ -27,6 +27,8 @@
     <bean id="schemaUpdater" class="org.dellroad.stuff.pobj.SpringPersistentObjectSchemaUpdater"
       p:delegate-ref="delegate" p:file="build/test/org/dellroad/stuff/pobj/basic.pobj.xml"/>
 
+    <bean scope="prototype" factory-bean="schemaUpdater" factory-method="getPersistentObject"/>
+
 <!-- Updates -->
 
     <bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate" id="update0"
