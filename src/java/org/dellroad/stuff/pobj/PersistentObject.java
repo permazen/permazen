@@ -9,8 +9,6 @@ package org.dellroad.stuff.pobj;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,12 +23,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.validation.ConstraintViolation;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.dellroad.stuff.validation.ValidationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +35,13 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The model is that there is a root Java object which, together with the tree of objects is points to,
  * represents the current "database" state. XML (de)serializers provide correspondence between the in-memory
- * Java object tree and an XML document and define what the "tree" is. Just like the persistent XML file that
+ * Java object tree and an XML document, and define what the "tree" is. Just like the persistent XML file that
  * backs it, the object tree is read and written in its entirety, atomically, and so is always treated as "one thing".
+ * In other words, the object tree is passed by value.
+ *
+ * <p>
+ * When object tree is updated, it must pass validation checks, and then the persistent file is updated and
+ * listener notifications are sent out.
  *
  * <p>
  * Support for optimistic locking is included. There is a current version number which is incremented each
@@ -52,24 +52,22 @@ import org.slf4j.LoggerFactory;
  * into a single filesystem write operation.
  *
  * <p>
- * File system writes use the atomic rename operation.
+ * File system writes use the rename operation for atomicity.
  *
  * <p>
- * Subclasses must implement the XML (de)serialization procedure.
+ * Instances must be supplied with a {@link PersistentObjectDelegate} that knows how to validate the root object
+ * and perform the XML conversions.
  *
  * @param <T> type of the root persistent object
  * @see org.dellroad.stuff.pobj
  */
-public abstract class PersistentObject<T> {
+public class PersistentObject<T> {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * The XML file containing the persisted object.
-     */
-    protected final File persistentFile;
-
     private final HashSet<PersistentObjectListener<T>> listeners = new HashSet<PersistentObjectListener<T>>();
+    private final PersistentObjectDelegate<T> delegate;
+    private final File persistentFile;
     private final long writeDelay;
 
     private T root;
@@ -87,17 +85,28 @@ public abstract class PersistentObject<T> {
      * The {@code writeDelay} is the maximum delay after an update operation before a write-back to the persistent file
      * must be initiated.
      *
+     * @param delegate delegate supplying required operations
      * @param file the file used to persist
      * @param writeDelay write delay in milliseconds, or zero for immediate write-back
      * @throws IllegalArgumentException if {@code writeDelay} is negative
      */
-    protected PersistentObject(File file, long writeDelay) {
+    protected PersistentObject(PersistentObjectDelegate<T> delegate, File file, long writeDelay) {
+        if (delegate == null)
+            throw new IllegalArgumentException("null delegate");
         if (file == null)
             throw new IllegalArgumentException("null file");
         if (writeDelay < 0)
             throw new IllegalArgumentException("negative writeDelay");
+        this.delegate = delegate;
         this.persistentFile = file;
         this.writeDelay = writeDelay;
+    }
+
+    /**
+     * Get the persistent file containing the XML form of the persisted object.
+     */
+    public File getPersistentFile() {
+        return this.persistentFile;
     }
 
     /**
@@ -204,7 +213,7 @@ public abstract class PersistentObject<T> {
         }
 
         // Copy root
-        return this.root != null ? this.copy(this.root) : null;
+        return this.root != null ? this.delegate.copy(this.root) : null;
     }
 
     /**
@@ -257,13 +266,13 @@ public abstract class PersistentObject<T> {
             throw new PersistentObjectVersionException(this.version, expectedVersion);
 
         // Validate the new root
-        Set<ConstraintViolation<T>> violations = this.validate(newRoot);
+        Set<ConstraintViolation<T>> violations = this.delegate.validate(newRoot);
         if (!violations.isEmpty())
             throw new PersistentObjectValidationException((Set<ConstraintViolation<?>>)(Object)violations);
 
         // Do the update
         final T oldRoot = this.root;
-        this.root = this.copy(newRoot);
+        this.root = this.delegate.copy(newRoot);
         this.version++;
         this.sharedRoot = null;
 
@@ -300,41 +309,6 @@ public abstract class PersistentObject<T> {
     }
 
     /**
-     * Make a deep copy of the given object.
-     *
-     * <p>
-     * The implementation in {@link PersistentObject} does this by serializing and then deserializing
-     * the object graph. Subclasses are encouraged to provide a more efficient implementation.
-     *
-     * @throws IllegalArgumentException if {@code original} is null
-     * @throws PersistentObjectException if an error occurs
-     */
-    public T copy(T original) {
-        if (original == null)
-            throw new IllegalArgumentException("null original");
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(32 * 1024 - 32);
-        this.serialize(original, new StreamResult(buffer));
-        StreamSource source = new StreamSource(new ByteArrayInputStream(buffer.toByteArray()));
-        T copy = this.deserialize(source);
-        if (copy == null)
-            throw new PersistentObjectException("null object returned by deserialize()");
-        return copy;
-    }
-
-    /**
-     * Validate the given instance.
-     *
-     * <p>
-     * The implementation in {@link PersistentObject} performs validation using {@link ValidationContext#validate()}.
-     *
-     * @throws IllegalArgumentException if {@code obj} is null
-     * @throws PersistentObjectException if validation fails
-     */
-    public Set<ConstraintViolation<T>> validate(T obj) {
-        return new ValidationContext<T>(obj).validate();
-    }
-
-    /**
      * Add a listener.
      *
      * @throws IllegalArgumentException if {@code listener} is null
@@ -357,29 +331,18 @@ public abstract class PersistentObject<T> {
     }
 
     /**
-     * Serialize an instance of the given root object.
-     *
-     * @param obj object to serialize; must not be modified
-     * @param result XML destination
-     * @throws PersistentObjectException if an error occurs
-     */
-    public abstract void serialize(T obj, Result result);
-
-    /**
-     * Deserialize an instance of the root object.
-     *
-     * @param source XML source
-     * @return deserialized object
-     * @throws PersistentObjectException if an error occurs
-     */
-    public abstract T deserialize(Source source);
-
-    /**
      * Get a simple string description of this instance. Used for (among other things) log messages.
      */
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "[" + this.persistentFile.getName() + "]";
+    }
+
+    /**
+     * Get the configured {@link PersistentObjectDelegate}.
+     */
+    protected PersistentObjectDelegate getDelegate() {
+        return this.delegate;
     }
 
     /**
@@ -403,7 +366,11 @@ public abstract class PersistentObject<T> {
         try {
             StreamSource source = new StreamSource(input);
             source.setSystemId(this.persistentFile);
-            obj = this.deserialize(source);
+            try {
+                obj = this.delegate.deserialize(source);
+            } catch (IOException e) {
+                throw new PersistentObjectException("error reading persistent file", e);
+            }
         } finally {
             try {
                 input.close();
@@ -414,7 +381,7 @@ public abstract class PersistentObject<T> {
 
         // Check result
         if (obj == null)
-            throw new PersistentObjectException("null object returned by deserialize()");
+            throw new PersistentObjectException("null object returned by delegate.deserialize()");
 
         // Done
         return obj;
@@ -458,7 +425,11 @@ public abstract class PersistentObject<T> {
             try {
                 StreamResult result = new StreamResult(output);
                 result.setSystemId(tempFile);
-                this.serialize(obj, result);
+                try {
+                    this.delegate.serialize(obj, result);
+                } catch (IOException e) {
+                    throw new PersistentObjectException("error writing persistent file", e);
+                }
                 try {
                     output.close();
                 } catch (IOException e) {
@@ -509,19 +480,6 @@ public abstract class PersistentObject<T> {
         });
     }
 
-    /**
-     * Handle an exception thrown during a delayed write-back attempt. {@link ThreadDeath} exceptions are not
-     * passed to this method, but all others are.
-     *
-     * <p>
-     * The implementation in {@link PersistentObject} simply logs the exception.
-     *
-     * @param t the exception thrown
-     */
-    protected void handleWritebackException(Throwable t) {
-        this.log.error(this + ": error during write-back", t);
-    }
-
     // Handle a write-back timeout
     private synchronized void writeTimeout() {
 
@@ -536,7 +494,7 @@ public abstract class PersistentObject<T> {
         } catch (ThreadDeath t) {
             throw t;
         } catch (Throwable t) {
-            this.handleWritebackException(t);
+            this.delegate.handleWritebackException(this, t);
         }
     }
 

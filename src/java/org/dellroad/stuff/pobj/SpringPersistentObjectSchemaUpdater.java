@@ -13,8 +13,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Comparator;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
 import org.dellroad.stuff.schema.SchemaUpdate;
@@ -25,8 +23,6 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.oxm.Marshaller;
-import org.springframework.oxm.Unmarshaller;
 
 /**
  * {@link PersistentObjectSchemaUpdater} optimized for use with Spring.
@@ -41,11 +37,6 @@ import org.springframework.oxm.Unmarshaller;
  * </ul>
  *
  * <p>
- * A Spring {@link Marshaller} and {@link Unmarshaller} are required for XML (de)serialization,
- * and an initial value (for when no persistent file exists) must be configured, specified either
- * explicitly or via an XML {@link Resource}.
- *
- * <p>
  * An example of how this class can be combined with custom XML to define an updater and all its updates:
  * <blockquote><pre>
  *  &lt;beans xmlns="http://www.springframework.org/schema/beans"
@@ -55,13 +46,14 @@ import org.springframework.oxm.Unmarshaller;
  *      http://www.springframework.org/schema/beans
  *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd&gt;
  *
- *      &lt;!-- Convenience definition to access the actual PersistentObject --&gt;
- *      <b>&lt;bean scope="prototype" factory-bean="schemaUpdater" factory-method="getPersistentObject"/&gt;</b>
+ *      &lt;!-- Persistent object delegate; you supply the XML (un)marshaller --&gt;
+ *      <b>&lt;bean id="delegate" class="org.dellroad.stuff.pobj.SpringDelegate"
+ *          p:marshaller-ref="marshaller" p:unmarshaller-ref="unmarshaller"&gt;</b>
  *
- *      &lt;!-- Persistent object schema updater; you supply the XML (un)marshallers --&gt;
+ *      &lt;!-- Persistent object schema updater --&gt;
  *      <b>&lt;bean id="schemaUpdater" class="org.dellroad.stuff.pobj.SpringPersistentObjectSchemaUpdater"
- *          p:marshaller-ref="marshaller" p:unmarshaller-ref="unmarshaller"
- *          p:file="/var/example/pobj.xml" p:initialXML="classpath:com/example/initial-pobj.xml"&gt;</b>
+ *          p:file="/var/example/pobj.xml" p:delegate-ref="delegate"
+ *          p:initialXML="classpath:com/example/initial-pobj.xml"&gt;</b>
  *
  *      &lt;!-- Schema update #1 --&gt;
  *      <b>&lt;bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"
@@ -77,7 +69,8 @@ import org.springframework.oxm.Unmarshaller;
  * </pre></blockquote>
  *
  * <p>
- * The {@link PersistentObject} itself, fully updated, is accessible via {@link #getPersistentObject}.
+ * The {@link PersistentObject} itself, fully updated, is accessible via {@link #getPersistentObject}
+ * or as the <code>persistentObject</code> bean in the above example.
  *
  * @param <T> type of the root persistent object
  */
@@ -87,29 +80,13 @@ public class SpringPersistentObjectSchemaUpdater<T> extends PersistentObjectSche
     private ListableBeanFactory beanFactory;
     private T initialValue;
     private Resource initialXML;
-    private Marshaller marshaller;
-    private Unmarshaller unmarshaller;
-
-    /**
-     * Set the {@link Marshaller} used to convert instances to XML. Required property.
-     */
-    public void setMarshaller(Marshaller marshaller) {
-        this.marshaller = marshaller;
-    }
-
-    /**
-     * Set the {@link Marshaller} used to convert instances to XML. Required property.
-     */
-    public void setUnmarshaller(Unmarshaller unmarshaller) {
-        this.unmarshaller = unmarshaller;
-    }
 
     /**
      * Set the initial value to be used on an uninitialized persistent object.
      *
      * <p>
-     * Either this or a {@linkplain #setInitialXML initial XML resource} must be configured
-     * in the case that no persistent file exists yet.
+     * Either this or a {@linkplain #setInitialXML initial XML resource} should be configured
+     * to handle the case that no persistent file exists yet.
      */
     public void setInitialValue(T initialValue) {
         this.initialValue = initialValue;
@@ -120,8 +97,8 @@ public class SpringPersistentObjectSchemaUpdater<T> extends PersistentObjectSche
      * This can be used as an alternative to {@link #setInitialValue}.
      *
      * <p>
-     * Either this or an explicit {@linkplain #setInitialValue initial value} must be configured
-     * in the case that no persistent file exists yet.
+     * Either this or an explicit {@linkplain #setInitialValue initial value} should be configured
+     * to handle the case that no persistent file exists yet.
      */
     public void setInitialXML(Resource resource) {
         this.initialXML = resource;
@@ -142,13 +119,14 @@ public class SpringPersistentObjectSchemaUpdater<T> extends PersistentObjectSche
         if (this.initialValue != null)
             return this.initialValue;
 
-        // Use configured XML
+        // Use configured XML if available
         if (this.initialXML == null)
-            throw new PersistentObjectException("an initial value is needed but no initial value (or resource) is configured");
+            return null;
         try {
             InputStream input = this.initialXML.getInputStream();
             try {
-                return this.deserialize(new StreamSource(new BufferedInputStream(input), this.initialXML.getURI().toString()));
+                return this.delegate.deserialize(
+                  new StreamSource(new BufferedInputStream(input), this.initialXML.getURI().toString()));
             } finally {
                 try {
                     input.close();
@@ -164,25 +142,6 @@ public class SpringPersistentObjectSchemaUpdater<T> extends PersistentObjectSche
     }
 
     @Override
-    public void serialize(T obj, Result result) {
-        try {
-            this.marshaller.marshal(obj, result);
-        } catch (IOException e) {
-            throw new PersistentObjectException(e);
-        }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public T deserialize(Source source) {
-        try {
-            return (T)this.unmarshaller.unmarshal(source);
-        } catch (IOException e) {
-            throw new PersistentObjectException(e);
-        }
-    }
-
-    @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         if (beanFactory instanceof ListableBeanFactory)
             this.beanFactory = (ListableBeanFactory)beanFactory;
@@ -191,14 +150,14 @@ public class SpringPersistentObjectSchemaUpdater<T> extends PersistentObjectSche
     @Override
     @SuppressWarnings("unchecked")
     public void afterPropertiesSet() throws Exception {
-        if (this.beanFactory == null)
-            throw new Exception("no bean factory configured");
-        if (this.marshaller == null)
-            throw new Exception("no marshaller configured");
-        if (this.unmarshaller == null)
-            throw new Exception("no unmarshaller configured");
+
+        // Check config
         if (this.file == null)
-            throw new Exception("no persistent file configured");
+            throw new IllegalArgumentException("no file configured");
+        if (this.writeDelay < 0)
+            throw new IllegalArgumentException("negative writeDelay file configured");
+        if (this.delegate == null)
+            throw new IllegalArgumentException("no delegate configured");
         if (this.getUpdates() == null) {
             if (this.beanFactory == null) {
                 throw new IllegalArgumentException("no updates explicitly configured and the containing BeanFactory"
@@ -207,6 +166,8 @@ public class SpringPersistentObjectSchemaUpdater<T> extends PersistentObjectSche
             this.setUpdates((Collection<SpringPersistentObjectSchemaUpdate<T>>)(Object)this.beanFactory.getBeansOfType(
               SpringPersistentObjectSchemaUpdate.class).values());
         }
+
+        // Start
         this.start();
     }
 

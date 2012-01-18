@@ -9,6 +9,7 @@ package org.dellroad.stuff.pobj;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,12 +39,16 @@ import org.dellroad.stuff.schema.AbstractSchemaUpdater;
  * elements into the serialized XML document; these updates are transparently removed when the document is read back.
  * In this way the document and its set of applied updates always travel together.
  *
+ * <p>
+ * Subclasses will typically override {@link #getInitialValue} for when there is no persistent file yet.
+ *
  * @param <T> type of the root persistent object
  */
-public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File, PersistentFileTransaction> {
+public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File, PersistentFileTransaction> {
 
     protected File file;
     protected long writeDelay;
+    protected PersistentObjectDelegate<T> delegate;
 
     private ArrayList<String> updateNames;
     private PersistentObject<T> persistentObject;
@@ -64,9 +69,16 @@ public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpd
     }
 
     /**
+     * Configure the {@link PersistentObjectDelegate}. Required property.
+     */
+    public void setDelegate(PersistentObjectDelegate<T> delegate) {
+        this.delegate = delegate;
+    }
+
+    /**
      * Start this instance. Does nothing if already started.
      *
-     * @throws IllegalArgumentException if an invalid file or write delay is configured
+     * @throws IllegalArgumentException if an invalid file, write delay, or delegate is configured
      * @throws PersistentObjectException if an error occurs
      */
     public synchronized void start() {
@@ -74,6 +86,14 @@ public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpd
         // Already started?
         if (this.persistentObject != null)
             return;
+
+        // Sanity check
+        if (this.file == null)
+            throw new IllegalArgumentException("no file configured");
+        if (this.writeDelay < 0)
+            throw new IllegalArgumentException("negative writeDelay file configured");
+        if (this.delegate == null)
+            throw new IllegalArgumentException("no delegate configured");
 
         // Do schema updates
         try {
@@ -85,7 +105,7 @@ public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpd
         }
 
         // Create and start persistent object
-        this.persistentObject = new UpdaterObject();
+        this.persistentObject = new PersistentObject<T>(new UpdaterDelegate(), this.file, this.writeDelay);
         this.persistentObject.start();
     }
 
@@ -118,22 +138,14 @@ public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpd
 
     /**
      * Get the initial value for the persistent object when no persistent file is found.
-     */
-    protected abstract T getInitialValue();
-
-    /**
-     * Serialize an instance of the given root object.
      *
-     * @throws RuntimeException if an error occurs
+     * <p>
+     * The implementation in {@link PersistentObjectSchemaUpdater} just returns null.
+     * Subclasses should override as desired.
      */
-    public abstract void serialize(T obj, Result result);
-
-    /**
-     * Deserialize an instance of the root object.
-     *
-     * @throws RuntimeException if an error occurs
-     */
-    public abstract T deserialize(Source source);
+    protected T getInitialValue() {
+        return null;
+    }
 
     @Override
     protected boolean databaseNeedsInitialization(PersistentFileTransaction transaction) throws Exception {
@@ -146,12 +158,12 @@ public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpd
         // Get initial value
         T initialValue = this.getInitialValue();
         if (initialValue == null)
-            throw new PersistentObjectException("null value returned from initialValue()");
+            return;
 
         // Serialize it
         ByteArrayOutputStream buffer = new ByteArrayOutputStream(PersistentFileTransaction.FILE_BUFFER_SIZE);
         StreamResult result = new StreamResult(buffer);
-        this.serialize(initialValue, result);
+        this.delegate.serialize(initialValue, result);
 
         // Set it in the transaction
         transaction.setData(buffer.toByteArray());
@@ -183,29 +195,29 @@ public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpd
         transaction.addUpdate(name);
     }
 
-    // Our PersistentObject subclas that hides the updates
-    private class UpdaterObject extends PersistentObject<T> {
+    // Our PersistentObjectDelegate that hides the updates when (de)serializing
+    private class UpdaterDelegate extends FilterDelegate<T> {
 
         private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
         private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
 
-        UpdaterObject() {
-            super(PersistentObjectSchemaUpdater.this.file, PersistentObjectSchemaUpdater.this.writeDelay);
+        UpdaterDelegate() {
+            super(PersistentObjectSchemaUpdater.this.delegate);
         }
 
         /**
          * Serialize object to XML, adding update list.
          */
         @Override
-        public void serialize(T obj, Result result) {
+        public void serialize(T obj, Result result) throws IOException {
             try {
                 XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(result);
                 UpdatesXMLEventWriter updatesWriter = new UpdatesXMLEventWriter(eventWriter,
                   PersistentObjectSchemaUpdater.this.updateNames);
-                StAXResult staxResult = new StAXResult(updatesWriter);
-                staxResult.setSystemId(result.getSystemId());
-                PersistentObjectSchemaUpdater.this.serialize(obj, staxResult);
+                super.serialize(obj, new StAXResult(updatesWriter));
                 updatesWriter.close();
+            } catch (IOException e) {
+                throw e;
             } catch (XMLStreamException e) {
                 throw new PersistentObjectException(e);
             }
@@ -215,13 +227,13 @@ public abstract class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpd
          * Deserialize object from XML, removing update list.
          */
         @Override
-        public T deserialize(Source source) {
+        public T deserialize(Source source) throws IOException {
             try {
                 XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(source);
                 UpdatesXMLEventReader updatesReader = new UpdatesXMLEventReader(eventReader);
-                StAXSource staxSource = new StAXSource(updatesReader);
-                staxSource.setSystemId(source.getSystemId());
-                return PersistentObjectSchemaUpdater.this.deserialize(staxSource);
+                return super.deserialize(new StAXSource(updatesReader));
+            } catch (IOException e) {
+                throw e;
             } catch (XMLStreamException e) {
                 throw new PersistentObjectException(e);
             }
