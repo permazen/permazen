@@ -33,21 +33,25 @@ import org.springframework.core.io.Resource;
  */
 public class SpringXSLPersistentObjectSchemaUpdate<T> extends SpringPersistentObjectSchemaUpdate<T> {
 
-    private Resource transformResource;
+    private Resource transform;
     private Properties parameters;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
-        if (this.transformResource == null)
+        if (this.transform == null)
             throw new Exception("no transform configured");
     }
 
     /**
      * Configure the XSLT transform as a resource.
      */
-    public void setTransform(Resource transformResource) {
-        this.transformResource = transformResource;
+    public void setTransform(Resource transform) {
+        this.transform = transform;
+    }
+
+    public Resource getTransform() {
+        return this.transform;
     }
 
     /**
@@ -66,7 +70,7 @@ public class SpringXSLPersistentObjectSchemaUpdate<T> extends SpringPersistentOb
         // Get transform source
         InputStream input;
         try {
-            input = this.transformResource.getInputStream();
+            input = this.transform.getInputStream();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -74,7 +78,7 @@ public class SpringXSLPersistentObjectSchemaUpdate<T> extends SpringPersistentOb
 
             // Setup transformer
             Transformer transformer = TransformerFactory.newInstance().newTransformer(
-              new StreamSource(input, this.transformResource.getURI().toString()));
+              new StreamSource(input, this.transform.getURI().toString()));
             transformer.setErrorListener(new TransformErrorListener(LoggerFactory.getLogger(this.getClass()), true));
             if (this.parameters != null) {
                 for (String name : this.parameters.stringPropertyNames())

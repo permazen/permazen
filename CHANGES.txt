@@ -1,4 +1,8 @@
 
+Version Next
+
+    - Added SpringXSLUpdateTransformConfigurer
+
 Version 1.0.227 Released Jan 18, 2012
 
     - Added new PersistentObject classes in org.dellroad.stuff.pobj

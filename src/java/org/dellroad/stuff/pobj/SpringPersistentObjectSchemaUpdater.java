@@ -57,13 +57,16 @@ import org.springframework.core.io.Resource;
  *      &lt;!-- Persistent object bean --&gt;
  *      <b>&lt;bean scope="prototype" factory-bean="schemaUpdater" factory-method="getPersistentObject"/&gt;</b>
  *
- *      &lt;!-- Schema update #1 --&gt;
- *      <b>&lt;bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"
- *        id="update1" transform="classpath:com/example/updates/update1.xsl"/&gt;</b>
+ *      &lt;!-- Define a common location for our schema update XSLTs --&gt;
+ *      <b>&lt;bean class="org.dellroad.stuff.pobj.SpringXSLUpdateTransformConfigurer"
+ *          p:prefix="classpath:updates/" p:suffix=".xsl"/&gt;</b>
  *
- *      &lt;!-- Schema update #2 --&gt;
- *      <b>&lt;bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"
- *        id="update2" depends-on="update1" transform="classpath:com/example/updates/update2.xsl"/&gt;</b>
+ *      &lt;!-- Schema update #1 --&gt;
+ *      <b>&lt;bean id="update1" class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"
+ *        transform="file://usr/share/updates/SomeUpdate.xsl"/&gt;</b>
+ *
+ *      &lt;!-- Schema update #2: uses "classpath:updates/update2.xsl" thanks to TransformConfigurer --&gt;
+ *      <b>&lt;bean id="update2" class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"/&gt;</b>
  *
  *      &lt;!-- Add more schema updates over time as needed and everything just works... --&gt;
  *

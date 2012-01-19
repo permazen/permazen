@@ -59,6 +59,10 @@ public abstract class AbstractSpringSchemaUpdate<T> extends AbstractSchemaUpdate
      */
     @Override
     public void afterPropertiesSet() throws Exception {
+        if (this.beanFactory == null)
+            throw new IllegalArgumentException("no BeanFactory configured");
+        if (this.beanName == null)
+            throw new IllegalArgumentException("no beanName configured");
         this.setName(this.beanName);
         this.setRequiredPredecessorsFromDependencies();
     }

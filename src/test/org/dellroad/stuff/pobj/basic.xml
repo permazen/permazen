@@ -31,11 +31,13 @@
 
 <!-- Updates -->
 
+    <bean class="org.dellroad.stuff.pobj.SpringXSLUpdateTransformConfigurer"
+      p:prefix="classpath:org/dellroad/stuff/pobj/" p:suffix=".xsl"/>
+
     <bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate" id="update0"
       p:transform="classpath:org/dellroad/stuff/pobj/error.xsl"/>
 
-    <bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate" id="update1" depends-on="update2"
-      p:transform="classpath:org/dellroad/stuff/pobj/addVerbose.xsl"/>
+    <bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate" id="update1" depends-on="update2"/>
 
     <bean class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate" id="update2"
       p:transform="classpath:org/dellroad/stuff/pobj/addName.xsl"/>
