@@ -17,7 +17,6 @@ import org.springframework.core.io.ResourceLoader;
  * an explicit {@link SpringXSLPersistentObjectSchemaUpdate#setTransform transform resource configured}, and configures
  * them using a resource location based on the bean name, by simply adding a configured prefix and suffix.
  *
- * @param <T> type of the persistent object
  * @see SpringXSLPersistentObjectSchemaUpdate
  */
 public class SpringXSLUpdateTransformConfigurer implements BeanPostProcessor, ResourceLoaderAware {
@@ -79,7 +78,7 @@ public class SpringXSLUpdateTransformConfigurer implements BeanPostProcessor, Re
      *
      * <p>
      * The implementation in {@link SpringXSLUpdateTransformConfigurer} simply prepends the configured
-     * prefix and appends the configured suffix to the {@linkplain #beanName bean name}.
+     * prefix and appends the configured suffix to {@code beanName}.
      */
     protected String getImpliedTransformResourceLocation(String beanName) {
         return this.prefix + beanName + this.suffix;
