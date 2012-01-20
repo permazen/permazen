@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.validation.ConstraintViolation;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
@@ -142,6 +143,9 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
      * <p>
      * The implementation in {@link PersistentObjectSchemaUpdater} just returns null.
      * Subclasses should override as desired.
+     *
+     * <p>
+     * The returned value must properly validate.
      */
     protected T getInitialValue() {
         return null;
@@ -153,12 +157,18 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void initializeDatabase(PersistentFileTransaction transaction) throws Exception {
 
         // Get initial value
         T initialValue = this.getInitialValue();
         if (initialValue == null)
             return;
+
+        // Validate it
+        Set<ConstraintViolation<T>> violations = this.delegate.validate(initialValue);
+        if (!violations.isEmpty())
+            throw new PersistentObjectValidationException((Set<ConstraintViolation<?>>)(Object)violations);
 
         // Serialize it
         ByteArrayOutputStream buffer = new ByteArrayOutputStream(PersistentFileTransaction.FILE_BUFFER_SIZE);

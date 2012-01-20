@@ -70,7 +70,7 @@ public abstract class AbstractDelegate<T> implements PersistentObjectDelegate<T>
      * The implementation in {@link AbstractDelegate} performs validation using {@link ValidationContext#validate()}.
      *
      * @throws IllegalArgumentException if {@code obj} is null
-     * @throws PersistentObjectException if validation fails
+     * @return set of zero or more constraint violations
      */
     public Set<ConstraintViolation<T>> validate(T obj) {
         return new ValidationContext<T>(obj).validate();

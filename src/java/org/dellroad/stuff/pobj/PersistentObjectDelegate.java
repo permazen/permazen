@@ -53,7 +53,7 @@ public interface PersistentObjectDelegate<T> {
      * Validate the given object.
      *
      * @throws IllegalArgumentException if {@code obj} is null
-     * @throws PersistentObjectException if validation fails
+     * @return set of zero or more constraint violations
      */
     Set<ConstraintViolation<T>> validate(T obj);
 
