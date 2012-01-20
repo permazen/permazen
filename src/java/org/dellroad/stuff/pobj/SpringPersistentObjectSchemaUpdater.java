@@ -121,13 +121,16 @@ public class SpringPersistentObjectSchemaUpdater<T> extends PersistentObjectSche
     protected T getInitialValue() {
 
         // If value is provided explicitly, just return it
-        if (this.initialValue != null)
+        if (this.initialValue != null) {
+            this.log.info("loading initial content from explicitly configured value");
             return this.initialValue;
+        }
 
         // Use configured XML if available
         if (this.initialXML == null)
             return null;
         try {
+            this.log.info("loading initial content from " + this.initialXML.getURI());
             InputStream input = this.initialXML.getInputStream();
             try {
                 return this.delegate.deserialize(
