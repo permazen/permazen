@@ -1,7 +1,7 @@
 
 Version Next
 
-    - Added IdGenerator
+    - Added IdGenerator, IdMapper, and IdMappingMarshaller
     - Added SpringXSLUpdateTransformConfigurer
 
 Version 1.0.227 Released Jan 18, 2012
