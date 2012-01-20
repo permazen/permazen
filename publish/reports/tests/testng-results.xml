@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results skipped="0" failed="0" total="136" passed="136">
+<testng-results skipped="0" failed="0" total="137" passed="137">
   <reporter-output>
   </reporter-output>
-  <suite name="Unit Test Suite" duration-ms="2388" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:45Z">
+  <suite name="Unit Test Suite" duration-ms="2168" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:04Z">
     <groups>
     </groups>
-    <test name="Unit Tests" duration-ms="2388" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:45Z">
+    <test name="Unit Tests" duration-ms="2168" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:04Z">
       <class name="org.dellroad.stuff.io.NullModemTest">
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.io.NullModemTest@3c24c4a3]" name="setUpValidator" is-config="true" duration-ms="2" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.io.NullModemTest@5d2412e7]" name="setUpValidator" is-config="true" duration-ms="16" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
         </test-method>
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.io.NullModemTest@3c24c4a3]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.io.NullModemTest@5d2412e7]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -18,28 +18,13 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testInput()[pri:0, instance:org.dellroad.stuff.io.NullModemTest@3c24c4a3]" name="testInput" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testInput()[pri:0, instance:org.dellroad.stuff.io.NullModemTest@5d2412e7]" name="testInput" duration-ms="7" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
         </test-method>
-        <test-method status="PASS" signature="testOutput()[pri:0, instance:org.dellroad.stuff.io.NullModemTest@3c24c4a3]" name="testOutput" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-        </test-method>
-      </class>
-      <class name="org.dellroad.stuff.validation.SelfValidatingTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.validation.SelfValidatingTest@48082751]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.validation.SelfValidatingTest@48082751]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-        </test-method>
-        <test-method status="PASS" signature="testValidation()[pri:0, instance:org.dellroad.stuff.validation.SelfValidatingTest@48082751]" name="testValidation" duration-ms="3" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testOutput()[pri:0, instance:org.dellroad.stuff.io.NullModemTest@5d2412e7]" name="testOutput" duration-ms="2" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
         </test-method>
       </class>
       <class name="org.dellroad.stuff.string.ByteArrayEncoderTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="seedRandom" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -48,9 +33,9 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="2" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="3" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -59,7 +44,7 @@
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@12d28dfa]]>
+                <![CDATA[[B@4d811e2c]]>
               </value>
             </param>
             <param index="2">
@@ -69,7 +54,26 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[12]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[[B@3ebc312f]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[12]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -78,7 +82,7 @@
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@3d6721bd]]>
+                <![CDATA[[B@57e40274]]>
               </value>
             </param>
             <param index="2">
@@ -88,7 +92,7 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -98,7 +102,7 @@
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@3dd81ec9]]>
+                <![CDATA[[B@3a5d3ac0]]>
               </value>
             </param>
             <param index="2">
@@ -108,26 +112,7 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[12]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[[B@37cd3dd7]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[12]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -136,7 +121,7 @@
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@3970ae0]]>
+                <![CDATA[[B@354124d6]]>
               </value>
             </param>
             <param index="2">
@@ -146,48 +131,7 @@
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[ac
-dc
-
-]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[[B@4f2d26d2]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[acdc]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[AB]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[[B@314af9f7]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[ab]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -196,7 +140,7 @@ dc
             </param>
             <param index="1">
               <value>
-                <![CDATA[[B@3160e069]]>
+                <![CDATA[[B@16916f80]]>
               </value>
             </param>
             <param index="2">
@@ -206,37 +150,26 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[1g]]>
+                <![CDATA[AB]]>
               </value>
             </param>
             <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value is-null="true"/>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
               <value>
-                <![CDATA[3+]]>
+                <![CDATA[[B@47d978ea]]>
               </value>
             </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
             <param index="2">
-              <value is-null="true"/>
+              <value>
+                <![CDATA[ab]]>
+              </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -251,11 +184,11 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[987654321]]>
+                <![CDATA[1g]]>
               </value>
             </param>
             <param index="1">
@@ -266,11 +199,11 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[+00]]>
+                <![CDATA[3+]]>
               </value>
             </param>
             <param index="1">
@@ -281,7 +214,29 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@d3f136e]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[ac
+dc
+
+]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[[B@262f4813]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[acdc]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -296,11 +251,39 @@ dc
             </param>
           </params>
         </test-method>
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[987654321]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testByteArrayEncoding(java.lang.String, [B, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.ByteArrayEncoderTest@56d90453]" name="testByteArrayEncoding" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[+00]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
       </class>
       <class name="org.dellroad.stuff.schema.SchemaUpdateTest">
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:44Z" finished-at="2012-01-18T10:34:44Z">
-        </test-method>
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-18T10:34:44Z" finished-at="2012-01-18T10:34:44Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
           <params>
             <param index="0">
               <value>
@@ -309,7 +292,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="openContext" is-config="true" duration-ms="248" started-at="2012-01-18T10:34:44Z" finished-at="2012-01-18T10:34:44Z">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
+        </test-method>
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="openContext" is-config="true" duration-ms="179" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
           <params>
             <param index="0">
               <value>
@@ -318,9 +303,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testBasicSchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="testBasicSchemaUpdate" duration-ms="90" started-at="2012-01-18T10:34:44Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testBasicSchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="testBasicSchemaUpdate" duration-ms="68" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
         </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="closeContext" is-config="true" duration-ms="18" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="closeContext" is-config="true" duration-ms="2" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
           <params>
             <param index="0">
               <value>
@@ -329,7 +314,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="openContext" is-config="true" duration-ms="83" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="openContext" is-config="true" duration-ms="136" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
           <params>
             <param index="0">
               <value>
@@ -338,18 +323,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEmptySchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="testEmptySchemaUpdate" duration-ms="3" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testEmptySchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="testEmptySchemaUpdate" duration-ms="3" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="openContext" is-config="true" duration-ms="96" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[public void org.dellroad.stuff.schema.SchemaUpdateTest.testInitializeSchemaUpdate() throws java.lang.Exception]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="closeContext" is-config="true" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="closeContext" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
           <params>
             <param index="0">
               <value>
@@ -358,9 +334,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testInitializeSchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="testInitializeSchemaUpdate" duration-ms="2" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-        </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="closeContext" is-config="true" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="openContext" is-config="true" duration-ms="166" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
           <params>
             <param index="0">
               <value>
@@ -369,7 +343,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="openContext" is-config="true" duration-ms="226" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testInitializeSchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="testInitializeSchemaUpdate" duration-ms="8" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
+        </test-method>
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="openContext" is-config="true" duration-ms="57" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -378,9 +354,18 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testMultiActionSchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="testMultiActionSchemaUpdate" duration-ms="13" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="closeContext" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void org.dellroad.stuff.schema.SchemaUpdateTest.testInitializeSchemaUpdate() throws java.lang.Exception]]>
+              </value>
+            </param>
+          </params>
         </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="closeContext" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testMultiActionSchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="testMultiActionSchemaUpdate" duration-ms="14" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+        </test-method>
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="closeContext" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -389,7 +374,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="openContext" is-config="true" duration-ms="143" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="openContext" is-config="true" duration-ms="63" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -398,20 +383,73 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testUnexpectedSchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="testUnexpectedSchemaUpdate" duration-ms="2" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testUnexpectedSchemaUpdate()[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="testUnexpectedSchemaUpdate" duration-ms="3" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
         </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@11e9c82e]" name="closeContext" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.schema.SchemaUpdateTest@24988707]" name="closeContext" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
                 <![CDATA[public void org.dellroad.stuff.schema.SchemaUpdateTest.testUnexpectedSchemaUpdate() throws java.lang.Exception]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+      </class>
+      <class name="org.dellroad.stuff.pobj.PersistentObjectTest">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@43684706]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@43684706]" name="setUpValidator" is-config="true" duration-ms="2" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+        </test-method>
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@43684706]" name="openContext" is-config="true" duration-ms="709" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:03Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void org.dellroad.stuff.pobj.PersistentObjectTest.testBasic() throws java.lang.Exception]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testBasic()[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@43684706]" name="testBasic" duration-ms="120" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
+        </test-method>
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@43684706]" name="closeContext" is-config="true" duration-ms="2" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void org.dellroad.stuff.pobj.PersistentObjectTest.testBasic() throws java.lang.Exception]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@43684706]" name="openContext" is-config="true" duration-ms="119" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void org.dellroad.stuff.pobj.PersistentObjectTest.testErrorUpdate() throws java.lang.Exception]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testErrorUpdate()[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@43684706]" name="testErrorUpdate" duration-ms="1" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
+        </test-method>
+        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@43684706]" name="closeContext" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:03Z" finished-at="2012-01-20T15:10:03Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void org.dellroad.stuff.pobj.PersistentObjectTest.testErrorUpdate() throws java.lang.Exception]]>
               </value>
             </param>
           </params>
         </test-method>
       </class>
       <class name="org.dellroad.stuff.io.StreamsTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.io.StreamsTest@b554d32]" name="seedRandom" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.io.StreamsTest@6b552b76]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -420,13 +458,13 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.io.StreamsTest@b554d32]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.io.StreamsTest@6b552b76]" name="setUpValidator" is-config="true" duration-ms="2" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
         </test-method>
-        <test-method status="PASS" signature="testStreams()[pri:0, instance:org.dellroad.stuff.io.StreamsTest@b554d32]" name="testStreams" duration-ms="111" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStreams()[pri:0, instance:org.dellroad.stuff.io.StreamsTest@6b552b76]" name="testStreams" duration-ms="185" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
         </test-method>
       </class>
-      <class name="org.dellroad.stuff.pobj.PersistentObjectTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@627a4489]" name="seedRandom" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+      <class name="org.dellroad.stuff.graph.TopologicalSorterTest">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -435,51 +473,693 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@627a4489]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@627a4489]" name="openContext" is-config="true" duration-ms="731" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:44Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[public void org.dellroad.stuff.pobj.PersistentObjectTest.testBasic() throws java.lang.Exception]]>
+                <![CDATA[a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abc]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[bca]]>
               </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testBasic()[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@627a4489]" name="testBasic" duration-ms="121" started-at="2012-01-18T10:34:44Z" finished-at="2012-01-18T10:34:44Z">
-        </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@627a4489]" name="closeContext" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:44Z" finished-at="2012-01-18T10:34:44Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[public void org.dellroad.stuff.pobj.PersistentObjectTest.testBasic() throws java.lang.Exception]]>
+                <![CDATA[a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abc]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[bca]]>
               </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="openContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@627a4489]" name="openContext" is-config="true" duration-ms="112" started-at="2012-01-18T10:34:44Z" finished-at="2012-01-18T10:34:44Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[public void org.dellroad.stuff.pobj.PersistentObjectTest.testErrorUpdate() throws java.lang.Exception]]>
+                <![CDATA[a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[acb]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[cba]]>
               </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testErrorUpdate()[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@627a4489]" name="testErrorUpdate" duration-ms="0" started-at="2012-01-18T10:34:44Z" finished-at="2012-01-18T10:34:44Z">
-        </test-method>
-        <test-method status="PASS" signature="closeContext(java.lang.reflect.Method)[pri:0, instance:org.dellroad.stuff.pobj.PersistentObjectTest@627a4489]" name="closeContext" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:44Z" finished-at="2012-01-18T10:34:44Z">
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[public void org.dellroad.stuff.pobj.PersistentObjectTest.testErrorUpdate() throws java.lang.Exception]]>
+                <![CDATA[w>q,w>z]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[wqz]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[qzw]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[f,q,z,a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abcfqz]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[bcafqz]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[f,q,z,a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[zqfacb]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[zqfcba]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[f,q,z>a,a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[zqfacb]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[cbazqf]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[f,q,z,a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[fqzabc]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[fqzbca]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[f,q,z>a,a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[fqzabc]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[bcafqz]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a,c>b]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[acb]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[abc]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a,b,c,d,e]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abcde]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[abcde]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[f,q,z>a,a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[fqzabc]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[fqbcaz]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[z,y,x>a,a>b,a>c]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[zyxabc]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[zybcax]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[e,d,c,b,a]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abcde]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[abcde]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a,b,c,d,e]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[edcba]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[edcba]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[e,d,c,b,a]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[edcba]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[edcba]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a,b,c,d,e]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abcde]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[abcde]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[e,d,c,b,a]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[edcba]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[edcba]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>d,a>e,a>f,b>d,b>e,b>f,c>d,c>e,c>f]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abcdef]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[defabc]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>b,b>c,c>a]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+            <param index="3">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>a]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+            <param index="3">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>a,b]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+            <param index="3">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>d,a>e,a>f,b>d,b>e,b>f,c>d,c>e,c>f]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[cbafed]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[fedcba]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>d,a>e,a>f,b>d,b>e,b>f,c>d,c>e,c>f]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abcdef]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[defabc]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>b,b>c,c>d,d>e,e>f]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abcdef]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[fedcba]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>b,b>c,c>d,d>e,e>f]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abcdef]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[fedcba]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>b,b>c,c>d,d>e,e>f]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[abcdef]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[fedcba]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>e,e>c,c>f,f>b,b>d]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[aecfbd]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[dbfcea]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>e,e>c,c>f,f>b,b>d]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[aecfbd]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[dbfcea]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@7052c6b4]" name="testSort" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a>e,e>c,c>f,f>b,b>d]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[aecfbd]]>
+              </value>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[dbfcea]]>
               </value>
             </param>
           </params>
         </test-method>
       </class>
       <class name="org.dellroad.stuff.string.SimpleObjectParserTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="seedRandom" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -488,9 +1168,9 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testNamedGroupParse" duration-ms="5" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testNamedGroupParse" duration-ms="2" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -512,7 +1192,27 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testNamedGroupParse" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testNamedGroupParse" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[b=true i=foo s="hello"]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[b=({bval}true|false) i=({ival}[0-9]+) s="({sval}[^"]*)"]]>
+              </value>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+            <param index="3">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testNamedGroupParse" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -534,49 +1234,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testNamedGroupParse" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[b=true i=foo s="hello"]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[b=({bval}true|false) i=({ival}[0-9]+) s="({sval}[^"]*)"]]>
-              </value>
-            </param>
-            <param index="2">
-              <value is-null="true"/>
-            </param>
-            <param index="3">
-              <value is-null="true"/>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testNamedGroupParse" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[b=true]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[(?s)b=({bval}(true|false))]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[ParseObj[b=true,i=0,s=null]]]>
-              </value>
-            </param>
-            <param index="3">
-              <value is-null="true"/>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testNamedGroupParse" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testNamedGroupParse" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -598,29 +1256,29 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testNamedGroupParse" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testNamedGroupParse" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[b=true i=132 s="hello"]]>
+                <![CDATA[b=true]]>
               </value>
             </param>
             <param index="1">
               <value>
-                <![CDATA[b=({bval}true|false) i=({ival}[0-9]+) s="({foobar}[^"]*)"]]>
+                <![CDATA[(?s)b=({bval}(true|false))]]>
               </value>
             </param>
             <param index="2">
-              <value is-null="true"/>
+              <value>
+                <![CDATA[ParseObj[b=true,i=0,s=null]]]>
+              </value>
             </param>
             <param index="3">
-              <value>
-                <![CDATA[class java.lang.IllegalArgumentException]]>
-              </value>
+              <value is-null="true"/>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testNamedGroupParse" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testNamedGroupParse" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -642,7 +1300,29 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testNamedGroupParse" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testNamedGroupParse" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[b=true i=132 s="hello"]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[b=({bval}true|false) i=({ival}[0-9]+) s="({foobar}[^"]*)"]]>
+              </value>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+            <param index="3">
+              <value>
+                <![CDATA[class java.lang.IllegalArgumentException]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testNamedGroupParse(java.lang.String, java.lang.String, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testNamedGroupParse" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -664,7 +1344,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -691,34 +1371,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[b=true i=132 s="hello"]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[b=(true|false) i=([0-9]+) s="([^"]*)"]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[{1=bval, 2=ival, 3=foobar}]]>
-              </value>
-            </param>
-            <param index="3">
-              <value is-null="true"/>
-            </param>
-            <param index="4">
-              <value>
-                <![CDATA[class java.lang.IllegalArgumentException]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -743,7 +1396,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@2c31f2a7]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -770,704 +1423,36 @@ dc
             </param>
           </params>
         </test-method>
-      </class>
-      <class name="org.dellroad.stuff.graph.TopologicalSorterTest">
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-        </test-method>
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, java.lang.String, java.util.HashMap, org.dellroad.stuff.string.SimpleObjectParserTest$ParseObj, java.lang.Class)[pri:0, instance:org.dellroad.stuff.string.SimpleObjectParserTest@19c8ef56]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>b,a>c]]>
+                <![CDATA[b=true i=132 s="hello"]]>
               </value>
             </param>
             <param index="1">
               <value>
-                <![CDATA[false]]>
+                <![CDATA[b=(true|false) i=([0-9]+) s="([^"]*)"]]>
               </value>
             </param>
             <param index="2">
               <value>
-                <![CDATA[acb]]>
+                <![CDATA[{1=bval, 2=ival, 3=foobar}]]>
               </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[cba]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>b,a>c]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abc]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[bca]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>b,a>c]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abc]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[bca]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[f,q,z,a>b,a>c]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abcfqz]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[bcafqz]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[f,q,z,a>b,a>c]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[zqfacb]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[zqfcba]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[w>q,w>z]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[wqz]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[qzw]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[f,q,z>a,a>b,a>c]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[zqfacb]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[cbazqf]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[f,q,z,a>b,a>c]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[fqzabc]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[fqzbca]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[f,q,z>a,a>b,a>c]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[fqzabc]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[bcafqz]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a,c>b]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[acb]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[abc]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[f,q,z>a,a>b,a>c]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[fqzabc]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[fqbcaz]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[z,y,x>a,a>b,a>c]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[zyxabc]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[zybcax]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a,b,c,d,e]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abcde]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[abcde]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[e,d,c,b,a]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abcde]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[abcde]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[e,d,c,b,a]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[edcba]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[edcba]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a,b,c,d,e]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[edcba]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[edcba]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[e,d,c,b,a]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[edcba]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[edcba]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a,b,c,d,e]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abcde]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[abcde]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>a,b]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value is-null="true"/>
             </param>
             <param index="3">
               <value is-null="true"/>
             </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
+            <param index="4">
               <value>
-                <![CDATA[a>d,a>e,a>f,b>d,b>e,b>f,c>d,c>e,c>f]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abcdef]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[defabc]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>a]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value is-null="true"/>
-            </param>
-            <param index="3">
-              <value is-null="true"/>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>b,b>c,c>a]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value is-null="true"/>
-            </param>
-            <param index="3">
-              <value is-null="true"/>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>d,a>e,a>f,b>d,b>e,b>f,c>d,c>e,c>f]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[cbafed]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[fedcba]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>d,a>e,a>f,b>d,b>e,b>f,c>d,c>e,c>f]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abcdef]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[defabc]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>b,b>c,c>d,d>e,e>f]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abcdef]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[fedcba]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>b,b>c,c>d,d>e,e>f]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abcdef]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[fedcba]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>b,b>c,c>d,d>e,e>f]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[abcdef]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[fedcba]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>e,e>c,c>f,f>b,b>d]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[aecfbd]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[dbfcea]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>e,e>c,c>f,f>b,b>d]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[aecfbd]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[dbfcea]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testSort(java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.graph.TopologicalSorterTest@331c89c]" name="testSort" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a>e,e>c,c>f,f>b,b>d]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[aecfbd]]>
-              </value>
-            </param>
-            <param index="3">
-              <value>
-                <![CDATA[dbfcea]]>
+                <![CDATA[class java.lang.IllegalArgumentException]]>
               </value>
             </param>
           </params>
         </test-method>
       </class>
       <class name="org.dellroad.stuff.io.AsyncInputStreamTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.io.AsyncInputStreamTest@39697b67]" name="seedRandom" is-config="true" duration-ms="87" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.io.AsyncInputStreamTest@58df0438]" name="seedRandom" is-config="true" duration-ms="44" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -1476,13 +1461,15 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.io.AsyncInputStreamTest@39697b67]" name="setUpValidator" is-config="true" duration-ms="63" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.io.AsyncInputStreamTest@58df0438]" name="setUpValidator" is-config="true" duration-ms="59" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
         </test-method>
-        <test-method status="PASS" signature="testAsyncInputStream()[pri:0, instance:org.dellroad.stuff.io.AsyncInputStreamTest@39697b67]" name="testAsyncInputStream" duration-ms="2" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
+        <test-method status="PASS" signature="testAsyncInputStream()[pri:0, instance:org.dellroad.stuff.io.AsyncInputStreamTest@58df0438]" name="testAsyncInputStream" duration-ms="3" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
         </test-method>
       </class>
       <class name="org.dellroad.stuff.pobj.UpdatesXMLEventTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@4929b0e1]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@46165b7e]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+        </test-method>
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@46165b7e]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1491,9 +1478,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@4929b0e1]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-        </test-method>
-        <test-method status="PASS" signature="test(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@4929b0e1]" name="test" duration-ms="6" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="test(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@46165b7e]" name="test" duration-ms="7" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1502,7 +1487,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="test(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@4929b0e1]" name="test" duration-ms="19" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="test(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@46165b7e]" name="test" duration-ms="5" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1511,7 +1496,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="test(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@4929b0e1]" name="test" duration-ms="5" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="test(java.lang.String)[pri:0, instance:org.dellroad.stuff.pobj.UpdatesXMLEventTest@46165b7e]" name="test" duration-ms="5" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1521,8 +1506,8 @@ dc
           </params>
         </test-method>
       </class>
-      <class name="org.dellroad.stuff.string.StringEncoderTest">
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="seedRandom" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+      <class name="org.dellroad.stuff.jibx.ParseUtilTest">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="seedRandom" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
           <params>
             <param index="0">
               <value>
@@ -1531,9 +1516,430 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
         </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="2" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[2h]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[7200000]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="11" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[7.254s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[7254]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[3d]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[259200000]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[3d17h4m3.01s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[320643010]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[1.001s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[1001]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[1.03s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[1030]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[1.3s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[1300]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[9.300s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[9300]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[6s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[6000]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[.503s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[503]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[.999s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[999]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[1.000s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[1000]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[1s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[1000]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[180d]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[15552000000]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[1.001s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[1001]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="2" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[106751991167d7h12m55.807s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[9223372036854775807]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[106751991167d7h12m55.808s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[123]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[7d3m15h]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[3m2h]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[123.456]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[15 s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[asdf]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[0.5h]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[s]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@65d0d124]" name="testParse" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[35ms]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+      </class>
+      <class name="org.dellroad.stuff.java.IdGeneratorTest">
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.java.IdGeneratorTest@41ab11b0]" name="setUpValidator" is-config="true" duration-ms="1" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+        </test-method>
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.java.IdGeneratorTest@41ab11b0]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testIdGenerator()[pri:0, instance:org.dellroad.stuff.java.IdGeneratorTest@41ab11b0]" name="testIdGenerator" duration-ms="66" started-at="2012-01-20T15:10:02Z" finished-at="2012-01-20T15:10:02Z">
+        </test-method>
+      </class>
+      <class name="org.dellroad.stuff.validation.SelfValidatingTest">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.validation.SelfValidatingTest@730efd7c]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.validation.SelfValidatingTest@730efd7c]" name="setUpValidator" is-config="true" duration-ms="2" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+        </test-method>
+        <test-method status="PASS" signature="testValidation()[pri:0, instance:org.dellroad.stuff.validation.SelfValidatingTest@730efd7c]" name="testValidation" duration-ms="3" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+        </test-method>
+      </class>
+      <class name="org.dellroad.stuff.string.StringEncoderTest">
+        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="setUpValidator" is-config="true" duration-ms="2" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+        </test-method>
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testEnquotedLength" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1547,35 +1953,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA["quote with \"invalid\XXXXescape\""]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[35]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA["a \"quote\""]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[13]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1589,7 +1967,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1603,21 +1981,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testEnquotedLength" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[not a quote\" either]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1631,7 +1995,21 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[not a quote\" either]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[-1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1645,42 +2023,35 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[false]]>
+                <![CDATA["quote with \"invalid\XXXXescape\""]]>
               </value>
             </param>
             <param index="1">
               <value>
-                <![CDATA[ 	
- ]]>
+                <![CDATA[35]]>
               </value>
-            </param>
-            <param index="2">
-              <value is-null="true"/>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testEnquotedLength(java.lang.String, int)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testEnquotedLength" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
-                <![CDATA[false]]>
+                <![CDATA["a \"quote\""]]>
               </value>
             </param>
             <param index="1">
               <value>
-                <![CDATA[ !@#$%^&*()_+=asdfajsADSFASDF298734?></.,~`][}|}]]>
+                <![CDATA[13]]>
               </value>
-            </param>
-            <param index="2">
-              <value is-null="true"/>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1697,66 +2068,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[\]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[\\]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[\foo\]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[\\foo\\]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[
-]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[
-]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1775,7 +2087,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1784,37 +2096,16 @@ dc
             </param>
             <param index="1">
               <value>
-                <![CDATA[foo\bar]]>
+                <![CDATA[ 	
+ ]]>
               </value>
             </param>
             <param index="2">
-              <value>
-                <![CDATA[foo\\bar]]>
-              </value>
+              <value is-null="true"/>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[true]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[
-]]>
-              </value>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[\n]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1833,7 +2124,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1853,7 +2144,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1861,16 +2152,95 @@ dc
               </value>
             </param>
             <param index="1">
-              <value is-null="true"/>
+              <value>
+                <![CDATA[\]]>
+              </value>
             </param>
             <param index="2">
               <value>
-                <![CDATA[foobar \1234]]>
+                <![CDATA[\\]]>
               </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[ !@#$%^&*()_+=asdfajsADSFASDF298734?></.,~`][}|}]]>
+              </value>
+            </param>
+            <param index="2">
+              <value is-null="true"/>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[\foo\]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[\\foo\\]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[true]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[
+]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[\n]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[
+]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[
+]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1893,7 +2263,26 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[foo\bar]]>
+              </value>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foo\\bar]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1905,12 +2294,12 @@ dc
             </param>
             <param index="2">
               <value>
-                <![CDATA[foobar \ ]]>
+                <![CDATA[foobar \1234]]>
               </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1927,7 +2316,24 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \ ]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -1944,92 +2350,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \u12]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \u123]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \uz000]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \u1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[false]]>
-              </value>
-            </param>
-            <param index="1">
-              <value is-null="true"/>
-            </param>
-            <param index="2">
-              <value>
-                <![CDATA[foobar \u]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEncode" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -2046,7 +2367,92 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEnquote" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \u123]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \u1]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \uz000]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \u12]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEncode(boolean, java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEncode" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[false]]>
+              </value>
+            </param>
+            <param index="1">
+              <value is-null="true"/>
+            </param>
+            <param index="2">
+              <value>
+                <![CDATA[foobar \u]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEnquote" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -2060,47 +2466,7 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEnquote" duration-ms="1" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value is-null="true"/>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[fred]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[a "quote"]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA["a \"quote\""]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[field1	field2]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA["field1\tfield2"]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value>
@@ -2114,19 +2480,47 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[field1	field2]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA["field1\tfield2"]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[a "quote"]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA["a \"quote\""]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEnquote" duration-ms="1" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value is-null="true"/>
             </param>
             <param index="1">
               <value>
-                <![CDATA[\"impossible "embeded but not escaped" quotes\"]]>
+                <![CDATA[fred]]>
               </value>
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value is-null="true"/>
@@ -2138,7 +2532,19 @@ dc
             </param>
           </params>
         </test-method>
-        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@501ba94d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-18T10:34:45Z" finished-at="2012-01-18T10:34:45Z">
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
+          <params>
+            <param index="0">
+              <value is-null="true"/>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA[\"impossible "embeded but not escaped" quotes\"]]>
+              </value>
+            </param>
+          </params>
+        </test-method>
+        <test-method status="PASS" signature="testStringEnquote(java.lang.String, java.lang.String)[pri:0, instance:org.dellroad.stuff.string.StringEncoderTest@198e261d]" name="testStringEnquote" duration-ms="0" started-at="2012-01-20T15:10:04Z" finished-at="2012-01-20T15:10:04Z">
           <params>
             <param index="0">
               <value is-null="true"/>
@@ -2146,397 +2552,6 @@ dc
             <param index="1">
               <value>
                 <![CDATA[missing quote\"]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-      </class>
-      <class name="org.dellroad.stuff.jibx.ParseUtilTest">
-        <test-method status="PASS" signature="setUpValidator()[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="setUpValidator" is-config="true" duration-ms="2" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-        </test-method>
-        <test-method status="PASS" signature="seedRandom(java.lang.String)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="seedRandom" is-config="true" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="2" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[2h]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[7200000]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="38" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[7.254s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[7254]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[3d]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[259200000]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[3d17h4m3.01s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[320643010]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[1.001s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[1001]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[1.03s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[1030]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[1.3s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[1300]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[9.300s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[9300]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[6s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[6000]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[.503s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[503]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[.999s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[999]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[1.000s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[1000]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[1s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[1000]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[180d]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[15552000000]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[1.001s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[1001]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="13" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[106751991167d7h12m55.807s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[9223372036854775807]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[106751991167d7h12m55.808s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[123]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[123.456]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[7d3m15h]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[3m2h]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="1" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[0.5h]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[15 s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[asdf]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="6" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[s]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="testParse(java.lang.String, long)[pri:0, instance:org.dellroad.stuff.jibx.ParseUtilTest@2814a18d]" name="testParse" duration-ms="0" started-at="2012-01-18T10:34:43Z" finished-at="2012-01-18T10:34:43Z">
-          <params>
-            <param index="0">
-              <value>
-                <![CDATA[35ms]]>
-              </value>
-            </param>
-            <param index="1">
-              <value>
-                <![CDATA[-1]]>
               </value>
             </param>
           </params>

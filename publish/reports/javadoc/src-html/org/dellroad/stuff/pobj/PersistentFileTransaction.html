@@ -36,7 +36,7 @@
 <FONT color="green">033</FONT>     * Represents an open "transaction" on a {@link PersistentObject}'s persistent file.<a name="line.33"></a>
 <FONT color="green">034</FONT>     *<a name="line.34"></a>
 <FONT color="green">035</FONT>     * &lt;p&gt;<a name="line.35"></a>
-<FONT color="green">036</FONT>     * This class is used by {@link PersistentObjectSchemaUpdater} and should normally not be used directly.<a name="line.36"></a>
+<FONT color="green">036</FONT>     * This class is used by {@link PersistentObjectSchemaUpdater} and would normally not be used directly.<a name="line.36"></a>
 <FONT color="green">037</FONT>     */<a name="line.37"></a>
 <FONT color="green">038</FONT>    public class PersistentFileTransaction {<a name="line.38"></a>
 <FONT color="green">039</FONT>    <a name="line.39"></a>
@@ -44,10 +44,10 @@
 <FONT color="green">041</FONT>    <a name="line.41"></a>
 <FONT color="green">042</FONT>        private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();<a name="line.42"></a>
 <FONT color="green">043</FONT>        private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();<a name="line.43"></a>
-<FONT color="green">044</FONT>        private final File file;<a name="line.44"></a>
-<FONT color="green">045</FONT>    <a name="line.45"></a>
-<FONT color="green">046</FONT>        private byte[] current;<a name="line.46"></a>
-<FONT color="green">047</FONT>        private ArrayList&lt;String&gt; updates;<a name="line.47"></a>
+<FONT color="green">044</FONT>        private final ArrayList&lt;String&gt; updates = new ArrayList&lt;String&gt;();<a name="line.44"></a>
+<FONT color="green">045</FONT>        private final File file;<a name="line.45"></a>
+<FONT color="green">046</FONT>    <a name="line.46"></a>
+<FONT color="green">047</FONT>        private byte[] current;<a name="line.47"></a>
 <FONT color="green">048</FONT>        private boolean modified;<a name="line.48"></a>
 <FONT color="green">049</FONT>    <a name="line.49"></a>
 <FONT color="green">050</FONT>        /**<a name="line.50"></a>
@@ -129,7 +129,7 @@
 <FONT color="green">126</FONT>    <a name="line.126"></a>
 <FONT color="green">127</FONT>            // Done<a name="line.127"></a>
 <FONT color="green">128</FONT>            this.current = null;<a name="line.128"></a>
-<FONT color="green">129</FONT>            this.updates = null;<a name="line.129"></a>
+<FONT color="green">129</FONT>            this.updates.clear();<a name="line.129"></a>
 <FONT color="green">130</FONT>            this.modified = false;<a name="line.130"></a>
 <FONT color="green">131</FONT>        }<a name="line.131"></a>
 <FONT color="green">132</FONT>    <a name="line.132"></a>
@@ -138,7 +138,7 @@
 <FONT color="green">135</FONT>         */<a name="line.135"></a>
 <FONT color="green">136</FONT>        public void rollback() {<a name="line.136"></a>
 <FONT color="green">137</FONT>            this.current = null;<a name="line.137"></a>
-<FONT color="green">138</FONT>            this.updates = null;<a name="line.138"></a>
+<FONT color="green">138</FONT>            this.updates.clear();<a name="line.138"></a>
 <FONT color="green">139</FONT>            this.modified = false;<a name="line.139"></a>
 <FONT color="green">140</FONT>        }<a name="line.140"></a>
 <FONT color="green">141</FONT>    <a name="line.141"></a>
@@ -148,7 +148,7 @@
 <FONT color="green">145</FONT>         * @return unmodifiable list of updates<a name="line.145"></a>
 <FONT color="green">146</FONT>         */<a name="line.146"></a>
 <FONT color="green">147</FONT>        public List&lt;String&gt; getUpdates() {<a name="line.147"></a>
-<FONT color="green">148</FONT>            return this.updates != null ? Collections.unmodifiableList(this.updates) : null;<a name="line.148"></a>
+<FONT color="green">148</FONT>            return Collections.unmodifiableList(this.updates);<a name="line.148"></a>
 <FONT color="green">149</FONT>        }<a name="line.149"></a>
 <FONT color="green">150</FONT>    <a name="line.150"></a>
 <FONT color="green">151</FONT>        /**<a name="line.151"></a>
@@ -215,10 +215,11 @@
 <FONT color="green">212</FONT>    <a name="line.212"></a>
 <FONT color="green">213</FONT>            // Save current content (without updates) and updates list<a name="line.213"></a>
 <FONT color="green">214</FONT>            this.current = buffer.toByteArray();<a name="line.214"></a>
-<FONT color="green">215</FONT>            this.updates = new ArrayList&lt;String&gt;(fileUpdates);<a name="line.215"></a>
-<FONT color="green">216</FONT>        }<a name="line.216"></a>
-<FONT color="green">217</FONT>    }<a name="line.217"></a>
-<FONT color="green">218</FONT>    <a name="line.218"></a>
+<FONT color="green">215</FONT>            this.updates.clear();<a name="line.215"></a>
+<FONT color="green">216</FONT>            this.updates.addAll(fileUpdates);<a name="line.216"></a>
+<FONT color="green">217</FONT>        }<a name="line.217"></a>
+<FONT color="green">218</FONT>    }<a name="line.218"></a>
+<FONT color="green">219</FONT>    <a name="line.219"></a>
 
 
 

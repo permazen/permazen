@@ -248,142 +248,144 @@
 <FONT color="green">245</FONT>                this.log.info("acceptor thread " + Thread.currentThread().getName() + " exiting");<a name="line.245"></a>
 <FONT color="green">246</FONT>                this.closeServerSocket();<a name="line.246"></a>
 <FONT color="green">247</FONT>                this.serverThread = null;<a name="line.247"></a>
-<FONT color="green">248</FONT>                this.notifyAll();<a name="line.248"></a>
-<FONT color="green">249</FONT>            }<a name="line.249"></a>
-<FONT color="green">250</FONT>        }<a name="line.250"></a>
-<FONT color="green">251</FONT>    <a name="line.251"></a>
-<FONT color="green">252</FONT>        /**<a name="line.252"></a>
-<FONT color="green">253</FONT>         * Stop accepting connections. Does nothing if already stopped.<a name="line.253"></a>
-<FONT color="green">254</FONT>         *<a name="line.254"></a>
-<FONT color="green">255</FONT>         * &lt;p&gt;<a name="line.255"></a>
-<FONT color="green">256</FONT>         * Any currently active connections are stopped via {@link SocketHandler#stop SocketHandler.stop()},<a name="line.256"></a>
-<FONT color="green">257</FONT>         * and this method waits until all such connections have returned from {@link SocketHandler#handleConnection<a name="line.257"></a>
-<FONT color="green">258</FONT>         * SocketHandler.handleConnection()} before returning.<a name="line.258"></a>
-<FONT color="green">259</FONT>         */<a name="line.259"></a>
-<FONT color="green">260</FONT>        public synchronized void stop() {<a name="line.260"></a>
-<FONT color="green">261</FONT>    <a name="line.261"></a>
-<FONT color="green">262</FONT>            // Already shut down?<a name="line.262"></a>
-<FONT color="green">263</FONT>            if (!this.started)<a name="line.263"></a>
-<FONT color="green">264</FONT>                return;<a name="line.264"></a>
-<FONT color="green">265</FONT>    <a name="line.265"></a>
-<FONT color="green">266</FONT>            // Stop acceptor thread<a name="line.266"></a>
-<FONT color="green">267</FONT>            if (this.serverThread != null)<a name="line.267"></a>
-<FONT color="green">268</FONT>                this.log.info("stopping acceptor thread");<a name="line.268"></a>
-<FONT color="green">269</FONT>            this.closeServerSocket();<a name="line.269"></a>
-<FONT color="green">270</FONT>            while (this.serverThread != null) {<a name="line.270"></a>
-<FONT color="green">271</FONT>                try {<a name="line.271"></a>
-<FONT color="green">272</FONT>                    this.wait();<a name="line.272"></a>
-<FONT color="green">273</FONT>                } catch (InterruptedException e) {<a name="line.273"></a>
-<FONT color="green">274</FONT>                    // ignore<a name="line.274"></a>
-<FONT color="green">275</FONT>                }<a name="line.275"></a>
-<FONT color="green">276</FONT>            }<a name="line.276"></a>
-<FONT color="green">277</FONT>    <a name="line.277"></a>
-<FONT color="green">278</FONT>            // Notify all active connections<a name="line.278"></a>
-<FONT color="green">279</FONT>            for (SocketInfo socketInfo : this.connections) {<a name="line.279"></a>
-<FONT color="green">280</FONT>    <a name="line.280"></a>
-<FONT color="green">281</FONT>                // Notify handler<a name="line.281"></a>
-<FONT color="green">282</FONT>                try {<a name="line.282"></a>
-<FONT color="green">283</FONT>                    socketInfo.getHandler().stop(socketInfo.getThread(), socketInfo.getSocket());<a name="line.283"></a>
-<FONT color="green">284</FONT>                } catch (Throwable t) {<a name="line.284"></a>
-<FONT color="green">285</FONT>                    this.log.error("error stopping " + socketInfo.getHandler(), t);<a name="line.285"></a>
-<FONT color="green">286</FONT>                }<a name="line.286"></a>
-<FONT color="green">287</FONT>    <a name="line.287"></a>
-<FONT color="green">288</FONT>                // Close socket<a name="line.288"></a>
-<FONT color="green">289</FONT>                try {<a name="line.289"></a>
-<FONT color="green">290</FONT>                    socketInfo.getSocket().close();<a name="line.290"></a>
-<FONT color="green">291</FONT>                } catch (IOException e) {<a name="line.291"></a>
-<FONT color="green">292</FONT>                    // ignore<a name="line.292"></a>
-<FONT color="green">293</FONT>                }<a name="line.293"></a>
-<FONT color="green">294</FONT>            }<a name="line.294"></a>
-<FONT color="green">295</FONT>    <a name="line.295"></a>
-<FONT color="green">296</FONT>            // Wait for all active connections to complete<a name="line.296"></a>
-<FONT color="green">297</FONT>            long lastTime = System.nanoTime();<a name="line.297"></a>
-<FONT color="green">298</FONT>            boolean logged = false;<a name="line.298"></a>
-<FONT color="green">299</FONT>            while (!this.connections.isEmpty()) {<a name="line.299"></a>
-<FONT color="green">300</FONT>                long nextTime = System.nanoTime();<a name="line.300"></a>
-<FONT color="green">301</FONT>                if (!logged || nextTime - lastTime &gt; NOTIFICATION_INTERVAL) {<a name="line.301"></a>
-<FONT color="green">302</FONT>                    this.log.info("waiting for " + this.connections.size() + " active connection(s) to stop...");<a name="line.302"></a>
-<FONT color="green">303</FONT>                    logged = true;<a name="line.303"></a>
-<FONT color="green">304</FONT>                }<a name="line.304"></a>
-<FONT color="green">305</FONT>                try {<a name="line.305"></a>
-<FONT color="green">306</FONT>                    this.wait();<a name="line.306"></a>
-<FONT color="green">307</FONT>                } catch (InterruptedException e) {<a name="line.307"></a>
-<FONT color="green">308</FONT>                    // ignore<a name="line.308"></a>
-<FONT color="green">309</FONT>                }<a name="line.309"></a>
-<FONT color="green">310</FONT>            }<a name="line.310"></a>
-<FONT color="green">311</FONT>            if (logged)<a name="line.311"></a>
-<FONT color="green">312</FONT>                this.log.info("all active connection(s) have stopped");<a name="line.312"></a>
-<FONT color="green">313</FONT>    <a name="line.313"></a>
-<FONT color="green">314</FONT>            // Done<a name="line.314"></a>
-<FONT color="green">315</FONT>            this.started = false;<a name="line.315"></a>
-<FONT color="green">316</FONT>        }<a name="line.316"></a>
-<FONT color="green">317</FONT>    <a name="line.317"></a>
-<FONT color="green">318</FONT>        /**<a name="line.318"></a>
-<FONT color="green">319</FONT>         * Shut down socket.<a name="line.319"></a>
-<FONT color="green">320</FONT>         *<a name="line.320"></a>
-<FONT color="green">321</FONT>         * @return true if socket was shut down by this invocation, false if it was already shut down<a name="line.321"></a>
-<FONT color="green">322</FONT>         */<a name="line.322"></a>
-<FONT color="green">323</FONT>        private synchronized void closeServerSocket() {<a name="line.323"></a>
-<FONT color="green">324</FONT>            if (this.serverSocket == null)<a name="line.324"></a>
-<FONT color="green">325</FONT>                return;<a name="line.325"></a>
-<FONT color="green">326</FONT>            try {<a name="line.326"></a>
-<FONT color="green">327</FONT>                this.serverSocket.close();<a name="line.327"></a>
-<FONT color="green">328</FONT>            } catch (IOException e) {<a name="line.328"></a>
-<FONT color="green">329</FONT>                // ignore<a name="line.329"></a>
-<FONT color="green">330</FONT>            } finally {<a name="line.330"></a>
-<FONT color="green">331</FONT>                this.serverSocket = null;<a name="line.331"></a>
-<FONT color="green">332</FONT>            }<a name="line.332"></a>
-<FONT color="green">333</FONT>        }<a name="line.333"></a>
-<FONT color="green">334</FONT>    <a name="line.334"></a>
-<FONT color="green">335</FONT>        /**<a name="line.335"></a>
-<FONT color="green">336</FONT>         * Create the server's socket via which connections will be accepted.<a name="line.336"></a>
-<FONT color="green">337</FONT>         *<a name="line.337"></a>
-<FONT color="green">338</FONT>         * &lt;p&gt;<a name="line.338"></a>
-<FONT color="green">339</FONT>         * The implementation in {@link SocketAcceptor} creates the socket and sets the "reuse address" flag.<a name="line.339"></a>
-<FONT color="green">340</FONT>         * Subclasses may override.<a name="line.340"></a>
-<FONT color="green">341</FONT>         */<a name="line.341"></a>
-<FONT color="green">342</FONT>        protected ServerSocket createServerSocket() throws IOException {<a name="line.342"></a>
-<FONT color="green">343</FONT>            ServerSocket socket = new ServerSocket(this.port, this.backlog, this.address);<a name="line.343"></a>
-<FONT color="green">344</FONT>            socket.setReuseAddress(true);<a name="line.344"></a>
-<FONT color="green">345</FONT>            return socket;<a name="line.345"></a>
-<FONT color="green">346</FONT>        }<a name="line.346"></a>
-<FONT color="green">347</FONT>    <a name="line.347"></a>
-<FONT color="green">348</FONT>        /**<a name="line.348"></a>
-<FONT color="green">349</FONT>         * Get the {@link SocketHandler} that will handle a new connection using the given socket.<a name="line.349"></a>
-<FONT color="green">350</FONT>         *<a name="line.350"></a>
-<FONT color="green">351</FONT>         * @return new handler, or &lt;code&gt;null&lt;/code&gt; to disconnect the socket immediately<a name="line.351"></a>
-<FONT color="green">352</FONT>         */<a name="line.352"></a>
-<FONT color="green">353</FONT>        protected abstract SocketHandler getSocketHandler(Socket socket) throws IOException;<a name="line.353"></a>
-<FONT color="green">354</FONT>    <a name="line.354"></a>
-<FONT color="green">355</FONT>        // Information about one active connection<a name="line.355"></a>
-<FONT color="green">356</FONT>        private static class SocketInfo {<a name="line.356"></a>
-<FONT color="green">357</FONT>    <a name="line.357"></a>
-<FONT color="green">358</FONT>            private final Socket socket;<a name="line.358"></a>
-<FONT color="green">359</FONT>            private final SocketHandler handler;<a name="line.359"></a>
-<FONT color="green">360</FONT>            private Thread thread;<a name="line.360"></a>
-<FONT color="green">361</FONT>    <a name="line.361"></a>
-<FONT color="green">362</FONT>            SocketInfo(Socket socket, SocketHandler handler) {<a name="line.362"></a>
-<FONT color="green">363</FONT>                this.socket = socket;<a name="line.363"></a>
-<FONT color="green">364</FONT>                this.handler = handler;<a name="line.364"></a>
-<FONT color="green">365</FONT>            }<a name="line.365"></a>
-<FONT color="green">366</FONT>    <a name="line.366"></a>
-<FONT color="green">367</FONT>            public Socket getSocket() {<a name="line.367"></a>
-<FONT color="green">368</FONT>                return this.socket;<a name="line.368"></a>
-<FONT color="green">369</FONT>            }<a name="line.369"></a>
-<FONT color="green">370</FONT>    <a name="line.370"></a>
-<FONT color="green">371</FONT>            public SocketHandler getHandler() {<a name="line.371"></a>
-<FONT color="green">372</FONT>                return this.handler;<a name="line.372"></a>
-<FONT color="green">373</FONT>            }<a name="line.373"></a>
-<FONT color="green">374</FONT>    <a name="line.374"></a>
-<FONT color="green">375</FONT>            public Thread getThread() {<a name="line.375"></a>
-<FONT color="green">376</FONT>                return this.thread;<a name="line.376"></a>
-<FONT color="green">377</FONT>            }<a name="line.377"></a>
-<FONT color="green">378</FONT>            public void setThread(Thread thread) {<a name="line.378"></a>
-<FONT color="green">379</FONT>                this.thread = thread;<a name="line.379"></a>
-<FONT color="green">380</FONT>            }<a name="line.380"></a>
-<FONT color="green">381</FONT>        }<a name="line.381"></a>
-<FONT color="green">382</FONT>    }<a name="line.382"></a>
-<FONT color="green">383</FONT>    <a name="line.383"></a>
+<FONT color="green">248</FONT>                synchronized (this) {<a name="line.248"></a>
+<FONT color="green">249</FONT>                    this.notifyAll();<a name="line.249"></a>
+<FONT color="green">250</FONT>                }<a name="line.250"></a>
+<FONT color="green">251</FONT>            }<a name="line.251"></a>
+<FONT color="green">252</FONT>        }<a name="line.252"></a>
+<FONT color="green">253</FONT>    <a name="line.253"></a>
+<FONT color="green">254</FONT>        /**<a name="line.254"></a>
+<FONT color="green">255</FONT>         * Stop accepting connections. Does nothing if already stopped.<a name="line.255"></a>
+<FONT color="green">256</FONT>         *<a name="line.256"></a>
+<FONT color="green">257</FONT>         * &lt;p&gt;<a name="line.257"></a>
+<FONT color="green">258</FONT>         * Any currently active connections are stopped via {@link SocketHandler#stop SocketHandler.stop()},<a name="line.258"></a>
+<FONT color="green">259</FONT>         * and this method waits until all such connections have returned from {@link SocketHandler#handleConnection<a name="line.259"></a>
+<FONT color="green">260</FONT>         * SocketHandler.handleConnection()} before returning.<a name="line.260"></a>
+<FONT color="green">261</FONT>         */<a name="line.261"></a>
+<FONT color="green">262</FONT>        public synchronized void stop() {<a name="line.262"></a>
+<FONT color="green">263</FONT>    <a name="line.263"></a>
+<FONT color="green">264</FONT>            // Already shut down?<a name="line.264"></a>
+<FONT color="green">265</FONT>            if (!this.started)<a name="line.265"></a>
+<FONT color="green">266</FONT>                return;<a name="line.266"></a>
+<FONT color="green">267</FONT>    <a name="line.267"></a>
+<FONT color="green">268</FONT>            // Stop acceptor thread<a name="line.268"></a>
+<FONT color="green">269</FONT>            if (this.serverThread != null)<a name="line.269"></a>
+<FONT color="green">270</FONT>                this.log.info("stopping acceptor thread");<a name="line.270"></a>
+<FONT color="green">271</FONT>            this.closeServerSocket();<a name="line.271"></a>
+<FONT color="green">272</FONT>            while (this.serverThread != null) {<a name="line.272"></a>
+<FONT color="green">273</FONT>                try {<a name="line.273"></a>
+<FONT color="green">274</FONT>                    this.wait();<a name="line.274"></a>
+<FONT color="green">275</FONT>                } catch (InterruptedException e) {<a name="line.275"></a>
+<FONT color="green">276</FONT>                    // ignore<a name="line.276"></a>
+<FONT color="green">277</FONT>                }<a name="line.277"></a>
+<FONT color="green">278</FONT>            }<a name="line.278"></a>
+<FONT color="green">279</FONT>    <a name="line.279"></a>
+<FONT color="green">280</FONT>            // Notify all active connections<a name="line.280"></a>
+<FONT color="green">281</FONT>            for (SocketInfo socketInfo : this.connections) {<a name="line.281"></a>
+<FONT color="green">282</FONT>    <a name="line.282"></a>
+<FONT color="green">283</FONT>                // Notify handler<a name="line.283"></a>
+<FONT color="green">284</FONT>                try {<a name="line.284"></a>
+<FONT color="green">285</FONT>                    socketInfo.getHandler().stop(socketInfo.getThread(), socketInfo.getSocket());<a name="line.285"></a>
+<FONT color="green">286</FONT>                } catch (Throwable t) {<a name="line.286"></a>
+<FONT color="green">287</FONT>                    this.log.error("error stopping " + socketInfo.getHandler(), t);<a name="line.287"></a>
+<FONT color="green">288</FONT>                }<a name="line.288"></a>
+<FONT color="green">289</FONT>    <a name="line.289"></a>
+<FONT color="green">290</FONT>                // Close socket<a name="line.290"></a>
+<FONT color="green">291</FONT>                try {<a name="line.291"></a>
+<FONT color="green">292</FONT>                    socketInfo.getSocket().close();<a name="line.292"></a>
+<FONT color="green">293</FONT>                } catch (IOException e) {<a name="line.293"></a>
+<FONT color="green">294</FONT>                    // ignore<a name="line.294"></a>
+<FONT color="green">295</FONT>                }<a name="line.295"></a>
+<FONT color="green">296</FONT>            }<a name="line.296"></a>
+<FONT color="green">297</FONT>    <a name="line.297"></a>
+<FONT color="green">298</FONT>            // Wait for all active connections to complete<a name="line.298"></a>
+<FONT color="green">299</FONT>            long lastTime = System.nanoTime();<a name="line.299"></a>
+<FONT color="green">300</FONT>            boolean logged = false;<a name="line.300"></a>
+<FONT color="green">301</FONT>            while (!this.connections.isEmpty()) {<a name="line.301"></a>
+<FONT color="green">302</FONT>                long nextTime = System.nanoTime();<a name="line.302"></a>
+<FONT color="green">303</FONT>                if (!logged || nextTime - lastTime &gt; NOTIFICATION_INTERVAL) {<a name="line.303"></a>
+<FONT color="green">304</FONT>                    this.log.info("waiting for " + this.connections.size() + " active connection(s) to stop...");<a name="line.304"></a>
+<FONT color="green">305</FONT>                    logged = true;<a name="line.305"></a>
+<FONT color="green">306</FONT>                }<a name="line.306"></a>
+<FONT color="green">307</FONT>                try {<a name="line.307"></a>
+<FONT color="green">308</FONT>                    this.wait();<a name="line.308"></a>
+<FONT color="green">309</FONT>                } catch (InterruptedException e) {<a name="line.309"></a>
+<FONT color="green">310</FONT>                    // ignore<a name="line.310"></a>
+<FONT color="green">311</FONT>                }<a name="line.311"></a>
+<FONT color="green">312</FONT>            }<a name="line.312"></a>
+<FONT color="green">313</FONT>            if (logged)<a name="line.313"></a>
+<FONT color="green">314</FONT>                this.log.info("all active connection(s) have stopped");<a name="line.314"></a>
+<FONT color="green">315</FONT>    <a name="line.315"></a>
+<FONT color="green">316</FONT>            // Done<a name="line.316"></a>
+<FONT color="green">317</FONT>            this.started = false;<a name="line.317"></a>
+<FONT color="green">318</FONT>        }<a name="line.318"></a>
+<FONT color="green">319</FONT>    <a name="line.319"></a>
+<FONT color="green">320</FONT>        /**<a name="line.320"></a>
+<FONT color="green">321</FONT>         * Shut down socket.<a name="line.321"></a>
+<FONT color="green">322</FONT>         *<a name="line.322"></a>
+<FONT color="green">323</FONT>         * @return true if socket was shut down by this invocation, false if it was already shut down<a name="line.323"></a>
+<FONT color="green">324</FONT>         */<a name="line.324"></a>
+<FONT color="green">325</FONT>        private synchronized void closeServerSocket() {<a name="line.325"></a>
+<FONT color="green">326</FONT>            if (this.serverSocket == null)<a name="line.326"></a>
+<FONT color="green">327</FONT>                return;<a name="line.327"></a>
+<FONT color="green">328</FONT>            try {<a name="line.328"></a>
+<FONT color="green">329</FONT>                this.serverSocket.close();<a name="line.329"></a>
+<FONT color="green">330</FONT>            } catch (IOException e) {<a name="line.330"></a>
+<FONT color="green">331</FONT>                // ignore<a name="line.331"></a>
+<FONT color="green">332</FONT>            } finally {<a name="line.332"></a>
+<FONT color="green">333</FONT>                this.serverSocket = null;<a name="line.333"></a>
+<FONT color="green">334</FONT>            }<a name="line.334"></a>
+<FONT color="green">335</FONT>        }<a name="line.335"></a>
+<FONT color="green">336</FONT>    <a name="line.336"></a>
+<FONT color="green">337</FONT>        /**<a name="line.337"></a>
+<FONT color="green">338</FONT>         * Create the server's socket via which connections will be accepted.<a name="line.338"></a>
+<FONT color="green">339</FONT>         *<a name="line.339"></a>
+<FONT color="green">340</FONT>         * &lt;p&gt;<a name="line.340"></a>
+<FONT color="green">341</FONT>         * The implementation in {@link SocketAcceptor} creates the socket and sets the "reuse address" flag.<a name="line.341"></a>
+<FONT color="green">342</FONT>         * Subclasses may override.<a name="line.342"></a>
+<FONT color="green">343</FONT>         */<a name="line.343"></a>
+<FONT color="green">344</FONT>        protected ServerSocket createServerSocket() throws IOException {<a name="line.344"></a>
+<FONT color="green">345</FONT>            ServerSocket socket = new ServerSocket(this.port, this.backlog, this.address);<a name="line.345"></a>
+<FONT color="green">346</FONT>            socket.setReuseAddress(true);<a name="line.346"></a>
+<FONT color="green">347</FONT>            return socket;<a name="line.347"></a>
+<FONT color="green">348</FONT>        }<a name="line.348"></a>
+<FONT color="green">349</FONT>    <a name="line.349"></a>
+<FONT color="green">350</FONT>        /**<a name="line.350"></a>
+<FONT color="green">351</FONT>         * Get the {@link SocketHandler} that will handle a new connection using the given socket.<a name="line.351"></a>
+<FONT color="green">352</FONT>         *<a name="line.352"></a>
+<FONT color="green">353</FONT>         * @return new handler, or &lt;code&gt;null&lt;/code&gt; to disconnect the socket immediately<a name="line.353"></a>
+<FONT color="green">354</FONT>         */<a name="line.354"></a>
+<FONT color="green">355</FONT>        protected abstract SocketHandler getSocketHandler(Socket socket) throws IOException;<a name="line.355"></a>
+<FONT color="green">356</FONT>    <a name="line.356"></a>
+<FONT color="green">357</FONT>        // Information about one active connection<a name="line.357"></a>
+<FONT color="green">358</FONT>        private static class SocketInfo {<a name="line.358"></a>
+<FONT color="green">359</FONT>    <a name="line.359"></a>
+<FONT color="green">360</FONT>            private final Socket socket;<a name="line.360"></a>
+<FONT color="green">361</FONT>            private final SocketHandler handler;<a name="line.361"></a>
+<FONT color="green">362</FONT>            private Thread thread;<a name="line.362"></a>
+<FONT color="green">363</FONT>    <a name="line.363"></a>
+<FONT color="green">364</FONT>            SocketInfo(Socket socket, SocketHandler handler) {<a name="line.364"></a>
+<FONT color="green">365</FONT>                this.socket = socket;<a name="line.365"></a>
+<FONT color="green">366</FONT>                this.handler = handler;<a name="line.366"></a>
+<FONT color="green">367</FONT>            }<a name="line.367"></a>
+<FONT color="green">368</FONT>    <a name="line.368"></a>
+<FONT color="green">369</FONT>            public Socket getSocket() {<a name="line.369"></a>
+<FONT color="green">370</FONT>                return this.socket;<a name="line.370"></a>
+<FONT color="green">371</FONT>            }<a name="line.371"></a>
+<FONT color="green">372</FONT>    <a name="line.372"></a>
+<FONT color="green">373</FONT>            public SocketHandler getHandler() {<a name="line.373"></a>
+<FONT color="green">374</FONT>                return this.handler;<a name="line.374"></a>
+<FONT color="green">375</FONT>            }<a name="line.375"></a>
+<FONT color="green">376</FONT>    <a name="line.376"></a>
+<FONT color="green">377</FONT>            public Thread getThread() {<a name="line.377"></a>
+<FONT color="green">378</FONT>                return this.thread;<a name="line.378"></a>
+<FONT color="green">379</FONT>            }<a name="line.379"></a>
+<FONT color="green">380</FONT>            public void setThread(Thread thread) {<a name="line.380"></a>
+<FONT color="green">381</FONT>                this.thread = thread;<a name="line.381"></a>
+<FONT color="green">382</FONT>            }<a name="line.382"></a>
+<FONT color="green">383</FONT>        }<a name="line.383"></a>
+<FONT color="green">384</FONT>    }<a name="line.384"></a>
+<FONT color="green">385</FONT>    <a name="line.385"></a>
 
 
 
