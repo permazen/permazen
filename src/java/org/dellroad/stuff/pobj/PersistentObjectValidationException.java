@@ -26,6 +26,7 @@ public class PersistentObjectValidationException extends PersistentObjectExcepti
      * @throws IllegalArgumentException if {@code violations} is null
      */
     public PersistentObjectValidationException(Set<ConstraintViolation<?>> violations) {
+        super(PersistentObjectValidationException.generateMessage(violations));
         this.violations = violations;
     }
 
