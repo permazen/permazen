@@ -19,7 +19,16 @@ public class PersistentObjectValidationException extends PersistentObjectExcepti
 
     private final Set<ConstraintViolation<?>> violations;
 
+    /**
+     * Constructor.
+     *
+     * @param violations set of violations
+     * @throws IllegalArgumentException if {@code violations} is null
+     */
     public PersistentObjectValidationException(Set<ConstraintViolation<?>> violations) {
+        super("object failed to validate: " + violations);
+        if (violations == null)
+            throw new IllegalArgumentException("null violations");
         this.violations = violations;
     }
 
