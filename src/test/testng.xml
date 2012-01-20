@@ -10,6 +10,7 @@
         <packages>
             <package name="org.dellroad.stuff.graph"/>
             <package name="org.dellroad.stuff.io"/>
+            <package name="org.dellroad.stuff.java"/>
             <package name="org.dellroad.stuff.jibx"/>
             <package name="org.dellroad.stuff.pobj"/>
             <package name="org.dellroad.stuff.schema"/>
