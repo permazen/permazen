@@ -1,6 +1,7 @@
 
 Version Next
 
+    - Relax requirment for servlet 3.0 in SpringContextApplication
     - Added IdGenerator, IdMapper, and IdMappingMarshaller
     - Added SpringXSLUpdateTransformConfigurer
 

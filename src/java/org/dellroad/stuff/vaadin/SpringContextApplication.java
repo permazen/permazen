@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.context.ApplicationContext;
@@ -20,6 +21,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.SourceFilteringListener;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
+import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
@@ -76,10 +78,6 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * (either at build time or runtime) using the
  * <a href="http://www.eclipse.org/aspectj/doc/released/faq.php#compiler">AspectJ compiler</a> with the
  * {@code VaadinConfigurableAspect} aspect (included in the <code>dellroad-stuff</code> JAR file).
- * </p>
- *
- * <p>
- * Note: This class requires Servlet 3.0.
  * </p>
  *
  * @see ContextApplication#get
@@ -201,7 +199,14 @@ public abstract class SpringContextApplication extends ContextApplication {
             throw new IllegalStateException("context already loaded");
 
         // Find the application context associated with the servlet; it will be the parent
-        ServletContext servletContext = ContextApplication.currentRequest().getServletContext();
+        ServletContext servletContext;
+        HttpServletRequest request = ContextApplication.currentRequest();
+        try {
+            // getServletContext() is a servlet AIP 3.0 method, so don't freak out if it's not there
+            servletContext = (ServletContext)HttpServletRequest.class.getMethod("getServletContext").invoke(request);
+        } catch (Exception e) {
+            servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+        }
         WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
 
         // Create and configure a new application context for this Application instance
