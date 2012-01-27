@@ -466,6 +466,84 @@
         </sequential>
     </macrodef>
 
+    <!-- RPM publish -->
+    <macrodef uri="urn:org.dellroad.ant" name="rpmdist">
+        <attribute name="repodir" default="/opt/repo/devel" description="Base RPM repository directory"/>
+        <attribute name="susever" default="" description="Repository openSuSE version (default current)"/>
+        <attribute name="purge" default="false" description="Whether to remove all other revisions from repository"/>
+        <sequential>
+
+            <!-- Refuse to publish uncommitted code -->
+            <dellroad:verifyclean/>
+
+            <!-- Check umask -->
+            <dellroad:checkumask u="rwx" g="rwx" o="rx"/>
+
+            <!-- Get SuSE version -->
+            <antcontrib:if>
+                <equals arg1="@{susever}" arg2=""/>
+                <antcontrib:then>
+                    <dellroad:suseversion property="_rpmdist.@{susever}"/>
+                </antcontrib:then>
+                <antcontrib:else>
+                    <property name="_rpmdist.@{susever}" value="@{susever}"/>
+                </antcontrib:else>
+            </antcontrib:if>
+
+            <!-- Optionally remove older versions -->
+            <antcontrib:if>
+                <equals arg1="@{purge}" arg2="true"/>
+                <antcontrib:then>
+                    <echo message="Note: removing all other versions of these RPM(s) from the repository"/>
+                    <exec executable="/bin/bash" logError="true" failonerror="true">
+                        <arg value="-c"/>
+                        <arg value="
+                            set -e;
+                            find dist/RPMS -type f -name \*.rpm -print | while read FILE; do
+                                NAME=`rpm -qp --queryformat='%{name}\n' &quot;$${FILE}&quot;`;
+                                find @{repodir}/${_rpmdist.@{susever}} -type f -name &quot;$${NAME}-*.rpm&quot; -print0
+                                  | xargs -n 1 -0 -I@ sh -c 'test `rpm -qp --queryformat=&quot;%{name}&quot; &quot;@&quot;`
+                                    = &quot;'&quot;$${NAME}&quot;'&quot; &amp;&amp; echo &quot;@&quot;'
+                                  | xargs -n 1 -r -I@ sh -c 'echo Removing @; rm @';
+                            done;
+                        "/>
+                    </exec>
+                </antcontrib:then>
+            </antcontrib:if>
+
+            <!-- Copy new RPMs into the repository, but avoid mixing openSUSE versions -->
+            <exec executable="/bin/bash" logError="true" failonerror="true">
+                <arg value="-c"/>
+                <arg value="
+                    set -e;
+                    echo 'Publishing RPMs to @{repodir}/${_rpmdist.@{susever}}:';
+                    cd dist/RPMS;
+                    (
+                        find * -type f -name '*.rpm' -print | grep -vE '^.*\.suse[0-9.]+\..*$';
+                        find * -type f -name '*.rpm' -print | grep -E '^.*\.suse@{susever}\..*$';
+                    ) | cpio --quiet -pmudv '@{repodir}/${_rpmdist.@{susever}}' 2&gt;&amp;1
+                      | sed ${sed.extended.flag} 's|@{repodir}/${_rpmdist.@{susever}}/[^/]+/|    |g'
+                      | sort;
+                "/>
+            </exec>
+
+            <!-- Regenerate repository meta-data -->
+            <exec executable="createrepo" logError="true" failonerror="true">
+                <arg value="-q"/>
+                <arg value="-c"/>
+                <arg value="@{repodir}/${_rpmdist.@{susever}}/cache"/>
+                <arg value="--update"/>
+                <arg value="@{repodir}/${_rpmdist.@{susever}}"/>
+            </exec>
+
+            <!-- Work around this bug: https://bugzilla.novell.com/show_bug.cgi?id=659915 -->
+            <exec executable="chmod" logError="true" failonerror="true">
+                <arg value="g+w"/>
+                <arg value="@{repodir}/${_rpmdist.@{susever}}/repodata"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <!--
         Unit test macro
 
