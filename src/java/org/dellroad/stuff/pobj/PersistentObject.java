@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Main class for Simple XML Persistence Objects (POBJ).
  *
+ * <h3>Overview</h3>
+ *
  * <p>
  * Instances model an in-memory "database" represented by a root Java object and the graph of other objects that
  * it references. The object graph is backed by a persistent XML file, which is read at initialization time and
@@ -41,6 +43,8 @@ import org.slf4j.LoggerFactory;
  * Changes are applied "wholesale" to the entire object graph, and are serialized and atomic. In other words, the
  * entire object graph is read from, and written to, this class by value. As a result, it is not possible to change
  * the contents of the "database" except through this API.
+ *
+ * <h3>Update Details</h3>
  *
  * <p>
  * When the object graph is updated, it must pass validation checks, and then the persistent XML file is updated and
@@ -55,11 +59,25 @@ import org.slf4j.LoggerFactory;
  * have occurred.
  *
  * <p>
+ * Applications may choose to implement a 3-way merge algorithm of some kind to handle optimistic locking failures.
+ *
+ * <h3>"Out-of-band" Writes</h3>
+ *
+ * <p>
+ * When a non-zero {@linkplain #getCheckInterval check interval} is configured, instances support "out-of-band" writes
+ * to the XML persistent file. This can be handy in cases where some other process (perhaps hand edits) is updating the
+ * persistent file and you want to have a running process pick up the changes just as if {@link PersistentObject#setRoot
+ * PersistentObject.setRoot()} had been invoked. As a special case, instances will detect the appearance of a new
+ * persistent file after an instance has started without one. In all cases, persistent objects must properly validate.
+ *
+ * <h3>Delegate Function</h3>
+ *
+ * <p>
  * Instances must be configured with a {@link PersistentObjectDelegate} that knows how to validate the object graph
- * and perform conversions to and from XML. In all cases, persistent objects must properly validate.
+ * and perform conversions to and from XML. See {@link PersistentObjectDelegate} for details.
  *
  * @param <T> type of the root persistent object
- * @see org.dellroad.stuff.pobj
+ * @see PersistentObjectDelegate
  */
 public class PersistentObject<T> {
 
@@ -69,14 +87,17 @@ public class PersistentObject<T> {
     private final PersistentObjectDelegate<T> delegate;
     private final File persistentFile;
     private final long writeDelay;
+    private final long checkInterval;
 
     private T root;
     private T sharedRoot;
-    private ScheduledExecutorService writebackExecutor;
+    private ScheduledExecutorService scheduledExecutor;
     private ExecutorService notifyExecutor;
     private ScheduledFuture pendingWrite;
     private long version;
+    private long timestamp;
     private boolean started;
+    private boolean setRootUnstarted;
 
     /**
      * Constructor.
@@ -88,18 +109,23 @@ public class PersistentObject<T> {
      * @param delegate delegate supplying required operations
      * @param file the file used to persist
      * @param writeDelay write delay in milliseconds, or zero for immediate write-back
-     * @throws IllegalArgumentException if {@code writeDelay} is negative
+     * @param checkInterval check interval in milliseconds, or zero to disable persistent file checks
+     * @throws IllegalArgumentException if {@code delegate} or {@code file} is null
+     * @throws IllegalArgumentException if {@code writeDelay} or {@code checkInterval} is negative
      */
-    protected PersistentObject(PersistentObjectDelegate<T> delegate, File file, long writeDelay) {
+    protected PersistentObject(PersistentObjectDelegate<T> delegate, File file, long writeDelay, long checkInterval) {
         if (delegate == null)
             throw new IllegalArgumentException("null delegate");
         if (file == null)
             throw new IllegalArgumentException("null file");
         if (writeDelay < 0)
             throw new IllegalArgumentException("negative writeDelay");
+        if (checkInterval < 0)
+            throw new IllegalArgumentException("negative checkInterval");
         this.delegate = delegate;
         this.persistentFile = file;
         this.writeDelay = writeDelay;
+        this.checkInterval = checkInterval;
     }
 
     /**
@@ -117,6 +143,15 @@ public class PersistentObject<T> {
      */
     public long getWriteDelay() {
         return this.writeDelay;
+    }
+
+    /**
+     * Get the delay time between periodic checks for changes in the underlying persistent file.
+     *
+     * @return check interval in milliseconds, or zero if periodic checks are disabled
+     */
+    public long getCheckInterval() {
+        return this.checkInterval;
     }
 
     /**
@@ -142,17 +177,33 @@ public class PersistentObject<T> {
         if (this.started)
             return;
 
+        // Create executor services
+        this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+        this.notifyExecutor = Executors.newSingleThreadExecutor();
+
         // Read file (if it exists)
         this.log.info(this + ": starting");
         if (this.persistentFile.exists()) {
-            this.root = this.read();
-            this.version++;
+            this.setRootUnstarted = true;
+            try {
+                this.applyFile();
+            } finally {
+                this.setRootUnstarted = false;
+            }
         } else
             this.log.info(this + ": persistent file `" + this.persistentFile + "' does not exist yet");
 
-        // Create executor services
-        this.writebackExecutor = Executors.newSingleThreadScheduledExecutor();
-        this.notifyExecutor = Executors.newSingleThreadExecutor();
+        // Start checking the file
+        if (this.checkInterval > 0) {
+            this.scheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    PersistentObject.this.checkFileTimeout();
+                }
+            }, this.checkInterval, this.checkInterval, TimeUnit.MILLISECONDS);
+        }
+
+        // Done
         this.started = true;
     }
 
@@ -168,21 +219,19 @@ public class PersistentObject<T> {
             return;
 
         // Perform any lingering pending save now
-        if (this.pendingWrite != null) {
-            this.pendingWrite.cancel(false);
-            this.pendingWrite = null;
+        if (this.cancelPendingWrite())
             this.write(this.root);
-        }
 
         // Stop executor services
         this.log.info(this + ": shutting down");
-        this.writebackExecutor.shutdown();
+        this.scheduledExecutor.shutdown();
         this.notifyExecutor.shutdown();
 
         // Reset
-        this.writebackExecutor = null;
+        this.scheduledExecutor = null;
         this.notifyExecutor = null;
         this.root = null;
+        this.timestamp = 0;
         this.started = false;
     }
 
@@ -191,9 +240,8 @@ public class PersistentObject<T> {
      *
      * <p>
      * If there is no persistent file and no value has been set, null will be returned.
-     * This condition is checked on each invocation of this method, so the persistent file
-     * is allowed to appear at any time. However, this is the only case where modifications
-     * to the underlying file should be allowed while this instance is started.
+     * However the persistent file may appear "out of band" at any time; if so, this will
+     * be detected within the configured {@linkplain #getCheckInterval check interval}.
      *
      * <p>
      * This returns a deep copy of the current root object; any subsequent modifications are not written back.
@@ -207,12 +255,6 @@ public class PersistentObject<T> {
         // Sanity check
         if (!this.started)
             throw new IllegalStateException("not started");
-
-        // Try again to read the file (if it exists)
-        if (this.root == null && this.persistentFile.exists()) {
-            this.root = this.read();
-            this.version++;
-        }
 
         // Copy root
         return this.root != null ? this.delegate.copy(this.root) : null;
@@ -260,7 +302,7 @@ public class PersistentObject<T> {
         // Sanity check
         if (newRoot == null)
             throw new IllegalArgumentException("null newRoot");
-        if (this.root == null)
+        if (!this.setRootUnstarted && !this.started)
             throw new IllegalStateException("not started");
         if (expectedVersion < 0)
             throw new IllegalStateException("negative expectedVersion");
@@ -288,7 +330,7 @@ public class PersistentObject<T> {
         if (this.writeDelay == 0)
             this.write(this.root);
         else if (this.pendingWrite == null) {
-            this.pendingWrite = this.writebackExecutor.schedule(new Runnable() {
+            this.pendingWrite = this.scheduledExecutor.schedule(new Runnable() {
                 @Override
                 public void run() {
                     PersistentObject.this.writeTimeout();
@@ -314,6 +356,35 @@ public class PersistentObject<T> {
      */
     public final synchronized void setRoot(T newRoot) {
         this.setRoot(newRoot, 0);
+    }
+
+    /**
+     * Check the persistent file for an "out-of-band" update.
+     *
+     * <p>
+     * If the persistent file has a newer timestamp than the timestamp of the most recently read
+     * or written version, then it will be read and applied to this instance.
+     *
+     * @throws IllegalStateException if this instance is not started
+     * @throws PersistentObjectException if an error occurs
+     */
+    public synchronized void checkFile() {
+
+        // Sanity check
+        if (!this.started)
+            throw new IllegalStateException("not started");
+
+        // Get file timestamp
+        long fileTime = this.persistentFile.lastModified();
+        if (fileTime == 0)
+            return;
+
+        // Check whether file has newly appeared or just been updated
+        if (this.timestamp != 0 && fileTime <= this.timestamp)
+            return;
+
+        // Read new file
+        this.applyFile();
     }
 
     /**
@@ -454,12 +525,18 @@ public class PersistentObject<T> {
                 }
             }
 
+            // Get new modification time (prior to the rename, to avoid a race condition)
+            long newTimestamp = tempFile.lastModified();
+
             // Rename file
             if (!tempFile.renameTo(this.persistentFile)) {
                 throw new PersistentObjectException("error renaming temporary file `"
                   + tempFile.getName() + "' to `" + this.persistentFile.getName() + "'");
             }
             tempFile = null;
+
+            // Update file timestamp
+            this.timestamp = newTimestamp;
         } finally {
             if (tempFile != null)
                 tempFile.delete();
@@ -489,6 +566,13 @@ public class PersistentObject<T> {
         });
     }
 
+    // Read the persistent file and apply it
+    private synchronized void applyFile() {
+        this.log.info(this + ": reading and applying persistent file `" + this.persistentFile + "'");
+        this.timestamp = this.persistentFile.lastModified();
+        this.setRoot(this.read(), 0);
+    }
+
     // Handle a write-back timeout
     private synchronized void writeTimeout() {
 
@@ -505,6 +589,26 @@ public class PersistentObject<T> {
         } catch (Throwable t) {
             this.delegate.handleWritebackException(this, t);
         }
+    }
+
+    // Handle a check file timeout
+    private synchronized void checkFileTimeout() {
+
+        // Handle race condition
+        if (!this.started)
+            return;
+
+        // Check file
+        this.checkFile();
+    }
+
+    // Cancel a pending write and return true if there was one
+    private synchronized boolean cancelPendingWrite() {
+        if (this.pendingWrite == null)
+            return false;
+        this.pendingWrite.cancel(false);
+        this.pendingWrite = null;
+        return true;
     }
 
     // Notify listeners. This is invoked in a separate thread.

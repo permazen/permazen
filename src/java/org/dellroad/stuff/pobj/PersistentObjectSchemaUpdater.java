@@ -47,8 +47,14 @@ import org.dellroad.stuff.schema.AbstractSchemaUpdater;
  */
 public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File, PersistentFileTransaction> {
 
+    /**
+     * Default check interval for "out-of-band" updates to the persistent file ({@value}ms).
+     */
+    public static final long DEFAULT_CHECK_INTERVAL = 1000;
+
     protected File file;
     protected long writeDelay;
+    protected long checkInterval = DEFAULT_CHECK_INTERVAL;
     protected PersistentObjectDelegate<T> delegate;
 
     private ArrayList<String> updateNames;
@@ -67,6 +73,14 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
      */
     public void setWriteDelay(long writeDelay) {
         this.writeDelay = writeDelay;
+    }
+
+    /**
+     * Configure the check interval for "out-of-band" updates to the persistent file.
+     * Default is {@link #DEFAULT_CHECK_INTERVAL}.
+     */
+    public void setCheckInterval(long checkInterval) {
+        this.checkInterval = checkInterval;
     }
 
     /**
@@ -106,7 +120,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
         }
 
         // Create and start persistent object
-        PersistentObject<T> pobj = new PersistentObject<T>(new UpdaterDelegate(), this.file, this.writeDelay);
+        PersistentObject<T> pobj = new PersistentObject<T>(new UpdaterDelegate(), this.file, this.writeDelay, this.checkInterval);
         pobj.start();
 
         // Done
