@@ -106,8 +106,11 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
         }
 
         // Create and start persistent object
-        this.persistentObject = new PersistentObject<T>(new UpdaterDelegate(), this.file, this.writeDelay);
-        this.persistentObject.start();
+        PersistentObject<T> pobj = new PersistentObject<T>(new UpdaterDelegate(), this.file, this.writeDelay);
+        pobj.start();
+
+        // Done
+        this.persistentObject = pobj;
     }
 
     /**
