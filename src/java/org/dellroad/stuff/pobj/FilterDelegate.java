@@ -52,6 +52,11 @@ public class FilterDelegate<T> implements PersistentObjectDelegate<T> {
     }
 
     @Override
+    public boolean isSameGraph(T root1, T root2) {
+        return this.nested.isSameGraph(root1, root2);
+    }
+
+    @Override
     public Set<ConstraintViolation<T>> validate(T obj) {
         return this.nested.validate(obj);
     }

@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * the contents of the "database" except through this API.
  *
  * <p>
- * When object graph is updated, it must pass validation checks, and then the persistent XML file is updated and
+ * When the object graph is updated, it must pass validation checks, and then the persistent XML file is updated and
  * listener notifications are sent out. Support for delayed write-back of the persistent XML file is included: this
  * allows modifications that occur in rapid succession to be consolidated into a single filesystem write operation.
  * In any case, file system writes use the {@link File#renameTo File.renameTo()} for atomicity on systems that
@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Instances must be configured with a {@link PersistentObjectDelegate} that knows how to validate the object graph
- * and perform conversions to and from XML.
+ * and perform conversions to and from XML. In all cases, persistent objects must properly validate.
  *
  * @param <T> type of the root persistent object
  * @see org.dellroad.stuff.pobj
@@ -268,6 +268,10 @@ public class PersistentObject<T> {
         // Check version number
         if (expectedVersion != 0 && this.version != expectedVersion)
             throw new PersistentObjectVersionException(this.version, expectedVersion);
+
+        // Check for sameness
+        if (this.root != null && this.delegate.isSameGraph(this.root, newRoot))
+            return;
 
         // Validate the new root
         Set<ConstraintViolation<T>> violations = this.delegate.validate(newRoot);
