@@ -283,6 +283,35 @@
         </sequential>
     </macrodef>
 
+    <!-- Check umask -->
+    <macrodef uri="urn:org.dellroad.ant" name="checkumask">
+        <attribute name="u" default="" description="Required user bits"/>
+        <attribute name="g" default="" description="Required group bits"/>
+        <attribute name="o" default="" description="Required other bits"/>
+        <sequential>
+            <exec outputproperty="@{property}" executable="/bin/bash" logError="true" failonerror="true">
+                <arg value="-c"/>
+                <arg value="
+                    set -e;
+                    bailout()
+                    {
+                        echo ERROR: $${1+&quot;$@&quot;} 1>&amp;2;
+                        exit 1;
+                    };
+                    PAT='^u=((r)?(w)?(x)?),g=((r)?(w)?(x)?),o=((r)?(w)?(x)?)$$';
+                    UBITS=`umask -S`;
+                    echo $${UBITS} | grep -qE &quot;$${PAT}&quot; || bailout failed to parse umask: `umask -S`;
+                    [ '@{u}' = '' -o `echo $${UBITS} | sed ${sed.extended.flag} 's|'&quot;$${PAT}&quot;'|\1|g'` = '@{u}' ]
+                      || bailout umask must have u='@{u}';
+                    [ '@{g}' = '' -o `echo $${UBITS} | sed ${sed.extended.flag} 's|'&quot;$${PAT}&quot;'|\5|g'` = '@{g}' ]
+                      || bailout umask must have g='@{g}';
+                    [ '@{o}' = '' -o `echo $${UBITS} | sed ${sed.extended.flag} 's|'&quot;$${PAT}&quot;'|\9|g'` = '@{o}' ]
+                      || bailout umask must have o='@{o}';
+                "/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <!--
         Schema Update Verification
 
@@ -411,6 +440,29 @@
                     <bindings/>
                 </bindingfileset>
             </jibx:bind> 
+        </sequential>
+    </macrodef>
+
+    <macrodef uri="urn:org.dellroad.ant" name="verifyclean">
+        <sequential>
+            <exec outputproperty="verifyclean.svn.version" executable="/bin/sh" logError="true" failonerror="true">
+                <arg value="-c"/>
+                <arg value="svnversion"/>
+            </exec>
+            <fail message="!&#10;&#10;
+                *** ERROR ***&#10;&#10;
+                The checked out code is not clean (SVN revision is `${verifyclean.svn.version}').&#10;&#10;
+                Please SVN update and/or commit first (or invoke ant with -Dpublish.dirty=true&#10;
+                if you really know what you're doing).&#10;">
+                <condition>
+                    <not>
+                        <or>
+                            <isset property="publish.dirty"/>
+                            <matches pattern="^[0-9.]+$" string="${verifyclean.svn.version}"/>
+                        </or>
+                    </not>
+                </condition>
+            </fail>
         </sequential>
     </macrodef>
 
