@@ -97,7 +97,6 @@ public class PersistentObject<T> {
     private long version;
     private long timestamp;
     private boolean started;
-    private boolean setRootUnstarted;
 
     /**
      * Constructor.
@@ -183,14 +182,9 @@ public class PersistentObject<T> {
 
         // Read file (if it exists)
         this.log.info(this + ": starting");
-        if (this.persistentFile.exists()) {
-            this.setRootUnstarted = true;
-            try {
-                this.applyFile();
-            } finally {
-                this.setRootUnstarted = false;
-            }
-        } else
+        if (this.persistentFile.exists())
+            this.applyFile();
+        else
             this.log.info(this + ": persistent file `" + this.persistentFile + "' does not exist yet");
 
         // Start checking the file
@@ -296,13 +290,17 @@ public class PersistentObject<T> {
      * @throws PersistentObjectVersionException if {@code version} is non-zero and not equal to the current version
      * @throws PersistentObjectValidationException if the new root has validation errors
      */
-    @SuppressWarnings("unchecked")
     public final synchronized void setRoot(T newRoot, long expectedVersion) {
+        this.setRootInternal(newRoot, expectedVersion, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    private synchronized void setRootInternal(T newRoot, long expectedVersion, boolean readingFile) {
 
         // Sanity check
         if (newRoot == null)
             throw new IllegalArgumentException("null newRoot");
-        if (!this.setRootUnstarted && !this.started)
+        if (!this.started && !readingFile)
             throw new IllegalStateException("not started");
         if (expectedVersion < 0)
             throw new IllegalStateException("negative expectedVersion");
@@ -327,15 +325,17 @@ public class PersistentObject<T> {
         this.sharedRoot = null;
 
         // Perform write-back, either now or later
-        if (this.writeDelay == 0)
-            this.write(this.root);
-        else if (this.pendingWrite == null) {
-            this.pendingWrite = this.scheduledExecutor.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    PersistentObject.this.writeTimeout();
-                }
-            }, this.writeDelay, TimeUnit.MILLISECONDS);
+        if (!readingFile) {
+            if (this.writeDelay == 0)
+                this.write(this.root);
+            else if (this.pendingWrite == null) {
+                this.pendingWrite = this.scheduledExecutor.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        PersistentObject.this.writeTimeout();
+                    }
+                }, this.writeDelay, TimeUnit.MILLISECONDS);
+            }
         }
 
         // Notify listeners
@@ -501,7 +501,6 @@ public class PersistentObject<T> {
             }
 
             // Serialize to XML
-            this.log.info(this + ": saving persistent object");
             try {
                 StreamResult result = new StreamResult(output);
                 result.setSystemId(tempFile);
@@ -568,9 +567,9 @@ public class PersistentObject<T> {
 
     // Read the persistent file and apply it
     private synchronized void applyFile() {
-        this.log.info(this + ": reading and applying persistent file `" + this.persistentFile + "'");
-        this.timestamp = this.persistentFile.lastModified();
-        this.setRoot(this.read(), 0);
+        this.cancelPendingWrite();
+        this.timestamp = this.persistentFile.lastModified();        // update timestamp even if it fails to avoid loops
+        this.setRootInternal(this.read(), 0, true);
     }
 
     // Handle a write-back timeout
