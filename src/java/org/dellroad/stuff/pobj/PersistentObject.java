@@ -183,7 +183,7 @@ public class PersistentObject<T> {
         // Read file (if it exists)
         this.log.info(this + ": starting");
         if (this.persistentFile.exists())
-            this.applyFile();
+            this.applyFile(this.persistentFile.lastModified());
         else
             this.log.info(this + ": persistent file `" + this.persistentFile + "' does not exist yet");
 
@@ -384,7 +384,8 @@ public class PersistentObject<T> {
             return;
 
         // Read new file
-        this.applyFile();
+        this.log.info(this + ": detected out-of-band update of persistent file `" + this.persistentFile + "'");
+        this.applyFile(fileTime);
     }
 
     /**
@@ -566,9 +567,9 @@ public class PersistentObject<T> {
     }
 
     // Read the persistent file and apply it
-    private synchronized void applyFile() {
+    private synchronized void applyFile(long newTimestamp) {
         this.cancelPendingWrite();
-        this.timestamp = this.persistentFile.lastModified();        // update timestamp even if it fails to avoid loops
+        this.timestamp = newTimestamp;                              // update timestamp even if update fails to avoid loops
         this.setRootInternal(this.read(), 0, true);
     }
 
@@ -598,7 +599,13 @@ public class PersistentObject<T> {
             return;
 
         // Check file
-        this.checkFile();
+        try {
+            this.checkFile();
+        } catch (ThreadDeath t) {
+            throw t;
+        } catch (Throwable t) {
+            this.log.error(this + ": error attempting to apply out-of-band update", t);
+        }
     }
 
     // Cancel a pending write and return true if there was one
