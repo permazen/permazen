@@ -63,7 +63,7 @@ import org.springframework.core.io.Resource;
  *
  *      &lt;!-- Schema update #1 --&gt;
  *      <b>&lt;bean id="update1" class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"
- *        transform="file://usr/share/updates/SomeUpdate.xsl"/&gt;</b>
+ *        transform="file:///usr/share/updates/SomeUpdate.xsl"/&gt;</b>
  *
  *      &lt;!-- Schema update #2: uses "classpath:updates/update2.xsl" thanks to TransformConfigurer --&gt;
  *      <b>&lt;bean id="update2" class="org.dellroad.stuff.pobj.SpringXSLPersistentObjectSchemaUpdate"/&gt;</b>
