@@ -65,9 +65,8 @@ import org.slf4j.LoggerFactory;
  * When a non-zero {@linkplain #getCheckInterval check interval} is configured, instances support "out-of-band" writes
  * to the XML persistent file by some other process. This can be handy in cases where the other process (perhaps hand edits)
  * is updating the persistent file and you want to have a running process pick up the changes just as if
- * {@link PersistentObject#setRoot setRoot()} had been invoked. As a special case, instances will detect
- * the appearance of a new persistent file after an instance has started without one. In all cases, persistent objects
- * must properly validate.
+ * {@link PersistentObject#setRoot setRoot()} had been invoked. In particular, instances will detect the appearance
+ * of a new persistent file after an instance has started without one. In all cases, persistent objects must properly validate.
  *
  * <p>
  * A special case of this is effected when {@link PersistentObject#setRoot setRoot()} is never explicitly invoked
