@@ -39,7 +39,7 @@ public class UpdatesXMLEventReader extends AnnotatedXMLEventReader {
 
     @Override
     protected boolean isAnnotationElement(StartElement event) {
-        return event.getName().equals(XMLConstants.UPDATES_ELEMENT_NAME);
+        return event.getName().equals(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME);
     }
 
     @Override
@@ -60,8 +60,9 @@ public class UpdatesXMLEventReader extends AnnotatedXMLEventReader {
             }
 
             // Get <update> start element event
-            if (!event.isStartElement() || !event.asStartElement().getName().equals(XMLConstants.UPDATE_ELEMENT_NAME)) {
-                throw new XMLStreamException("XML parse error: expected " + XMLConstants.UPDATE_ELEMENT_NAME
+            if (!event.isStartElement()
+              || !event.asStartElement().getName().equals(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME)) {
+                throw new XMLStreamException("XML parse error: expected " + PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME
                   + " but got " + this.describe(event), event.getLocation());
             }
 
@@ -73,7 +74,7 @@ public class UpdatesXMLEventReader extends AnnotatedXMLEventReader {
 
             // Get <update> end element event
             if (!event.isEndElement()) {
-                throw new XMLStreamException("XML parse error: expected " + XMLConstants.UPDATE_ELEMENT_NAME
+                throw new XMLStreamException("XML parse error: expected " + PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME
                   + " closing tag but got " + this.describe(event), event.getLocation());
             }
         }

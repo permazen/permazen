@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
@@ -36,7 +37,7 @@ import org.dellroad.stuff.schema.AbstractSchemaUpdater;
  * Use {@link #getPersistentObject} to access it.
  *
  * <p>
- * Updates are tracked by "secretly" inserting <code>{@link XMLConstants#UPDATES_ELEMENT_NAME &lt;pobj:updates&gt;}</code>
+ * Updates are tracked by "secretly" inserting <code>{@link #UPDATES_ELEMENT_NAME &lt;pobj:updates&gt;}</code>
  * elements into the serialized XML document; these updates are transparently removed when the document is read back.
  * In this way the document and its set of applied updates always travel together.
  *
@@ -46,6 +47,31 @@ import org.dellroad.stuff.schema.AbstractSchemaUpdater;
  * @param <T> type of the root persistent object
  */
 public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File, PersistentFileTransaction> {
+
+    /**
+     * XML namespace URI used for nested update elements.
+     */
+    public static final String NAMESPACE_URI = "http://dellroad-stuff.googlecode.com/ns/persistentObject";
+
+    /**
+     * Preferred XML namespace prefix for {@link #NAMESPACE_URI} elements.
+     */
+    public static final String XML_PREFIX = "pobj";
+
+    /**
+     * XML element name for the updates list.
+     */
+    public static final QName UPDATES_ELEMENT_NAME = new QName(NAMESPACE_URI, "updates", XML_PREFIX);
+
+    /**
+     * XML element name for a single update.
+     */
+    public static final QName UPDATE_ELEMENT_NAME = new QName(NAMESPACE_URI, "update", XML_PREFIX);
+
+    /**
+     * XML namespace URI used for namespace declarations.
+     */
+    public static final QName XMLNS_ATTRIBUTE_NAME = new QName("http://www.w3.org/2000/xmlns/", XML_PREFIX, "xmlns");
 
     /**
      * Default check interval for "out-of-band" updates to the persistent file ({@value}ms).

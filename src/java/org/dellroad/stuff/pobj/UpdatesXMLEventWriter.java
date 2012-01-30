@@ -16,7 +16,8 @@ import org.dellroad.stuff.xml.AnnotatedXMLEventWriter;
 
 /**
  * {@link AnnotatedXMLEventWriter} that inserts the schema update list into the document
- * using an {@link XMLConstants#UPDATES_ELEMENT_NAME} annotation element. Used by {@link PersistentObjectSchemaUpdater}.
+ * using an {@link PersistentObjectSchemaUpdater#UPDATES_ELEMENT_NAME} annotation element.
+ * Used by {@link PersistentObjectSchemaUpdater}.
  */
 public class UpdatesXMLEventWriter extends AnnotatedXMLEventWriter {
 
@@ -38,18 +39,19 @@ public class UpdatesXMLEventWriter extends AnnotatedXMLEventWriter {
 
     @Override
     protected void addAnnotationElement() throws XMLStreamException {
-        this.add(this.xmlEventFactory.createStartElement(XMLConstants.UPDATES_ELEMENT_NAME, null, null));
-        this.add(this.xmlEventFactory.createAttribute(XMLConstants.XMLNS_ATTRIBUTE_NAME, XMLConstants.NAMESPACE_URI));
+        this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null, null));
+        this.add(this.xmlEventFactory.createAttribute(PersistentObjectSchemaUpdater.XMLNS_ATTRIBUTE_NAME,
+          PersistentObjectSchemaUpdater.NAMESPACE_URI));
         if (!this.updates.isEmpty()) {
             for (String updateName : this.updates) {
                 this.add(this.xmlEventFactory.createCharacters("\n"));
-                this.add(this.xmlEventFactory.createStartElement(XMLConstants.UPDATE_ELEMENT_NAME, null, null));
+                this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null, null));
                 this.add(this.xmlEventFactory.createCharacters(updateName));
-                this.add(this.xmlEventFactory.createEndElement(XMLConstants.UPDATE_ELEMENT_NAME, null));
+                this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null));
             }
             this.add(this.xmlEventFactory.createCharacters("\n"));
         }
-        this.add(this.xmlEventFactory.createEndElement(XMLConstants.UPDATES_ELEMENT_NAME, null));
+        this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null));
     }
 }
 
