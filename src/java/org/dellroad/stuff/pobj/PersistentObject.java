@@ -37,12 +37,14 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Instances model an in-memory "database" represented by a root Java object and the graph of other objects that
  * it references. The object graph is backed by a persistent XML file, which is read at initialization time and
- * written to after each change.
+ * re-written after each change.
  *
  * <p>
  * Changes are applied "wholesale" to the entire object graph, and are serialized and atomic. In other words, the
  * entire object graph is read from, and written to, this class by value. As a result, it is not possible to change
- * the contents of the "database" except through this API.
+ * only a portion of the "database". The entire object graph is read and written as one thing. Similarly, the
+ * persistent XML file is updated by writing out a new, temporary copy and renaming the copy onto the original,
+ * using {@link File#renameTo File.renameTo()} for atomicity (on systems that support it, e.g., UNIX variants).
  *
  * <h3>Update Details</h3>
  *
@@ -50,31 +52,39 @@ import org.slf4j.LoggerFactory;
  * When the object graph is updated, it must pass validation checks, and then the persistent XML file is updated and
  * listener notifications are sent out. Support for delayed write-back of the persistent XML file is included: this
  * allows modifications that occur in rapid succession to be consolidated into a single filesystem write operation.
- * In any case, file system writes use the {@link File#renameTo File.renameTo()} for atomicity on systems that
- * support it (e.g., all UNIX operating systems).
  *
  * <p>
- * Support for optimistic locking is included. There is a current version number which is incremented each
- * time the object graph is updated, and writes may optionally specify this number to ensure no intervening changes
- * have occurred.
- *
- * <p>
- * Applications may choose to implement a 3-way merge algorithm of some kind to handle optimistic locking failures.
+ * Support for optimistic locking is included. There is a "current version" number which is incremented each
+ * time the object graph is updated; writes may optionally specify this number to ensure no intervening changes
+ * have occurred. If concurrent updates are expected, applications may choose to implement a 3-way merge algorithm
+ * of some kind to handle optimistic locking failures.
  *
  * <h3>"Out-of-band" Writes</h3>
  *
  * <p>
  * When a non-zero {@linkplain #getCheckInterval check interval} is configured, instances support "out-of-band" writes
- * to the XML persistent file. This can be handy in cases where some other process (perhaps hand edits) is updating the
- * persistent file and you want to have a running process pick up the changes just as if {@link PersistentObject#setRoot
- * PersistentObject.setRoot()} had been invoked. As a special case, instances will detect the appearance of a new
- * persistent file after an instance has started without one. In all cases, persistent objects must properly validate.
+ * to the XML persistent file by some other process. This can be handy in cases where the other process (perhaps hand edits)
+ * is updating the persistent file and you want to have a running process pick up the changes just as if
+ * {@link PersistentObject#setRoot setRoot()} had been invoked. As a special case, instances will detect
+ * the appearance of a new persistent file after an instance has started without one. In all cases, persistent objects
+ * must properly validate.
+ *
+ * <p>
+ * A special case of this is effected when {@link PersistentObject#setRoot setRoot()} is never explicitly invoked
+ * by the application. Then some other process must be responsible for all database updates, and this class automatically
+ * picks them up, validates them, and send out notifications.
  *
  * <h3>Delegate Function</h3>
  *
  * <p>
  * Instances must be configured with a {@link PersistentObjectDelegate} that knows how to validate the object graph
- * and perform conversions to and from XML. See {@link PersistentObjectDelegate} for details.
+ * and perform conversions to and from XML. See {@link PersistentObjectDelegate} and its implementations for details.
+ *
+ * <h3>Schema Changes</h3>
+ *
+ * <p>
+ * Like any database, the XML schema may evolve over time. The {@link PersistentObjectSchemaUpdater} class provides a simple
+ * way to apply and manage schema updates using XSLT transforms.
  *
  * @param <T> type of the root persistent object
  * @see PersistentObjectDelegate
