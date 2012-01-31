@@ -2,7 +2,7 @@
 Version 1.0.263 Released Jan 30, 2012
 
     - Bug fixes and tweaks to PersistentObject classes
-    - Added PersistentObject checking for "out-of-bound" updates
+    - Added PersistentObject checking for "out-of-band" updates
     - Added <dellroad:rpmdist> macro to macros.xml
     - Relax servlet 3.0 requirement in SpringContextApplication (issue #5)
     - Added IdGenerator, IdMapper, and IdMappingMarshaller
