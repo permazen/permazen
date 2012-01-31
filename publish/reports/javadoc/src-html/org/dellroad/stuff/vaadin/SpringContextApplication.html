@@ -16,248 +16,253 @@
 <FONT color="green">013</FONT>    import java.util.concurrent.atomic.AtomicLong;<a name="line.13"></a>
 <FONT color="green">014</FONT>    <a name="line.14"></a>
 <FONT color="green">015</FONT>    import javax.servlet.ServletContext;<a name="line.15"></a>
-<FONT color="green">016</FONT>    <a name="line.16"></a>
-<FONT color="green">017</FONT>    import org.springframework.beans.factory.wiring.BeanConfigurerSupport;<a name="line.17"></a>
-<FONT color="green">018</FONT>    import org.springframework.context.ApplicationContext;<a name="line.18"></a>
-<FONT color="green">019</FONT>    import org.springframework.context.ApplicationListener;<a name="line.19"></a>
-<FONT color="green">020</FONT>    import org.springframework.context.event.ContextRefreshedEvent;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import org.springframework.context.event.SourceFilteringListener;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import org.springframework.web.context.ConfigurableWebApplicationContext;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import org.springframework.web.context.WebApplicationContext;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import org.springframework.web.context.support.WebApplicationContextUtils;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import org.springframework.web.context.support.XmlWebApplicationContext;<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
-<FONT color="green">027</FONT>    /**<a name="line.27"></a>
-<FONT color="green">028</FONT>     * Vaadin application implementation that manages an associated Spring {@link WebApplicationContext}.<a name="line.28"></a>
-<FONT color="green">029</FONT>     *<a name="line.29"></a>
-<FONT color="green">030</FONT>     * &lt;h3&gt;Overview&lt;/h3&gt;<a name="line.30"></a>
+<FONT color="green">016</FONT>    import javax.servlet.http.HttpServletRequest;<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    import org.springframework.beans.factory.wiring.BeanConfigurerSupport;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import org.springframework.context.ApplicationContext;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import org.springframework.context.ApplicationListener;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import org.springframework.context.event.ContextRefreshedEvent;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import org.springframework.context.event.SourceFilteringListener;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import org.springframework.web.context.ConfigurableWebApplicationContext;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import org.springframework.web.context.ContextLoader;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import org.springframework.web.context.WebApplicationContext;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import org.springframework.web.context.support.WebApplicationContextUtils;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import org.springframework.web.context.support.XmlWebApplicationContext;<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>    /**<a name="line.29"></a>
+<FONT color="green">030</FONT>     * Vaadin application implementation that manages an associated Spring {@link WebApplicationContext}.<a name="line.30"></a>
 <FONT color="green">031</FONT>     *<a name="line.31"></a>
-<FONT color="green">032</FONT>     * &lt;p&gt;<a name="line.32"></a>
-<FONT color="green">033</FONT>     * Each Vaadin application instance is given its own Spring application context, and all such<a name="line.33"></a>
-<FONT color="green">034</FONT>     * application contexts share the same parent context, which is the one associated with the overal servlet web context<a name="line.34"></a>
-<FONT color="green">035</FONT>     * (i.e., the one created by Spring's {@link org.springframework.web.context.ContextLoaderListener ContextLoaderListener}).<a name="line.35"></a>
-<FONT color="green">036</FONT>     * A context is created when a new Vaadin application instance is initialized, and destroyed when it is closed.<a name="line.36"></a>
-<FONT color="green">037</FONT>     * &lt;/p&gt;<a name="line.37"></a>
-<FONT color="green">038</FONT>     *<a name="line.38"></a>
-<FONT color="green">039</FONT>     * &lt;p&gt;<a name="line.39"></a>
-<FONT color="green">040</FONT>     * This setup is analogous to how Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}<a name="line.40"></a>
-<FONT color="green">041</FONT>     * creates per-servlet application contexts that are children of the overall servlet web context.<a name="line.41"></a>
-<FONT color="green">042</FONT>     * &lt;/p&gt;<a name="line.42"></a>
-<FONT color="green">043</FONT>     *<a name="line.43"></a>
-<FONT color="green">044</FONT>     * &lt;p&gt;<a name="line.44"></a>
-<FONT color="green">045</FONT>     * For each Vaadin application {@code com.example.FooApplication} that subclasses this class, there should exist an XML<a name="line.45"></a>
-<FONT color="green">046</FONT>     * file named {@code FooApplication.xml} in the {@code WEB-INF/} directory that defines the per-Vaadin application Spring<a name="line.46"></a>
-<FONT color="green">047</FONT>     * application context (this naming scheme {@linkplain #getApplicationName can be overriden}).<a name="line.47"></a>
-<FONT color="green">048</FONT>     * &lt;/p&gt;<a name="line.48"></a>
-<FONT color="green">049</FONT>     *<a name="line.49"></a>
-<FONT color="green">050</FONT>     * &lt;h3&gt;Application as Bean&lt;/h3&gt;<a name="line.50"></a>
+<FONT color="green">032</FONT>     * &lt;h3&gt;Overview&lt;/h3&gt;<a name="line.32"></a>
+<FONT color="green">033</FONT>     *<a name="line.33"></a>
+<FONT color="green">034</FONT>     * &lt;p&gt;<a name="line.34"></a>
+<FONT color="green">035</FONT>     * Each Vaadin application instance is given its own Spring application context, and all such<a name="line.35"></a>
+<FONT color="green">036</FONT>     * application contexts share the same parent context, which is the one associated with the overal servlet web context<a name="line.36"></a>
+<FONT color="green">037</FONT>     * (i.e., the one created by Spring's {@link org.springframework.web.context.ContextLoaderListener ContextLoaderListener}).<a name="line.37"></a>
+<FONT color="green">038</FONT>     * A context is created when a new Vaadin application instance is initialized, and destroyed when it is closed.<a name="line.38"></a>
+<FONT color="green">039</FONT>     * &lt;/p&gt;<a name="line.39"></a>
+<FONT color="green">040</FONT>     *<a name="line.40"></a>
+<FONT color="green">041</FONT>     * &lt;p&gt;<a name="line.41"></a>
+<FONT color="green">042</FONT>     * This setup is analogous to how Spring's {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}<a name="line.42"></a>
+<FONT color="green">043</FONT>     * creates per-servlet application contexts that are children of the overall servlet web context.<a name="line.43"></a>
+<FONT color="green">044</FONT>     * &lt;/p&gt;<a name="line.44"></a>
+<FONT color="green">045</FONT>     *<a name="line.45"></a>
+<FONT color="green">046</FONT>     * &lt;p&gt;<a name="line.46"></a>
+<FONT color="green">047</FONT>     * For each Vaadin application {@code com.example.FooApplication} that subclasses this class, there should exist an XML<a name="line.47"></a>
+<FONT color="green">048</FONT>     * file named {@code FooApplication.xml} in the {@code WEB-INF/} directory that defines the per-Vaadin application Spring<a name="line.48"></a>
+<FONT color="green">049</FONT>     * application context (this naming scheme {@linkplain #getApplicationName can be overriden}).<a name="line.49"></a>
+<FONT color="green">050</FONT>     * &lt;/p&gt;<a name="line.50"></a>
 <FONT color="green">051</FONT>     *<a name="line.51"></a>
-<FONT color="green">052</FONT>     * &lt;p&gt;<a name="line.52"></a>
-<FONT color="green">053</FONT>     * This {@link SpringContextApplication} instance can itself be included in, and optionally configured by, the associated Spring<a name="line.53"></a>
-<FONT color="green">054</FONT>     * application context by using a {@link ContextApplicationFactoryBean}:<a name="line.54"></a>
-<FONT color="green">055</FONT>     *<a name="line.55"></a>
-<FONT color="green">056</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.56"></a>
-<FONT color="green">057</FONT>     *      &amp;lt;bean class="org.dellroad.stuff.vaadin.ContextApplicationFactoryBean" p:autowire="true"/&amp;gt;<a name="line.57"></a>
-<FONT color="green">058</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.58"></a>
-<FONT color="green">059</FONT>     * If the {@code autowire} property is set to {@code true}, then the {@link SpringContextApplication} instance<a name="line.59"></a>
-<FONT color="green">060</FONT>     * (which already exists when the application context is created) will be autowired by the application context as well.<a name="line.60"></a>
-<FONT color="green">061</FONT>     * &lt;/p&gt;<a name="line.61"></a>
-<FONT color="green">062</FONT>     *<a name="line.62"></a>
-<FONT color="green">063</FONT>     * &lt;h3&gt;@VaadinConfigurable Beans&lt;/h3&gt;<a name="line.63"></a>
+<FONT color="green">052</FONT>     * &lt;h3&gt;Application as Bean&lt;/h3&gt;<a name="line.52"></a>
+<FONT color="green">053</FONT>     *<a name="line.53"></a>
+<FONT color="green">054</FONT>     * &lt;p&gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>     * This {@link SpringContextApplication} instance can itself be included in, and optionally configured by, the associated Spring<a name="line.55"></a>
+<FONT color="green">056</FONT>     * application context by using a {@link ContextApplicationFactoryBean}:<a name="line.56"></a>
+<FONT color="green">057</FONT>     *<a name="line.57"></a>
+<FONT color="green">058</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.58"></a>
+<FONT color="green">059</FONT>     *      &amp;lt;bean class="org.dellroad.stuff.vaadin.ContextApplicationFactoryBean" p:autowire="true"/&amp;gt;<a name="line.59"></a>
+<FONT color="green">060</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.60"></a>
+<FONT color="green">061</FONT>     * If the {@code autowire} property is set to {@code true}, then the {@link SpringContextApplication} instance<a name="line.61"></a>
+<FONT color="green">062</FONT>     * (which already exists when the application context is created) will be autowired by the application context as well.<a name="line.62"></a>
+<FONT color="green">063</FONT>     * &lt;/p&gt;<a name="line.63"></a>
 <FONT color="green">064</FONT>     *<a name="line.64"></a>
-<FONT color="green">065</FONT>     * &lt;p&gt;<a name="line.65"></a>
-<FONT color="green">066</FONT>     * It is also possible to configure beans outside of this application context using AOP, so that any invocation of<a name="line.66"></a>
-<FONT color="green">067</FONT>     * {@code new FooBar()}, where the class {@code FooBar} is marked {@link VaadinConfigurable @VaadinConfigurable},<a name="line.67"></a>
-<FONT color="green">068</FONT>     * will automagically cause the new {@code FooBar} object to be autowired by the application context associated with<a name="line.68"></a>
-<FONT color="green">069</FONT>     * the {@linkplain ContextApplication#get() currently running application instance}.<a name="line.69"></a>
-<FONT color="green">070</FONT>     * This includes lifecycle management; for example, any Spring<a name="line.70"></a>
-<FONT color="green">071</FONT>     * {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-method} will be invoked on application close.<a name="line.71"></a>
-<FONT color="green">072</FONT>     * &lt;/p&gt;<a name="line.72"></a>
-<FONT color="green">073</FONT>     *<a name="line.73"></a>
-<FONT color="green">074</FONT>     * &lt;p&gt;<a name="line.74"></a>
-<FONT color="green">075</FONT>     * For this to work, {@link VaadinConfigurable @VaadinConfigurable} classes must be woven<a name="line.75"></a>
-<FONT color="green">076</FONT>     * (either at build time or runtime) using the<a name="line.76"></a>
-<FONT color="green">077</FONT>     * &lt;a href="http://www.eclipse.org/aspectj/doc/released/faq.php#compiler"&gt;AspectJ compiler&lt;/a&gt; with the<a name="line.77"></a>
-<FONT color="green">078</FONT>     * {@code VaadinConfigurableAspect} aspect (included in the &lt;code&gt;dellroad-stuff&lt;/code&gt; JAR file).<a name="line.78"></a>
-<FONT color="green">079</FONT>     * &lt;/p&gt;<a name="line.79"></a>
-<FONT color="green">080</FONT>     *<a name="line.80"></a>
-<FONT color="green">081</FONT>     * &lt;p&gt;<a name="line.81"></a>
-<FONT color="green">082</FONT>     * Note: This class requires Servlet 3.0.<a name="line.82"></a>
-<FONT color="green">083</FONT>     * &lt;/p&gt;<a name="line.83"></a>
-<FONT color="green">084</FONT>     *<a name="line.84"></a>
-<FONT color="green">085</FONT>     * @see ContextApplication#get<a name="line.85"></a>
-<FONT color="green">086</FONT>     * @see ContextApplicationFactoryBean<a name="line.86"></a>
-<FONT color="green">087</FONT>     * @see &lt;a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3"&gt;Example Code on GitHub&lt;/a&gt;<a name="line.87"></a>
-<FONT color="green">088</FONT>     */<a name="line.88"></a>
-<FONT color="green">089</FONT>    @SuppressWarnings("serial")<a name="line.89"></a>
-<FONT color="green">090</FONT>    public abstract class SpringContextApplication extends ContextApplication {<a name="line.90"></a>
+<FONT color="green">065</FONT>     * &lt;h3&gt;@VaadinConfigurable Beans&lt;/h3&gt;<a name="line.65"></a>
+<FONT color="green">066</FONT>     *<a name="line.66"></a>
+<FONT color="green">067</FONT>     * &lt;p&gt;<a name="line.67"></a>
+<FONT color="green">068</FONT>     * It is also possible to configure beans outside of this application context using AOP, so that any invocation of<a name="line.68"></a>
+<FONT color="green">069</FONT>     * {@code new FooBar()}, where the class {@code FooBar} is marked {@link VaadinConfigurable @VaadinConfigurable},<a name="line.69"></a>
+<FONT color="green">070</FONT>     * will automagically cause the new {@code FooBar} object to be autowired by the application context associated with<a name="line.70"></a>
+<FONT color="green">071</FONT>     * the {@linkplain ContextApplication#get() currently running application instance}.<a name="line.71"></a>
+<FONT color="green">072</FONT>     * This includes lifecycle management; for example, any Spring<a name="line.72"></a>
+<FONT color="green">073</FONT>     * {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-method} will be invoked on application close.<a name="line.73"></a>
+<FONT color="green">074</FONT>     * &lt;/p&gt;<a name="line.74"></a>
+<FONT color="green">075</FONT>     *<a name="line.75"></a>
+<FONT color="green">076</FONT>     * &lt;p&gt;<a name="line.76"></a>
+<FONT color="green">077</FONT>     * For this to work, {@link VaadinConfigurable @VaadinConfigurable} classes must be woven<a name="line.77"></a>
+<FONT color="green">078</FONT>     * (either at build time or runtime) using the<a name="line.78"></a>
+<FONT color="green">079</FONT>     * &lt;a href="http://www.eclipse.org/aspectj/doc/released/faq.php#compiler"&gt;AspectJ compiler&lt;/a&gt; with the<a name="line.79"></a>
+<FONT color="green">080</FONT>     * {@code VaadinConfigurableAspect} aspect (included in the &lt;code&gt;dellroad-stuff&lt;/code&gt; JAR file).<a name="line.80"></a>
+<FONT color="green">081</FONT>     * &lt;/p&gt;<a name="line.81"></a>
+<FONT color="green">082</FONT>     *<a name="line.82"></a>
+<FONT color="green">083</FONT>     * @see ContextApplication#get<a name="line.83"></a>
+<FONT color="green">084</FONT>     * @see ContextApplicationFactoryBean<a name="line.84"></a>
+<FONT color="green">085</FONT>     * @see &lt;a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3"&gt;Example Code on GitHub&lt;/a&gt;<a name="line.85"></a>
+<FONT color="green">086</FONT>     */<a name="line.86"></a>
+<FONT color="green">087</FONT>    @SuppressWarnings("serial")<a name="line.87"></a>
+<FONT color="green">088</FONT>    public abstract class SpringContextApplication extends ContextApplication {<a name="line.88"></a>
+<FONT color="green">089</FONT>    <a name="line.89"></a>
+<FONT color="green">090</FONT>        private static final AtomicLong UNIQUE_INDEX = new AtomicLong();<a name="line.90"></a>
 <FONT color="green">091</FONT>    <a name="line.91"></a>
-<FONT color="green">092</FONT>        private static final AtomicLong UNIQUE_INDEX = new AtomicLong();<a name="line.92"></a>
+<FONT color="green">092</FONT>        private transient ConfigurableWebApplicationContext context;<a name="line.92"></a>
 <FONT color="green">093</FONT>    <a name="line.93"></a>
-<FONT color="green">094</FONT>        private transient ConfigurableWebApplicationContext context;<a name="line.94"></a>
-<FONT color="green">095</FONT>    <a name="line.95"></a>
-<FONT color="green">096</FONT>        /**<a name="line.96"></a>
-<FONT color="green">097</FONT>         * Get this instance's associated Spring application context.<a name="line.97"></a>
-<FONT color="green">098</FONT>         */<a name="line.98"></a>
-<FONT color="green">099</FONT>        public ConfigurableWebApplicationContext getApplicationContext() {<a name="line.99"></a>
-<FONT color="green">100</FONT>            return this.context;<a name="line.100"></a>
-<FONT color="green">101</FONT>        }<a name="line.101"></a>
-<FONT color="green">102</FONT>    <a name="line.102"></a>
-<FONT color="green">103</FONT>        /**<a name="line.103"></a>
-<FONT color="green">104</FONT>         * Configure a bean using this instance's associated application context.<a name="line.104"></a>
-<FONT color="green">105</FONT>         * Intended for use by aspects.<a name="line.105"></a>
-<FONT color="green">106</FONT>         */<a name="line.106"></a>
-<FONT color="green">107</FONT>        protected void configureBean(Object bean) {<a name="line.107"></a>
-<FONT color="green">108</FONT>            BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();<a name="line.108"></a>
-<FONT color="green">109</FONT>            beanConfigurerSupport.setBeanFactory(this.context.getBeanFactory());<a name="line.109"></a>
-<FONT color="green">110</FONT>            beanConfigurerSupport.setBeanWiringInfoResolver(new VaadinConfigurableBeanWiringInfoResolver());<a name="line.110"></a>
-<FONT color="green">111</FONT>            beanConfigurerSupport.afterPropertiesSet();<a name="line.111"></a>
-<FONT color="green">112</FONT>            beanConfigurerSupport.configureBean(bean);<a name="line.112"></a>
-<FONT color="green">113</FONT>            beanConfigurerSupport.destroy();<a name="line.113"></a>
-<FONT color="green">114</FONT>        }<a name="line.114"></a>
-<FONT color="green">115</FONT>    <a name="line.115"></a>
-<FONT color="green">116</FONT>        /**<a name="line.116"></a>
-<FONT color="green">117</FONT>         * Get the {@link SpringContextApplication} instance associated with the current thread or throw an exception if there is none.<a name="line.117"></a>
-<FONT color="green">118</FONT>         *<a name="line.118"></a>
-<FONT color="green">119</FONT>         * &lt;p&gt;<a name="line.119"></a>
-<FONT color="green">120</FONT>         * Works just like {@link ContextApplication#get()} but returns this narrower type.<a name="line.120"></a>
-<FONT color="green">121</FONT>         * &lt;/p&gt;<a name="line.121"></a>
-<FONT color="green">122</FONT>         *<a name="line.122"></a>
-<FONT color="green">123</FONT>         * @return the {@link SpringContextApplication} associated with the current thread<a name="line.123"></a>
-<FONT color="green">124</FONT>         * @throws IllegalStateException if the current thread is not servicing a Vaadin web request<a name="line.124"></a>
-<FONT color="green">125</FONT>         *  or the current Vaadin {@link com.vaadin.Application} is not a {@link SpringContextApplication}<a name="line.125"></a>
-<FONT color="green">126</FONT>         */<a name="line.126"></a>
-<FONT color="green">127</FONT>        public static SpringContextApplication get() {<a name="line.127"></a>
-<FONT color="green">128</FONT>            return ContextApplication.get(SpringContextApplication.class);<a name="line.128"></a>
-<FONT color="green">129</FONT>        }<a name="line.129"></a>
-<FONT color="green">130</FONT>    <a name="line.130"></a>
-<FONT color="green">131</FONT>        /**<a name="line.131"></a>
-<FONT color="green">132</FONT>         * Initializes the associated {@link ConfigurableWebApplicationContext}.<a name="line.132"></a>
-<FONT color="green">133</FONT>         */<a name="line.133"></a>
-<FONT color="green">134</FONT>        protected final void initApplication() {<a name="line.134"></a>
-<FONT color="green">135</FONT>    <a name="line.135"></a>
-<FONT color="green">136</FONT>            // Load the context<a name="line.136"></a>
-<FONT color="green">137</FONT>            this.loadContext();<a name="line.137"></a>
-<FONT color="green">138</FONT>    <a name="line.138"></a>
-<FONT color="green">139</FONT>            // Initialize subclass<a name="line.139"></a>
-<FONT color="green">140</FONT>            this.initSpringApplication(context);<a name="line.140"></a>
-<FONT color="green">141</FONT>        }<a name="line.141"></a>
-<FONT color="green">142</FONT>    <a name="line.142"></a>
-<FONT color="green">143</FONT>        /**<a name="line.143"></a>
-<FONT color="green">144</FONT>         * Initialize the application. Sub-classes of {@link SpringContextApplication} must implement this method.<a name="line.144"></a>
-<FONT color="green">145</FONT>         *<a name="line.145"></a>
-<FONT color="green">146</FONT>         * @param context the associated {@link WebApplicationContext} just created and refreshed<a name="line.146"></a>
-<FONT color="green">147</FONT>         */<a name="line.147"></a>
-<FONT color="green">148</FONT>        protected abstract void initSpringApplication(ConfigurableWebApplicationContext context);<a name="line.148"></a>
-<FONT color="green">149</FONT>    <a name="line.149"></a>
-<FONT color="green">150</FONT>        /**<a name="line.150"></a>
-<FONT color="green">151</FONT>         * Post-process the given {@link WebApplicationContext} after initial creation but before the initial<a name="line.151"></a>
-<FONT color="green">152</FONT>         * {@link org.springframework.context.ConfigurableApplicationContext#refresh refresh()}.<a name="line.152"></a>
-<FONT color="green">153</FONT>         *<a name="line.153"></a>
-<FONT color="green">154</FONT>         * &lt;p&gt;<a name="line.154"></a>
-<FONT color="green">155</FONT>         * The implementation in {@link SpringContextApplication} does nothing. Subclasses may override as necessary.<a name="line.155"></a>
-<FONT color="green">156</FONT>         * &lt;/p&gt;<a name="line.156"></a>
-<FONT color="green">157</FONT>         *<a name="line.157"></a>
-<FONT color="green">158</FONT>         * @param context the associated {@link WebApplicationContext} just refreshed<a name="line.158"></a>
-<FONT color="green">159</FONT>         * @see #onRefresh<a name="line.159"></a>
-<FONT color="green">160</FONT>         * @see ConfigurableWebApplicationContext#refresh()<a name="line.160"></a>
-<FONT color="green">161</FONT>         */<a name="line.161"></a>
-<FONT color="green">162</FONT>        protected void postProcessWebApplicationContext(ConfigurableWebApplicationContext context) {<a name="line.162"></a>
-<FONT color="green">163</FONT>        }<a name="line.163"></a>
-<FONT color="green">164</FONT>    <a name="line.164"></a>
-<FONT color="green">165</FONT>        /**<a name="line.165"></a>
-<FONT color="green">166</FONT>         * Perform any application-specific work after a successful application context refresh.<a name="line.166"></a>
-<FONT color="green">167</FONT>         *<a name="line.167"></a>
-<FONT color="green">168</FONT>         * &lt;p&gt;<a name="line.168"></a>
-<FONT color="green">169</FONT>         * The implementation in {@link SpringContextApplication} does nothing. Subclasses may override as necessary.<a name="line.169"></a>
-<FONT color="green">170</FONT>         * &lt;/p&gt;<a name="line.170"></a>
-<FONT color="green">171</FONT>         *<a name="line.171"></a>
-<FONT color="green">172</FONT>         * @param context the associated {@link WebApplicationContext} just refreshed<a name="line.172"></a>
-<FONT color="green">173</FONT>         * @see #postProcessWebApplicationContext<a name="line.173"></a>
-<FONT color="green">174</FONT>         * @see org.springframework.context.ConfigurableApplicationContext#refresh<a name="line.174"></a>
-<FONT color="green">175</FONT>         */<a name="line.175"></a>
-<FONT color="green">176</FONT>        protected void onRefresh(ApplicationContext context) {<a name="line.176"></a>
-<FONT color="green">177</FONT>        }<a name="line.177"></a>
-<FONT color="green">178</FONT>    <a name="line.178"></a>
-<FONT color="green">179</FONT>        /**<a name="line.179"></a>
-<FONT color="green">180</FONT>         * Get the name for this application. This is used as the name of the XML file in {@code WEB-INF/} that<a name="line.180"></a>
-<FONT color="green">181</FONT>         * defines the Spring application context associated with this instance.<a name="line.181"></a>
-<FONT color="green">182</FONT>         *<a name="line.182"></a>
-<FONT color="green">183</FONT>         * &lt;p&gt;<a name="line.183"></a>
-<FONT color="green">184</FONT>         * The implementation in {@link SpringContextApplication} returns this instance's class'<a name="line.184"></a>
-<FONT color="green">185</FONT>         * {@linkplain Class#getSimpleName simple name}.<a name="line.185"></a>
-<FONT color="green">186</FONT>         * &lt;/p&gt;<a name="line.186"></a>
-<FONT color="green">187</FONT>         */<a name="line.187"></a>
-<FONT color="green">188</FONT>        protected String getApplicationName() {<a name="line.188"></a>
-<FONT color="green">189</FONT>            return this.getClass().getSimpleName();<a name="line.189"></a>
-<FONT color="green">190</FONT>        }<a name="line.190"></a>
+<FONT color="green">094</FONT>        /**<a name="line.94"></a>
+<FONT color="green">095</FONT>         * Get this instance's associated Spring application context.<a name="line.95"></a>
+<FONT color="green">096</FONT>         */<a name="line.96"></a>
+<FONT color="green">097</FONT>        public ConfigurableWebApplicationContext getApplicationContext() {<a name="line.97"></a>
+<FONT color="green">098</FONT>            return this.context;<a name="line.98"></a>
+<FONT color="green">099</FONT>        }<a name="line.99"></a>
+<FONT color="green">100</FONT>    <a name="line.100"></a>
+<FONT color="green">101</FONT>        /**<a name="line.101"></a>
+<FONT color="green">102</FONT>         * Configure a bean using this instance's associated application context.<a name="line.102"></a>
+<FONT color="green">103</FONT>         * Intended for use by aspects.<a name="line.103"></a>
+<FONT color="green">104</FONT>         */<a name="line.104"></a>
+<FONT color="green">105</FONT>        protected void configureBean(Object bean) {<a name="line.105"></a>
+<FONT color="green">106</FONT>            BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();<a name="line.106"></a>
+<FONT color="green">107</FONT>            beanConfigurerSupport.setBeanFactory(this.context.getBeanFactory());<a name="line.107"></a>
+<FONT color="green">108</FONT>            beanConfigurerSupport.setBeanWiringInfoResolver(new VaadinConfigurableBeanWiringInfoResolver());<a name="line.108"></a>
+<FONT color="green">109</FONT>            beanConfigurerSupport.afterPropertiesSet();<a name="line.109"></a>
+<FONT color="green">110</FONT>            beanConfigurerSupport.configureBean(bean);<a name="line.110"></a>
+<FONT color="green">111</FONT>            beanConfigurerSupport.destroy();<a name="line.111"></a>
+<FONT color="green">112</FONT>        }<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>        /**<a name="line.114"></a>
+<FONT color="green">115</FONT>         * Get the {@link SpringContextApplication} instance associated with the current thread or throw an exception if there is none.<a name="line.115"></a>
+<FONT color="green">116</FONT>         *<a name="line.116"></a>
+<FONT color="green">117</FONT>         * &lt;p&gt;<a name="line.117"></a>
+<FONT color="green">118</FONT>         * Works just like {@link ContextApplication#get()} but returns this narrower type.<a name="line.118"></a>
+<FONT color="green">119</FONT>         * &lt;/p&gt;<a name="line.119"></a>
+<FONT color="green">120</FONT>         *<a name="line.120"></a>
+<FONT color="green">121</FONT>         * @return the {@link SpringContextApplication} associated with the current thread<a name="line.121"></a>
+<FONT color="green">122</FONT>         * @throws IllegalStateException if the current thread is not servicing a Vaadin web request<a name="line.122"></a>
+<FONT color="green">123</FONT>         *  or the current Vaadin {@link com.vaadin.Application} is not a {@link SpringContextApplication}<a name="line.123"></a>
+<FONT color="green">124</FONT>         */<a name="line.124"></a>
+<FONT color="green">125</FONT>        public static SpringContextApplication get() {<a name="line.125"></a>
+<FONT color="green">126</FONT>            return ContextApplication.get(SpringContextApplication.class);<a name="line.126"></a>
+<FONT color="green">127</FONT>        }<a name="line.127"></a>
+<FONT color="green">128</FONT>    <a name="line.128"></a>
+<FONT color="green">129</FONT>        /**<a name="line.129"></a>
+<FONT color="green">130</FONT>         * Initializes the associated {@link ConfigurableWebApplicationContext}.<a name="line.130"></a>
+<FONT color="green">131</FONT>         */<a name="line.131"></a>
+<FONT color="green">132</FONT>        protected final void initApplication() {<a name="line.132"></a>
+<FONT color="green">133</FONT>    <a name="line.133"></a>
+<FONT color="green">134</FONT>            // Load the context<a name="line.134"></a>
+<FONT color="green">135</FONT>            this.loadContext();<a name="line.135"></a>
+<FONT color="green">136</FONT>    <a name="line.136"></a>
+<FONT color="green">137</FONT>            // Initialize subclass<a name="line.137"></a>
+<FONT color="green">138</FONT>            this.initSpringApplication(context);<a name="line.138"></a>
+<FONT color="green">139</FONT>        }<a name="line.139"></a>
+<FONT color="green">140</FONT>    <a name="line.140"></a>
+<FONT color="green">141</FONT>        /**<a name="line.141"></a>
+<FONT color="green">142</FONT>         * Initialize the application. Sub-classes of {@link SpringContextApplication} must implement this method.<a name="line.142"></a>
+<FONT color="green">143</FONT>         *<a name="line.143"></a>
+<FONT color="green">144</FONT>         * @param context the associated {@link WebApplicationContext} just created and refreshed<a name="line.144"></a>
+<FONT color="green">145</FONT>         */<a name="line.145"></a>
+<FONT color="green">146</FONT>        protected abstract void initSpringApplication(ConfigurableWebApplicationContext context);<a name="line.146"></a>
+<FONT color="green">147</FONT>    <a name="line.147"></a>
+<FONT color="green">148</FONT>        /**<a name="line.148"></a>
+<FONT color="green">149</FONT>         * Post-process the given {@link WebApplicationContext} after initial creation but before the initial<a name="line.149"></a>
+<FONT color="green">150</FONT>         * {@link org.springframework.context.ConfigurableApplicationContext#refresh refresh()}.<a name="line.150"></a>
+<FONT color="green">151</FONT>         *<a name="line.151"></a>
+<FONT color="green">152</FONT>         * &lt;p&gt;<a name="line.152"></a>
+<FONT color="green">153</FONT>         * The implementation in {@link SpringContextApplication} does nothing. Subclasses may override as necessary.<a name="line.153"></a>
+<FONT color="green">154</FONT>         * &lt;/p&gt;<a name="line.154"></a>
+<FONT color="green">155</FONT>         *<a name="line.155"></a>
+<FONT color="green">156</FONT>         * @param context the associated {@link WebApplicationContext} just refreshed<a name="line.156"></a>
+<FONT color="green">157</FONT>         * @see #onRefresh<a name="line.157"></a>
+<FONT color="green">158</FONT>         * @see ConfigurableWebApplicationContext#refresh()<a name="line.158"></a>
+<FONT color="green">159</FONT>         */<a name="line.159"></a>
+<FONT color="green">160</FONT>        protected void postProcessWebApplicationContext(ConfigurableWebApplicationContext context) {<a name="line.160"></a>
+<FONT color="green">161</FONT>        }<a name="line.161"></a>
+<FONT color="green">162</FONT>    <a name="line.162"></a>
+<FONT color="green">163</FONT>        /**<a name="line.163"></a>
+<FONT color="green">164</FONT>         * Perform any application-specific work after a successful application context refresh.<a name="line.164"></a>
+<FONT color="green">165</FONT>         *<a name="line.165"></a>
+<FONT color="green">166</FONT>         * &lt;p&gt;<a name="line.166"></a>
+<FONT color="green">167</FONT>         * The implementation in {@link SpringContextApplication} does nothing. Subclasses may override as necessary.<a name="line.167"></a>
+<FONT color="green">168</FONT>         * &lt;/p&gt;<a name="line.168"></a>
+<FONT color="green">169</FONT>         *<a name="line.169"></a>
+<FONT color="green">170</FONT>         * @param context the associated {@link WebApplicationContext} just refreshed<a name="line.170"></a>
+<FONT color="green">171</FONT>         * @see #postProcessWebApplicationContext<a name="line.171"></a>
+<FONT color="green">172</FONT>         * @see org.springframework.context.ConfigurableApplicationContext#refresh<a name="line.172"></a>
+<FONT color="green">173</FONT>         */<a name="line.173"></a>
+<FONT color="green">174</FONT>        protected void onRefresh(ApplicationContext context) {<a name="line.174"></a>
+<FONT color="green">175</FONT>        }<a name="line.175"></a>
+<FONT color="green">176</FONT>    <a name="line.176"></a>
+<FONT color="green">177</FONT>        /**<a name="line.177"></a>
+<FONT color="green">178</FONT>         * Get the name for this application. This is used as the name of the XML file in {@code WEB-INF/} that<a name="line.178"></a>
+<FONT color="green">179</FONT>         * defines the Spring application context associated with this instance.<a name="line.179"></a>
+<FONT color="green">180</FONT>         *<a name="line.180"></a>
+<FONT color="green">181</FONT>         * &lt;p&gt;<a name="line.181"></a>
+<FONT color="green">182</FONT>         * The implementation in {@link SpringContextApplication} returns this instance's class'<a name="line.182"></a>
+<FONT color="green">183</FONT>         * {@linkplain Class#getSimpleName simple name}.<a name="line.183"></a>
+<FONT color="green">184</FONT>         * &lt;/p&gt;<a name="line.184"></a>
+<FONT color="green">185</FONT>         */<a name="line.185"></a>
+<FONT color="green">186</FONT>        protected String getApplicationName() {<a name="line.186"></a>
+<FONT color="green">187</FONT>            return this.getClass().getSimpleName();<a name="line.187"></a>
+<FONT color="green">188</FONT>        }<a name="line.188"></a>
+<FONT color="green">189</FONT>    <a name="line.189"></a>
+<FONT color="green">190</FONT>    // ApplicationContext setup<a name="line.190"></a>
 <FONT color="green">191</FONT>    <a name="line.191"></a>
-<FONT color="green">192</FONT>    // ApplicationContext setup<a name="line.192"></a>
+<FONT color="green">192</FONT>        private void loadContext() {<a name="line.192"></a>
 <FONT color="green">193</FONT>    <a name="line.193"></a>
-<FONT color="green">194</FONT>        private void loadContext() {<a name="line.194"></a>
-<FONT color="green">195</FONT>    <a name="line.195"></a>
-<FONT color="green">196</FONT>            // Logging<a name="line.196"></a>
-<FONT color="green">197</FONT>            this.log.info("loading application context for Vaadin application " + this.getApplicationName());<a name="line.197"></a>
-<FONT color="green">198</FONT>    <a name="line.198"></a>
-<FONT color="green">199</FONT>            // Sanity check<a name="line.199"></a>
-<FONT color="green">200</FONT>            if (this.context != null)<a name="line.200"></a>
-<FONT color="green">201</FONT>                throw new IllegalStateException("context already loaded");<a name="line.201"></a>
-<FONT color="green">202</FONT>    <a name="line.202"></a>
-<FONT color="green">203</FONT>            // Find the application context associated with the servlet; it will be the parent<a name="line.203"></a>
-<FONT color="green">204</FONT>            ServletContext servletContext = ContextApplication.currentRequest().getServletContext();<a name="line.204"></a>
-<FONT color="green">205</FONT>            WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);<a name="line.205"></a>
-<FONT color="green">206</FONT>    <a name="line.206"></a>
-<FONT color="green">207</FONT>            // Create and configure a new application context for this Application instance<a name="line.207"></a>
-<FONT color="green">208</FONT>            this.context = new XmlWebApplicationContext();<a name="line.208"></a>
-<FONT color="green">209</FONT>            this.context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX<a name="line.209"></a>
-<FONT color="green">210</FONT>              + servletContext.getContextPath() + "/" + this.getApplicationName() + "-"<a name="line.210"></a>
-<FONT color="green">211</FONT>              + SpringContextApplication.UNIQUE_INDEX.incrementAndGet());<a name="line.211"></a>
-<FONT color="green">212</FONT>            this.context.setParent(parent);<a name="line.212"></a>
-<FONT color="green">213</FONT>            this.context.setServletContext(servletContext);<a name="line.213"></a>
-<FONT color="green">214</FONT>            //context.setServletConfig(??);<a name="line.214"></a>
-<FONT color="green">215</FONT>            this.context.setNamespace(this.getApplicationName());<a name="line.215"></a>
-<FONT color="green">216</FONT>    <a name="line.216"></a>
-<FONT color="green">217</FONT>            // Register listener so we can notify subclass on refresh events<a name="line.217"></a>
-<FONT color="green">218</FONT>            this.context.addApplicationListener(new SourceFilteringListener(this.context, new RefreshListener()));<a name="line.218"></a>
-<FONT color="green">219</FONT>    <a name="line.219"></a>
-<FONT color="green">220</FONT>            // Invoke any subclass setup<a name="line.220"></a>
-<FONT color="green">221</FONT>            this.postProcessWebApplicationContext(context);<a name="line.221"></a>
-<FONT color="green">222</FONT>    <a name="line.222"></a>
-<FONT color="green">223</FONT>            // Refresh context<a name="line.223"></a>
-<FONT color="green">224</FONT>            this.context.refresh();<a name="line.224"></a>
-<FONT color="green">225</FONT>    <a name="line.225"></a>
-<FONT color="green">226</FONT>            // Get notified of application shutdown so we can shut down the context as well<a name="line.226"></a>
-<FONT color="green">227</FONT>            this.addListener(new ContextCloseListener());<a name="line.227"></a>
-<FONT color="green">228</FONT>        }<a name="line.228"></a>
-<FONT color="green">229</FONT>    <a name="line.229"></a>
-<FONT color="green">230</FONT>    // Serialization<a name="line.230"></a>
-<FONT color="green">231</FONT>    <a name="line.231"></a>
-<FONT color="green">232</FONT>        private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {<a name="line.232"></a>
-<FONT color="green">233</FONT>            input.defaultReadObject();<a name="line.233"></a>
-<FONT color="green">234</FONT>            this.loadContext();<a name="line.234"></a>
-<FONT color="green">235</FONT>        }<a name="line.235"></a>
+<FONT color="green">194</FONT>            // Logging<a name="line.194"></a>
+<FONT color="green">195</FONT>            this.log.info("loading application context for Vaadin application " + this.getApplicationName());<a name="line.195"></a>
+<FONT color="green">196</FONT>    <a name="line.196"></a>
+<FONT color="green">197</FONT>            // Sanity check<a name="line.197"></a>
+<FONT color="green">198</FONT>            if (this.context != null)<a name="line.198"></a>
+<FONT color="green">199</FONT>                throw new IllegalStateException("context already loaded");<a name="line.199"></a>
+<FONT color="green">200</FONT>    <a name="line.200"></a>
+<FONT color="green">201</FONT>            // Find the application context associated with the servlet; it will be the parent<a name="line.201"></a>
+<FONT color="green">202</FONT>            ServletContext servletContext;<a name="line.202"></a>
+<FONT color="green">203</FONT>            HttpServletRequest request = ContextApplication.currentRequest();<a name="line.203"></a>
+<FONT color="green">204</FONT>            try {<a name="line.204"></a>
+<FONT color="green">205</FONT>                // getServletContext() is a servlet AIP 3.0 method, so don't freak out if it's not there<a name="line.205"></a>
+<FONT color="green">206</FONT>                servletContext = (ServletContext)HttpServletRequest.class.getMethod("getServletContext").invoke(request);<a name="line.206"></a>
+<FONT color="green">207</FONT>            } catch (Exception e) {<a name="line.207"></a>
+<FONT color="green">208</FONT>                servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();<a name="line.208"></a>
+<FONT color="green">209</FONT>            }<a name="line.209"></a>
+<FONT color="green">210</FONT>            WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);<a name="line.210"></a>
+<FONT color="green">211</FONT>    <a name="line.211"></a>
+<FONT color="green">212</FONT>            // Create and configure a new application context for this Application instance<a name="line.212"></a>
+<FONT color="green">213</FONT>            this.context = new XmlWebApplicationContext();<a name="line.213"></a>
+<FONT color="green">214</FONT>            this.context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX<a name="line.214"></a>
+<FONT color="green">215</FONT>              + servletContext.getContextPath() + "/" + this.getApplicationName() + "-"<a name="line.215"></a>
+<FONT color="green">216</FONT>              + SpringContextApplication.UNIQUE_INDEX.incrementAndGet());<a name="line.216"></a>
+<FONT color="green">217</FONT>            this.context.setParent(parent);<a name="line.217"></a>
+<FONT color="green">218</FONT>            this.context.setServletContext(servletContext);<a name="line.218"></a>
+<FONT color="green">219</FONT>            //context.setServletConfig(??);<a name="line.219"></a>
+<FONT color="green">220</FONT>            this.context.setNamespace(this.getApplicationName());<a name="line.220"></a>
+<FONT color="green">221</FONT>    <a name="line.221"></a>
+<FONT color="green">222</FONT>            // Register listener so we can notify subclass on refresh events<a name="line.222"></a>
+<FONT color="green">223</FONT>            this.context.addApplicationListener(new SourceFilteringListener(this.context, new RefreshListener()));<a name="line.223"></a>
+<FONT color="green">224</FONT>    <a name="line.224"></a>
+<FONT color="green">225</FONT>            // Invoke any subclass setup<a name="line.225"></a>
+<FONT color="green">226</FONT>            this.postProcessWebApplicationContext(context);<a name="line.226"></a>
+<FONT color="green">227</FONT>    <a name="line.227"></a>
+<FONT color="green">228</FONT>            // Refresh context<a name="line.228"></a>
+<FONT color="green">229</FONT>            this.context.refresh();<a name="line.229"></a>
+<FONT color="green">230</FONT>    <a name="line.230"></a>
+<FONT color="green">231</FONT>            // Get notified of application shutdown so we can shut down the context as well<a name="line.231"></a>
+<FONT color="green">232</FONT>            this.addListener(new ContextCloseListener());<a name="line.232"></a>
+<FONT color="green">233</FONT>        }<a name="line.233"></a>
+<FONT color="green">234</FONT>    <a name="line.234"></a>
+<FONT color="green">235</FONT>    // Serialization<a name="line.235"></a>
 <FONT color="green">236</FONT>    <a name="line.236"></a>
-<FONT color="green">237</FONT>    // Nested classes<a name="line.237"></a>
-<FONT color="green">238</FONT>    <a name="line.238"></a>
-<FONT color="green">239</FONT>        // My refresh listener<a name="line.239"></a>
-<FONT color="green">240</FONT>        private class RefreshListener implements ApplicationListener&lt;ContextRefreshedEvent&gt;, Serializable {<a name="line.240"></a>
-<FONT color="green">241</FONT>            @Override<a name="line.241"></a>
-<FONT color="green">242</FONT>            public void onApplicationEvent(ContextRefreshedEvent event) {<a name="line.242"></a>
-<FONT color="green">243</FONT>                SpringContextApplication.this.onRefresh(event.getApplicationContext());<a name="line.243"></a>
-<FONT color="green">244</FONT>            }<a name="line.244"></a>
-<FONT color="green">245</FONT>        }<a name="line.245"></a>
-<FONT color="green">246</FONT>    <a name="line.246"></a>
-<FONT color="green">247</FONT>        // My close listener<a name="line.247"></a>
-<FONT color="green">248</FONT>        private class ContextCloseListener implements CloseListener, Serializable {<a name="line.248"></a>
-<FONT color="green">249</FONT>            @Override<a name="line.249"></a>
-<FONT color="green">250</FONT>            public void applicationClosed(CloseEvent closeEvent) {<a name="line.250"></a>
-<FONT color="green">251</FONT>                SpringContextApplication.this.log.info("closing application context associated with Vaadin application "<a name="line.251"></a>
-<FONT color="green">252</FONT>                  + SpringContextApplication.this.getApplicationName());<a name="line.252"></a>
-<FONT color="green">253</FONT>                SpringContextApplication.this.context.close();<a name="line.253"></a>
-<FONT color="green">254</FONT>            }<a name="line.254"></a>
-<FONT color="green">255</FONT>        }<a name="line.255"></a>
-<FONT color="green">256</FONT>    }<a name="line.256"></a>
-<FONT color="green">257</FONT>    <a name="line.257"></a>
+<FONT color="green">237</FONT>        private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {<a name="line.237"></a>
+<FONT color="green">238</FONT>            input.defaultReadObject();<a name="line.238"></a>
+<FONT color="green">239</FONT>            this.loadContext();<a name="line.239"></a>
+<FONT color="green">240</FONT>        }<a name="line.240"></a>
+<FONT color="green">241</FONT>    <a name="line.241"></a>
+<FONT color="green">242</FONT>    // Nested classes<a name="line.242"></a>
+<FONT color="green">243</FONT>    <a name="line.243"></a>
+<FONT color="green">244</FONT>        // My refresh listener<a name="line.244"></a>
+<FONT color="green">245</FONT>        private class RefreshListener implements ApplicationListener&lt;ContextRefreshedEvent&gt;, Serializable {<a name="line.245"></a>
+<FONT color="green">246</FONT>            @Override<a name="line.246"></a>
+<FONT color="green">247</FONT>            public void onApplicationEvent(ContextRefreshedEvent event) {<a name="line.247"></a>
+<FONT color="green">248</FONT>                SpringContextApplication.this.onRefresh(event.getApplicationContext());<a name="line.248"></a>
+<FONT color="green">249</FONT>            }<a name="line.249"></a>
+<FONT color="green">250</FONT>        }<a name="line.250"></a>
+<FONT color="green">251</FONT>    <a name="line.251"></a>
+<FONT color="green">252</FONT>        // My close listener<a name="line.252"></a>
+<FONT color="green">253</FONT>        private class ContextCloseListener implements CloseListener, Serializable {<a name="line.253"></a>
+<FONT color="green">254</FONT>            @Override<a name="line.254"></a>
+<FONT color="green">255</FONT>            public void applicationClosed(CloseEvent closeEvent) {<a name="line.255"></a>
+<FONT color="green">256</FONT>                SpringContextApplication.this.log.info("closing application context associated with Vaadin application "<a name="line.256"></a>
+<FONT color="green">257</FONT>                  + SpringContextApplication.this.getApplicationName());<a name="line.257"></a>
+<FONT color="green">258</FONT>                SpringContextApplication.this.context.close();<a name="line.258"></a>
+<FONT color="green">259</FONT>            }<a name="line.259"></a>
+<FONT color="green">260</FONT>        }<a name="line.260"></a>
+<FONT color="green">261</FONT>    }<a name="line.261"></a>
+<FONT color="green">262</FONT>    <a name="line.262"></a>
 
 
 

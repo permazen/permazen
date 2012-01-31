@@ -42,7 +42,7 @@
 <FONT color="green">039</FONT>    <a name="line.39"></a>
 <FONT color="green">040</FONT>        @Override<a name="line.40"></a>
 <FONT color="green">041</FONT>        protected boolean isAnnotationElement(StartElement event) {<a name="line.41"></a>
-<FONT color="green">042</FONT>            return event.getName().equals(XMLConstants.UPDATES_ELEMENT_NAME);<a name="line.42"></a>
+<FONT color="green">042</FONT>            return event.getName().equals(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME);<a name="line.42"></a>
 <FONT color="green">043</FONT>        }<a name="line.43"></a>
 <FONT color="green">044</FONT>    <a name="line.44"></a>
 <FONT color="green">045</FONT>        @Override<a name="line.45"></a>
@@ -63,30 +63,31 @@
 <FONT color="green">060</FONT>                }<a name="line.60"></a>
 <FONT color="green">061</FONT>    <a name="line.61"></a>
 <FONT color="green">062</FONT>                // Get &lt;update&gt; start element event<a name="line.62"></a>
-<FONT color="green">063</FONT>                if (!event.isStartElement() || !event.asStartElement().getName().equals(XMLConstants.UPDATE_ELEMENT_NAME)) {<a name="line.63"></a>
-<FONT color="green">064</FONT>                    throw new XMLStreamException("XML parse error: expected " + XMLConstants.UPDATE_ELEMENT_NAME<a name="line.64"></a>
-<FONT color="green">065</FONT>                      + " but got " + this.describe(event), event.getLocation());<a name="line.65"></a>
-<FONT color="green">066</FONT>                }<a name="line.66"></a>
-<FONT color="green">067</FONT>    <a name="line.67"></a>
-<FONT color="green">068</FONT>                // Get update name<a name="line.68"></a>
-<FONT color="green">069</FONT>                StringBuilder buf = new StringBuilder();<a name="line.69"></a>
-<FONT color="green">070</FONT>                for (event = this.advance(); event.isCharacters(); event = this.advance())<a name="line.70"></a>
-<FONT color="green">071</FONT>                    buf.append(event.asCharacters().getData());<a name="line.71"></a>
-<FONT color="green">072</FONT>                this.updates.add(buf.toString());<a name="line.72"></a>
-<FONT color="green">073</FONT>    <a name="line.73"></a>
-<FONT color="green">074</FONT>                // Get &lt;update&gt; end element event<a name="line.74"></a>
-<FONT color="green">075</FONT>                if (!event.isEndElement()) {<a name="line.75"></a>
-<FONT color="green">076</FONT>                    throw new XMLStreamException("XML parse error: expected " + XMLConstants.UPDATE_ELEMENT_NAME<a name="line.76"></a>
-<FONT color="green">077</FONT>                      + " closing tag but got " + this.describe(event), event.getLocation());<a name="line.77"></a>
-<FONT color="green">078</FONT>                }<a name="line.78"></a>
-<FONT color="green">079</FONT>            }<a name="line.79"></a>
-<FONT color="green">080</FONT>        }<a name="line.80"></a>
-<FONT color="green">081</FONT>    <a name="line.81"></a>
-<FONT color="green">082</FONT>        private String describe(XMLEvent event) {<a name="line.82"></a>
-<FONT color="green">083</FONT>            return event.getClass().getSimpleName() + "[" + event + "]";<a name="line.83"></a>
-<FONT color="green">084</FONT>        }<a name="line.84"></a>
-<FONT color="green">085</FONT>    }<a name="line.85"></a>
-<FONT color="green">086</FONT>    <a name="line.86"></a>
+<FONT color="green">063</FONT>                if (!event.isStartElement()<a name="line.63"></a>
+<FONT color="green">064</FONT>                  || !event.asStartElement().getName().equals(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME)) {<a name="line.64"></a>
+<FONT color="green">065</FONT>                    throw new XMLStreamException("XML parse error: expected " + PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME<a name="line.65"></a>
+<FONT color="green">066</FONT>                      + " but got " + this.describe(event), event.getLocation());<a name="line.66"></a>
+<FONT color="green">067</FONT>                }<a name="line.67"></a>
+<FONT color="green">068</FONT>    <a name="line.68"></a>
+<FONT color="green">069</FONT>                // Get update name<a name="line.69"></a>
+<FONT color="green">070</FONT>                StringBuilder buf = new StringBuilder();<a name="line.70"></a>
+<FONT color="green">071</FONT>                for (event = this.advance(); event.isCharacters(); event = this.advance())<a name="line.71"></a>
+<FONT color="green">072</FONT>                    buf.append(event.asCharacters().getData());<a name="line.72"></a>
+<FONT color="green">073</FONT>                this.updates.add(buf.toString());<a name="line.73"></a>
+<FONT color="green">074</FONT>    <a name="line.74"></a>
+<FONT color="green">075</FONT>                // Get &lt;update&gt; end element event<a name="line.75"></a>
+<FONT color="green">076</FONT>                if (!event.isEndElement()) {<a name="line.76"></a>
+<FONT color="green">077</FONT>                    throw new XMLStreamException("XML parse error: expected " + PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME<a name="line.77"></a>
+<FONT color="green">078</FONT>                      + " closing tag but got " + this.describe(event), event.getLocation());<a name="line.78"></a>
+<FONT color="green">079</FONT>                }<a name="line.79"></a>
+<FONT color="green">080</FONT>            }<a name="line.80"></a>
+<FONT color="green">081</FONT>        }<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>        private String describe(XMLEvent event) {<a name="line.83"></a>
+<FONT color="green">084</FONT>            return event.getClass().getSimpleName() + "[" + event + "]";<a name="line.84"></a>
+<FONT color="green">085</FONT>        }<a name="line.85"></a>
+<FONT color="green">086</FONT>    }<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
 
 
 

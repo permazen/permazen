@@ -22,18 +22,40 @@
 <FONT color="green">019</FONT>    <a name="line.19"></a>
 <FONT color="green">020</FONT>        private final Set&lt;ConstraintViolation&lt;?&gt;&gt; violations;<a name="line.20"></a>
 <FONT color="green">021</FONT>    <a name="line.21"></a>
-<FONT color="green">022</FONT>        public PersistentObjectValidationException(Set&lt;ConstraintViolation&lt;?&gt;&gt; violations) {<a name="line.22"></a>
-<FONT color="green">023</FONT>            this.violations = violations;<a name="line.23"></a>
-<FONT color="green">024</FONT>        }<a name="line.24"></a>
-<FONT color="green">025</FONT>    <a name="line.25"></a>
-<FONT color="green">026</FONT>        /**<a name="line.26"></a>
-<FONT color="green">027</FONT>         * Get the set of constraint violations.<a name="line.27"></a>
-<FONT color="green">028</FONT>         */<a name="line.28"></a>
-<FONT color="green">029</FONT>        public Set&lt;ConstraintViolation&lt;?&gt;&gt; getViolations() {<a name="line.29"></a>
-<FONT color="green">030</FONT>            return this.violations;<a name="line.30"></a>
+<FONT color="green">022</FONT>        /**<a name="line.22"></a>
+<FONT color="green">023</FONT>         * Constructor.<a name="line.23"></a>
+<FONT color="green">024</FONT>         *<a name="line.24"></a>
+<FONT color="green">025</FONT>         * @param violations set of violations<a name="line.25"></a>
+<FONT color="green">026</FONT>         * @throws IllegalArgumentException if {@code violations} is null<a name="line.26"></a>
+<FONT color="green">027</FONT>         */<a name="line.27"></a>
+<FONT color="green">028</FONT>        public PersistentObjectValidationException(Set&lt;ConstraintViolation&lt;?&gt;&gt; violations) {<a name="line.28"></a>
+<FONT color="green">029</FONT>            super(PersistentObjectValidationException.generateMessage(violations));<a name="line.29"></a>
+<FONT color="green">030</FONT>            this.violations = violations;<a name="line.30"></a>
 <FONT color="green">031</FONT>        }<a name="line.31"></a>
-<FONT color="green">032</FONT>    }<a name="line.32"></a>
-<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>        /**<a name="line.33"></a>
+<FONT color="green">034</FONT>         * Get the set of constraint violations.<a name="line.34"></a>
+<FONT color="green">035</FONT>         */<a name="line.35"></a>
+<FONT color="green">036</FONT>        public Set&lt;ConstraintViolation&lt;?&gt;&gt; getViolations() {<a name="line.36"></a>
+<FONT color="green">037</FONT>            return this.violations;<a name="line.37"></a>
+<FONT color="green">038</FONT>        }<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>        private static String generateMessage(Set&lt;ConstraintViolation&lt;?&gt;&gt; violations) {<a name="line.40"></a>
+<FONT color="green">041</FONT>            if (violations == null)<a name="line.41"></a>
+<FONT color="green">042</FONT>                throw new IllegalArgumentException("null violations");<a name="line.42"></a>
+<FONT color="green">043</FONT>            StringBuilder buf = new StringBuilder("object failed to validate with " + violations.size() + " violation(s): ");<a name="line.43"></a>
+<FONT color="green">044</FONT>            boolean first = true;<a name="line.44"></a>
+<FONT color="green">045</FONT>            for (ConstraintViolation&lt;?&gt; violation : violations) {<a name="line.45"></a>
+<FONT color="green">046</FONT>                if (first)<a name="line.46"></a>
+<FONT color="green">047</FONT>                    first = false;<a name="line.47"></a>
+<FONT color="green">048</FONT>                else<a name="line.48"></a>
+<FONT color="green">049</FONT>                    buf.append("; ");<a name="line.49"></a>
+<FONT color="green">050</FONT>                buf.append("[" + violation.getPropertyPath() + "]: " + violation.getMessage());<a name="line.50"></a>
+<FONT color="green">051</FONT>            }<a name="line.51"></a>
+<FONT color="green">052</FONT>            return buf.toString();<a name="line.52"></a>
+<FONT color="green">053</FONT>        }<a name="line.53"></a>
+<FONT color="green">054</FONT>    }<a name="line.54"></a>
+<FONT color="green">055</FONT>    <a name="line.55"></a>
 
 
 
