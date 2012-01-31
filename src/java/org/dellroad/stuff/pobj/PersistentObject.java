@@ -168,7 +168,9 @@ public class PersistentObject<T> {
      * <p>
      * This returns a value which increases monotonically with each update.
      * The version number is not persisted with the persistent file; each instance of this class keeps
-     * its own version count.
+     * its own version count. The version is reset to zero when {@link #stop stop()} is invoked.
+     *
+     * @return the current object version, or zero if no value has been loaded yet
      */
     public synchronized long getVersion() {
         return this.version;
@@ -234,6 +236,7 @@ public class PersistentObject<T> {
         this.scheduledExecutor = null;
         this.notifyExecutor = null;
         this.root = null;
+        this.version = 0;
         this.timestamp = 0;
         this.started = false;
     }
