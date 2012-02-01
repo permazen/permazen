@@ -1,3 +1,6 @@
+Version Next
+
+    - Put back UpdatingDataSource which got accidentally lost in r205
 
 Version 1.0.263 Released Jan 30, 2012
 
