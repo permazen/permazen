@@ -115,7 +115,7 @@ public class SpringPersistentObjectSchemaUpdater<T> extends PersistentObjectSche
      * <p>
      * The implementation in {@link SpringPersistentObjectSchemaUpdater} returns the {@linkplain #setInitialValue initial value},
      * if any, otherwise it falls back to decoding the initial value from the {@linkplain #setInitialXML initial value
-     * resource}, if any. If neither property is configured, a {@link PersistentObjectException} is thrown.
+     * resource}, if any. If neither property is configured, null is returned.
      */
     @Override
     protected T getInitialValue() {

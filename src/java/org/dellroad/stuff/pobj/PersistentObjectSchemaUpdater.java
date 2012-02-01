@@ -184,8 +184,8 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
      * Get the initial value for the persistent object when no persistent file is found.
      *
      * <p>
-     * The implementation in {@link PersistentObjectSchemaUpdater} just returns null.
-     * Subclasses should override as desired.
+     * The implementation in {@link PersistentObjectSchemaUpdater} just returns null, which leaves the
+     * initial root object unset. Subclasses should override as desired to provide an initial value.
      *
      * <p>
      * The returned value must properly validate.
