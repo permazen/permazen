@@ -123,19 +123,21 @@ public abstract class AbstractSchemaUpdater<D, T> {
      * <p>
      * This method applies the following logic: if the {@linkplain #databaseNeedsInitialization database needs initialization},
      * then {@linkplain #initializeDatabase initialize the database} and {@linkplain #recordUpdateApplied record} each update
-     * as having been applied; then, apply any unapplied updates as needed.
+     * as having been applied; otherwise, {@linkplain #apply apply} any {@linkplain #getAppliedUpdateNames unapplied updates}
+     * as needed.
      *
      * <p>
      * Note this implies the database initialization must initialize the database to its current, up-to-date state
-     * (with respect to the set of updates), not its original, pre-update state.
+     * (with respect to the set of all available updates), not its original, pre-update state.
      *
      * <p>
-     * The database initialization step, and each of the update steps, is performed within its own transaction.
+     * The database initialization step, and each of the update steps, is {@linkplain #applyInTransaction performed within
+     * its own transaction}.
      *
      * @param database the database to initialize (if necessary) and update
      * @throws Exception if an update fails
      * @throws IllegalStateException if this instance is not configured to {@linkplain #setIgnoreUnrecognizedUpdates ignore
-     * unrecognized updates} and an unrecognized update is registered in the update table as having already been applied
+     * unrecognized updates} and an unrecognized update has already been applied
      * @throws IllegalArgumentException if two configured updates have the same name
      * @throws IllegalArgumentException if any configured update has a required predecessor which is not also a configured update
      *  (i.e., if the updates are not transitively closed under predecessors)
