@@ -321,6 +321,8 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
                         }
                         throw e;
                     }
+                    if (!resultSet.next())
+                        throw new IllegalStateException("zero rows returned by `" + this.getSQL() + "'");
                     SQLSchemaUpdater.this.log.info("detected initialized database, with "
                       + resultSet.getLong(1) + " update(s) already applied");
                 } finally {
