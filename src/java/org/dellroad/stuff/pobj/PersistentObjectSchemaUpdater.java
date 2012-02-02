@@ -81,6 +81,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
     protected File file;
     protected long writeDelay;
     protected long checkInterval = DEFAULT_CHECK_INTERVAL;
+    protected int numBackups;
     protected PersistentObjectDelegate<T> delegate;
 
     private ArrayList<String> updateNames;
@@ -117,6 +118,15 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
     }
 
     /**
+     * Configure the number of backups to make of the persistent file.
+     *
+     * @see PersistentObject#getNumBackups
+     */
+    public void setNumBackups(int numBackups) {
+        this.numBackups = numBackups;
+    }
+
+    /**
      * Start this instance. Does nothing if already started.
      *
      * @throws IllegalArgumentException if an invalid file, write delay, or delegate is configured
@@ -132,9 +142,11 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
         if (this.file == null)
             throw new IllegalArgumentException("no file configured");
         if (this.writeDelay < 0)
-            throw new IllegalArgumentException("negative writeDelay file configured");
+            throw new IllegalArgumentException("negative writeDelay configured");
         if (this.delegate == null)
             throw new IllegalArgumentException("no delegate configured");
+        if (this.numBackups < 0)
+            throw new IllegalArgumentException("negative numBackups configured");
 
         // Do schema updates
         try {
@@ -147,6 +159,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
 
         // Create and start persistent object
         PersistentObject<T> pobj = new PersistentObject<T>(new UpdaterDelegate(), this.file, this.writeDelay, this.checkInterval);
+        pobj.setNumBackups(this.numBackups);
         pobj.start();
 
         // Done

@@ -42,14 +42,16 @@ public class UpdatesXMLEventWriter extends AnnotatedXMLEventWriter {
         this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null, null));
         this.add(this.xmlEventFactory.createAttribute(PersistentObjectSchemaUpdater.XMLNS_ATTRIBUTE_NAME,
           PersistentObjectSchemaUpdater.NAMESPACE_URI));
+        final String space = this.getTrailingSpace();
+        final String space2 = space.length() > 0 ? space + "    " : "";
         if (!this.updates.isEmpty()) {
             for (String updateName : this.updates) {
-                this.add(this.xmlEventFactory.createCharacters("\n"));
+                this.add(this.xmlEventFactory.createCharacters(space2));
                 this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null, null));
                 this.add(this.xmlEventFactory.createCharacters(updateName));
                 this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null));
             }
-            this.add(this.xmlEventFactory.createCharacters("\n"));
+            this.add(this.xmlEventFactory.createCharacters(space));
         }
         this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null));
     }

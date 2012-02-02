@@ -4,18 +4,17 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:context="http://www.springframework.org/schema/context"
   xmlns:util="http://www.springframework.org/schema/util"
-  xmlns:oxm="http://www.springframework.org/schema/oxm"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:p="http://www.springframework.org/schema/p"
   xsi:schemaLocation="
    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
-   http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd
    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
 <!-- XML converter -->
 
-    <oxm:jibx-marshaller id="jibx-converter" target-class="org.dellroad.stuff.pobj.RootObject"/>
+    <bean id="jibx-converter" class="org.springframework.oxm.jibx.JibxMarshaller"
+      p:targetClass="org.dellroad.stuff.pobj.RootObject" p:encoding="UTF-8" p:indent="4"/>
 
 <!-- Delegate -->
 
@@ -25,7 +24,8 @@
 <!-- Updater -->
 
     <bean id="schemaUpdater" class="org.dellroad.stuff.pobj.SpringPersistentObjectSchemaUpdater"
-      p:delegate-ref="delegate" p:file="build/test/org/dellroad/stuff/pobj/basic.pobj.xml"/>
+      p:delegate-ref="delegate" p:file="build/test/org/dellroad/stuff/pobj/basic.pobj.xml"
+      p:numBackups="3"/>
 
     <bean scope="prototype" factory-bean="schemaUpdater" factory-method="getPersistentObject"/>
 

@@ -26,6 +26,7 @@ import javax.validation.ConstraintViolation;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.dellroad.stuff.io.HardLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,11 @@ import org.slf4j.LoggerFactory;
  * time the object graph is updated; writes may optionally specify this number to ensure no intervening changes
  * have occurred. If concurrent updates are expected, applications may choose to implement a 3-way merge algorithm
  * of some kind to handle optimistic locking failures.
+ *
+ * <p>
+ * Instances can be configured to preserve one or more backup copies of the persistent file on systems that support
+ * hard links (requires <a href="https://github.com/twall/jna">JNA</a>; see {@link HardLink}).
+ * Set the {@link #getNumBackups numBackups} property to enable.
  *
  * <h3>"Out-of-band" Writes</h3>
  *
@@ -100,6 +106,7 @@ public class PersistentObject<T> {
 
     private T root;
     private T sharedRoot;
+    private int numBackups;
     private ScheduledExecutorService scheduledExecutor;
     private ExecutorService notifyExecutor;
     private ScheduledFuture pendingWrite;
@@ -174,6 +181,35 @@ public class PersistentObject<T> {
      */
     public synchronized long getVersion() {
         return this.version;
+    }
+
+    /**
+     * Get the number of backup copies to preserve.
+     *
+     * <p>
+     * Backup files have suffixes of the form <code>.1</code>,  <code>.2</code>, etc.,
+     * in reverse chronological order. Each time a new root object is written, the existing files are rotated.
+     *
+     * <p>
+     * Back-ups are created via hard links and are only supported on UNIX systems.
+     *
+     * <p>
+     * The default is zero, which disables backups.
+     */
+    public int getNumBackups() {
+        return this.numBackups;
+    }
+
+    /**
+     * Set the number of backup copies to preserve.
+     *
+     * @throws IllegalArgumentException if {@code numBackups} is negative
+     * @see #getNumBackups
+     */
+    public void setNumBackups(int numBackups) {
+        if (numBackups < 0)
+            throw new IllegalArgumentException("negative numBackups");
+        this.numBackups = numBackups;
     }
 
     /**
@@ -480,7 +516,7 @@ public class PersistentObject<T> {
     }
 
     /**
-     * Write the persistent file.
+     * Write the persistent file and rotate any backups.
      *
      * <p>
      * A temporary file is created in the same directory and then renamed to provide for an atomic update
@@ -539,6 +575,20 @@ public class PersistentObject<T> {
 
             // Get new modification time (prior to the rename, to avoid a race condition)
             long newTimestamp = tempFile.lastModified();
+
+            // Rotate backups
+            for (int i = this.numBackups - 1; i >= 0; i--) {
+                File src = i > 0 ? new File(this.persistentFile.toString() + "." + i) : this.persistentFile;
+                File dest = new File(this.persistentFile.toString() + "." + (i + 1));
+                if (i == 0) {
+                    try {
+                        HardLink.link(src, dest);
+                    } catch (IOException e) {
+                        this.log.warn("unable to backup persistent file to `" + dest + "': " + e);
+                    }
+                } else
+                    src.renameTo(dest);
+            }
 
             // Rename file
             if (!tempFile.renameTo(this.persistentFile)) {

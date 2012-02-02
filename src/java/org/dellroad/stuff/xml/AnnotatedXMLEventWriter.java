@@ -114,6 +114,13 @@ public abstract class AnnotatedXMLEventWriter implements XMLEventWriter {
     }
 
     /**
+     * Get the whitespace found between the opening document tag and the first non-space child.
+     */
+    protected String getTrailingSpace() {
+        return this.trailingSpace.toString();
+    }
+
+    /**
      * Add the annotation element.
      *
      * <p>
