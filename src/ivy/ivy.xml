@@ -17,6 +17,7 @@
     <dependencies>
         <dependency force="true" org="com.vaadin" name="vaadin" rev="6.6.6" conf="build->default"/>
         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="build->default"/>
+        <dependency force="true" org="javax.persistence" name="persistence-api" rev="2.0" conf="build->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="build->default"/>
         <dependency force="true" org="net.java.dev.jna" name="jna" rev="3.4+" conf="build->core"/>
         <dependency force="true" org="net.sourceforge.jibx" name="jibx" rev="1.2.3" conf="build->runtime-xpp3,extras;jibx-bind->bind"/>
