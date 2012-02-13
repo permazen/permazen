@@ -37,7 +37,7 @@ public abstract class AbstractValidator<C extends Annotation, T> implements Cons
     }
 
     /**
-     * Apply constraint to all values in a collection. This is a convenience method for validators
+     * Apply this constraint to all values in a collection. This is a convenience method for validators
      * that want to work with both simple properties and collection properties.
      */
     protected boolean isCollectionValid(Collection<? extends T> collection, ConstraintValidatorContext context) {

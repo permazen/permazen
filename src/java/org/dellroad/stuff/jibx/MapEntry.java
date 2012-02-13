@@ -35,24 +35,22 @@ import org.jibx.runtime.JiBXParseException;
  *
  * <p>
  * Because the JiBX binding process modifies class files, you first need to create your own subclass of {@link MapEntry}
- * that can be modified:
+ * that can be modified. In this example, we'll use an inner class of {@code Company}. In addition, you also need to add
+ * JiBX "add-method" and "iter-method" helper methods. The resulting new code might look like this:
  * <blockquote><pre>
- * public class DirectoryEntry extends MapEntry&lt;String, Person&gt; {
- * }
- * </pre></blockquote>
+ *     // JiBX holder for a single entry in the Directory map
+ *     public static class DirectoryEntry extends MapEntry&lt;String, Person&gt; {
+ *     }
  *
- * <p>
- * Next, you would add these JiBX helper methods in {@code Company.java}:
- * <blockquote><pre>
- * // JiBX "add-method" that adds a new entry to the directory
- * void addDirectoryEntry(DirectoryEntry direntry) throws JiBXParseException {
- *     MapEntry.add(this.directory, direntry);
- * }
+ *     // JiBX "add-method" that adds a new entry to the directory
+ *     void addDirectoryEntry(DirectoryEntry entry) throws JiBXParseException {
+ *         MapEntry.add(this.directory, entry);
+ *     }
  *
- * // JiBX "iter-method" that iterates all entries in the directory
- * Iterator&lt;DirectoryEntry&gt; iterateDirectory() {
- *     return MapEntry.iterate(this.directory, DirectoryEntry.class);
- * }
+ *     // JiBX "iter-method" that iterates all entries in the directory
+ *     Iterator&lt;DirectoryEntry&gt; iterateDirectoryEntries() {
+ *         return MapEntry.iterate(this.directory, DirectoryEntry.class);
+ *     }
  * </pre></blockquote>
  *
  * <p>
@@ -64,15 +62,15 @@ import org.jibx.runtime.JiBXParseException;
  *     &lt;include path="person.xml"/&gt;
  *
  *     &lt;!-- Define the XML mapping for one entry in the "directory" map --&gt;
- *     &lt;mapping abstract="true" type-name="directory_entry" class="com.example.DirectoryEntry"&gt;
+ *     &lt;mapping abstract="true" type-name="directory_entry" class="com.example.Company$DirectoryEntry"&gt;
  *         &lt;value name="name" get-method="getKey" set-method="setKey" type="java.lang.String" style="attribute"/&gt;
  *         &lt;structure name="Person" get-method="getValue" set-method="setValue" map-as="person"/&gt;
  *     &lt;/mapping&gt;
  *
  *     &lt;!-- Define XML mapping for a Company object --&gt;
  *     &lt;mapping abstract="true" type-name="company" class="com.example.Company"&gt;
- *         &lt;collection name="Directory" item-type="com.example.DirectoryEntry"
- *           add-method="addDirectoryEntry" iter-method="iterateDirectory"&gt;
+ *         &lt;collection name="Directory" item-type="com.example.Company$DirectoryEntry"
+ *           add-method="addDirectoryEntry" iter-method="iterateDirectoryEntries"&gt;
  *             &lt;structure name="DirectoryEntry" map-as="directory_entry"/&gt;
  *         &lt;/collection&gt;
  *         &lt;!-- other properties... --&gt;
@@ -98,9 +96,14 @@ import org.jibx.runtime.JiBXParseException;
  *     &lt;!-- other properties... --&gt;
  * &lt;/Company&gt;
  * </pre></blockquote>
+ *
  * <p>
  * Note that during unmarshalling, the <code>Map</code> itself is not created; it is expected to already exist
  * and be empty. This will be the case if you provide a field initializer as in the example above.
+ *
+ * <p>
+ * The map keys are not constrained to being simple values: for complex keys, just adjust the mapping for the
+ * {@code DirectoryEntry} structure accordingly.
  */
 public class MapEntry<K, V> {
 
