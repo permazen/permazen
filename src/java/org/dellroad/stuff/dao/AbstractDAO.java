@@ -57,7 +57,7 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
     public List<T> getAll() {
         return this.getBy(new DAOCriteriaListCallback() {
             @Override
-            protected void configureCriteriaQuery(CriteriaQuery<T> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+            protected void configureQuery(CriteriaQuery<T> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 // no criteria - we want them all
             }
         });
@@ -210,7 +210,7 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
     protected abstract class DAOQueryListCallback extends TypedQueryCallback<T, List<T>> {
 
         @Override
-        protected List<T> executeQuery(TypedQuery<T> query) {
+        protected final List<T> executeQuery(TypedQuery<T> query) {
             return query.getResultList();
         }
     }
@@ -221,7 +221,7 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
     protected abstract class DAOQueryUniqueCallback extends TypedQueryCallback<T, T> {
 
         @Override
-        protected T executeQuery(TypedQuery<T> query) {
+        protected final T executeQuery(TypedQuery<T> query) {
             return query.getSingleResult();
         }
     }
@@ -236,7 +236,7 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
         }
 
         @Override
-        protected List<T> executeQuery(TypedQuery<T> query) {
+        protected final List<T> executeQuery(TypedQuery<T> query) {
             return query.getResultList();
         }
     }
@@ -251,7 +251,7 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
         }
 
         @Override
-        protected T executeQuery(TypedQuery<T> query) {
+        protected final T executeQuery(TypedQuery<T> query) {
             return query.getSingleResult();
         }
     }
