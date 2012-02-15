@@ -10,6 +10,7 @@ package org.dellroad.stuff.dao;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -18,6 +19,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.jpa.JpaCallback;
+import org.springframework.orm.jpa.JpaTemplate;
 import org.springframework.orm.jpa.support.JpaDaoSupport;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -44,6 +46,28 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
         if (type == null)
             throw new IllegalArgumentException("null type");
         this.type = type;
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param type persistent instance type
+     * @param entityManagerFactory {@link EntityManagerFactory} from which to create the {@link JpaTemplate} used by this instance
+     */
+    protected AbstractDAO(Class<T> type, EntityManagerFactory entityManagerFactory) {
+        this(type);
+        this.setEntityManagerFactory(entityManagerFactory);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param type persistent instance type
+     * @param jpaTemplate {@link JpaTemplate} to be used by this instance
+     */
+    protected AbstractDAO(Class<T> type, JpaTemplate jpaTemplate) {
+        this(type);
+        this.setJpaTemplate(jpaTemplate);
     }
 
 // Access methods
