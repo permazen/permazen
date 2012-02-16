@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -96,19 +95,6 @@ public abstract class SpringContextApplication extends ContextApplication {
      */
     public ConfigurableWebApplicationContext getApplicationContext() {
         return this.context;
-    }
-
-    /**
-     * Configure a bean using this instance's associated application context.
-     * Intended for use by aspects.
-     */
-    protected void configureBean(Object bean) {
-        BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
-        beanConfigurerSupport.setBeanFactory(this.context.getBeanFactory());
-        beanConfigurerSupport.setBeanWiringInfoResolver(new VaadinConfigurableBeanWiringInfoResolver());
-        beanConfigurerSupport.afterPropertiesSet();
-        beanConfigurerSupport.configureBean(bean);
-        beanConfigurerSupport.destroy();
     }
 
     /**

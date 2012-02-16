@@ -11,6 +11,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
+import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 
 /**
  * Aspect that autowires classes marked with the {@link VaadinConfigurable @VaadinConfigurable} annotation to a
@@ -78,7 +79,13 @@ public aspect VaadinConfigurableAspect extends AbstractDependencyInjectionAspect
 
     @Override
     public void configureBean(Object bean) {
-        SpringContextApplication.get().configureBean(bean);
+        SpringContextApplication application = SpringContextApplication.get();
+        BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
+        beanConfigurerSupport.setBeanFactory(application.getApplicationContext().getBeanFactory());
+        beanConfigurerSupport.setBeanWiringInfoResolver(new VaadinConfigurableBeanWiringInfoResolver());
+        beanConfigurerSupport.afterPropertiesSet();
+        beanConfigurerSupport.configureBean(bean);
+        beanConfigurerSupport.destroy();
     }
 }
 
