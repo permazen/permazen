@@ -79,6 +79,19 @@ import org.slf4j.LoggerFactory;
  * by the application. Then some other process must be responsible for all database updates, and this class automatically
  * picks them up, validates them, and send out notifications.
  *
+ * <h3>Empty Starts</h3>
+ *
+ * <p>
+ * An "empty start" occurs when an instance is {@linkplain #start started} but the persistent XML file is either missing,
+ * does not validate, or cannot be read for some other reason. In such cases, the instance will start with no object graph,
+ * and {@link #getRoot} will initially return null. This situation will correct itself as soon as the object graph is written
+ * via {@link #setRoot setRoot()} or the persistent file appears (effecting an "out-of-band" update).
+ *
+ * <p>
+ * Whther empty starts are allowed is determined by the {@link #isAllowEmptyStart allowEmptyStart} property (default
+ * {@code false}). When empty starts are disallowed, then {@link #start} will instead throw a {@link PersistentObjectException}.
+ * In this configuration, {@link #getRoot} can be relied upon to always return a non-null, valid root.
+ *
  * <h3>Delegate Function</h3>
  *
  * <p>
@@ -112,6 +125,7 @@ public class PersistentObject<T> {
     private ScheduledFuture pendingWrite;
     private long version;
     private long timestamp;
+    private boolean allowEmptyStart;
     private boolean started;
 
     /**
@@ -213,6 +227,26 @@ public class PersistentObject<T> {
     }
 
     /**
+     * Determine whether this instance should allow an "empty start".
+     *
+     * <p>
+     * The default for this property is false.
+     */
+    public boolean isAllowEmptyStart() {
+        return this.allowEmptyStart;
+    }
+
+    /**
+     * Configure whether an "empty start" is allowed.
+     *
+     * <p>
+     * The default for this property is false.
+     */
+    public void setAllowEmptyStart(boolean allowEmptyStart) {
+        this.allowEmptyStart = allowEmptyStart;
+    }
+
+    /**
      * Start this instance. Does nothing if already started.
      *
      * @throws PersistentObjectException if an error occurs
@@ -229,10 +263,19 @@ public class PersistentObject<T> {
 
         // Read file (if it exists)
         this.log.info(this + ": starting");
-        if (this.persistentFile.exists())
-            this.applyFile(this.persistentFile.lastModified());
-        else
-            this.log.info(this + ": persistent file `" + this.persistentFile + "' does not exist yet");
+        if (this.persistentFile.exists()) {
+            try {
+                this.applyFile(this.persistentFile.lastModified());
+            } catch (PersistentObjectException e) {
+                if (!this.isAllowEmptyStart())
+                    throw e;
+                this.log.warn("empty start: unable to load persistent file `" + this.persistentFile + "': " + e);
+            }
+        } else {
+            if (!this.isAllowEmptyStart())
+                throw new PersistentObjectException("persistent file `" + this.persistentFile + "' does not exist");
+            this.log.info(this + ": empty start: persistent file `" + this.persistentFile + "' does not exist");
+        }
 
         // Start checking the file
         if (this.checkInterval > 0) {
@@ -288,7 +331,7 @@ public class PersistentObject<T> {
      * <p>
      * This returns a deep copy of the current root object; any subsequent modifications are not written back.
      *
-     * @return the current root instance, or null if no file was found and no value has been written yet
+     * @return the current root instance, or null if after an "empty start"
      * @throws IllegalStateException if this instance is not started
      * @throws PersistentObjectException if an error occurs
      */
@@ -310,7 +353,7 @@ public class PersistentObject<T> {
      * This method is more efficient than {@link #getRoot}, but all callers must agree not to modify the returned object
      * or any object in its graph of references.
      *
-     * @return shared copy of the root instance; or null if no file was found and no value has been written yet
+     * @return shared copy of the root instance, or null if after an "empty start"
      */
     public synchronized T getSharedRoot() {
         if (this.sharedRoot == null)

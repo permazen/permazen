@@ -2,6 +2,7 @@ Version Next
 
     - Added new DAO support classes
     - Add support for creating automatic backups to PersistentObject
+    - Add ability to enable/disable PersistentObject "empty starts"
     - Put back UpdatingDataSource which got accidentally lost in r205
     - Fixed bug in SQLSchemaUpdater detecting initialized database
     - Added HardLink class
