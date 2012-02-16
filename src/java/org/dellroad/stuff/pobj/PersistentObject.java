@@ -109,6 +109,8 @@ import org.slf4j.LoggerFactory;
  */
 public class PersistentObject<T> {
 
+    private static final long EXECUTOR_SHUTDOWN_TIMEOUT = 1000;             // 1 second
+
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final HashSet<PersistentObjectListener<T>> listeners = new HashSet<PersistentObjectListener<T>>();
@@ -310,6 +312,8 @@ public class PersistentObject<T> {
         this.log.info(this + ": shutting down");
         this.scheduledExecutor.shutdown();
         this.notifyExecutor.shutdown();
+        this.awaitTermination(this.scheduledExecutor, "scheduledExecutor");
+        this.awaitTermination(this.notifyExecutor, "notifyExecutor");
 
         // Reset
         this.scheduledExecutor = null;
@@ -733,6 +737,18 @@ public class PersistentObject<T> {
                 this.log.error(this + ": error notifying listener " + listener, t);
             }
         }
+    }
+
+    // Wait for an ExecutorService to completely shut down
+    private void awaitTermination(ExecutorService executor, String name) {
+        boolean shutdown = false;
+        try {
+            shutdown = executor.awaitTermination(EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            this.log.warn(this + ": interrupted while awaiting " + name + " termination");
+        }
+        if (!shutdown)
+            this.log.warn(this + ": failed to completely shut down " + name);
     }
 }
 
