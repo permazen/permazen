@@ -21,9 +21,18 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
  * within a {@link SpringContextApplication}'s appplication context.
  * </p>
  *
+ * <p>
+ * <b>This class is deprecated</b> because there is a simpler and better way to expose and configure your Vaadin application
+ * in the Spring application context is using {@link ContextApplication#get} as a factory method:
+ * <blockquote><pre>
+ *  &lt;bean id="myVaadinApplication" class="org.dellroad.stuff.vaadin.ContextApplication" factory-method="get"/&gt;
+ * </pre></blockquote>
+ *
  * @see ContextApplication#get
  * @see SpringContextApplication
+ * @deprecated Just use a regular bean definition with a factory-method invoking ContextApplication.get
  */
+@Deprecated
 public class ContextApplicationFactoryBean extends AbstractFactoryBean {
 
     private ContextApplication application;

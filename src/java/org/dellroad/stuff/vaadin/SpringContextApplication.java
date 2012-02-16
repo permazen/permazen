@@ -51,29 +51,46 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * <h3>Application as Bean</h3>
  *
  * <p>
- * This {@link SpringContextApplication} instance can itself be included in, and optionally configured by, the associated Spring
- * application context by using a {@link ContextApplicationFactoryBean}:
- *
+ * This {@link SpringContextApplication} instance can itself be exposed in and configured by the associated Spring
+ * application context by using a bean definition invoking the static factory method {@link ContextApplication#get}:
  * <blockquote><pre>
- *      &lt;bean class="org.dellroad.stuff.vaadin.ContextApplicationFactoryBean" p:autowire="true"/&gt;
+ *  &lt;bean id="myVaadinApplication" class="org.dellroad.stuff.vaadin.ContextApplication" factory-method="get"/&gt;
  * </pre></blockquote>
- * If the {@code autowire} property is set to {@code true}, then the {@link SpringContextApplication} instance
- * (which already exists when the application context is created) will be autowired by the application context as well.
+ * Note however that Spring will autowire this bean based on the type {@link ContextApplication} rather than it's actual type.
+ * To make Spring aware of your Vaadin application's actual type, you can add a custom factory method to your application class:
+ * <blockquote><pre>
+ *  public class MyVaadinApplication extends SpringContextApplication {
+
+ *      public MyApplication get() {
+ *          return ContextApplication.get(MyApplication.class);
+ *      }
+ *  }
+ *
+ *  &lt;bean id="myVaadinApplication" class="com.example.MyApplication" factory-method="get"/&gt;
+ * </pre></blockquote>
  * </p>
  *
- * <h3>@VaadinConfigurable Beans</h3>
+ * <h3><code>@VaadinConfigurable</code> Beans</h3>
  *
  * <p>
  * It is also possible to configure beans outside of this application context using AOP, so that any invocation of
  * {@code new FooBar()}, where the class {@code FooBar} is marked {@link VaadinConfigurable @VaadinConfigurable},
- * will automagically cause the new {@code FooBar} object to be autowired by the application context associated with
- * the {@linkplain ContextApplication#get() currently running application instance}.
- * This includes lifecycle management; for example, any Spring
- * {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-method} will be invoked on application close.
+ * will automagically cause the new {@code FooBar} object to be configured by the application context associated with
+ * the {@linkplain ContextApplication#get() currently running application instance}. In effect, this does for
+ * Vaadin application beans what Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable}
+ * does for regular beans.
  * </p>
  *
  * <p>
- * For this to work, {@link VaadinConfigurable @VaadinConfigurable} classes must be woven
+ * Note however that Spring {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy methods}
+ * will not be invoked on application close for these beans, since their lifecycle is controlled outside of the
+ * Spring application context (this is also the case with
+ * {@link org.springframework.beans.factory.annotation.Configurable @Configurable} beans). Instead, these beans
+ * can register as a {@link ContextApplication.CloseListener} for shutdown notification.
+ * </p>
+ *
+ * <p>
+ * For the this annotation to do anything, {@link VaadinConfigurable @VaadinConfigurable} classes must be woven
  * (either at build time or runtime) using the
  * <a href="http://www.eclipse.org/aspectj/doc/released/faq.php#compiler">AspectJ compiler</a> with the
  * {@code VaadinConfigurableAspect} aspect (included in the <code>dellroad-stuff</code> JAR file).
@@ -128,8 +145,22 @@ public abstract class SpringContextApplication extends ContextApplication {
      * Initialize the application. Sub-classes of {@link SpringContextApplication} must implement this method.
      *
      * @param context the associated {@link WebApplicationContext} just created and refreshed
+     * @see #destroySpringApplication
      */
     protected abstract void initSpringApplication(ConfigurableWebApplicationContext context);
+
+    /**
+     * Perform any application-specific shutdown work. This will be invoked at shutdown after this Vaadin application and the
+     * associated {@link WebApplicationContext} have both been closed.
+     *
+     * <p>
+     * The implementation in {@link SpringContextApplication} does nothing. Subclasses may override as necessary.
+     * </p>
+     *
+     * @see #initSpringApplication
+     */
+    protected void destroySpringApplication() {
+    }
 
     /**
      * Post-process the given {@link WebApplicationContext} after initial creation but before the initial
@@ -242,6 +273,7 @@ public abstract class SpringContextApplication extends ContextApplication {
             SpringContextApplication.this.log.info("closing application context associated with Vaadin application "
               + SpringContextApplication.this.getApplicationName());
             SpringContextApplication.this.context.close();
+            SpringContextApplication.this.destroySpringApplication();
         }
     }
 }

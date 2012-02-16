@@ -5,6 +5,8 @@ Version Next
     - Add ability to enable/disable PersistentObject "empty starts"
     - Put back UpdatingDataSource which got accidentally lost in r205
     - Fixed bug in SQLSchemaUpdater detecting initialized database
+    - Added SpringContextApplication.destroySpringApplication() hook
+    - Deprecated ContextApplicationFactoryBean
     - Added HardLink class
 
 Version 1.0.263 Released Jan 30, 2012
