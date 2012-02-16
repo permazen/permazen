@@ -363,6 +363,8 @@ public abstract class ContextApplication extends Application implements HttpServ
 
     /**
      * Implemented by listeners that wish to be notified when a {@link ContextApplication} is closed.
+     *
+     * @see ContextApplication#addListener
      */
     public interface CloseListener {
 
