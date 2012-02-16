@@ -14,7 +14,7 @@ import org.springframework.util.ClassUtils;
 
 /**
  * {@link org.springframework.beans.factory.wiring.BeanWiringInfoResolver} that
- * uses the {@link VaadinConfigurable @VaadinConfigurable} annotation to autowiring needs.
+ * uses the {@link VaadinConfigurable @VaadinConfigurable} annotation to determine autowiring needs.
  *
  * <p>
  * This implementation is derived from Spring's {@code AnnotationBeanWiringInfoResolver}
