@@ -1,4 +1,5 @@
 org.dellroad.stuff
+org.dellroad.stuff.dao
 org.dellroad.stuff.graph
 org.dellroad.stuff.io
 org.dellroad.stuff.java

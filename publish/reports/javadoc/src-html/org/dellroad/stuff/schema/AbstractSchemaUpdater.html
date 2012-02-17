@@ -126,424 +126,426 @@
 <FONT color="green">123</FONT>         * &lt;p&gt;<a name="line.123"></a>
 <FONT color="green">124</FONT>         * This method applies the following logic: if the {@linkplain #databaseNeedsInitialization database needs initialization},<a name="line.124"></a>
 <FONT color="green">125</FONT>         * then {@linkplain #initializeDatabase initialize the database} and {@linkplain #recordUpdateApplied record} each update<a name="line.125"></a>
-<FONT color="green">126</FONT>         * as having been applied; then, apply any unapplied updates as needed.<a name="line.126"></a>
-<FONT color="green">127</FONT>         *<a name="line.127"></a>
-<FONT color="green">128</FONT>         * &lt;p&gt;<a name="line.128"></a>
-<FONT color="green">129</FONT>         * Note this implies the database initialization must initialize the database to its current, up-to-date state<a name="line.129"></a>
-<FONT color="green">130</FONT>         * (with respect to the set of updates), not its original, pre-update state.<a name="line.130"></a>
-<FONT color="green">131</FONT>         *<a name="line.131"></a>
-<FONT color="green">132</FONT>         * &lt;p&gt;<a name="line.132"></a>
-<FONT color="green">133</FONT>         * The database initialization step, and each of the update steps, is performed within its own transaction.<a name="line.133"></a>
-<FONT color="green">134</FONT>         *<a name="line.134"></a>
-<FONT color="green">135</FONT>         * @param database the database to initialize (if necessary) and update<a name="line.135"></a>
-<FONT color="green">136</FONT>         * @throws Exception if an update fails<a name="line.136"></a>
-<FONT color="green">137</FONT>         * @throws IllegalStateException if this instance is not configured to {@linkplain #setIgnoreUnrecognizedUpdates ignore<a name="line.137"></a>
-<FONT color="green">138</FONT>         * unrecognized updates} and an unrecognized update is registered in the update table as having already been applied<a name="line.138"></a>
-<FONT color="green">139</FONT>         * @throws IllegalArgumentException if two configured updates have the same name<a name="line.139"></a>
-<FONT color="green">140</FONT>         * @throws IllegalArgumentException if any configured update has a required predecessor which is not also a configured update<a name="line.140"></a>
-<FONT color="green">141</FONT>         *  (i.e., if the updates are not transitively closed under predecessors)<a name="line.141"></a>
-<FONT color="green">142</FONT>         */<a name="line.142"></a>
-<FONT color="green">143</FONT>        public synchronized void initializeAndUpdateDatabase(D database) throws Exception {<a name="line.143"></a>
-<FONT color="green">144</FONT>    <a name="line.144"></a>
-<FONT color="green">145</FONT>            // Log<a name="line.145"></a>
-<FONT color="green">146</FONT>            this.log.info("verifying database");<a name="line.146"></a>
-<FONT color="green">147</FONT>    <a name="line.147"></a>
-<FONT color="green">148</FONT>            // First, initialize if necessary<a name="line.148"></a>
-<FONT color="green">149</FONT>            this.applyInTransaction(database, new DatabaseAction&lt;T&gt;() {<a name="line.149"></a>
-<FONT color="green">150</FONT>                @Override<a name="line.150"></a>
-<FONT color="green">151</FONT>                public void apply(T transaction) throws Exception {<a name="line.151"></a>
-<FONT color="green">152</FONT>    <a name="line.152"></a>
-<FONT color="green">153</FONT>                    // Already initialized?<a name="line.153"></a>
-<FONT color="green">154</FONT>                    if (!AbstractSchemaUpdater.this.databaseNeedsInitialization(transaction)) {<a name="line.154"></a>
-<FONT color="green">155</FONT>                        AbstractSchemaUpdater.this.log.debug("detected initialized database");<a name="line.155"></a>
-<FONT color="green">156</FONT>                        return;<a name="line.156"></a>
-<FONT color="green">157</FONT>                    }<a name="line.157"></a>
-<FONT color="green">158</FONT>    <a name="line.158"></a>
-<FONT color="green">159</FONT>                    // Initialize database<a name="line.159"></a>
-<FONT color="green">160</FONT>                    AbstractSchemaUpdater.this.log.info("uninitialized database detected - initializing now");<a name="line.160"></a>
-<FONT color="green">161</FONT>                    AbstractSchemaUpdater.this.initializeDatabase(transaction);<a name="line.161"></a>
-<FONT color="green">162</FONT>    <a name="line.162"></a>
-<FONT color="green">163</FONT>                    // Record all schema updates as having already been applied<a name="line.163"></a>
-<FONT color="green">164</FONT>                    ArrayList&lt;SchemaUpdate&lt;T&gt;&gt; updateList = new ArrayList&lt;SchemaUpdate&lt;T&gt;&gt;(AbstractSchemaUpdater.this.getUpdates());<a name="line.164"></a>
-<FONT color="green">165</FONT>                    Collections.sort(updateList, new UpdateByNameComparator());<a name="line.165"></a>
-<FONT color="green">166</FONT>                    for (SchemaUpdate&lt;T&gt; update : updateList) {<a name="line.166"></a>
-<FONT color="green">167</FONT>                        for (String name : AbstractSchemaUpdater.this.getUpdateNames(update))<a name="line.167"></a>
-<FONT color="green">168</FONT>                            AbstractSchemaUpdater.this.recordUpdateApplied(transaction, name);<a name="line.168"></a>
-<FONT color="green">169</FONT>                    }<a name="line.169"></a>
-<FONT color="green">170</FONT>                }<a name="line.170"></a>
-<FONT color="green">171</FONT>            });<a name="line.171"></a>
-<FONT color="green">172</FONT>    <a name="line.172"></a>
-<FONT color="green">173</FONT>            // Next, apply any new updates<a name="line.173"></a>
-<FONT color="green">174</FONT>            this.applySchemaUpdates(database);<a name="line.174"></a>
-<FONT color="green">175</FONT>    <a name="line.175"></a>
-<FONT color="green">176</FONT>            // Done<a name="line.176"></a>
-<FONT color="green">177</FONT>            this.log.info("database verification complete");<a name="line.177"></a>
-<FONT color="green">178</FONT>        }<a name="line.178"></a>
-<FONT color="green">179</FONT>    <a name="line.179"></a>
-<FONT color="green">180</FONT>        /**<a name="line.180"></a>
-<FONT color="green">181</FONT>         * Determine if the given schema update name is valid. Valid names are non-empty and<a name="line.181"></a>
-<FONT color="green">182</FONT>         * have no leading or trailing whitespace.<a name="line.182"></a>
-<FONT color="green">183</FONT>         */<a name="line.183"></a>
-<FONT color="green">184</FONT>        public static boolean isValidUpdateName(String updateName) {<a name="line.184"></a>
-<FONT color="green">185</FONT>            return updateName.length() &gt; 0 &amp;&amp; updateName.trim().length() == updateName.length();<a name="line.185"></a>
-<FONT color="green">186</FONT>        }<a name="line.186"></a>
-<FONT color="green">187</FONT>    <a name="line.187"></a>
-<FONT color="green">188</FONT>        /**<a name="line.188"></a>
-<FONT color="green">189</FONT>         * Determine if the database needs initialization.<a name="line.189"></a>
-<FONT color="green">190</FONT>         *<a name="line.190"></a>
-<FONT color="green">191</FONT>         * &lt;p&gt;<a name="line.191"></a>
-<FONT color="green">192</FONT>         * If so, {@link #initializeDatabase} will eventually be invoked.<a name="line.192"></a>
-<FONT color="green">193</FONT>         *<a name="line.193"></a>
-<FONT color="green">194</FONT>         * @param transaction open transaction<a name="line.194"></a>
-<FONT color="green">195</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.195"></a>
-<FONT color="green">196</FONT>         */<a name="line.196"></a>
-<FONT color="green">197</FONT>        protected abstract boolean databaseNeedsInitialization(T transaction) throws Exception;<a name="line.197"></a>
-<FONT color="green">198</FONT>    <a name="line.198"></a>
-<FONT color="green">199</FONT>        /**<a name="line.199"></a>
-<FONT color="green">200</FONT>         * Initialize an uninitialized database. This should create and initialize the database schema and content,<a name="line.200"></a>
-<FONT color="green">201</FONT>         * including whatever portion of that is used to track schema updates.<a name="line.201"></a>
-<FONT color="green">202</FONT>         *<a name="line.202"></a>
-<FONT color="green">203</FONT>         * @param transaction open transaction<a name="line.203"></a>
-<FONT color="green">204</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.204"></a>
-<FONT color="green">205</FONT>         */<a name="line.205"></a>
-<FONT color="green">206</FONT>        protected abstract void initializeDatabase(T transaction) throws Exception;<a name="line.206"></a>
-<FONT color="green">207</FONT>    <a name="line.207"></a>
-<FONT color="green">208</FONT>        /**<a name="line.208"></a>
-<FONT color="green">209</FONT>         * Begin a transaction on the given database.<a name="line.209"></a>
-<FONT color="green">210</FONT>         * The transaction will always eventually either be<a name="line.210"></a>
-<FONT color="green">211</FONT>         * {@linkplain #commitTransaction committed} or {@linkplain #rollbackTransaction rolled back}.<a name="line.211"></a>
-<FONT color="green">212</FONT>         *<a name="line.212"></a>
-<FONT color="green">213</FONT>         * @param database database<a name="line.213"></a>
-<FONT color="green">214</FONT>         * @return transaction handle<a name="line.214"></a>
-<FONT color="green">215</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.215"></a>
-<FONT color="green">216</FONT>         */<a name="line.216"></a>
-<FONT color="green">217</FONT>        protected abstract T openTransaction(D database) throws Exception;<a name="line.217"></a>
-<FONT color="green">218</FONT>    <a name="line.218"></a>
-<FONT color="green">219</FONT>        /**<a name="line.219"></a>
-<FONT color="green">220</FONT>         * Commit a previously opened transaction.<a name="line.220"></a>
-<FONT color="green">221</FONT>         *<a name="line.221"></a>
-<FONT color="green">222</FONT>         * @param transaction open transaction previously returned from {@link #openTransaction openTransaction()}<a name="line.222"></a>
-<FONT color="green">223</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.223"></a>
-<FONT color="green">224</FONT>         */<a name="line.224"></a>
-<FONT color="green">225</FONT>        protected abstract void commitTransaction(T transaction) throws Exception;<a name="line.225"></a>
-<FONT color="green">226</FONT>    <a name="line.226"></a>
-<FONT color="green">227</FONT>        /**<a name="line.227"></a>
-<FONT color="green">228</FONT>         * Roll back a previously opened transaction.<a name="line.228"></a>
-<FONT color="green">229</FONT>         * This method will also be invoked if {@link #commitTransaction commitTransaction()} throws an exception.<a name="line.229"></a>
-<FONT color="green">230</FONT>         *<a name="line.230"></a>
-<FONT color="green">231</FONT>         * @param transaction open transaction previously returned from {@link #openTransaction openTransaction()}<a name="line.231"></a>
-<FONT color="green">232</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.232"></a>
-<FONT color="green">233</FONT>         */<a name="line.233"></a>
-<FONT color="green">234</FONT>        protected abstract void rollbackTransaction(T transaction) throws Exception;<a name="line.234"></a>
-<FONT color="green">235</FONT>    <a name="line.235"></a>
-<FONT color="green">236</FONT>        /**<a name="line.236"></a>
-<FONT color="green">237</FONT>         * Determine which updates have already been applied to the database.<a name="line.237"></a>
-<FONT color="green">238</FONT>         *<a name="line.238"></a>
-<FONT color="green">239</FONT>         * @param transaction open transaction<a name="line.239"></a>
-<FONT color="green">240</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.240"></a>
-<FONT color="green">241</FONT>         */<a name="line.241"></a>
-<FONT color="green">242</FONT>        protected abstract Set&lt;String&gt; getAppliedUpdateNames(T transaction) throws Exception;<a name="line.242"></a>
-<FONT color="green">243</FONT>    <a name="line.243"></a>
-<FONT color="green">244</FONT>        /**<a name="line.244"></a>
-<FONT color="green">245</FONT>         * Record an update as having been applied to the database.<a name="line.245"></a>
-<FONT color="green">246</FONT>         *<a name="line.246"></a>
-<FONT color="green">247</FONT>         * @param transaction open transaction<a name="line.247"></a>
-<FONT color="green">248</FONT>         * @param name update name<a name="line.248"></a>
-<FONT color="green">249</FONT>         * @throws IllegalStateException if the update has already been recorded in the database<a name="line.249"></a>
-<FONT color="green">250</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.250"></a>
-<FONT color="green">251</FONT>         */<a name="line.251"></a>
-<FONT color="green">252</FONT>        protected abstract void recordUpdateApplied(T transaction, String name) throws Exception;<a name="line.252"></a>
-<FONT color="green">253</FONT>    <a name="line.253"></a>
-<FONT color="green">254</FONT>        /**<a name="line.254"></a>
-<FONT color="green">255</FONT>         * Determine the preferred ordering of two updates that do not have any predecessor constraints<a name="line.255"></a>
-<FONT color="green">256</FONT>         * (including implied indirect constraints) between them.<a name="line.256"></a>
-<FONT color="green">257</FONT>         *<a name="line.257"></a>
-<FONT color="green">258</FONT>         * &lt;p&gt;<a name="line.258"></a>
-<FONT color="green">259</FONT>         * The {@link Comparator} returned by the implementation in {@link AbstractSchemaUpdater} simply sorts updates by name.<a name="line.259"></a>
-<FONT color="green">260</FONT>         * Subclasses may override if necessary.<a name="line.260"></a>
-<FONT color="green">261</FONT>         *<a name="line.261"></a>
-<FONT color="green">262</FONT>         * @return a {@link Comparator} that sorts incomparable updates in the order they should be applied<a name="line.262"></a>
-<FONT color="green">263</FONT>         */<a name="line.263"></a>
-<FONT color="green">264</FONT>        protected Comparator&lt;SchemaUpdate&lt;T&gt;&gt; getOrderingTieBreaker() {<a name="line.264"></a>
-<FONT color="green">265</FONT>            return new UpdateByNameComparator();<a name="line.265"></a>
-<FONT color="green">266</FONT>        }<a name="line.266"></a>
-<FONT color="green">267</FONT>    <a name="line.267"></a>
-<FONT color="green">268</FONT>        /**<a name="line.268"></a>
-<FONT color="green">269</FONT>         * Generate the update name for one action within a multi-action update.<a name="line.269"></a>
-<FONT color="green">270</FONT>         *<a name="line.270"></a>
-<FONT color="green">271</FONT>         * &lt;p&gt;<a name="line.271"></a>
-<FONT color="green">272</FONT>         * The implementation in {@link AbstractSchemaUpdater} just adds a suffix using {@code index + 1}, padded to<a name="line.272"></a>
-<FONT color="green">273</FONT>         * 5 digits, producing names like {@code name-00001}, {@code name-00002}, etc.<a name="line.273"></a>
-<FONT color="green">274</FONT>         *<a name="line.274"></a>
-<FONT color="green">275</FONT>         * @param update the schema update<a name="line.275"></a>
-<FONT color="green">276</FONT>         * @param index the index of the action (zero based)<a name="line.276"></a>
-<FONT color="green">277</FONT>         * @see SchemaUpdate#isSingleAction<a name="line.277"></a>
-<FONT color="green">278</FONT>         */<a name="line.278"></a>
-<FONT color="green">279</FONT>        protected String generateMultiUpdateName(SchemaUpdate&lt;T&gt; update, int index) {<a name="line.279"></a>
-<FONT color="green">280</FONT>            return String.format("%s-%05d", update.getName(), index + 1);<a name="line.280"></a>
-<FONT color="green">281</FONT>        }<a name="line.281"></a>
-<FONT color="green">282</FONT>    <a name="line.282"></a>
-<FONT color="green">283</FONT>        /**<a name="line.283"></a>
-<FONT color="green">284</FONT>         * Execute a database action within an existing transaction.<a name="line.284"></a>
-<FONT color="green">285</FONT>         *<a name="line.285"></a>
-<FONT color="green">286</FONT>         * &lt;p&gt;<a name="line.286"></a>
-<FONT color="green">287</FONT>         * All database operations in {@link AbstractSchemaUpdater} are performed via this method;<a name="line.287"></a>
-<FONT color="green">288</FONT>         * subclasses are encouraged to follow this pattern.<a name="line.288"></a>
-<FONT color="green">289</FONT>         *<a name="line.289"></a>
-<FONT color="green">290</FONT>         * &lt;p&gt;<a name="line.290"></a>
-<FONT color="green">291</FONT>         * The implementation in {@link AbstractSchemaUpdater} simply invokes {@link DatabaseAction#apply action.apply()};<a name="line.291"></a>
-<FONT color="green">292</FONT>         * subclasses may override if desired.<a name="line.292"></a>
-<FONT color="green">293</FONT>         *<a name="line.293"></a>
-<FONT color="green">294</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.294"></a>
-<FONT color="green">295</FONT>         */<a name="line.295"></a>
-<FONT color="green">296</FONT>        protected void apply(T transaction, DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.296"></a>
-<FONT color="green">297</FONT>            action.apply(transaction);<a name="line.297"></a>
-<FONT color="green">298</FONT>        }<a name="line.298"></a>
-<FONT color="green">299</FONT>    <a name="line.299"></a>
-<FONT color="green">300</FONT>        /**<a name="line.300"></a>
-<FONT color="green">301</FONT>         * Execute a database action. A new transaction will be created, used, and closed.<a name="line.301"></a>
-<FONT color="green">302</FONT>         * Delegates to {@link #apply apply()} for the actual execution of the action.<a name="line.302"></a>
-<FONT color="green">303</FONT>         *<a name="line.303"></a>
-<FONT color="green">304</FONT>         * &lt;p&gt;<a name="line.304"></a>
-<FONT color="green">305</FONT>         * If the action or {@link #commitTransaction commitTransaction()} fails, the transaction<a name="line.305"></a>
-<FONT color="green">306</FONT>         * is {@linkplain #rollbackTransaction rolled back}.<a name="line.306"></a>
-<FONT color="green">307</FONT>         *<a name="line.307"></a>
-<FONT color="green">308</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.308"></a>
-<FONT color="green">309</FONT>         */<a name="line.309"></a>
-<FONT color="green">310</FONT>        protected void applyInTransaction(D database, DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.310"></a>
-<FONT color="green">311</FONT>            T transaction = this.openTransaction(database);<a name="line.311"></a>
-<FONT color="green">312</FONT>            boolean success = false;<a name="line.312"></a>
-<FONT color="green">313</FONT>            try {<a name="line.313"></a>
-<FONT color="green">314</FONT>                this.apply(transaction, action);<a name="line.314"></a>
-<FONT color="green">315</FONT>                this.commitTransaction(transaction);<a name="line.315"></a>
-<FONT color="green">316</FONT>                success = true;<a name="line.316"></a>
-<FONT color="green">317</FONT>            } finally {<a name="line.317"></a>
-<FONT color="green">318</FONT>                if (!success)<a name="line.318"></a>
-<FONT color="green">319</FONT>                    this.rollbackTransaction(transaction);<a name="line.319"></a>
-<FONT color="green">320</FONT>            }<a name="line.320"></a>
-<FONT color="green">321</FONT>        }<a name="line.321"></a>
-<FONT color="green">322</FONT>    <a name="line.322"></a>
-<FONT color="green">323</FONT>        /**<a name="line.323"></a>
-<FONT color="green">324</FONT>         * Apply schema updates to an initialized database.<a name="line.324"></a>
-<FONT color="green">325</FONT>         */<a name="line.325"></a>
-<FONT color="green">326</FONT>        private void applySchemaUpdates(D database) throws Exception {<a name="line.326"></a>
-<FONT color="green">327</FONT>    <a name="line.327"></a>
-<FONT color="green">328</FONT>            // Sanity check<a name="line.328"></a>
-<FONT color="green">329</FONT>            final HashSet&lt;SchemaUpdate&lt;T&gt;&gt; allUpdates = new HashSet&lt;SchemaUpdate&lt;T&gt;&gt;(this.getUpdates());<a name="line.329"></a>
-<FONT color="green">330</FONT>            if (allUpdates == null)<a name="line.330"></a>
-<FONT color="green">331</FONT>                throw new IllegalArgumentException("no updates configured");<a name="line.331"></a>
-<FONT color="green">332</FONT>    <a name="line.332"></a>
-<FONT color="green">333</FONT>            // Create mapping from update name to update; multiple updates will have multiple names<a name="line.333"></a>
-<FONT color="green">334</FONT>            TreeMap&lt;String, SchemaUpdate&lt;T&gt;&gt; updateMap = new TreeMap&lt;String, SchemaUpdate&lt;T&gt;&gt;();<a name="line.334"></a>
-<FONT color="green">335</FONT>            for (SchemaUpdate&lt;T&gt; update : allUpdates) {<a name="line.335"></a>
-<FONT color="green">336</FONT>                for (String updateName : this.getUpdateNames(update)) {<a name="line.336"></a>
-<FONT color="green">337</FONT>                    if (!isValidUpdateName(updateName))<a name="line.337"></a>
-<FONT color="green">338</FONT>                        throw new IllegalArgumentException("illegal schema update name `" + updateName + "'");<a name="line.338"></a>
-<FONT color="green">339</FONT>                    if (updateMap.put(updateName, update) != null)<a name="line.339"></a>
-<FONT color="green">340</FONT>                        throw new IllegalArgumentException("duplicate schema update name `" + updateName + "'");<a name="line.340"></a>
-<FONT color="green">341</FONT>                }<a name="line.341"></a>
-<FONT color="green">342</FONT>            }<a name="line.342"></a>
-<FONT color="green">343</FONT>            this.log.debug("these are all known schema updates: " + updateMap.keySet());<a name="line.343"></a>
-<FONT color="green">344</FONT>    <a name="line.344"></a>
-<FONT color="green">345</FONT>            // Verify updates are transitively closed under predecessor constraints<a name="line.345"></a>
-<FONT color="green">346</FONT>            for (SchemaUpdate&lt;T&gt; update : allUpdates) {<a name="line.346"></a>
-<FONT color="green">347</FONT>                for (SchemaUpdate&lt;T&gt; predecessor : update.getRequiredPredecessors()) {<a name="line.347"></a>
-<FONT color="green">348</FONT>                    if (!allUpdates.contains(predecessor)) {<a name="line.348"></a>
-<FONT color="green">349</FONT>                        throw new IllegalArgumentException("schema update `" + update.getName()<a name="line.349"></a>
-<FONT color="green">350</FONT>                          + "' has a required predecessor named `" + predecessor.getName() + "' that is not a configured update");<a name="line.350"></a>
-<FONT color="green">351</FONT>                    }<a name="line.351"></a>
-<FONT color="green">352</FONT>                }<a name="line.352"></a>
-<FONT color="green">353</FONT>            }<a name="line.353"></a>
-<FONT color="green">354</FONT>    <a name="line.354"></a>
-<FONT color="green">355</FONT>            // Sort updates in the order we should to apply them<a name="line.355"></a>
-<FONT color="green">356</FONT>            List&lt;SchemaUpdate&lt;T&gt;&gt; updateList = new TopologicalSorter&lt;SchemaUpdate&lt;T&gt;&gt;(allUpdates,<a name="line.356"></a>
-<FONT color="green">357</FONT>              new SchemaUpdateEdgeLister&lt;T&gt;(), this.getOrderingTieBreaker()).sortEdgesReversed();<a name="line.357"></a>
-<FONT color="green">358</FONT>    <a name="line.358"></a>
-<FONT color="green">359</FONT>            // Determine which updates have already been applied<a name="line.359"></a>
-<FONT color="green">360</FONT>            final HashSet&lt;String&gt; appliedUpdateNames = new HashSet&lt;String&gt;();<a name="line.360"></a>
-<FONT color="green">361</FONT>            this.applyInTransaction(database, new DatabaseAction&lt;T&gt;() {<a name="line.361"></a>
-<FONT color="green">362</FONT>                @Override<a name="line.362"></a>
-<FONT color="green">363</FONT>                public void apply(T transaction) throws Exception {<a name="line.363"></a>
-<FONT color="green">364</FONT>                    appliedUpdateNames.addAll(AbstractSchemaUpdater.this.getAppliedUpdateNames(transaction));<a name="line.364"></a>
-<FONT color="green">365</FONT>                }<a name="line.365"></a>
-<FONT color="green">366</FONT>            });<a name="line.366"></a>
-<FONT color="green">367</FONT>            this.log.debug("these are the already-applied schema updates: " + appliedUpdateNames);<a name="line.367"></a>
-<FONT color="green">368</FONT>    <a name="line.368"></a>
-<FONT color="green">369</FONT>            // Check whether any unknown updates have been applied<a name="line.369"></a>
-<FONT color="green">370</FONT>            TreeSet&lt;String&gt; unknownUpdateNames = new TreeSet&lt;String&gt;(appliedUpdateNames);<a name="line.370"></a>
-<FONT color="green">371</FONT>            unknownUpdateNames.removeAll(updateMap.keySet());<a name="line.371"></a>
-<FONT color="green">372</FONT>            if (!unknownUpdateNames.isEmpty()) {<a name="line.372"></a>
-<FONT color="green">373</FONT>                if (!this.isIgnoreUnrecognizedUpdates()) {<a name="line.373"></a>
-<FONT color="green">374</FONT>                    throw new IllegalStateException(unknownUpdateNames.size()<a name="line.374"></a>
-<FONT color="green">375</FONT>                      + " unrecognized update(s) have already been applied: " + unknownUpdateNames);<a name="line.375"></a>
-<FONT color="green">376</FONT>                }<a name="line.376"></a>
-<FONT color="green">377</FONT>                this.log.info("ignoring " + unknownUpdateNames.size()<a name="line.377"></a>
-<FONT color="green">378</FONT>                  + " unrecognized update(s) already applied: " + unknownUpdateNames);<a name="line.378"></a>
-<FONT color="green">379</FONT>            }<a name="line.379"></a>
-<FONT color="green">380</FONT>    <a name="line.380"></a>
-<FONT color="green">381</FONT>            // Remove the already-applied updates<a name="line.381"></a>
-<FONT color="green">382</FONT>            updateMap.keySet().removeAll(appliedUpdateNames);<a name="line.382"></a>
-<FONT color="green">383</FONT>            HashSet&lt;SchemaUpdate&lt;T&gt;&gt; remainingUpdates = new HashSet&lt;SchemaUpdate&lt;T&gt;&gt;(updateMap.values());<a name="line.383"></a>
-<FONT color="green">384</FONT>            for (Iterator&lt;SchemaUpdate&lt;T&gt;&gt; i = updateList.iterator(); i.hasNext(); ) {<a name="line.384"></a>
-<FONT color="green">385</FONT>                if (!remainingUpdates.contains(i.next()))<a name="line.385"></a>
-<FONT color="green">386</FONT>                    i.remove();<a name="line.386"></a>
-<FONT color="green">387</FONT>            }<a name="line.387"></a>
-<FONT color="green">388</FONT>    <a name="line.388"></a>
-<FONT color="green">389</FONT>            // Now are any updates needed?<a name="line.389"></a>
-<FONT color="green">390</FONT>            if (updateList.isEmpty()) {<a name="line.390"></a>
-<FONT color="green">391</FONT>                this.log.info("no schema updates are required");<a name="line.391"></a>
-<FONT color="green">392</FONT>                return;<a name="line.392"></a>
-<FONT color="green">393</FONT>            }<a name="line.393"></a>
-<FONT color="green">394</FONT>    <a name="line.394"></a>
-<FONT color="green">395</FONT>            // Log which updates we're going to apply<a name="line.395"></a>
-<FONT color="green">396</FONT>            final LinkedHashSet&lt;String&gt; remainingUpdateNames = new LinkedHashSet&lt;String&gt;(updateMap.size());<a name="line.396"></a>
-<FONT color="green">397</FONT>            for (SchemaUpdate&lt;T&gt; update : updateList) {<a name="line.397"></a>
-<FONT color="green">398</FONT>                ArrayList&lt;String&gt; updateNames = this.getUpdateNames(update);<a name="line.398"></a>
-<FONT color="green">399</FONT>                updateNames.removeAll(appliedUpdateNames);<a name="line.399"></a>
-<FONT color="green">400</FONT>                remainingUpdateNames.addAll(updateNames);<a name="line.400"></a>
-<FONT color="green">401</FONT>            }<a name="line.401"></a>
-<FONT color="green">402</FONT>            this.log.info("applying " + remainingUpdateNames.size() + " schema update(s): " + remainingUpdateNames);<a name="line.402"></a>
-<FONT color="green">403</FONT>    <a name="line.403"></a>
-<FONT color="green">404</FONT>            // Apply and record each unapplied update<a name="line.404"></a>
-<FONT color="green">405</FONT>            for (SchemaUpdate&lt;T&gt; nextUpdate : updateList) {<a name="line.405"></a>
-<FONT color="green">406</FONT>                final RecordingUpdateHandler updateHandler = new RecordingUpdateHandler(nextUpdate, remainingUpdateNames);<a name="line.406"></a>
-<FONT color="green">407</FONT>                this.applyInTransaction(database, new DatabaseAction&lt;T&gt;() {<a name="line.407"></a>
-<FONT color="green">408</FONT>                    @Override<a name="line.408"></a>
-<FONT color="green">409</FONT>                    public void apply(T transaction) throws Exception {<a name="line.409"></a>
-<FONT color="green">410</FONT>                        updateHandler.process(transaction);<a name="line.410"></a>
-<FONT color="green">411</FONT>                    }<a name="line.411"></a>
-<FONT color="green">412</FONT>                });<a name="line.412"></a>
-<FONT color="green">413</FONT>            }<a name="line.413"></a>
-<FONT color="green">414</FONT>        }<a name="line.414"></a>
-<FONT color="green">415</FONT>    <a name="line.415"></a>
-<FONT color="green">416</FONT>        // Get all update names, expanding multi-updates as necessary<a name="line.416"></a>
-<FONT color="green">417</FONT>        private ArrayList&lt;String&gt; getUpdateNames(SchemaUpdate&lt;T&gt; update) throws Exception {<a name="line.417"></a>
-<FONT color="green">418</FONT>            final ArrayList&lt;String&gt; names = new ArrayList&lt;String&gt;();<a name="line.418"></a>
-<FONT color="green">419</FONT>            UpdateHandler updateHandler = new UpdateHandler(update) {<a name="line.419"></a>
-<FONT color="green">420</FONT>                @Override<a name="line.420"></a>
-<FONT color="green">421</FONT>                protected void handleSingleUpdate(T transaction, DatabaseAction&lt;T&gt; action) {<a name="line.421"></a>
-<FONT color="green">422</FONT>                    names.add(this.update.getName());<a name="line.422"></a>
-<FONT color="green">423</FONT>                }<a name="line.423"></a>
-<FONT color="green">424</FONT>                @Override<a name="line.424"></a>
-<FONT color="green">425</FONT>                protected void handleMultiUpdate(T transaction, DatabaseAction&lt;T&gt; action, int index) {<a name="line.425"></a>
-<FONT color="green">426</FONT>                    names.add(AbstractSchemaUpdater.this.generateMultiUpdateName(this.update, index));<a name="line.426"></a>
-<FONT color="green">427</FONT>                }<a name="line.427"></a>
-<FONT color="green">428</FONT>            };<a name="line.428"></a>
-<FONT color="green">429</FONT>            updateHandler.process(null);<a name="line.429"></a>
-<FONT color="green">430</FONT>            return names;<a name="line.430"></a>
-<FONT color="green">431</FONT>        }<a name="line.431"></a>
-<FONT color="green">432</FONT>    <a name="line.432"></a>
-<FONT color="green">433</FONT>        // Apply and record an update, all within a single transaction<a name="line.433"></a>
-<FONT color="green">434</FONT>        private void applyAndRecordUpdate(T transaction, String name, final DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.434"></a>
-<FONT color="green">435</FONT>            if (action != null) {<a name="line.435"></a>
-<FONT color="green">436</FONT>                this.log.info("applying schema update `" + name + "'");<a name="line.436"></a>
-<FONT color="green">437</FONT>                this.apply(transaction, action);<a name="line.437"></a>
-<FONT color="green">438</FONT>            } else<a name="line.438"></a>
-<FONT color="green">439</FONT>                this.log.info("recording empty schema update `" + name + "'");<a name="line.439"></a>
-<FONT color="green">440</FONT>            this.recordUpdateApplied(transaction, name);<a name="line.440"></a>
-<FONT color="green">441</FONT>        }<a name="line.441"></a>
-<FONT color="green">442</FONT>    <a name="line.442"></a>
-<FONT color="green">443</FONT>        private class RecordingUpdateHandler extends UpdateHandler {<a name="line.443"></a>
+<FONT color="green">126</FONT>         * as having been applied; otherwise, {@linkplain #apply apply} any {@linkplain #getAppliedUpdateNames unapplied updates}<a name="line.126"></a>
+<FONT color="green">127</FONT>         * as needed.<a name="line.127"></a>
+<FONT color="green">128</FONT>         *<a name="line.128"></a>
+<FONT color="green">129</FONT>         * &lt;p&gt;<a name="line.129"></a>
+<FONT color="green">130</FONT>         * Note this implies the database initialization must initialize the database to its current, up-to-date state<a name="line.130"></a>
+<FONT color="green">131</FONT>         * (with respect to the set of all available updates), not its original, pre-update state.<a name="line.131"></a>
+<FONT color="green">132</FONT>         *<a name="line.132"></a>
+<FONT color="green">133</FONT>         * &lt;p&gt;<a name="line.133"></a>
+<FONT color="green">134</FONT>         * The database initialization step, and each of the update steps, is {@linkplain #applyInTransaction performed within<a name="line.134"></a>
+<FONT color="green">135</FONT>         * its own transaction}.<a name="line.135"></a>
+<FONT color="green">136</FONT>         *<a name="line.136"></a>
+<FONT color="green">137</FONT>         * @param database the database to initialize (if necessary) and update<a name="line.137"></a>
+<FONT color="green">138</FONT>         * @throws Exception if an update fails<a name="line.138"></a>
+<FONT color="green">139</FONT>         * @throws IllegalStateException if this instance is not configured to {@linkplain #setIgnoreUnrecognizedUpdates ignore<a name="line.139"></a>
+<FONT color="green">140</FONT>         * unrecognized updates} and an unrecognized update has already been applied<a name="line.140"></a>
+<FONT color="green">141</FONT>         * @throws IllegalArgumentException if two configured updates have the same name<a name="line.141"></a>
+<FONT color="green">142</FONT>         * @throws IllegalArgumentException if any configured update has a required predecessor which is not also a configured update<a name="line.142"></a>
+<FONT color="green">143</FONT>         *  (i.e., if the updates are not transitively closed under predecessors)<a name="line.143"></a>
+<FONT color="green">144</FONT>         */<a name="line.144"></a>
+<FONT color="green">145</FONT>        public synchronized void initializeAndUpdateDatabase(D database) throws Exception {<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>            // Log<a name="line.147"></a>
+<FONT color="green">148</FONT>            this.log.info("verifying database");<a name="line.148"></a>
+<FONT color="green">149</FONT>    <a name="line.149"></a>
+<FONT color="green">150</FONT>            // First, initialize if necessary<a name="line.150"></a>
+<FONT color="green">151</FONT>            this.applyInTransaction(database, new DatabaseAction&lt;T&gt;() {<a name="line.151"></a>
+<FONT color="green">152</FONT>                @Override<a name="line.152"></a>
+<FONT color="green">153</FONT>                public void apply(T transaction) throws Exception {<a name="line.153"></a>
+<FONT color="green">154</FONT>    <a name="line.154"></a>
+<FONT color="green">155</FONT>                    // Already initialized?<a name="line.155"></a>
+<FONT color="green">156</FONT>                    if (!AbstractSchemaUpdater.this.databaseNeedsInitialization(transaction)) {<a name="line.156"></a>
+<FONT color="green">157</FONT>                        AbstractSchemaUpdater.this.log.debug("detected initialized database");<a name="line.157"></a>
+<FONT color="green">158</FONT>                        return;<a name="line.158"></a>
+<FONT color="green">159</FONT>                    }<a name="line.159"></a>
+<FONT color="green">160</FONT>    <a name="line.160"></a>
+<FONT color="green">161</FONT>                    // Initialize database<a name="line.161"></a>
+<FONT color="green">162</FONT>                    AbstractSchemaUpdater.this.log.info("uninitialized database detected - initializing now");<a name="line.162"></a>
+<FONT color="green">163</FONT>                    AbstractSchemaUpdater.this.initializeDatabase(transaction);<a name="line.163"></a>
+<FONT color="green">164</FONT>    <a name="line.164"></a>
+<FONT color="green">165</FONT>                    // Record all schema updates as having already been applied<a name="line.165"></a>
+<FONT color="green">166</FONT>                    ArrayList&lt;SchemaUpdate&lt;T&gt;&gt; updateList = new ArrayList&lt;SchemaUpdate&lt;T&gt;&gt;(AbstractSchemaUpdater.this.getUpdates());<a name="line.166"></a>
+<FONT color="green">167</FONT>                    Collections.sort(updateList, new UpdateByNameComparator());<a name="line.167"></a>
+<FONT color="green">168</FONT>                    for (SchemaUpdate&lt;T&gt; update : updateList) {<a name="line.168"></a>
+<FONT color="green">169</FONT>                        for (String name : AbstractSchemaUpdater.this.getUpdateNames(update))<a name="line.169"></a>
+<FONT color="green">170</FONT>                            AbstractSchemaUpdater.this.recordUpdateApplied(transaction, name);<a name="line.170"></a>
+<FONT color="green">171</FONT>                    }<a name="line.171"></a>
+<FONT color="green">172</FONT>                }<a name="line.172"></a>
+<FONT color="green">173</FONT>            });<a name="line.173"></a>
+<FONT color="green">174</FONT>    <a name="line.174"></a>
+<FONT color="green">175</FONT>            // Next, apply any new updates<a name="line.175"></a>
+<FONT color="green">176</FONT>            this.applySchemaUpdates(database);<a name="line.176"></a>
+<FONT color="green">177</FONT>    <a name="line.177"></a>
+<FONT color="green">178</FONT>            // Done<a name="line.178"></a>
+<FONT color="green">179</FONT>            this.log.info("database verification complete");<a name="line.179"></a>
+<FONT color="green">180</FONT>        }<a name="line.180"></a>
+<FONT color="green">181</FONT>    <a name="line.181"></a>
+<FONT color="green">182</FONT>        /**<a name="line.182"></a>
+<FONT color="green">183</FONT>         * Determine if the given schema update name is valid. Valid names are non-empty and<a name="line.183"></a>
+<FONT color="green">184</FONT>         * have no leading or trailing whitespace.<a name="line.184"></a>
+<FONT color="green">185</FONT>         */<a name="line.185"></a>
+<FONT color="green">186</FONT>        public static boolean isValidUpdateName(String updateName) {<a name="line.186"></a>
+<FONT color="green">187</FONT>            return updateName.length() &gt; 0 &amp;&amp; updateName.trim().length() == updateName.length();<a name="line.187"></a>
+<FONT color="green">188</FONT>        }<a name="line.188"></a>
+<FONT color="green">189</FONT>    <a name="line.189"></a>
+<FONT color="green">190</FONT>        /**<a name="line.190"></a>
+<FONT color="green">191</FONT>         * Determine if the database needs initialization.<a name="line.191"></a>
+<FONT color="green">192</FONT>         *<a name="line.192"></a>
+<FONT color="green">193</FONT>         * &lt;p&gt;<a name="line.193"></a>
+<FONT color="green">194</FONT>         * If so, {@link #initializeDatabase} will eventually be invoked.<a name="line.194"></a>
+<FONT color="green">195</FONT>         *<a name="line.195"></a>
+<FONT color="green">196</FONT>         * @param transaction open transaction<a name="line.196"></a>
+<FONT color="green">197</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.197"></a>
+<FONT color="green">198</FONT>         */<a name="line.198"></a>
+<FONT color="green">199</FONT>        protected abstract boolean databaseNeedsInitialization(T transaction) throws Exception;<a name="line.199"></a>
+<FONT color="green">200</FONT>    <a name="line.200"></a>
+<FONT color="green">201</FONT>        /**<a name="line.201"></a>
+<FONT color="green">202</FONT>         * Initialize an uninitialized database. This should create and initialize the database schema and content,<a name="line.202"></a>
+<FONT color="green">203</FONT>         * including whatever portion of that is used to track schema updates.<a name="line.203"></a>
+<FONT color="green">204</FONT>         *<a name="line.204"></a>
+<FONT color="green">205</FONT>         * @param transaction open transaction<a name="line.205"></a>
+<FONT color="green">206</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.206"></a>
+<FONT color="green">207</FONT>         */<a name="line.207"></a>
+<FONT color="green">208</FONT>        protected abstract void initializeDatabase(T transaction) throws Exception;<a name="line.208"></a>
+<FONT color="green">209</FONT>    <a name="line.209"></a>
+<FONT color="green">210</FONT>        /**<a name="line.210"></a>
+<FONT color="green">211</FONT>         * Begin a transaction on the given database.<a name="line.211"></a>
+<FONT color="green">212</FONT>         * The transaction will always eventually either be<a name="line.212"></a>
+<FONT color="green">213</FONT>         * {@linkplain #commitTransaction committed} or {@linkplain #rollbackTransaction rolled back}.<a name="line.213"></a>
+<FONT color="green">214</FONT>         *<a name="line.214"></a>
+<FONT color="green">215</FONT>         * @param database database<a name="line.215"></a>
+<FONT color="green">216</FONT>         * @return transaction handle<a name="line.216"></a>
+<FONT color="green">217</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.217"></a>
+<FONT color="green">218</FONT>         */<a name="line.218"></a>
+<FONT color="green">219</FONT>        protected abstract T openTransaction(D database) throws Exception;<a name="line.219"></a>
+<FONT color="green">220</FONT>    <a name="line.220"></a>
+<FONT color="green">221</FONT>        /**<a name="line.221"></a>
+<FONT color="green">222</FONT>         * Commit a previously opened transaction.<a name="line.222"></a>
+<FONT color="green">223</FONT>         *<a name="line.223"></a>
+<FONT color="green">224</FONT>         * @param transaction open transaction previously returned from {@link #openTransaction openTransaction()}<a name="line.224"></a>
+<FONT color="green">225</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.225"></a>
+<FONT color="green">226</FONT>         */<a name="line.226"></a>
+<FONT color="green">227</FONT>        protected abstract void commitTransaction(T transaction) throws Exception;<a name="line.227"></a>
+<FONT color="green">228</FONT>    <a name="line.228"></a>
+<FONT color="green">229</FONT>        /**<a name="line.229"></a>
+<FONT color="green">230</FONT>         * Roll back a previously opened transaction.<a name="line.230"></a>
+<FONT color="green">231</FONT>         * This method will also be invoked if {@link #commitTransaction commitTransaction()} throws an exception.<a name="line.231"></a>
+<FONT color="green">232</FONT>         *<a name="line.232"></a>
+<FONT color="green">233</FONT>         * @param transaction open transaction previously returned from {@link #openTransaction openTransaction()}<a name="line.233"></a>
+<FONT color="green">234</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.234"></a>
+<FONT color="green">235</FONT>         */<a name="line.235"></a>
+<FONT color="green">236</FONT>        protected abstract void rollbackTransaction(T transaction) throws Exception;<a name="line.236"></a>
+<FONT color="green">237</FONT>    <a name="line.237"></a>
+<FONT color="green">238</FONT>        /**<a name="line.238"></a>
+<FONT color="green">239</FONT>         * Determine which updates have already been applied to the database.<a name="line.239"></a>
+<FONT color="green">240</FONT>         *<a name="line.240"></a>
+<FONT color="green">241</FONT>         * @param transaction open transaction<a name="line.241"></a>
+<FONT color="green">242</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.242"></a>
+<FONT color="green">243</FONT>         */<a name="line.243"></a>
+<FONT color="green">244</FONT>        protected abstract Set&lt;String&gt; getAppliedUpdateNames(T transaction) throws Exception;<a name="line.244"></a>
+<FONT color="green">245</FONT>    <a name="line.245"></a>
+<FONT color="green">246</FONT>        /**<a name="line.246"></a>
+<FONT color="green">247</FONT>         * Record an update as having been applied to the database.<a name="line.247"></a>
+<FONT color="green">248</FONT>         *<a name="line.248"></a>
+<FONT color="green">249</FONT>         * @param transaction open transaction<a name="line.249"></a>
+<FONT color="green">250</FONT>         * @param name update name<a name="line.250"></a>
+<FONT color="green">251</FONT>         * @throws IllegalStateException if the update has already been recorded in the database<a name="line.251"></a>
+<FONT color="green">252</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.252"></a>
+<FONT color="green">253</FONT>         */<a name="line.253"></a>
+<FONT color="green">254</FONT>        protected abstract void recordUpdateApplied(T transaction, String name) throws Exception;<a name="line.254"></a>
+<FONT color="green">255</FONT>    <a name="line.255"></a>
+<FONT color="green">256</FONT>        /**<a name="line.256"></a>
+<FONT color="green">257</FONT>         * Determine the preferred ordering of two updates that do not have any predecessor constraints<a name="line.257"></a>
+<FONT color="green">258</FONT>         * (including implied indirect constraints) between them.<a name="line.258"></a>
+<FONT color="green">259</FONT>         *<a name="line.259"></a>
+<FONT color="green">260</FONT>         * &lt;p&gt;<a name="line.260"></a>
+<FONT color="green">261</FONT>         * The {@link Comparator} returned by the implementation in {@link AbstractSchemaUpdater} simply sorts updates by name.<a name="line.261"></a>
+<FONT color="green">262</FONT>         * Subclasses may override if necessary.<a name="line.262"></a>
+<FONT color="green">263</FONT>         *<a name="line.263"></a>
+<FONT color="green">264</FONT>         * @return a {@link Comparator} that sorts incomparable updates in the order they should be applied<a name="line.264"></a>
+<FONT color="green">265</FONT>         */<a name="line.265"></a>
+<FONT color="green">266</FONT>        protected Comparator&lt;SchemaUpdate&lt;T&gt;&gt; getOrderingTieBreaker() {<a name="line.266"></a>
+<FONT color="green">267</FONT>            return new UpdateByNameComparator();<a name="line.267"></a>
+<FONT color="green">268</FONT>        }<a name="line.268"></a>
+<FONT color="green">269</FONT>    <a name="line.269"></a>
+<FONT color="green">270</FONT>        /**<a name="line.270"></a>
+<FONT color="green">271</FONT>         * Generate the update name for one action within a multi-action update.<a name="line.271"></a>
+<FONT color="green">272</FONT>         *<a name="line.272"></a>
+<FONT color="green">273</FONT>         * &lt;p&gt;<a name="line.273"></a>
+<FONT color="green">274</FONT>         * The implementation in {@link AbstractSchemaUpdater} just adds a suffix using {@code index + 1}, padded to<a name="line.274"></a>
+<FONT color="green">275</FONT>         * 5 digits, producing names like {@code name-00001}, {@code name-00002}, etc.<a name="line.275"></a>
+<FONT color="green">276</FONT>         *<a name="line.276"></a>
+<FONT color="green">277</FONT>         * @param update the schema update<a name="line.277"></a>
+<FONT color="green">278</FONT>         * @param index the index of the action (zero based)<a name="line.278"></a>
+<FONT color="green">279</FONT>         * @see SchemaUpdate#isSingleAction<a name="line.279"></a>
+<FONT color="green">280</FONT>         */<a name="line.280"></a>
+<FONT color="green">281</FONT>        protected String generateMultiUpdateName(SchemaUpdate&lt;T&gt; update, int index) {<a name="line.281"></a>
+<FONT color="green">282</FONT>            return String.format("%s-%05d", update.getName(), index + 1);<a name="line.282"></a>
+<FONT color="green">283</FONT>        }<a name="line.283"></a>
+<FONT color="green">284</FONT>    <a name="line.284"></a>
+<FONT color="green">285</FONT>        /**<a name="line.285"></a>
+<FONT color="green">286</FONT>         * Execute a database action within an existing transaction.<a name="line.286"></a>
+<FONT color="green">287</FONT>         *<a name="line.287"></a>
+<FONT color="green">288</FONT>         * &lt;p&gt;<a name="line.288"></a>
+<FONT color="green">289</FONT>         * All database operations in {@link AbstractSchemaUpdater} are performed via this method;<a name="line.289"></a>
+<FONT color="green">290</FONT>         * subclasses are encouraged to follow this pattern.<a name="line.290"></a>
+<FONT color="green">291</FONT>         *<a name="line.291"></a>
+<FONT color="green">292</FONT>         * &lt;p&gt;<a name="line.292"></a>
+<FONT color="green">293</FONT>         * The implementation in {@link AbstractSchemaUpdater} simply invokes {@link DatabaseAction#apply action.apply()};<a name="line.293"></a>
+<FONT color="green">294</FONT>         * subclasses may override if desired.<a name="line.294"></a>
+<FONT color="green">295</FONT>         *<a name="line.295"></a>
+<FONT color="green">296</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.296"></a>
+<FONT color="green">297</FONT>         */<a name="line.297"></a>
+<FONT color="green">298</FONT>        protected void apply(T transaction, DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.298"></a>
+<FONT color="green">299</FONT>            action.apply(transaction);<a name="line.299"></a>
+<FONT color="green">300</FONT>        }<a name="line.300"></a>
+<FONT color="green">301</FONT>    <a name="line.301"></a>
+<FONT color="green">302</FONT>        /**<a name="line.302"></a>
+<FONT color="green">303</FONT>         * Execute a database action. A new transaction will be created, used, and closed.<a name="line.303"></a>
+<FONT color="green">304</FONT>         * Delegates to {@link #apply apply()} for the actual execution of the action.<a name="line.304"></a>
+<FONT color="green">305</FONT>         *<a name="line.305"></a>
+<FONT color="green">306</FONT>         * &lt;p&gt;<a name="line.306"></a>
+<FONT color="green">307</FONT>         * If the action or {@link #commitTransaction commitTransaction()} fails, the transaction<a name="line.307"></a>
+<FONT color="green">308</FONT>         * is {@linkplain #rollbackTransaction rolled back}.<a name="line.308"></a>
+<FONT color="green">309</FONT>         *<a name="line.309"></a>
+<FONT color="green">310</FONT>         * @throws Exception if an error occurs while accessing the database<a name="line.310"></a>
+<FONT color="green">311</FONT>         */<a name="line.311"></a>
+<FONT color="green">312</FONT>        protected void applyInTransaction(D database, DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.312"></a>
+<FONT color="green">313</FONT>            T transaction = this.openTransaction(database);<a name="line.313"></a>
+<FONT color="green">314</FONT>            boolean success = false;<a name="line.314"></a>
+<FONT color="green">315</FONT>            try {<a name="line.315"></a>
+<FONT color="green">316</FONT>                this.apply(transaction, action);<a name="line.316"></a>
+<FONT color="green">317</FONT>                this.commitTransaction(transaction);<a name="line.317"></a>
+<FONT color="green">318</FONT>                success = true;<a name="line.318"></a>
+<FONT color="green">319</FONT>            } finally {<a name="line.319"></a>
+<FONT color="green">320</FONT>                if (!success)<a name="line.320"></a>
+<FONT color="green">321</FONT>                    this.rollbackTransaction(transaction);<a name="line.321"></a>
+<FONT color="green">322</FONT>            }<a name="line.322"></a>
+<FONT color="green">323</FONT>        }<a name="line.323"></a>
+<FONT color="green">324</FONT>    <a name="line.324"></a>
+<FONT color="green">325</FONT>        /**<a name="line.325"></a>
+<FONT color="green">326</FONT>         * Apply schema updates to an initialized database.<a name="line.326"></a>
+<FONT color="green">327</FONT>         */<a name="line.327"></a>
+<FONT color="green">328</FONT>        private void applySchemaUpdates(D database) throws Exception {<a name="line.328"></a>
+<FONT color="green">329</FONT>    <a name="line.329"></a>
+<FONT color="green">330</FONT>            // Sanity check<a name="line.330"></a>
+<FONT color="green">331</FONT>            final HashSet&lt;SchemaUpdate&lt;T&gt;&gt; allUpdates = new HashSet&lt;SchemaUpdate&lt;T&gt;&gt;(this.getUpdates());<a name="line.331"></a>
+<FONT color="green">332</FONT>            if (allUpdates == null)<a name="line.332"></a>
+<FONT color="green">333</FONT>                throw new IllegalArgumentException("no updates configured");<a name="line.333"></a>
+<FONT color="green">334</FONT>    <a name="line.334"></a>
+<FONT color="green">335</FONT>            // Create mapping from update name to update; multiple updates will have multiple names<a name="line.335"></a>
+<FONT color="green">336</FONT>            TreeMap&lt;String, SchemaUpdate&lt;T&gt;&gt; updateMap = new TreeMap&lt;String, SchemaUpdate&lt;T&gt;&gt;();<a name="line.336"></a>
+<FONT color="green">337</FONT>            for (SchemaUpdate&lt;T&gt; update : allUpdates) {<a name="line.337"></a>
+<FONT color="green">338</FONT>                for (String updateName : this.getUpdateNames(update)) {<a name="line.338"></a>
+<FONT color="green">339</FONT>                    if (!isValidUpdateName(updateName))<a name="line.339"></a>
+<FONT color="green">340</FONT>                        throw new IllegalArgumentException("illegal schema update name `" + updateName + "'");<a name="line.340"></a>
+<FONT color="green">341</FONT>                    if (updateMap.put(updateName, update) != null)<a name="line.341"></a>
+<FONT color="green">342</FONT>                        throw new IllegalArgumentException("duplicate schema update name `" + updateName + "'");<a name="line.342"></a>
+<FONT color="green">343</FONT>                }<a name="line.343"></a>
+<FONT color="green">344</FONT>            }<a name="line.344"></a>
+<FONT color="green">345</FONT>            this.log.debug("these are all known schema updates: " + updateMap.keySet());<a name="line.345"></a>
+<FONT color="green">346</FONT>    <a name="line.346"></a>
+<FONT color="green">347</FONT>            // Verify updates are transitively closed under predecessor constraints<a name="line.347"></a>
+<FONT color="green">348</FONT>            for (SchemaUpdate&lt;T&gt; update : allUpdates) {<a name="line.348"></a>
+<FONT color="green">349</FONT>                for (SchemaUpdate&lt;T&gt; predecessor : update.getRequiredPredecessors()) {<a name="line.349"></a>
+<FONT color="green">350</FONT>                    if (!allUpdates.contains(predecessor)) {<a name="line.350"></a>
+<FONT color="green">351</FONT>                        throw new IllegalArgumentException("schema update `" + update.getName()<a name="line.351"></a>
+<FONT color="green">352</FONT>                          + "' has a required predecessor named `" + predecessor.getName() + "' that is not a configured update");<a name="line.352"></a>
+<FONT color="green">353</FONT>                    }<a name="line.353"></a>
+<FONT color="green">354</FONT>                }<a name="line.354"></a>
+<FONT color="green">355</FONT>            }<a name="line.355"></a>
+<FONT color="green">356</FONT>    <a name="line.356"></a>
+<FONT color="green">357</FONT>            // Sort updates in the order we should to apply them<a name="line.357"></a>
+<FONT color="green">358</FONT>            List&lt;SchemaUpdate&lt;T&gt;&gt; updateList = new TopologicalSorter&lt;SchemaUpdate&lt;T&gt;&gt;(allUpdates,<a name="line.358"></a>
+<FONT color="green">359</FONT>              new SchemaUpdateEdgeLister&lt;T&gt;(), this.getOrderingTieBreaker()).sortEdgesReversed();<a name="line.359"></a>
+<FONT color="green">360</FONT>    <a name="line.360"></a>
+<FONT color="green">361</FONT>            // Determine which updates have already been applied<a name="line.361"></a>
+<FONT color="green">362</FONT>            final HashSet&lt;String&gt; appliedUpdateNames = new HashSet&lt;String&gt;();<a name="line.362"></a>
+<FONT color="green">363</FONT>            this.applyInTransaction(database, new DatabaseAction&lt;T&gt;() {<a name="line.363"></a>
+<FONT color="green">364</FONT>                @Override<a name="line.364"></a>
+<FONT color="green">365</FONT>                public void apply(T transaction) throws Exception {<a name="line.365"></a>
+<FONT color="green">366</FONT>                    appliedUpdateNames.addAll(AbstractSchemaUpdater.this.getAppliedUpdateNames(transaction));<a name="line.366"></a>
+<FONT color="green">367</FONT>                }<a name="line.367"></a>
+<FONT color="green">368</FONT>            });<a name="line.368"></a>
+<FONT color="green">369</FONT>            this.log.debug("these are the already-applied schema updates: " + appliedUpdateNames);<a name="line.369"></a>
+<FONT color="green">370</FONT>    <a name="line.370"></a>
+<FONT color="green">371</FONT>            // Check whether any unknown updates have been applied<a name="line.371"></a>
+<FONT color="green">372</FONT>            TreeSet&lt;String&gt; unknownUpdateNames = new TreeSet&lt;String&gt;(appliedUpdateNames);<a name="line.372"></a>
+<FONT color="green">373</FONT>            unknownUpdateNames.removeAll(updateMap.keySet());<a name="line.373"></a>
+<FONT color="green">374</FONT>            if (!unknownUpdateNames.isEmpty()) {<a name="line.374"></a>
+<FONT color="green">375</FONT>                if (!this.isIgnoreUnrecognizedUpdates()) {<a name="line.375"></a>
+<FONT color="green">376</FONT>                    throw new IllegalStateException(unknownUpdateNames.size()<a name="line.376"></a>
+<FONT color="green">377</FONT>                      + " unrecognized update(s) have already been applied: " + unknownUpdateNames);<a name="line.377"></a>
+<FONT color="green">378</FONT>                }<a name="line.378"></a>
+<FONT color="green">379</FONT>                this.log.info("ignoring " + unknownUpdateNames.size()<a name="line.379"></a>
+<FONT color="green">380</FONT>                  + " unrecognized update(s) already applied: " + unknownUpdateNames);<a name="line.380"></a>
+<FONT color="green">381</FONT>            }<a name="line.381"></a>
+<FONT color="green">382</FONT>    <a name="line.382"></a>
+<FONT color="green">383</FONT>            // Remove the already-applied updates<a name="line.383"></a>
+<FONT color="green">384</FONT>            updateMap.keySet().removeAll(appliedUpdateNames);<a name="line.384"></a>
+<FONT color="green">385</FONT>            HashSet&lt;SchemaUpdate&lt;T&gt;&gt; remainingUpdates = new HashSet&lt;SchemaUpdate&lt;T&gt;&gt;(updateMap.values());<a name="line.385"></a>
+<FONT color="green">386</FONT>            for (Iterator&lt;SchemaUpdate&lt;T&gt;&gt; i = updateList.iterator(); i.hasNext(); ) {<a name="line.386"></a>
+<FONT color="green">387</FONT>                if (!remainingUpdates.contains(i.next()))<a name="line.387"></a>
+<FONT color="green">388</FONT>                    i.remove();<a name="line.388"></a>
+<FONT color="green">389</FONT>            }<a name="line.389"></a>
+<FONT color="green">390</FONT>    <a name="line.390"></a>
+<FONT color="green">391</FONT>            // Now are any updates needed?<a name="line.391"></a>
+<FONT color="green">392</FONT>            if (updateList.isEmpty()) {<a name="line.392"></a>
+<FONT color="green">393</FONT>                this.log.info("no schema updates are required");<a name="line.393"></a>
+<FONT color="green">394</FONT>                return;<a name="line.394"></a>
+<FONT color="green">395</FONT>            }<a name="line.395"></a>
+<FONT color="green">396</FONT>    <a name="line.396"></a>
+<FONT color="green">397</FONT>            // Log which updates we're going to apply<a name="line.397"></a>
+<FONT color="green">398</FONT>            final LinkedHashSet&lt;String&gt; remainingUpdateNames = new LinkedHashSet&lt;String&gt;(updateMap.size());<a name="line.398"></a>
+<FONT color="green">399</FONT>            for (SchemaUpdate&lt;T&gt; update : updateList) {<a name="line.399"></a>
+<FONT color="green">400</FONT>                ArrayList&lt;String&gt; updateNames = this.getUpdateNames(update);<a name="line.400"></a>
+<FONT color="green">401</FONT>                updateNames.removeAll(appliedUpdateNames);<a name="line.401"></a>
+<FONT color="green">402</FONT>                remainingUpdateNames.addAll(updateNames);<a name="line.402"></a>
+<FONT color="green">403</FONT>            }<a name="line.403"></a>
+<FONT color="green">404</FONT>            this.log.info("applying " + remainingUpdateNames.size() + " schema update(s): " + remainingUpdateNames);<a name="line.404"></a>
+<FONT color="green">405</FONT>    <a name="line.405"></a>
+<FONT color="green">406</FONT>            // Apply and record each unapplied update<a name="line.406"></a>
+<FONT color="green">407</FONT>            for (SchemaUpdate&lt;T&gt; nextUpdate : updateList) {<a name="line.407"></a>
+<FONT color="green">408</FONT>                final RecordingUpdateHandler updateHandler = new RecordingUpdateHandler(nextUpdate, remainingUpdateNames);<a name="line.408"></a>
+<FONT color="green">409</FONT>                this.applyInTransaction(database, new DatabaseAction&lt;T&gt;() {<a name="line.409"></a>
+<FONT color="green">410</FONT>                    @Override<a name="line.410"></a>
+<FONT color="green">411</FONT>                    public void apply(T transaction) throws Exception {<a name="line.411"></a>
+<FONT color="green">412</FONT>                        updateHandler.process(transaction);<a name="line.412"></a>
+<FONT color="green">413</FONT>                    }<a name="line.413"></a>
+<FONT color="green">414</FONT>                });<a name="line.414"></a>
+<FONT color="green">415</FONT>            }<a name="line.415"></a>
+<FONT color="green">416</FONT>        }<a name="line.416"></a>
+<FONT color="green">417</FONT>    <a name="line.417"></a>
+<FONT color="green">418</FONT>        // Get all update names, expanding multi-updates as necessary<a name="line.418"></a>
+<FONT color="green">419</FONT>        private ArrayList&lt;String&gt; getUpdateNames(SchemaUpdate&lt;T&gt; update) throws Exception {<a name="line.419"></a>
+<FONT color="green">420</FONT>            final ArrayList&lt;String&gt; names = new ArrayList&lt;String&gt;();<a name="line.420"></a>
+<FONT color="green">421</FONT>            UpdateHandler updateHandler = new UpdateHandler(update) {<a name="line.421"></a>
+<FONT color="green">422</FONT>                @Override<a name="line.422"></a>
+<FONT color="green">423</FONT>                protected void handleSingleUpdate(T transaction, DatabaseAction&lt;T&gt; action) {<a name="line.423"></a>
+<FONT color="green">424</FONT>                    names.add(this.update.getName());<a name="line.424"></a>
+<FONT color="green">425</FONT>                }<a name="line.425"></a>
+<FONT color="green">426</FONT>                @Override<a name="line.426"></a>
+<FONT color="green">427</FONT>                protected void handleMultiUpdate(T transaction, DatabaseAction&lt;T&gt; action, int index) {<a name="line.427"></a>
+<FONT color="green">428</FONT>                    names.add(AbstractSchemaUpdater.this.generateMultiUpdateName(this.update, index));<a name="line.428"></a>
+<FONT color="green">429</FONT>                }<a name="line.429"></a>
+<FONT color="green">430</FONT>            };<a name="line.430"></a>
+<FONT color="green">431</FONT>            updateHandler.process(null);<a name="line.431"></a>
+<FONT color="green">432</FONT>            return names;<a name="line.432"></a>
+<FONT color="green">433</FONT>        }<a name="line.433"></a>
+<FONT color="green">434</FONT>    <a name="line.434"></a>
+<FONT color="green">435</FONT>        // Apply and record an update, all within a single transaction<a name="line.435"></a>
+<FONT color="green">436</FONT>        private void applyAndRecordUpdate(T transaction, String name, final DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.436"></a>
+<FONT color="green">437</FONT>            if (action != null) {<a name="line.437"></a>
+<FONT color="green">438</FONT>                this.log.info("applying schema update `" + name + "'");<a name="line.438"></a>
+<FONT color="green">439</FONT>                this.apply(transaction, action);<a name="line.439"></a>
+<FONT color="green">440</FONT>            } else<a name="line.440"></a>
+<FONT color="green">441</FONT>                this.log.info("recording empty schema update `" + name + "'");<a name="line.441"></a>
+<FONT color="green">442</FONT>            this.recordUpdateApplied(transaction, name);<a name="line.442"></a>
+<FONT color="green">443</FONT>        }<a name="line.443"></a>
 <FONT color="green">444</FONT>    <a name="line.444"></a>
-<FONT color="green">445</FONT>            private final Set&lt;String&gt; remainingUpdateNames;<a name="line.445"></a>
+<FONT color="green">445</FONT>        private class RecordingUpdateHandler extends UpdateHandler {<a name="line.445"></a>
 <FONT color="green">446</FONT>    <a name="line.446"></a>
-<FONT color="green">447</FONT>            public RecordingUpdateHandler(SchemaUpdate&lt;T&gt; update, Set&lt;String&gt; remainingUpdateNames) {<a name="line.447"></a>
-<FONT color="green">448</FONT>                super(update);<a name="line.448"></a>
-<FONT color="green">449</FONT>                this.remainingUpdateNames = remainingUpdateNames;<a name="line.449"></a>
-<FONT color="green">450</FONT>            }<a name="line.450"></a>
-<FONT color="green">451</FONT>    <a name="line.451"></a>
-<FONT color="green">452</FONT>            @Override<a name="line.452"></a>
-<FONT color="green">453</FONT>            protected void handleEmptyUpdate(T transaction) throws Exception {<a name="line.453"></a>
-<FONT color="green">454</FONT>                assert this.remainingUpdateNames.contains(this.update.getName());<a name="line.454"></a>
-<FONT color="green">455</FONT>                AbstractSchemaUpdater.this.applyAndRecordUpdate(transaction, this.update.getName(), null);<a name="line.455"></a>
-<FONT color="green">456</FONT>            }<a name="line.456"></a>
-<FONT color="green">457</FONT>    <a name="line.457"></a>
-<FONT color="green">458</FONT>            @Override<a name="line.458"></a>
-<FONT color="green">459</FONT>            protected void handleSingleUpdate(T transaction, DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.459"></a>
-<FONT color="green">460</FONT>                assert this.remainingUpdateNames.contains(this.update.getName());<a name="line.460"></a>
-<FONT color="green">461</FONT>                AbstractSchemaUpdater.this.applyAndRecordUpdate(transaction, this.update.getName(), action);<a name="line.461"></a>
-<FONT color="green">462</FONT>            }<a name="line.462"></a>
-<FONT color="green">463</FONT>    <a name="line.463"></a>
-<FONT color="green">464</FONT>            @Override<a name="line.464"></a>
-<FONT color="green">465</FONT>            protected void handleSingleMultiUpdate(T transaction, final List&lt;? extends DatabaseAction&lt;T&gt;&gt; actions)<a name="line.465"></a>
-<FONT color="green">466</FONT>              throws Exception {<a name="line.466"></a>
-<FONT color="green">467</FONT>                assert this.remainingUpdateNames.contains(this.update.getName());<a name="line.467"></a>
-<FONT color="green">468</FONT>                AbstractSchemaUpdater.this.applyAndRecordUpdate(transaction, this.update.getName(), new DatabaseAction&lt;T&gt;() {<a name="line.468"></a>
-<FONT color="green">469</FONT>                    @Override<a name="line.469"></a>
-<FONT color="green">470</FONT>                    public void apply(T transaction) throws Exception {<a name="line.470"></a>
-<FONT color="green">471</FONT>                        for (DatabaseAction&lt;T&gt; action : actions)<a name="line.471"></a>
-<FONT color="green">472</FONT>                            AbstractSchemaUpdater.this.apply(transaction, action);<a name="line.472"></a>
-<FONT color="green">473</FONT>                    }<a name="line.473"></a>
-<FONT color="green">474</FONT>                });<a name="line.474"></a>
-<FONT color="green">475</FONT>            }<a name="line.475"></a>
-<FONT color="green">476</FONT>    <a name="line.476"></a>
-<FONT color="green">477</FONT>            @Override<a name="line.477"></a>
-<FONT color="green">478</FONT>            protected void handleMultiUpdate(T transaction, DatabaseAction&lt;T&gt; action, int index) throws Exception {<a name="line.478"></a>
-<FONT color="green">479</FONT>                String updateName = AbstractSchemaUpdater.this.generateMultiUpdateName(this.update, index);<a name="line.479"></a>
-<FONT color="green">480</FONT>                if (!this.remainingUpdateNames.contains(updateName))                 // a partially completed multi-update<a name="line.480"></a>
-<FONT color="green">481</FONT>                    return;<a name="line.481"></a>
-<FONT color="green">482</FONT>                AbstractSchemaUpdater.this.applyAndRecordUpdate(transaction, updateName, action);<a name="line.482"></a>
-<FONT color="green">483</FONT>            }<a name="line.483"></a>
-<FONT color="green">484</FONT>        }<a name="line.484"></a>
-<FONT color="green">485</FONT>    <a name="line.485"></a>
-<FONT color="green">486</FONT>        // Adapter class for handling updates of various types<a name="line.486"></a>
-<FONT color="green">487</FONT>        private class UpdateHandler {<a name="line.487"></a>
-<FONT color="green">488</FONT>    <a name="line.488"></a>
-<FONT color="green">489</FONT>            protected final SchemaUpdate&lt;T&gt; update;<a name="line.489"></a>
+<FONT color="green">447</FONT>            private final Set&lt;String&gt; remainingUpdateNames;<a name="line.447"></a>
+<FONT color="green">448</FONT>    <a name="line.448"></a>
+<FONT color="green">449</FONT>            public RecordingUpdateHandler(SchemaUpdate&lt;T&gt; update, Set&lt;String&gt; remainingUpdateNames) {<a name="line.449"></a>
+<FONT color="green">450</FONT>                super(update);<a name="line.450"></a>
+<FONT color="green">451</FONT>                this.remainingUpdateNames = remainingUpdateNames;<a name="line.451"></a>
+<FONT color="green">452</FONT>            }<a name="line.452"></a>
+<FONT color="green">453</FONT>    <a name="line.453"></a>
+<FONT color="green">454</FONT>            @Override<a name="line.454"></a>
+<FONT color="green">455</FONT>            protected void handleEmptyUpdate(T transaction) throws Exception {<a name="line.455"></a>
+<FONT color="green">456</FONT>                assert this.remainingUpdateNames.contains(this.update.getName());<a name="line.456"></a>
+<FONT color="green">457</FONT>                AbstractSchemaUpdater.this.applyAndRecordUpdate(transaction, this.update.getName(), null);<a name="line.457"></a>
+<FONT color="green">458</FONT>            }<a name="line.458"></a>
+<FONT color="green">459</FONT>    <a name="line.459"></a>
+<FONT color="green">460</FONT>            @Override<a name="line.460"></a>
+<FONT color="green">461</FONT>            protected void handleSingleUpdate(T transaction, DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.461"></a>
+<FONT color="green">462</FONT>                assert this.remainingUpdateNames.contains(this.update.getName());<a name="line.462"></a>
+<FONT color="green">463</FONT>                AbstractSchemaUpdater.this.applyAndRecordUpdate(transaction, this.update.getName(), action);<a name="line.463"></a>
+<FONT color="green">464</FONT>            }<a name="line.464"></a>
+<FONT color="green">465</FONT>    <a name="line.465"></a>
+<FONT color="green">466</FONT>            @Override<a name="line.466"></a>
+<FONT color="green">467</FONT>            protected void handleSingleMultiUpdate(T transaction, final List&lt;? extends DatabaseAction&lt;T&gt;&gt; actions)<a name="line.467"></a>
+<FONT color="green">468</FONT>              throws Exception {<a name="line.468"></a>
+<FONT color="green">469</FONT>                assert this.remainingUpdateNames.contains(this.update.getName());<a name="line.469"></a>
+<FONT color="green">470</FONT>                AbstractSchemaUpdater.this.applyAndRecordUpdate(transaction, this.update.getName(), new DatabaseAction&lt;T&gt;() {<a name="line.470"></a>
+<FONT color="green">471</FONT>                    @Override<a name="line.471"></a>
+<FONT color="green">472</FONT>                    public void apply(T transaction) throws Exception {<a name="line.472"></a>
+<FONT color="green">473</FONT>                        for (DatabaseAction&lt;T&gt; action : actions)<a name="line.473"></a>
+<FONT color="green">474</FONT>                            AbstractSchemaUpdater.this.apply(transaction, action);<a name="line.474"></a>
+<FONT color="green">475</FONT>                    }<a name="line.475"></a>
+<FONT color="green">476</FONT>                });<a name="line.476"></a>
+<FONT color="green">477</FONT>            }<a name="line.477"></a>
+<FONT color="green">478</FONT>    <a name="line.478"></a>
+<FONT color="green">479</FONT>            @Override<a name="line.479"></a>
+<FONT color="green">480</FONT>            protected void handleMultiUpdate(T transaction, DatabaseAction&lt;T&gt; action, int index) throws Exception {<a name="line.480"></a>
+<FONT color="green">481</FONT>                String updateName = AbstractSchemaUpdater.this.generateMultiUpdateName(this.update, index);<a name="line.481"></a>
+<FONT color="green">482</FONT>                if (!this.remainingUpdateNames.contains(updateName))                 // a partially completed multi-update<a name="line.482"></a>
+<FONT color="green">483</FONT>                    return;<a name="line.483"></a>
+<FONT color="green">484</FONT>                AbstractSchemaUpdater.this.applyAndRecordUpdate(transaction, updateName, action);<a name="line.484"></a>
+<FONT color="green">485</FONT>            }<a name="line.485"></a>
+<FONT color="green">486</FONT>        }<a name="line.486"></a>
+<FONT color="green">487</FONT>    <a name="line.487"></a>
+<FONT color="green">488</FONT>        // Adapter class for handling updates of various types<a name="line.488"></a>
+<FONT color="green">489</FONT>        private class UpdateHandler {<a name="line.489"></a>
 <FONT color="green">490</FONT>    <a name="line.490"></a>
-<FONT color="green">491</FONT>            private final List&lt;? extends DatabaseAction&lt;T&gt;&gt; actions;<a name="line.491"></a>
+<FONT color="green">491</FONT>            protected final SchemaUpdate&lt;T&gt; update;<a name="line.491"></a>
 <FONT color="green">492</FONT>    <a name="line.492"></a>
-<FONT color="green">493</FONT>            public UpdateHandler(SchemaUpdate&lt;T&gt; update) {<a name="line.493"></a>
-<FONT color="green">494</FONT>                this.update = update;<a name="line.494"></a>
-<FONT color="green">495</FONT>                this.actions = update.getDatabaseActions();<a name="line.495"></a>
-<FONT color="green">496</FONT>            }<a name="line.496"></a>
-<FONT color="green">497</FONT>    <a name="line.497"></a>
-<FONT color="green">498</FONT>            public final void process(T transaction) throws Exception {<a name="line.498"></a>
-<FONT color="green">499</FONT>                switch (this.actions.size()) {<a name="line.499"></a>
-<FONT color="green">500</FONT>                case 0:<a name="line.500"></a>
-<FONT color="green">501</FONT>                    this.handleEmptyUpdate(transaction);<a name="line.501"></a>
-<FONT color="green">502</FONT>                    break;<a name="line.502"></a>
-<FONT color="green">503</FONT>                case 1:<a name="line.503"></a>
-<FONT color="green">504</FONT>                    this.handleSingleUpdate(transaction, this.actions.get(0));<a name="line.504"></a>
-<FONT color="green">505</FONT>                    break;<a name="line.505"></a>
-<FONT color="green">506</FONT>                default:<a name="line.506"></a>
-<FONT color="green">507</FONT>                    if (update.isSingleAction()) {<a name="line.507"></a>
-<FONT color="green">508</FONT>                        this.handleSingleMultiUpdate(transaction, actions);<a name="line.508"></a>
-<FONT color="green">509</FONT>                        break;<a name="line.509"></a>
-<FONT color="green">510</FONT>                    } else {<a name="line.510"></a>
-<FONT color="green">511</FONT>                        int index = 0;<a name="line.511"></a>
-<FONT color="green">512</FONT>                        for (DatabaseAction&lt;T&gt; action : this.actions)<a name="line.512"></a>
-<FONT color="green">513</FONT>                            this.handleMultiUpdate(transaction, action, index++);<a name="line.513"></a>
-<FONT color="green">514</FONT>                    }<a name="line.514"></a>
-<FONT color="green">515</FONT>                    break;<a name="line.515"></a>
-<FONT color="green">516</FONT>                }<a name="line.516"></a>
-<FONT color="green">517</FONT>            }<a name="line.517"></a>
-<FONT color="green">518</FONT>    <a name="line.518"></a>
-<FONT color="green">519</FONT>            protected void handleEmptyUpdate(T transaction) throws Exception {<a name="line.519"></a>
-<FONT color="green">520</FONT>                this.handleSingleUpdate(transaction, null);<a name="line.520"></a>
-<FONT color="green">521</FONT>            }<a name="line.521"></a>
-<FONT color="green">522</FONT>    <a name="line.522"></a>
-<FONT color="green">523</FONT>            protected void handleSingleUpdate(T transaction, DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.523"></a>
-<FONT color="green">524</FONT>            }<a name="line.524"></a>
-<FONT color="green">525</FONT>    <a name="line.525"></a>
-<FONT color="green">526</FONT>            protected void handleSingleMultiUpdate(T transaction, List&lt;? extends DatabaseAction&lt;T&gt;&gt; actions) throws Exception {<a name="line.526"></a>
-<FONT color="green">527</FONT>                this.handleSingleUpdate(transaction, null);<a name="line.527"></a>
-<FONT color="green">528</FONT>            }<a name="line.528"></a>
-<FONT color="green">529</FONT>    <a name="line.529"></a>
-<FONT color="green">530</FONT>            protected void handleMultiUpdate(T transaction, DatabaseAction&lt;T&gt; action, int index) throws Exception {<a name="line.530"></a>
-<FONT color="green">531</FONT>            }<a name="line.531"></a>
-<FONT color="green">532</FONT>        }<a name="line.532"></a>
-<FONT color="green">533</FONT>    <a name="line.533"></a>
-<FONT color="green">534</FONT>        // Sorts updates by name<a name="line.534"></a>
-<FONT color="green">535</FONT>        private class UpdateByNameComparator implements Comparator&lt;SchemaUpdate&lt;T&gt;&gt; {<a name="line.535"></a>
-<FONT color="green">536</FONT>    <a name="line.536"></a>
-<FONT color="green">537</FONT>            @Override<a name="line.537"></a>
-<FONT color="green">538</FONT>            public int compare(SchemaUpdate&lt;T&gt; update1, SchemaUpdate&lt;T&gt; update2) {<a name="line.538"></a>
-<FONT color="green">539</FONT>                return update1.getName().compareTo(update2.getName());<a name="line.539"></a>
-<FONT color="green">540</FONT>            }<a name="line.540"></a>
-<FONT color="green">541</FONT>        }<a name="line.541"></a>
-<FONT color="green">542</FONT>    }<a name="line.542"></a>
-<FONT color="green">543</FONT>    <a name="line.543"></a>
+<FONT color="green">493</FONT>            private final List&lt;? extends DatabaseAction&lt;T&gt;&gt; actions;<a name="line.493"></a>
+<FONT color="green">494</FONT>    <a name="line.494"></a>
+<FONT color="green">495</FONT>            public UpdateHandler(SchemaUpdate&lt;T&gt; update) {<a name="line.495"></a>
+<FONT color="green">496</FONT>                this.update = update;<a name="line.496"></a>
+<FONT color="green">497</FONT>                this.actions = update.getDatabaseActions();<a name="line.497"></a>
+<FONT color="green">498</FONT>            }<a name="line.498"></a>
+<FONT color="green">499</FONT>    <a name="line.499"></a>
+<FONT color="green">500</FONT>            public final void process(T transaction) throws Exception {<a name="line.500"></a>
+<FONT color="green">501</FONT>                switch (this.actions.size()) {<a name="line.501"></a>
+<FONT color="green">502</FONT>                case 0:<a name="line.502"></a>
+<FONT color="green">503</FONT>                    this.handleEmptyUpdate(transaction);<a name="line.503"></a>
+<FONT color="green">504</FONT>                    break;<a name="line.504"></a>
+<FONT color="green">505</FONT>                case 1:<a name="line.505"></a>
+<FONT color="green">506</FONT>                    this.handleSingleUpdate(transaction, this.actions.get(0));<a name="line.506"></a>
+<FONT color="green">507</FONT>                    break;<a name="line.507"></a>
+<FONT color="green">508</FONT>                default:<a name="line.508"></a>
+<FONT color="green">509</FONT>                    if (update.isSingleAction()) {<a name="line.509"></a>
+<FONT color="green">510</FONT>                        this.handleSingleMultiUpdate(transaction, actions);<a name="line.510"></a>
+<FONT color="green">511</FONT>                        break;<a name="line.511"></a>
+<FONT color="green">512</FONT>                    } else {<a name="line.512"></a>
+<FONT color="green">513</FONT>                        int index = 0;<a name="line.513"></a>
+<FONT color="green">514</FONT>                        for (DatabaseAction&lt;T&gt; action : this.actions)<a name="line.514"></a>
+<FONT color="green">515</FONT>                            this.handleMultiUpdate(transaction, action, index++);<a name="line.515"></a>
+<FONT color="green">516</FONT>                    }<a name="line.516"></a>
+<FONT color="green">517</FONT>                    break;<a name="line.517"></a>
+<FONT color="green">518</FONT>                }<a name="line.518"></a>
+<FONT color="green">519</FONT>            }<a name="line.519"></a>
+<FONT color="green">520</FONT>    <a name="line.520"></a>
+<FONT color="green">521</FONT>            protected void handleEmptyUpdate(T transaction) throws Exception {<a name="line.521"></a>
+<FONT color="green">522</FONT>                this.handleSingleUpdate(transaction, null);<a name="line.522"></a>
+<FONT color="green">523</FONT>            }<a name="line.523"></a>
+<FONT color="green">524</FONT>    <a name="line.524"></a>
+<FONT color="green">525</FONT>            protected void handleSingleUpdate(T transaction, DatabaseAction&lt;T&gt; action) throws Exception {<a name="line.525"></a>
+<FONT color="green">526</FONT>            }<a name="line.526"></a>
+<FONT color="green">527</FONT>    <a name="line.527"></a>
+<FONT color="green">528</FONT>            protected void handleSingleMultiUpdate(T transaction, List&lt;? extends DatabaseAction&lt;T&gt;&gt; actions) throws Exception {<a name="line.528"></a>
+<FONT color="green">529</FONT>                this.handleSingleUpdate(transaction, null);<a name="line.529"></a>
+<FONT color="green">530</FONT>            }<a name="line.530"></a>
+<FONT color="green">531</FONT>    <a name="line.531"></a>
+<FONT color="green">532</FONT>            protected void handleMultiUpdate(T transaction, DatabaseAction&lt;T&gt; action, int index) throws Exception {<a name="line.532"></a>
+<FONT color="green">533</FONT>            }<a name="line.533"></a>
+<FONT color="green">534</FONT>        }<a name="line.534"></a>
+<FONT color="green">535</FONT>    <a name="line.535"></a>
+<FONT color="green">536</FONT>        // Sorts updates by name<a name="line.536"></a>
+<FONT color="green">537</FONT>        private class UpdateByNameComparator implements Comparator&lt;SchemaUpdate&lt;T&gt;&gt; {<a name="line.537"></a>
+<FONT color="green">538</FONT>    <a name="line.538"></a>
+<FONT color="green">539</FONT>            @Override<a name="line.539"></a>
+<FONT color="green">540</FONT>            public int compare(SchemaUpdate&lt;T&gt; update1, SchemaUpdate&lt;T&gt; update2) {<a name="line.540"></a>
+<FONT color="green">541</FONT>                return update1.getName().compareTo(update2.getName());<a name="line.541"></a>
+<FONT color="green">542</FONT>            }<a name="line.542"></a>
+<FONT color="green">543</FONT>        }<a name="line.543"></a>
+<FONT color="green">544</FONT>    }<a name="line.544"></a>
+<FONT color="green">545</FONT>    <a name="line.545"></a>
 
 
 

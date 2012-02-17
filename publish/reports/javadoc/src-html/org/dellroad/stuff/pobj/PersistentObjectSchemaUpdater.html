@@ -84,219 +84,243 @@
 <FONT color="green">081</FONT>        protected File file;<a name="line.81"></a>
 <FONT color="green">082</FONT>        protected long writeDelay;<a name="line.82"></a>
 <FONT color="green">083</FONT>        protected long checkInterval = DEFAULT_CHECK_INTERVAL;<a name="line.83"></a>
-<FONT color="green">084</FONT>        protected PersistentObjectDelegate&lt;T&gt; delegate;<a name="line.84"></a>
-<FONT color="green">085</FONT>    <a name="line.85"></a>
-<FONT color="green">086</FONT>        private ArrayList&lt;String&gt; updateNames;<a name="line.86"></a>
-<FONT color="green">087</FONT>        private PersistentObject&lt;T&gt; persistentObject;<a name="line.87"></a>
-<FONT color="green">088</FONT>    <a name="line.88"></a>
-<FONT color="green">089</FONT>        /**<a name="line.89"></a>
-<FONT color="green">090</FONT>         * Configure the file used to store this object persistently. Required property.<a name="line.90"></a>
-<FONT color="green">091</FONT>         */<a name="line.91"></a>
-<FONT color="green">092</FONT>        public void setFile(File file) {<a name="line.92"></a>
-<FONT color="green">093</FONT>            this.file = file;<a name="line.93"></a>
-<FONT color="green">094</FONT>        }<a name="line.94"></a>
-<FONT color="green">095</FONT>    <a name="line.95"></a>
-<FONT color="green">096</FONT>        /**<a name="line.96"></a>
-<FONT color="green">097</FONT>         * Configure the maximum delay after an update operation before a write-back to the persistent file<a name="line.97"></a>
-<FONT color="green">098</FONT>         * must be initiated. Default is zero.<a name="line.98"></a>
-<FONT color="green">099</FONT>         */<a name="line.99"></a>
-<FONT color="green">100</FONT>        public void setWriteDelay(long writeDelay) {<a name="line.100"></a>
-<FONT color="green">101</FONT>            this.writeDelay = writeDelay;<a name="line.101"></a>
-<FONT color="green">102</FONT>        }<a name="line.102"></a>
-<FONT color="green">103</FONT>    <a name="line.103"></a>
-<FONT color="green">104</FONT>        /**<a name="line.104"></a>
-<FONT color="green">105</FONT>         * Configure the check interval for "out-of-band" updates to the persistent file.<a name="line.105"></a>
-<FONT color="green">106</FONT>         * Default is {@link #DEFAULT_CHECK_INTERVAL}.<a name="line.106"></a>
-<FONT color="green">107</FONT>         */<a name="line.107"></a>
-<FONT color="green">108</FONT>        public void setCheckInterval(long checkInterval) {<a name="line.108"></a>
-<FONT color="green">109</FONT>            this.checkInterval = checkInterval;<a name="line.109"></a>
-<FONT color="green">110</FONT>        }<a name="line.110"></a>
-<FONT color="green">111</FONT>    <a name="line.111"></a>
-<FONT color="green">112</FONT>        /**<a name="line.112"></a>
-<FONT color="green">113</FONT>         * Configure the {@link PersistentObjectDelegate}. Required property.<a name="line.113"></a>
-<FONT color="green">114</FONT>         */<a name="line.114"></a>
-<FONT color="green">115</FONT>        public void setDelegate(PersistentObjectDelegate&lt;T&gt; delegate) {<a name="line.115"></a>
-<FONT color="green">116</FONT>            this.delegate = delegate;<a name="line.116"></a>
-<FONT color="green">117</FONT>        }<a name="line.117"></a>
-<FONT color="green">118</FONT>    <a name="line.118"></a>
-<FONT color="green">119</FONT>        /**<a name="line.119"></a>
-<FONT color="green">120</FONT>         * Start this instance. Does nothing if already started.<a name="line.120"></a>
-<FONT color="green">121</FONT>         *<a name="line.121"></a>
-<FONT color="green">122</FONT>         * @throws IllegalArgumentException if an invalid file, write delay, or delegate is configured<a name="line.122"></a>
-<FONT color="green">123</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.123"></a>
-<FONT color="green">124</FONT>         */<a name="line.124"></a>
-<FONT color="green">125</FONT>        public synchronized void start() {<a name="line.125"></a>
-<FONT color="green">126</FONT>    <a name="line.126"></a>
-<FONT color="green">127</FONT>            // Already started?<a name="line.127"></a>
-<FONT color="green">128</FONT>            if (this.persistentObject != null)<a name="line.128"></a>
-<FONT color="green">129</FONT>                return;<a name="line.129"></a>
-<FONT color="green">130</FONT>    <a name="line.130"></a>
-<FONT color="green">131</FONT>            // Sanity check<a name="line.131"></a>
-<FONT color="green">132</FONT>            if (this.file == null)<a name="line.132"></a>
-<FONT color="green">133</FONT>                throw new IllegalArgumentException("no file configured");<a name="line.133"></a>
-<FONT color="green">134</FONT>            if (this.writeDelay &lt; 0)<a name="line.134"></a>
-<FONT color="green">135</FONT>                throw new IllegalArgumentException("negative writeDelay file configured");<a name="line.135"></a>
-<FONT color="green">136</FONT>            if (this.delegate == null)<a name="line.136"></a>
-<FONT color="green">137</FONT>                throw new IllegalArgumentException("no delegate configured");<a name="line.137"></a>
+<FONT color="green">084</FONT>        protected int numBackups;<a name="line.84"></a>
+<FONT color="green">085</FONT>        protected boolean allowEmptyStart;<a name="line.85"></a>
+<FONT color="green">086</FONT>        protected PersistentObjectDelegate&lt;T&gt; delegate;<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>        private ArrayList&lt;String&gt; updateNames;<a name="line.88"></a>
+<FONT color="green">089</FONT>        private PersistentObject&lt;T&gt; persistentObject;<a name="line.89"></a>
+<FONT color="green">090</FONT>    <a name="line.90"></a>
+<FONT color="green">091</FONT>        /**<a name="line.91"></a>
+<FONT color="green">092</FONT>         * Configure the file used to store this object persistently. Required property.<a name="line.92"></a>
+<FONT color="green">093</FONT>         */<a name="line.93"></a>
+<FONT color="green">094</FONT>        public void setFile(File file) {<a name="line.94"></a>
+<FONT color="green">095</FONT>            this.file = file;<a name="line.95"></a>
+<FONT color="green">096</FONT>        }<a name="line.96"></a>
+<FONT color="green">097</FONT>    <a name="line.97"></a>
+<FONT color="green">098</FONT>        /**<a name="line.98"></a>
+<FONT color="green">099</FONT>         * Configure the maximum delay after an update operation before a write-back to the persistent file<a name="line.99"></a>
+<FONT color="green">100</FONT>         * must be initiated. Default is zero.<a name="line.100"></a>
+<FONT color="green">101</FONT>         */<a name="line.101"></a>
+<FONT color="green">102</FONT>        public void setWriteDelay(long writeDelay) {<a name="line.102"></a>
+<FONT color="green">103</FONT>            this.writeDelay = writeDelay;<a name="line.103"></a>
+<FONT color="green">104</FONT>        }<a name="line.104"></a>
+<FONT color="green">105</FONT>    <a name="line.105"></a>
+<FONT color="green">106</FONT>        /**<a name="line.106"></a>
+<FONT color="green">107</FONT>         * Configure the check interval for "out-of-band" updates to the persistent file.<a name="line.107"></a>
+<FONT color="green">108</FONT>         * Default is {@link #DEFAULT_CHECK_INTERVAL}.<a name="line.108"></a>
+<FONT color="green">109</FONT>         */<a name="line.109"></a>
+<FONT color="green">110</FONT>        public void setCheckInterval(long checkInterval) {<a name="line.110"></a>
+<FONT color="green">111</FONT>            this.checkInterval = checkInterval;<a name="line.111"></a>
+<FONT color="green">112</FONT>        }<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>        /**<a name="line.114"></a>
+<FONT color="green">115</FONT>         * Configure the {@link PersistentObjectDelegate}. Required property.<a name="line.115"></a>
+<FONT color="green">116</FONT>         */<a name="line.116"></a>
+<FONT color="green">117</FONT>        public void setDelegate(PersistentObjectDelegate&lt;T&gt; delegate) {<a name="line.117"></a>
+<FONT color="green">118</FONT>            this.delegate = delegate;<a name="line.118"></a>
+<FONT color="green">119</FONT>        }<a name="line.119"></a>
+<FONT color="green">120</FONT>    <a name="line.120"></a>
+<FONT color="green">121</FONT>        /**<a name="line.121"></a>
+<FONT color="green">122</FONT>         * Configure the number of backups to make of the persistent file.<a name="line.122"></a>
+<FONT color="green">123</FONT>         *<a name="line.123"></a>
+<FONT color="green">124</FONT>         * @see PersistentObject#getNumBackups<a name="line.124"></a>
+<FONT color="green">125</FONT>         */<a name="line.125"></a>
+<FONT color="green">126</FONT>        public void setNumBackups(int numBackups) {<a name="line.126"></a>
+<FONT color="green">127</FONT>            this.numBackups = numBackups;<a name="line.127"></a>
+<FONT color="green">128</FONT>        }<a name="line.128"></a>
+<FONT color="green">129</FONT>    <a name="line.129"></a>
+<FONT color="green">130</FONT>        /**<a name="line.130"></a>
+<FONT color="green">131</FONT>         * Configure whether to all "empty starts". Default is false.<a name="line.131"></a>
+<FONT color="green">132</FONT>         *<a name="line.132"></a>
+<FONT color="green">133</FONT>         * @see PersistentObject<a name="line.133"></a>
+<FONT color="green">134</FONT>         */<a name="line.134"></a>
+<FONT color="green">135</FONT>        public void setAllowEmptyStart(boolean allowEmptyStart) {<a name="line.135"></a>
+<FONT color="green">136</FONT>            this.allowEmptyStart = allowEmptyStart;<a name="line.136"></a>
+<FONT color="green">137</FONT>        }<a name="line.137"></a>
 <FONT color="green">138</FONT>    <a name="line.138"></a>
-<FONT color="green">139</FONT>            // Do schema updates<a name="line.139"></a>
-<FONT color="green">140</FONT>            try {<a name="line.140"></a>
-<FONT color="green">141</FONT>                this.initializeAndUpdateDatabase(this.file);<a name="line.141"></a>
-<FONT color="green">142</FONT>            } catch (RuntimeException e) {<a name="line.142"></a>
-<FONT color="green">143</FONT>                throw e;<a name="line.143"></a>
-<FONT color="green">144</FONT>            } catch (Exception e) {<a name="line.144"></a>
-<FONT color="green">145</FONT>                throw new PersistentObjectException(e);<a name="line.145"></a>
-<FONT color="green">146</FONT>            }<a name="line.146"></a>
-<FONT color="green">147</FONT>    <a name="line.147"></a>
-<FONT color="green">148</FONT>            // Create and start persistent object<a name="line.148"></a>
-<FONT color="green">149</FONT>            PersistentObject&lt;T&gt; pobj = new PersistentObject&lt;T&gt;(new UpdaterDelegate(), this.file, this.writeDelay, this.checkInterval);<a name="line.149"></a>
-<FONT color="green">150</FONT>            pobj.start();<a name="line.150"></a>
-<FONT color="green">151</FONT>    <a name="line.151"></a>
-<FONT color="green">152</FONT>            // Done<a name="line.152"></a>
-<FONT color="green">153</FONT>            this.persistentObject = pobj;<a name="line.153"></a>
-<FONT color="green">154</FONT>        }<a name="line.154"></a>
-<FONT color="green">155</FONT>    <a name="line.155"></a>
-<FONT color="green">156</FONT>        /**<a name="line.156"></a>
-<FONT color="green">157</FONT>         * Stop this instance. Does nothing if already stopped.<a name="line.157"></a>
-<FONT color="green">158</FONT>         *<a name="line.158"></a>
-<FONT color="green">159</FONT>         * @throws PersistentObjectException if a delayed write back is pending and error occurs during writing<a name="line.159"></a>
-<FONT color="green">160</FONT>         */<a name="line.160"></a>
-<FONT color="green">161</FONT>        public synchronized void stop() {<a name="line.161"></a>
-<FONT color="green">162</FONT>    <a name="line.162"></a>
-<FONT color="green">163</FONT>            // Already stopped?<a name="line.163"></a>
-<FONT color="green">164</FONT>            if (this.persistentObject == null)<a name="line.164"></a>
-<FONT color="green">165</FONT>                return;<a name="line.165"></a>
-<FONT color="green">166</FONT>    <a name="line.166"></a>
-<FONT color="green">167</FONT>            // Stop<a name="line.167"></a>
-<FONT color="green">168</FONT>            this.persistentObject.stop();<a name="line.168"></a>
-<FONT color="green">169</FONT>            this.persistentObject = null;<a name="line.169"></a>
-<FONT color="green">170</FONT>        }<a name="line.170"></a>
-<FONT color="green">171</FONT>    <a name="line.171"></a>
-<FONT color="green">172</FONT>        /**<a name="line.172"></a>
-<FONT color="green">173</FONT>         * Get the {@link PersistentObject}.<a name="line.173"></a>
-<FONT color="green">174</FONT>         *<a name="line.174"></a>
-<FONT color="green">175</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.175"></a>
-<FONT color="green">176</FONT>         */<a name="line.176"></a>
-<FONT color="green">177</FONT>        public synchronized PersistentObject&lt;T&gt; getPersistentObject() {<a name="line.177"></a>
-<FONT color="green">178</FONT>            if (this.persistentObject == null)<a name="line.178"></a>
-<FONT color="green">179</FONT>                throw new IllegalStateException("not started");<a name="line.179"></a>
-<FONT color="green">180</FONT>            return this.persistentObject;<a name="line.180"></a>
-<FONT color="green">181</FONT>        }<a name="line.181"></a>
-<FONT color="green">182</FONT>    <a name="line.182"></a>
-<FONT color="green">183</FONT>        /**<a name="line.183"></a>
-<FONT color="green">184</FONT>         * Get the initial value for the persistent object when no persistent file is found.<a name="line.184"></a>
-<FONT color="green">185</FONT>         *<a name="line.185"></a>
-<FONT color="green">186</FONT>         * &lt;p&gt;<a name="line.186"></a>
-<FONT color="green">187</FONT>         * The implementation in {@link PersistentObjectSchemaUpdater} just returns null.<a name="line.187"></a>
-<FONT color="green">188</FONT>         * Subclasses should override as desired.<a name="line.188"></a>
-<FONT color="green">189</FONT>         *<a name="line.189"></a>
-<FONT color="green">190</FONT>         * &lt;p&gt;<a name="line.190"></a>
-<FONT color="green">191</FONT>         * The returned value must properly validate.<a name="line.191"></a>
-<FONT color="green">192</FONT>         */<a name="line.192"></a>
-<FONT color="green">193</FONT>        protected T getInitialValue() {<a name="line.193"></a>
-<FONT color="green">194</FONT>            return null;<a name="line.194"></a>
-<FONT color="green">195</FONT>        }<a name="line.195"></a>
-<FONT color="green">196</FONT>    <a name="line.196"></a>
-<FONT color="green">197</FONT>        @Override<a name="line.197"></a>
-<FONT color="green">198</FONT>        protected boolean databaseNeedsInitialization(PersistentFileTransaction transaction) throws Exception {<a name="line.198"></a>
-<FONT color="green">199</FONT>            return transaction.getData() == null;<a name="line.199"></a>
-<FONT color="green">200</FONT>        }<a name="line.200"></a>
-<FONT color="green">201</FONT>    <a name="line.201"></a>
-<FONT color="green">202</FONT>        @Override<a name="line.202"></a>
-<FONT color="green">203</FONT>        @SuppressWarnings("unchecked")<a name="line.203"></a>
-<FONT color="green">204</FONT>        protected void initializeDatabase(PersistentFileTransaction transaction) throws Exception {<a name="line.204"></a>
-<FONT color="green">205</FONT>    <a name="line.205"></a>
-<FONT color="green">206</FONT>            // Get initial value<a name="line.206"></a>
-<FONT color="green">207</FONT>            T initialValue = this.getInitialValue();<a name="line.207"></a>
-<FONT color="green">208</FONT>            if (initialValue == null)<a name="line.208"></a>
-<FONT color="green">209</FONT>                return;<a name="line.209"></a>
-<FONT color="green">210</FONT>    <a name="line.210"></a>
-<FONT color="green">211</FONT>            // Validate it<a name="line.211"></a>
-<FONT color="green">212</FONT>            Set&lt;ConstraintViolation&lt;T&gt;&gt; violations = this.delegate.validate(initialValue);<a name="line.212"></a>
-<FONT color="green">213</FONT>            if (!violations.isEmpty())<a name="line.213"></a>
-<FONT color="green">214</FONT>                throw new PersistentObjectValidationException((Set&lt;ConstraintViolation&lt;?&gt;&gt;)(Object)violations);<a name="line.214"></a>
-<FONT color="green">215</FONT>    <a name="line.215"></a>
-<FONT color="green">216</FONT>            // Serialize it<a name="line.216"></a>
-<FONT color="green">217</FONT>            ByteArrayOutputStream buffer = new ByteArrayOutputStream(PersistentFileTransaction.FILE_BUFFER_SIZE);<a name="line.217"></a>
-<FONT color="green">218</FONT>            StreamResult result = new StreamResult(buffer);<a name="line.218"></a>
-<FONT color="green">219</FONT>            this.delegate.serialize(initialValue, result);<a name="line.219"></a>
+<FONT color="green">139</FONT>        /**<a name="line.139"></a>
+<FONT color="green">140</FONT>         * Start this instance. Does nothing if already started.<a name="line.140"></a>
+<FONT color="green">141</FONT>         *<a name="line.141"></a>
+<FONT color="green">142</FONT>         * @throws IllegalArgumentException if an invalid file, write delay, or delegate is configured<a name="line.142"></a>
+<FONT color="green">143</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.143"></a>
+<FONT color="green">144</FONT>         */<a name="line.144"></a>
+<FONT color="green">145</FONT>        public synchronized void start() {<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>            // Already started?<a name="line.147"></a>
+<FONT color="green">148</FONT>            if (this.persistentObject != null)<a name="line.148"></a>
+<FONT color="green">149</FONT>                return;<a name="line.149"></a>
+<FONT color="green">150</FONT>    <a name="line.150"></a>
+<FONT color="green">151</FONT>            // Sanity check<a name="line.151"></a>
+<FONT color="green">152</FONT>            if (this.file == null)<a name="line.152"></a>
+<FONT color="green">153</FONT>                throw new IllegalArgumentException("no file configured");<a name="line.153"></a>
+<FONT color="green">154</FONT>            if (this.writeDelay &lt; 0)<a name="line.154"></a>
+<FONT color="green">155</FONT>                throw new IllegalArgumentException("negative writeDelay configured");<a name="line.155"></a>
+<FONT color="green">156</FONT>            if (this.delegate == null)<a name="line.156"></a>
+<FONT color="green">157</FONT>                throw new IllegalArgumentException("no delegate configured");<a name="line.157"></a>
+<FONT color="green">158</FONT>            if (this.numBackups &lt; 0)<a name="line.158"></a>
+<FONT color="green">159</FONT>                throw new IllegalArgumentException("negative numBackups configured");<a name="line.159"></a>
+<FONT color="green">160</FONT>    <a name="line.160"></a>
+<FONT color="green">161</FONT>            // Do schema updates<a name="line.161"></a>
+<FONT color="green">162</FONT>            try {<a name="line.162"></a>
+<FONT color="green">163</FONT>                this.initializeAndUpdateDatabase(this.file);<a name="line.163"></a>
+<FONT color="green">164</FONT>            } catch (RuntimeException e) {<a name="line.164"></a>
+<FONT color="green">165</FONT>                throw e;<a name="line.165"></a>
+<FONT color="green">166</FONT>            } catch (Exception e) {<a name="line.166"></a>
+<FONT color="green">167</FONT>                throw new PersistentObjectException(e);<a name="line.167"></a>
+<FONT color="green">168</FONT>            }<a name="line.168"></a>
+<FONT color="green">169</FONT>    <a name="line.169"></a>
+<FONT color="green">170</FONT>            // Create and start persistent object<a name="line.170"></a>
+<FONT color="green">171</FONT>            PersistentObject&lt;T&gt; pobj = new PersistentObject&lt;T&gt;(new UpdaterDelegate(), this.file, this.writeDelay, this.checkInterval);<a name="line.171"></a>
+<FONT color="green">172</FONT>            pobj.setNumBackups(this.numBackups);<a name="line.172"></a>
+<FONT color="green">173</FONT>            pobj.setAllowEmptyStart(this.allowEmptyStart);<a name="line.173"></a>
+<FONT color="green">174</FONT>            pobj.start();<a name="line.174"></a>
+<FONT color="green">175</FONT>    <a name="line.175"></a>
+<FONT color="green">176</FONT>            // Done<a name="line.176"></a>
+<FONT color="green">177</FONT>            this.persistentObject = pobj;<a name="line.177"></a>
+<FONT color="green">178</FONT>        }<a name="line.178"></a>
+<FONT color="green">179</FONT>    <a name="line.179"></a>
+<FONT color="green">180</FONT>        /**<a name="line.180"></a>
+<FONT color="green">181</FONT>         * Stop this instance. Does nothing if already stopped.<a name="line.181"></a>
+<FONT color="green">182</FONT>         *<a name="line.182"></a>
+<FONT color="green">183</FONT>         * @throws PersistentObjectException if a delayed write back is pending and error occurs during writing<a name="line.183"></a>
+<FONT color="green">184</FONT>         */<a name="line.184"></a>
+<FONT color="green">185</FONT>        public synchronized void stop() {<a name="line.185"></a>
+<FONT color="green">186</FONT>    <a name="line.186"></a>
+<FONT color="green">187</FONT>            // Already stopped?<a name="line.187"></a>
+<FONT color="green">188</FONT>            if (this.persistentObject == null)<a name="line.188"></a>
+<FONT color="green">189</FONT>                return;<a name="line.189"></a>
+<FONT color="green">190</FONT>    <a name="line.190"></a>
+<FONT color="green">191</FONT>            // Stop<a name="line.191"></a>
+<FONT color="green">192</FONT>            this.persistentObject.stop();<a name="line.192"></a>
+<FONT color="green">193</FONT>            this.persistentObject = null;<a name="line.193"></a>
+<FONT color="green">194</FONT>        }<a name="line.194"></a>
+<FONT color="green">195</FONT>    <a name="line.195"></a>
+<FONT color="green">196</FONT>        /**<a name="line.196"></a>
+<FONT color="green">197</FONT>         * Get the {@link PersistentObject}.<a name="line.197"></a>
+<FONT color="green">198</FONT>         *<a name="line.198"></a>
+<FONT color="green">199</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.199"></a>
+<FONT color="green">200</FONT>         */<a name="line.200"></a>
+<FONT color="green">201</FONT>        public synchronized PersistentObject&lt;T&gt; getPersistentObject() {<a name="line.201"></a>
+<FONT color="green">202</FONT>            if (this.persistentObject == null)<a name="line.202"></a>
+<FONT color="green">203</FONT>                throw new IllegalStateException("not started");<a name="line.203"></a>
+<FONT color="green">204</FONT>            return this.persistentObject;<a name="line.204"></a>
+<FONT color="green">205</FONT>        }<a name="line.205"></a>
+<FONT color="green">206</FONT>    <a name="line.206"></a>
+<FONT color="green">207</FONT>        /**<a name="line.207"></a>
+<FONT color="green">208</FONT>         * Get the initial value for the persistent object when no persistent file is found.<a name="line.208"></a>
+<FONT color="green">209</FONT>         *<a name="line.209"></a>
+<FONT color="green">210</FONT>         * &lt;p&gt;<a name="line.210"></a>
+<FONT color="green">211</FONT>         * The implementation in {@link PersistentObjectSchemaUpdater} just returns null, which leaves the<a name="line.211"></a>
+<FONT color="green">212</FONT>         * initial root object unset. Subclasses should override as desired to provide an initial value.<a name="line.212"></a>
+<FONT color="green">213</FONT>         *<a name="line.213"></a>
+<FONT color="green">214</FONT>         * &lt;p&gt;<a name="line.214"></a>
+<FONT color="green">215</FONT>         * The returned value must properly validate.<a name="line.215"></a>
+<FONT color="green">216</FONT>         */<a name="line.216"></a>
+<FONT color="green">217</FONT>        protected T getInitialValue() {<a name="line.217"></a>
+<FONT color="green">218</FONT>            return null;<a name="line.218"></a>
+<FONT color="green">219</FONT>        }<a name="line.219"></a>
 <FONT color="green">220</FONT>    <a name="line.220"></a>
-<FONT color="green">221</FONT>            // Set it in the transaction<a name="line.221"></a>
-<FONT color="green">222</FONT>            transaction.setData(buffer.toByteArray());<a name="line.222"></a>
-<FONT color="green">223</FONT>        }<a name="line.223"></a>
-<FONT color="green">224</FONT>    <a name="line.224"></a>
-<FONT color="green">225</FONT>        @Override<a name="line.225"></a>
-<FONT color="green">226</FONT>        protected PersistentFileTransaction openTransaction(File file) throws Exception {<a name="line.226"></a>
-<FONT color="green">227</FONT>            return new PersistentFileTransaction(file);<a name="line.227"></a>
-<FONT color="green">228</FONT>        }<a name="line.228"></a>
+<FONT color="green">221</FONT>        @Override<a name="line.221"></a>
+<FONT color="green">222</FONT>        protected boolean databaseNeedsInitialization(PersistentFileTransaction transaction) throws Exception {<a name="line.222"></a>
+<FONT color="green">223</FONT>            return transaction.getData() == null;<a name="line.223"></a>
+<FONT color="green">224</FONT>        }<a name="line.224"></a>
+<FONT color="green">225</FONT>    <a name="line.225"></a>
+<FONT color="green">226</FONT>        @Override<a name="line.226"></a>
+<FONT color="green">227</FONT>        @SuppressWarnings("unchecked")<a name="line.227"></a>
+<FONT color="green">228</FONT>        protected void initializeDatabase(PersistentFileTransaction transaction) throws Exception {<a name="line.228"></a>
 <FONT color="green">229</FONT>    <a name="line.229"></a>
-<FONT color="green">230</FONT>        @Override<a name="line.230"></a>
-<FONT color="green">231</FONT>        protected void commitTransaction(PersistentFileTransaction transaction) throws Exception {<a name="line.231"></a>
-<FONT color="green">232</FONT>            this.updateNames = new ArrayList&lt;String&gt;(transaction.getUpdates());<a name="line.232"></a>
-<FONT color="green">233</FONT>            transaction.commit();<a name="line.233"></a>
-<FONT color="green">234</FONT>        }<a name="line.234"></a>
-<FONT color="green">235</FONT>    <a name="line.235"></a>
-<FONT color="green">236</FONT>        @Override<a name="line.236"></a>
-<FONT color="green">237</FONT>        protected void rollbackTransaction(PersistentFileTransaction transaction) throws Exception {<a name="line.237"></a>
-<FONT color="green">238</FONT>            transaction.rollback();<a name="line.238"></a>
-<FONT color="green">239</FONT>        }<a name="line.239"></a>
-<FONT color="green">240</FONT>    <a name="line.240"></a>
-<FONT color="green">241</FONT>        @Override<a name="line.241"></a>
-<FONT color="green">242</FONT>        protected Set&lt;String&gt; getAppliedUpdateNames(PersistentFileTransaction transaction) throws Exception {<a name="line.242"></a>
-<FONT color="green">243</FONT>            return new HashSet&lt;String&gt;(transaction.getUpdates());<a name="line.243"></a>
-<FONT color="green">244</FONT>        }<a name="line.244"></a>
-<FONT color="green">245</FONT>    <a name="line.245"></a>
-<FONT color="green">246</FONT>        @Override<a name="line.246"></a>
-<FONT color="green">247</FONT>        protected void recordUpdateApplied(PersistentFileTransaction transaction, String name) throws Exception {<a name="line.247"></a>
-<FONT color="green">248</FONT>            transaction.addUpdate(name);<a name="line.248"></a>
-<FONT color="green">249</FONT>        }<a name="line.249"></a>
-<FONT color="green">250</FONT>    <a name="line.250"></a>
-<FONT color="green">251</FONT>        // Our PersistentObjectDelegate that hides the updates when (de)serializing<a name="line.251"></a>
-<FONT color="green">252</FONT>        private class UpdaterDelegate extends FilterDelegate&lt;T&gt; {<a name="line.252"></a>
+<FONT color="green">230</FONT>            // Get initial value<a name="line.230"></a>
+<FONT color="green">231</FONT>            T initialValue = this.getInitialValue();<a name="line.231"></a>
+<FONT color="green">232</FONT>            if (initialValue == null)<a name="line.232"></a>
+<FONT color="green">233</FONT>                return;<a name="line.233"></a>
+<FONT color="green">234</FONT>    <a name="line.234"></a>
+<FONT color="green">235</FONT>            // Validate it<a name="line.235"></a>
+<FONT color="green">236</FONT>            Set&lt;ConstraintViolation&lt;T&gt;&gt; violations = this.delegate.validate(initialValue);<a name="line.236"></a>
+<FONT color="green">237</FONT>            if (!violations.isEmpty())<a name="line.237"></a>
+<FONT color="green">238</FONT>                throw new PersistentObjectValidationException((Set&lt;ConstraintViolation&lt;?&gt;&gt;)(Object)violations);<a name="line.238"></a>
+<FONT color="green">239</FONT>    <a name="line.239"></a>
+<FONT color="green">240</FONT>            // Serialize it<a name="line.240"></a>
+<FONT color="green">241</FONT>            ByteArrayOutputStream buffer = new ByteArrayOutputStream(PersistentFileTransaction.FILE_BUFFER_SIZE);<a name="line.241"></a>
+<FONT color="green">242</FONT>            StreamResult result = new StreamResult(buffer);<a name="line.242"></a>
+<FONT color="green">243</FONT>            this.delegate.serialize(initialValue, result);<a name="line.243"></a>
+<FONT color="green">244</FONT>    <a name="line.244"></a>
+<FONT color="green">245</FONT>            // Set it in the transaction<a name="line.245"></a>
+<FONT color="green">246</FONT>            transaction.setData(buffer.toByteArray());<a name="line.246"></a>
+<FONT color="green">247</FONT>        }<a name="line.247"></a>
+<FONT color="green">248</FONT>    <a name="line.248"></a>
+<FONT color="green">249</FONT>        @Override<a name="line.249"></a>
+<FONT color="green">250</FONT>        protected PersistentFileTransaction openTransaction(File file) throws Exception {<a name="line.250"></a>
+<FONT color="green">251</FONT>            return new PersistentFileTransaction(file);<a name="line.251"></a>
+<FONT color="green">252</FONT>        }<a name="line.252"></a>
 <FONT color="green">253</FONT>    <a name="line.253"></a>
-<FONT color="green">254</FONT>            private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();<a name="line.254"></a>
-<FONT color="green">255</FONT>            private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();<a name="line.255"></a>
-<FONT color="green">256</FONT>    <a name="line.256"></a>
-<FONT color="green">257</FONT>            UpdaterDelegate() {<a name="line.257"></a>
-<FONT color="green">258</FONT>                super(PersistentObjectSchemaUpdater.this.delegate);<a name="line.258"></a>
-<FONT color="green">259</FONT>            }<a name="line.259"></a>
-<FONT color="green">260</FONT>    <a name="line.260"></a>
-<FONT color="green">261</FONT>            /**<a name="line.261"></a>
-<FONT color="green">262</FONT>             * Serialize object to XML, adding update list.<a name="line.262"></a>
-<FONT color="green">263</FONT>             */<a name="line.263"></a>
-<FONT color="green">264</FONT>            @Override<a name="line.264"></a>
-<FONT color="green">265</FONT>            public void serialize(T obj, Result result) throws IOException {<a name="line.265"></a>
-<FONT color="green">266</FONT>                try {<a name="line.266"></a>
-<FONT color="green">267</FONT>                    XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(result);<a name="line.267"></a>
-<FONT color="green">268</FONT>                    UpdatesXMLEventWriter updatesWriter = new UpdatesXMLEventWriter(eventWriter,<a name="line.268"></a>
-<FONT color="green">269</FONT>                      PersistentObjectSchemaUpdater.this.updateNames);<a name="line.269"></a>
-<FONT color="green">270</FONT>                    super.serialize(obj, new StAXResult(updatesWriter));<a name="line.270"></a>
-<FONT color="green">271</FONT>                    updatesWriter.close();<a name="line.271"></a>
-<FONT color="green">272</FONT>                } catch (IOException e) {<a name="line.272"></a>
-<FONT color="green">273</FONT>                    throw e;<a name="line.273"></a>
-<FONT color="green">274</FONT>                } catch (XMLStreamException e) {<a name="line.274"></a>
-<FONT color="green">275</FONT>                    throw new PersistentObjectException(e);<a name="line.275"></a>
-<FONT color="green">276</FONT>                }<a name="line.276"></a>
-<FONT color="green">277</FONT>            }<a name="line.277"></a>
-<FONT color="green">278</FONT>    <a name="line.278"></a>
-<FONT color="green">279</FONT>            /**<a name="line.279"></a>
-<FONT color="green">280</FONT>             * Deserialize object from XML, removing update list.<a name="line.280"></a>
-<FONT color="green">281</FONT>             */<a name="line.281"></a>
-<FONT color="green">282</FONT>            @Override<a name="line.282"></a>
-<FONT color="green">283</FONT>            public T deserialize(Source source) throws IOException {<a name="line.283"></a>
-<FONT color="green">284</FONT>                try {<a name="line.284"></a>
-<FONT color="green">285</FONT>                    XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(source);<a name="line.285"></a>
-<FONT color="green">286</FONT>                    UpdatesXMLEventReader updatesReader = new UpdatesXMLEventReader(eventReader);<a name="line.286"></a>
-<FONT color="green">287</FONT>                    return super.deserialize(new StAXSource(updatesReader));<a name="line.287"></a>
-<FONT color="green">288</FONT>                } catch (IOException e) {<a name="line.288"></a>
-<FONT color="green">289</FONT>                    throw e;<a name="line.289"></a>
-<FONT color="green">290</FONT>                } catch (XMLStreamException e) {<a name="line.290"></a>
-<FONT color="green">291</FONT>                    throw new PersistentObjectException(e);<a name="line.291"></a>
-<FONT color="green">292</FONT>                }<a name="line.292"></a>
-<FONT color="green">293</FONT>            }<a name="line.293"></a>
-<FONT color="green">294</FONT>        }<a name="line.294"></a>
-<FONT color="green">295</FONT>    }<a name="line.295"></a>
-<FONT color="green">296</FONT>    <a name="line.296"></a>
+<FONT color="green">254</FONT>        @Override<a name="line.254"></a>
+<FONT color="green">255</FONT>        protected void commitTransaction(PersistentFileTransaction transaction) throws Exception {<a name="line.255"></a>
+<FONT color="green">256</FONT>            this.updateNames = new ArrayList&lt;String&gt;(transaction.getUpdates());<a name="line.256"></a>
+<FONT color="green">257</FONT>            transaction.commit();<a name="line.257"></a>
+<FONT color="green">258</FONT>        }<a name="line.258"></a>
+<FONT color="green">259</FONT>    <a name="line.259"></a>
+<FONT color="green">260</FONT>        @Override<a name="line.260"></a>
+<FONT color="green">261</FONT>        protected void rollbackTransaction(PersistentFileTransaction transaction) throws Exception {<a name="line.261"></a>
+<FONT color="green">262</FONT>            transaction.rollback();<a name="line.262"></a>
+<FONT color="green">263</FONT>        }<a name="line.263"></a>
+<FONT color="green">264</FONT>    <a name="line.264"></a>
+<FONT color="green">265</FONT>        @Override<a name="line.265"></a>
+<FONT color="green">266</FONT>        protected Set&lt;String&gt; getAppliedUpdateNames(PersistentFileTransaction transaction) throws Exception {<a name="line.266"></a>
+<FONT color="green">267</FONT>            return new HashSet&lt;String&gt;(transaction.getUpdates());<a name="line.267"></a>
+<FONT color="green">268</FONT>        }<a name="line.268"></a>
+<FONT color="green">269</FONT>    <a name="line.269"></a>
+<FONT color="green">270</FONT>        @Override<a name="line.270"></a>
+<FONT color="green">271</FONT>        protected void recordUpdateApplied(PersistentFileTransaction transaction, String name) throws Exception {<a name="line.271"></a>
+<FONT color="green">272</FONT>            transaction.addUpdate(name);<a name="line.272"></a>
+<FONT color="green">273</FONT>        }<a name="line.273"></a>
+<FONT color="green">274</FONT>    <a name="line.274"></a>
+<FONT color="green">275</FONT>        // Our PersistentObjectDelegate that hides the updates when (de)serializing<a name="line.275"></a>
+<FONT color="green">276</FONT>        private class UpdaterDelegate extends FilterDelegate&lt;T&gt; {<a name="line.276"></a>
+<FONT color="green">277</FONT>    <a name="line.277"></a>
+<FONT color="green">278</FONT>            private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();<a name="line.278"></a>
+<FONT color="green">279</FONT>            private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();<a name="line.279"></a>
+<FONT color="green">280</FONT>    <a name="line.280"></a>
+<FONT color="green">281</FONT>            UpdaterDelegate() {<a name="line.281"></a>
+<FONT color="green">282</FONT>                super(PersistentObjectSchemaUpdater.this.delegate);<a name="line.282"></a>
+<FONT color="green">283</FONT>            }<a name="line.283"></a>
+<FONT color="green">284</FONT>    <a name="line.284"></a>
+<FONT color="green">285</FONT>            /**<a name="line.285"></a>
+<FONT color="green">286</FONT>             * Serialize object to XML, adding update list.<a name="line.286"></a>
+<FONT color="green">287</FONT>             */<a name="line.287"></a>
+<FONT color="green">288</FONT>            @Override<a name="line.288"></a>
+<FONT color="green">289</FONT>            public void serialize(T obj, Result result) throws IOException {<a name="line.289"></a>
+<FONT color="green">290</FONT>                try {<a name="line.290"></a>
+<FONT color="green">291</FONT>                    XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(result);<a name="line.291"></a>
+<FONT color="green">292</FONT>                    UpdatesXMLEventWriter updatesWriter = new UpdatesXMLEventWriter(eventWriter,<a name="line.292"></a>
+<FONT color="green">293</FONT>                      PersistentObjectSchemaUpdater.this.updateNames);<a name="line.293"></a>
+<FONT color="green">294</FONT>                    super.serialize(obj, new StAXResult(updatesWriter));<a name="line.294"></a>
+<FONT color="green">295</FONT>                    updatesWriter.close();<a name="line.295"></a>
+<FONT color="green">296</FONT>                } catch (IOException e) {<a name="line.296"></a>
+<FONT color="green">297</FONT>                    throw e;<a name="line.297"></a>
+<FONT color="green">298</FONT>                } catch (XMLStreamException e) {<a name="line.298"></a>
+<FONT color="green">299</FONT>                    throw new PersistentObjectException(e);<a name="line.299"></a>
+<FONT color="green">300</FONT>                }<a name="line.300"></a>
+<FONT color="green">301</FONT>            }<a name="line.301"></a>
+<FONT color="green">302</FONT>    <a name="line.302"></a>
+<FONT color="green">303</FONT>            /**<a name="line.303"></a>
+<FONT color="green">304</FONT>             * Deserialize object from XML, removing update list.<a name="line.304"></a>
+<FONT color="green">305</FONT>             */<a name="line.305"></a>
+<FONT color="green">306</FONT>            @Override<a name="line.306"></a>
+<FONT color="green">307</FONT>            public T deserialize(Source source) throws IOException {<a name="line.307"></a>
+<FONT color="green">308</FONT>                try {<a name="line.308"></a>
+<FONT color="green">309</FONT>                    XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(source);<a name="line.309"></a>
+<FONT color="green">310</FONT>                    UpdatesXMLEventReader updatesReader = new UpdatesXMLEventReader(eventReader);<a name="line.310"></a>
+<FONT color="green">311</FONT>                    return super.deserialize(new StAXSource(updatesReader));<a name="line.311"></a>
+<FONT color="green">312</FONT>                } catch (IOException e) {<a name="line.312"></a>
+<FONT color="green">313</FONT>                    throw e;<a name="line.313"></a>
+<FONT color="green">314</FONT>                } catch (XMLStreamException e) {<a name="line.314"></a>
+<FONT color="green">315</FONT>                    throw new PersistentObjectException(e);<a name="line.315"></a>
+<FONT color="green">316</FONT>                }<a name="line.316"></a>
+<FONT color="green">317</FONT>            }<a name="line.317"></a>
+<FONT color="green">318</FONT>        }<a name="line.318"></a>
+<FONT color="green">319</FONT>    }<a name="line.319"></a>
+<FONT color="green">320</FONT>    <a name="line.320"></a>
 
 
 

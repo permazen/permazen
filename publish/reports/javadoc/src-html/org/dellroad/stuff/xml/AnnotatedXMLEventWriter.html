@@ -117,15 +117,22 @@
 <FONT color="green">114</FONT>        }<a name="line.114"></a>
 <FONT color="green">115</FONT>    <a name="line.115"></a>
 <FONT color="green">116</FONT>        /**<a name="line.116"></a>
-<FONT color="green">117</FONT>         * Add the annotation element.<a name="line.117"></a>
-<FONT color="green">118</FONT>         *<a name="line.118"></a>
-<FONT color="green">119</FONT>         * &lt;p&gt;<a name="line.119"></a>
-<FONT color="green">120</FONT>         * This method should {@link #add add()} the {@link javax.xml.stream.events.StartElement} for the annotation element, followed<a name="line.120"></a>
-<FONT color="green">121</FONT>         * by any nested content, and then lastly the {@link javax.xml.stream.events.EndElement} for the annotation element.<a name="line.121"></a>
-<FONT color="green">122</FONT>         */<a name="line.122"></a>
-<FONT color="green">123</FONT>        protected abstract void addAnnotationElement() throws XMLStreamException;<a name="line.123"></a>
-<FONT color="green">124</FONT>    }<a name="line.124"></a>
-<FONT color="green">125</FONT>    <a name="line.125"></a>
+<FONT color="green">117</FONT>         * Get the whitespace found between the opening document tag and the first non-space child.<a name="line.117"></a>
+<FONT color="green">118</FONT>         */<a name="line.118"></a>
+<FONT color="green">119</FONT>        protected String getTrailingSpace() {<a name="line.119"></a>
+<FONT color="green">120</FONT>            return this.trailingSpace.toString();<a name="line.120"></a>
+<FONT color="green">121</FONT>        }<a name="line.121"></a>
+<FONT color="green">122</FONT>    <a name="line.122"></a>
+<FONT color="green">123</FONT>        /**<a name="line.123"></a>
+<FONT color="green">124</FONT>         * Add the annotation element.<a name="line.124"></a>
+<FONT color="green">125</FONT>         *<a name="line.125"></a>
+<FONT color="green">126</FONT>         * &lt;p&gt;<a name="line.126"></a>
+<FONT color="green">127</FONT>         * This method should {@link #add add()} the {@link javax.xml.stream.events.StartElement} for the annotation element, followed<a name="line.127"></a>
+<FONT color="green">128</FONT>         * by any nested content, and then lastly the {@link javax.xml.stream.events.EndElement} for the annotation element.<a name="line.128"></a>
+<FONT color="green">129</FONT>         */<a name="line.129"></a>
+<FONT color="green">130</FONT>        protected abstract void addAnnotationElement() throws XMLStreamException;<a name="line.130"></a>
+<FONT color="green">131</FONT>    }<a name="line.131"></a>
+<FONT color="green">132</FONT>    <a name="line.132"></a>
 
 
 

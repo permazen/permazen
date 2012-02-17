@@ -366,33 +366,35 @@
 <FONT color="green">363</FONT>    <a name="line.363"></a>
 <FONT color="green">364</FONT>        /**<a name="line.364"></a>
 <FONT color="green">365</FONT>         * Implemented by listeners that wish to be notified when a {@link ContextApplication} is closed.<a name="line.365"></a>
-<FONT color="green">366</FONT>         */<a name="line.366"></a>
-<FONT color="green">367</FONT>        public interface CloseListener {<a name="line.367"></a>
-<FONT color="green">368</FONT>    <a name="line.368"></a>
-<FONT color="green">369</FONT>            /**<a name="line.369"></a>
-<FONT color="green">370</FONT>             * Notification upon {@link ContextApplication} closing.<a name="line.370"></a>
-<FONT color="green">371</FONT>             */<a name="line.371"></a>
-<FONT color="green">372</FONT>            void applicationClosed(CloseEvent closeEvent);<a name="line.372"></a>
-<FONT color="green">373</FONT>        }<a name="line.373"></a>
-<FONT color="green">374</FONT>    <a name="line.374"></a>
-<FONT color="green">375</FONT>        /**<a name="line.375"></a>
-<FONT color="green">376</FONT>         * Event delivered to listeners when a {@link ContextApplication} is closed.<a name="line.376"></a>
-<FONT color="green">377</FONT>         */<a name="line.377"></a>
-<FONT color="green">378</FONT>        public static class CloseEvent extends EventObject {<a name="line.378"></a>
-<FONT color="green">379</FONT>    <a name="line.379"></a>
-<FONT color="green">380</FONT>            public CloseEvent(ContextApplication application) {<a name="line.380"></a>
-<FONT color="green">381</FONT>                super(application);<a name="line.381"></a>
-<FONT color="green">382</FONT>            }<a name="line.382"></a>
-<FONT color="green">383</FONT>    <a name="line.383"></a>
-<FONT color="green">384</FONT>            /**<a name="line.384"></a>
-<FONT color="green">385</FONT>             * Get the {@link ContextApplication} that is being closed.<a name="line.385"></a>
-<FONT color="green">386</FONT>             */<a name="line.386"></a>
-<FONT color="green">387</FONT>            public ContextApplication getContextApplication() {<a name="line.387"></a>
-<FONT color="green">388</FONT>                return (ContextApplication)super.getSource();<a name="line.388"></a>
-<FONT color="green">389</FONT>            }<a name="line.389"></a>
-<FONT color="green">390</FONT>        }<a name="line.390"></a>
-<FONT color="green">391</FONT>    }<a name="line.391"></a>
-<FONT color="green">392</FONT>    <a name="line.392"></a>
+<FONT color="green">366</FONT>         *<a name="line.366"></a>
+<FONT color="green">367</FONT>         * @see ContextApplication#addListener<a name="line.367"></a>
+<FONT color="green">368</FONT>         */<a name="line.368"></a>
+<FONT color="green">369</FONT>        public interface CloseListener {<a name="line.369"></a>
+<FONT color="green">370</FONT>    <a name="line.370"></a>
+<FONT color="green">371</FONT>            /**<a name="line.371"></a>
+<FONT color="green">372</FONT>             * Notification upon {@link ContextApplication} closing.<a name="line.372"></a>
+<FONT color="green">373</FONT>             */<a name="line.373"></a>
+<FONT color="green">374</FONT>            void applicationClosed(CloseEvent closeEvent);<a name="line.374"></a>
+<FONT color="green">375</FONT>        }<a name="line.375"></a>
+<FONT color="green">376</FONT>    <a name="line.376"></a>
+<FONT color="green">377</FONT>        /**<a name="line.377"></a>
+<FONT color="green">378</FONT>         * Event delivered to listeners when a {@link ContextApplication} is closed.<a name="line.378"></a>
+<FONT color="green">379</FONT>         */<a name="line.379"></a>
+<FONT color="green">380</FONT>        public static class CloseEvent extends EventObject {<a name="line.380"></a>
+<FONT color="green">381</FONT>    <a name="line.381"></a>
+<FONT color="green">382</FONT>            public CloseEvent(ContextApplication application) {<a name="line.382"></a>
+<FONT color="green">383</FONT>                super(application);<a name="line.383"></a>
+<FONT color="green">384</FONT>            }<a name="line.384"></a>
+<FONT color="green">385</FONT>    <a name="line.385"></a>
+<FONT color="green">386</FONT>            /**<a name="line.386"></a>
+<FONT color="green">387</FONT>             * Get the {@link ContextApplication} that is being closed.<a name="line.387"></a>
+<FONT color="green">388</FONT>             */<a name="line.388"></a>
+<FONT color="green">389</FONT>            public ContextApplication getContextApplication() {<a name="line.389"></a>
+<FONT color="green">390</FONT>                return (ContextApplication)super.getSource();<a name="line.390"></a>
+<FONT color="green">391</FONT>            }<a name="line.391"></a>
+<FONT color="green">392</FONT>        }<a name="line.392"></a>
+<FONT color="green">393</FONT>    }<a name="line.393"></a>
+<FONT color="green">394</FONT>    <a name="line.394"></a>
 
 
 
