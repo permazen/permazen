@@ -30,7 +30,7 @@ import org.springframework.context.event.SmartApplicationListener;
  * </p>
  *
  * <p>
- * Note: for event sources that are scoped to specific Vaadin application instances and will deliver events
+ * Note: when listening to event sources that are scoped to specific Vaadin application instances and originate events
  * within the proper Vaadin application context, then the use of this listener superclass is not necessary.
  * </p>
  *
