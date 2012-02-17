@@ -157,6 +157,12 @@ public abstract class SpringContextApplication extends ContextApplication {
      * The implementation in {@link SpringContextApplication} does nothing. Subclasses may override as necessary.
      * </p>
      *
+     * <p>
+     * Note that if a {@link SpringContextApplication} instance is exposed in the application context and configured
+     * with a Spring {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy method}, then that
+     * method will also be invoked when the application is closed. In such cases overriding this method is not necessary.
+     * </p>
+     *
      * @see #initSpringApplication
      */
     protected void destroySpringApplication() {
