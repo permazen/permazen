@@ -53,9 +53,6 @@
  *      allowing them to be autowired by the {@link org.dellroad.stuff.vaadin.SpringContextApplication} application context
  *      associated with the current Vaadin application instance (note: <i>not</i> just the parent context). Arbitrary
  *      beans get autowired into the Vaadin application's context at the time of construction automagically.</li>
- *  <li>{@link org.dellroad.stuff.vaadin.ContextApplicationFactoryBean}, a Spring factory bean that allows the
- *      {@link org.dellroad.stuff.vaadin.SpringContextApplication} Vaadin application to itself appear within
- *      (and be autowired by) its associated application context.</li>
  *  <li>{@link org.dellroad.stuff.vaadin.VaadinApplicationScope}, which adds a custom Spring scope so you can define application
  *      scoped beans with {@code scope="vaadinApplication"}.</li>
  *  <li>{@link org.dellroad.stuff.vaadin.VaadinApplicationListener}, a support superclass for application scoped listeners
