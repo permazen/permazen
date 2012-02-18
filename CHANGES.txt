@@ -1,3 +1,7 @@
+Version Next
+
+    - Catch XmlMappingExceptions in SpringDelegate
+
 Version 1.0.284 Released Feb 16, 2012
 
     - Added new DAO support classes

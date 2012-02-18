@@ -15,6 +15,7 @@ import javax.xml.transform.Source;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.oxm.Marshaller;
 import org.springframework.oxm.Unmarshaller;
+import org.springframework.oxm.XmlMappingException;
 
 /**
  * {@link PersistentObjectDelegate} that uses Spring's {@link Marshaller} and {@link Unmarshaller} interfaces
@@ -51,13 +52,21 @@ public class SpringDelegate<T> extends AbstractDelegate<T> implements Initializi
 
     @Override
     public void serialize(T obj, Result result) throws IOException {
-        this.marshaller.marshal(obj, result);
+        try {
+            this.marshaller.marshal(obj, result);
+        } catch (XmlMappingException e) {
+            throw new PersistentObjectException(e);
+        }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public T deserialize(Source source) throws IOException {
-        return (T)this.unmarshaller.unmarshal(source);
+        try {
+            return (T)this.unmarshaller.unmarshal(source);
+        } catch (XmlMappingException e) {
+            throw new PersistentObjectException(e);
+        }
     }
 }
 
