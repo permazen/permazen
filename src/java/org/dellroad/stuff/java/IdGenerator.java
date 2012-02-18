@@ -35,7 +35,7 @@ public class IdGenerator {
         }
     };
 
-    private final HashMap<Object, Long> map = new HashMap<Object, Long>();
+    private final HashMap<Key, Long> map = new HashMap<Key, Long>();
     private final ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
 
     private long next = 1;
