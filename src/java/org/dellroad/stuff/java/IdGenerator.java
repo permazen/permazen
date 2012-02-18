@@ -14,14 +14,20 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
- * Generates unique IDs for any object.
+ * Registry of unique IDs for objects.
+ *
+ * <p>
+ * Instances support creating unique {@code long} ID numbers for objects, as well as setting the unique ID
+ * to a specific value for any unregistered object.
  *
  * <p>
  * This class uses object identity, not {@link Object#equals Object.equals()}, to distinguish objects.
- * Weak references are used to ensure that identified objects can be garbage collected normally.
  *
  * <p>
- * The {@code long} ID numbers are issued serially; after 2<sup>64</sup>-1 invocations of {@link #getId getId()},
+ * Weak references are used to ensure that registered objects can be garbage collected normally.
+ *
+ * <p>
+ * New {@code long} ID numbers are issued serially; after 2<sup>64</sup>-1 invocations of {@link #getId getId()},
  * an {@link IllegalStateException} will be thrown.
  *
  * @see org.dellroad.stuff.jibx.IdMapper
@@ -35,7 +41,8 @@ public class IdGenerator {
         }
     };
 
-    private final HashMap<Key, Long> map = new HashMap<Key, Long>();
+    private final HashMap<Ref, Long> idMap = new HashMap<Ref, Long>();
+    private final HashMap<Long, Ref> refMap = new HashMap<Long, Ref>();
     private final ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
 
     private long next = 1;
@@ -48,25 +55,53 @@ public class IdGenerator {
      * object identity, not {@link Object#equals Object.equals()} identity), then the same ID value will be returned.
      * Otherwise a new ID value will be returned.
      *
+     * <p>
+     * New IDs are assigned sequentially starting at {@code 1}. No conflict avoidance with IDs assigned
+     * via {@link #setId setId()} is performed; if there is a conflict, an exception is thrown.
+     *
      * @throws IllegalArgumentException if {@code obj} is null
+     * @throws IllegalStateException if the next sequential ID has already been assigned to a different object
+     *  via {@link #setId setId()}
      * @throws IllegalStateException if all 2<sup>64</sup>-1 values have been used up
      * @return a non-zero, unique identifier for {@code obj}
      */
-    public long getId(Object obj) {
+    public synchronized long getId(Object obj) {
         if (obj == null)
             throw new IllegalArgumentException("null obj");
-        Key key = new Key(obj, this.queue);
-        synchronized (this) {
-            this.flush();
-            Long id = this.map.get(key);
-            if (id == null) {
-                if (this.next == 0)
-                    throw new IllegalStateException("no more identifiers left!");
-                id = this.next++;
-                this.map.put(key, id);
-            }
-            return id;
+        this.flush();
+        Ref ref = new Ref(obj, this.queue);
+        Long id = this.idMap.get(ref);
+        if (id == null) {
+            if (this.next == 0)
+                throw new IllegalStateException("no more identifiers left!");
+            id = this.next++;
+            this.idMap.put(ref, id);
+            this.refMap.put(id, ref);
         }
+        return id;
+    }
+
+    /**
+     * Assign a unique ID to the given object. Does nothing if the object and ID number are already associated.
+     *
+     * @param obj object to assign
+     * @param id unique ID number to assign
+     * @throws IllegalArgumentException if {@code obj} is null
+     * @throws IllegalArgumentException if {@code id} has already been assigned to some other object
+     */
+    public synchronized void setId(Object obj, long id) {
+        if (obj == null)
+            throw new IllegalArgumentException("null obj");
+        this.flush();
+        Ref ref = this.refMap.get(id);
+        if (ref != null) {
+            if (ref.get() != obj)
+                throw new IllegalArgumentException("id " + id + " is already assigned to another object");
+            return;
+        }
+        ref = new Ref(obj, this.queue);
+        this.idMap.put(ref, id);
+        this.refMap.put(id, ref);
     }
 
     /**
@@ -78,9 +113,13 @@ public class IdGenerator {
      * {@link #getId getId()}, then invoking this method may free up some additional memory.
      */
     public synchronized void flush() {
-        Reference<? extends Object> key;
-        while ((key = this.queue.poll()) != null)
-            this.map.remove(key);
+        Reference<? extends Object> entry;
+        while ((entry = this.queue.poll()) != null) {
+            Ref ref = (Ref)entry;
+            long id = this.idMap.get(ref);
+            this.idMap.remove(ref);
+            this.refMap.remove(id);
+        }
     }
 
     /**
@@ -117,12 +156,12 @@ public class IdGenerator {
         return current;
     }
 
-    // Our hash key that weakly references the actual object
-    private static final class Key extends WeakReference<Object> {
+    // Reference to a registered object that weakly references the actual object
+    private static final class Ref extends WeakReference<Object> {
 
         private final int hashCode;
 
-        Key(Object obj, ReferenceQueue<Object> queue) {
+        Ref(Object obj, ReferenceQueue<Object> queue) {
             super(obj, queue);
             if (obj == null)
                 throw new IllegalArgumentException("null obj");
@@ -135,7 +174,7 @@ public class IdGenerator {
                 return true;
             if (obj == null || obj.getClass() != this.getClass())
                 return false;
-            Key that = (Key)obj;
+            Ref that = (Ref)obj;
             obj = this.get();
             return obj != null ? obj == that.get() : false;
         }

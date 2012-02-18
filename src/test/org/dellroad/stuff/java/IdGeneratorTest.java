@@ -24,13 +24,31 @@ public class IdGeneratorTest extends TestSupport {
         long id2 = idg.getId(obj2);
         long id3 = idg.getId(obj3);
 
-        assert id1 != id2;
-        assert id1 != id3;
-        assert id2 != id3;
+        assert id1 == 1;
+        assert id2 == 2;
+        assert id3 == 3;
 
         assert idg.getId(obj1) == id1;
         assert idg.getId(obj2) == id2;
         assert idg.getId(obj3) == id3;
+
+        idg.setId(new Object(), 4);
+        for (long i = 1; i <= 4; i++) {
+            try {
+                idg.setId(new Object(), i);
+                assert false;
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
+        }
+
+        Object obj5 = new Object();
+        idg.setId(obj5, 5);
+        assert idg.getId(obj5) == 5;
+        idg.setId(obj5, 5);
+        assert idg.getId(obj5) == 5;
+        idg.setId(obj5, 5);
+        assert idg.getId(obj5) == 5;
 
         Integer int1 = new Integer(123);
         Integer int2 = new Integer(123);

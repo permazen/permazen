@@ -1,6 +1,7 @@
 Version Next
 
-    - Catch XmlMappingExceptions in SpringDelegate
+    - Catch XmlMappingExceptions in SpringDelegate to support "empty open"
+    - Add new method IdGenerator.setId()
 
 Version 1.0.284 Released Feb 16, 2012
 
