@@ -105,6 +105,18 @@ public class IdGenerator {
     }
 
     /**
+     * Get the object assigned to the given ID.
+     *
+     * @param id unique ID
+     * @return object associated with that ID, or null if no object is assigned to {@code id}
+     */
+    public synchronized Object getObject(long id) {
+        this.flush();
+        Ref ref = this.refMap.get(id);
+        return ref != null ? ref.get() : null;
+    }
+
+    /**
      * Flush any cleared weak references.
      *
      * <p>

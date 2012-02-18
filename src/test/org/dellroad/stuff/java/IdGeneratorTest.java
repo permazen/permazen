@@ -32,6 +32,10 @@ public class IdGeneratorTest extends TestSupport {
         assert idg.getId(obj2) == id2;
         assert idg.getId(obj3) == id3;
 
+        assert idg.getObject(1) == obj1;
+        assert idg.getObject(2) == obj2;
+        assert idg.getObject(3) == obj3;
+
         idg.setId(new Object(), 4);
         for (long i = 1; i <= 4; i++) {
             try {
