@@ -12,6 +12,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.Callable;
 
 /**
  * Registry of unique IDs for objects.
@@ -148,6 +149,26 @@ public class IdGenerator {
         IdGenerator.CURRENT.get().push(new IdGenerator());
         try {
             action.run();
+        } finally {
+            IdGenerator.CURRENT.get().pop();
+        }
+    }
+
+    /**
+     * Create a new {@link IdGenerator} and make it available via {@link #get()} for the duration of the given operation.
+     *
+     * <p>
+     * This method is re-entrant: nested invocations of this method in the same thread will cause new {@link IdGenerator}
+     * instances to be created and used for the duration of the nested action.
+     *
+     * @param action action to perform, and which may successfully invoke {@link #get}
+     * @return result of invoking {@code action}
+     * @throws NullPointerException if {@code action} is null
+     */
+    public static <R> R run(final Callable<R> action) throws Exception {
+        IdGenerator.CURRENT.get().push(new IdGenerator());
+        try {
+            return action.call();
         } finally {
             IdGenerator.CURRENT.get().pop();
         }

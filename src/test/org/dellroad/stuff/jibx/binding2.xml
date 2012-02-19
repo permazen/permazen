@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<binding name="binding2" package="org.dellroad.stuff.jibx">
+
+    <mapping abstract="true" type-name="employee" class="org.dellroad.stuff.jibx.Employee">
+        <value name="id" style="attribute" ident="def" get-method="getJiBXId" set-method="setJiBXId"/>
+        <value name="name" field="name"/>
+    </mapping>
+
+    <mapping name="Company" class="org.dellroad.stuff.jibx.Company">
+        <collection name="Employees" field="employees" create-type="java.util.ArrayList">
+            <structure name="Employee" map-as="employee"/>
+        </collection>
+        <structure name="EmployeeOfTheWeek">
+            <structure name="Employee">
+                <value style="attribute" name="idref" field="employeeOfTheWeek"
+                  serializer="org.dellroad.stuff.jibx.ParseUtil.serializeReference"
+                  deserializer="org.dellroad.stuff.jibx.Employee.deserializeEmployeeReference"/>
+            </structure>
+        </structure>
+    </mapping>
+
+</binding>

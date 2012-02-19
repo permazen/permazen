@@ -48,10 +48,10 @@ import org.jibx.runtime.impl.MarshallingContext;
  *      }
  *
  *      <b>// JiBX methods
- *      private String getJiBXID() {
+ *      private String getJiBXId() {
  *          return IdMapper.getId(this);
  *      }
- *      private void setJiBXID(String id) {
+ *      private void setJiBXId(String id) {
  *          // do nothing
  *      }</b>
  *  }
@@ -63,29 +63,29 @@ import org.jibx.runtime.impl.MarshallingContext;
  * <p>
  * Next, define a concrete mapping for {@code Person.java} and add the {@code id} attribute:
  * <blockquote><pre>
- *   &lt;mapping name="Person" class="com.example.Person"&gt;
- *       <b>&lt;value name="id" style="attribute" ident="def"
- *         get-method="getJiBXID" set-method="setJiBXID"/&gt;</b>
- *       &lt;value name="name" field="name"/&gt;
- *   &lt;/mapping&gt;
+ *  &lt;mapping name="Person" class="com.example.Person"&gt;
+ *      <b>&lt;value name="id" style="attribute" ident="def"
+ *        get-method="getJiBXId" set-method="setJiBXId"/&gt;</b>
+ *      &lt;value name="name" field="name"/&gt;
+ *  &lt;/mapping&gt;
  * </pre></blockquote>
  * </p>
  *
  * <p>
  * Finally, use {@link IdMapper} as the custom marshaller and unmarshaller wherever a {@code Person} appears, e.g.:
  * <blockquote><pre>
- *   &lt;mapping name="Company" class="com.example.Company"&gt;
- *       &lt;collection name="Employees" field="employees" create-type="java.util.ArrayList"&gt;
+ *  &lt;mapping name="Company" class="com.example.Company"&gt;
+ *      &lt;collection name="Employees" field="employees" create-type="java.util.ArrayList"&gt;
  *          &lt;structure name="Person" type="com.example.Person"
  *            <b>marshaller="org.dellroad.stuff.jibx.IdMapper"
  *            unmarshaller="org.dellroad.stuff.jibx.IdMapper"</b>/&gt;
- *       &lt;/collection&gt;
- *       &lt;structure name="EmployeeOfTheWeek"&gt;
+ *      &lt;/collection&gt;
+ *      &lt;structure name="EmployeeOfTheWeek"&gt;
  *          &lt;structure name="Person" field="employeeOfTheWeek"
  *            <b>marshaller="org.dellroad.stuff.jibx.IdMapper"
  *            unmarshaller="org.dellroad.stuff.jibx.IdMapper"</b>/&gt;
- *       &lt;/structure&gt;
- *   &lt;/mapping&gt;
+ *      &lt;/structure&gt;
+ *  &lt;/mapping&gt;
  * </pre></blockquote>
  * Note the {@code EmployeeOfTheWeek} "wrapper" element for the {@code employeeOfTheWeek} field; this is required
  * in order to use an XML name for this field other than {@code Person} (see limitations below).
@@ -123,13 +123,67 @@ import org.jibx.runtime.impl.MarshallingContext;
  * <p>
  * JiBX and this class impose some limitations:
  * <ul>
- * <li>JiBX marshalling must be peformed within an invocation of {@link IdGenerator#run IdGenerator.run()}
- *      so that an {@link IdGenerator} is available to generate the unique IDs (for help
- *      when using Spring, see {@link IdMappingMarshaller}).</li>
+ * <li>JiBX marshalling must be performed within an invocation of {@link IdGenerator#run IdGenerator.run()}
+ *      so that an {@link IdGenerator} is available to generate the unique IDs (when using Spring, consider using
+ *      {@link IdMappingMarshaller}; otherwise, the {@link JiBXUtil} methods all satisfy this requirement).</li>
  * <li>Classes that use ID/IDREF must have concrete JiBX mappings.</li>
  * <li>All occurences of the class must use the XML element name of the concrete mapping, so the use of
  *      a "wrapper" element is required when a different element name is desired.</li>
  * </ul>
+ *
+ * <h3>A Simpler Approach</h3>
+ *
+ * The above approach is useful when you don't want to keep track of which instance of an object will appear first
+ * in the XML encoding: the first one will always fully define the object, while subsequent ones will just reference it.
+ *
+ * <p>
+ * If this flexibility is not needed, i.e., if you can identify where in your mapping the first occurrence of an object
+ * will appear, then the following simpler approach works without the above approach's limitations (other than requiring
+ * that marshalling be peformed within an invocation of {@link IdGenerator#run IdGenerator.run()}):
+ *
+ * <p>
+ * First, replace the <code>// do nothing</code> in the example above with call to {@link IdMapper#setId IdMapper.setId()},
+ * and add a custom deserializer delegating to {@link ParseUtil#deserializeReference ParseUtil.deserializeReference()} to
+ * <blockquote><pre>
+ *      private void setJiBXId(String id) {
+ *          IdMapper.setId(this, id);
+ *      }
+ *
+ *      public static Employee deserializeEmployeeReference(String string) throws JiBXParseException {
+ *          return ParseUtil.deserializeReference(string, Employee.class);
+ *      }
+ * </pre></blockquote>
+ * </p>
+ *
+ * <p>
+ * Then, map the first occurrence of an object exactly as in the concrete mapping above, exposing the <code>JiBXId</code> property.
+ * In all subsequent occurrences of the object, expose the reference to the object as a simple property using the custom
+ * serializer/deserializer pair {@link ParseUtil#serializeReference ParseUtil.serializeReference()} and
+ * {@link ParseUtil#deserializeReference ParseUtil.deserializeReference()}.
+ * </p>
+ *
+ * <p>
+ * For example, the following binding would yeild the same XML encoding as before:
+ * <blockquote><pre>
+ *  &lt;mapping abstract="true" type-name="person" class="com.example.Person"&gt;
+ *      <b>&lt;value name="id" style="attribute" ident="def"
+ *        get-method="getJiBXId" set-method="setJiBXId"/&gt;</b>
+ *      &lt;value name="name" field="name"/&gt;
+ *  &lt;/mapping&gt;
+ *
+ *  &lt;mapping name="Company" class="com.example.Company"&gt;
+ *      &lt;collection name="Employees" field="employees" create-type="java.util.ArrayList"&gt;
+ *          &lt;structure name="Person" map-as="person"/&gt;    &lt;!-- first occurences of all these objects --&gt;
+ *      &lt;/collection&gt;
+ *      &lt;structure name="EmployeeOfTheWeek"&gt;
+ *          &lt;structure name="Person"&gt;
+ *              <b>&lt;value name="idref" style="attribute" field="employeeOfTheWeek"
+ *                serializer="org.dellroad.stuff.jibx.ParseUtil.serializeReference"
+ *                deserializer="com.example.Employee.deserializeEmployeeReference"</b>/&gt;
+ *          &lt;/structure&gt;
+ *      &lt;/structure&gt;
+ *  &lt;/mapping&gt;
+ * </pre></blockquote>
  *
  * @see IdMappingMarshaller
  */
@@ -155,14 +209,62 @@ public class IdMapper extends IdDefRefMapperBase {
     }
 
     /**
-     * Get the id value for the given object.
+     * Get the unique ID value for the given object.
      *
      * <p>
      * The implementation in {@link IdMapper} formats an ID of the form <code>N012345</code>
      * using the {@link IdGenerator} acquired from {@link IdGenerator#get}.
+     *
+     * @param obj any object
+     * @return unique ID for the object
      */
     public static String getId(Object obj) {
-        return String.format("N%05d", IdGenerator.get().getId(obj));
+        return IdMapper.formatId(IdGenerator.get().getId(obj));
+    }
+
+    /**
+     * Set the unique ID value for the given object.
+     *
+     * <p>
+     * The implementation in {@link IdMapper} expects an ID of the form <code>N012345</code>,
+     * then associates the parsed {@code long} value with the given object
+     * using the {@link IdGenerator} acquired from {@link IdGenerator#get}.
+     *
+     * @param obj object to register
+     * @param idref string ID assigned to the object
+     * @throws IllegalArgumentException if {@code idref} is not of the form <code>N012345</code>
+     * @throws IllegalArgumentException if {@code idref} is already associated with a different object
+     */
+    public static void setId(Object obj, String idref) {
+        IdGenerator.get().setId(obj, IdMapper.parseId(idref));
+    }
+
+    /**
+     * Format the unique ID.
+     *
+     * @param id ID value
+     * @return formatted idref
+     */
+    public static String formatId(long id) {
+        return String.format("N%05d", id);
+    }
+
+    /**
+     * Parse the unique ID value assigned to the given object by {@link #getId getId()}.
+     *
+     * @param idref ID value assigned to the object
+     * @return parse ID number
+     * @throws IllegalArgumentException if {@code idref} is not of the form <code>N012345</code>
+     */
+    public static long parseId(String idref) {
+        if (idref == null || idref.length() == 0 || !idref.matches("N-?\\d+"))
+            throw new IllegalArgumentException("invalid id value `" + idref + "'");
+        long id;
+        try {
+            return Long.parseLong(idref.substring(1), 10);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("invalid id value `" + idref + "'");
+        }
     }
 
     /**

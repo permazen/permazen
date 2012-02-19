@@ -7,6 +7,8 @@
 
 package org.dellroad.stuff.jibx;
 
+import org.jibx.runtime.JiBXParseException;
+
 public class Employee {
 
     private String name;
@@ -19,11 +21,15 @@ public class Employee {
     }
 
     // JiBX methods
-    private String getJiBXID() {
+    private String getJiBXId() {
         return IdMapper.getId(this);
     }
-    private void setJiBXID(String id) {
-        // do nothing
+    private void setJiBXId(String id) {
+        IdMapper.setId(this, id);
+    }
+
+    public static Employee deserializeEmployeeReference(String string) throws JiBXParseException {
+        return ParseUtil.deserializeReference(string, Employee.class);
     }
 }
 

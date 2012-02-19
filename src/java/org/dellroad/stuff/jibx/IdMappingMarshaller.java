@@ -8,17 +8,19 @@
 package org.dellroad.stuff.jibx;
 
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 
 import org.dellroad.stuff.java.IdGenerator;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.NestedRuntimeException;
 import org.springframework.oxm.Marshaller;
+import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.jibx.JibxMarshaller;
 
 /**
- * Wrapper for Spring's {@link JibxMarshaller} that performs marshalling operations
+ * Wrapper for Spring's {@link JibxMarshaller} that performs marshalling and unmarshalling operations
  * within an invocation of {@link IdGenerator#run IdGenerator.run()}. Simply set your
  * normal {@link JibxMarshaller} to the {@linkplain #setJibxMarshaller jibxMarshaller}
  * property and use this class in its place.
@@ -28,7 +30,7 @@ import org.springframework.oxm.jibx.JibxMarshaller;
  *
  * @see IdMapper
  */
-public class IdMappingMarshaller implements Marshaller, InitializingBean {
+public class IdMappingMarshaller implements Marshaller, Unmarshaller, InitializingBean {
 
     private JibxMarshaller jibxMarshaller;
 
@@ -47,23 +49,39 @@ public class IdMappingMarshaller implements Marshaller, InitializingBean {
 
     /**
      * Invokdes {@link JibxMarshaller#marshal JibxMarshaller.marshal()} on the configured
-     * {@link JibxMarshaller} within an invocation of {@link IdGenerator#run}.
+     * {@link JibxMarshaller} within an invocation of {@link IdGenerator#run(Callable) IdGenerator.run()}.
      */
     @Override
     public void marshal(final Object graph, final Result result) throws IOException {
         try {
-            IdGenerator.run(new Runnable() {
+            IdGenerator.run(new Callable<Void>() {
                 @Override
-                public void run() {
-                    try {
-                        IdMappingMarshaller.this.jibxMarshaller.marshal(graph, result);
-                    } catch (IOException e) {
-                        throw new NestedMarshalIOException(e);
-                    }
+                public Void call() throws Exception {
+                    IdMappingMarshaller.this.jibxMarshaller.marshal(graph, result);
+                    return null;
                 }
             });
-        } catch (NestedMarshalIOException e) {
-            throw e.getIOException();
+        } catch (Exception e) {
+            this.unwrapException(e);
+        }
+    }
+
+    /**
+     * Invokdes {@link JibxMarshaller#unmarshal JibxMarshaller.unmarshal()} on the configured
+     * {@link JibxMarshaller} within an invocation of {@link IdGenerator#run(Callable) IdGenerator.run()}.
+     */
+    @Override
+    public Object unmarshal(final Source source) throws IOException {
+        try {
+            return IdGenerator.run(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    return IdMappingMarshaller.this.jibxMarshaller.unmarshal(source);
+                }
+            });
+        } catch (Exception e) {
+            this.unwrapException(e);
+            return null;                // never reached
         }
     }
 
@@ -72,17 +90,12 @@ public class IdMappingMarshaller implements Marshaller, InitializingBean {
         return this.jibxMarshaller.supports(type);
     }
 
-    // Wrapper class for checked IOException
-    @SuppressWarnings("serial")
-    private static class NestedMarshalIOException extends NestedRuntimeException {
-
-        NestedMarshalIOException(IOException e) {
-            super(null, e);
-        }
-
-        public IOException getIOException() {
-            return (IOException)this.getCause();
-        }
+    private void unwrapException(Exception e) throws IOException {
+        if (e instanceof IOException)
+            throw (IOException)e.getCause();
+        if (e instanceof RuntimeException)
+            throw (RuntimeException)e;
+        throw new RuntimeException(e);
     }
 }
 

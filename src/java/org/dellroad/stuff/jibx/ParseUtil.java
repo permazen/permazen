@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.dellroad.stuff.java.IdGenerator;
 import org.dellroad.stuff.net.IPv4Util;
 import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.dellroad.stuff.string.DateEncoder;
@@ -104,6 +105,51 @@ public final class ParseUtil {
      */
     public static String serializeURI(URI uri) {
         return uri.toString();
+    }
+
+    /**
+     * Deserialize an object by reference.
+     *
+     * <p>
+     * Invoke this method from your own custom deserializer to produce an result of the correct type.
+     *
+     * <p>
+     * The object must have been unmarshalled already and had its ID registered via {@link IdMapper#setId}.
+     *
+     * @see #serializeReference
+     * @see IdMapper
+     */
+    public static <T> T deserializeReference(String string, Class<T> type) throws JiBXParseException {
+        if (string == null)
+            return null;
+        long id;
+        try {
+            id = IdMapper.parseId(string);
+        } catch (IllegalArgumentException e) {
+            throw new JiBXParseException("invalid object reference", string, e);
+        }
+        Object obj = IdGenerator.get().getObject(id);
+        if (obj == null)
+            throw new JiBXParseException("unregistered object reference", string);
+        try {
+            return type.cast(obj);
+        } catch (ClassCastException e) {
+            throw new JiBXParseException("object reference `" + string + "' is assigned to an instance of "
+              + obj.getClass() + " which is not assignable to " + type, string);
+        }
+    }
+
+    /**
+     * Serialize an object by reference.
+     *
+     * <p>
+     * The object must have been marshalled already and had its ID assigned via {@link IdMapper#getId}.
+     *
+     * @see #deserializeReference
+     * @see IdMapper
+     */
+    public static String serializeReference(Object obj) {
+        return IdMapper.formatId(IdGenerator.get().getId(obj));
     }
 
     /**

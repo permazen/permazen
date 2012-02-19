@@ -1,7 +1,11 @@
 Version Next
 
     - Catch XmlMappingExceptions in SpringDelegate to support "empty open"
-    - Add new methods IdGenerator.setId() and IdGenerator.getObject().
+    - Add to IdGenerator methods setId(), getObject(), and run(Callable)
+    - Execute all JiBXUtil methods within an invocation of IdGenerator.run()
+    - Add ParseUtil.(de)serializeReference() for simpler id/idref mappings
+    - Have IdMappingMarshaller implement Unmarshaller as well as Marshaller
+    - Add JiBXUtil method variants that take a binding name parameter
 
 Version 1.0.284 Released Feb 16, 2012
 

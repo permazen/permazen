@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<Company>
+    <Employees>
+        <Employee id="N00001">
+            <name>Aardvark, Annie</name>
+        </Employee>
+        <Employee id="N00002">
+            <name>Appleby, Arnold</name>
+        </Employee>
+        <Employee id="N00003">
+            <name>Aurgurkle, Doris</name>
+        </Employee>
+    </Employees>
+    <EmployeeOfTheWeek>
+        <Employee idref="N00002"/>
+    </EmployeeOfTheWeek>
+</Company>

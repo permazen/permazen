@@ -65,7 +65,8 @@
                 <pathelement location="${basedir}/build/test"/>
             </classes>
             <bindings>
-                <include name="src/test/org/dellroad/stuff/jibx/binding.xml"/>
+                <include name="src/test/org/dellroad/stuff/jibx/binding1.xml"/>
+                <include name="src/test/org/dellroad/stuff/jibx/binding2.xml"/>
                 <include name="src/test/org/dellroad/stuff/pobj/binding.xml"/>
             </bindings>
         </dellroad:jibx-bind>
