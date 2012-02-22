@@ -149,6 +149,8 @@ public final class ParseUtil {
      * @see IdMapper
      */
     public static String serializeReference(Object obj) {
+        if (obj == null)
+            return null;
         return IdMapper.formatId(IdGenerator.get().getId(obj));
     }
 

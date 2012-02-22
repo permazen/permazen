@@ -184,6 +184,24 @@ import org.jibx.runtime.impl.MarshallingContext;
  *      &lt;/structure&gt;
  *  &lt;/mapping&gt;
  * </pre></blockquote>
+ * </p>
+ *
+ * <p>
+ * If you want the reference to be optionally <code>null</code>, then you'll also need to add a <code>test-method</code>:
+ * <blockquote><pre>
+ *      <b>private boolean hasEmployeeOfTheWeek() {
+ *          return this.getEmployeeOfTheWeek() != null;
+ *      }</b>
+ *
+ *      &lt;structure name="EmployeeOfTheWeek" <b>usage="optional" test-method="hasEmployeeOfTheWeek"</b>&gt;
+ *          &lt;structure name="Person"&gt;
+ *              &lt;value name="idref" style="attribute" field="employeeOfTheWeek"
+ *                serializer="org.dellroad.stuff.jibx.ParseUtil.serializeReference"
+ *                deserializer="com.example.Employee.deserializeEmployeeReference"/&gt;
+ *          &lt;/structure&gt;
+ *      &lt;/structure&gt;
+ * </pre></blockquote>
+ * </p>
  *
  * @see IdMappingMarshaller
  */
