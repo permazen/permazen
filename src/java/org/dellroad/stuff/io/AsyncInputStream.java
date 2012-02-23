@@ -137,6 +137,9 @@ public class AsyncInputStream {
          * Handle an exception detected on the underlying input.
          * No further events will be delivered.
          *
+         * <p>
+         * Typically the assocaited {@link AsyncInputStream} will be closed in this callback.
+         *
          * @param e the exception received (usually {@link IOException} but could also be any other {@link RuntimeException})
          */
         void handleException(Throwable e);
@@ -144,6 +147,9 @@ public class AsyncInputStream {
         /**
          * Handle end-of-file detected on the underlying input.
          * No further events will be delivered.
+         *
+         * <p>
+         * Typically the assocaited {@link AsyncInputStream} will be closed in this callback.
          */
         void handleEOF();
     }
