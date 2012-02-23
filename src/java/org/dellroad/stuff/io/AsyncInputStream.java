@@ -69,6 +69,9 @@ public class AsyncInputStream {
 
     /**
      * Close this instance.
+     *
+     * <p>
+     * Does nothing if already closed.
      */
     public synchronized void close() {
         if (this.closed)
