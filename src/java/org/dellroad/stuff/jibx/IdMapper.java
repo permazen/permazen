@@ -201,6 +201,10 @@ import org.jibx.runtime.impl.MarshallingContext;
  *          &lt;/structure&gt;
  *      &lt;/structure&gt;
  * </pre></blockquote>
+ * This approach causes the whole <code>&lt;EmployeeOfTheWeek&gt;</code> element to disappear when there is no
+ * such employee. Alternately, you can avoid the need for the <code>test-method</code> if you want to allow
+ * just the attribute to disappear, or you could even change from <code>style="attribute"</code> to <code>style="element"</code>;
+ * in both cases you would be making the reference itself optional instead of the containing element.
  * </p>
  *
  * @see IdMappingMarshaller
