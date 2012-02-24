@@ -1,5 +1,6 @@
 Version Next
 
+    - Added CSVWriter
     - Catch all Exceptions in SpringDelegate to support "empty open"
     - Add to IdGenerator methods setId(), getObject(), and run(Callable)
     - Execute all JiBXUtil methods within an invocation of IdGenerator.run()

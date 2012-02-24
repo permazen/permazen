@@ -168,6 +168,7 @@
                 <link href="http://download.oracle.com/javaee/6/api/"/>
                 <link href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/"/>
                 <link href="http://jibx.sourceforge.net/api/"/>
+                <link href="http://opencsv.sourceforge.net/apidocs/"/>
                 <link href="https://vaadin.com/api/"/>
                 <link href="http://www.slf4j.org/api/"/>
             </links>
