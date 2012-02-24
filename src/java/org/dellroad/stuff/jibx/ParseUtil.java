@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -152,6 +153,17 @@ public final class ParseUtil {
         if (obj == null)
             return null;
         return IdMapper.formatId(IdGenerator.get().getId(obj));
+    }
+
+    /**
+     * Deserialize a {@link UUID}. No need for a custom serializer, as {@link UUID#toString} does the right thing.
+     */
+    public static UUID deserializeUUID(String string) throws JiBXParseException {
+        try {
+            return UUID.fromString(string);
+        } catch (IllegalArgumentException e) {
+            throw new JiBXParseException("invalid UUID", string, e);
+        }
     }
 
     /**

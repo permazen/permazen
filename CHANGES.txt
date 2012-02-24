@@ -4,7 +4,7 @@ Version Next
     - Catch all Exceptions in SpringDelegate to support "empty open"
     - Add to IdGenerator methods setId(), getObject(), and run(Callable)
     - Execute all JiBXUtil methods within an invocation of IdGenerator.run()
-    - Add ParseUtil.(de)serializeReference() for simpler id/idref mappings
+    - Add ParseUtil.(de)serializeReference() and ParseUtil.deserializeUUID()
     - Have IdMappingMarshaller implement Unmarshaller as well as Marshaller
     - Add JiBXUtil method variants that take a binding name parameter
 
