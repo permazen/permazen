@@ -89,7 +89,8 @@ public final class ParseUtil {
     /**
      * Deserialize an {@link URI}.
      *
-     * @see #serializeURI
+     * <p>
+     * Note: there is no need for a custom serializer, as {@link URI#toString} already does the right thing.
      */
     public static URI deserializeURI(String string) throws JiBXParseException {
         try {
@@ -102,8 +103,9 @@ public final class ParseUtil {
     /**
      * Serialize an {@link URI}.
      *
-     * @see #deserializeURI
+     * @deprecated This method is does the same thing as JiBX's default serialization via {@link Object#toString()}
      */
+    @Deprecated
     public static String serializeURI(URI uri) {
         return uri.toString();
     }
@@ -156,7 +158,10 @@ public final class ParseUtil {
     }
 
     /**
-     * Deserialize a {@link UUID}. No need for a custom serializer, as {@link UUID#toString} does the right thing.
+     * Deserialize a {@link UUID}.
+     *
+     * <p>
+     * Note: there is no need for a custom serializer, as {@link UUID#toString} already does the right thing.
      */
     public static UUID deserializeUUID(String string) throws JiBXParseException {
         try {
@@ -234,23 +239,6 @@ public final class ParseUtil {
                 b.append(String.format("%.3fs", (double)millis / 1000.0));
         }
         return b.toString();
-    }
-
-    /**
-     * Serialize an {@link Enum}.
-     *
-     * <p>
-     * This method is needed because of a bug in JiBX's default serialization of enum values.
-     *
-     * <p>
-     * To deserialize an enum of type {@code Foo}, use the static method {@code Foo.valueOf()}.
-     *
-     * @see <a href="http://jira.codehaus.org/browse/JIBX-408">JIBX-408</a>
-     * @deprecated <a href="http://jira.codehaus.org/browse/JIBX-408">JIBX-408</a> has been fixed in JiBX version 1.2.3
-     */
-    @Deprecated
-    public static <T extends Enum<T>> String serializeEnum(T value) {
-        return value.name();
     }
 
     /**
@@ -439,7 +427,8 @@ public final class ParseUtil {
     /**
      * Deserialize a {@link Pattern}.
      *
-     * @see #serializePattern
+     * <p>
+     * Note: there is no need for a custom serializer, as {@link Pattern#toString} already does the right thing.
      */
     public static Pattern deserializePattern(String string) throws JiBXParseException {
         try {
@@ -452,8 +441,9 @@ public final class ParseUtil {
     /**
      * Serialize an {@link Pattern}.
      *
-     * @see #deserializePattern
+     * @deprecated This method is does the same thing as JiBX's default serialization via {@link Object#toString()}
      */
+    @Deprecated
     public static String serializePattern(Pattern pattern) {
         return pattern.toString();
     }
