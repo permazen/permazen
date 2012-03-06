@@ -144,7 +144,7 @@ public class PersistentObject<T> {
      * @throws IllegalArgumentException if {@code delegate} or {@code file} is null
      * @throws IllegalArgumentException if {@code writeDelay} or {@code checkInterval} is negative
      */
-    protected PersistentObject(PersistentObjectDelegate<T> delegate, File file, long writeDelay, long checkInterval) {
+    public PersistentObject(PersistentObjectDelegate<T> delegate, File file, long writeDelay, long checkInterval) {
         if (delegate == null)
             throw new IllegalArgumentException("null delegate");
         if (file == null)
@@ -157,6 +157,19 @@ public class PersistentObject<T> {
         this.persistentFile = file;
         this.writeDelay = writeDelay;
         this.checkInterval = checkInterval;
+    }
+
+    /**
+     * Simplified constructor configuring for immediate write-back and no persistent file checks.
+     *
+     * <p>
+     * Equivalent to:
+     * <blockquote><code>
+     *  PersistentObject(delegate, file, 0L, 0L);
+     * </code></blockquote>
+     */
+    public PersistentObject(PersistentObjectDelegate<T> delegate, File file) {
+        this(delegate, file, 0, 0);
     }
 
     /**

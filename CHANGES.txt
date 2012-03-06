@@ -7,6 +7,7 @@ Version Next
     - Add ParseUtil.(de)serializeReference() and ParseUtil.deserializeUUID()
     - Have IdMappingMarshaller implement Unmarshaller as well as Marshaller
     - Add JiBXUtil method variants that take a binding name parameter
+    - Fixed access permission bug in PersistentObject constructor
     - Added Pattern validation constraint
 
 Version 1.0.284 Released Feb 16, 2012
