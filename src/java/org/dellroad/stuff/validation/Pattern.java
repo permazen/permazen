@@ -29,7 +29,7 @@ import javax.validation.ReportAsSingleViolation;
 @ReportAsSingleViolation
 public @interface Pattern {
 
-    String message() default "Does not match the pattern \"{regex}\"";
+    String message() default "Does not match the pattern \"{regexp}\"";
 
     Class<?>[] groups() default {};
 
