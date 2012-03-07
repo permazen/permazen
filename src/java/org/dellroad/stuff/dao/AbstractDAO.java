@@ -12,6 +12,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -106,6 +107,8 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
 
     /**
      * Find a unique instance using a query string and query parameters.
+     *
+     * @return unique instance found, or null if none was found
      */
     protected T findUnique(final String queryString, final Object... params) {
         return this.getBy(new DAOQueryUniqueCallback() {
@@ -117,7 +120,7 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
     }
 
     /**
-     * Get the unique instance matched by the given query callback.
+     * Search using a {@link QueryCallback}.
      */
     protected <R> R getBy(QueryCallback<R> callback) {
         return this.getJpaTemplate().execute(callback);
@@ -241,12 +244,19 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
 
     /**
      * Convenience subclass of {@link QueryCallback} for use by DAO subclasses when returning a single persistent instance.
+     *
+     * <p>
+     * Returns null if instance is not found.
      */
     protected abstract class DAOQueryUniqueCallback extends TypedQueryCallback<T, T> {
 
         @Override
         protected final T executeQuery(TypedQuery<T> query) {
-            return query.getSingleResult();
+            try {
+                return query.getSingleResult();
+            } catch (NoResultException e) {
+                return null;
+            }
         }
     }
 
@@ -267,6 +277,9 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
 
     /**
      * Convenience subclass of {@link CriteriaCallback} for use by DAO subclasses when returning a single persistent instance.
+     *
+     * <p>
+     * Returns null if instance is not found.
      */
     protected abstract class DAOCriteriaUniqueCallback extends CriteriaCallback<T, T> {
 
@@ -276,7 +289,11 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
 
         @Override
         protected final T executeQuery(TypedQuery<T> query) {
-            return query.getSingleResult();
+            try {
+                return query.getSingleResult();
+            } catch (NoResultException e) {
+                return null;
+            }
         }
     }
 }
