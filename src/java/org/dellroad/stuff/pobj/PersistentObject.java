@@ -262,6 +262,13 @@ public class PersistentObject<T> {
     }
 
     /**
+     * Determine whether this instance is started.
+     */
+    public synchronized boolean isStarted() {
+        return this.started;
+    }
+
+    /**
      * Start this instance. Does nothing if already started.
      *
      * @throws PersistentObjectException if an error occurs

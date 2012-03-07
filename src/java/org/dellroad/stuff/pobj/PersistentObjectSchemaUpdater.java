@@ -158,23 +158,27 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
         if (this.numBackups < 0)
             throw new IllegalArgumentException("negative numBackups configured");
 
+        // Create persistent object
+        this.persistentObject = new PersistentObject<T>(new UpdaterDelegate(), this.file, this.writeDelay, this.checkInterval);
+        this.persistentObject.setNumBackups(this.numBackups);
+        this.persistentObject.setAllowEmptyStart(this.allowEmptyStart);
+
         // Do schema updates
+        boolean success = false;
         try {
             this.initializeAndUpdateDatabase(this.file);
+            success = true;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new PersistentObjectException(e);
+        } finally {
+            if (!success)
+                this.persistentObject = null;
         }
 
-        // Create and start persistent object
-        PersistentObject<T> pobj = new PersistentObject<T>(new UpdaterDelegate(), this.file, this.writeDelay, this.checkInterval);
-        pobj.setNumBackups(this.numBackups);
-        pobj.setAllowEmptyStart(this.allowEmptyStart);
-        pobj.start();
-
-        // Done
-        this.persistentObject = pobj;
+        // Start persistent object
+        this.persistentObject.start();
     }
 
     /**
