@@ -28,7 +28,6 @@ public class CSVOutput {
 
     private final CSVWriter writer;
     private final String[] columns;
-    private boolean header;
 
     /**
      * Constructor.
@@ -79,12 +78,15 @@ public class CSVOutput {
                 throw new IllegalArgumentException("duplicate column name `" + column + "'");
         }
         this.columns = columnSet.toArray(new String[columnSet.size()]);
+
+        // Output header
+        this.writer.writeNext(this.columns);
     }
 
     /**
      * Output a CSV row.
      *
-     * @param row mapping from column name to value
+     * @param row mapping from column name to value; missing or values are treated as null
      * @throws IllegalArgumentException if {@code row} contains an unknown column name
      */
     public void writeRow(Map<String, ?> row) {
@@ -99,12 +101,6 @@ public class CSVOutput {
         String[] values = new String[this.columns.length];
         for (int i = 0; i < this.columns.length; i++)
             values[i] = this.formatObject(this.columns[i], row.get(this.columns[i]));
-
-        // Output header
-        if (!this.header) {
-            this.writer.writeNext(this.columns);
-            this.header = true;
-        }
 
         // Output row
         this.writer.writeNext(values);
