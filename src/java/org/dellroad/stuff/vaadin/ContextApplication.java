@@ -15,6 +15,11 @@ import com.vaadin.ui.Window;
 import java.net.SocketException;
 import java.util.EventObject;
 import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,6 +55,8 @@ public abstract class ContextApplication extends Application implements HttpServ
 
     private final HashSet<CloseListener> closeListeners = new HashSet<CloseListener>();
 
+    private volatile ExecutorService executorService;
+
 // Initialization
 
     /**
@@ -61,8 +68,22 @@ public abstract class ContextApplication extends Application implements HttpServ
      */
     @Override
     public final void init() {
+
+        // Set current application
         CURRENT_APPLICATION.set(this);
-        this.initApplication();
+
+        // Create executor service
+        this.executorService = Executors.newSingleThreadExecutor();
+
+        // Initialize application
+        boolean initialized = false;
+        try {
+            this.initApplication();
+            initialized = true;
+        } finally {
+            if (!initialized)
+                this.shutdownExecutorService();
+        }
     }
 
     /**
@@ -148,6 +169,7 @@ public abstract class ContextApplication extends Application implements HttpServ
      * @param action action to perform
      * @throws IllegalStateException if a different {@link ContextApplication} is already set as the current application
      *  associated with the current thread
+     * @see #invokeLater invokeLater()
      */
     public void invoke(Runnable action) {
         final ContextApplication previous = ContextApplication.CURRENT_APPLICATION.get();
@@ -161,6 +183,33 @@ public abstract class ContextApplication extends Application implements HttpServ
         } finally {
             ContextApplication.CURRENT_APPLICATION.set(previous);
         }
+    }
+
+    /**
+     * Set this instance as the "current application" and invoke the given callback from within another thread.
+     *
+     * <p>
+     * This method functions like {@like #invoke invoke()} except that {@code action} will be invoked from within
+     * a separate thread dedicated to this application instance. This is useful to reduce Vaadin application lock
+     * contention, by performing Vaadin-related actions in a separate, dedicated thread. Actions are executed
+     * in the order they are given to this method.
+     * </p>
+     *
+     * <p>
+     * The returned {@link Future}'s {@link Future#get get()} method will return null upon successful completion.
+     * This method itself always returns immediately.
+     * </p>
+     *
+     * @param action action to perform
+     * @return a {@link Future} representing the pending results of {@code action}
+     * @throws IllegalStateException if this instance is not initialized or has been closed
+     * @see #invoke invoke()
+     */
+    public Future<?> invokeLater(Runnable action) {
+        ExecutorService executor = this.executorService;
+        if (executor == null)
+            throw new IllegalStateException("application instance is either not initialized or already closed");
+        return executor.submit(new LaterRunnable(action));
     }
 
     /**
@@ -324,7 +373,11 @@ public abstract class ContextApplication extends Application implements HttpServ
      */
     @Override
     public void close() {
+
+        // Invoke superclass
         super.close();
+
+        // Notify listeners
         CloseEvent closeEvent = new CloseEvent(this);
         for (CloseListener closeListener : this.getCloseListeners()) {
             try {
@@ -332,9 +385,39 @@ public abstract class ContextApplication extends Application implements HttpServ
             } catch (ThreadDeath t) {
                 throw t;
             } catch (Throwable t) {
-                this.log.error("exception thrown by CloseListener", t);
+                this.log.error("exception thrown by CloseListener " + closeListener, t);
             }
         }
+
+        // Shutdown ExecutorService
+        this.shutdownExecutorService();
+    }
+
+    private void shutdownExecutorService() {
+
+        // Already shutdown?
+        if (this.executorService == null)
+            return;
+
+        // Shut it down; waiting up to 1 second to finish
+        this.executorService.shutdown();
+        boolean terminated = false;
+        try {
+            terminated = this.executorService.awaitTermination(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            // ok, give up
+        }
+
+        // Log warnings if it didn't finish
+        if (!terminated) {
+            this.log.warn("forcibly terminating outstanding tasks for closed Vaadin application " + this);
+            List<Runnable> list = this.executorService.shutdownNow();
+            if (!list.isEmpty())
+                this.log.warn(list.size() + " outstanding task(s) remain for closed Vaadin application " + this + ": " + list);
+        }
+
+        // Done
+        this.executorService = null;
     }
 
     /**
@@ -388,6 +471,32 @@ public abstract class ContextApplication extends Application implements HttpServ
          */
         public ContextApplication getContextApplication() {
             return (ContextApplication)super.getSource();
+        }
+    }
+
+    // Used by invokeLater()
+    private class LaterRunnable implements Runnable {
+
+        private final Runnable action;
+
+        LaterRunnable(Runnable action) {
+            this.action = action;
+        }
+
+        @Override
+        public void run() {
+            try {
+                ContextApplication.this.invoke(this.action);
+            } catch (ThreadDeath t) {
+                throw t;
+            } catch (Throwable e) {
+                ContextApplication.this.log.error("exception thrown by invokeLater() action " + this.action, e);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return this.action.toString();
         }
     }
 }
