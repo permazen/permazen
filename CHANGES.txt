@@ -1,4 +1,4 @@
-Version Next
+Version 1.0.315 Released March 26, 2012
 
     - Added CSVWriter
     - Added ContextApplication.invokeLater()
