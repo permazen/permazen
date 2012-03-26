@@ -40,7 +40,7 @@ public final class DateEncoder {
      */
     public static String encode(Date date) {
         String format = (date.getTime() % 1000 != 0 ? FORMAT_MILLIS : FORMAT_SECONDS) + FORMAT_Z_SUFFIX;
-        return getDateFormat(format).format(date);
+        return DateEncoder.getDateFormat(format).format(date);
     }
 
     /**
@@ -64,7 +64,12 @@ public final class DateEncoder {
         }
     }
 
-    private static SimpleDateFormat getDateFormat(String format) {
+    /**
+     * Get a {@link SimpleDateFormat} configured with the given format and for the UTC time zone and strict parsing.
+     *
+     * @param format date format string
+     */
+    public static SimpleDateFormat getDateFormat(String format) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         dateFormat.setLenient(false);
