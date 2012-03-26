@@ -159,7 +159,7 @@ import org.jibx.runtime.impl.MarshallingContext;
  * Then, map the first occurrence of an object exactly as in the concrete mapping above, exposing the <code>JiBXId</code> property.
  * In all subsequent occurrences of the object, expose the reference to the object as a simple property using the custom
  * serializer/deserializer pair {@link ParseUtil#serializeReference ParseUtil.serializeReference()} and
- * {@link ParseUtil#deserializeReference ParseUtil.deserializeReference()}.
+ * {@code Employee.deserializeEmployeeReference()}.
  * </p>
  *
  * <p>
