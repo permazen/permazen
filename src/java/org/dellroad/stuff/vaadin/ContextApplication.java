@@ -189,7 +189,7 @@ public abstract class ContextApplication extends Application implements HttpServ
      * Set this instance as the "current application" and invoke the given callback from within another thread.
      *
      * <p>
-     * This method functions like {@like #invoke invoke()} except that {@code action} will be invoked from within
+     * This method functions like {@link #invoke invoke()} except that {@code action} will be invoked from within
      * a separate thread dedicated to this application instance. This is useful to reduce Vaadin application lock
      * contention, by performing Vaadin-related actions in a separate, dedicated thread. Actions are executed
      * in the order they are given to this method.
