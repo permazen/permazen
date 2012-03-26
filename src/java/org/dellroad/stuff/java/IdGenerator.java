@@ -129,7 +129,7 @@ public class IdGenerator {
         Reference<? extends Object> entry;
         while ((entry = this.queue.poll()) != null) {
             Ref ref = (Ref)entry;
-            long id = this.idMap.get(ref);
+            Long id = this.idMap.get(ref);
             this.idMap.remove(ref);
             this.refMap.remove(id);
         }
