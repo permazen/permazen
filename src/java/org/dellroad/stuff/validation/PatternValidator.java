@@ -16,7 +16,7 @@ import javax.validation.ConstraintValidatorContext;
 /**
  * Validator for the @{@link Pattern} constraint.
  *
- * @see Sorted
+ * @see Pattern
  */
 public class PatternValidator extends AbstractValidator<Pattern, Object> {
 
