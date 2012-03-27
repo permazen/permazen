@@ -67,10 +67,6 @@ public class TopologicalSorter<E> {
      * in either direction, then X will appear before Y if the tie breaker sorts X before Y.
      * </p>
      *
-     * <p>
-     * This implementation runs in linear time in the number of nodes and edges in the graph.
-     * </p>
-     *
      * @return sorted, mutable list of nodes
      * @throws IllegalArgumentException if the partial ordering relation contains a cycle
      */
