@@ -68,7 +68,7 @@ public class TopologicalSorter<E> {
      * </p>
      *
      * <p>
-     * This implementation runs in linear time in the number of nodes in the graph.
+     * This implementation runs in linear time in the number of nodes and edges in the graph.
      * </p>
      *
      * @return sorted, mutable list of nodes
