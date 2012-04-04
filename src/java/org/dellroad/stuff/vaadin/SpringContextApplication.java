@@ -71,8 +71,8 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  *
  *      &#64;Override
  *      public void initSpringApplication(ConfigurableWebApplicationContext context) {
- *          this.mainWindow = new Window("MyApplication", this.mainPanel);
- *          this.setMainWindow(this.mainWindow);
+ *          Window mainWindow = new Window("MyApplication", this.mainPanel);
+ *          this.setMainWindow(mainWindow);
  *      }
  *
  *      ...
