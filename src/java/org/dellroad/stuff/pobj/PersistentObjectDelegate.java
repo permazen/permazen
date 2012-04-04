@@ -24,7 +24,7 @@ import javax.xml.transform.Source;
 public interface PersistentObjectDelegate<T> {
 
     /**
-     * Serialize a root object into XML.
+     * Serialize a root object graph into XML.
      *
      * <p>
      * Note that this method effectively defines what is contained in the object graph
@@ -40,7 +40,11 @@ public interface PersistentObjectDelegate<T> {
     void serialize(T obj, Result result) throws IOException;
 
     /**
-     * Deserialize a root object from XML.
+     * Deserialize a root object graph from XML.
+     *
+     * <p>
+     * This method also presents an opportunity to (re)construct any indexes used for optimizing queries
+     * into the root object graph.
      *
      * @param source XML source
      * @return deserialized object
