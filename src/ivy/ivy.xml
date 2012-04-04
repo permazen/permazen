@@ -15,7 +15,7 @@
     </configurations>
 
     <dependencies>
-        <dependency force="true" org="com.vaadin" name="vaadin" rev="6.6.6" conf="build->default"/>
+        <dependency force="true" org="com.vaadin" name="vaadin" rev="6.7+" conf="build->default"/>
         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="build->default"/>
         <dependency force="true" org="javax.persistence" name="persistence-api" rev="2.0" conf="build->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="build->default"/>
@@ -27,7 +27,7 @@
         <dependency force="true" org="org.hamcrest" name="hamcrest" rev="1.1" conf="build->default"/>
         <dependency force="true" org="org.slf4j" name="slf4j" rev="1.6.1" conf="build->default;test->log4j"/>
         <dependency force="true" org="org.springframework" name="spring" rev="3.0+"
-          conf="build->aop,aspects,context-support,expression,orm,oxm,tx,web-servlet"/>
+          conf="build->aop,beans,aspects,context-support,expression,orm,oxm,tx,web-servlet"/>
         <dependency force="true" org="org.aopalliance" name="aopalliance" rev="1.+" conf="build->default"/>
         <dependency force="true" org="org.hibernate" name="hibernate-validator" rev="4.1.0.Final" conf="test->default"/>
         <dependency force="true" org="org.aspectj" name="aspectj" rev="1.6+" conf="build->tools"/>

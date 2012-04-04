@@ -7,6 +7,8 @@
 
 package org.dellroad.stuff.vaadin;
 
+import com.vaadin.Application;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -15,6 +17,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -48,26 +52,49 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * application context (this naming scheme {@linkplain #getApplicationName can be overriden}).
  * </p>
  *
- * <h3>Application as Bean</h3>
+ * <h3>Vaadin Application as BeanFactory singleton</h3>
  *
  * <p>
- * This {@link SpringContextApplication} instance can itself be exposed in and configured by the associated Spring
- * application context by using a bean definition invoking the static factory method {@link ContextApplication#get}:
+ * This {@link SpringContextApplication} instance can itself be exposed in, and configured by, the associated Spring
+ * application context. Simply create a bean definition that invokes {@link ContextApplication#get}:
  * <blockquote><pre>
  *  &lt;bean id="myVaadinApplication" class="org.dellroad.stuff.vaadin.ContextApplication" factory-method="get"/&gt;
  * </pre></blockquote>
- * Note however that Spring will autowire this bean based on the type {@link ContextApplication} rather than it's actual type.
- * To make Spring aware of your Vaadin application's actual type, you can add a custom factory method to your application class:
+ *
+ * <p>
+ * This then allows you to autowire the {@link SpringContextApplication} and other UI components together, e.g.:
  * <blockquote><pre>
- *  public class MyVaadinApplication extends SpringContextApplication {
-
- *      public MyApplication get() {
- *          return ContextApplication.get(MyApplication.class);
+ *  public class MyApplication extends SpringContextApplication {
+ *
+ *      &#64;Autowired
+ *      private MainPanel mainPanel;
+ *
+ *      &#64;Override
+ *      public void initSpringApplication(ConfigurableWebApplicationContext context) {
+ *          this.mainWindow = new Window("MyApplication", this.mainPanel);
+ *          this.setMainWindow(this.mainWindow);
  *      }
+ *
+ *      ...
  *  }
  *
- *  &lt;bean id="myVaadinApplication" class="com.example.MyApplication" factory-method="get"/&gt;
+ *  &#64;Component
+ *  public class MainPanel extends VerticalLayout {
+ *
+ *      &#64;Autowired
+ *      private MyApplication application;
+ *
+ *      ...
+ *  }
  * </pre></blockquote>
+ * </p>
+ *
+ * <p>
+ * Even if you don't explicitly define the {@link SpringContextApplication} bean in your Spring application context,
+ * it will still be available as a dependency for autowiring into other beans (this is accomplished using
+ * {@link ConfigurableListableBeanFactory#registerResolvableDependency
+ * ConfigurableListableBeanFactory.registerResolvableDependency()}). Of course, in this case the
+ * {@link SpringContextApplication} bean won't itself be autowired or configured.
  * </p>
  *
  * <h3><code>@VaadinConfigurable</code> Beans</h3>
@@ -97,7 +124,6 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * </p>
  *
  * @see ContextApplication#get
- * @see ContextApplicationFactoryBean
  * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">Example Code on GitHub</a>
  */
 @SuppressWarnings("serial")
@@ -244,6 +270,14 @@ public abstract class SpringContextApplication extends ContextApplication {
 
         // Register listener so we can notify subclass on refresh events
         this.context.addApplicationListener(new SourceFilteringListener(this.context, new RefreshListener()));
+
+        // Register this instance as an implicitly resolvable dependency
+        this.context.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
+            @Override
+            public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+                beanFactory.registerResolvableDependency(Application.class, SpringContextApplication.this);
+            }
+        });
 
         // Invoke any subclass setup
         this.postProcessWebApplicationContext(context);
