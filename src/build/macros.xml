@@ -923,6 +923,28 @@
         </sequential>
     </macrodef>
 
+    <!--
+        JPA metamodel generation
+
+        Requires:
+            path "metamodel.classpath"
+    -->
+    <macrodef uri="urn:org.dellroad.ant" name="metamodel">
+        <attribute name="pxml" description="Location of persistence.xml"/>
+        <attribute name="pkgs" description="Java packages to compile" default=""/>
+        <sequential>
+            <delete dir="build/metamodel"/>
+            <mkdir dir="build/metamodel/src"/>
+            <mkdir dir="build/metamodel/pxml/META-INF"/>
+            <!-- <copy todir="build/metamodel/pxml/META-INF" file="@{pxml}"/> -->
+            <dellroad:javac-default srcdir="src/java" includes="@{pkgs}" destdir="build/metamodel/src">
+                <classpath refid="metamodel.classpath"/>
+                <classpath path="build/metamodel/pxml"/>
+                <compilerarg line="-proc:only"/>
+            </dellroad:javac-default>
+        </sequential>
+    </macrodef>
+
 <!--
         ************* PREDEFINED TARGETS ****************
 -->
@@ -964,11 +986,13 @@
                             <include name="**/*.java"/>
                             <exclude name="**/package-info.java"/>
                         </fileset>
+                        <fileset dir="build/metamodel/src" includes="**/*.java"/>
                     </sourcefiles>
                     <mapper type="glob" dir="src/java" from="*.java" to="build/classes/*.class"/>
+                    <mapper type="glob" dir="build/metamodel/src" from="*.java" to="build/classes/*.class"/>
                     <sequential>
                         <mkdir dir="build/classes"/>
-                        <dellroad:javac-default srcdir="src/java" destdir="build/classes">
+                        <dellroad:javac-default srcdir="src/java:build/metamodel/src" destdir="build/classes">
                             <classpath refid="javac.classpath"/>
                             <compilerarg line="-proc:none"/>
                         </dellroad:javac-default>
