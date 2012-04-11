@@ -166,8 +166,7 @@ import org.jibx.runtime.impl.MarshallingContext;
  * For example, the following binding would yeild the same XML encoding as before:
  * <blockquote><pre>
  *  &lt;mapping abstract="true" type-name="person" class="com.example.Person"&gt;
- *      <b>&lt;value name="id" style="attribute" ident="def"
- *        get-method="getJiBXId" set-method="setJiBXId"/&gt;</b>
+ *      <b>&lt;value name="id" style="attribute" get-method="getJiBXId" set-method="setJiBXId"/&gt;</b>
  *      &lt;value name="name" field="name"/&gt;
  *  &lt;/mapping&gt;
  *
