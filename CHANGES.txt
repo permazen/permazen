@@ -4,6 +4,7 @@ Next Version
       SpringContextApplication bean; this also eliminates the requirement
       to create custom static get() method in subclass (issue #7)
     - Removed deprecated ContextApplicationFactoryBean
+    - Added @EntityManagerAvailable Spring annotation
 
 Version 1.0.315 Released March 26, 2012
 
