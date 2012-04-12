@@ -980,24 +980,47 @@
             <available file="src/java" type="dir"/>
             <antcontrib:then>
                 <mkdir dir="build/classes"/>
-                <antcontrib:outofdate>
-                    <sourcefiles>
-                        <fileset dir="src/java">
-                            <include name="**/*.java"/>
-                            <exclude name="**/package-info.java"/>
-                        </fileset>
-                        <fileset dir="build/metamodel/src" includes="**/*.java"/>
-                    </sourcefiles>
-                    <mapper type="glob" dir="src/java" from="*.java" to="build/classes/*.class"/>
-                    <mapper type="glob" dir="build/metamodel/src" from="*.java" to="build/classes/*.class"/>
-                    <sequential>
-                        <mkdir dir="build/classes"/>
-                        <dellroad:javac-default srcdir="src/java:build/metamodel/src" destdir="build/classes">
-                            <classpath refid="javac.classpath"/>
-                            <compilerarg line="-proc:none"/>
-                        </dellroad:javac-default>
-                    </sequential>
-                </antcontrib:outofdate>
+                <antcontrib:if>
+                    <available file="build/metamodel/src" type="dir"/>
+                    <antcontrib:then>
+                        <antcontrib:outofdate>
+                            <sourcefiles>
+                                <fileset dir="src/java">
+                                    <include name="**/*.java"/>
+                                    <exclude name="**/package-info.java"/>
+                                </fileset>
+                                <fileset dir="build/metamodel/src" includes="**/*.java"/>
+                            </sourcefiles>
+                            <mapper type="glob" dir="src/java" from="*.java" to="build/classes/*.class"/>
+                            <mapper type="glob" dir="build/metamodel/src" from="*.java" to="build/classes/*.class"/>
+                            <sequential>
+                                <mkdir dir="build/classes"/>
+                                <dellroad:javac-default srcdir="src/java:build/metamodel/src" destdir="build/classes">
+                                    <classpath refid="javac.classpath"/>
+                                    <compilerarg line="-proc:none"/>
+                                </dellroad:javac-default>
+                            </sequential>
+                        </antcontrib:outofdate>
+                    </antcontrib:then>
+                    <antcontrib:else>
+                        <antcontrib:outofdate>
+                            <sourcefiles>
+                                <fileset dir="src/java">
+                                    <include name="**/*.java"/>
+                                    <exclude name="**/package-info.java"/>
+                                </fileset>
+                            </sourcefiles>
+                            <mapper type="glob" dir="src/java" from="*.java" to="build/classes/*.class"/>
+                            <sequential>
+                                <mkdir dir="build/classes"/>
+                                <dellroad:javac-default srcdir="src/java" destdir="build/classes">
+                                    <classpath refid="javac.classpath"/>
+                                    <compilerarg line="-proc:none"/>
+                                </dellroad:javac-default>
+                            </sequential>
+                        </antcontrib:outofdate>
+                    </antcontrib:else>
+                </antcontrib:if>
             </antcontrib:then>
         </antcontrib:if>
 
