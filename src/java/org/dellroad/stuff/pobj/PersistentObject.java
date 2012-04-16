@@ -394,7 +394,7 @@ public class PersistentObject<T> {
      * Use {@link #getSharedRoot} instead to avoid the cost of the deep copy at the risk of seeing modifications
      * caused by other invokers.
      *
-     * @return the current root instance, or null if after an "empty start"
+     * @return the current root instance, or null during an empty start or empty stop
      * @throws IllegalStateException if this instance is not started
      * @throws PersistentObjectException if an error occurs
      */
@@ -416,7 +416,8 @@ public class PersistentObject<T> {
      * This method is more efficient than {@link #getRoot}, but all callers must agree not to modify the returned object
      * or any object in its graph of references.
      *
-     * @return shared copy of the root instance, or null if after an "empty start"
+     * @return shared copy of the root instance, or null during an empty start or empty stop
+     * @throws IllegalStateException if this instance is not started
      */
     public synchronized T getSharedRoot() {
         if (this.sharedRoot == null)
