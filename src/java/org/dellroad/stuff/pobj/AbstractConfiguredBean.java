@@ -31,15 +31,15 @@ import org.springframework.beans.factory.InitializingBean;
  * At any point in time, {@link #getBeanConfig} (and it's alternate form {@link #getRequiredConfig}) access this bean's current
  * configuration (if any).
  *
- * @param <C> type of the configuration object root
- * @param <T> type of the sub-graph of C that this bean is configured by
+ * @param <ROOT> type of the configuration object root
+ * @param <T> type of the sub-graph of ROOT that this bean is configured by
  */
-public abstract class AbstractConfiguredBean<C, T> implements BeanNameAware,
-  InitializingBean, DisposableBean, PersistentObjectListener<C> {
+public abstract class AbstractConfiguredBean<ROOT, T> implements BeanNameAware,
+  InitializingBean, DisposableBean, PersistentObjectListener<ROOT> {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private PersistentObject<C> persistentObject;
+    private PersistentObject<ROOT> persistentObject;
     private String beanName;
     private boolean running;
     private boolean configured;
@@ -55,7 +55,7 @@ public abstract class AbstractConfiguredBean<C, T> implements BeanNameAware,
      *
      * @param persistentObject keeper of the current configuration
      */
-    protected AbstractConfiguredBean(PersistentObject<C> persistentObject) {
+    protected AbstractConfiguredBean(PersistentObject<ROOT> persistentObject) {
         this.setPersistentObject(persistentObject);
     }
 
@@ -64,7 +64,7 @@ public abstract class AbstractConfiguredBean<C, T> implements BeanNameAware,
      *
      * @param persistentObject keeper of the this bean's configuration
      */
-    protected void setPersistentObject(PersistentObject<C> persistentObject) {
+    protected void setPersistentObject(PersistentObject<ROOT> persistentObject) {
         this.persistentObject = persistentObject;
     }
 
@@ -125,7 +125,7 @@ public abstract class AbstractConfiguredBean<C, T> implements BeanNameAware,
     }
 
     @Override
-    public final synchronized void handleEvent(PersistentObjectEvent<C> event) {
+    public final synchronized void handleEvent(PersistentObjectEvent<ROOT> event) {
 
         // Handle race condition vs. destroy()
         if (!this.running)
@@ -224,7 +224,7 @@ public abstract class AbstractConfiguredBean<C, T> implements BeanNameAware,
      * @param rootConfig root config object, never null
      * @return this bean's config object
      */
-    protected abstract T getBeanConfig(C rootConfig);
+    protected abstract T getBeanConfig(ROOT rootConfig);
 
     /**
      * Get the current configuration (sub-tree) object appropriate for this instance, or null if not configured.
@@ -233,7 +233,7 @@ public abstract class AbstractConfiguredBean<C, T> implements BeanNameAware,
      *  or the {@link PersistentObject} has been stopped
      */
     protected synchronized T getBeanConfig() {
-        C rootConfig;
+        ROOT rootConfig;
         synchronized (this.persistentObject) {
             if (!this.persistentObject.isStarted())
                 return null;
