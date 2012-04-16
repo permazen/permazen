@@ -27,7 +27,7 @@ import org.springframework.core.io.Resource;
  * The {@link #setTransform transform} property is required.
  *
  * <p>
- * See {@link SpringPersistentObjectSchemaUpdater} for a Spring configuration example.
+ * See {@link SpringPersistentObjectSchemaUpdater} for a Spring XML configuration example.
  *
  * @param <T> type of the persistent object
  */
@@ -35,6 +35,7 @@ public class SpringXSLPersistentObjectSchemaUpdate<T> extends SpringPersistentOb
 
     private Resource transform;
     private Properties parameters;
+    private TransformerFactory transformerFactory;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -62,6 +63,17 @@ public class SpringXSLPersistentObjectSchemaUpdate<T> extends SpringPersistentOb
     }
 
     /**
+     * Configure the {@link TransformerFactory} used to create the {@link Transformer} that will be
+     * used to apply the {@linkplain #setTransform configured XSL transform}.
+     *
+     * <p>
+     * This property is optional; if not specified, {@link TransformerFactory#newInstance} is used.
+     */
+    public void setTransformerFactory(TransformerFactory transformerFactory) {
+        this.transformerFactory = transformerFactory;
+    }
+
+    /**
      * Apply this update to the given transaction.
      */
     @Override
@@ -77,8 +89,10 @@ public class SpringXSLPersistentObjectSchemaUpdate<T> extends SpringPersistentOb
         try {
 
             // Setup transformer
-            Transformer transformer = TransformerFactory.newInstance().newTransformer(
-              new StreamSource(input, this.transform.getURI().toString()));
+            TransformerFactory tf = this.transformerFactory;
+            if (tf == null)
+                tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer(new StreamSource(input, this.transform.getURI().toString()));
             transformer.setErrorListener(new TransformErrorListener(LoggerFactory.getLogger(this.getClass()), true));
             if (this.parameters != null) {
                 for (String name : this.parameters.stringPropertyNames())
