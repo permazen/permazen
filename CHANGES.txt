@@ -7,6 +7,7 @@ Next Version
     - Added @EntityManagerAvailable Spring annotation
     - Add SpringXSLPersistentObjectSchemaUpdate.setTransformerFactory()
     - Add support for "empty stops" in PersistentObject
+    - Add AbstractConfiguredBean
 
 Version 1.0.315 Released March 26, 2012
 
