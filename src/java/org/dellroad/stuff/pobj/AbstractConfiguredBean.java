@@ -247,7 +247,7 @@ public abstract class AbstractConfiguredBean<ROOT, T> implements BeanNameAware,
     /**
      * Get the current configuration (sub-tree) object appropriate for this instance, and require that
      * this instance also be {@linkplain #isConfigured configured} at the time this method is invoked.
-     * This method is like {@link #getBeanConfig} but it throws an exception instead of returning null.
+     * This method is like {@link #getBeanConfig getBeanConfig()} but it throws an exception instead of returning null.
      *
      * @return current bean configuration, never null
      * @throws NotConfiguredException if this instance is not {@linkplain #isConfigured configured}
