@@ -82,7 +82,7 @@ public abstract class AbstractConfiguredBean<ROOT, T> implements BeanNameAware,
      * if not (i.e., "empty start"), then do nothing and wait until it becomes valid.
      */
     @Override
-    public final synchronized void afterPropertiesSet() throws Exception {
+    public synchronized void afterPropertiesSet() throws Exception {
 
         // Check config
         if (this.persistentObject == null)
@@ -109,7 +109,7 @@ public abstract class AbstractConfiguredBean<ROOT, T> implements BeanNameAware,
      * Stop this instance. Does nothing if already stopped.
      */
     @Override
-    public final synchronized void destroy() {
+    public synchronized void destroy() {
         this.running = false;
         this.configured = false;
         this.persistentObject.removeListener(this);
