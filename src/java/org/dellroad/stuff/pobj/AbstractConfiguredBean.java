@@ -28,8 +28,8 @@ import org.springframework.beans.factory.InitializingBean;
  * stopped in those states.
  *
  * <p>
- * At any point in time, {@link #getBeanConfig} (and it's alternate form {@link #getRequiredConfig}) access this bean's current
- * configuration (if any).
+ * At any point in time, {@link #getBeanConfig() getBeanConfig()} (and it's alternate form {@link #getRequiredConfig})
+ * access this bean's current configuration (if any).
  *
  * @param <ROOT> type of the configuration object root
  * @param <T> type of the sub-graph of ROOT that this bean is configured by
