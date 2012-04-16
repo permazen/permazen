@@ -61,7 +61,7 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/package-info.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/IdMapper.java">
-<error line="286" column="55" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="285" column="55" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/IdMappingMarshaller.java">
 </file>
@@ -161,6 +161,8 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/package-info.java">
 </file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/AbstractConfiguredBean.java">
+</file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/AbstractDelegate.java">
 <error line="48" column="66" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="48" column="71" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -168,13 +170,15 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/FilterDelegate.java">
 </file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/NotConfiguredException.java">
+</file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentFileTransaction.java">
 <error line="40" column="41" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="40" column="46" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="40" column="53" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObject.java">
-<error line="595" column="5" severity="info" message="Executable statement count is 32 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="649" column="5" severity="info" message="Executable statement count is 32 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectDelegate.java">
 </file>
@@ -259,6 +263,10 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/DellRoadStuffNamespaceHandler.java">
 </file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/EntityManagerAvailable.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/EntityManagerAvailableAspect.java">
+</file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ResourceReaderFactoryBean.java">
 <error line="58" column="35" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
@@ -309,8 +317,6 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/ContextApplication.java">
 <error line="133" column="29" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-</file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/ContextApplicationFactoryBean.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/PropertyDef.java">
 </file>
