@@ -21,6 +21,14 @@ public class PersistentObjectEvent<T> extends EventObject {
     private final T oldRoot;
     private final T newRoot;
 
+    /**
+     * Constructor.
+     *
+     * @param persistentObject source of this event
+     * @param version the new persistent object version (i.e., the version of {@code newRoot})
+     * @param oldRoot previous root object; null if exiting from an empty start period
+     * @param newRoot updated root object; null if entering an empty stop period
+     */
     public PersistentObjectEvent(PersistentObject<T> persistentObject, long version, T oldRoot, T newRoot) {
         super(persistentObject);
         this.version = version;
@@ -52,16 +60,20 @@ public class PersistentObjectEvent<T> extends EventObject {
      *
      * <p>
      * The caller must not modify the returned object, as it is shared among all listeners.
+     *
+     * @return the old root object; will be null if an empty start period has just ended
      */
     public T getOldRoot() {
         return this.oldRoot;
     }
 
     /**
-     * Get the new root after to the update.
+     * Get the new root after the update.
      *
      * <p>
      * The caller must not modify the returned object, as it is shared among all listeners.
+     *
+     * @return the new root object; will be null if an empty stop period has just started
      */
     public T getNewRoot() {
         return this.newRoot;

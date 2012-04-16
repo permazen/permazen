@@ -6,6 +6,7 @@ Next Version
     - Removed deprecated ContextApplicationFactoryBean
     - Added @EntityManagerAvailable Spring annotation
     - Add SpringXSLPersistentObjectSchemaUpdate.setTransformerFactory()
+    - Add support for "empty stops" in PersistentObject
 
 Version 1.0.315 Released March 26, 2012
 

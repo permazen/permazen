@@ -79,18 +79,31 @@ import org.slf4j.LoggerFactory;
  * by the application. Then some other process must be responsible for all database updates, and this class automatically
  * picks them up, validates them, and send out notifications.
  *
- * <h3>Empty Starts</h3>
+ * <h3>Empty Starts and Stops</h3>
  *
  * <p>
  * An "empty start" occurs when an instance is {@linkplain #start started} but the persistent XML file is either missing,
  * does not validate, or cannot be read for some other reason. In such cases, the instance will start with no object graph,
- * and {@link #getRoot} will initially return null. This situation will correct itself as soon as the object graph is written
- * via {@link #setRoot setRoot()} or the persistent file appears (effecting an "out-of-band" update).
+ * and {@link #getRoot} will return null. This situation will correct itself as soon as the object graph is written via
+ * {@link #setRoot setRoot()} or the persistent file appears (effecting an "out-of-band" update). At that time, {@linkplain
+ * #addListener listeners} will be notified for the first time, with {@link PersistentObjectEvent#getOldRoot} returning null.
  *
  * <p>
- * Whther empty starts are allowed is determined by the {@link #isAllowEmptyStart allowEmptyStart} property (default
- * {@code false}). When empty starts are disallowed, then {@link #start} will instead throw a {@link PersistentObjectException}.
- * In this configuration, {@link #getRoot} can be relied upon to always return a non-null, valid root.
+ * Whether empty starts are allowed is determined by the {@link #isAllowEmptyStart allowEmptyStart} property (default
+ * {@code false}). When empty starts are disallowed and the persistent XML file cannot be successfully read,
+ * then {@link #start} will instead throw an immediate {@link PersistentObjectException}.
+ *
+ * <p>
+ * Similarly, "empty stops" are allowed when the {@link #isAllowEmptyStop allowEmptyStop} property is set to {@code true}
+ * (by default it is {@code false}). An "empty stop" occurs when a null value is passed to {@link #setRoot setRoot()}.
+ * Subsequent invocations of {@link #getRoot} will return {@code null}; however, the persistent file is <b>not</b>
+ * modified when null is passed to {@link #setRoot}. When empty stops are disallowed, then invoking
+ * {@link #setRoot} with a {@code null} object will result in an {@link IllegalArgumentException}.
+ *
+ * <p>
+ * Allowing empty starts and/or stops essentially creates an "unconfigured" state represented by a null root object.
+ * When empty starts and empty stops are both disallowed, there is no "unconfigured" state: {@link #getRoot} can be
+ * relied upon to always return a non-null, validated root object.
  *
  * <h3>Delegate Function</h3>
  *
@@ -121,6 +134,7 @@ public class PersistentObject<T> {
 
     private T root;                                         // current root object (private)
     private T sharedRoot;                                   // current root object (shared)
+    private T writebackRoot;                                // pending persistent file writeback value
     private int numBackups;                                 // number of persistent file backup copies to keep
     private ScheduledExecutorService scheduledExecutor;     // used for file checking and delayed write-back
     private ExecutorService notifyExecutor;                 // used to notify listeners
@@ -128,6 +142,7 @@ public class PersistentObject<T> {
     private long version;                                   // current root object version
     private long timestamp;                                 // timestamp of persistent file when we last read it
     private boolean allowEmptyStart;
+    private boolean allowEmptyStop;
     private boolean started;
 
     /**
@@ -262,6 +277,26 @@ public class PersistentObject<T> {
     }
 
     /**
+     * Determine whether this instance should allow an "empty stop".
+     *
+     * <p>
+     * The default for this property is false.
+     */
+    public boolean isAllowEmptyStop() {
+        return this.allowEmptyStop;
+    }
+
+    /**
+     * Configure whether an "empty stop" is allowed.
+     *
+     * <p>
+     * The default for this property is false.
+     */
+    public void setAllowEmptyStop(boolean allowEmptyStop) {
+        this.allowEmptyStop = allowEmptyStop;
+    }
+
+    /**
      * Determine whether this instance is started.
      */
     public synchronized boolean isStarted() {
@@ -326,7 +361,7 @@ public class PersistentObject<T> {
 
         // Perform any lingering pending save now
         if (this.cancelPendingWrite())
-            this.write(this.root);
+            this.writeback();
 
         // Stop executor services
         this.log.info(this + ": shutting down");
@@ -340,6 +375,7 @@ public class PersistentObject<T> {
         this.notifyExecutor = null;
         this.root = null;
         this.sharedRoot = null;
+        this.writebackRoot = null;
         this.version = 0;
         this.timestamp = 0;
         this.started = false;
@@ -349,12 +385,14 @@ public class PersistentObject<T> {
      * Atomically read the root object.
      *
      * <p>
-     * If there is no persistent file and no value has been set, null will be returned.
-     * However the persistent file may appear "out of band" at any time; if so, this will
-     * be detected within the configured {@linkplain #getCheckInterval check interval}.
+     * In the situation of an empty start or empty stop, this instance is "unconfigured" and null will be returned.
+     * This can only happen if {@link #setAllowEmptyStart setAllowEmptyStart(true)} or {@link #setAllowEmptyStop
+     * setAllowEmptyStop(true)} has been invoked.
      *
      * <p>
      * This returns a deep copy of the current root object; any subsequent modifications are not written back.
+     * Use {@link #getSharedRoot} instead to avoid the cost of the deep copy at the risk of seeing modifications
+     * caused by other invokers.
      *
      * @return the current root instance, or null if after an "empty start"
      * @throws IllegalStateException if this instance is not started
@@ -397,9 +435,18 @@ public class PersistentObject<T> {
      * a {@link PersistentObjectVersionException} exception is thrown. This mechanism
      * can be used for optimistic locking.
      *
+     * <p>
+     * If empty stops are allowed, then {@code newRoot} may be null, in which case it replaces the
+     * current root and subsequent calls to {@link #getRoot} will return null. When a null
+     * {@code newRoot} is set, the persistent file is <b>not</b> modified.
+     *
+     * <p>
+     * If the given root object is {@linkplain PersistentObjectDelegate#isSameGraph the same as} the current
+     * root object, then no action is taken.
+     *
      * @param newRoot new persistent object
      * @param expectedVersion expected current version number, or zero to ignore the current version number
-     * @throws IllegalArgumentException if {@code newRoot} is null
+     * @throws IllegalArgumentException if {@code newRoot} is null and empty stops are disallowed
      * @throws IllegalArgumentException if {@code version} is negative
      * @throws IllegalStateException if this instance is not started
      * @throws PersistentObjectException if an error occurs
@@ -414,8 +461,8 @@ public class PersistentObject<T> {
     private synchronized void setRootInternal(T newRoot, long expectedVersion, boolean readingFile) {
 
         // Sanity check
-        if (newRoot == null)
-            throw new IllegalArgumentException("null newRoot");
+        if (newRoot == null && !this.isAllowEmptyStop())
+            throw new IllegalArgumentException("newRoot is null but empty stops are not enabled");
         if (!this.started && !readingFile)
             throw new IllegalStateException("not started");
         if (expectedVersion < 0)
@@ -426,24 +473,29 @@ public class PersistentObject<T> {
             throw new PersistentObjectVersionException(this.version, expectedVersion);
 
         // Check for sameness
-        if (this.root != null && this.delegate.isSameGraph(this.root, newRoot))
+        if (this.root == null && newRoot == null)
+            return;
+        if (this.root != null && newRoot != null && this.delegate.isSameGraph(this.root, newRoot))
             return;
 
         // Validate the new root
-        Set<ConstraintViolation<T>> violations = this.delegate.validate(newRoot);
-        if (!violations.isEmpty())
-            throw new PersistentObjectValidationException((Set<ConstraintViolation<?>>)(Object)violations);
+        if (newRoot != null) {
+            Set<ConstraintViolation<T>> violations = this.delegate.validate(newRoot);
+            if (!violations.isEmpty())
+                throw new PersistentObjectValidationException((Set<ConstraintViolation<?>>)(Object)violations);
+        }
 
         // Do the update
         final T oldRoot = this.root;
-        this.root = this.delegate.copy(newRoot);
+        this.root = newRoot != null ? this.delegate.copy(newRoot) : null;
         this.version++;
         this.sharedRoot = null;
 
         // Perform write-back, either now or later
-        if (!readingFile) {
+        if (!readingFile && this.root != null) {
+            this.writebackRoot = this.root;
             if (this.writeDelay == 0)
-                this.write(this.root);
+                this.writeback();
             else if (this.pendingWrite == null) {
                 this.pendingWrite = this.scheduledExecutor.schedule(new Runnable() {
                     @Override
@@ -713,7 +765,7 @@ public class PersistentObject<T> {
 
         // Write it
         try {
-            this.write(this.root);
+            this.writeback();
         } catch (ThreadDeath t) {
             throw t;
         } catch (Throwable t) {
@@ -736,6 +788,14 @@ public class PersistentObject<T> {
         } catch (Throwable t) {
             this.log.error(this + ": error attempting to apply out-of-band update", t);
         }
+    }
+
+    // Write back root to persistent file
+    private synchronized void writeback() {
+        T objectToWrite = this.writebackRoot;
+        assert objectToWrite != null;
+        this.writebackRoot = null;
+        this.write(objectToWrite);
     }
 
     // Cancel a pending write and return true if there was one

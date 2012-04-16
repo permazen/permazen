@@ -83,6 +83,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
     protected long checkInterval = DEFAULT_CHECK_INTERVAL;
     protected int numBackups;
     protected boolean allowEmptyStart;
+    protected boolean allowEmptyStop;
     protected PersistentObjectDelegate<T> delegate;
 
     private ArrayList<String> updateNames;
@@ -137,6 +138,15 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
     }
 
     /**
+     * Configure whether to all "empty stops". Default is false.
+     *
+     * @see PersistentObject
+     */
+    public void setAllowEmptyStop(boolean allowEmptyStop) {
+        this.allowEmptyStop = allowEmptyStop;
+    }
+
+    /**
      * Start this instance. Does nothing if already started.
      *
      * @throws IllegalArgumentException if an invalid file, write delay, or delegate is configured
@@ -162,6 +172,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
         this.persistentObject = new PersistentObject<T>(new UpdaterDelegate(), this.file, this.writeDelay, this.checkInterval);
         this.persistentObject.setNumBackups(this.numBackups);
         this.persistentObject.setAllowEmptyStart(this.allowEmptyStart);
+        this.persistentObject.setAllowEmptyStop(this.allowEmptyStop);
 
         // Do schema updates
         boolean success = false;
