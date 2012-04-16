@@ -119,14 +119,14 @@ public class PersistentObject<T> {
     private final long writeDelay;
     private final long checkInterval;
 
-    private T root;
-    private T sharedRoot;
-    private int numBackups;
-    private ScheduledExecutorService scheduledExecutor;
-    private ExecutorService notifyExecutor;
-    private ScheduledFuture pendingWrite;
-    private long version;
-    private long timestamp;
+    private T root;                                         // current root object (private)
+    private T sharedRoot;                                   // current root object (shared)
+    private int numBackups;                                 // number of persistent file backup copies to keep
+    private ScheduledExecutorService scheduledExecutor;     // used for file checking and delayed write-back
+    private ExecutorService notifyExecutor;                 // used to notify listeners
+    private ScheduledFuture pendingWrite;                   // a pending delayed write-back
+    private long version;                                   // current root object version
+    private long timestamp;                                 // timestamp of persistent file when we last read it
     private boolean allowEmptyStart;
     private boolean started;
 
@@ -339,6 +339,7 @@ public class PersistentObject<T> {
         this.scheduledExecutor = null;
         this.notifyExecutor = null;
         this.root = null;
+        this.sharedRoot = null;
         this.version = 0;
         this.timestamp = 0;
         this.started = false;
