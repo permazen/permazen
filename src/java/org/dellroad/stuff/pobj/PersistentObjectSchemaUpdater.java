@@ -39,7 +39,18 @@ import org.dellroad.stuff.schema.AbstractSchemaUpdater;
  * <p>
  * Updates are tracked by "secretly" inserting <code>{@link #UPDATES_ELEMENT_NAME &lt;pobj:updates&gt;}</code>
  * elements into the serialized XML document; these updates are transparently removed when the document is read back.
- * In this way the document and its set of applied updates always travel together.
+ * In this way the document and its set of applied updates always travel together. For example:
+ *
+ * <blockquote><pre>
+ *  &lt;MyConfig&gt;
+ *      <b>&lt;pobj:updates xmlns:pobj="http://dellroad-stuff.googlecode.com/ns/persistentObject"&gt;
+ *          &lt;pobj:update>some-update-name-1&lt;/pobj:update&gt;
+ *          &lt;pobj:update>some-update-name-2&lt;/pobj:update&gt;
+ *      &lt;/pobj:updates&gt;</b>
+ *      &lt;username&gt;admin&lt;/username&gt;
+ *      &lt;password&gt;secret&lt;/password&gt;
+ *  &lt;/MyConfig&gt;
+ * </pre></blockquote>
  *
  * <p>
  * Subclasses will typically override {@link #getInitialValue} for when there is no persistent file yet.
