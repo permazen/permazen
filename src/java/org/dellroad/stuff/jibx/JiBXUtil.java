@@ -255,9 +255,9 @@ public final class JiBXUtil {
 
     private static void unwrapException(Exception e) throws JiBXException, IOException {
         if (e instanceof JiBXException)
-            throw (JiBXException)e.getCause();
+            throw (JiBXException)e;
         if (e instanceof IOException)
-            throw (IOException)e.getCause();
+            throw (IOException)e;
         if (e instanceof RuntimeException)
             throw (RuntimeException)e;
         throw new RuntimeException(e);
