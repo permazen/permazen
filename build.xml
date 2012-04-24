@@ -171,6 +171,7 @@
                 <link href="http://opencsv.sourceforge.net/apidocs/"/>
                 <link href="https://vaadin.com/api/"/>
                 <link href="http://www.slf4j.org/api/"/>
+                <link href="http://www.eclipse.org/aspectj/doc/released/runtime-api/"/>
             </links>
         </dellroad:javadoc>
         <property name="javadoc.completed" value="true"/>

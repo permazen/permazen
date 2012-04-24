@@ -21,7 +21,7 @@
         <xsd:annotation>
             <xsd:documentation source="java:org.dellroad.stuff.spring.SQLBeanDefinitionParser">
                 <![CDATA[
-    Creates a SQLCommndList bean using an inline SQL script or the specified resource.
+    Creates a SQLCommandList bean using an inline SQL script or the specified resource.
                 ]]>
             </xsd:documentation>
         </xsd:annotation>
@@ -58,6 +58,25 @@
                     </xsd:attribute>
                 </xsd:extension>
             </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="post-completion">
+        <xsd:annotation>
+            <xsd:documentation source="java:org.dellroad.stuff.spring.PostCompletionBeanDefinitionParser">
+                <![CDATA[
+    Activates the @PostCompletionSupport aspect.
+                ]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:attribute name="executor" type="xsd:ID" use="required">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[
+        Specifies the executor to use for post-completion callbacks.
+                    ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
         </xsd:complexType>
     </xsd:element>
 

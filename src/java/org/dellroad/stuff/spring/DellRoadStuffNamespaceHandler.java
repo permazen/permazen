@@ -19,6 +19,8 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  *  <li><code>&lt;dellroad-stuff:sql/&gt;</code>, which defines a {@link org.dellroad.stuff.schema.SQLCommandList} bean</li>
  *  <li><code>&lt;dellroad-stuff:sql-update/&gt;</code>, which wraps a {@link org.dellroad.stuff.schema.SQLCommandList}
  *  in a {@link org.dellroad.stuff.schema.SpringSQLSchemaUpdate} bean</li>
+ *  <li><code>&lt;dellroad-stuff:post-completion/&gt;</code>, which activates the
+ *  {@link PostCompletionSupport @PostCompletionSupport} annotation</li>
  * </ul>
  */
 public class DellRoadStuffNamespaceHandler extends NamespaceHandlerSupport {
@@ -27,11 +29,13 @@ public class DellRoadStuffNamespaceHandler extends NamespaceHandlerSupport {
 
     public static final String SQL_ELEMENT_NAME = "sql";
     public static final String SQL_UPDATE_ELEMENT_NAME = "sql-update";
+    public static final String POST_COMPLETION_ELEMENT_NAME = "post-completion";
 
     @Override
     public void init() {
         this.registerBeanDefinitionParser(SQL_ELEMENT_NAME, new SQLBeanDefinitionParser());
         this.registerBeanDefinitionParser(SQL_UPDATE_ELEMENT_NAME, new SQLUpdateBeanDefinitionParser());
+        this.registerBeanDefinitionParser(POST_COMPLETION_ELEMENT_NAME, new PostCompletionBeanDefinitionParser());
     }
 }
 
