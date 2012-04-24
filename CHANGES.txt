@@ -4,29 +4,29 @@ Next Version
       SpringContextApplication bean; this also eliminates the requirement
       to create custom static get() method in subclass (issue #7)
     - Removed deprecated ContextApplicationFactoryBean
-    - Add SpringXSLPersistentObjectSchemaUpdate.setTransformerFactory()
-    - Add support for "empty stops" in PersistentObject
+    - Added SpringXSLPersistentObjectSchemaUpdate.setTransformerFactory()
+    - Added support for "empty stops" in PersistentObject
     - Fix possible ClassCastException in JiBXUtil.readObject()
-    - Add AbstractConfiguredBean
+    - Added AbstractConfiguredBean
 
 Version 1.0.315 Released March 26, 2012
 
     - Added CSVWriter
     - Added ContextApplication.invokeLater()
     - Catch all Exceptions in SpringDelegate to support "empty open"
-    - Add to IdGenerator methods setId(), getObject(), and run(Callable)
+    - Added to IdGenerator methods setId(), getObject(), and run(Callable)
     - Execute all JiBXUtil methods within an invocation of IdGenerator.run()
-    - Add ParseUtil.(de)serializeReference() and ParseUtil.deserializeUUID()
+    - Added ParseUtil.(de)serializeReference() and ParseUtil.deserializeUUID()
     - Have IdMappingMarshaller implement Unmarshaller as well as Marshaller
-    - Add JiBXUtil method variants that take a binding name parameter
+    - Added JiBXUtil method variants that take a binding name parameter
     - Fixed access permission bug in PersistentObject constructor
     - Added Pattern validation constraint
 
 Version 1.0.284 Released Feb 16, 2012
 
     - Added new DAO support classes
-    - Add support for creating automatic backups to PersistentObject
-    - Add ability to enable/disable PersistentObject "empty starts"
+    - Added support for creating automatic backups to PersistentObject
+    - Added ability to enable/disable PersistentObject "empty starts"
     - Put back UpdatingDataSource which got accidentally lost in r205
     - Fixed bug in SQLSchemaUpdater detecting initialized database
     - Added SpringContextApplication.destroySpringApplication() hook
@@ -93,7 +93,7 @@ Version 1.0.134 Released Sep 18, 2011
 
     - Update for latest Vaadin version
     - Added ContextApplication Vaadin helper class
-    - Add support for JiBX parsing of templated Spring EL expressions
+    - Added support for JiBX parsing of templated Spring EL expressions
     - Added "single-update" attribute to <dellroad-stuff:sql-update> tag
     - Fixed bug in <dellroad-stuff:sql-update> parser ignoring "depends-on"
 
@@ -140,7 +140,7 @@ Version 1.0.43 Released Februrary 20, 2011
 
     - Added AsyncInputStream
     - Added extractSchemaUpdates.xsl to extract SQL for "schemacheck"
-    - Add suport for the <dellroad-stuff:sql-update> XML tag
+    - Added suport for the <dellroad-stuff:sql-update> XML tag
     - Fix bugs in the custom Spring tag XSD schema
     - Fix bugs in MapEntry that made it not work for marshalling
     - Javadoc fixes and improvements
@@ -148,7 +148,7 @@ Version 1.0.43 Released Februrary 20, 2011
 Version 1.0.33 Released Februrary 18, 2011
 
     - Improvements and bug fixes to schema updates
-    - Add Spring XML custom tags for schema updates
+    - Added Spring XML custom tags for schema updates
     - Make MainClass.run() public
     - Added MainClass.parsePropertyFlags()
     - Added ResourceReaderFactoryBean
