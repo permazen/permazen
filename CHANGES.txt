@@ -4,7 +4,6 @@ Next Version
       SpringContextApplication bean; this also eliminates the requirement
       to create custom static get() method in subclass (issue #7)
     - Removed deprecated ContextApplicationFactoryBean
-    - Added @EntityManagerAvailable Spring annotation
     - Add SpringXSLPersistentObjectSchemaUpdate.setTransformerFactory()
     - Add support for "empty stops" in PersistentObject
     - Fix possible ClassCastException in JiBXUtil.readObject()
