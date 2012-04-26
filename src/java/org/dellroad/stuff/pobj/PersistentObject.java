@@ -702,6 +702,8 @@ public class PersistentObject<T> {
                 File src = i > 0 ? new File(this.persistentFile.toString() + "." + i) : this.persistentFile;
                 File dest = new File(this.persistentFile.toString() + "." + (i + 1));
                 if (i == 0) {
+                    if (dest.exists())      // this happens when this.numBackups == 1
+                        dest.delete();
                     try {
                         HardLink.link(src, dest);
                     } catch (IOException e) {
