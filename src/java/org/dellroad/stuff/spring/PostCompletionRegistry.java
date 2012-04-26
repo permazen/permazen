@@ -201,6 +201,7 @@ public class PostCompletionRegistry {
         }
     }
 
+    @SuppressWarnings("serial")
     private static class WrapException extends RuntimeException {
 
         public WrapException(Exception e) {
