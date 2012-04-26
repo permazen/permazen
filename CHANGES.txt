@@ -8,6 +8,7 @@ Next Version
     - Added SpringXSLPersistentObjectSchemaUpdate.setTransformerFactory()
     - Added support for "empty stops" in PersistentObject
     - Fix possible ClassCastException in JiBXUtil.readObject()
+    - Fix bug in PersistentObject when numBackups == 1
     - Added AbstractConfiguredBean
 
 Version 1.0.315 Released March 26, 2012
