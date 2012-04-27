@@ -1,4 +1,4 @@
-Next Version
+Version 1.0.349 Released April 27, 2012
 
     - Fixed issue with circular autowiring dependencies that include the
       SpringContextApplication bean; this also eliminates the requirement
