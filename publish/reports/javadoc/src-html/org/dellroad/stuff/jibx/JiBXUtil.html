@@ -258,9 +258,9 @@
 <FONT color="green">255</FONT>    <a name="line.255"></a>
 <FONT color="green">256</FONT>        private static void unwrapException(Exception e) throws JiBXException, IOException {<a name="line.256"></a>
 <FONT color="green">257</FONT>            if (e instanceof JiBXException)<a name="line.257"></a>
-<FONT color="green">258</FONT>                throw (JiBXException)e.getCause();<a name="line.258"></a>
+<FONT color="green">258</FONT>                throw (JiBXException)e;<a name="line.258"></a>
 <FONT color="green">259</FONT>            if (e instanceof IOException)<a name="line.259"></a>
-<FONT color="green">260</FONT>                throw (IOException)e.getCause();<a name="line.260"></a>
+<FONT color="green">260</FONT>                throw (IOException)e;<a name="line.260"></a>
 <FONT color="green">261</FONT>            if (e instanceof RuntimeException)<a name="line.261"></a>
 <FONT color="green">262</FONT>                throw (RuntimeException)e;<a name="line.262"></a>
 <FONT color="green">263</FONT>            throw new RuntimeException(e);<a name="line.263"></a>

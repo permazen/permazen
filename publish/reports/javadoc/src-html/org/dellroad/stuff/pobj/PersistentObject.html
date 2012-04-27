@@ -705,138 +705,140 @@
 <FONT color="green">702</FONT>                    File src = i &gt; 0 ? new File(this.persistentFile.toString() + "." + i) : this.persistentFile;<a name="line.702"></a>
 <FONT color="green">703</FONT>                    File dest = new File(this.persistentFile.toString() + "." + (i + 1));<a name="line.703"></a>
 <FONT color="green">704</FONT>                    if (i == 0) {<a name="line.704"></a>
-<FONT color="green">705</FONT>                        try {<a name="line.705"></a>
-<FONT color="green">706</FONT>                            HardLink.link(src, dest);<a name="line.706"></a>
-<FONT color="green">707</FONT>                        } catch (IOException e) {<a name="line.707"></a>
-<FONT color="green">708</FONT>                            this.log.warn("unable to backup persistent file to `" + dest + "': " + e);<a name="line.708"></a>
-<FONT color="green">709</FONT>                        }<a name="line.709"></a>
-<FONT color="green">710</FONT>                    } else<a name="line.710"></a>
-<FONT color="green">711</FONT>                        src.renameTo(dest);<a name="line.711"></a>
-<FONT color="green">712</FONT>                }<a name="line.712"></a>
-<FONT color="green">713</FONT>    <a name="line.713"></a>
-<FONT color="green">714</FONT>                // Rename file<a name="line.714"></a>
-<FONT color="green">715</FONT>                if (!tempFile.renameTo(this.persistentFile)) {<a name="line.715"></a>
-<FONT color="green">716</FONT>                    throw new PersistentObjectException("error renaming temporary file `"<a name="line.716"></a>
-<FONT color="green">717</FONT>                      + tempFile.getName() + "' to `" + this.persistentFile.getName() + "'");<a name="line.717"></a>
-<FONT color="green">718</FONT>                }<a name="line.718"></a>
-<FONT color="green">719</FONT>                tempFile = null;<a name="line.719"></a>
-<FONT color="green">720</FONT>    <a name="line.720"></a>
-<FONT color="green">721</FONT>                // Update file timestamp<a name="line.721"></a>
-<FONT color="green">722</FONT>                this.timestamp = newTimestamp;<a name="line.722"></a>
-<FONT color="green">723</FONT>            } finally {<a name="line.723"></a>
-<FONT color="green">724</FONT>                if (tempFile != null)<a name="line.724"></a>
-<FONT color="green">725</FONT>                    tempFile.delete();<a name="line.725"></a>
-<FONT color="green">726</FONT>            }<a name="line.726"></a>
-<FONT color="green">727</FONT>        }<a name="line.727"></a>
-<FONT color="green">728</FONT>    <a name="line.728"></a>
-<FONT color="green">729</FONT>        /**<a name="line.729"></a>
-<FONT color="green">730</FONT>         * Notify listeners of a change in value.<a name="line.730"></a>
-<FONT color="green">731</FONT>         *<a name="line.731"></a>
-<FONT color="green">732</FONT>         * @param newVersion the version number associated with the new root<a name="line.732"></a>
-<FONT color="green">733</FONT>         */<a name="line.733"></a>
-<FONT color="green">734</FONT>        protected void notifyListeners(long newVersion, T oldRoot, T newRoot) {<a name="line.734"></a>
-<FONT color="green">735</FONT>    <a name="line.735"></a>
-<FONT color="green">736</FONT>            // Snapshot listeners<a name="line.736"></a>
-<FONT color="green">737</FONT>            final ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt; listenersCopy = new ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt;();<a name="line.737"></a>
-<FONT color="green">738</FONT>            synchronized (this.listeners) {<a name="line.738"></a>
-<FONT color="green">739</FONT>                listenersCopy.addAll(this.listeners);<a name="line.739"></a>
-<FONT color="green">740</FONT>            }<a name="line.740"></a>
-<FONT color="green">741</FONT>    <a name="line.741"></a>
-<FONT color="green">742</FONT>            // Notify them<a name="line.742"></a>
-<FONT color="green">743</FONT>            final PersistentObjectEvent&lt;T&gt; event = new PersistentObjectEvent&lt;T&gt;(this, newVersion, oldRoot, newRoot);<a name="line.743"></a>
-<FONT color="green">744</FONT>            this.notifyExecutor.submit(new Runnable() {<a name="line.744"></a>
-<FONT color="green">745</FONT>                @Override<a name="line.745"></a>
-<FONT color="green">746</FONT>                public void run() {<a name="line.746"></a>
-<FONT color="green">747</FONT>                    PersistentObject.this.doNotifyListeners(listenersCopy, event);<a name="line.747"></a>
-<FONT color="green">748</FONT>                }<a name="line.748"></a>
-<FONT color="green">749</FONT>            });<a name="line.749"></a>
-<FONT color="green">750</FONT>        }<a name="line.750"></a>
-<FONT color="green">751</FONT>    <a name="line.751"></a>
-<FONT color="green">752</FONT>        // Read the persistent file and apply it<a name="line.752"></a>
-<FONT color="green">753</FONT>        private synchronized void applyFile(long newTimestamp) {<a name="line.753"></a>
-<FONT color="green">754</FONT>            this.cancelPendingWrite();<a name="line.754"></a>
-<FONT color="green">755</FONT>            this.timestamp = newTimestamp;                              // update timestamp even if update fails to avoid loops<a name="line.755"></a>
-<FONT color="green">756</FONT>            this.setRootInternal(this.read(), 0, true);<a name="line.756"></a>
-<FONT color="green">757</FONT>        }<a name="line.757"></a>
-<FONT color="green">758</FONT>    <a name="line.758"></a>
-<FONT color="green">759</FONT>        // Handle a write-back timeout<a name="line.759"></a>
-<FONT color="green">760</FONT>        private synchronized void writeTimeout() {<a name="line.760"></a>
-<FONT color="green">761</FONT>    <a name="line.761"></a>
-<FONT color="green">762</FONT>            // Check for cancel race<a name="line.762"></a>
-<FONT color="green">763</FONT>            if (this.pendingWrite == null)<a name="line.763"></a>
-<FONT color="green">764</FONT>                return;<a name="line.764"></a>
-<FONT color="green">765</FONT>            this.pendingWrite = null;<a name="line.765"></a>
-<FONT color="green">766</FONT>    <a name="line.766"></a>
-<FONT color="green">767</FONT>            // Write it<a name="line.767"></a>
-<FONT color="green">768</FONT>            try {<a name="line.768"></a>
-<FONT color="green">769</FONT>                this.writeback();<a name="line.769"></a>
-<FONT color="green">770</FONT>            } catch (ThreadDeath t) {<a name="line.770"></a>
-<FONT color="green">771</FONT>                throw t;<a name="line.771"></a>
-<FONT color="green">772</FONT>            } catch (Throwable t) {<a name="line.772"></a>
-<FONT color="green">773</FONT>                this.delegate.handleWritebackException(this, t);<a name="line.773"></a>
-<FONT color="green">774</FONT>            }<a name="line.774"></a>
-<FONT color="green">775</FONT>        }<a name="line.775"></a>
-<FONT color="green">776</FONT>    <a name="line.776"></a>
-<FONT color="green">777</FONT>        // Handle a check file timeout<a name="line.777"></a>
-<FONT color="green">778</FONT>        private synchronized void checkFileTimeout() {<a name="line.778"></a>
-<FONT color="green">779</FONT>    <a name="line.779"></a>
-<FONT color="green">780</FONT>            // Handle race condition<a name="line.780"></a>
-<FONT color="green">781</FONT>            if (!this.started)<a name="line.781"></a>
-<FONT color="green">782</FONT>                return;<a name="line.782"></a>
-<FONT color="green">783</FONT>    <a name="line.783"></a>
-<FONT color="green">784</FONT>            // Check file<a name="line.784"></a>
-<FONT color="green">785</FONT>            try {<a name="line.785"></a>
-<FONT color="green">786</FONT>                this.checkFile();<a name="line.786"></a>
-<FONT color="green">787</FONT>            } catch (ThreadDeath t) {<a name="line.787"></a>
-<FONT color="green">788</FONT>                throw t;<a name="line.788"></a>
-<FONT color="green">789</FONT>            } catch (Throwable t) {<a name="line.789"></a>
-<FONT color="green">790</FONT>                this.log.error(this + ": error attempting to apply out-of-band update", t);<a name="line.790"></a>
-<FONT color="green">791</FONT>            }<a name="line.791"></a>
-<FONT color="green">792</FONT>        }<a name="line.792"></a>
-<FONT color="green">793</FONT>    <a name="line.793"></a>
-<FONT color="green">794</FONT>        // Write back root to persistent file<a name="line.794"></a>
-<FONT color="green">795</FONT>        private synchronized void writeback() {<a name="line.795"></a>
-<FONT color="green">796</FONT>            T objectToWrite = this.writebackRoot;<a name="line.796"></a>
-<FONT color="green">797</FONT>            assert objectToWrite != null;<a name="line.797"></a>
-<FONT color="green">798</FONT>            this.writebackRoot = null;<a name="line.798"></a>
-<FONT color="green">799</FONT>            this.write(objectToWrite);<a name="line.799"></a>
-<FONT color="green">800</FONT>        }<a name="line.800"></a>
-<FONT color="green">801</FONT>    <a name="line.801"></a>
-<FONT color="green">802</FONT>        // Cancel a pending write and return true if there was one<a name="line.802"></a>
-<FONT color="green">803</FONT>        private synchronized boolean cancelPendingWrite() {<a name="line.803"></a>
-<FONT color="green">804</FONT>            if (this.pendingWrite == null)<a name="line.804"></a>
-<FONT color="green">805</FONT>                return false;<a name="line.805"></a>
-<FONT color="green">806</FONT>            this.pendingWrite.cancel(false);<a name="line.806"></a>
-<FONT color="green">807</FONT>            this.pendingWrite = null;<a name="line.807"></a>
-<FONT color="green">808</FONT>            return true;<a name="line.808"></a>
-<FONT color="green">809</FONT>        }<a name="line.809"></a>
-<FONT color="green">810</FONT>    <a name="line.810"></a>
-<FONT color="green">811</FONT>        // Notify listeners. This is invoked in a separate thread.<a name="line.811"></a>
-<FONT color="green">812</FONT>        private void doNotifyListeners(ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt; list, PersistentObjectEvent&lt;T&gt; event) {<a name="line.812"></a>
-<FONT color="green">813</FONT>            for (PersistentObjectListener&lt;T&gt; listener : list) {<a name="line.813"></a>
-<FONT color="green">814</FONT>                try {<a name="line.814"></a>
-<FONT color="green">815</FONT>                    listener.handleEvent(event);<a name="line.815"></a>
-<FONT color="green">816</FONT>                } catch (ThreadDeath t) {<a name="line.816"></a>
-<FONT color="green">817</FONT>                    throw t;<a name="line.817"></a>
-<FONT color="green">818</FONT>                } catch (Throwable t) {<a name="line.818"></a>
-<FONT color="green">819</FONT>                    this.log.error(this + ": error notifying listener " + listener, t);<a name="line.819"></a>
-<FONT color="green">820</FONT>                }<a name="line.820"></a>
-<FONT color="green">821</FONT>            }<a name="line.821"></a>
-<FONT color="green">822</FONT>        }<a name="line.822"></a>
-<FONT color="green">823</FONT>    <a name="line.823"></a>
-<FONT color="green">824</FONT>        // Wait for an ExecutorService to completely shut down<a name="line.824"></a>
-<FONT color="green">825</FONT>        private void awaitTermination(ExecutorService executor, String name) {<a name="line.825"></a>
-<FONT color="green">826</FONT>            boolean shutdown = false;<a name="line.826"></a>
-<FONT color="green">827</FONT>            try {<a name="line.827"></a>
-<FONT color="green">828</FONT>                shutdown = executor.awaitTermination(EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);<a name="line.828"></a>
-<FONT color="green">829</FONT>            } catch (InterruptedException e) {<a name="line.829"></a>
-<FONT color="green">830</FONT>                this.log.warn(this + ": interrupted while awaiting " + name + " termination");<a name="line.830"></a>
-<FONT color="green">831</FONT>            }<a name="line.831"></a>
-<FONT color="green">832</FONT>            if (!shutdown)<a name="line.832"></a>
-<FONT color="green">833</FONT>                this.log.warn(this + ": failed to completely shut down " + name);<a name="line.833"></a>
-<FONT color="green">834</FONT>        }<a name="line.834"></a>
-<FONT color="green">835</FONT>    }<a name="line.835"></a>
-<FONT color="green">836</FONT>    <a name="line.836"></a>
+<FONT color="green">705</FONT>                        if (dest.exists())      // this happens when this.numBackups == 1<a name="line.705"></a>
+<FONT color="green">706</FONT>                            dest.delete();<a name="line.706"></a>
+<FONT color="green">707</FONT>                        try {<a name="line.707"></a>
+<FONT color="green">708</FONT>                            HardLink.link(src, dest);<a name="line.708"></a>
+<FONT color="green">709</FONT>                        } catch (IOException e) {<a name="line.709"></a>
+<FONT color="green">710</FONT>                            this.log.warn("unable to backup persistent file to `" + dest + "': " + e);<a name="line.710"></a>
+<FONT color="green">711</FONT>                        }<a name="line.711"></a>
+<FONT color="green">712</FONT>                    } else<a name="line.712"></a>
+<FONT color="green">713</FONT>                        src.renameTo(dest);<a name="line.713"></a>
+<FONT color="green">714</FONT>                }<a name="line.714"></a>
+<FONT color="green">715</FONT>    <a name="line.715"></a>
+<FONT color="green">716</FONT>                // Rename file<a name="line.716"></a>
+<FONT color="green">717</FONT>                if (!tempFile.renameTo(this.persistentFile)) {<a name="line.717"></a>
+<FONT color="green">718</FONT>                    throw new PersistentObjectException("error renaming temporary file `"<a name="line.718"></a>
+<FONT color="green">719</FONT>                      + tempFile.getName() + "' to `" + this.persistentFile.getName() + "'");<a name="line.719"></a>
+<FONT color="green">720</FONT>                }<a name="line.720"></a>
+<FONT color="green">721</FONT>                tempFile = null;<a name="line.721"></a>
+<FONT color="green">722</FONT>    <a name="line.722"></a>
+<FONT color="green">723</FONT>                // Update file timestamp<a name="line.723"></a>
+<FONT color="green">724</FONT>                this.timestamp = newTimestamp;<a name="line.724"></a>
+<FONT color="green">725</FONT>            } finally {<a name="line.725"></a>
+<FONT color="green">726</FONT>                if (tempFile != null)<a name="line.726"></a>
+<FONT color="green">727</FONT>                    tempFile.delete();<a name="line.727"></a>
+<FONT color="green">728</FONT>            }<a name="line.728"></a>
+<FONT color="green">729</FONT>        }<a name="line.729"></a>
+<FONT color="green">730</FONT>    <a name="line.730"></a>
+<FONT color="green">731</FONT>        /**<a name="line.731"></a>
+<FONT color="green">732</FONT>         * Notify listeners of a change in value.<a name="line.732"></a>
+<FONT color="green">733</FONT>         *<a name="line.733"></a>
+<FONT color="green">734</FONT>         * @param newVersion the version number associated with the new root<a name="line.734"></a>
+<FONT color="green">735</FONT>         */<a name="line.735"></a>
+<FONT color="green">736</FONT>        protected void notifyListeners(long newVersion, T oldRoot, T newRoot) {<a name="line.736"></a>
+<FONT color="green">737</FONT>    <a name="line.737"></a>
+<FONT color="green">738</FONT>            // Snapshot listeners<a name="line.738"></a>
+<FONT color="green">739</FONT>            final ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt; listenersCopy = new ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt;();<a name="line.739"></a>
+<FONT color="green">740</FONT>            synchronized (this.listeners) {<a name="line.740"></a>
+<FONT color="green">741</FONT>                listenersCopy.addAll(this.listeners);<a name="line.741"></a>
+<FONT color="green">742</FONT>            }<a name="line.742"></a>
+<FONT color="green">743</FONT>    <a name="line.743"></a>
+<FONT color="green">744</FONT>            // Notify them<a name="line.744"></a>
+<FONT color="green">745</FONT>            final PersistentObjectEvent&lt;T&gt; event = new PersistentObjectEvent&lt;T&gt;(this, newVersion, oldRoot, newRoot);<a name="line.745"></a>
+<FONT color="green">746</FONT>            this.notifyExecutor.submit(new Runnable() {<a name="line.746"></a>
+<FONT color="green">747</FONT>                @Override<a name="line.747"></a>
+<FONT color="green">748</FONT>                public void run() {<a name="line.748"></a>
+<FONT color="green">749</FONT>                    PersistentObject.this.doNotifyListeners(listenersCopy, event);<a name="line.749"></a>
+<FONT color="green">750</FONT>                }<a name="line.750"></a>
+<FONT color="green">751</FONT>            });<a name="line.751"></a>
+<FONT color="green">752</FONT>        }<a name="line.752"></a>
+<FONT color="green">753</FONT>    <a name="line.753"></a>
+<FONT color="green">754</FONT>        // Read the persistent file and apply it<a name="line.754"></a>
+<FONT color="green">755</FONT>        private synchronized void applyFile(long newTimestamp) {<a name="line.755"></a>
+<FONT color="green">756</FONT>            this.cancelPendingWrite();<a name="line.756"></a>
+<FONT color="green">757</FONT>            this.timestamp = newTimestamp;                              // update timestamp even if update fails to avoid loops<a name="line.757"></a>
+<FONT color="green">758</FONT>            this.setRootInternal(this.read(), 0, true);<a name="line.758"></a>
+<FONT color="green">759</FONT>        }<a name="line.759"></a>
+<FONT color="green">760</FONT>    <a name="line.760"></a>
+<FONT color="green">761</FONT>        // Handle a write-back timeout<a name="line.761"></a>
+<FONT color="green">762</FONT>        private synchronized void writeTimeout() {<a name="line.762"></a>
+<FONT color="green">763</FONT>    <a name="line.763"></a>
+<FONT color="green">764</FONT>            // Check for cancel race<a name="line.764"></a>
+<FONT color="green">765</FONT>            if (this.pendingWrite == null)<a name="line.765"></a>
+<FONT color="green">766</FONT>                return;<a name="line.766"></a>
+<FONT color="green">767</FONT>            this.pendingWrite = null;<a name="line.767"></a>
+<FONT color="green">768</FONT>    <a name="line.768"></a>
+<FONT color="green">769</FONT>            // Write it<a name="line.769"></a>
+<FONT color="green">770</FONT>            try {<a name="line.770"></a>
+<FONT color="green">771</FONT>                this.writeback();<a name="line.771"></a>
+<FONT color="green">772</FONT>            } catch (ThreadDeath t) {<a name="line.772"></a>
+<FONT color="green">773</FONT>                throw t;<a name="line.773"></a>
+<FONT color="green">774</FONT>            } catch (Throwable t) {<a name="line.774"></a>
+<FONT color="green">775</FONT>                this.delegate.handleWritebackException(this, t);<a name="line.775"></a>
+<FONT color="green">776</FONT>            }<a name="line.776"></a>
+<FONT color="green">777</FONT>        }<a name="line.777"></a>
+<FONT color="green">778</FONT>    <a name="line.778"></a>
+<FONT color="green">779</FONT>        // Handle a check file timeout<a name="line.779"></a>
+<FONT color="green">780</FONT>        private synchronized void checkFileTimeout() {<a name="line.780"></a>
+<FONT color="green">781</FONT>    <a name="line.781"></a>
+<FONT color="green">782</FONT>            // Handle race condition<a name="line.782"></a>
+<FONT color="green">783</FONT>            if (!this.started)<a name="line.783"></a>
+<FONT color="green">784</FONT>                return;<a name="line.784"></a>
+<FONT color="green">785</FONT>    <a name="line.785"></a>
+<FONT color="green">786</FONT>            // Check file<a name="line.786"></a>
+<FONT color="green">787</FONT>            try {<a name="line.787"></a>
+<FONT color="green">788</FONT>                this.checkFile();<a name="line.788"></a>
+<FONT color="green">789</FONT>            } catch (ThreadDeath t) {<a name="line.789"></a>
+<FONT color="green">790</FONT>                throw t;<a name="line.790"></a>
+<FONT color="green">791</FONT>            } catch (Throwable t) {<a name="line.791"></a>
+<FONT color="green">792</FONT>                this.log.error(this + ": error attempting to apply out-of-band update", t);<a name="line.792"></a>
+<FONT color="green">793</FONT>            }<a name="line.793"></a>
+<FONT color="green">794</FONT>        }<a name="line.794"></a>
+<FONT color="green">795</FONT>    <a name="line.795"></a>
+<FONT color="green">796</FONT>        // Write back root to persistent file<a name="line.796"></a>
+<FONT color="green">797</FONT>        private synchronized void writeback() {<a name="line.797"></a>
+<FONT color="green">798</FONT>            T objectToWrite = this.writebackRoot;<a name="line.798"></a>
+<FONT color="green">799</FONT>            assert objectToWrite != null;<a name="line.799"></a>
+<FONT color="green">800</FONT>            this.writebackRoot = null;<a name="line.800"></a>
+<FONT color="green">801</FONT>            this.write(objectToWrite);<a name="line.801"></a>
+<FONT color="green">802</FONT>        }<a name="line.802"></a>
+<FONT color="green">803</FONT>    <a name="line.803"></a>
+<FONT color="green">804</FONT>        // Cancel a pending write and return true if there was one<a name="line.804"></a>
+<FONT color="green">805</FONT>        private synchronized boolean cancelPendingWrite() {<a name="line.805"></a>
+<FONT color="green">806</FONT>            if (this.pendingWrite == null)<a name="line.806"></a>
+<FONT color="green">807</FONT>                return false;<a name="line.807"></a>
+<FONT color="green">808</FONT>            this.pendingWrite.cancel(false);<a name="line.808"></a>
+<FONT color="green">809</FONT>            this.pendingWrite = null;<a name="line.809"></a>
+<FONT color="green">810</FONT>            return true;<a name="line.810"></a>
+<FONT color="green">811</FONT>        }<a name="line.811"></a>
+<FONT color="green">812</FONT>    <a name="line.812"></a>
+<FONT color="green">813</FONT>        // Notify listeners. This is invoked in a separate thread.<a name="line.813"></a>
+<FONT color="green">814</FONT>        private void doNotifyListeners(ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt; list, PersistentObjectEvent&lt;T&gt; event) {<a name="line.814"></a>
+<FONT color="green">815</FONT>            for (PersistentObjectListener&lt;T&gt; listener : list) {<a name="line.815"></a>
+<FONT color="green">816</FONT>                try {<a name="line.816"></a>
+<FONT color="green">817</FONT>                    listener.handleEvent(event);<a name="line.817"></a>
+<FONT color="green">818</FONT>                } catch (ThreadDeath t) {<a name="line.818"></a>
+<FONT color="green">819</FONT>                    throw t;<a name="line.819"></a>
+<FONT color="green">820</FONT>                } catch (Throwable t) {<a name="line.820"></a>
+<FONT color="green">821</FONT>                    this.log.error(this + ": error notifying listener " + listener, t);<a name="line.821"></a>
+<FONT color="green">822</FONT>                }<a name="line.822"></a>
+<FONT color="green">823</FONT>            }<a name="line.823"></a>
+<FONT color="green">824</FONT>        }<a name="line.824"></a>
+<FONT color="green">825</FONT>    <a name="line.825"></a>
+<FONT color="green">826</FONT>        // Wait for an ExecutorService to completely shut down<a name="line.826"></a>
+<FONT color="green">827</FONT>        private void awaitTermination(ExecutorService executor, String name) {<a name="line.827"></a>
+<FONT color="green">828</FONT>            boolean shutdown = false;<a name="line.828"></a>
+<FONT color="green">829</FONT>            try {<a name="line.829"></a>
+<FONT color="green">830</FONT>                shutdown = executor.awaitTermination(EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);<a name="line.830"></a>
+<FONT color="green">831</FONT>            } catch (InterruptedException e) {<a name="line.831"></a>
+<FONT color="green">832</FONT>                this.log.warn(this + ": interrupted while awaiting " + name + " termination");<a name="line.832"></a>
+<FONT color="green">833</FONT>            }<a name="line.833"></a>
+<FONT color="green">834</FONT>            if (!shutdown)<a name="line.834"></a>
+<FONT color="green">835</FONT>                this.log.warn(this + ": failed to completely shut down " + name);<a name="line.835"></a>
+<FONT color="green">836</FONT>        }<a name="line.836"></a>
+<FONT color="green">837</FONT>    }<a name="line.837"></a>
+<FONT color="green">838</FONT>    <a name="line.838"></a>
 
 
 

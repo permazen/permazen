@@ -1,0 +1,136 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.spring;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.lang.annotation.Documented;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.lang.annotation.ElementType;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.lang.annotation.Inherited;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import java.lang.annotation.Retention;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import java.lang.annotation.RetentionPolicy;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import java.lang.annotation.Target;<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    /**<a name="line.17"></a>
+<FONT color="green">018</FONT>     * Method-level annotation that allows threads executing within the annotated method to request the execution of<a name="line.18"></a>
+<FONT color="green">019</FONT>     * post-completion callbacks.<a name="line.19"></a>
+<FONT color="green">020</FONT>     *<a name="line.20"></a>
+<FONT color="green">021</FONT>     * &lt;p&gt;<a name="line.21"></a>
+<FONT color="green">022</FONT>     * This annotation is useful in the following situation: you want to perform some action asynchronously,<a name="line.22"></a>
+<FONT color="green">023</FONT>     * but you want to delay the execution of the asynchronous action until the current transaction commits,<a name="line.23"></a>
+<FONT color="green">024</FONT>     * so that the asynchronous action can see the updated database state; however, (in most cases) if the<a name="line.24"></a>
+<FONT color="green">025</FONT>     * current transaction fails, you don't want to execute the asynchronous action at all.<a name="line.25"></a>
+<FONT color="green">026</FONT>     *<a name="line.26"></a>
+<FONT color="green">027</FONT>     * &lt;p&gt;<a name="line.27"></a>
+<FONT color="green">028</FONT>     * To do this, put a {@link PostCompletionSupport @PostCompletionSupport} annotation everywhere you have<a name="line.28"></a>
+<FONT color="green">029</FONT>     * a {@code @Transactional} annotation, and then use the {@link PostCompletion#execute PostCompletion.execute(Runnable)}<a name="line.29"></a>
+<FONT color="green">030</FONT>     * variants to register post-completion actions at any time during the execution of the annotated methods:<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.31"></a>
+<FONT color="green">032</FONT>     *  &lt;b&gt;&amp;#64;PostCompletionSupport&lt;/b&gt;<a name="line.32"></a>
+<FONT color="green">033</FONT>     *  &amp;#64;Transactional<a name="line.33"></a>
+<FONT color="green">034</FONT>     *  public void doSomething() {<a name="line.34"></a>
+<FONT color="green">035</FONT>     *<a name="line.35"></a>
+<FONT color="green">036</FONT>     *      // Do whatever...<a name="line.36"></a>
+<FONT color="green">037</FONT>     *<a name="line.37"></a>
+<FONT color="green">038</FONT>     *      &lt;b&gt;PostCompletion.execute&lt;/b&gt;(new Runnable() {<a name="line.38"></a>
+<FONT color="green">039</FONT>     *          public void run() {<a name="line.39"></a>
+<FONT color="green">040</FONT>     *              // This executes only after doSomething() has successfully completed<a name="line.40"></a>
+<FONT color="green">041</FONT>     *              //  and the transaction around doSomething() has closed<a name="line.41"></a>
+<FONT color="green">042</FONT>     *          }<a name="line.42"></a>
+<FONT color="green">043</FONT>     *      });<a name="line.43"></a>
+<FONT color="green">044</FONT>     *<a name="line.44"></a>
+<FONT color="green">045</FONT>     *      // Do whatever else...<a name="line.45"></a>
+<FONT color="green">046</FONT>     *  }<a name="line.46"></a>
+<FONT color="green">047</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.47"></a>
+<FONT color="green">048</FONT>     *<a name="line.48"></a>
+<FONT color="green">049</FONT>     * &lt;p&gt;<a name="line.49"></a>
+<FONT color="green">050</FONT>     * To activate this annotation, you must run the AspectJ compiler to apply the dellroad-stuff aspect that<a name="line.50"></a>
+<FONT color="green">051</FONT>     * detects {@link PostCompletionSupport @PostCompletionSupport} annotations, and specify the executor to<a name="line.51"></a>
+<FONT color="green">052</FONT>     * use in your application context. For example:<a name="line.52"></a>
+<FONT color="green">053</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.53"></a>
+<FONT color="green">054</FONT>     *  &amp;lt;!-- enable post-completion support --&amp;gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>     *  &amp;lt;dellroad-stuff:post-completion executor="myExecutor"/&amp;gt;<a name="line.55"></a>
+<FONT color="green">056</FONT>     *<a name="line.56"></a>
+<FONT color="green">057</FONT>     *  &amp;lt;!-- post-completion requires an Executor --&amp;gt;<a name="line.57"></a>
+<FONT color="green">058</FONT>     *  &amp;lt;task:executor id="myExecutor" pool-size="5"/&amp;gt;<a name="line.58"></a>
+<FONT color="green">059</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.59"></a>
+<FONT color="green">060</FONT>     * &lt;/p&gt;<a name="line.60"></a>
+<FONT color="green">061</FONT>     *<a name="line.61"></a>
+<FONT color="green">062</FONT>     * @see PostCompletion<a name="line.62"></a>
+<FONT color="green">063</FONT>     */<a name="line.63"></a>
+<FONT color="green">064</FONT>    @Target({ ElementType.METHOD })<a name="line.64"></a>
+<FONT color="green">065</FONT>    @Retention(RetentionPolicy.RUNTIME)<a name="line.65"></a>
+<FONT color="green">066</FONT>    @Inherited<a name="line.66"></a>
+<FONT color="green">067</FONT>    @Documented<a name="line.67"></a>
+<FONT color="green">068</FONT>    public @interface PostCompletionSupport {<a name="line.68"></a>
+<FONT color="green">069</FONT>    }<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

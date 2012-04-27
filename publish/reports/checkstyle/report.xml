@@ -263,9 +263,13 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/DellRoadStuffNamespaceHandler.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/EntityManagerAvailable.java">
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/PostCompletion.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/EntityManagerAvailableAspect.java">
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/PostCompletionBeanDefinitionParser.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/PostCompletionRegistry.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/PostCompletionSupport.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ResourceReaderFactoryBean.java">
 <error line="58" column="35" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
