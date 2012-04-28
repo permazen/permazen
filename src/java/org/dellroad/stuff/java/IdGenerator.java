@@ -11,7 +11,6 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
 /**
@@ -35,7 +34,7 @@ import java.util.concurrent.Callable;
  */
 public class IdGenerator {
 
-    private static final ThreadLocal<LinkedList<IdGenerator>> CURRENT = new ThreadLocal<LinkedList<IdGenerator>>();
+    private static final ThreadLocalHolder<IdGenerator> CURRENT = new ThreadLocalHolder<IdGenerator>();
 
     private final HashMap<Ref, Long> idMap = new HashMap<Ref, Long>();
     private final HashMap<Long, Ref> refMap = new HashMap<Long, Ref>();
@@ -134,41 +133,35 @@ public class IdGenerator {
      * Create a new {@link IdGenerator} and make it available via {@link #get()} for the duration of the given operation.
      *
      * <p>
-     * This method is re-entrant: nested invocations of this method in the same thread will cause new {@link IdGenerator}
-     * instances to be created and used for the duration of the nested action. Therefore, don't nest invocations to this
-     * method if you want the same instance to be used everywhere.
+     * This method is re-entrant: nested invocations of this method in the same thread re-use the same {@link IdGenerator}
+     * instance.
      *
      * @param action action to perform, and which may successfully invoke {@link #get}
      * @throws NullPointerException if {@code action} is null
      */
     public static void run(final Runnable action) {
-        IdGenerator.push();
-        try {
-            action.run();
-        } finally {
-            IdGenerator.pop();
-        }
+        IdGenerator current = IdGenerator.CURRENT.get();
+        if (current == null)
+            current = new IdGenerator();
+        IdGenerator.CURRENT.invoke(current, action);
     }
 
     /**
      * Create a new {@link IdGenerator} and make it available via {@link #get()} for the duration of the given operation.
      *
      * <p>
-     * This method is re-entrant: nested invocations of this method in the same thread will cause new {@link IdGenerator}
-     * instances to be created and used for the duration of the nested action. Therefore, don't nest invocations to this
-     * method if you want the same instance to be used everywhere.
+     * This method is re-entrant: nested invocations of this method in the same thread re-use the same {@link IdGenerator}
+     * instance.
      *
      * @param action action to perform, and which may successfully invoke {@link #get}
      * @return result of invoking {@code action}
      * @throws NullPointerException if {@code action} is null
      */
     public static <R> R run(final Callable<R> action) throws Exception {
-        IdGenerator.push();
-        try {
-            return action.call();
-        } finally {
-            IdGenerator.pop();
-        }
+        IdGenerator current = IdGenerator.CURRENT.get();
+        if (current == null)
+            current = new IdGenerator();
+        return IdGenerator.CURRENT.invoke(current, action);
     }
 
     /**
@@ -180,37 +173,7 @@ public class IdGenerator {
      * @throws IllegalStateException if there is not such instance
      */
     public static IdGenerator get() {
-        IdGenerator current = IdGenerator.peek();
-        if (current == null)
-            throw new IllegalStateException("not running within an invocation of run()");
-        return current;
-    }
-
-// Thread-local IdGenerator stack management
-
-    private static void push() {
-        LinkedList<IdGenerator> stack = IdGenerator.CURRENT.get();
-        if (stack == null) {
-            stack = new LinkedList<IdGenerator>();
-            IdGenerator.CURRENT.set(stack);
-        }
-        stack.push(new IdGenerator());
-    }
-
-    private static void pop() {
-        LinkedList<IdGenerator> stack = IdGenerator.CURRENT.get();
-        assert stack != null;
-        stack.pop();
-        if (stack.isEmpty())
-            IdGenerator.CURRENT.remove();
-    }
-
-    private static IdGenerator peek() {
-        LinkedList<IdGenerator> stack = IdGenerator.CURRENT.get();
-        if (stack == null)
-            return null;
-        assert !stack.isEmpty();
-        return stack.peek();
+        return IdGenerator.CURRENT.require();
     }
 
 // Reference to a registered object that weakly references the actual object
