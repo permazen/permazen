@@ -180,7 +180,7 @@ public class FileStreamRepository implements StreamRepository {
         File[] files = new File[this.numBackups + 1];
         files[0] = this.getFile();
         for (int i = 0; i < this.numBackups; i++)
-            files[i + 1] = this.getBackupFile(this.getFile(), i);
+            files[i + 1] = this.getBackupFile(this.getFile(), i + 1);
 
         // Rotate backups
         for (int i = this.numBackups - 1; i >= 0; i--) {
