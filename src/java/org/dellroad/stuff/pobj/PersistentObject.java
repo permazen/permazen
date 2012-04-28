@@ -10,8 +10,6 @@ package org.dellroad.stuff.pobj;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,7 +24,8 @@ import javax.validation.ConstraintViolation;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.dellroad.stuff.io.HardLink;
+import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
+import org.dellroad.stuff.io.FileStreamRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Instances can be configured to preserve one or more backup copies of the persistent file on systems that support
- * hard links (requires <a href="https://github.com/twall/jna">JNA</a>; see {@link HardLink}).
+ * hard links (requires <a href="https://github.com/twall/jna">JNA</a>; see {@link FileStreamRepository}).
  * Set the {@link #getNumBackups numBackups} property to enable.
  *
  * <h3>"Out-of-band" Writes</h3>
@@ -128,14 +127,13 @@ public class PersistentObject<T> {
 
     private final HashSet<PersistentObjectListener<T>> listeners = new HashSet<PersistentObjectListener<T>>();
     private final PersistentObjectDelegate<T> delegate;
-    private final File persistentFile;
+    private final FileStreamRepository streamRepository;
     private final long writeDelay;
     private final long checkInterval;
 
     private T root;                                         // current root object (private)
     private T sharedRoot;                                   // current root object (shared)
     private T writebackRoot;                                // pending persistent file writeback value
-    private int numBackups;                                 // number of persistent file backup copies to keep
     private ScheduledExecutorService scheduledExecutor;     // used for file checking and delayed write-back
     private ExecutorService notifyExecutor;                 // used to notify listeners
     private ScheduledFuture pendingWrite;                   // a pending delayed write-back
@@ -169,7 +167,7 @@ public class PersistentObject<T> {
         if (checkInterval < 0)
             throw new IllegalArgumentException("negative checkInterval");
         this.delegate = delegate;
-        this.persistentFile = file;
+        this.streamRepository = new FileStreamRepository(file);
         this.writeDelay = writeDelay;
         this.checkInterval = checkInterval;
     }
@@ -191,7 +189,7 @@ public class PersistentObject<T> {
      * Get the persistent file containing the XML form of the persisted object.
      */
     public File getPersistentFile() {
-        return this.persistentFile;
+        return this.streamRepository.getFile();
     }
 
     /**
@@ -241,7 +239,7 @@ public class PersistentObject<T> {
      * The default is zero, which disables backups.
      */
     public int getNumBackups() {
-        return this.numBackups;
+        return this.streamRepository.getNumBackups();
     }
 
     /**
@@ -251,9 +249,7 @@ public class PersistentObject<T> {
      * @see #getNumBackups
      */
     public void setNumBackups(int numBackups) {
-        if (numBackups < 0)
-            throw new IllegalArgumentException("negative numBackups");
-        this.numBackups = numBackups;
+        this.streamRepository.setNumBackups(numBackups);
     }
 
     /**
@@ -320,18 +316,18 @@ public class PersistentObject<T> {
 
         // Read file (if it exists)
         this.log.info(this + ": starting");
-        if (this.persistentFile.exists()) {
+        if (this.getPersistentFile().exists()) {
             try {
-                this.applyFile(this.persistentFile.lastModified());
+                this.applyFile(this.getPersistentFile().lastModified());
             } catch (PersistentObjectException e) {
                 if (!this.isAllowEmptyStart())
                     throw e;
-                this.log.warn("empty start: unable to load persistent file `" + this.persistentFile + "': " + e);
+                this.log.warn("empty start: unable to load persistent file `" + this.getPersistentFile() + "': " + e);
             }
         } else {
             if (!this.isAllowEmptyStart())
-                throw new PersistentObjectException("persistent file `" + this.persistentFile + "' does not exist");
-            this.log.info(this + ": empty start: persistent file `" + this.persistentFile + "' does not exist");
+                throw new PersistentObjectException("persistent file `" + this.getPersistentFile() + "' does not exist");
+            this.log.info(this + ": empty start: persistent file `" + this.getPersistentFile() + "' does not exist");
         }
 
         // Start checking the file
@@ -544,7 +540,7 @@ public class PersistentObject<T> {
             throw new IllegalStateException("not started");
 
         // Get file timestamp
-        long fileTime = this.persistentFile.lastModified();
+        long fileTime = this.getPersistentFile().lastModified();
         if (fileTime == 0)
             return;
 
@@ -553,7 +549,7 @@ public class PersistentObject<T> {
             return;
 
         // Read new file
-        this.log.info(this + ": detected out-of-band update of persistent file `" + this.persistentFile + "'");
+        this.log.info(this + ": detected out-of-band update of persistent file `" + this.getPersistentFile() + "'");
         this.applyFile(fileTime);
     }
 
@@ -584,7 +580,7 @@ public class PersistentObject<T> {
      */
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + this.persistentFile.getName() + "]";
+        return this.getClass().getSimpleName() + "[" + this.getPersistentFile().getName() + "]";
     }
 
     /**
@@ -602,10 +598,10 @@ public class PersistentObject<T> {
     protected T read() {
 
         // Open file
-        this.log.info(this + ": reading persistent file `" + this.persistentFile + "'");
+        this.log.info(this + ": reading persistent file `" + this.getPersistentFile() + "'");
         BufferedInputStream input;
         try {
-            input = new BufferedInputStream(new FileInputStream(this.persistentFile));
+            input = new BufferedInputStream(this.streamRepository.getInputStream());
         } catch (IOException e) {
             throw new PersistentObjectException("error opening persistent file", e);
         }
@@ -614,7 +610,7 @@ public class PersistentObject<T> {
         T obj;
         try {
             StreamSource source = new StreamSource(input);
-            source.setSystemId(this.persistentFile);
+            source.setSystemId(this.getPersistentFile());
             try {
                 obj = this.delegate.deserialize(source);
             } catch (IOException e) {
@@ -652,80 +648,45 @@ public class PersistentObject<T> {
         if (obj == null)
             throw new IllegalArgumentException("null obj");
 
-        // Create temporary file
-        this.log.info(this + ": writing persistent file `" + this.persistentFile + "'");
-        File tempFile;
+        // Open atomic update output and buffer it
+        AtomicUpdateFileOutputStream updateOutput;
         try {
-            tempFile = File.createTempFile(this.persistentFile.getName(), null, this.persistentFile.getParentFile());
+            updateOutput = this.streamRepository.getOutputStream();
         } catch (IOException e) {
             throw new PersistentObjectException("error creating temporary file", e);
         }
+        BufferedOutputStream output = new BufferedOutputStream(updateOutput);
+
+        // Serialize to XML
         try {
 
-            // Open temporary file
-            BufferedOutputStream output;
+            // Set up XML result
+            StreamResult result = new StreamResult(output);
+            result.setSystemId(updateOutput.getTempFile());
+
+            // Serialize root object
             try {
-                output = new BufferedOutputStream(new FileOutputStream(tempFile));
+                this.delegate.serialize(obj, result);
             } catch (IOException e) {
-                throw new PersistentObjectException("error opening to temporary file", e);
+                throw new PersistentObjectException("error writing persistent file", e);
             }
 
-            // Serialize to XML
+            // Commit output
             try {
-                StreamResult result = new StreamResult(output);
-                result.setSystemId(tempFile);
-                try {
-                    this.delegate.serialize(obj, result);
-                } catch (IOException e) {
-                    throw new PersistentObjectException("error writing persistent file", e);
-                }
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    throw new PersistentObjectException("error closing temporary file", e);
-                }
-                output = null;
-            } finally {
-                try {
-                    if (output != null)
-                        output.close();
-                } catch (IOException e) {
-                    // ignore
-                }
+                output.close();
+            } catch (IOException e) {
+                throw new PersistentObjectException("error closing temporary file", e);
             }
 
-            // Get new modification time (prior to the rename, to avoid a race condition)
-            long newTimestamp = tempFile.lastModified();
-
-            // Rotate backups
-            for (int i = this.numBackups - 1; i >= 0; i--) {
-                File src = i > 0 ? new File(this.persistentFile.toString() + "." + i) : this.persistentFile;
-                File dest = new File(this.persistentFile.toString() + "." + (i + 1));
-                if (i == 0) {
-                    if (dest.exists())      // this happens when this.numBackups == 1
-                        dest.delete();
-                    try {
-                        HardLink.link(src, dest);
-                    } catch (IOException e) {
-                        this.log.warn("unable to backup persistent file to `" + dest + "': " + e);
-                    }
-                } else
-                    src.renameTo(dest);
-            }
-
-            // Rename file
-            if (!tempFile.renameTo(this.persistentFile)) {
-                throw new PersistentObjectException("error renaming temporary file `"
-                  + tempFile.getName() + "' to `" + this.persistentFile.getName() + "'");
-            }
-            tempFile = null;
-
-            // Update file timestamp
-            this.timestamp = newTimestamp;
+            // Success
+            output = null;
         } finally {
-            if (tempFile != null)
-                tempFile.delete();
+            if (output != null)
+                updateOutput.cancel();
         }
+
+        // Update file timestamp
+        this.timestamp = this.streamRepository.getFileTimestamp();
     }
 
     /**
