@@ -8,10 +8,13 @@
 package org.dellroad.stuff.validation;
 
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+
+import org.dellroad.stuff.java.ThreadLocalHolder;
 
 /**
  * Provides additional context for {@link javax.validation.ConstraintValidator} implementations.
@@ -27,7 +30,7 @@ import javax.validation.Validator;
  */
 public class ValidationContext<T> {
 
-    static final ThreadLocal<ValidationContext> CURRENT = new ThreadLocal<ValidationContext>();
+    private static final ThreadLocalHolder<ValidationContext> CURRENT = new ThreadLocalHolder<ValidationContext>();
 
     private final T root;
 
@@ -68,18 +71,24 @@ public class ValidationContext<T> {
      *
      * @throws IllegalStateException if this method is invoked re-entrantly
      */
-    public Set<ConstraintViolation<T>> validate(Validator validator) {
+    public Set<ConstraintViolation<T>> validate(final Validator validator) {
 
         // Sanity check
         if (ValidationContext.CURRENT.get() != null)
             throw new IllegalStateException("re-entrant invocation is not allowed");
 
-        // Set context, then validate
-        ValidationContext.CURRENT.set(this);
+        // Validate
         try {
-            return validator.validate(this.root);
-        } finally {
-            ValidationContext.CURRENT.remove();
+            return ValidationContext.CURRENT.invoke(this, new Callable<Set<ConstraintViolation<T>>>() {
+                @Override
+                public Set<ConstraintViolation<T>> call() {
+                    return validator.validate(ValidationContext.this.root);
+                }
+            });
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
