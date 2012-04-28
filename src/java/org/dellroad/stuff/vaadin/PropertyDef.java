@@ -125,7 +125,7 @@ public final class PropertyDef<T> {
      * <p>
      * Equivalent to:
      *  <blockquote><pre>
-     *  {@link #createProperty(T, boolean) createProperty()}(value, false);
+     *  {@link #createProperty(Object, boolean) createProperty()}(value, false);
      *  </pre></blockquote>
      * </p>
      *
@@ -142,11 +142,10 @@ public final class PropertyDef<T> {
      * <p>
      * Equivalent to:
      *  <blockquote><pre>
-     *  {@link #createProperty(T) createProperty()}(def.getDefaultValue());
+     *  {@link #createProperty(Object) createProperty()}(def.getDefaultValue());
      *  </pre></blockquote>
      * </p>
      *
-     * @param value property value
      * @return new property
      */
     public ObjectProperty createProperty() {
