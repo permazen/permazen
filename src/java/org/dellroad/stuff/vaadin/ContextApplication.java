@@ -120,10 +120,17 @@ public abstract class ContextApplication extends Application implements HttpServ
      * Display an error message to the user.
      */
     public void showError(String title, String description) {
+
+        // Get window
+        Window window = this.getMainWindow();
+        if (window == null)
+            return;
+
+        // Show error
         Window.Notification notification = new Window.Notification(title, description, Window.Notification.TYPE_ERROR_MESSAGE);
         notification.setStyleName("warning");
         notification.setDelayMsec(this.getNotificationDelay());
-        this.getMainWindow().showNotification(notification);
+        window.showNotification(notification);
     }
 
     /**
