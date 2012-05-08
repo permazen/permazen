@@ -1,3 +1,65 @@
+Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
+===================================================================
+--- src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(revision 363)
++++ src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(working copy)
+@@ -30,7 +30,7 @@
+  *  ...
+  *  int age = def.read(item);
+  *  ...
+- *  Property prop = this.get(container, itemId);
++ *  Property&lt;Integer&gt; prop = def.get(container, itemId);
+  * </pre></blockquote>
+  *
+  * @param <T> property's value type
+@@ -156,9 +156,11 @@
+      * Get the property that this instance represents from the given {@link Item}.
+      *
+      * @return property, or null if not found
++     * @throws ClassCastException if the property found has a different type than this instance
+      */
+-    public Property get(Item item) {
+-        return item.getItemProperty(this.getPropertyId());
++    @SuppressWarnings("unchecked")
++    public Property<T> get(Item item) {
++        return this.cast(item.getItemProperty(this.getPropertyId()));
+     }
+ 
+     /**
+@@ -167,11 +169,23 @@
+      * @param container the container containing the items
+      * @param itemId the ID of the item containing the property
+      * @return property, or null if not found
++     * @throws ClassCastException if the property found has a different type than this instance
+      */
+-    public Property get(Container container, Object itemId) {
+-        return container.getContainerProperty(itemId, this.getPropertyId());
++    public Property<T> get(Container container, Object itemId) {
++        return this.cast(container.getContainerProperty(itemId, this.getPropertyId()));
+     }
+ 
++    @SuppressWarnings("unchecked")
++    private Property<T> cast(Property<?> property) {
++        if (property == null)
++            return null;
++        if (property.getType() != this.getType()) {
++            throw new ClassCastException("property type " + property.getType().getName()
++              + " != definition type " + this.getType().getName());
++        }
++        return (Property<T>)property;
++    }
++
+     /**
+      * Add a property represented by this instance to the given {@link Container}.
+      *
+@@ -191,7 +205,7 @@
+      * @return true if the operation succeeded, false if not
+      * @throws UnsupportedOperationException if the operation is not supported
+      */
+-    public boolean addTo(Item item, Property property) {
++    public boolean addTo(Item item, Property<T> property) {
+         return item.addItemProperty(this.getPropertyId(), property);
+     }
+ 
 Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
 ===================================================================
 --- src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(revision 362)
