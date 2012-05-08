@@ -115,7 +115,7 @@ public final class PropertyDef<T> {
      * @param readOnly whether property should be read-only
      * @return new property
      */
-    public ObjectProperty createProperty(T value, boolean readOnly) {
+    public ObjectProperty<T> createProperty(T value, boolean readOnly) {
         return new ObjectProperty<T>(value, this.getType(), readOnly);
     }
 
@@ -132,7 +132,7 @@ public final class PropertyDef<T> {
      * @param value property value
      * @return new property
      */
-    public ObjectProperty createProperty(T value) {
+    public ObjectProperty<T> createProperty(T value) {
         return this.createProperty(value, false);
     }
 
@@ -148,7 +148,7 @@ public final class PropertyDef<T> {
      *
      * @return new property
      */
-    public ObjectProperty createProperty() {
+    public ObjectProperty<T> createProperty() {
         return this.createProperty(this.getDefaultValue());
     }
 
