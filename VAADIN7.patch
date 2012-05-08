@@ -1,6 +1,6 @@
 Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(revision 360)
+--- src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(revision 362)
 +++ src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(working copy)
 @@ -10,9 +10,11 @@
  import com.vaadin.Application;
@@ -15,7 +15,33 @@ Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
  import java.util.EventObject;
  import java.util.HashSet;
  import java.util.List;
-@@ -122,15 +124,19 @@
+@@ -40,7 +42,7 @@
+  * @since 1.0.134
+  */
+ @SuppressWarnings("serial")
+-public abstract class ContextApplication extends Application implements HttpServletRequestListener {
++public class ContextApplication extends Application implements HttpServletRequestListener {
+ 
+     /**
+      * Default notification linger time for error notifications (in milliseconds): Value is {@value}ms.
+@@ -87,9 +89,14 @@
+     }
+ 
+     /**
+-     * Initialize the application. Sub-classes of {@link ContextApplication} must implement this method.
++     * Initialize the application. In Vaain 6, sub-classes of {@link ContextApplication} must
++     * override this method to initialize the application. In Vaadin 7+, overriding is optional.
++     *
++     * <p>
++     * The implementation in {@link ContextApplication} does nothing.
+      */
+-    protected abstract void initApplication();
++    protected void initApplication() {
++    }
+ 
+ // Error handling
+ 
+@@ -122,15 +129,19 @@
      public void showError(String title, String description) {
  
          // Get window
@@ -40,9 +66,42 @@ Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
      }
  
      /**
+Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
+===================================================================
+--- src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(revision 362)
++++ src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(working copy)
+@@ -127,7 +127,7 @@
+  * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">Example Code on GitHub</a>
+  */
+ @SuppressWarnings("serial")
+-public abstract class SpringContextApplication extends ContextApplication {
++public class SpringContextApplication extends ContextApplication {
+ 
+     private static final AtomicLong UNIQUE_INDEX = new AtomicLong();
+ 
+@@ -168,12 +168,17 @@
+     }
+ 
+     /**
+-     * Initialize the application. Sub-classes of {@link SpringContextApplication} must implement this method.
++     * Initialize the application. In Vaadin 6, sub-classes of {@link SpringContextApplication} must
++     * override this method to initialize the application. In Vaadin 7+, overriding is optional.
+      *
++     * <p>
++     * The implementation in {@link SpringContextApplication} does nothing.
++     *
+      * @param context the associated {@link WebApplicationContext} just created and refreshed
+      * @see #destroySpringApplication
+      */
+-    protected abstract void initSpringApplication(ConfigurableWebApplicationContext context);
++    protected void initSpringApplication(ConfigurableWebApplicationContext context) {
++    }
+ 
+     /**
+      * Perform any application-specific shutdown work. This will be invoked at shutdown after this Vaadin application and the
 Index: src/ivy/ivy.xml
 ===================================================================
---- src/ivy/ivy.xml	(revision 360)
+--- src/ivy/ivy.xml	(revision 362)
 +++ src/ivy/ivy.xml	(working copy)
 @@ -15,7 +15,7 @@
      </configurations>
@@ -53,82 +112,3 @@ Index: src/ivy/ivy.xml
          <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="build->default"/>
          <dependency force="true" org="javax.persistence" name="persistence-api" rev="2.0" conf="build->default"/>
          <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="build->default"/>
-Index: VAADIN7.patch
-===================================================================
---- VAADIN7.patch	(revision 361)
-+++ VAADIN7.patch	(working copy)
-@@ -15,7 +15,33 @@
-  import java.util.EventObject;
-  import java.util.HashSet;
-  import java.util.List;
--@@ -122,15 +124,19 @@
-+@@ -40,7 +42,7 @@
-+  * @since 1.0.134
-+  */
-+ @SuppressWarnings("serial")
-+-public abstract class ContextApplication extends Application implements HttpServletRequestListener {
-++public class ContextApplication extends Application implements HttpServletRequestListener {
-+ 
-+     /**
-+      * Default notification linger time for error notifications (in milliseconds): Value is {@value}ms.
-+@@ -87,9 +89,14 @@
-+     }
-+ 
-+     /**
-+-     * Initialize the application. Sub-classes of {@link ContextApplication} must implement this method.
-++     * Initialize the application. In Vaain 6, sub-classes of {@link ContextApplication} must
-++     * override this method to initialize the application. In Vaadin 7+, overriding is optional.
-++     *
-++     * <p>
-++     * The implementation in {@link ContextApplication} does nothing.
-+      */
-+-    protected abstract void initApplication();
-++    protected void initApplication() {
-++    }
-+ 
-+ // Error handling
-+ 
-+@@ -122,15 +129,19 @@
-      public void showError(String title, String description) {
-  
-          // Get window
-@@ -40,6 +66,39 @@
-      }
-  
-      /**
-+Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
-+===================================================================
-+--- src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(revision 360)
-++++ src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(working copy)
-+@@ -127,7 +127,7 @@
-+  * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">Example Code on GitHub</a>
-+  */
-+ @SuppressWarnings("serial")
-+-public abstract class SpringContextApplication extends ContextApplication {
-++public class SpringContextApplication extends ContextApplication {
-+ 
-+     private static final AtomicLong UNIQUE_INDEX = new AtomicLong();
-+ 
-+@@ -168,12 +168,17 @@
-+     }
-+ 
-+     /**
-+-     * Initialize the application. Sub-classes of {@link SpringContextApplication} must implement this method.
-++     * Initialize the application. In Vaadin 6, sub-classes of {@link SpringContextApplication} must
-++     * override this method to initialize the application. In Vaadin 7+, overriding is optional.
-+      *
-++     * <p>
-++     * The implementation in {@link SpringContextApplication} does nothing.
-++     *
-+      * @param context the associated {@link WebApplicationContext} just created and refreshed
-+      * @see #destroySpringApplication
-+      */
-+-    protected abstract void initSpringApplication(ConfigurableWebApplicationContext context);
-++    protected void initSpringApplication(ConfigurableWebApplicationContext context) {
-++    }
-+ 
-+     /**
-+      * Perform any application-specific shutdown work. This will be invoked at shutdown after this Vaadin application and the
- Index: src/ivy/ivy.xml
- ===================================================================
- --- src/ivy/ivy.xml	(revision 360)
