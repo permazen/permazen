@@ -1,6 +1,6 @@
 Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(revision 363)
+--- src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(revision 367)
 +++ src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(working copy)
 @@ -30,7 +30,7 @@
   *  ...
@@ -161,23 +161,10 @@ Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
  
      /**
       * Perform any application-specific shutdown work. This will be invoked at shutdown after this Vaadin application and the
-Index: src/ivy/ivy.xml
-===================================================================
---- src/ivy/ivy.xml	(revision 362)
-+++ src/ivy/ivy.xml	(working copy)
-@@ -15,7 +15,7 @@
-     </configurations>
- 
-     <dependencies>
--        <dependency force="true" org="com.vaadin" name="vaadin" rev="6.7+" conf="build->default"/>
-+        <dependency force="true" org="com.vaadin" name="vaadin" rev="7.0.0.alpha2" conf="build->default"/>
-         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="build->default"/>
-         <dependency force="true" org="javax.persistence" name="persistence-api" rev="2.0" conf="build->default"/>
-         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="build->default"/>
 Index: src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
-+++ src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
+--- src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(revision 367)
++++ src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(working copy)
 @@ -117,7 +117,7 @@
      }
  
@@ -214,3 +201,16 @@ Index: src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
  
          private final T object;
          private final PropertyDef<V> propertyDef;
+Index: src/ivy/ivy.xml
+===================================================================
+--- src/ivy/ivy.xml	(revision 362)
++++ src/ivy/ivy.xml	(working copy)
+@@ -15,7 +15,7 @@
+     </configurations>
+ 
+     <dependencies>
+-        <dependency force="true" org="com.vaadin" name="vaadin" rev="6.7+" conf="build->default"/>
++        <dependency force="true" org="com.vaadin" name="vaadin" rev="7.0.0.alpha2" conf="build->default"/>
+         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="build->default"/>
+         <dependency force="true" org="javax.persistence" name="persistence-api" rev="2.0" conf="build->default"/>
+         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="build->default"/>
