@@ -35,7 +35,7 @@ import com.vaadin.ui.Table;
  *
  * @param <T> property's value type
  */
-public final class PropertyDef<T> {
+public class PropertyDef<T> {
 
     private final String name;
     private final Class<T> type;
@@ -219,6 +219,43 @@ public final class PropertyDef<T> {
         return this.type.cast(property.getValue());
     }
 
+    /**
+     * Determine whether this instance supports sorting property values.
+     *
+     * <p>
+     * The implementation in {@link PropertyDef} returns true if this instance's type implements {@link Comparable}.
+     *
+     * @see #sort sort()
+     */
+    public boolean isSortable() {
+        return Comparable.class.isAssignableFrom(this.type);
+    }
+
+    /**
+     * Sort two values of this property. Optional operation.
+     *
+     * <p>
+     * The implementation in {@link PropertyDef} sorts null values first, then delegates to {@link Comparable}
+     * if the values implement it, or else throws {@link UnsupportedOperationException}.
+     *
+     * @param value1 first value, possibly null
+     * @param value2 second value, possibly null
+     * @return negative, zero, or positive based on comparing {@code value1} to {@code value2}
+     * @throws UnsupportedOperationException if this instance does not support sorting property values
+     */
+    @SuppressWarnings("unchecked")
+    public int sort(T value1, T value2) {
+        if ((value1 == null) != (value2 == null))
+            return value1 == null ? -1 : 1;
+        if (value1 == null && value2 == null)
+            return 0;
+        try {
+            return ((Comparable<T>)value1).compareTo(value2);
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException(e);
+        }
+    }
+
     @Override
     public int hashCode() {
         return this.name.hashCode()
@@ -234,6 +271,12 @@ public final class PropertyDef<T> {
         return this.name.equals(that.name)
           && this.type == that.type
           && (this.defaultValue != null ? this.defaultValue.equals(that.defaultValue) : that.defaultValue == null);
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[name=\"" + this.name + "\",type="
+          + this.type.getName() + ",defaultValue=" + this.defaultValue + "]";
     }
 }
 

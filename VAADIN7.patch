@@ -174,3 +174,43 @@ Index: src/ivy/ivy.xml
          <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="build->default"/>
          <dependency force="true" org="javax.persistence" name="persistence-api" rev="2.0" conf="build->default"/>
          <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="build->default"/>
+Index: src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
+===================================================================
+--- src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
++++ src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
+@@ -117,7 +117,7 @@
+     }
+ 
+     @Override
+-    public Property getContainerProperty(Object itemId, Object propertyId) {        // TODO: VAADIN7
++    public Property<?> getContainerProperty(Object itemId, Object propertyId) {
+         SimpleItem entityItem = this.getItem(itemId);
+         if (entityItem == null)
+             return null;
+@@ -235,7 +235,7 @@
+         }
+ 
+         @Override
+-        public Property getItemProperty(Object id) {        // TODO: VAADIN7
++        public Property<?> getItemProperty(Object id) {
+             PropertyDef<?> propertyDef = SimpleContainer.this.propertyMap.get(id);
+             if (propertyDef == null)
+                 return null;
+@@ -251,7 +251,7 @@
+          * @throws UnsupportedOperationException always
+          */
+         @Override
+-        public boolean addItemProperty(Object id, Property property) {
++        public boolean addItemProperty(Object id, Property/*<?>*/ property) {
+             throw new UnsupportedOperationException();
+         }
+ 
+@@ -277,7 +277,7 @@
+      * @param <V> the type of the property
+      */
+     @SuppressWarnings("serial")
+-    public class SimpleProperty<V> extends AbstractProperty {       // TODO: VAADIN7
++    private class SimpleProperty<V> extends AbstractProperty<V> {
+ 
+         private final T object;
+         private final PropertyDef<V> propertyDef;
