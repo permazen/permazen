@@ -441,6 +441,10 @@ public class PersistentObject<T> {
      * If the given root object is {@linkplain PersistentObjectDelegate#isSameGraph the same as} the current
      * root object, then no action is taken.
      *
+     * <p>
+     * After a successful change, any registered {@linkplain PersistentObjectListener listeners} are notified in a
+     * separate thread from the one that invoked this method.
+     *
      * @param newRoot new persistent object
      * @param expectedVersion expected current version number, or zero to ignore the current version number
      * @throws IllegalArgumentException if {@code newRoot} is null and empty stops are disallowed
@@ -555,6 +559,9 @@ public class PersistentObject<T> {
 
     /**
      * Add a listener to be notified each time the object graph changes.
+     *
+     * <p>
+     * Listeners are notified in a separate thread from the one that caused the root object to change.
      *
      * @throws IllegalArgumentException if {@code listener} is null
      */
