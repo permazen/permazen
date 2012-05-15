@@ -11,7 +11,6 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.AbstractInMemoryContainer;
-import com.vaadin.data.util.AbstractProperty;
 import com.vaadin.data.util.DefaultItemSorter;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.data.util.filter.UnsupportedFilterException;
@@ -32,15 +31,17 @@ import java.util.Set;
  * actually extract the property values from each underlying object.
  *
  * @param <T> the type of the Java objects that back each {@link Item} in the container
+ * @see SimpleItem
+ * @see SimpleProperty
  */
 @SuppressWarnings("serial")
-public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, String, SimpleContainer<T>.SimpleItem>
+public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, String, SimpleItem<T>>
   implements Container.Filterable, Container.SimpleFilterable, Container.Sortable {
 
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
     private final PropertyExtractor<? super T> propertyExtractor;
 
-    private ArrayList<SimpleItem> items = new ArrayList<SimpleItem>(0);
+    private ArrayList<SimpleItem<T>> items = new ArrayList<SimpleItem<T>>(0);
 
 // Constructor
 
@@ -89,12 +90,12 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
             throw new IllegalArgumentException("null contents");
 
         // Bulk load and register items with id's 0, 1, 2, ...
-        this.items = new ArrayList<SimpleItem>();
+        this.items = new ArrayList<SimpleItem<T>>();
         int index = 0;
         for (T obj : contents) {
             if (obj == null)
                 throw new IllegalArgumentException("null item in contents at index " + this.items.size());
-            SimpleItem item = new SimpleItem(obj);
+            SimpleItem<T> item = new SimpleItem<T>(obj, this.propertyMap, this.propertyExtractor);
             this.internalAddItemAtEnd(index++, item, false);
             this.items.add(item);
         }
@@ -118,7 +119,7 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
 
     @Override
     public Property getContainerProperty(Object itemId, Object propertyId) {        // TODO: VAADIN7
-        SimpleItem entityItem = this.getItem(itemId);
+        SimpleItem<T> entityItem = this.getItem(itemId);
         if (entityItem == null)
             return null;
         return entityItem.getItemProperty(propertyId);
@@ -131,26 +132,13 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
     }
 
     @Override
-    public SimpleItem getUnfilteredItem(Object itemId) {
+    public SimpleItem<T> getUnfilteredItem(Object itemId) {
         if (!(itemId instanceof Integer))
             return null;
         int index = (Integer)itemId;
         if (index < 0 || index >= this.items.size())
             return null;
         return this.items.get(index);
-    }
-
-// Public methods
-
-    /**
-     * Get the underlying Java object corresponding to the given {@link Item}.
-     *
-     * @return underlying Java object, or null if {@link Item} is invalid
-     */
-    public T unwrapItem(Item item) {
-        if (!(item instanceof SimpleContainer.SimpleItem))
-            return null;
-        return ((SimpleItem)item).getObject();
     }
 
 // Subclass methods
@@ -214,101 +202,6 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
                 propertyIds.add(entry.getKey());
         }
         return propertyIds;
-    }
-
-// Item class
-
-    /**
-     * {@link Item} implementation used by {@link SimpleContainer}.
-     */
-    @SuppressWarnings("serial")
-    public class SimpleItem implements Item {
-
-        private T obj;
-
-        public SimpleItem(T obj) {
-            this.obj = obj;
-        }
-
-        public T getObject() {
-            return this.obj;
-        }
-
-        @Override
-        public Property getItemProperty(Object id) {        // TODO: VAADIN7
-            PropertyDef<?> propertyDef = SimpleContainer.this.propertyMap.get(id);
-            if (propertyDef == null)
-                return null;
-            return this.createSimpleProperty(propertyDef);
-        }
-
-        @Override
-        public Collection<?> getItemPropertyIds() {
-            return SimpleContainer.this.getContainerPropertyIds();
-        }
-
-        /**
-         * @throws UnsupportedOperationException always
-         */
-        @Override
-        public boolean addItemProperty(Object id, Property property) {
-            throw new UnsupportedOperationException();
-        }
-
-        /**
-         * @throws UnsupportedOperationException always
-         */
-        @Override
-        public boolean removeItemProperty(Object id) {
-            throw new UnsupportedOperationException();
-        }
-
-        // This method exists only to allow the generic parameter <V> to be bound
-        private <V> SimpleProperty<V> createSimpleProperty(PropertyDef<V> propertyDef) {
-            return new SimpleProperty<V>(this.obj, propertyDef);
-        }
-    }
-
-// Property class
-
-    /**
-     * {@link Property} implementation used by {@link SimpleContainer}.
-     *
-     * @param <V> the type of the property
-     */
-    @SuppressWarnings("serial")
-    public class SimpleProperty<V> extends AbstractProperty {       // TODO: VAADIN7
-
-        private final T object;
-        private final PropertyDef<V> propertyDef;
-
-        public SimpleProperty(T object, PropertyDef<V> propertyDef) {
-            this.object = object;
-            this.propertyDef = propertyDef;
-            this.setReadOnly(true);
-        }
-
-        @Override
-        public Class<V> getType() {
-            return this.propertyDef.getType();
-        }
-
-        @Override
-        public V getValue() {
-            return SimpleContainer.this.propertyExtractor.getPropertyValue(this.object, this.propertyDef);
-        }
-
-        @Override
-        public void setValue(Object value) {
-            throw new Property.ReadOnlyException();
-        }
-
-        @Override
-        public void setReadOnly(boolean readOnly) {
-            if (!readOnly)
-                throw new UnsupportedOperationException();
-            super.setReadOnly(readOnly);
-        }
     }
 
 // ItemSorter class
