@@ -13,6 +13,8 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.ui.Table;
 
+import java.util.Comparator;
+
 /**
  * Defines a Vaadin property, having a name, which is also the property ID, and its type.
  * This class provides a mechanism for the explicit naming and identification of Vaadin properties.
@@ -36,6 +38,16 @@ import com.vaadin.ui.Table;
  * @param <T> property's value type
  */
 public class PropertyDef<T> {
+
+    /**
+     * Comparator that sorts instances by name.
+     */
+    public static final Comparator<PropertyDef<?>> SORT_BY_NAME = new Comparator<PropertyDef<?>>() {
+        @Override
+        public int compare(PropertyDef<?> p1, PropertyDef<?> p2) {
+            return p1.getName().compareTo(p2.getName());
+        }
+    };
 
     private final String name;
     private final Class<T> type;
@@ -86,7 +98,7 @@ public class PropertyDef<T> {
      *
      * @return property name, never null
      */
-    public Object getPropertyId() {
+    public String getPropertyId() {
         return this.getName();
     }
 
