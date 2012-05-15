@@ -1,8 +1,8 @@
 Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(revision 367)
+--- src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(revision 370)
 +++ src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(working copy)
-@@ -30,7 +30,7 @@
+@@ -32,7 +32,7 @@
   *  ...
   *  int age = def.read(item);
   *  ...
@@ -11,7 +11,7 @@ Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
   * </pre></blockquote>
   *
   * @param <T> property's value type
-@@ -156,9 +156,11 @@
+@@ -168,9 +168,11 @@
       * Get the property that this instance represents from the given {@link Item}.
       *
       * @return property, or null if not found
@@ -25,7 +25,7 @@ Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
      }
  
      /**
-@@ -167,11 +169,23 @@
+@@ -179,11 +181,23 @@
       * @param container the container containing the items
       * @param itemId the ID of the item containing the property
       * @return property, or null if not found
@@ -51,7 +51,7 @@ Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
      /**
       * Add a property represented by this instance to the given {@link Container}.
       *
-@@ -191,7 +205,7 @@
+@@ -203,7 +217,7 @@
       * @return true if the operation succeeded, false if not
       * @throws UnsupportedOperationException if the operation is not supported
       */
@@ -62,7 +62,7 @@ Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
  
 Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(revision 362)
+--- src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(revision 368)
 +++ src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(working copy)
 @@ -10,9 +10,11 @@
  import com.vaadin.Application;
@@ -128,9 +128,22 @@ Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
      }
  
      /**
+Index: src/java/org/dellroad/stuff/vaadin/SimpleItem.java
+===================================================================
+--- src/java/org/dellroad/stuff/vaadin/SimpleItem.java	(revision 371)
++++ src/java/org/dellroad/stuff/vaadin/SimpleItem.java	(working copy)
+@@ -91,7 +91,7 @@
+      * @throws UnsupportedOperationException always
+      */
+     @Override
+-    public boolean addItemProperty(Object id, Property property) {      // TODO: VAADIN7
++    public boolean addItemProperty(Object id, Property/*<?>*/ property) {
+         throw new UnsupportedOperationException();
+     }
+ 
 Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(revision 362)
+--- src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(revision 368)
 +++ src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(working copy)
 @@ -127,7 +127,7 @@
   * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">Example Code on GitHub</a>
@@ -163,47 +176,33 @@ Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
       * Perform any application-specific shutdown work. This will be invoked at shutdown after this Vaadin application and the
 Index: src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(revision 367)
+--- src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(revision 371)
 +++ src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(working copy)
-@@ -117,7 +117,7 @@
+@@ -118,7 +118,7 @@
      }
  
      @Override
 -    public Property getContainerProperty(Object itemId, Object propertyId) {        // TODO: VAADIN7
 +    public Property<?> getContainerProperty(Object itemId, Object propertyId) {
-         SimpleItem entityItem = this.getItem(itemId);
+         SimpleItem<T> entityItem = this.getItem(itemId);
          if (entityItem == null)
              return null;
-@@ -235,7 +235,7 @@
-         }
+Index: src/java/org/dellroad/stuff/vaadin/SimpleProperty.java
+===================================================================
+--- src/java/org/dellroad/stuff/vaadin/SimpleProperty.java	(revision 371)
++++ src/java/org/dellroad/stuff/vaadin/SimpleProperty.java	(working copy)
+@@ -23,7 +23,7 @@
+  * @see SimpleItem
+  */
+ @SuppressWarnings("serial")
+-public class SimpleProperty<T, V> extends AbstractProperty {                // TODO: VAADIN7
++public class SimpleProperty<T, V> extends AbstractProperty<V> {
  
-         @Override
--        public Property getItemProperty(Object id) {        // TODO: VAADIN7
-+        public Property<?> getItemProperty(Object id) {
-             PropertyDef<?> propertyDef = SimpleContainer.this.propertyMap.get(id);
-             if (propertyDef == null)
-                 return null;
-@@ -251,7 +251,7 @@
-          * @throws UnsupportedOperationException always
-          */
-         @Override
--        public boolean addItemProperty(Object id, Property property) {
-+        public boolean addItemProperty(Object id, Property/*<?>*/ property) {
-             throw new UnsupportedOperationException();
-         }
- 
-@@ -277,7 +277,7 @@
-      * @param <V> the type of the property
-      */
-     @SuppressWarnings("serial")
--    public class SimpleProperty<V> extends AbstractProperty {       // TODO: VAADIN7
-+    private class SimpleProperty<V> extends AbstractProperty<V> {
- 
-         private final T object;
-         private final PropertyDef<V> propertyDef;
+     private final T object;
+     private final PropertyDef<V> propertyDef;
 Index: src/ivy/ivy.xml
 ===================================================================
---- src/ivy/ivy.xml	(revision 362)
+--- src/ivy/ivy.xml	(revision 368)
 +++ src/ivy/ivy.xml	(working copy)
 @@ -15,7 +15,7 @@
      </configurations>
