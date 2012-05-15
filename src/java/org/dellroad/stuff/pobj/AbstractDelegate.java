@@ -67,8 +67,12 @@ public abstract class AbstractDelegate<T> implements PersistentObjectDelegate<T>
      * Compare two object graphs.
      *
      * <p>
-     * The implementation in {@link AbstractDelegate} always returns true only if {@code root1}
-     * and {@code root2} are the same object.
+     * The implementation in {@link AbstractDelegate} only returns true if {@code root1 == root2}.
+     * This is a very conservative implementation. If your root object graph correctly implements
+     * {@link Object#equals equals()}, then {@code root1.equals(root2)} would be a more appropriate test.
+     *
+     * @param root1 first object graph (never null)
+     * @param root2 second object graph (never null)
      */
     @Override
     public boolean isSameGraph(T root1, T root2) {
