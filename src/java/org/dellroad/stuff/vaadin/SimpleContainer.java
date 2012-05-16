@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -110,6 +109,13 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
         this.fireItemSetChange();
     }
 
+    /**
+     * Return the number of items in this container. This includes items that have been filtered out.
+     */
+    public int size() {
+        return this.getAllItemIds().size();
+    }
+
 // Container and superclass required methods
 
     @Override
@@ -187,11 +193,6 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
     @Override
     public void removeContainerFilter(Filter filter) {
         this.removeFilter(filter);
-    }
-
-    @Override
-    public List<Integer> getAllItemIds() {
-        return super.getAllItemIds();
     }
 
     @Override
