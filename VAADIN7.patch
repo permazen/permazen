@@ -1,6 +1,6 @@
 Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(revision 370)
+--- src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(revision 372)
 +++ src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(working copy)
 @@ -32,7 +32,7 @@
   *  ...
@@ -62,7 +62,7 @@ Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
  
 Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(revision 368)
+--- src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(revision 372)
 +++ src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(working copy)
 @@ -10,9 +10,11 @@
  import com.vaadin.Application;
@@ -130,7 +130,7 @@ Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
      /**
 Index: src/java/org/dellroad/stuff/vaadin/SimpleItem.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SimpleItem.java	(revision 371)
+--- src/java/org/dellroad/stuff/vaadin/SimpleItem.java	(revision 372)
 +++ src/java/org/dellroad/stuff/vaadin/SimpleItem.java	(working copy)
 @@ -91,7 +91,7 @@
       * @throws UnsupportedOperationException always
@@ -143,7 +143,7 @@ Index: src/java/org/dellroad/stuff/vaadin/SimpleItem.java
  
 Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(revision 368)
+--- src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(revision 372)
 +++ src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(working copy)
 @@ -127,7 +127,7 @@
   * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">Example Code on GitHub</a>
@@ -176,9 +176,9 @@ Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
       * Perform any application-specific shutdown work. This will be invoked at shutdown after this Vaadin application and the
 Index: src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(revision 371)
+--- src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(revision 373)
 +++ src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(working copy)
-@@ -118,7 +118,7 @@
+@@ -124,7 +124,7 @@
      }
  
      @Override
@@ -189,7 +189,7 @@ Index: src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
              return null;
 Index: src/java/org/dellroad/stuff/vaadin/SimpleProperty.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SimpleProperty.java	(revision 371)
+--- src/java/org/dellroad/stuff/vaadin/SimpleProperty.java	(revision 372)
 +++ src/java/org/dellroad/stuff/vaadin/SimpleProperty.java	(working copy)
 @@ -23,7 +23,7 @@
   * @see SimpleItem
@@ -202,7 +202,7 @@ Index: src/java/org/dellroad/stuff/vaadin/SimpleProperty.java
      private final PropertyDef<V> propertyDef;
 Index: src/ivy/ivy.xml
 ===================================================================
---- src/ivy/ivy.xml	(revision 368)
+--- src/ivy/ivy.xml	(revision 372)
 +++ src/ivy/ivy.xml	(working copy)
 @@ -15,7 +15,7 @@
      </configurations>
