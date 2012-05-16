@@ -176,9 +176,9 @@ Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
       * Perform any application-specific shutdown work. This will be invoked at shutdown after this Vaadin application and the
 Index: src/java/org/dellroad/stuff/vaadin/SimpleContainer.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(revision 373)
+--- src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(revision 375)
 +++ src/java/org/dellroad/stuff/vaadin/SimpleContainer.java	(working copy)
-@@ -124,7 +124,7 @@
+@@ -142,7 +142,7 @@
      }
  
      @Override
