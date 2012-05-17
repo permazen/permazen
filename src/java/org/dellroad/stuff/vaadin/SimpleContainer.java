@@ -124,8 +124,9 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
      * @return the corresponding Java object, or null if not found
      */
     public T getJavaObject(int index) {
-        SimpleItem<T> item = this.getUnfilteredItem(index);
-        return item != null ? item.getObject() : null;
+        if (index < 0 || index >= this.items.size())
+            return null;
+        return this.items.get(index).getObject();
     }
 
     /**
@@ -135,13 +136,12 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
      * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container
      * @throws IllegalArgumentException if {@code object} is null
      */
-    public Integer getItemIdFor(T object) {
+    public Integer getItemIdFor(Object object) {
         if (object == null)
             throw new IllegalArgumentException("null object");
-        for (Integer itemId : this.getAllItemIds()) {
-            SimpleItem<T> item = this.getUnfilteredItem(itemId);
-            if (item != null && item.getObject() == object)
-                return itemId;
+        for (int i = 0; i < this.items.size(); i++) {
+            if (this.items.get(i).getObject() == object)
+                return i;
         }
         return null;
     }
