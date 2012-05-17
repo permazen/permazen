@@ -117,10 +117,22 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
     }
 
     /**
+     * Get the underlying Java object corresponding to the given item ID.
+     * This method ignores any filtering (i.e., filtered-out objects are still accessible).
+     *
+     * @param itemId item ID
+     * @return the corresponding Java object, or null if not found
+     */
+    public T getJavaObject(int index) {
+        SimpleItem<T> item = this.getUnfilteredItem(index);
+        return item != null ? item.getObject() : null;
+    }
+
+    /**
      * Get the container item ID corresponding to the given underlying Java object which is wrapped by this container.
      * Objects are tested for equality using object equality, not {@link Object#equals Object.equals()}.
      *
-     * @return item ID corresponding to {@code object}, or null object is not found in this container
+     * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container
      * @throws IllegalArgumentException if {@code object} is null
      */
     public Integer getItemIdFor(T object) {
