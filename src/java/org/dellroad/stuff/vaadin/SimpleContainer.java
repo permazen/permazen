@@ -40,7 +40,7 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
     private final PropertyExtractor<? super T> propertyExtractor;
 
-    private ArrayList<SimpleItem<T>> items = new ArrayList<SimpleItem<T>>(0);
+    private ArrayList<T> items = new ArrayList<T>(0);
 
 // Constructor
 
@@ -89,14 +89,14 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
             throw new IllegalArgumentException("null contents");
 
         // Bulk load and register items with id's 0, 1, 2, ...
-        this.items = new ArrayList<SimpleItem<T>>();
+        this.items = new ArrayList<T>();
         int index = 0;
         for (T obj : contents) {
             if (obj == null)
                 throw new IllegalArgumentException("null item in contents at index " + this.items.size());
             SimpleItem<T> item = new SimpleItem<T>(obj, this.propertyMap, this.propertyExtractor);
             this.internalAddItemAtEnd(index++, item, false);
-            this.items.add(item);
+            this.items.add(obj);
         }
 
         // Apply filters
@@ -126,7 +126,7 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
     public T getJavaObject(int index) {
         if (index < 0 || index >= this.items.size())
             return null;
-        return this.items.get(index).getObject();
+        return this.items.get(index);
     }
 
     /**
@@ -140,7 +140,7 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
         if (object == null)
             throw new IllegalArgumentException("null object");
         for (int i = 0; i < this.items.size(); i++) {
-            if (this.items.get(i).getObject() == object)
+            if (this.items.get(i) == object)
                 return i;
         }
         return null;
@@ -174,7 +174,7 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
         int index = (Integer)itemId;
         if (index < 0 || index >= this.items.size())
             return null;
-        return this.items.get(index);
+        return new SimpleItem<T>(this.items.get(index), this.propertyMap, this.propertyExtractor);
     }
 
 // Subclass methods
