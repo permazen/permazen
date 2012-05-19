@@ -123,6 +123,19 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
      * @param itemId item ID
      * @return the corresponding Java object, or null if not found
      */
+    public T getJavaObject(Object itemId) {
+        if (!(itemId instanceof Integer))
+            return null;
+        return this.getJavaObject((Integer)itemId);
+    }
+
+    /**
+     * Get the underlying Java object corresponding to the given item ID.
+     * This method ignores any filtering (i.e., filtered-out objects are still accessible).
+     *
+     * @param index item ID
+     * @return the corresponding Java object, or null if not found
+     */
     public T getJavaObject(int index) {
         if (index < 0 || index >= this.items.size())
             return null;
