@@ -126,7 +126,7 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
     public T getJavaObject(Object itemId) {
         if (!(itemId instanceof Integer))
             return null;
-        return this.getJavaObject((Integer)itemId);
+        return this.getJavaObject((int)(Integer)itemId);
     }
 
     /**
