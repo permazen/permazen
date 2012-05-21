@@ -230,7 +230,7 @@ Index: src/java/org/dellroad/stuff/vaadin/ConvertedProperty.java
 ===================================================================
 --- src/java/org/dellroad/stuff/vaadin/ConvertedProperty.java	(revision 0)
 +++ src/java/org/dellroad/stuff/vaadin/ConvertedProperty.java	(revision 0)
-@@ -0,0 +1,132 @@
+@@ -0,0 +1,127 @@
 +
 +/*
 + * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.
@@ -256,7 +256,6 @@ Index: src/java/org/dellroad/stuff/vaadin/ConvertedProperty.java
 +@SuppressWarnings("serial")
 +public class ConvertedProperty<P, M> extends AbstractProperty<P> {
 +
-+    private final Class<? extends P> type;
 +    private final Property<M> property;
 +    private final Converter<P, M> converter;
 +    private final Locale locale;
@@ -267,20 +266,16 @@ Index: src/java/org/dellroad/stuff/vaadin/ConvertedProperty.java
 +    /**
 +     * Primary constructor.
 +     *
-+     * @param type this property type
 +     * @param property underlying property
 +     * @param converter converts this property's values from/to the underlying property's values
 +     * @param locale the {@link Locale} to provide to {@code converter}, or null for none
 +     * @throws IllegalArgumentException if {@code type}, {@code property}, or {@code converter} is null
 +     */
-+    public ConvertedProperty(Class<? extends P> type, Property<M> property, Converter<P, M> converter, Locale locale) {
-+        if (type == null)
-+            throw new IllegalArgumentException("null type");
++    public ConvertedProperty(Property<M> property, Converter<P, M> converter, Locale locale) {
 +        if (property == null)
 +            throw new IllegalArgumentException("null property");
 +        if (converter == null)
 +            throw new IllegalArgumentException("null converter");
-+        this.type = type;
 +        this.property = property;
 +        this.converter = converter;
 +        this.locale = locale;
@@ -292,16 +287,16 @@ Index: src/java/org/dellroad/stuff/vaadin/ConvertedProperty.java
 +     * <p>
 +     * Equivalent to:
 +     *  <blockquote><code>
-+     *  ConvertedProperty(type, property, converter, null)
++     *  ConvertedProperty(property, converter, null)
 +     *  </code></blockquote>
 +     */
-+    public ConvertedProperty(Class<? extends P> type, Property<M> property, Converter<P, M> converter) {
-+        this(type, property, converter, null);
++    public ConvertedProperty(Property<M> property, Converter<P, M> converter) {
++        this(property, converter, null);
 +    }
 +
 +    @Override
 +    public Class<? extends P> getType() {
-+        return this.type;
++        return this.converter.getPresentationType();
 +    }
 +
 +    @Override
@@ -311,7 +306,7 @@ Index: src/java/org/dellroad/stuff/vaadin/ConvertedProperty.java
 +
 +    @Override
 +    public void setValue(Object value) {
-+        this.property.setValue(this.converter.convertToModel(this.type.cast(value), this.locale));
++        this.property.setValue(this.converter.convertToModel(this.getType().cast(value), this.locale));
 +    }
 +
 +    @Override
