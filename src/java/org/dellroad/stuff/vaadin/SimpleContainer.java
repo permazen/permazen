@@ -144,12 +144,37 @@ public class SimpleContainer<T> extends AbstractInMemoryContainer<Integer, Strin
 
     /**
      * Get the container item ID corresponding to the given underlying Java object which is wrapped by this container.
-     * Objects are tested for equality using object equality, not {@link Object#equals Object.equals()}.
+     * Objects are tested for equality using {@link Object#equals Object.equals()}.
+     *
+     * <p>
+     * Note: this method performs a linear search of the container.
      *
      * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container
      * @throws IllegalArgumentException if {@code object} is null
+     * @see #getItemIdForSame
      */
     public Integer getItemIdFor(Object object) {
+        if (object == null)
+            throw new IllegalArgumentException("null object");
+        for (int i = 0; i < this.items.size(); i++) {
+            if (object.equals(this.items.get(i)))
+                return i;
+        }
+        return null;
+    }
+
+    /**
+     * Get the container item ID corresponding to the given underlying Java object which is wrapped by this container.
+     * Objects are tested for equality using object equality, not {@link Object#equals Object.equals()}.
+     *
+     * <p>
+     * Note: this method performs a linear search of the container.
+     *
+     * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container
+     * @throws IllegalArgumentException if {@code object} is null
+     * @see #getItemIdFor
+     */
+    public Integer getItemIdForSame(Object object) {
         if (object == null)
             throw new IllegalArgumentException("null object");
         for (int i = 0; i < this.items.size(); i++) {
