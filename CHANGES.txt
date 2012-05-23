@@ -2,7 +2,7 @@ Version Next
 
     - Changed IdGenerator to re-use the same instance on re-entrant invocation;
       NOTE: backward-incompatible change.
-    - Added SimpleContainer, PropertyExtractor, and sorting to PropertyDef
+    - Added SimpleContainers, PropertyExtractor, and sorting to PropertyDef
     - Added AtomicUpdateFileOutputStream and {,File}StreamRepository
     - Added ThreadLocalHolder
 
