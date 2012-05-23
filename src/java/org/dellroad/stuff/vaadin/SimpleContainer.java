@@ -13,7 +13,7 @@ import java.util.Collection;
 /**
  * An {@link AbstractSimpleContainer} with {@link Integer} item IDs.
  *
- * @param <T> the type of the Java objects that back each {@link Item} in the container
+ * @param <T> the type of the Java objects that back each {@link com.vaadin.data.Item} in the container
  * @see AbstractSimpleContainer
  */
 @SuppressWarnings("serial")

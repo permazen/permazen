@@ -18,7 +18,7 @@ import java.util.HashMap;
  * Restriction: instances can never contain two objects whose keys are equal (in the sense of {@link Object#equals}).
  *
  * @param <I> the item ID type
- * @param <T> the type of the Java objects that back each {@link Item} in the container
+ * @param <T> the type of the Java objects that back each {@link com.vaadin.data.Item} in the container
  * @see AbstractSimpleContainer
  */
 @SuppressWarnings("serial")
@@ -62,7 +62,7 @@ public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer
      *
      * <p>
      * This method uses an internal hash map for efficiency, and assumes that two underlying container objects that
-     * are {@linkplain Object#equal equal} will have the same {@linkplain #getKeyFor key}.
+     * are {@linkplain Object#equals equal} will have the same {@linkplain #getKeyFor key}.
      *
      * @param obj underlying container object
      * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container
