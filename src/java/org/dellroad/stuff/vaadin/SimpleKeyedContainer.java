@@ -53,6 +53,8 @@ public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer
 
     @Override
     public T getJavaObject(Object itemId) {
+        if (itemId == null)
+            return null;
         return this.objectMap.get(itemId);
     }
 
