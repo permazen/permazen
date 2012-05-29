@@ -21,7 +21,7 @@
         and starts-with(@message, 'Redundant import from the same package -'))
     ]]">
         <xsl:variable name="file" select="concat(&quot;'&quot;, @name, &quot;'&quot;)"/>
-        <xsl:variable name="temp" select="concat(&quot;'&quot;, @name, '.new', &quot;'&quot;)"/>
+        <xsl:variable name="temp" select="concat(&quot;'&quot;, @name, '.unused-imports-new', &quot;'&quot;)"/>
         <xsl:value-of select="'sed \&#10;'"/>
         <xsl:for-each select="error[
           (@source='com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck'
