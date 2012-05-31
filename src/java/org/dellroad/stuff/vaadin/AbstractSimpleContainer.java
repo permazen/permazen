@@ -93,13 +93,16 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      *
      * @param propertyDefs container property definitions
      * @throws IllegalArgumentException if {@code propertyDefs} is null
+     * @throws IllegalArgumentException if {@code propertyDefs} contains a property with a duplicate name
      */
     public void setProperties(Collection<? extends PropertyDef<?>> propertyDefs) {
         if (propertyDefs == null)
             throw new IllegalArgumentException("null propertyDefs");
         this.propertyMap.clear();
-        for (PropertyDef<?> propertyDef : propertyDefs)
-            this.propertyMap.put(propertyDef.getName(), propertyDef);
+        for (PropertyDef<?> propertyDef : propertyDefs) {
+            if (this.propertyMap.put(propertyDef.getName(), propertyDef) != null)
+                throw new IllegalArgumentException("duplicate property name `" + propertyDef.getName() + "'");
+        }
         this.fireContainerPropertySetChange();
     }
 
