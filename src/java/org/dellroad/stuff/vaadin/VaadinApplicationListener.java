@@ -8,6 +8,7 @@
 package org.dellroad.stuff.vaadin;
 
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.event.SmartApplicationListener;
 
 /**
@@ -22,11 +23,14 @@ import org.springframework.context.event.SmartApplicationListener;
  *
  * <p>
  * Note: to avoid memory leaks, listeners must be explicitly unregistered when the associated Vaadin application closes.
- * This can be done by explicitly {@linkplain ContextApplication#addListener registering for an application close notification}
- * in which the listener is unregistered, or by unregistering the listener in the Spring
+ * This can be done by invoking {@linkplain #unregisterOnApplicationCloseFrom unregisterOnApplicationCloseFrom()} and providing
+ * the object on which this listener is registered, or by explicitly unregistering the listener in the Spring
  * {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-method} associated with a
  * bean that has {@link VaadinApplicationScope scope="vaadinApplication"} or lives in a {@link SpringContextApplication}
- * application context (so that the bean's destroy method will be invoked when the Vaadin application closes).
+ * application context (so that the bean's destroy method will be invoked when the Vaadin application closes), etc.
+ * However, Spring does not provide any {@code removeApplicationListener()} method in the
+ * {@link org.springframework.context.ConfigurableApplicationContext} class itself, so an explicitly-defined
+ * {@link ApplicationEventMulticaster} must be used for this to work.
  * </p>
  *
  * <p>
@@ -72,10 +76,35 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent> impl
         this.application = application;
     }
 
+    /**
+     * Register a {@link ContextApplication.CloseListener} on the {@linkplain #getApplication configured Vaadin application}
+     * so that upon close notification we can unregister this instance from the provided event multicaster.
+     *
+     * <p>
+     * This method (or some other means) must be used to avoid a memory leak when the Vaadin application closes.
+     *
+     * @param applicationContext the context from which to unregister this instance when the Vaadin application closes
+     */
+    public void unregisterOnApplicationCloseFrom(final ApplicationEventMulticaster eventMulticaster) {
+        this.getApplication().addListener(new ContextApplication.CloseListener() {
+            @Override
+            public void applicationClosed(ContextApplication.CloseEvent closeEvent) {
+                eventMulticaster.removeApplicationListener(VaadinApplicationListener.this);
+            }
+        });
+    }
+
+    /**
+     * Get the event type that this listener listens for.
+     */
     public final Class<E> getEventType() {
         return this.eventType;
     }
 
+    /**
+     * Get the {@link ContextApplication} that this instance will set as the "current Vaadin appliction"
+     * when {@link #onApplicationEventInternal} is invoked.
+     */
     public final ContextApplication getApplication() {
         return this.application;
     }
