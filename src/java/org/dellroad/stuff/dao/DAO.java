@@ -87,5 +87,10 @@ public interface DAO<T> {
      * @throws IllegalStateException if no transaction is associated with the current thread
      */
     boolean isReadOnly();
+
+    /**
+     * Determine if the current session (i.e., {@code EntityManager}) contains the given instance.
+     */
+    boolean contains(T obj);
 }
 

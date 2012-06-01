@@ -200,6 +200,11 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
         return TransactionSynchronizationManager.isCurrentTransactionReadOnly();
     }
 
+    @Override
+    public boolean contains(T obj) {
+        return this.getJpaTemplate().contains(obj);
+    }
+
 // Type and cast methods
 
     /**
