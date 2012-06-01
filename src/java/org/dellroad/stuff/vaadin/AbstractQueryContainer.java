@@ -31,8 +31,10 @@ import java.util.Set;
  *
  * <p>
  * Note that the query list being invalid is an orthogonal concept from the contents of the list having changed;
- * the latter implies the former but not vice-versa. Of course, after any change to the list content,
- * {@link #fireItemSetChange} should also be invoked.
+ * however, the latter implies the former (but not vice-versa). Therefore, after any change to the list content,
+ * first {@link #invalidate} and then {@link #fireItemSetChange} should be invoked. On the other hand, the list can
+ * become invalid without the content changing if e.g., the list contains JPA entities and the corresponding
+ * {@link javax.persistence.EntityManager} is closed.
  *
  * <p>
  * The subclass may forcibly invalidate the current query list via {@link #invalidate}, e.g., after change to the
