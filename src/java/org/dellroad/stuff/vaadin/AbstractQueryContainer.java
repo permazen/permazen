@@ -83,6 +83,13 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 // Public methods
 
     /**
+     * Get the configured {@link PropertyExtractor} for this container.
+     */
+    public PropertyExtractor<? super T> getPropertyExtractor() {
+        return this.propertyExtractor;
+    }
+
+    /**
      * Change the configured {@link PropertyExtractor} for this container.
      * Invoking this method does not result in any container notifications.
      *
