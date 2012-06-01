@@ -292,6 +292,73 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         return index;
     }
 
+// Container.Ordered
+
+    @Override
+    public Integer nextItemId(Object itemId) {
+        if (!(itemId instanceof Integer))
+            return null;
+        int index = ((Integer)itemId).intValue();
+        List<T> list = this.getList();
+        if (index < 0 || index + 1 >= list.size())
+            return null;
+        return index + 1;
+    }
+
+    @Override
+    public Integer prevItemId(Object itemId) {
+        if (!(itemId instanceof Integer))
+            return null;
+        int index = ((Integer)itemId).intValue();
+        List<T> list = this.getList();
+        if (index - 1 < 0 || index >= list.size())
+            return null;
+        return index - 1;
+    }
+
+    @Override
+    public Integer firstItemId() {
+        return this.getList().isEmpty() ? null : 0;
+    }
+
+    @Override
+    public Integer lastItemId() {
+        List<T> list = this.getList();
+        return list.isEmpty() ? null : list.size() - 1;
+    }
+
+    @Override
+    public boolean isFirstId(Object itemId) {
+        if (!(itemId instanceof Integer))
+            return false;
+        int index = ((Integer)itemId).intValue();
+        return !this.getList().isEmpty() && index == 0;
+    }
+
+    @Override
+    public boolean isLastId(Object itemId) {
+        if (!(itemId instanceof Integer))
+            return false;
+        int index = ((Integer)itemId).intValue();
+        return index == this.getList().size() - 1;
+    }
+
+    /**
+     * @throws UnsupportedOperationException always
+     */
+    @Override
+    public Item addItemAfter(Object previousItemId) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @throws UnsupportedOperationException always
+     */
+    @Override
+    public Item addItemAfter(Object previousItemId, Object newItemId) {
+        throw new UnsupportedOperationException();
+    }
+
 // Container.PropertySetChangeNotifier
 
     @Override
