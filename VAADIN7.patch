@@ -1,6 +1,6 @@
 Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(revision 393)
+--- src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(revision 400)
 +++ src/java/org/dellroad/stuff/vaadin/PropertyDef.java	(working copy)
 @@ -32,7 +32,7 @@
   *  ...
@@ -62,7 +62,7 @@ Index: src/java/org/dellroad/stuff/vaadin/PropertyDef.java
  
 Index: src/java/org/dellroad/stuff/vaadin/SimpleItem.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SimpleItem.java	(revision 393)
+--- src/java/org/dellroad/stuff/vaadin/SimpleItem.java	(revision 400)
 +++ src/java/org/dellroad/stuff/vaadin/SimpleItem.java	(working copy)
 @@ -91,7 +91,7 @@
       * @throws UnsupportedOperationException always
@@ -75,7 +75,7 @@ Index: src/java/org/dellroad/stuff/vaadin/SimpleItem.java
  
 Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(revision 393)
+--- src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(revision 400)
 +++ src/java/org/dellroad/stuff/vaadin/ContextApplication.java	(working copy)
 @@ -10,9 +10,11 @@
  import com.vaadin.Application;
@@ -143,9 +143,9 @@ Index: src/java/org/dellroad/stuff/vaadin/ContextApplication.java
      /**
 Index: src/java/org/dellroad/stuff/vaadin/AbstractSimpleContainer.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/AbstractSimpleContainer.java	(revision 395)
+--- src/java/org/dellroad/stuff/vaadin/AbstractSimpleContainer.java	(revision 403)
 +++ src/java/org/dellroad/stuff/vaadin/AbstractSimpleContainer.java	(working copy)
-@@ -211,7 +211,7 @@
+@@ -218,7 +218,7 @@
      }
  
      @Override
@@ -156,7 +156,7 @@ Index: src/java/org/dellroad/stuff/vaadin/AbstractSimpleContainer.java
              return null;
 Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(revision 393)
+--- src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(revision 400)
 +++ src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java	(working copy)
 @@ -127,7 +127,7 @@
   * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">Example Code on GitHub</a>
@@ -189,9 +189,9 @@ Index: src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java
       * Perform any application-specific shutdown work. This will be invoked at shutdown after this Vaadin application and the
 Index: src/java/org/dellroad/stuff/vaadin/AbstractQueryContainer.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/AbstractQueryContainer.java	(revision 396)
+--- src/java/org/dellroad/stuff/vaadin/AbstractQueryContainer.java	(revision 403)
 +++ src/java/org/dellroad/stuff/vaadin/AbstractQueryContainer.java	(working copy)
-@@ -177,7 +177,7 @@
+@@ -186,7 +186,7 @@
      }
  
      @Override
@@ -202,7 +202,7 @@ Index: src/java/org/dellroad/stuff/vaadin/AbstractQueryContainer.java
      }
 Index: src/java/org/dellroad/stuff/vaadin/SimpleProperty.java
 ===================================================================
---- src/java/org/dellroad/stuff/vaadin/SimpleProperty.java	(revision 393)
+--- src/java/org/dellroad/stuff/vaadin/SimpleProperty.java	(revision 400)
 +++ src/java/org/dellroad/stuff/vaadin/SimpleProperty.java	(working copy)
 @@ -23,7 +23,7 @@
   * @see SimpleItem
@@ -357,7 +357,7 @@ Added: svn:eol-style
 
 Index: src/ivy/ivy.xml
 ===================================================================
---- src/ivy/ivy.xml	(revision 393)
+--- src/ivy/ivy.xml	(revision 400)
 +++ src/ivy/ivy.xml	(working copy)
 @@ -15,7 +15,7 @@
      </configurations>
@@ -370,7 +370,7 @@ Index: src/ivy/ivy.xml
          <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="build->default"/>
 Index: build.xml
 ===================================================================
---- build.xml	(revision 393)
+--- build.xml	(revision 400)
 +++ build.xml	(working copy)
 @@ -169,7 +169,7 @@
                  <link href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/"/>
