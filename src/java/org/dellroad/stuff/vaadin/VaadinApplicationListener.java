@@ -23,7 +23,7 @@ import org.springframework.context.event.SmartApplicationListener;
  *
  * <p>
  * Note: to avoid memory leaks, listeners must be explicitly unregistered when the associated Vaadin application closes.
- * This can be done by invoking {@linkplain #unregisterOnApplicationCloseFrom unregisterOnApplicationCloseFrom()} and providing
+ * This can be done by invoking {@link #unregisterOnApplicationCloseFrom unregisterOnApplicationCloseFrom()} and providing
  * the object on which this listener is registered, or by explicitly unregistering the listener in the Spring
  * {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-method} associated with a
  * bean that has {@link VaadinApplicationScope scope="vaadinApplication"} or lives in a {@link SpringContextApplication}
