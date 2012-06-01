@@ -32,9 +32,9 @@ import java.util.Set;
  * <p>
  * Note that the query list being invalid is an orthogonal concept from the contents of the list having changed;
  * however, the latter implies the former (but not vice-versa). Therefore, after any change to the list content,
- * first {@link #invalidate} and then {@link #fireItemSetChange} should be invoked. On the other hand, the list can
- * become invalid without the content changing if e.g., the list contains JPA entities and the corresponding
- * {@link javax.persistence.EntityManager} is closed.
+ * first {@link #invalidate} and then {@link #fireItemSetChange} should be invoked (for convenience, {@link #reload}
+ * will perform these two steps for you). On the other hand, the list can become invalid without the content changing
+ * if e.g., the list contains JPA entities and the corresponding {@link javax.persistence.EntityManager} is closed.
  *
  * <p>
  * The subclass may forcibly invalidate the current query list via {@link #invalidate}, e.g., after change to the
@@ -118,6 +118,17 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
                 throw new IllegalArgumentException("duplicate property name `" + propertyDef.getName() + "'");
         }
         this.fireContainerPropertySetChange();
+    }
+
+    /**
+     * Reload this container.
+     *
+     * <p>
+     * This invalidates the current list (if any) and fires an item set change event.
+     */
+    public void reload() {
+        this.invalidate();
+        this.fireItemSetChange();
     }
 
 // Subclass hooks and methods
