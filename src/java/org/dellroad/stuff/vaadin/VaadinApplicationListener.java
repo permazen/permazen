@@ -84,8 +84,11 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent> impl
      * This method (or some other means) must be used to avoid a memory leak when the Vaadin application closes.
      *
      * @param eventMulticaster the context from which to unregister this instance when the Vaadin application closes
+     * @throws IllegalArgumentException if {@code eventMulticaster} is null
      */
     public void unregisterOnApplicationCloseFrom(final ApplicationEventMulticaster eventMulticaster) {
+        if (eventMulticaster == null)
+            throw new IllegalArgumentException("null eventMulticaster");
         this.getApplication().addListener(new ContextApplication.CloseListener() {
             @Override
             public void applicationClosed(ContextApplication.CloseEvent closeEvent) {
