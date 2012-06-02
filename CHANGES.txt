@@ -3,7 +3,7 @@ Version Next
     - Changed IdGenerator to re-use the same instance on re-entrant invocation;
       NOTE: backward-incompatible change.
     - Added new Container classes, PropertyExtractor, and sorting to PropertyDef
-    - Added VaadinApplicationListener.unregisterOnApplicationCloseFrom()
+    - Added VaadinApplicationListener.addAsListenerTo()
     - Added AtomicUpdateFileOutputStream and {,File}StreamRepository
     - Added AbstractDAO.contains()
     - Added ThreadLocalHolder

@@ -23,8 +23,8 @@ import org.springframework.context.event.SmartApplicationListener;
  *
  * <p>
  * Note: to avoid memory leaks, listeners must be explicitly unregistered when the associated Vaadin application closes.
- * This can be done by invoking {@link #unregisterOnApplicationCloseFrom unregisterOnApplicationCloseFrom()} and providing
- * the object on which this listener is registered, or by explicitly unregistering the listener in the Spring
+ * This is done automatically when {@link #addAsListenerTo addAsListenerTo()} is used to register this instance as a listener.
+ * Alternately, you can explicitly unregister this listener in a Spring
  * {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-method} associated with a
  * bean that has {@link VaadinApplicationScope scope="vaadinApplication"} or lives in a {@link SpringContextApplication}
  * application context (so that the bean's destroy method will be invoked when the Vaadin application closes), etc.
@@ -77,18 +77,28 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent> impl
     }
 
     /**
-     * Register a {@link ContextApplication.CloseListener} on the {@linkplain #getApplication configured Vaadin application}
-     * so that upon close notification we can unregister this instance from the provided event multicaster.
+     * Register as a listener on the given {@link ApplicationEventMulticaster} and also register a
+     * {@link ContextApplication.CloseListener} on the {@linkplain #getApplication configured Vaadin application}
+     * so that when the application closes we can unregister this instance from the provided event multicaster
+     * to avoid a memory leak.
      *
      * <p>
      * This method (or some other means) must be used to avoid a memory leak when the Vaadin application closes.
      *
-     * @param eventMulticaster the context from which to unregister this instance when the Vaadin application closes
+     * @param eventMulticaster object with which to register as a listener and from which to unregister
+     *  when the Vaadin application closes
      * @throws IllegalArgumentException if {@code eventMulticaster} is null
      */
-    public void unregisterOnApplicationCloseFrom(final ApplicationEventMulticaster eventMulticaster) {
+    public void addAsListenerTo(final ApplicationEventMulticaster eventMulticaster) {
+
+        // Sanity check
         if (eventMulticaster == null)
             throw new IllegalArgumentException("null eventMulticaster");
+
+        // Register myself as a listener
+        eventMulticaster.addApplicationListener(this);
+
+        // Unregister myself on Application close
         this.getApplication().addListener(new ContextApplication.CloseListener() {
             @Override
             public void applicationClosed(ContextApplication.CloseEvent closeEvent) {
