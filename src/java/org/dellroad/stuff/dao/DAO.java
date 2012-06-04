@@ -16,6 +16,13 @@ import javax.persistence.FlushModeType;
  */
 public interface DAO<T> {
 
+// Meta-data methods
+
+    /**
+     * Get the type of persistent object handled by this instance.
+     */
+    Class<T> getType();
+
 // Access methods
 
     /**

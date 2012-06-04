@@ -71,6 +71,13 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
         this.setJpaTemplate(jpaTemplate);
     }
 
+// Meta-data methods
+
+    @Override
+    public Class<T> getType() {
+        return this.type;
+    }
+
 // Access methods
 
     @Override
