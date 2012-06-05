@@ -19,10 +19,15 @@
     or
       (@source='com.puppycrawl.tools.checkstyle.checks.imports.RedundantImportCheck'
         and starts-with(@message, 'Redundant import from the same package -'))
+    or
+      (@source='com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck'
+        and @message = 'Line has trailing spaces.')
     ]]">
         <xsl:variable name="file" select="concat(&quot;'&quot;, @name, &quot;'&quot;)"/>
         <xsl:variable name="temp" select="concat(&quot;'&quot;, @name, '.unused-imports-new', &quot;'&quot;)"/>
         <xsl:value-of select="'sed \&#10;'"/>
+
+        <!-- Delete redundant import lines -->
         <xsl:for-each select="error[
           (@source='com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck'
             and starts-with(@message, 'Unused import -'))
@@ -32,6 +37,15 @@
         ]">
             <xsl:value-of select="concat('  -e ', @line, 'd \&#10;')"/>
         </xsl:for-each>
+
+        <!-- Remove trailing whitespace -->
+        <xsl:for-each select="error[
+          (@source='com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck'
+            and @message = 'Line has trailing spaces.')
+        ]">
+            <xsl:value-of select="concat('  -e ', &quot;'&quot;, 's/[[:space:]]\{1,\}$//g', &quot;'&quot;, ' \&#10;')"/>
+        </xsl:for-each>
+
         <xsl:value-of select="concat('  &lt; ', $file, ' \&#10;  &gt; ', $temp,
           ' \&#10;  &amp;&amp; mv ', $temp, ' \&#10;    ', $file, '&#10;')"/>
     </xsl:template>

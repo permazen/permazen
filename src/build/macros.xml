@@ -1095,25 +1095,28 @@
     </target>
     <target name="reports-project"/>
 
-    <target name="remove-unused-imports">
+    <!-- Backward compatibility -->
+    <target name="remove-unused-imports" depends="checkstyle-cleanup"/>
+
+    <target name="checkstyle-cleanup">
         <exec executable="/bin/bash" logError="true" failonerror="true">
             <arg value="-c"/>
             <arg value="
                 if ! [ -f build/reports/checkstyle/report.xml ]; then
-                    echo 'ERROR: you must run &#34;ant checks-checkstyle&#34; first!';
+                    echo 'ERROR: you must run &#34;ant checkstyle&#34; first!';
                     exit 1;
                 fi;
-                if [ -f build/reports/checkstyle/removeUnusedImports.sh ]; then
-                    echo 'ERROR: only run &#34;ant remove-unused-imports&#34; once!';
+                if [ -f build/reports/checkstyle/cleanup.sh ]; then
+                    echo 'ERROR: only run &#34;ant checkstyle-cleanup&#34; once!';
                     exit 1;
                 fi;
             "/>
         </exec>
-        <xslt style="${build.macros.dir}/checkstyle/unused-imports.xsl"
-          in="build/reports/checkstyle/report.xml" out="build/reports/checkstyle/removeUnusedImports.sh"/>
+        <xslt style="${build.macros.dir}/checkstyle/cleanup.xsl"
+          in="build/reports/checkstyle/report.xml" out="build/reports/checkstyle/cleanup.sh"/>
         <exec executable="/bin/bash" logError="true" failonerror="true">
             <arg value="-x"/>
-            <arg value="build/reports/checkstyle/removeUnusedImports.sh"/>
+            <arg value="build/reports/checkstyle/cleanup.sh"/>
         </exec>
     </target>
 
