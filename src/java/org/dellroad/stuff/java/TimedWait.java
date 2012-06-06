@@ -60,7 +60,7 @@ public final class TimedWait {
             // If there's a timeout, subtract the time we just waited (rounding to the nearest millisecond)
             if (timeout > 0) {
                 long stopTime = System.nanoTime();
-                timeout -= (stopTime - startTime + 500) / 1000L;
+                timeout -= (stopTime - startTime + 500000L) / 1000000L;
                 if (timeout == 0)               // don't convert the last millisecond into an infinite wait
                     timeout = -1;
                 startTime = stopTime;
