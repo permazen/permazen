@@ -721,8 +721,6 @@
 
         Requires:
             path "javac.classpath"
-        Optional:
-            property "javac.compiler.flags"
     -->
     <macrodef uri="urn:org.dellroad.ant" name="javadoc">
         <attribute name="title" default="Java Class Library API"/>
@@ -746,8 +744,8 @@
                       source="1.5" breakiterator="yes" linksource="true"
                       windowtitle="@{title}" doctitle="@{title}" failonerror="true">
                         <classpath>
-                            <path refid="javac.classpath"/>
                             <additional-classpath/>
+                            <path refid="javac.classpath"/>
                         </classpath>
                         <packageset dir="src/java" defaultexcludes="yes">
                             <include name="**/*"/>
