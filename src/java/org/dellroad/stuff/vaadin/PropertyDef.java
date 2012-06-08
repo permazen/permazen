@@ -168,9 +168,10 @@ public class PropertyDef<T> {
      * Get the property that this instance represents from the given {@link Item}.
      *
      * @return property, or null if not found
+     * @throws ClassCastException if the property found has a different type than this instance
      */
     public Property get(Item item) {
-        return item.getItemProperty(this.getPropertyId());
+        return this.cast(item.getItemProperty(this.getPropertyId()));
     }
 
     /**
@@ -179,9 +180,30 @@ public class PropertyDef<T> {
      * @param container the container containing the items
      * @param itemId the ID of the item containing the property
      * @return property, or null if not found
+     * @throws ClassCastException if the property found has a different type than this instance
      */
     public Property get(Container container, Object itemId) {
-        return container.getContainerProperty(itemId, this.getPropertyId());
+        return this.cast(container.getContainerProperty(itemId, this.getPropertyId()));
+    }
+
+    /**
+     * Verify that the given property has the same Java type as this property definition.
+     *
+     * <p>
+     * This essentially verifies that <code>property.getType() == this.getType()</code>.
+     *
+     * @param property the property to verify; may be null
+     * @return null if {@code property} is null, otherwise {@code property}
+     * @throws ClassCastException if {@code property} has a different type than this definition
+     */
+    public Property cast(Property property) {
+        if (property == null)
+            return null;
+        if (property.getType() != this.getType()) {
+            throw new ClassCastException("property type " + property.getType().getName()
+              + " != definition type " + this.getType().getName());
+        }
+        return property;
     }
 
     /**
