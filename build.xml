@@ -42,7 +42,7 @@
     </target>
 
     <!-- Resources -->
-    <target name="resources" unless="resources.completed">
+    <target name="resources" unless="resources.completed" description="Gather resources">
         <delete dir="build/resources"/>
         <mkdir dir="build/resources"/>
         <copy todir="build/resources">
@@ -58,7 +58,8 @@
     </target>
 
     <!-- Compile JiBX bindings -->
-    <target name="jibx-bind" depends="javac, jibx-bind.classpath" unless="jibx-bind.completed">
+    <target name="jibx-bind" depends="javac, jibx-bind.classpath" unless="jibx-bind.completed"
+      description="Compile JiBX bindings">
         <dellroad:jibx-bind name="test classes">
             <classes>
                 <pathelement location="${basedir}/build/classes"/>
@@ -74,7 +75,8 @@
     </target>
 
     <!-- Compile Aspects -->
-    <target name="aspects" depends="javac" unless="aspects.completed">
+    <target name="aspects" depends="javac" unless="aspects.completed"
+      description="Compile AOP aspects">
         <taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
             <classpath refid="javac.classpath"/>
         </taskdef>
@@ -96,7 +98,8 @@
     </target>
 
     <!-- Main JAR -->
-    <target name="jar" depends="javac, jibx-bind, aspects, resources" unless="jar.completed">
+    <target name="jar" depends="javac, jibx-bind, aspects, resources" unless="jar.completed"
+      description="Build main JAR">
         <mkdir dir="build/dist"/>
         <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
         <jar destfile="build/dist/${ant.project.name}-${full.version}.jar">
@@ -109,7 +112,8 @@
     </target>
 
     <!-- Vaadin addon -->
-    <target name="addon" depends="javac, aspects, resources" unless="addon.completed">
+    <target name="addon" depends="javac, aspects, resources" unless="addon.completed"
+      description="Build Vaadin add-on">
         <mkdir dir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}"/>
         <copy todir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}">
             <fileset dir="src/addon" includes="pom.xml"/>
@@ -136,7 +140,8 @@
     </target>
 
     <!-- All distribution files -->
-    <target name="jars" depends="jar, javadoc" unless="jars.completed">
+    <target name="jars" depends="jar, javadoc" unless="jars.completed"
+      description="Build JARs">
         <mkdir dir="build/dist"/>
         <delete file="build/dist/${ant.project.name}-sources-${full.version}.zip"/>
         <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">
@@ -150,7 +155,8 @@
     </target>
 
     <!-- Build Javadocs -->
-    <target name="javadoc" depends="javac" unless="javadoc.completed">
+    <target name="javadoc" depends="javac" unless="javadoc.completed"
+      description="Build API JavaDocs">
         <delete dir="build/javadoc"/>
         <mkdir dir="build/javadoc"/>
         <copy todir="build/javadoc">
@@ -284,6 +290,10 @@
 
     <!-- Reports target -->
     <target name="reports-project" depends="javadoc, checkstyle, tests"/>
+
+    <!-- Release time stuff -->
+    <target name="release" depends="clean, jars, addon, reports, publish, mavenpub"
+      description="Perform release-time tasks"/>
 
     <!-- Default target -->
     <target name="build" depends="clean, jars, addon, reports"/>
