@@ -973,9 +973,8 @@
         <property name="checkstyle.classpath.resolved" value="true"/>
     </target>
 
-    <target name="javac" depends="javac-project, javac.classpath, testng.classpath" unless="javac.completed">
-
-        <!-- Main classes -->
+    <!-- JAVAC: Main classes -->
+    <target name="javac-main" depends="javac.classpath" unless="javac-main.completed">
         <antcontrib:if>
             <available file="src/java" type="dir"/>
             <antcontrib:then>
@@ -1023,8 +1022,11 @@
                 </antcontrib:if>
             </antcontrib:then>
         </antcontrib:if>
+        <property name="javac-main.completed" value="true"/>
+    </target>
 
-        <!-- Test classes -->
+    <!-- JAVAC: Test classes -->
+    <target name="javac-tests" depends="javac-project, javac.classpath, testng.classpath" unless="javac-tests.completed">
         <antcontrib:if>
             <available file="src/test" type="dir"/>
             <antcontrib:then>
@@ -1047,8 +1049,13 @@
                 </antcontrib:outofdate>
             </antcontrib:then>
         </antcontrib:if>
+        <property name="javac-tests.completed" value="true"/>
+    </target>
+
+    <target name="javac" depends="javac-project, javac-main, javac-tests" unless="javac.completed">
         <property name="javac.completed" value="true"/>
     </target>
+
     <target name="javac-project"/>
 
     <target name="reports" depends="reports-project">
