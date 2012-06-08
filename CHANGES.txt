@@ -1,5 +1,6 @@
 Version 1.0.414 Released June 8, 2012
 
+    - Added Vaadin 7 versions of Vaadin classes that require change
     - Changed IdGenerator to re-use the same instance on re-entrant invocation;
       NOTE: backward-incompatible change.
     - Added new Container classes, PropertyExtractor, and sorting to PropertyDef

@@ -27,8 +27,18 @@
 
     <!-- Classpath targets -->
     <target name="javac.classpath" unless="javac.classpath.resolved">
-        <dellroad:ivypath pathid="javac.classpath" conf="build"/>
+        <dellroad:ivypath pathid="javac.classpath" conf="build-vaadin6"/>
         <property name="javac.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="javac-vaadin7.classpath" unless="javac-vaadin7.classpath.resolved">
+        <dellroad:ivypath pathid="javac-vaadin7.classpath" conf="build-vaadin7"/>
+        <property name="javac-vaadin7.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="vaadin7.classpath" unless="vaadin7.classpath.resolved">
+        <dellroad:ivypath pathid="vaadin7.classpath" conf="vaadin7"/>
+        <property name="vaadin7.classpath.resolved" value="true"/>
     </target>
 
     <target name="jibx-bind.classpath" unless="jibx-bind.classpath.resolved">
@@ -39,6 +49,33 @@
     <target name="unittest.classpath" depends="jar" unless="unittest.classpath.resolved">
         <dellroad:ivypath pathid="unittest.classpath" conf="test"/>
         <property name="unittest.classpath.resolved" value="true"/>
+    </target>
+
+    <!-- JAVAC: Main and Vaadin6 classes -->
+    <target name="javac-vaadin6" depends="javac.classpath, testng.classpath" unless="javac-vaadin6.completed">
+        <mkdir dir="build/classes"/>
+        <dellroad:javac-default sourcepath="" srcdir="src/java" destdir="build/classes">
+            <classpath refid="javac.classpath"/>
+            <compilerarg line="-proc:none"/>
+            <include name="**/*.java"/>
+            <exclude name="org/dellroad/stuff/vaadin7/**/*.java"/>
+        </dellroad:javac-default>
+        <property name="javac-vaadin6.completed" value="true"/>
+    </target>
+
+    <!-- JAVAC: Vaadin7 classes -->
+    <target name="javac-vaadin7" depends="javac-vaadin7.classpath, testng.classpath" unless="javac-vaadin7.completed">
+        <mkdir dir="build/classes"/>
+        <dellroad:javac-default sourcepath="" srcdir="src/java" destdir="build/classes">
+            <classpath refid="javac-vaadin7.classpath"/>
+            <compilerarg line="-proc:none"/>
+            <include name="org/dellroad/stuff/vaadin7/**/*.java"/>
+        </dellroad:javac-default>
+        <property name="javac-vaadin7.completed" value="true"/>
+    </target>
+
+    <target name="javac-main" depends="javac-vaadin6, javac-vaadin7" unless="javac-main.completed">
+        <property name="javac-main.completed" value="true"/>
     </target>
 
     <!-- Resources -->
@@ -75,7 +112,7 @@
     </target>
 
     <!-- Compile Aspects -->
-    <target name="aspects" depends="javac" unless="aspects.completed"
+    <target name="aspects" depends="javac, javac-vaadin7" unless="aspects.completed"
       description="Compile AOP aspects">
         <taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
             <classpath refid="javac.classpath"/>
@@ -98,7 +135,7 @@
     </target>
 
     <!-- Main JAR -->
-    <target name="jar" depends="javac, jibx-bind, aspects, resources" unless="jar.completed"
+    <target name="jar" depends="javac, javac-vaadin7, jibx-bind, aspects, resources" unless="jar.completed"
       description="Build main JAR">
         <mkdir dir="build/dist"/>
         <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
@@ -112,7 +149,7 @@
     </target>
 
     <!-- Vaadin addon -->
-    <target name="addon" depends="javac, aspects, resources" unless="addon.completed"
+    <target name="addon" depends="javac, javac-vaadin7, aspects, resources" unless="addon.completed"
       description="Build Vaadin add-on">
         <mkdir dir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}"/>
         <copy todir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}">
@@ -126,8 +163,14 @@
         <mkdir dir="build/dist"/>
         <delete file="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar"/>
         <jar destfile="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar">
-            <fileset dir="build/classes" includes="org/dellroad/stuff/vaadin/**/*"/>
-            <fileset dir="build/resources" includes="org/dellroad/stuff/vaadin/**/*"/>
+            <fileset dir="build/classes">
+                <include name="org/dellroad/stuff/vaadin/**/*"/>
+                <include name="org/dellroad/stuff/vaadin7/**/*"/>
+            </fileset>
+            <fileset dir="build/resources">
+                <include name="org/dellroad/stuff/vaadin/**/*"/>
+                <include name="org/dellroad/stuff/vaadin7/**/*"/>
+            </fileset>
             <metainf dir="build/addon" includes="maven/**/*"/>
             <metainf dir="src/aop" includes="aop.xml"/>
             <manifest>
@@ -155,7 +198,7 @@
     </target>
 
     <!-- Build Javadocs -->
-    <target name="javadoc" depends="javac" unless="javadoc.completed"
+    <target name="javadoc" depends="javac, javac-vaadin7, vaadin7.classpath" unless="javadoc.completed"
       description="Build API JavaDocs">
         <delete dir="build/javadoc"/>
         <mkdir dir="build/javadoc"/>
@@ -168,6 +211,7 @@
         <dellroad:javadoc overview="build/javadoc/overview.html">
             <additional-classpath>
                 <pathelement path="build/classes"/>
+                <path refid="vaadin7.classpath"/>
             </additional-classpath>
             <links>
                 <link href="http://download.oracle.com/javase/6/docs/api/"/>
@@ -175,7 +219,7 @@
                 <link href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/"/>
                 <link href="http://jibx.sourceforge.net/api/"/>
                 <link href="http://opencsv.sourceforge.net/apidocs/"/>
-                <link href="https://vaadin.com/api/"/>
+                <link href="http://vaadin.com/download/prerelease/7.0/7.0.0/7.0.0.alpha2/docs/api/"/>
                 <link href="http://www.slf4j.org/api/"/>
                 <link href="http://www.eclipse.org/aspectj/doc/released/runtime-api/"/>
             </links>

@@ -10,12 +10,16 @@
 
     <configurations>
         <conf name="build" transitive="false" description="JARs required at build time"/>
+        <conf name="build-vaadin6" transitive="false" extends="build" description="JARs required to build Vaadin6 classes"/>
+        <conf name="build-vaadin7" transitive="false" extends="build" description="JARs required to build Vaadin7 classes"/>
         <conf name="jibx-bind" extends="build" description="JARs required for JiBX binding"/>
+        <conf name="vaadin7" description="Vaadin7 JAR only"/>
         <conf name="test" extends="build" description="JARs required during testing"/>
     </configurations>
 
     <dependencies>
-        <dependency force="true" org="com.vaadin" name="vaadin" rev="6.7+" conf="build->default"/>
+        <dependency force="true" org="com.vaadin" name="vaadin" rev="6+" conf="build-vaadin6->default"/>
+        <dependency force="true" org="com.vaadin" name="vaadin" rev="7+" conf="build-vaadin7,vaadin7->default"/>
         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="build->default"/>
         <dependency force="true" org="javax.persistence" name="persistence-api" rev="2.0" conf="build->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="build->default"/>
