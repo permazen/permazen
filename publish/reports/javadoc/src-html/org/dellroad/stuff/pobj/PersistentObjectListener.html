@@ -13,16 +13,19 @@
 <FONT color="green">010</FONT>    /**<a name="line.10"></a>
 <FONT color="green">011</FONT>     * Listener interface for changes to a {@link PersistentObject}.<a name="line.11"></a>
 <FONT color="green">012</FONT>     *<a name="line.12"></a>
-<FONT color="green">013</FONT>     * @param &lt;T&gt; type of the root persistent object<a name="line.13"></a>
-<FONT color="green">014</FONT>     */<a name="line.14"></a>
-<FONT color="green">015</FONT>    public interface PersistentObjectListener&lt;T&gt; {<a name="line.15"></a>
-<FONT color="green">016</FONT>    <a name="line.16"></a>
-<FONT color="green">017</FONT>        /**<a name="line.17"></a>
-<FONT color="green">018</FONT>         * Handle notification of an updated root object.<a name="line.18"></a>
-<FONT color="green">019</FONT>         */<a name="line.19"></a>
-<FONT color="green">020</FONT>        void handleEvent(PersistentObjectEvent&lt;T&gt; event);<a name="line.20"></a>
-<FONT color="green">021</FONT>    }<a name="line.21"></a>
-<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">013</FONT>     * &lt;p&gt;<a name="line.13"></a>
+<FONT color="green">014</FONT>     * Listener notifications are delivered in a separate thread from the one that caused the root object to change.<a name="line.14"></a>
+<FONT color="green">015</FONT>     *<a name="line.15"></a>
+<FONT color="green">016</FONT>     * @param &lt;T&gt; type of the root persistent object<a name="line.16"></a>
+<FONT color="green">017</FONT>     */<a name="line.17"></a>
+<FONT color="green">018</FONT>    public interface PersistentObjectListener&lt;T&gt; {<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>        /**<a name="line.20"></a>
+<FONT color="green">021</FONT>         * Handle notification of an updated root object.<a name="line.21"></a>
+<FONT color="green">022</FONT>         */<a name="line.22"></a>
+<FONT color="green">023</FONT>        void handleEvent(PersistentObjectEvent&lt;T&gt; event);<a name="line.23"></a>
+<FONT color="green">024</FONT>    }<a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
 
 
 

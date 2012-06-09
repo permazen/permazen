@@ -13,5 +13,6 @@ org.dellroad.stuff.spring
 org.dellroad.stuff.string
 org.dellroad.stuff.util
 org.dellroad.stuff.vaadin
+org.dellroad.stuff.vaadin7
 org.dellroad.stuff.validation
 org.dellroad.stuff.xml

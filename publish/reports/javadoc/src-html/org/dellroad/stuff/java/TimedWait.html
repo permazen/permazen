@@ -63,7 +63,7 @@
 <FONT color="green">060</FONT>                // If there's a timeout, subtract the time we just waited (rounding to the nearest millisecond)<a name="line.60"></a>
 <FONT color="green">061</FONT>                if (timeout &gt; 0) {<a name="line.61"></a>
 <FONT color="green">062</FONT>                    long stopTime = System.nanoTime();<a name="line.62"></a>
-<FONT color="green">063</FONT>                    timeout -= (stopTime - startTime + 500) / 1000L;<a name="line.63"></a>
+<FONT color="green">063</FONT>                    timeout -= (stopTime - startTime + 500000L) / 1000000L;<a name="line.63"></a>
 <FONT color="green">064</FONT>                    if (timeout == 0)               // don't convert the last millisecond into an infinite wait<a name="line.64"></a>
 <FONT color="green">065</FONT>                        timeout = -1;<a name="line.65"></a>
 <FONT color="green">066</FONT>                    startTime = stopTime;<a name="line.66"></a>
