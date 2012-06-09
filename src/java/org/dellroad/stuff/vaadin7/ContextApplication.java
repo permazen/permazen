@@ -34,11 +34,14 @@ public class ContextApplication extends org.dellroad.stuff.vaadin.ContextApplica
 
     @Override
     public void showError(String title, String description) {
+        ContextApplication.showError(this.getRoots(), this.getNotificationDelay(), title, description);
+    }
+
+    static void showError(Collection<Root> roots, int notificationDelay, String title, String description) {
 
         // Get window
         Root root = Root.getCurrentRoot();
         if (root == null) {
-            Collection<Root> roots = this.getRoots();
             if (roots.isEmpty())
                 return;
             root = roots.iterator().next();
@@ -47,7 +50,7 @@ public class ContextApplication extends org.dellroad.stuff.vaadin.ContextApplica
         // Show error
         Notification notification = new Notification(title, description, Notification.TYPE_ERROR_MESSAGE);
         notification.setStyleName("warning");
-        notification.setDelayMsec(this.getNotificationDelay());
+        notification.setDelayMsec(notificationDelay);
         root.showNotification(notification);
     }
 }

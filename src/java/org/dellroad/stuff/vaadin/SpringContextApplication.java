@@ -157,7 +157,11 @@ public abstract class SpringContextApplication extends ContextApplication {
 
     /**
      * Initializes the associated {@link ConfigurableWebApplicationContext}.
+     *
+     * <p>
+     * After initializing the associated Spring application context, this method delegates to {@link #initSpringApplication}.
      */
+    @Override
     protected final void initApplication() {
 
         // Load the context

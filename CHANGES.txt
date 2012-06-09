@@ -1,4 +1,4 @@
-Version 1.0.419 Released June 8, 2012
+Version 1.0.420 Released June 9, 2012
 
     - Added Vaadin 7 versions of Vaadin classes that require change
     - Changed IdGenerator to re-use the same instance on re-entrant invocation;

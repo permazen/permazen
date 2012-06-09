@@ -26,5 +26,12 @@ public class SpringContextApplication extends org.dellroad.stuff.vaadin.SpringCo
     @Override
     protected void initSpringApplication(ConfigurableWebApplicationContext context) {
     }
+
+// Error handling
+
+    @Override
+    public void showError(String title, String description) {
+        ContextApplication.showError(this.getRoots(), this.getNotificationDelay(), title, description);
+    }
 }
 
