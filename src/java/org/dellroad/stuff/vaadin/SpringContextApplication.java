@@ -46,10 +46,13 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * creates per-servlet application contexts that are children of the overall servlet web context.
  * </p>
  *
+ * <h3>Application Context XML File Location</h3>
+ *
  * <p>
  * For each Vaadin application {@code com.example.FooApplication} that subclasses this class, there should exist an XML
  * file named {@code FooApplication.xml} in the {@code WEB-INF/} directory that defines the per-Vaadin application Spring
- * application context (this naming scheme {@linkplain #getApplicationName can be overriden}).
+ * application context. This naming scheme {@linkplain #getApplicationName can be overriden}, or explicit config file
+ * location(s) can be specified by setting the {@link #VAADIN_CONTEXT_LOCATION_PARAMETER} servlet parameter.
  * </p>
  *
  * <h3>Vaadin Application as BeanFactory singleton</h3>
@@ -128,6 +131,14 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  */
 @SuppressWarnings("serial")
 public abstract class SpringContextApplication extends ContextApplication {
+
+    /**
+     * Optional servlet initialization parameter (<code>{@value #VAADIN_CONTEXT_LOCATION_PARAMETER}</code>) used to specify
+     * the location(s) of the application context XML file(s). Multiple XML files may be separated by whitespace.
+     * If this parameter is not defined, then the XML file location is built using {@code /WEB-INF/} as a prefix,
+     * the string from {@link #getApplicationName}, and {@code .xml} as a suffix.
+     */
+    public static final String VAADIN_CONTEXT_LOCATION_PARAMETER = "vaadinContextConfigLocation";
 
     private static final AtomicLong UNIQUE_INDEX = new AtomicLong();
 
@@ -229,7 +240,8 @@ public abstract class SpringContextApplication extends ContextApplication {
 
     /**
      * Get the name for this application. This is used as the name of the XML file in {@code WEB-INF/} that
-     * defines the Spring application context associated with this instance.
+     * defines the Spring application context associated with this instance, unless the
+     * {@link #VAADIN_CONTEXT_LOCATION_PARAMETER} servlet parameter is set.
      *
      * <p>
      * The implementation in {@link SpringContextApplication} returns this instance's class'
@@ -271,6 +283,11 @@ public abstract class SpringContextApplication extends ContextApplication {
         this.context.setServletContext(servletContext);
         //context.setServletConfig(??);
         this.context.setNamespace(this.getApplicationName());
+
+        // Set explicit config location(s) if set by parameter
+        String configLocationValue = this.getProperty(VAADIN_CONTEXT_LOCATION_PARAMETER);
+        if (configLocationValue != null)
+            this.context.setConfigLocation(configLocationValue);
 
         // Register listener so we can notify subclass on refresh events
         this.context.addApplicationListener(new SourceFilteringListener(this.context, new RefreshListener()));

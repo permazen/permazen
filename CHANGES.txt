@@ -1,3 +1,7 @@
+Version Next
+
+    - SpringContextApplication: add "vaadinContextConfigLocation" init param
+
 Version 1.0.420 Released June 9, 2012
 
     - Added Vaadin 7 versions of Vaadin classes that require change
