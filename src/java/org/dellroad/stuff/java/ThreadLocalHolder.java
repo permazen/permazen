@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
  * <ul>
  *  <li>A thread local variable is instantiated by some initial method call and has an intended
  *      lifetime matching the duration of that method call;</li>
- *  <li>The thread local variable is accessible from other nested method calls in the same thread,
+ *  <li>The thread local variable is accessible from some other nested method calls in the same thread,
  *      as long as the initial method call is still executing;</li>
  *  <li>The thread local variable is removed (and optionally cleaned up) when the initial method call exits,
  *      whether successfully or not.</li>
@@ -27,7 +27,30 @@ import java.util.concurrent.Callable;
  */
 public class ThreadLocalHolder<T> {
 
-    private final ThreadLocal<T> threadLocal = new ThreadLocal<T>();
+    private final ThreadLocal<T> threadLocal;
+
+    /**
+     * Conveninece constructor.
+     *
+     * <p>
+     * Equivalent to:
+     *  <blockquote><code>new ThreadLocalHolder&lt;T&gt;(new ThreadLocal&lt;T&gt;())</code></blockquote>
+     */
+    public ThreadLocalHolder() {
+        this(new ThreadLocal<T>());
+    }
+
+    /**
+     * Primary constructor.
+     *
+     * @param threadLocal the thread local to use
+     * @throws IllegalArgumentException if {@code threadLocal} is null
+     */
+    public ThreadLocalHolder(ThreadLocal<T> threadLocal) {
+        if (threadLocal == null)
+            throw new IllegalArgumentException("null threadLocal");
+        this.threadLocal = threadLocal;
+    }
 
     /**
      * Invoke the given action while making the given thread local variable available via {@link #get} and {@link #require}.
@@ -136,7 +159,7 @@ public class ThreadLocalHolder<T> {
      * Clean up the thread local value when no longer needed.
      *
      * <p>
-     * The implementation in {@link ThreadLocalHolder} does nothing.
+     * The implementation in {@link ThreadLocalHolder} does nothing. Subclasses may override if necessary.
      */
     protected void destroy(T value) {
     }
