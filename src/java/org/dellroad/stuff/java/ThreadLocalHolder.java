@@ -22,6 +22,35 @@ import java.util.concurrent.Callable;
  *  <li>The thread local variable is removed (and optionally cleaned up) when the initial method call exits,
  *      whether successfully or not.</li>
  * </ul>
+ * </p>
+ *
+ * <p>
+ * Example:
+ * <blockquote><pre>
+ * public class Activity {
+ *
+ *     private static final ThreadLocalHolder&lt;Activity&gt; CURRENT_ACTIVITY = new ThreadLocalHolder&lt;Activity&gt;();
+ *
+ *     public void perform(final Object parameter) {
+ *         CURRENT_ACTIVITY.invoke(this, new Runnable() {
+ *             &#64;Override
+ *             public void run() {
+ *                 // do whatever with parameter
+ *             }
+ *         });
+ *     }
+ *
+ *     /**
+ *      * Get the current activity being performed.
+ *      *
+ *      * @throws IllegalStateException if there is no current activity
+ *      *&#47;
+ *     public static Activity currentActivity() {
+ *         return CURRENT_ACTIVITY.require();
+ *     }
+ * }
+ * </pre></blockquote>
+ * </p>
  *
  * @param <T> the type of the thread local variable
  */
