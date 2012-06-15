@@ -20,6 +20,9 @@
       (@source='com.puppycrawl.tools.checkstyle.checks.imports.RedundantImportCheck'
         and starts-with(@message, 'Redundant import from the same package -'))
     or
+      (@source='com.puppycrawl.tools.checkstyle.checks.imports.RedundantImportCheck'
+        and starts-with(@message, 'Duplicate import to line '))
+    or
       (@source='com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck'
         and @message = 'Line has trailing spaces.')
     ]]">
@@ -34,6 +37,9 @@
         or
           (@source='com.puppycrawl.tools.checkstyle.checks.imports.RedundantImportCheck'
             and starts-with(@message, 'Redundant import from the same package -'))
+        or
+          (@source='com.puppycrawl.tools.checkstyle.checks.imports.RedundantImportCheck'
+            and starts-with(@message, 'Duplicate import to line '))
         ]">
             <xsl:value-of select="concat('  -e ', @line, 'd \&#10;')"/>
         </xsl:for-each>
