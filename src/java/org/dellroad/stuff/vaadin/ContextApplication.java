@@ -12,6 +12,9 @@ import com.vaadin.terminal.Terminal;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.Window;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.SocketException;
 import java.util.EventObject;
 import java.util.HashSet;
@@ -55,7 +58,7 @@ public abstract class ContextApplication extends Application implements HttpServ
 
     private final HashSet<CloseListener> closeListeners = new HashSet<CloseListener>();
 
-    private volatile ExecutorService executorService;
+    private transient volatile ExecutorService executorService;
 
 // Initialization
 
@@ -505,6 +508,19 @@ public abstract class ContextApplication extends Application implements HttpServ
         public String toString() {
             return this.action.toString();
         }
+    }
+
+// Serialization
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        if (in.readBoolean())
+            this.executorService = Executors.newSingleThreadExecutor();
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        out.writeBoolean(this.executorService != null);
     }
 }
 
