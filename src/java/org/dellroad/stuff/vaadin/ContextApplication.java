@@ -19,6 +19,7 @@ import java.net.SocketException;
 import java.util.EventObject;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.134
  */
 @SuppressWarnings("serial")
-public abstract class ContextApplication extends Application implements HttpServletRequestListener {
+public abstract class ContextApplication extends Application implements Executor, HttpServletRequestListener {
 
     /**
      * Default notification linger time for error notifications (in milliseconds): Value is {@value}ms.
@@ -220,6 +221,15 @@ public abstract class ContextApplication extends Application implements HttpServ
         if (executor == null)
             throw new IllegalStateException("application instance is either not initialized or already closed");
         return executor.submit(new LaterRunnable(action));
+    }
+
+    /**
+     * {@link Executor} interface method, equivalent to {@link #invoke invoke()}.
+     *
+     * @see #invoke invoke()
+     */
+    public void execute(Runnable action) {
+        this.invoke(action);
     }
 
     /**
