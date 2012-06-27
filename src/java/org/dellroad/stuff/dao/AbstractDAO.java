@@ -19,6 +19,7 @@ import javax.persistence.criteria.CriteriaQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.orm.jpa.JpaTemplate;
 import org.springframework.orm.jpa.support.JpaDaoSupport;
@@ -268,6 +269,8 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
                 return query.getSingleResult();
             } catch (NoResultException e) {
                 return null;
+            } catch (EmptyResultDataAccessException e) {
+                return null;
             }
         }
     }
@@ -304,6 +307,8 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
             try {
                 return query.getSingleResult();
             } catch (NoResultException e) {
+                return null;
+            } catch (EmptyResultDataAccessException e) {
                 return null;
             }
         }
