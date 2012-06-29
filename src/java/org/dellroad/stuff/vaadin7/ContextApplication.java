@@ -7,6 +7,7 @@
 
 package org.dellroad.stuff.vaadin7;
 
+import com.vaadin.terminal.Page;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Root;
 
@@ -40,7 +41,7 @@ public class ContextApplication extends org.dellroad.stuff.vaadin.ContextApplica
     static void showError(Collection<Root> roots, int notificationDelay, String title, String description) {
 
         // Get window
-        Root root = Root.getCurrentRoot();
+        Root root = Root.getCurrent();
         if (root == null) {
             if (roots.isEmpty())
                 return;
@@ -51,7 +52,7 @@ public class ContextApplication extends org.dellroad.stuff.vaadin.ContextApplica
         Notification notification = new Notification(title, description, Notification.TYPE_ERROR_MESSAGE);
         notification.setStyleName("warning");
         notification.setDelayMsec(notificationDelay);
-        root.showNotification(notification);
+        notification.show(new Page(root));
     }
 }
 

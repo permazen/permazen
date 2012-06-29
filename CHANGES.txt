@@ -4,6 +4,7 @@ Version Next
     - Fix NotSerializableException in ContextApplication (issue #9)
     - Catch Spring's EmptyResultDataAccessException as well in AbstractDAO
     - Have ContextApplication implement Executor
+    - Update vaadin7 package for 7.0.0.alpha3
 
 Version 1.0.420 Released June 9, 2012
 
