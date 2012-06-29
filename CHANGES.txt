@@ -1,4 +1,4 @@
-Version Next
+Version 1.0.431 Released June 29, 2012
 
     - SpringContextApplication: add "vaadinContextConfigLocation" init param
     - Fix NotSerializableException in ContextApplication (issue #9)
