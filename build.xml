@@ -294,8 +294,8 @@
             <fileset dir="src/mvn" includes="pom.xml"/>
             <filterset>
                 <filter token="VERSION" value="${full.version}"/>
-                <filter token="GROUP_ID" value="${vaadin.plugin.groupId}"/>
-                <filter token="ARTIFACT_ID" value="${vaadin.plugin.artifactId}"/>
+                <filter token="GROUP_ID" value="org.dellroad"/>
+                <filter token="ARTIFACT_ID" value="${ant.project.name}"/>
             </filterset>
         </copy>
 
