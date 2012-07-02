@@ -2,6 +2,7 @@ Version Next
 
     - Vaadin7: fixed bug preventing ContextApplication.showError() from working
     - Vaadin7: Call Application.setCurrent() in ContextApplication.invoke()
+    - Added PersistentObject.getRootSnapshot(); return new version from setRoot()
 
 Version 1.0.432 Released June 29, 2012
 

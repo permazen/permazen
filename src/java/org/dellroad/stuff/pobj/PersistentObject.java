@@ -422,10 +422,43 @@ public class PersistentObject<T> {
     }
 
     /**
+     * Read the root object (as with {@link #getRoot}) and its version (as with {@link getVersion}) in one atomic operation.
+     * This avoids the race condition inherent in trying to perform these operations separately.
+     *
+     * @return snapshot of the current root, or null during an empty start or empty stop
+     * @throws IllegalStateException if this instance is not started
+     * @throws PersistentObjectException if an error occurs
+     * @see #getRoot
+     */
+    public synchronized Snapshot getRootSnapshot() {
+        T myRoot = this.getRoot();
+        if (myRoot == null)
+            return null;
+        return new Snapshot(myRoot, this.version);
+    }
+
+    /**
+     * Read the shared root object (as with {@link #getSharedRoot}) and its version (as with {@link getVersion})
+     * in one atomic operation.
+     * This avoids the race condition inherent in trying to perform these operations separately.
+     *
+     * @return snapshot of the current shared root, or null during an empty start or empty stop
+     * @throws IllegalStateException if this instance is not started
+     * @throws PersistentObjectException if an error occurs
+     * @see #getSharedRoot
+     */
+    public synchronized Snapshot getSharedRootSnapshot() {
+        T mySharedRoot = this.getSharedRoot();
+        if (mySharedRoot == null)
+            return null;
+        return new Snapshot(mySharedRoot, this.version);
+    }
+
+    /**
      * Atomically update the root object.
      *
      * <p>
-     * The given object is deep-copied and the copy replaces the current root.
+     * The given object is deep-copied, the copy replaces the current root, and the new version number is returned.
      *
      * <p>
      * If {@code expectedVersion} is non-zero, then if the current version is not equal to it,
@@ -439,7 +472,7 @@ public class PersistentObject<T> {
      *
      * <p>
      * If the given root object is {@linkplain PersistentObjectDelegate#isSameGraph the same as} the current
-     * root object, then no action is taken.
+     * root object, then no action is taken and the current (unchanged) version number is returned.
      *
      * <p>
      * After a successful change, any registered {@linkplain PersistentObjectListener listeners} are notified in a
@@ -447,19 +480,21 @@ public class PersistentObject<T> {
      *
      * @param newRoot new persistent object
      * @param expectedVersion expected current version number, or zero to ignore the current version number
+     * @return the new current version number (unchanged if {@code newRoot} is
+     *  {@linkplain PersistentObjectDelegate#isSameGraph the same as} the current root)
      * @throws IllegalArgumentException if {@code newRoot} is null and empty stops are disallowed
-     * @throws IllegalArgumentException if {@code version} is negative
+     * @throws IllegalArgumentException if {@code expectedVersion} is negative
      * @throws IllegalStateException if this instance is not started
      * @throws PersistentObjectException if an error occurs
-     * @throws PersistentObjectVersionException if {@code version} is non-zero and not equal to the current version
+     * @throws PersistentObjectVersionException if {@code expectedVersion} is non-zero and not equal to the current version
      * @throws PersistentObjectValidationException if the new root has validation errors
      */
-    public final synchronized void setRoot(T newRoot, long expectedVersion) {
-        this.setRootInternal(newRoot, expectedVersion, false);
+    public final synchronized long setRoot(T newRoot, long expectedVersion) {
+        return this.setRootInternal(newRoot, expectedVersion, false);
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized void setRootInternal(T newRoot, long expectedVersion, boolean readingFile) {
+    private synchronized long setRootInternal(T newRoot, long expectedVersion, boolean readingFile) {
 
         // Sanity check
         if (newRoot == null && !this.isAllowEmptyStop())
@@ -475,9 +510,9 @@ public class PersistentObject<T> {
 
         // Check for sameness
         if (this.root == null && newRoot == null)
-            return;
+            return this.version;
         if (this.root != null && newRoot != null && this.delegate.isSameGraph(this.root, newRoot))
-            return;
+            return this.version;
 
         // Validate the new root
         if (newRoot != null) {
@@ -509,6 +544,9 @@ public class PersistentObject<T> {
 
         // Notify listeners
         this.notifyListeners(this.version, oldRoot, newRoot);
+
+        // Done
+        return this.version;
     }
 
     /**
@@ -523,8 +561,8 @@ public class PersistentObject<T> {
      * <p>
      * This method cannot throw {@link PersistentObjectVersionException}.
      */
-    public final synchronized void setRoot(T newRoot) {
-        this.setRoot(newRoot, 0);
+    public final synchronized long setRoot(T newRoot) {
+        return this.setRoot(newRoot, 0);
     }
 
     /**
@@ -801,6 +839,39 @@ public class PersistentObject<T> {
         }
         if (!shutdown)
             this.log.warn(this + ": failed to completely shut down " + name);
+    }
+
+// Snapshot class
+
+    /**
+     * Holds a "snapshot" of a {@link PersistentObject} root object along with the version number
+     * corresponding to the snapshot.
+     *
+     * @see PersistentObject#getRootSnapshot
+     */
+    public class Snapshot {
+
+        private final T root;
+        private final long version;
+
+        public Snapshot(T root, long version) {
+            this.root = root;
+            this.version = version;
+        }
+
+        /**
+         * Get the persistent root associated with this instance.
+         */
+        public T getRoot() {
+            return this.root;
+        }
+
+        /**
+         * Get the version number of the persistent root associated with this instance.
+         */
+        public long getVersion() {
+            return this.version;
+        }
     }
 }
 
