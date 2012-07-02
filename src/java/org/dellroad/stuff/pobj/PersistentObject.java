@@ -219,7 +219,7 @@ public class PersistentObject<T> {
      * The version number is not persisted with the persistent file; each instance of this class keeps
      * its own version count. The version is reset to zero when {@link #stop stop()} is invoked.
      *
-     * @return the current object version, or zero if no value has been loaded yet
+     * @return the current positive object version, or zero if no value has been loaded yet
      */
     public synchronized long getVersion() {
         return this.version;
