@@ -7,7 +7,7 @@
 
 package org.dellroad.stuff.vaadin7;
 
-import com.vaadin.terminal.Page;
+import com.vaadin.Application;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Root;
 
@@ -52,7 +52,20 @@ public class ContextApplication extends org.dellroad.stuff.vaadin.ContextApplica
         Notification notification = new Notification(title, description, Notification.TYPE_ERROR_MESSAGE);
         notification.setStyleName("warning");
         notification.setDelayMsec(notificationDelay);
-        notification.show(new Page(root));
+        notification.show(root.getPage());
+    }
+
+    @Override
+    public void invoke(Runnable action) {
+        final Application previous = Application.getCurrent();
+        if (previous != null && previous != this)
+            throw new IllegalStateException("there is already a current application for this thread (according to Vaadin)");
+        Application.setCurrent(this);
+        try {
+            super.invoke(action);
+        } finally {
+            Application.setCurrent(previous);
+        }
     }
 }
 

@@ -7,6 +7,8 @@
 
 package org.dellroad.stuff.vaadin7;
 
+import com.vaadin.Application;
+
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 /**
@@ -32,6 +34,19 @@ public class SpringContextApplication extends org.dellroad.stuff.vaadin.SpringCo
     @Override
     public void showError(String title, String description) {
         ContextApplication.showError(this.getRoots(), this.getNotificationDelay(), title, description);
+    }
+
+    @Override
+    public void invoke(Runnable action) {
+        final Application previous = Application.getCurrent();
+        if (previous != null && previous != this)
+            throw new IllegalStateException("there is already a current application for this thread (according to Vaadin)");
+        Application.setCurrent(this);
+        try {
+            super.invoke(action);
+        } finally {
+            Application.setCurrent(previous);
+        }
     }
 }
 
