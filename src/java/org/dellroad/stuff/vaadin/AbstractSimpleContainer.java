@@ -149,19 +149,15 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     }
 
     /**
-     * Return the number of items in this container. This includes items that have been filtered out.
-     */
-    public int size() {
-        return this.getAllItemIds().size();
-    }
-
-    /**
      * Get the container item ID corresponding to the given underlying Java object which is wrapped by this container.
      * Objects are tested for equality using {@link Object#equals Object.equals()}.
      *
      * <p>
      * The implementation in {@link AbstractSimpleContainer} requires a linear search of the container.
      * Some subclasses may provide a more efficient implementation.
+     *
+     * <p>
+     * Note: items that are filtered out will not be found.
      *
      * @param obj underlying container object
      * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container
@@ -186,6 +182,9 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * <p>
      * The implementation in {@link AbstractSimpleContainer} requires a linear search of the container.
      * Some subclasses may provide a more efficient implementation.
+     *
+     * <p>
+     * Note: items that are filtered out will not be found.
      *
      * @param obj underlying container object
      * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container
@@ -257,7 +256,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 
     /**
      * Create a new, unique item ID for the given object. This method is invoked during a {@linkplain #load reload operation},
-     * once for each container object.
+     * once for each container object. Both visible and filtered objects will be passed to this method.
      *
      * <p>
      * The returned item ID must be unique, i.e., not returned by this method since the most recent invocation of

@@ -63,7 +63,9 @@ public class SimpleContainer<T> extends AbstractSimpleContainer<Integer, T> {
 
     @Override
     protected Integer generateItemId(T obj) {
-        return this.items.size();
+        int itemId = this.items.size();
+        this.items.add(obj);
+        return itemId;
     }
 }
 
