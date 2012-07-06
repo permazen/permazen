@@ -64,16 +64,30 @@ public class IdGenerator {
         if (obj == null)
             throw new IllegalArgumentException("null obj");
         this.flush();
-        Ref ref = new Ref(obj, this.queue);
-        Long id = this.idMap.get(ref);
+        Long id = this.idMap.get(new Ref(obj));         // don't register on queue just yet
         if (id == null) {
             if (this.next == 0)
                 throw new IllegalStateException("no more identifiers left!");
+            Ref ref = new Ref(obj, this.queue);             // now register on queue
             id = this.next++;
             this.idMap.put(ref, id);
             this.refMap.put(id, ref);
         }
         return id;
+    }
+
+    /**
+     * Test whether the given object is already registered with this instance.
+     *
+     * @throws IllegalArgumentException if {@code obj} is null
+     * @return a non-zero, unique identifier for {@code obj} if already registered, otherwise zero
+     */
+    public synchronized long checkId(Object obj) {
+        if (obj == null)
+            throw new IllegalArgumentException("null obj");
+        this.flush();
+        Long id = this.idMap.get(new Ref(obj));
+        return id != null ? id : 0;
     }
 
     /**
@@ -115,9 +129,9 @@ public class IdGenerator {
      * Flush any cleared weak references.
      *
      * <p>
-     * This operation is invoked by {@link #getId getId()}, so it's not necessary to explicitly invoke it.
-     * However, if a lot of previously ID'd objects have been garbage collected since the last call to
-     * {@link #getId getId()}, then invoking this method may free up some additional memory.
+     * This operation is invoked by {@link #getId getId()} and {@link #setId setId()}, so it's usually not necessary
+     * to explicitly invoke it. However, if a lot of previously ID'd objects have been garbage collected since the
+     * last call to {@link #getId getId()}, then invoking this method may free up some additional memory.
      */
     public synchronized void flush() {
         Reference<? extends Object> entry;
@@ -187,6 +201,10 @@ public class IdGenerator {
             if (obj == null)
                 throw new IllegalArgumentException("null obj");
             this.hashCode = System.identityHashCode(obj);
+        }
+
+        Ref(Object obj) {
+            this(obj, null);
         }
 
         @Override
