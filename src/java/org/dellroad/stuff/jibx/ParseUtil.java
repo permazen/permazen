@@ -119,6 +119,9 @@ public final class ParseUtil {
      * <p>
      * The object must have been unmarshalled already and had its ID registered via {@link IdMapper#setId}.
      *
+     * @throws IllegalArgumentException if {@code string} cannot be parsed
+     * @throws JiBXParseException if the reference has not been registered to any object yet (e.g., forward reference)
+     * @throws JiBXParseException if the referenced object is not an instance of {@code type}
      * @see #serializeReference
      * @see IdMapper
      */
@@ -133,7 +136,7 @@ public final class ParseUtil {
         }
         Object obj = IdGenerator.get().getObject(id);
         if (obj == null)
-            throw new JiBXParseException("unregistered object reference", string);
+            throw new JiBXParseException("unregistered object reference `" + string + "'; possible forward reference", string);
         try {
             return type.cast(obj);
         } catch (ClassCastException e) {
@@ -148,13 +151,17 @@ public final class ParseUtil {
      * <p>
      * The object must have been marshalled already and had its ID assigned via {@link IdMapper#getId}.
      *
+     * @throws IllegalArgumentException if the object has not been registered yet (e.g., forward reference)
      * @see #deserializeReference
      * @see IdMapper
      */
     public static String serializeReference(Object obj) {
         if (obj == null)
             return null;
-        return IdMapper.formatId(IdGenerator.get().getId(obj));
+        long id = IdGenerator.get().checkId(obj);
+        if (id == 0)
+            throw new IllegalArgumentException("unregistered object; possible forward reference to " + obj);
+        return IdMapper.formatId(id);
     }
 
     /**

@@ -32,6 +32,13 @@ public class IdGeneratorTest extends TestSupport {
         assert idg.getId(obj2) == id2;
         assert idg.getId(obj3) == id3;
 
+        assert idg.checkId(obj1) == id1;
+        assert idg.checkId(obj2) == id2;
+        assert idg.checkId(obj3) == id3;
+
+        assert idg.checkId(new Object()) == 0;
+        assert idg.checkId(this) == 0;
+
         assert idg.getObject(1) == obj1;
         assert idg.getObject(2) == obj2;
         assert idg.getObject(3) == obj3;
@@ -47,12 +54,16 @@ public class IdGeneratorTest extends TestSupport {
         }
 
         Object obj5 = new Object();
+        assert idg.checkId(obj5) == 0;
         idg.setId(obj5, 5);
         assert idg.getId(obj5) == 5;
+        assert idg.checkId(obj5) == 5;
         idg.setId(obj5, 5);
         assert idg.getId(obj5) == 5;
+        assert idg.checkId(obj5) == 5;
         idg.setId(obj5, 5);
         assert idg.getId(obj5) == 5;
+        assert idg.checkId(obj5) == 5;
 
         Integer int1 = new Integer(123);
         Integer int2 = new Integer(123);

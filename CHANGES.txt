@@ -4,7 +4,8 @@ Version Next
     - Vaadin7: Call Application.setCurrent() in ContextApplication.invoke()
     - Added PersistentObject.getRootSnapshot(); return new version from setRoot()
     - Fixed filtering bug in AbstractSimpleContainer and flaw in SimpleContainer
-    - Added IdGenerator.checkId()
+    - Added IdGenerator.checkId() allowing to read but not assign an object's ID
+    - Disallow forward references in ParseUtil.serializeReference (as documented)
 
 Version 1.0.432 Released June 29, 2012
 
