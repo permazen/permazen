@@ -7,6 +7,8 @@
 
 package org.dellroad.stuff.pobj;
 
+import javax.xml.transform.TransformerFactory;
+
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -16,6 +18,10 @@ import org.springframework.core.io.ResourceLoader;
  * Spring {@link BeanPostProcessor} that looks for {@link SpringXSLPersistentObjectSchemaUpdate} beans that don't have
  * an explicit {@link SpringXSLPersistentObjectSchemaUpdate#setTransform transform resource configured}, and configures
  * them using a resource location based on the bean name, by simply adding a configured prefix and suffix.
+ *
+ * <p>
+ * In addition, this class will optionally configure the {@code transformerFactory} property of all of the
+ * {@link SpringXSLPersistentObjectSchemaUpdate} beans it finds that don't already have one explicitly configured.
  *
  * @see SpringXSLPersistentObjectSchemaUpdate
  */
@@ -34,6 +40,7 @@ public class SpringXSLUpdateTransformConfigurer implements BeanPostProcessor, Re
     private ResourceLoader resourceLoader = new DefaultResourceLoader();
     private String prefix = DEFAULT_LOCATION_PREFIX;
     private String suffix = DEFAULT_LOCATION_SUFFIX;
+    private TransformerFactory transformerFactory;
 
     /**
      * Set the location prefix.
@@ -53,6 +60,16 @@ public class SpringXSLUpdateTransformConfigurer implements BeanPostProcessor, Re
         this.suffix = suffix;
     }
 
+    /**
+     * Set the {@link TransformerFactory} to configure all updates with.
+     *
+     * <p>
+     * This property is optional.
+     */
+    public void setTransformerFactory(TransformerFactory transformerFactory) {
+        this.transformerFactory = transformerFactory;
+    }
+
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
@@ -64,6 +81,8 @@ public class SpringXSLUpdateTransformConfigurer implements BeanPostProcessor, Re
             SpringXSLPersistentObjectSchemaUpdate update = (SpringXSLPersistentObjectSchemaUpdate)bean;
             if (update.getTransform() == null)
                 update.setTransform(this.resourceLoader.getResource(this.getImpliedTransformResourceLocation(beanName)));
+            if (update.getTransformerFactory() == null && this.transformerFactory != null)
+                update.setTransformerFactory(this.transformerFactory);
         }
         return bean;
     }

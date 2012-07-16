@@ -63,11 +63,23 @@ public class SpringXSLPersistentObjectSchemaUpdate<T> extends SpringPersistentOb
     }
 
     /**
-     * Configure the {@link TransformerFactory} used to create the {@link Transformer} that will be
-     * used to apply the {@linkplain #setTransform configured XSL transform}.
+     * Get the configured {@link TransformerFactory} that will be used to create the {@link Transformer}
+     * that will be used to actually apply the {@linkplain #setTransform configured XSL transform}.
      *
      * <p>
      * This property is optional; if not specified, {@link TransformerFactory#newInstance} is used.
+     */
+    public TransformerFactory getTransformerFactory() {
+        return this.transformerFactory;
+    }
+
+    /**
+     * Set the {@link TransformerFactory} to use.
+     *
+     * <p>
+     * This property is optional; if not specified, {@link TransformerFactory#newInstance} is used.
+     *
+     * @see #getTransformerFactory
      */
     public void setTransformerFactory(TransformerFactory transformerFactory) {
         this.transformerFactory = transformerFactory;
