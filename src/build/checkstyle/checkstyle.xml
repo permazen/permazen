@@ -138,6 +138,9 @@
 
         <!-- Checks for whitespace                               -->
         <!-- See http://checkstyle.sf.net/config_whitespace.html -->
+        <module name="EmptyForInitializerPad">
+            <property name="option" value="space"/>
+        </module>
         <module name="EmptyForIteratorPad">
             <property name="option" value="space"/>
         </module>
@@ -193,6 +196,7 @@
 <!--    <module name="CovariantEquals"/> -->
         <module name="DoubleCheckedLocking"/>    <!-- MY FAVOURITE -->
         <module name="EmptyStatement"/>
+<!--    <module name="EqualsAvoidNull"/> -->
         <module name="EqualsHashCode"/>
 <!--    <module name="FinalLocalVariable"/> -->
         <module name="HiddenField">
@@ -239,6 +243,7 @@
         <module name="ExplicitInitialization"/>
         <module name="DefaultComesLast"/>
 <!--    <module name="MissingCtor"/> -->
+        <module name="MissingOverride"/>
         <module name="FallThrough">
             <property name="checkLastCaseGroup" value="true"/>
             <property name="reliefPattern" value="FALLS? ?THROUGH"/>
@@ -293,6 +298,9 @@
 <!--    <module name="DescendantToken"/> -->
 <!--    <module name="Indentation"/> -->
 <!--    <module name="TrailingComment"/> -->
+<!--    <module name="NoFinalizer"/> -->
+        <module name="OneStatementPerLine"/>
+        <module name="OuterTypeFilename"/>
 
     </module>
 
