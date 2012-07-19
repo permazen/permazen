@@ -60,6 +60,10 @@
         <property name="message" value="Do not print to console"/>
     </module>
 -->
+    <module name="RegexpMultiline">
+        <property name="format" value="^\n\n"/>
+        <property name="message" value="Consecutive blank lines are not allowed."/>
+    </module>
 
     <module name="TreeWalker">
 

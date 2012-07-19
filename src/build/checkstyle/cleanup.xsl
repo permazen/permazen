@@ -25,12 +25,15 @@
     or
       (@source='com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck'
         and @message = 'Line has trailing spaces.')
+    or
+      (@source='com.puppycrawl.tools.checkstyle.checks.regexp.RegexpMultilineCheck'
+        and @message = 'Consecutive blank lines are not allowed.')
     ]]">
         <xsl:variable name="file" select="concat(&quot;'&quot;, @name, &quot;'&quot;)"/>
         <xsl:variable name="temp" select="concat(&quot;'&quot;, @name, '.unused-imports-new', &quot;'&quot;)"/>
         <xsl:value-of select="'sed \&#10;'"/>
 
-        <!-- Delete redundant import lines -->
+        <!-- Delete redundant import lines and extra blank lines -->
         <xsl:for-each select="error[
           (@source='com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck'
             and starts-with(@message, 'Unused import -'))
@@ -40,6 +43,9 @@
         or
           (@source='com.puppycrawl.tools.checkstyle.checks.imports.RedundantImportCheck'
             and starts-with(@message, 'Duplicate import to line '))
+        or
+          (@source='com.puppycrawl.tools.checkstyle.checks.regexp.RegexpMultilineCheck'
+            and @message = 'Consecutive blank lines are not allowed.')
         ]">
             <xsl:value-of select="concat('  -e ', @line, 'd \&#10;')"/>
         </xsl:for-each>
