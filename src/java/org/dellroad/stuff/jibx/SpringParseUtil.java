@@ -7,7 +7,6 @@
 
 package org.dellroad.stuff.jibx;
 
-
 import org.jibx.runtime.JiBXParseException;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;

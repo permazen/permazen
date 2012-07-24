@@ -218,7 +218,6 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
         }
     }
 
-
     /**
      * @throws Exception {@inheritDoc}
      * @throws IllegalStateException if the database needs initialization and either the

@@ -7,7 +7,6 @@
 
 package org.dellroad.stuff.java;
 
-
 /**
  * Utility class for performing timed waits on objects.
  *
