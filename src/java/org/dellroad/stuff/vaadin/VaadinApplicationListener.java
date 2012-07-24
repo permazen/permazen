@@ -80,7 +80,7 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent> impl
      * Register as a listener on the given {@link ApplicationEventMulticaster} and also register a
      * {@link ContextApplication.CloseListener} on the {@linkplain #getApplication configured Vaadin application}
      * so that when the application closes we can unregister this instance from the provided event multicaster
-     * to avoid a memory leak.
+     * (done via {@link #removeAsListenerFrom removeAsListenerFrom()}) to avoid a memory leak.
      *
      * <p>
      * This method (or some other means) must be used to avoid a memory leak when the Vaadin application closes.
@@ -89,22 +89,25 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent> impl
      *  when the Vaadin application closes
      * @throws IllegalArgumentException if {@code eventMulticaster} is null
      */
-    public void addAsListenerTo(final ApplicationEventMulticaster eventMulticaster) {
+    public void addAsListenerTo(ApplicationEventMulticaster eventMulticaster) {
+        new ApplicationCloseListener(eventMulticaster).register();
+    }
 
-        // Sanity check
-        if (eventMulticaster == null)
-            throw new IllegalArgumentException("null eventMulticaster");
-
-        // Register myself as a listener
-        eventMulticaster.addApplicationListener(this);
-
-        // Unregister myself on Application close
-        this.getApplication().addListener(new ContextApplication.CloseListener() {
-            @Override
-            public void applicationClosed(ContextApplication.CloseEvent closeEvent) {
-                eventMulticaster.removeApplicationListener(VaadinApplicationListener.this);
-            }
-        });
+    /**
+     * Unregister this instance as a listener from the given {@link ApplicationEventMulticaster}
+     * and remove the {@link ContextApplication.CloseListener} that listens for application shutdown.
+     *
+     * <p>
+     * This method basically does the reverse of {@link #addAsListenerTo addAsListenerTo()} and is
+     * useful when you wish to stop listening to application events prior to Vaadin application shutdown.
+     * Invoking this method makes this instance an immediate candidate for garbage collection,
+     * instead of lingering until Vaadin application shutdown.
+     *
+     * @param eventMulticaster object from which to unregister as a listener
+     * @throws IllegalArgumentException if {@code eventMulticaster} is null
+     */
+    public void removeAsListenerFrom(ApplicationEventMulticaster eventMulticaster) {
+        new ApplicationCloseListener(eventMulticaster).unregister();
     }
 
     /**
@@ -180,6 +183,52 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent> impl
     @Override
     public int getOrder() {
         return 0;
+    }
+
+// Application close listener
+
+    private final class ApplicationCloseListener implements ContextApplication.CloseListener {
+
+        private final ApplicationEventMulticaster eventMulticaster;
+
+        public ApplicationCloseListener(ApplicationEventMulticaster eventMulticaster) {
+            if (eventMulticaster == null)
+                throw new IllegalArgumentException("null eventMulticaster");
+            this.eventMulticaster = eventMulticaster;
+        }
+
+        public void register() {
+            VaadinApplicationListener.this.getApplication().addListener(this);
+            this.eventMulticaster.addApplicationListener(VaadinApplicationListener.this);
+        }
+
+        public void unregister() {
+            this.eventMulticaster.removeApplicationListener(VaadinApplicationListener.this);
+            VaadinApplicationListener.this.getApplication().removeListener(this);
+        }
+
+        @Override
+        public void applicationClosed(ContextApplication.CloseEvent closeEvent) {
+            this.eventMulticaster.removeApplicationListener(VaadinApplicationListener.this);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null || obj.getClass() != this.getClass())
+                return false;
+            ApplicationCloseListener that = (ApplicationCloseListener)obj;
+            return VaadinApplicationListener.this.equals(that.getVaadinApplicationListener())
+              && this.eventMulticaster.equals(that.eventMulticaster);
+        }
+
+        @Override
+        public int hashCode() {
+            return VaadinApplicationListener.this.hashCode() ^ this.eventMulticaster.hashCode();
+        }
+
+        private VaadinApplicationListener getVaadinApplicationListener() {
+            return VaadinApplicationListener.this;
+        }
     }
 }
 
