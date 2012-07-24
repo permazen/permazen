@@ -422,7 +422,7 @@ public class PersistentObject<T> {
     }
 
     /**
-     * Read the root object (as with {@link #getRoot}) and its version (as with {@link getVersion}) in one atomic operation.
+     * Read the root object (as with {@link #getRoot}) and its version (as with {@link #getVersion}) in one atomic operation.
      * This avoids the race condition inherent in trying to perform these operations separately.
      *
      * @return snapshot of the current root, or null during an empty start or empty stop
@@ -438,7 +438,7 @@ public class PersistentObject<T> {
     }
 
     /**
-     * Read the shared root object (as with {@link #getSharedRoot}) and its version (as with {@link getVersion})
+     * Read the shared root object (as with {@link #getSharedRoot}) and its version (as with {@link #getVersion})
      * in one atomic operation.
      * This avoids the race condition inherent in trying to perform these operations separately.
      *
