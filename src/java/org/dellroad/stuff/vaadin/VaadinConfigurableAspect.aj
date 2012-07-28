@@ -10,8 +10,11 @@ package org.dellroad.stuff.vaadin;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
+import org.dellroad.stuff.spring.AbstractConfigurableAspect;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
+import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
 
 /**
  * Aspect that autowires classes marked with the {@link VaadinConfigurable @VaadinConfigurable} annotation to a
@@ -40,7 +43,7 @@ import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
  * @see ContextApplication#get
  * @see VaadinConfigurable
  */
-public aspect VaadinConfigurableAspect extends AbstractDependencyInjectionAspect {
+public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
 
 // Stuff copied from AbstractInterfaceDrivenDependencyInjectionAspect.aj
 
@@ -78,14 +81,13 @@ public aspect VaadinConfigurableAspect extends AbstractDependencyInjectionAspect
 // Our implementation
 
     @Override
-    public void configureBean(Object bean) {
-        SpringContextApplication application = SpringContextApplication.get();
-        BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
-        beanConfigurerSupport.setBeanFactory(application.getApplicationContext().getBeanFactory());
-        beanConfigurerSupport.setBeanWiringInfoResolver(new VaadinConfigurableBeanWiringInfoResolver());
-        beanConfigurerSupport.afterPropertiesSet();
-        beanConfigurerSupport.configureBean(bean);
-        beanConfigurerSupport.destroy();
+    protected BeanFactory getBeanFactory(Object bean) {
+        return SpringContextApplication.get().getApplicationContext().getBeanFactory();
+    }
+
+    @Override
+    protected BeanWiringInfoResolver getBeanWiringInfoResolver(Object bean) {
+        return new VaadinConfigurableBeanWiringInfoResolver();
     }
 }
 

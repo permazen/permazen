@@ -8,6 +8,7 @@ Version Next
     - Added IdGenerator.checkId() allowing to read but not assign an object's ID
     - Disallow forward references in ParseUtil.serializeReference (as documented)
     - Added VaadinApplicationListener.removeAsListenerFrom()
+    - Added @ThreadConfigurable Spring annotation
 
 Version 1.0.432 Released June 29, 2012
 
