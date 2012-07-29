@@ -37,7 +37,9 @@ import org.springframework.beans.factory.annotation.Autowire;
  * <blockquote><pre>
  *     &lt;bean class="org.dellroad.stuff.spring.ThreadLocalBeanFactory" factory-method="getInstance"/&gt;
  * </pre></blockquote>
- * This will set the containing bean factory as the default.
+ * This will set the containing bean factory as the default. This definition should be listed prior to any other
+ * bean definitions that might result in {@link ThreadConfigurable @ThreadConfigurable}-annotated beans being
+ * created during bean factory startup.
  * </p>
  *
  * <p>
