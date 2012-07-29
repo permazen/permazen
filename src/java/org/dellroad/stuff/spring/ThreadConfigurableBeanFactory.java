@@ -19,12 +19,6 @@ public class ThreadConfigurableBeanFactory extends InheritableThreadLocal<BeanFa
     private static ThreadConfigurableBeanFactory instance = new ThreadConfigurableBeanFactory();
 
     /**
-     * Subclass constructor. Intended to be a singleton, this class is not directly instantiable.
-     */
-    protected ThreadConfigurableBeanFactory() {
-    }
-
-    /**
      * Get the singleton instance.
      */
     public static ThreadConfigurableBeanFactory getInstance() {
