@@ -66,7 +66,13 @@ public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
 
     @Override
     protected BeanFactory getBeanFactory(Object bean) {
-        BeanFactory beanFactory = ThreadConfigurableBeanFactory.getInstance().get();
+        ThreadConfigurableBeanFactory threadConfigurableBeanFactory = ThreadConfigurableBeanFactory.getInstance();
+        if (threadConfigurableBeanFactory == null) {
+            throw new IllegalStateException("can't configure @" + ThreadConfigurable.class.getName()
+              + "-annotated bean of type " + bean.getClass().getName()
+              + " because the ThreadConfigurableBeanFactory singleton instance has been set to null");
+        }
+        BeanFactory beanFactory = threadConfigurableBeanFactory.get();
         if (beanFactory == null) {
             throw new IllegalStateException("can't configure @" + ThreadConfigurable.class.getName()
               + "-annotated bean of type " + bean.getClass().getName()
