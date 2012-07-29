@@ -23,18 +23,32 @@ import org.springframework.beans.factory.annotation.Autowire;
  * Works just like Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation,
  * but whereas {@link org.springframework.beans.factory.annotation.Configurable @Configurable} autowires using a fixed
  * bean factory stored in a static variable, {@link ThreadConfigurable @ThreadConfigurable} allows the bean factory
- * that is used for autowiring beans to be specified on a per-thread basis,
- * via {@link ThreadConfigurableBeanFactory#set ThreadConfigurableBeanFactory.set()}.
+ * that is used for autowiring beans to be changed on a per-thread basis, by invoking
+ * {@link ThreadLocalBeanFactory#set ThreadLocalBeanFactory.set()} on the {@link ThreadLocalBeanFactory}
+ * singleton instance (see {@link ThreadLocalBeanFactory#getInstance}). This allows the same
+ * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans to be instantiated and autowired by different
+ * application contexts at the same time, where the application context chosen depends on the current thread.
  * </p>
  *
  * <p>
- * Note: some bean factory must be specified: if a {@link ThreadConfigurable @ThreadConfigurable}-annotated bean is
- * constructed and no application context has been configured for the current thread, then an {@link IllegalStateException}
- * will be thrown. By default, the configured bean factory is inherited by spawned child threads, so typically this
- * configuration need only be done once when starting new some process or operation.
+ * Note: to make this annotation behave like Spring's
+ * {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation, simply include the
+ * {@link ThreadLocalBeanFactory} singleton instance in your bean factory:
+ * <blockquote><pre>
+ *     &lt;bean class="org.dellroad.stuff.spring.ThreadLocalBeanFactory" factory-method="getInstance"/&gt;
+ * </pre></blockquote>
+ * This will set the containing bean factory as the default.
  * </p>
  *
- * @see ThreadConfigurableBeanFactory
+ * <p>
+ * Note: <i>some</i> bean factory must be specified: if a {@link ThreadConfigurable @ThreadConfigurable}-annotated bean is
+ * constructed and no application context has been configured for the current thread, and there is no default either,
+ * then an {@link IllegalStateException} will be thrown. Note with {@link ThreadLocalBeanFactory} the configured bean
+ * factory is inherited by spawned child threads, so typically this configuration need only be done once when starting
+ * new some process or operation, even if that operation involves multiple threads.
+ * </p>
+ *
+ * @see ThreadLocalBeanFactory
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

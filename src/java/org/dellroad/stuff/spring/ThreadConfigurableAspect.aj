@@ -17,15 +17,15 @@ import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
 
 /**
  * Aspect that autowires classes marked with the {@link ThreadConfigurable @ThreadConfigurable} annotation using
- * the Spring application context returned by {@link ThreadConfigurableBeanFactory#get()}.
+ * the Spring application context returned by {@link ThreadLocalBeanFactory#get()}.
  *
  * <p>
  * This implementation is derived from Spring's {@code AnnotationBeanConfigurerAspect} implementation
  * and therefore shares its license (also Apache).
  * </p>
  *
- * @see ThreadConfigurableBeanFactory
  * @see ThreadConfigurable
+ * @see ThreadLocalBeanFactory
  */
 public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
 
@@ -66,18 +66,18 @@ public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
 
     @Override
     protected BeanFactory getBeanFactory(Object bean) {
-        ThreadConfigurableBeanFactory threadConfigurableBeanFactory = ThreadConfigurableBeanFactory.getInstance();
+        ThreadLocalBeanFactory threadConfigurableBeanFactory = ThreadLocalBeanFactory.getInstance();
         if (threadConfigurableBeanFactory == null) {
             throw new IllegalStateException("can't configure @" + ThreadConfigurable.class.getName()
               + "-annotated bean of type " + bean.getClass().getName()
-              + " because the ThreadConfigurableBeanFactory singleton instance has been set to null");
+              + " because the ThreadLocalBeanFactory singleton instance has been set to null");
         }
         BeanFactory beanFactory = threadConfigurableBeanFactory.get();
         if (beanFactory == null) {
             throw new IllegalStateException("can't configure @" + ThreadConfigurable.class.getName()
               + "-annotated bean of type " + bean.getClass().getName()
               + " because no BeanFactory has been configured for the current thread via "
-              + ThreadConfigurableBeanFactory.class.getName() + ".set()");
+              + ThreadLocalBeanFactory.class.getName() + ".set()");
         }
         return beanFactory;
     }
