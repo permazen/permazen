@@ -32,10 +32,17 @@ public abstract aspect AbstractConfigurableAspect extends AbstractDependencyInje
      */
     protected abstract BeanWiringInfoResolver getBeanWiringInfoResolver(Object bean);
 
+    /**
+     * Configure the given bean using the {@link BeanFactory} returned from {@link #getBeanFactory}.
+     * If the latter is null, then this does nothing; sub-aspect should probably log something in that case.
+     */
     @Override
     public void configureBean(Object bean) {
+        final BeanFactory beanFactory = this.getBeanFactory(bean);
+        if (beanFactory == null)
+            return;
         BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
-        beanConfigurerSupport.setBeanFactory(this.getBeanFactory(bean));
+        beanConfigurerSupport.setBeanFactory(beanFactory);
         beanConfigurerSupport.setBeanWiringInfoResolver(this.getBeanWiringInfoResolver(bean));
         beanConfigurerSupport.afterPropertiesSet();
         beanConfigurerSupport.configureBean(bean);

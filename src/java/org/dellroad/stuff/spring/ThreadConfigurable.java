@@ -31,6 +31,12 @@ import org.springframework.beans.factory.annotation.Autowire;
  * </p>
  *
  * <p>
+ * With {@link ThreadLocalBeanFactory} the configured bean factory is inherited by spawned child threads,
+ * so typically this configuration need only be done once when starting new some process or operation,
+ * even if that operation involves multiple threads.
+ * </p>
+ *
+ * <p>
  * Note: to make this annotation behave like Spring's
  * {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation, simply include the
  * {@link ThreadLocalBeanFactory} singleton instance in your bean factory:
@@ -38,17 +44,15 @@ import org.springframework.beans.factory.annotation.Autowire;
  *     &lt;bean class="org.dellroad.stuff.spring.ThreadLocalBeanFactory" factory-method="getInstance"/&gt;
  * </pre></blockquote>
  * This will set the containing bean factory as the default. This definition should be listed prior to any other
- * bean definitions that might result in {@link ThreadConfigurable @ThreadConfigurable}-annotated beans being
+ * bean definitions that could result in {@link ThreadConfigurable @ThreadConfigurable}-annotated beans being
  * created during bean factory startup.
  * </p>
  *
  * <p>
  * Note: if a {@link ThreadConfigurable @ThreadConfigurable}-annotated bean is constructed and no bean factory
- * has been configured for the current thread and there is no default set either, then no configuration is performed
- * and a debug message is logged; this consistent with the behavior of Spring's
- * {@link org.springframework.beans.factory.annotation.Configurable @Configurable}. With {@link ThreadLocalBeanFactory}
- * the configured bean factory is inherited by spawned child threads, so typically this configuration need only be done
- * once when starting new some process or operation, even if that operation involves multiple threads.
+ * has been configured for the current thread, there is no default set either, then no configuration is performed
+ * and a debug message is logged (to logger {@code org.dellroad.stuff.spring.ThreadConfigurableAspect}); this consistent
+ * with the behavior of Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable}.
  * </p>
  *
  * @see ThreadLocalBeanFactory
