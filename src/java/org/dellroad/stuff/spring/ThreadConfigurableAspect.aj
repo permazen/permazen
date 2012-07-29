@@ -66,19 +66,33 @@ public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
 
     @Override
     protected BeanFactory getBeanFactory(Object bean) {
+
+        // Get ThreadLocalBeanFactory singleton
         ThreadLocalBeanFactory threadConfigurableBeanFactory = ThreadLocalBeanFactory.getInstance();
         if (threadConfigurableBeanFactory == null) {
-            throw new IllegalStateException("can't configure @" + ThreadConfigurable.class.getName()
-              + "-annotated bean of type " + bean.getClass().getName()
-              + " because the ThreadLocalBeanFactory singleton instance has been set to null");
+            if (this.log.isDebugEnabled()) {
+                this.log.debug("can't configure @" + ThreadConfigurable.class.getName()
+                  + "-annotated bean of type " + bean.getClass().getName()
+                  + " because the ThreadLocalBeanFactory singleton instance has been set to null;"
+                  + " proceeding without injection");
+            }
+            return null;
         }
+
+        // Get BeanFactory
         BeanFactory beanFactory = threadConfigurableBeanFactory.get();
         if (beanFactory == null) {
-            throw new IllegalStateException("can't configure @" + ThreadConfigurable.class.getName()
-              + "-annotated bean of type " + bean.getClass().getName()
-              + " because no BeanFactory has been configured for the current thread via "
-              + ThreadLocalBeanFactory.class.getName() + ".set()");
+            if (this.log.isDebugEnabled()) {
+                this.log.debug("can't configure @" + ThreadConfigurable.class.getName()
+                  + "-annotated bean of type " + bean.getClass().getName()
+                  + " because no BeanFactory has been configured for the current thread via "
+                  + ThreadLocalBeanFactory.class.getName() + ".set() nor has a default BeanFactory has been set;"
+                  + " proceeding without injection");
+            }
+            return null;
         }
+
+        // Done
         return beanFactory;
     }
 

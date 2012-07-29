@@ -7,6 +7,8 @@
 
 package org.dellroad.stuff.spring;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
@@ -17,6 +19,8 @@ import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
  * (which is determined by the sub-aspect).
  */
 public abstract aspect AbstractConfigurableAspect extends AbstractDependencyInjectionAspect {
+
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Get the {@link BeanFactory} to use when autowiring beans.
