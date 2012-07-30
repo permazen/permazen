@@ -51,6 +51,22 @@ public class AtomicUpdateFileOutputStream extends FileOutputStream {
     }
 
     /**
+     * Convenience constructor.
+     *
+     * <p>
+     * This constructor uses a temporary file within the same directory as {@code targetFile}.
+     *
+     * @param targetFile the ultimate destination for the output when {@linkplain #close closed}.
+     * @throws FileNotFoundException if {@code tempFile} cannot be opened for any reason
+     * @throws IOException if a temporary file could not be created
+     * @throws SecurityException if a security manager prevents writing to {@code tempFile}
+     * @throws NullPointerException if either parameter is null
+     */
+    public AtomicUpdateFileOutputStream(File targetFile) throws IOException {
+        this(targetFile, File.createTempFile("atomicupdate", null, targetFile.getParentFile()));
+    }
+
+    /**
      * Get the target file.
      *
      * @return target file, never null
