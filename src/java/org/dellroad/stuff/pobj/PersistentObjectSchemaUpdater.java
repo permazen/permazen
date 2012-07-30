@@ -158,7 +158,12 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
     }
 
     /**
-     * Start this instance. Does nothing if already started.
+     * Start this instance. This applies any schema updates to the persistent file if necessary. Once updated,
+     * a new {@link PersistentObject} is created, configured, started, and made available via {@link #getPersistentObject}.
+     *
+     * <p>
+     * Does nothing if already started.
+     * </p>
      *
      * @throws IllegalArgumentException if an invalid file, write delay, or delegate is configured
      * @throws PersistentObjectException if an error occurs
@@ -204,7 +209,11 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
     }
 
     /**
-     * Stop this instance. Does nothing if already stopped.
+     * Stop this instance. This stops the {@link PersistenObject} being managed.
+     *
+     * <p>
+     * Does nothing if already started.
+     * </p>
      *
      * @throws PersistentObjectException if a delayed write back is pending and error occurs during writing
      */

@@ -459,24 +459,32 @@ public class PersistentObject<T> {
      *
      * <p>
      * The given object is deep-copied, the copy replaces the current root, and the new version number is returned.
+     * If there is no write delay configured, the new version is written to the underlying file immediately and
+     * a successful return from this method indicates the new root has been persisted. Otherwise, the write will
+     * occur at a later time in a separate thread.
+     * </p>
      *
      * <p>
      * If {@code expectedVersion} is non-zero, then if the current version is not equal to it,
      * a {@link PersistentObjectVersionException} exception is thrown. This mechanism
      * can be used for optimistic locking.
+     * </p>
      *
      * <p>
      * If empty stops are allowed, then {@code newRoot} may be null, in which case it replaces the
      * current root and subsequent calls to {@link #getRoot} will return null. When a null
      * {@code newRoot} is set, the persistent file is <b>not</b> modified.
+     * </p>
      *
      * <p>
      * If the given root object is {@linkplain PersistentObjectDelegate#isSameGraph the same as} the current
      * root object, then no action is taken and the current (unchanged) version number is returned.
+     * </p>
      *
      * <p>
      * After a successful change, any registered {@linkplain PersistentObjectListener listeners} are notified in a
      * separate thread from the one that invoked this method.
+     * </p>
      *
      * @param newRoot new persistent object
      * @param expectedVersion expected current version number, or zero to ignore the current version number
