@@ -209,7 +209,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
     }
 
     /**
-     * Stop this instance. This stops the {@link PersistenObject} being managed.
+     * Stop this instance. This stops the {@link PersistentObject} being managed.
      *
      * <p>
      * Does nothing if already started.
