@@ -131,7 +131,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
     }
 
     /**
-     * Configure the number of backups to make of the persistent file.
+     * Configure the number of backups to make of the persistent file. Default is zero.
      *
      * @see PersistentObject#getNumBackups
      */
