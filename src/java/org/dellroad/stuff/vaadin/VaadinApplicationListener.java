@@ -35,7 +35,7 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
     /**
      * Convenience constructor. Equivalent to:
      * <blockquote>
-     *  {@link #VaadinApplicationListener(Object, Class, ContextApplication)
+     *  {@link #VaadinApplicationListener(ApplicationEventMulticaster, Class, ContextApplication)
      *      VaadinApplicationListener(multicaster, eventType, ContextApplication.get())}
      * </blockquote>
      *

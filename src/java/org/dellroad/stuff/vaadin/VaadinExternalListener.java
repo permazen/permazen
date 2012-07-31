@@ -91,7 +91,7 @@ public abstract class VaadinExternalListener<S> {
      * Un-register as a listener on configured event source.
      *
      * <p>
-     * This also unregisters the {@link ContextApplication.CloseListener} registered by {@likn #register}.
+     * This also unregisters the {@link ContextApplication.CloseListener} registered by {@link #register}.
      */
     public void unregister() {
         this.application.removeListener(this.closeListener);
