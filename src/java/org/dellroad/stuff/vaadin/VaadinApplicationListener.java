@@ -89,7 +89,7 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
             return;
         }
         final E castEvent2 = castEvent;
-        this.getApplication().invoke(new Runnable() {
+        this.handleEvent(new Runnable() {
             @Override
             public void run() {
                 VaadinApplicationListener.this.onApplicationEventInternal(castEvent2);

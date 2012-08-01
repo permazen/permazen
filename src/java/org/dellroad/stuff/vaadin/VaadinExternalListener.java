@@ -20,10 +20,14 @@ package org.dellroad.stuff.vaadin;
  * <p>
  * Use of this class will ensure two things:
  * <ul>
- *  <li>Events are delivered {@linkplain ContextApplication#invoke in the proper Vaadin application context}; and</li>
+ *  <li>Events can be delivered {@linkplain ContextApplication#invoke in the proper Vaadin application context}; and</li>
  *  <li>The listener is automatically unregistered from the external event source when the Vaadin application is closed;
  *      this avoids a memory leak</li>
  * </ul>
+ * </p>
+ *
+ * <p>
+ * Subclass listener methods should use {@link #handleEvent handleEvent()} to handle events.
  * </p>
  *
  * <p>
@@ -110,6 +114,17 @@ public abstract class VaadinExternalListener<S> {
      */
     public final S getEventSource() {
         return this.eventSource;
+    }
+
+    /**
+     * Execute the given action using the {@link ContextApplication} with which this instance is associated.
+     * Subclass listener methods should handle events using this method to ensure they are handled
+     * {@linkplain ContextApplication#invoke in the proper Vaadin application context}.
+     *
+     * @param action action to perform
+     */
+    protected void handleEvent(Runnable action) {
+        this.getApplication().invoke(action);
     }
 
     /**
