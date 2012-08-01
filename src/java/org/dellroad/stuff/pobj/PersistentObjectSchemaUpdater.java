@@ -264,8 +264,10 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
 
         // Get initial value
         T initialValue = this.getInitialValue();
-        if (initialValue == null)
+        if (initialValue == null) {
+            this.log.info("no initial value provided for database, so no initialization will be performed");
             return;
+        }
 
         // Validate it
         Set<ConstraintViolation<T>> violations = this.delegate.validate(initialValue);

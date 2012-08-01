@@ -82,12 +82,9 @@ public class PersistentFileTransaction {
 
     /**
      * Commit this transaction. This results in the persistent file being atomically overwritten (including update list).
+     * If no data was set, then no file is written.
      */
     public void commit() throws IOException, XMLStreamException {
-
-        // Sanity check
-        if (this.current == null)
-            throw new PersistentObjectException("no data to save");
 
         // Anything changed?
         if (!this.modified)
