@@ -27,6 +27,8 @@ import org.dellroad.stuff.java.ThreadLocalHolder;
  *
  * <p>
  * Validation must be performed via {@link #validate(Validator) validate()} for this class to work.
+ *
+ * @param <T> type of the root object being validated
  */
 public class ValidationContext<T> {
 
@@ -93,6 +95,20 @@ public class ValidationContext<T> {
     }
 
     /**
+     * Get the {@link ValidationContext} associated with the current thread.
+     * This method is only valid during invocations of {@link #validate(Validator) validate()}.
+     *
+     * @return current {@link ValidationContext}
+     * @throws IllegalStateException if {@link #validate(Validator) validate()} is not currently executing
+     */
+    public static ValidationContext<?> getCurrentContext() {
+        ValidationContext<?> context = ValidationContext.CURRENT.get();
+        if (context == null)
+            throw new IllegalStateException("current thread is not executing validate()");
+        return context;
+    }
+
+    /**
      * Get the {@link ValidationContext} associated with the current thread, cast to the desired type.
      * This method is only valid during invocations of {@link #validate(Validator) validate()}.
      *
@@ -100,24 +116,34 @@ public class ValidationContext<T> {
      * @return current {@link ValidationContext}
      * @throws IllegalStateException if {@link #validate(Validator) validate()} is not currently executing
      * @throws ClassCastException if the current {@link ValidationContext} is not of type {@code type}
+     * @throws NullPointerException if {@code type} is null
      */
-    public static <T extends ValidationContext<?>> T getCurrentContext(Class<T> type) {
-        ValidationContext<?> context = ValidationContext.CURRENT.get();
-        if (context == null)
-            throw new IllegalStateException("current thread is not executing validate()");
-        return type.cast(context);
+    public static <V extends ValidationContext<?>> V getCurrentContext(Class<V> type) {
+        return type.cast(ValidationContext.getCurrentContext());
     }
 
     /**
      * Convenience method to get the root object being validated by the current thread.
      * This method is only valid during invocations of {@link #validate(Validator) validate()}.
-     * Subclasses may want to override to narrow the return type.
      *
      * @return current validation root object
      * @throws IllegalStateException if {@link #validate(Validator) validate()} is not currently executing
      */
     public static Object getCurrentRoot() {
-        return ValidationContext.getCurrentContext(ValidationContext.class).getRoot();
+        return ValidationContext.getCurrentContext().getRoot();
+    }
+
+    /**
+     * Convenience method to get the root object being validated by the current thread, cast to the desired type.
+     * This method is only valid during invocations of {@link #validate(Validator) validate()}.
+     *
+     * @return current validation root object
+     * @throws IllegalStateException if {@link #validate(Validator) validate()} is not currently executing
+     * @throws ClassCastException if the current validation root is not of type {@code type}
+     * @throws NullPointerException if {@code type} is null
+     */
+    public static <T> T getCurrentRoot(Class<T> type) {
+        return type.cast(ValidationContext.getCurrentRoot());
     }
 }
 
