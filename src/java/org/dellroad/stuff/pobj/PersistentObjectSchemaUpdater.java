@@ -260,13 +260,13 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
 
     @Override
     @SuppressWarnings("unchecked")
-    protected void initializeDatabase(PersistentFileTransaction transaction) throws Exception {
+    protected boolean initializeDatabase(PersistentFileTransaction transaction) throws Exception {
 
         // Get initial value
         T initialValue = this.getInitialValue();
         if (initialValue == null) {
             this.log.info("no initial value provided for database, so no initialization will be performed");
-            return;
+            return false;
         }
 
         // Validate it
@@ -281,6 +281,9 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
 
         // Set it in the transaction
         transaction.setData(buffer.toByteArray());
+
+        // Done
+        return true;
     }
 
     @Override

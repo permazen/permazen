@@ -33,7 +33,8 @@ public class SchemaUpdatingDataSource extends AbstractUpdatingDataSource {
         if (this.schemaUpdater == null)
             throw new IllegalArgumentException("no SchemaUpdater configured");
         try {
-            this.schemaUpdater.initializeAndUpdateDatabase(dataSource);
+            if (!this.schemaUpdater.initializeAndUpdateDatabase(dataSource))
+                throw new SQLException("database initialization was required but did not occur");
         } catch (RuntimeException e) {
             if (e.getMessage() == null && e.getCause() instanceof SQLException)     // unwrap checked exception
                 throw (SQLException)e.getCause();

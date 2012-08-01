@@ -227,9 +227,9 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
      * @throws IllegalArgumentException {@inheritDoc}
      */
     @Override
-    public synchronized void initializeAndUpdateDatabase(DataSource dataSource) throws SQLException {
+    public synchronized boolean initializeAndUpdateDatabase(DataSource dataSource) throws SQLException {
         try {
-            super.initializeAndUpdateDatabase(dataSource);
+            return super.initializeAndUpdateDatabase(dataSource);
         } catch (SQLException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -415,7 +415,7 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
 
     // Initialize the database
     @Override
-    protected void initializeDatabase(Connection c) throws SQLException {
+    protected boolean initializeDatabase(Connection c) throws SQLException {
 
         // Sanity check
         if (this.getDatabaseInitialization() == null)
@@ -430,6 +430,9 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
         // Initialize update table
         this.log.info("intializing update table");
         this.apply(c, this.getUpdateTableInitialization());
+
+        // Done
+        return true;
     }
 }
 
