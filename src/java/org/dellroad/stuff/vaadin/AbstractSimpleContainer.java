@@ -29,6 +29,11 @@ import java.util.Set;
  * <p>
  * The exposed properties are defined via {@link PropertyDef}s, and a {@link PropertyExtractor} is used to
  * actually extract the property values from each underlying object.
+ * </p>
+ *
+ * <p>
+ * Use {@link #load load()} to load or reload the container.
+ * </p>
  *
  * @param <I> the item ID type
  * @param <T> the type of the Java objects that back each {@link Item} in the container
