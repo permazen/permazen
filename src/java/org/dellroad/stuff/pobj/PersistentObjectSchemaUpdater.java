@@ -264,8 +264,12 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
 
         // Get initial value
         T initialValue = this.getInitialValue();
+
+        // If there is no initial value, don't initialize, but need to pretend all updates have been applied
         if (initialValue == null) {
             this.log.info("no initial value provided for database, so no initialization will be performed");
+            for (String updateName : this.getAllUpdateNames())
+                transaction.addUpdate(updateName);
             return false;
         }
 

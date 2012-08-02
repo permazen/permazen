@@ -87,8 +87,10 @@ public class PersistentFileTransaction {
     public void commit() throws IOException, XMLStreamException {
 
         // Anything changed?
-        if (this.current == null || !this.modified)
+        if (this.current == null || !this.modified) {
+            this.rollback();
             return;
+        }
 
         // Write data with updates to temporary file
         File tempFile = null;

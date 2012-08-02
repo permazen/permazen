@@ -168,12 +168,8 @@ public abstract class AbstractSchemaUpdater<D, T> {
                     return;
 
                 // Record all schema updates as having already been applied
-                ArrayList<SchemaUpdate<T>> updateList = new ArrayList<SchemaUpdate<T>>(AbstractSchemaUpdater.this.getUpdates());
-                Collections.sort(updateList, new UpdateByNameComparator());
-                for (SchemaUpdate<T> update : updateList) {
-                    for (String name : AbstractSchemaUpdater.this.getUpdateNames(update))
-                        AbstractSchemaUpdater.this.recordUpdateApplied(transaction, name);
-                }
+                for (String updateName : AbstractSchemaUpdater.this.getAllUpdateNames())
+                    AbstractSchemaUpdater.this.recordUpdateApplied(transaction, updateName);
             }
         });
 
@@ -293,6 +289,18 @@ public abstract class AbstractSchemaUpdater<D, T> {
      */
     protected String generateMultiUpdateName(SchemaUpdate<T> update, int index) {
         return String.format("%s-%05d", update.getName(), index + 1);
+    }
+
+    /**
+     * Get the names of all updates including multi-action updates.
+     */
+    protected List<String> getAllUpdateNames() throws Exception {
+        ArrayList<SchemaUpdate<T>> updateList = new ArrayList<SchemaUpdate<T>>(this.getUpdates());
+        ArrayList<String> updateNameList = new ArrayList<String>(updateList.size());
+        Collections.sort(updateList, new UpdateByNameComparator());
+        for (SchemaUpdate<T> update : updateList)
+            updateNameList.addAll(this.getUpdateNames(update));
+        return updateNameList;
     }
 
     /**
