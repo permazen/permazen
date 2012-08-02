@@ -18,6 +18,7 @@ public class PersistentObjectVersionException extends PersistentObjectException 
     private final long expectedVersion;
 
     public PersistentObjectVersionException(long actualVersion, long expectedVersion) {
+        super("expected version " + expectedVersion + " but actual version was " + actualVersion);
         this.actualVersion = actualVersion;
         this.expectedVersion = expectedVersion;
     }
