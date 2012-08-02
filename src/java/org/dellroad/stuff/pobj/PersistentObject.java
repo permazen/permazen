@@ -639,7 +639,7 @@ public class PersistentObject<T> {
     /**
      * Get the configured {@link PersistentObjectDelegate}.
      */
-    protected PersistentObjectDelegate getDelegate() {
+    public PersistentObjectDelegate getDelegate() {
         return this.delegate;
     }
 
