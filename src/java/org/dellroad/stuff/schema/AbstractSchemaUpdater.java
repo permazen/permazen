@@ -135,7 +135,8 @@ public abstract class AbstractSchemaUpdater<D, T> {
      * its own transaction}.
      *
      * @param database the database to initialize (if necessary) and update
-     * @return true if successful, false if database initialization was needed but not applied
+     * @return true if successful, false if database initialization was needed but could not be applied for some reason
+     *  (database dependent: database not started, etc.)
      * @throws Exception if an update fails
      * @throws IllegalStateException if this instance is not configured to {@linkplain #setIgnoreUnrecognizedUpdates ignore
      * unrecognized updates} and an unrecognized update has already been applied
