@@ -52,9 +52,7 @@ import org.springframework.core.io.Resource;
  *      &lt;!-- Schema updating persistent object delegate. The updates below will be auto-detected. --&gt;
  *      <b>&lt;bean id="updatingDelegate" class="org.dellroad.stuff.pobj.SpringPersistentObjectSchemaUpdater"
  *        p:marshaller-ref="marshaller" p:unmarshaller-ref="unmarshaller" p:defaultXML="classpath:default.xml"&gt;
- *          &lt;constructor-arg&gt;
- *              &lt;ref local="normalDelegate"/&gt;
- *          &lt;/constructor-arg&gt;
+ *          &lt;constructor-arg ref="normalDelegate"/&gt;
  *      &lt;/bean&gt;</b>
  *
  *      &lt;!-- Persistent object, configured to use our schema updating delegate --&gt;
@@ -147,7 +145,7 @@ public class SpringPersistentObjectSchemaUpdater<T> extends PersistentObjectSche
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
-        if (beanFactory instanceof ListableBeanFactory)
+        if (this.beanFactory == null && beanFactory instanceof ListableBeanFactory)
             this.beanFactory = (ListableBeanFactory)beanFactory;
     }
 
