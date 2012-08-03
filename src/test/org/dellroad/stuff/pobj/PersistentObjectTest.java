@@ -74,9 +74,9 @@ public class PersistentObjectTest extends TestSupport {
 
         // Get persistent object
         PersistentObject<RootObject> pobj = (PersistentObject<RootObject>)this.context.getBean(PersistentObject.class);
-        assert pobj.getPersistentFile().exists();
-        new File(pobj.getPersistentFile() + ".1").delete();
-        new File(pobj.getPersistentFile() + ".2").delete();
+        assert pobj.getFile().exists();
+        new File(pobj.getFile() + ".1").delete();
+        new File(pobj.getFile() + ".2").delete();
 
         // Make changes
         RootObject root = pobj.getRoot();
@@ -109,8 +109,8 @@ public class PersistentObjectTest extends TestSupport {
         assert pobj.getRoot().isVerbose() != root.isVerbose() : "root not copied when written";
 
         // Verify backup was made
-        assert new File(pobj.getPersistentFile() + ".1").exists();
-        assert !new File(pobj.getPersistentFile() + ".2").exists();
+        assert new File(pobj.getFile() + ".1").exists();
+        assert !new File(pobj.getFile() + ".2").exists();
 
         // Test optimistic lock excception
         try {

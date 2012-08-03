@@ -9,7 +9,6 @@ package org.dellroad.stuff.pobj;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -110,16 +109,18 @@ public abstract class AbstractDelegate<T> implements PersistentObjectDelegate<T>
     }
 
     /**
-     * Do any preparation required before the first time a persistent file is read.
+     * Get the default value for the root object graph. This method is invoked at startup when the persistent file does not exist.
+     * If this method returns null, then an {@linkplain PersistentObject#isAllowEmptyStart empty start} occurs unless the
+     * {@link PersistentObject} object is configured to disallow them, in which case an exception is thrown.
      *
      * <p>
-     * The implementation in {@link AbstractDelegate} does nothing.
+     * The implementation in {@link AbstractDelegate} returns null
      *
-     * @param file the persistent object file, prior to being read
-     * @throws PersistentObjectException if an error occurs
+     * @return root object initial value, or null if there is no default value
      */
     @Override
-    public void prepareFile(File file) {
+    public T getDefaultValue() {
+        return null;
     }
 }
 

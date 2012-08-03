@@ -7,7 +7,6 @@
 
 package org.dellroad.stuff.pobj;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -68,8 +67,8 @@ public class FilterDelegate<T> implements PersistentObjectDelegate<T> {
     }
 
     @Override
-    public void prepareFile(File file) {
-        this.nested.prepareFile(file);
+    public T getDefaultValue() {
+        return this.nested.getDefaultValue();
     }
 }
 

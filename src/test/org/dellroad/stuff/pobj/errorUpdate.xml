@@ -17,17 +17,18 @@
 
     <oxm:jibx-marshaller id="jibx-converter" target-class="org.dellroad.stuff.pobj.RootObject"/>
 
-<!-- Delegate -->
-
-    <bean id="delegate" class="org.dellroad.stuff.pobj.SpringDelegate"
-      p:marshaller-ref="jibx-converter" p:unmarshaller-ref="jibx-converter"/>
-
 <!-- Updater -->
 
-    <bean id="schemaUpdater" class="org.dellroad.stuff.pobj.SpringPersistentObjectSchemaUpdater"
-      p:delegate-ref="delegate" p:file="build/test/org/dellroad/stuff/pobj/errorUpdate.pobj.xml"/>
+    <bean id="schemaUpdater" class="org.dellroad.stuff.pobj.SpringPersistentObjectSchemaUpdater">
+        <constructor-arg>
+            <bean class="org.dellroad.stuff.pobj.SpringDelegate"
+              p:marshaller-ref="jibx-converter" p:unmarshaller-ref="jibx-converter"/>
+        </constructor-arg>
+    </bean>
 
-    <bean scope="prototype" factory-bean="schemaUpdater" factory-method="getPersistentObject"/>
+    <bean id="persistentObject" class="org.dellroad.stuff.pobj.PersistentObject"
+      init-method="start" destroy-method="stop"
+      p:delegate-ref="schemaUpdater" p:file="build/test/org/dellroad/stuff/pobj/errorUpdate.pobj.xml"/>
 
 <!-- Updates -->
 

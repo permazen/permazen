@@ -3,7 +3,8 @@ Version Next
     - Vaadin7: fixed bug preventing ContextApplication.showError() from working
     - Vaadin7: Call Application.setCurrent() in ContextApplication.invoke()
     - Added PersistentObject.getRootSnapshot(); return new version from setRoot()
-    - Fixed bugs in PersistentObjectSchemaUpdater in conjunction with empty starts
+    - Reworked PersistentObjectSchemaUpdater to avoid bugs with empty starts
+      NOTE: backward-incompatible change.
     - Fixed filtering bug in AbstractSimpleContainer and flaw in SimpleContainer
     - Allow SpringXSLUpdateTransformConfigurer to configure the TransformerFactory
     - Added IdGenerator.checkId() allowing to read but not assign an object's ID

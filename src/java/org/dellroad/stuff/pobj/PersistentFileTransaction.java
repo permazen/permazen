@@ -7,16 +7,10 @@
 
 package org.dellroad.stuff.pobj;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.stream.XMLEventReader;
@@ -24,6 +18,7 @@ import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
@@ -37,32 +32,26 @@ import javax.xml.transform.stream.StreamSource;
  */
 public class PersistentFileTransaction {
 
-    static final int FILE_BUFFER_SIZE = 32 * 1024 - 32;
+    private static final int BUFFER_SIZE = 32 * 1024 - 32;
 
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
     private final ArrayList<String> updates = new ArrayList<String>();
-    private final File file;
+    private final String systemId;
 
     private byte[] current;
-    private boolean modified;
 
     /**
      * Constructor.
      *
-     * @param file persistent file
+     * @param source XML input
      * @throws PersistentObjectException if no updates are found
      */
-    public PersistentFileTransaction(File file) throws IOException, XMLStreamException {
-
-        // Save file
-        if (file == null)
-            throw new IllegalStateException("null file");
-        this.file = file;
-
-        // Read in file if it exists
-        if (file.exists())
-            this.readFile();
+    public PersistentFileTransaction(Source source) throws IOException, XMLStreamException {
+        if (source == null)
+            throw new IllegalArgumentException("null source");
+        this.systemId = source.getSystemId();
+        this.read(source);
     }
 
     /**
@@ -73,86 +62,17 @@ public class PersistentFileTransaction {
     }
 
     /**
-     * Set the current XML data. Data should not include the XML update list.
+     * Get the system ID of the original source input.
      */
-    public void setData(byte[] data) {
-        this.current = data;
-        this.modified = true;
-    }
-
-    /**
-     * Commit this transaction. This results in the persistent file being atomically overwritten (including update list).
-     * If no data was set, then no file is written.
-     */
-    public void commit() throws IOException, XMLStreamException {
-
-        // Anything changed?
-        if (this.current == null || !this.modified) {
-            this.rollback();
-            return;
-        }
-
-        // Write data with updates to temporary file
-        File tempFile = null;
-        BufferedOutputStream output = null;
-        try {
-            XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(new ByteArrayInputStream(this.current));
-            tempFile = File.createTempFile(this.file.getName(), null, this.file.getParentFile());
-            output = new BufferedOutputStream(new FileOutputStream(tempFile), FILE_BUFFER_SIZE);
-            XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(output);
-            UpdatesXMLEventWriter updatesWriter = new UpdatesXMLEventWriter(eventWriter, this.updates);
-            updatesWriter.add(eventReader);
-            updatesWriter.close();
-            output.close();
-            output = null;
-            eventReader.close();
-
-            // Move temp file into place
-            if (!tempFile.renameTo(this.file))
-                throw new IOException("error renaming `" + tempFile.getName() + "' to `" + this.file.getName() + "'");
-            tempFile = null;
-        } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-            if (tempFile != null)
-                tempFile.delete();
-        }
-
-        // Done
-        this.current = null;
-        this.updates.clear();
-        this.modified = false;
-    }
-
-    /**
-     * Cancel this transaction.
-     */
-    public void rollback() {
-        this.current = null;
-        this.updates.clear();
-        this.modified = false;
+    public String getSystemId() {
+        return this.systemId;
     }
 
     /**
      * Get the updates list associated with this transaction.
-     *
-     * @return unmodifiable list of updates
      */
     public List<String> getUpdates() {
-        return Collections.unmodifiableList(this.updates);
-    }
-
-    /**
-     * Add an update to the list associated with this transaction.
-     */
-    public void addUpdate(String name) {
-        this.updates.add(name);
-        this.modified = true;
+        return this.updates;
     }
 
     /**
@@ -174,45 +94,42 @@ public class PersistentFileTransaction {
 
         // Set up source and result
         StreamSource source = new StreamSource(new ByteArrayInputStream(this.current));
-        source.setSystemId(file.toURI().toString());
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(FILE_BUFFER_SIZE);
+        source.setSystemId(this.systemId);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUFFER_SIZE);
         StreamResult result = new StreamResult(buffer);
-        result.setSystemId(file.toURI().toString());
+        result.setSystemId(this.systemId);
 
         // Apply transform
         transformer.transform(source, result);
 
         // Save result as the new current value
         this.current = buffer.toByteArray();
-        this.modified = true;
 
         // Debug
         //System.out.println("************************** AFTER TRANSFORM");
         //System.out.println(new String(this.current));
     }
 
-    private void readFile() throws IOException, XMLStreamException {
+    private void read(Source source) throws IOException, XMLStreamException {
 
-        // Read in file, extracting and removing the updates list in the process
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(FILE_BUFFER_SIZE);
+        // Read in XML, extracting and removing the updates list in the process
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUFFER_SIZE);
         XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(buffer);
-        BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.file), FILE_BUFFER_SIZE);
-        XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(input);
+        XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(source);
         UpdatesXMLEventReader updatesReader = new UpdatesXMLEventReader(eventReader);
         eventWriter.add(updatesReader);
         eventWriter.close();
         eventReader.close();
-        input.close();
 
         // Was the update list found?
-        List<String> fileUpdates = updatesReader.getUpdates();
-        if (fileUpdates == null)
-            throw new PersistentObjectException("file `" + this.file + "' does not contain an updates list");
+        List<String> updateNames = updatesReader.getUpdates();
+        if (updateNames == null)
+            throw new PersistentObjectException("XML file does not contain an updates list");
 
         // Save current content (without updates) and updates list
         this.current = buffer.toByteArray();
         this.updates.clear();
-        this.updates.addAll(fileUpdates);
+        this.updates.addAll(updateNames);
     }
 }
 

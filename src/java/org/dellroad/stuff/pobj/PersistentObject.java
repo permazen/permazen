@@ -126,10 +126,11 @@ public class PersistentObject<T> {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final HashSet<PersistentObjectListener<T>> listeners = new HashSet<PersistentObjectListener<T>>();
-    private final PersistentObjectDelegate<T> delegate;
-    private final FileStreamRepository streamRepository;
-    private final long writeDelay;
-    private final long checkInterval;
+
+    private PersistentObjectDelegate<T> delegate;
+    private FileStreamRepository streamRepository;
+    private long writeDelay;
+    private long checkInterval;
 
     private T root;                                         // current root object (private)
     private T sharedRoot;                                   // current root object (shared)
@@ -142,7 +143,6 @@ public class PersistentObject<T> {
     private boolean allowEmptyStart;
     private boolean allowEmptyStop;
     private boolean started;
-    private boolean filePrepared;
 
     /**
      * Constructor.
@@ -159,18 +159,10 @@ public class PersistentObject<T> {
      * @throws IllegalArgumentException if {@code writeDelay} or {@code checkInterval} is negative
      */
     public PersistentObject(PersistentObjectDelegate<T> delegate, File file, long writeDelay, long checkInterval) {
-        if (delegate == null)
-            throw new IllegalArgumentException("null delegate");
-        if (file == null)
-            throw new IllegalArgumentException("null file");
-        if (writeDelay < 0)
-            throw new IllegalArgumentException("negative writeDelay");
-        if (checkInterval < 0)
-            throw new IllegalArgumentException("negative checkInterval");
-        this.delegate = delegate;
-        this.streamRepository = new FileStreamRepository(file);
-        this.writeDelay = writeDelay;
-        this.checkInterval = checkInterval;
+        this.setDelegate(delegate);
+        this.setFile(file);
+        this.setWriteDelay(writeDelay);
+        this.setCheckInterval(checkInterval);
     }
 
     /**
@@ -187,10 +179,57 @@ public class PersistentObject<T> {
     }
 
     /**
-     * Get the persistent file containing the XML form of the persisted object.
+     * Default constructor. Caller must still configure the delegate and persistent file prior to start.
      */
-    public File getPersistentFile() {
-        return this.streamRepository.getFile();
+    public PersistentObject() {
+    }
+
+    /**
+     * Get the configured {@link PersistentObjectDelegate}.
+     *
+     * @return the delegate supplying required operations
+     */
+    public PersistentObjectDelegate<T> getDelegate() {
+        return this.delegate;
+    }
+
+    /**
+     * Configure the {@link PersistentObjectDelegate}.
+     *
+     * @param delegate delegate supplying required operations
+     * @throws IllegalArgumentException if {@code delegate} is null
+     * @throws IllegalStateException if this instance is started
+     */
+    public synchronized void setDelegate(PersistentObjectDelegate<T> delegate) {
+        if (delegate == null)
+            throw new IllegalArgumentException("null delegate");
+        if (this.isStarted())
+            throw new IllegalStateException("can't set the delegate while started");
+        this.delegate = delegate;
+    }
+
+    /**
+     * Get the persistent file containing the XML form of the persisted object.
+     *
+     * @return file used to persist the root object
+     */
+    public File getFile() {
+        return this.streamRepository != null ? this.streamRepository.getFile() : null;
+    }
+
+    /**
+     * Set the persistent file containing the XML form of the persisted object.
+     *
+     * @param file the file used to persist the root object
+     * @throws IllegalArgumentException if {@code file} is null
+     * @throws IllegalStateException if this instance is started
+     */
+    public synchronized void setFile(File file) {
+        if (file == null)
+            throw new IllegalArgumentException("null file");
+        if (this.isStarted())
+            throw new IllegalStateException("can't set the persistent file while started");
+        this.streamRepository = new FileStreamRepository(file);
     }
 
     /**
@@ -204,12 +243,43 @@ public class PersistentObject<T> {
     }
 
     /**
+     * Set the maximum delay after an update operation before a write-back to the persistent file
+     * must be initiated.
+     *
+     * @param writeDelay write delay in milliseconds, or zero for immediate write-back
+     * @throws IllegalArgumentException if {@code writeDelay} is negative
+     * @throws IllegalStateException if this instance is started
+     */
+    public synchronized void setWriteDelay(long writeDelay) {
+        if (writeDelay < 0)
+            throw new IllegalArgumentException("negative writeDelay");
+        if (this.isStarted())
+            throw new IllegalStateException("can't set the write delay while started");
+        this.writeDelay = writeDelay;
+    }
+
+    /**
      * Get the delay time between periodic checks for changes in the underlying persistent file.
      *
      * @return check interval in milliseconds, or zero if periodic checks are disabled
      */
     public long getCheckInterval() {
         return this.checkInterval;
+    }
+
+    /**
+     * Set the delay time between periodic checks for changes in the underlying persistent file.
+     *
+     * @param checkInterval check interval in milliseconds, or zero if periodic checks are disabled
+     * @throws IllegalArgumentException if {@code writeDelay} is negative
+     * @throws IllegalStateException if this instance is started
+     */
+    public synchronized void setCheckInterval(long checkInterval) {
+        if (checkInterval < 0)
+            throw new IllegalArgumentException("negative checkInterval");
+        if (this.isStarted())
+            throw new IllegalStateException("can't set the check interval while started");
+        this.checkInterval = checkInterval;
     }
 
     /**
@@ -220,7 +290,7 @@ public class PersistentObject<T> {
      * The version number is not persisted with the persistent file; each instance of this class keeps
      * its own version count. The version is reset to zero when {@link #stop stop()} is invoked.
      *
-     * @return the current positive object version, or zero if no value has been loaded yet
+     * @return the current positive object version, or zero if no value has been loaded yet or this instance is not started
      */
     public synchronized long getVersion() {
         return this.version;
@@ -240,16 +310,19 @@ public class PersistentObject<T> {
      * The default is zero, which disables backups.
      */
     public int getNumBackups() {
-        return this.streamRepository.getNumBackups();
+        return this.streamRepository != null ? this.streamRepository.getNumBackups() : 0;
     }
 
     /**
      * Set the number of backup copies to preserve.
      *
      * @throws IllegalArgumentException if {@code numBackups} is negative
+     * @throws IllegalStateException if no persistent file has been configured yet
      * @see #getNumBackups
      */
     public void setNumBackups(int numBackups) {
+        if (this.streamRepository == null)
+            throw new IllegalStateException("the persistent file must be configured prior to the number of backups");
         this.streamRepository.setNumBackups(numBackups);
     }
 
@@ -268,8 +341,12 @@ public class PersistentObject<T> {
      *
      * <p>
      * The default for this property is false.
+     *
+     * @throws IllegalStateException if this instance is started
      */
-    public void setAllowEmptyStart(boolean allowEmptyStart) {
+    public synchronized void setAllowEmptyStart(boolean allowEmptyStart) {
+        if (this.isStarted())
+            throw new IllegalStateException("can't set the check interval while started");
         this.allowEmptyStart = allowEmptyStart;
     }
 
@@ -288,8 +365,12 @@ public class PersistentObject<T> {
      *
      * <p>
      * The default for this property is false.
+     *
+     * @throws IllegalStateException if this instance is started
      */
-    public void setAllowEmptyStop(boolean allowEmptyStop) {
+    public synchronized void setAllowEmptyStop(boolean allowEmptyStop) {
+        if (this.isStarted())
+            throw new IllegalStateException("can't set the check interval while started");
         this.allowEmptyStop = allowEmptyStop;
     }
 
@@ -311,24 +392,51 @@ public class PersistentObject<T> {
         if (this.started)
             return;
 
+        // Sanity check
+        if (this.streamRepository == null)
+            throw new PersistentObjectException("no file configured");
+        if (this.delegate == null)
+            throw new PersistentObjectException("no delegate configured");
+
         // Create executor services
         this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
         this.notifyExecutor = Executors.newSingleThreadExecutor();
 
         // Read file (if it exists)
         this.log.info(this + ": starting");
-        if (this.getPersistentFile().exists()) {
+        if (this.getFile().exists()) {
+
+            // Apply file
             try {
-                this.applyFile(this.getPersistentFile().lastModified());
+                this.applyFile(this.getFile().lastModified(), true);
             } catch (PersistentObjectException e) {
                 if (!this.isAllowEmptyStart())
                     throw e;
-                this.log.warn("empty start: unable to load persistent file `" + this.getPersistentFile() + "': " + e);
+                this.log.warn("empty start: unable to load persistent file `" + this.getFile() + "': " + e);
             }
         } else {
-            if (!this.isAllowEmptyStart())
-                throw new PersistentObjectException("persistent file `" + this.getPersistentFile() + "' does not exist");
-            this.log.info(this + ": empty start: persistent file `" + this.getPersistentFile() + "' does not exist");
+
+            // Persistent file does not exist, so get default value from delegate
+            final T defaultValue = this.delegate.getDefaultValue();
+
+            // If no default value, we have an empty start situation, otherwise apply the default value
+            if (defaultValue == null) {
+                if (!this.isAllowEmptyStart()) {
+                    throw new PersistentObjectException("persistent file `" + this.getFile() + "' does not exist,"
+                      + " there is no default value, and empty starts are disallowed");
+                }
+                this.log.info(this + ": empty start: persistent file `" + this.getFile() + "' does not exist"
+                  + " and there is no default value");
+            } else {
+                this.log.info(this + ": persistent file `" + this.getFile() + "' does not exist, applying default value");
+                try {
+                    this.setRootInternal(defaultValue, 0, false, true);
+                } catch (PersistentObjectException e) {                             // e.g., validation failure
+                    if (!this.isAllowEmptyStart())
+                        throw e;
+                    this.log.warn("empty start: unable to apply default value: " + e);
+                }
+            }
         }
 
         // Start checking the file
@@ -376,7 +484,6 @@ public class PersistentObject<T> {
         this.version = 0;
         this.timestamp = 0;
         this.started = false;
-        this.filePrepared = false;
     }
 
     /**
@@ -500,16 +607,16 @@ public class PersistentObject<T> {
      * @throws PersistentObjectValidationException if the new root has validation errors
      */
     public final synchronized long setRoot(T newRoot, long expectedVersion) {
-        return this.setRootInternal(newRoot, expectedVersion, false);
+        return this.setRootInternal(newRoot, expectedVersion, false, false);
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized long setRootInternal(T newRoot, long expectedVersion, boolean readingFile) {
+    private synchronized long setRootInternal(T newRoot, long expectedVersion, boolean readingFile, boolean allowNotStarted) {
 
         // Sanity check
         if (newRoot == null && !this.isAllowEmptyStop())
             throw new IllegalArgumentException("newRoot is null but empty stops are not enabled");
-        if (!this.started && !readingFile)
+        if (!this.started && !allowNotStarted)
             throw new IllegalStateException("not started");
         if (expectedVersion < 0)
             throw new IllegalStateException("negative expectedVersion");
@@ -592,7 +699,7 @@ public class PersistentObject<T> {
             throw new IllegalStateException("not started");
 
         // Get file timestamp
-        long fileTime = this.getPersistentFile().lastModified();
+        long fileTime = this.getFile().lastModified();
         if (fileTime == 0)
             return;
 
@@ -601,8 +708,8 @@ public class PersistentObject<T> {
             return;
 
         // Read new file
-        this.log.info(this + ": detected out-of-band update of persistent file `" + this.getPersistentFile() + "'");
-        this.applyFile(fileTime);
+        this.log.info(this + ": detected out-of-band update of persistent file `" + this.getFile() + "'");
+        this.applyFile(fileTime, false);
     }
 
     /**
@@ -635,14 +742,7 @@ public class PersistentObject<T> {
      */
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + this.getPersistentFile().getName() + "]";
-    }
-
-    /**
-     * Get the configured {@link PersistentObjectDelegate}.
-     */
-    public PersistentObjectDelegate<T> getDelegate() {
-        return this.delegate;
+        return this.getClass().getSimpleName() + "[" + this.getFile().getName() + "]";
     }
 
     /**
@@ -652,15 +752,8 @@ public class PersistentObject<T> {
      */
     protected T read() {
 
-        // Prepare file
-        if (!this.filePrepared) {
-            this.log.debug(this + ": preparing persistent file `" + this.getPersistentFile() + "'");
-            this.delegate.prepareFile(this.getPersistentFile());
-            this.filePrepared = true;
-        }
-
         // Open file
-        this.log.info(this + ": reading persistent file `" + this.getPersistentFile() + "'");
+        this.log.info(this + ": reading persistent file `" + this.getFile() + "'");
         BufferedInputStream input;
         try {
             input = new BufferedInputStream(this.streamRepository.getInputStream());
@@ -672,7 +765,7 @@ public class PersistentObject<T> {
         T obj;
         try {
             StreamSource source = new StreamSource(input);
-            source.setSystemId(this.getPersistentFile());
+            source.setSystemId(this.getFile());
             try {
                 obj = this.delegate.deserialize(source);
             } catch (IOException e) {
@@ -775,10 +868,10 @@ public class PersistentObject<T> {
     }
 
     // Read the persistent file and apply it
-    private synchronized void applyFile(long newTimestamp) {
+    private synchronized void applyFile(long newTimestamp, boolean allowNotStarted) {
         this.cancelPendingWrite();
         this.timestamp = newTimestamp;                              // update timestamp even if update fails to avoid loops
-        this.setRootInternal(this.read(), 0, true);
+        this.setRootInternal(this.read(), 0, true, allowNotStarted);
     }
 
     // Handle a write-back timeout

@@ -135,8 +135,6 @@ public abstract class AbstractSchemaUpdater<D, T> {
      * its own transaction}.
      *
      * @param database the database to initialize (if necessary) and update
-     * @return true if successful, false if database initialization was needed but could not be applied for some reason
-     *  (database dependent: database not started, etc.)
      * @throws Exception if an update fails
      * @throws IllegalStateException if this instance is not configured to {@linkplain #setIgnoreUnrecognizedUpdates ignore
      * unrecognized updates} and an unrecognized update has already been applied
@@ -144,13 +142,12 @@ public abstract class AbstractSchemaUpdater<D, T> {
      * @throws IllegalArgumentException if any configured update has a required predecessor which is not also a configured update
      *  (i.e., if the updates are not transitively closed under predecessors)
      */
-    public synchronized boolean initializeAndUpdateDatabase(final D database) throws Exception {
+    public synchronized void initializeAndUpdateDatabase(final D database) throws Exception {
 
         // Log
         this.log.info("verifying database " + database);
 
         // First, initialize if necessary
-        final boolean[] initialized = new boolean[1];
         this.applyInTransaction(database, new DatabaseAction<T>() {
             @Override
             public void apply(T transaction) throws Exception {
@@ -158,15 +155,12 @@ public abstract class AbstractSchemaUpdater<D, T> {
                 // Already initialized?
                 if (!AbstractSchemaUpdater.this.databaseNeedsInitialization(transaction)) {
                     AbstractSchemaUpdater.this.log.debug("detected already-initialized database " + database);
-                    initialized[0] = true;
                     return;
                 }
 
                 // Initialize database
                 AbstractSchemaUpdater.this.log.info("uninitialized database detected; initializing " + database);
-                initialized[0] = AbstractSchemaUpdater.this.initializeDatabase(transaction);
-                if (!initialized[0])
-                    return;
+                AbstractSchemaUpdater.this.initializeDatabase(transaction);
 
                 // Record all schema updates as having already been applied
                 for (String updateName : AbstractSchemaUpdater.this.getAllUpdateNames())
@@ -174,18 +168,11 @@ public abstract class AbstractSchemaUpdater<D, T> {
             }
         });
 
-        // Was database initialized?
-        if (!initialized[0]) {
-            this.log.info("database verification aborted because database was not initialized: " + database);
-            return false;
-        }
-
         // Next, apply any new updates
         this.applySchemaUpdates(database);
 
         // Done
         this.log.info("database verification completed for " + database);
-        return true;
     }
 
     /**
@@ -212,10 +199,9 @@ public abstract class AbstractSchemaUpdater<D, T> {
      * including whatever portion of that is used to track schema updates.
      *
      * @param transaction open transaction
-     * @return true if database was initialized, false otherwise
      * @throws Exception if an error occurs while accessing the database
      */
-    protected abstract boolean initializeDatabase(T transaction) throws Exception;
+    protected abstract void initializeDatabase(T transaction) throws Exception;
 
     /**
      * Begin a transaction on the given database.
