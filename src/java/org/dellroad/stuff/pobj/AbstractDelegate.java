@@ -9,6 +9,7 @@ package org.dellroad.stuff.pobj;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -88,6 +89,7 @@ public abstract class AbstractDelegate<T> implements PersistentObjectDelegate<T>
      * @throws IllegalArgumentException if {@code obj} is null
      * @return set of zero or more constraint violations
      */
+    @Override
     public Set<ConstraintViolation<T>> validate(T obj) {
         return new ValidationContext<T>(obj).validate();
     }
@@ -102,8 +104,22 @@ public abstract class AbstractDelegate<T> implements PersistentObjectDelegate<T>
      * @param pobj the instance that encountered the exception
      * @param t the exception thrown
      */
+    @Override
     public void handleWritebackException(PersistentObject<T> pobj, Throwable t) {
         this.log.error(pobj + ": error during write-back", t);
+    }
+
+    /**
+     * Do any preparation required before the first time a persistent file is read.
+     *
+     * <p>
+     * The implementation in {@link AbstractDelegate} does nothing.
+     *
+     * @param file the persistent object file, prior to being read
+     * @throws PersistentObjectException if an error occurs
+     */
+    @Override
+    public void prepareFile(File file) {
     }
 }
 

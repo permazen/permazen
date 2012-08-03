@@ -99,6 +99,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
 
     private ArrayList<String> updateNames;
     private PersistentObject<T> persistentObject;
+    private boolean initialized;
 
     /**
      * Configure the file used to store this object persistently. Required property.
@@ -190,17 +191,13 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
         this.persistentObject.setAllowEmptyStart(this.allowEmptyStart);
         this.persistentObject.setAllowEmptyStop(this.allowEmptyStop);
 
-        // Do schema updates
-        boolean success = false;
+        // Do schema updates now (if possible)
+        boolean completed = false;
         try {
-            this.initializeAndUpdateDatabase(this.file);
-            success = true;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new PersistentObjectException(e);
+            this.doInitialization(this.file);
+            completed = true;
         } finally {
-            if (!success)
+            if (!completed)
                 this.persistentObject = null;
         }
 
@@ -226,6 +223,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
         // Stop
         this.persistentObject.stop();
         this.persistentObject = null;
+        this.initialized = false;
     }
 
     /**
@@ -316,6 +314,16 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
         transaction.addUpdate(name);
     }
 
+    private void doInitialization(File targetFile) {
+        try {
+            this.initialized = this.initializeAndUpdateDatabase(targetFile);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new PersistentObjectException(e);
+        }
+    }
+
     // Our PersistentObjectDelegate that hides the updates when (de)serializing
     private class UpdaterDelegate extends FilterDelegate<T> {
 
@@ -358,6 +366,15 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<File
             } catch (XMLStreamException e) {
                 throw new PersistentObjectException(e);
             }
+        }
+
+        /**
+         * Prepare the file. In case of an empty start, we do the deferred initialization here.
+         */
+        @Override
+        public void prepareFile(File file) {
+            if (!PersistentObjectSchemaUpdater.this.initialized)
+                PersistentObjectSchemaUpdater.this.doInitialization(file);
         }
     }
 }

@@ -7,6 +7,7 @@
 
 package org.dellroad.stuff.pobj;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -64,6 +65,11 @@ public class FilterDelegate<T> implements PersistentObjectDelegate<T> {
     @Override
     public void handleWritebackException(PersistentObject<T> pobj, Throwable t) {
         this.nested.handleWritebackException(pobj, t);
+    }
+
+    @Override
+    public void prepareFile(File file) {
+        this.nested.prepareFile(file);
     }
 }
 

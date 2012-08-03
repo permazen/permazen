@@ -7,6 +7,7 @@
 
 package org.dellroad.stuff.pobj;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -108,5 +109,13 @@ public interface PersistentObjectDelegate<T> {
      * @param t the exception thrown
      */
     void handleWritebackException(PersistentObject<T> pobj, Throwable t);
+
+    /**
+     * Do any preparation required before the first time a persistent file is read.
+     *
+     * @param file the persistent object file, prior to being read
+     * @throws PersistentObjectException if an error occurs
+     */
+    void prepareFile(File file);
 }
 

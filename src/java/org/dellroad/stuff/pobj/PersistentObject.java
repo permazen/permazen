@@ -142,6 +142,7 @@ public class PersistentObject<T> {
     private boolean allowEmptyStart;
     private boolean allowEmptyStop;
     private boolean started;
+    private boolean filePrepared;
 
     /**
      * Constructor.
@@ -375,6 +376,7 @@ public class PersistentObject<T> {
         this.version = 0;
         this.timestamp = 0;
         this.started = false;
+        this.filePrepared = false;
     }
 
     /**
@@ -649,6 +651,13 @@ public class PersistentObject<T> {
      * @throws PersistentObjectException if an error occurs
      */
     protected T read() {
+
+        // Prepare file
+        if (!this.filePrepared) {
+            this.log.debug(this + ": preparing persistent file `" + this.getPersistentFile() + "'");
+            this.delegate.prepareFile(this.getPersistentFile());
+            this.filePrepared = true;
+        }
 
         // Open file
         this.log.info(this + ": reading persistent file `" + this.getPersistentFile() + "'");
