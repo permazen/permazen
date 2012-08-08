@@ -152,6 +152,13 @@
     <target name="addon" depends="javac, javac-vaadin7, aspects, resources" unless="addon.completed"
       description="Build Vaadin add-on">
         <mkdir dir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}"/>
+        <copy file="src/aop/aop.xml" tofile="build/addon/aop.xml">
+            <filterchain>
+                <linecontains negate="true">
+                    <contains value="aspect name=&quot;org.dellroad.stuff.spring"/>
+                </linecontains>
+            </filterchain>
+        </copy>
         <copy todir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}">
             <fileset dir="src/addon" includes="pom.xml"/>
             <filterset>
@@ -172,7 +179,7 @@
                 <include name="org/dellroad/stuff/vaadin7/**/*"/>
             </fileset>
             <metainf dir="build/addon" includes="maven/**/*"/>
-            <metainf dir="src/aop" includes="aop.xml"/>
+            <metainf dir="build/addon" includes="aop.xml"/>
             <manifest>
                 <attribute name="Vaadin-Package-Version" value="1"/>
                 <attribute name="Implementation-Title" value="Spring Stuff"/>
