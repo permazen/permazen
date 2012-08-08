@@ -9,6 +9,7 @@ Version Next
     - Allow SpringXSLUpdateTransformConfigurer to configure the TransformerFactory
     - Added IdGenerator.checkId() allowing to read but not assign an object's ID
     - Disallow forward references in ParseUtil.serializeReference (as documented)
+    - Removed non-Vaadin aspects from aop.xml in the Vaadin add-on JAR (issue #12)
     - Added VaadinExternalListener, changed VaadinApplicationListener to use it
       NOTE: backward-incompatible change.
     - Added @ThreadConfigurable Spring annotation
