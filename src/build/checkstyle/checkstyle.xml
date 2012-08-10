@@ -191,6 +191,7 @@
         <module name="RightCurly"/>
         <module name="AvoidNestedBlocks">
             <property name="severity" value="warning"/>
+            <property name="allowInSwitchCase" value="true"/>
         </module>
 
         <!-- Checks for common coding problems               -->
