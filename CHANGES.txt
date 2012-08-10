@@ -13,6 +13,7 @@ Version Next
     - Added VaadinExternalListener, changed VaadinApplicationListener to use it
       NOTE: backward-incompatible change.
     - Added @ThreadConfigurable Spring annotation
+    - Added XMLResultSetWriter
 
 Version 1.0.432 Released June 29, 2012
 
