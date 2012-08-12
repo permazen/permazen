@@ -92,7 +92,7 @@ public class XMLResultSetWriter {
      *  </code></blockquote>
      * element is included.
      */
-    public void write(ResultSet resultSet) throws IOException, SQLException, XMLStreamException {
+    public void write(ResultSet resultSet) throws SQLException, XMLStreamException {
         this.write(null, resultSet);
     }
 
