@@ -32,7 +32,7 @@ public abstract class CriteriaCallback<T, R> extends TypedQueryCallback<T, R> {
      * Build the query by delegating to {@link #configureQuery configureQuery()} for configuration.
      */
     @Override
-    protected final TypedQuery<T> buildQuery(EntityManager entityManager) {
+    protected TypedQuery<T> buildQuery(EntityManager entityManager) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(this.type);
         this.configureQuery(criteriaQuery, criteriaBuilder);
