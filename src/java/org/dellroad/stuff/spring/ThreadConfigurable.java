@@ -37,6 +37,20 @@ import org.springframework.beans.factory.annotation.Autowire;
  * </p>
  *
  * <p>
+ * For example:
+ *  <blockquote><pre>
+ *  final BeanFactory otherBeanFactory = ...
+ *  Thread thread = new Thread() {
+ *      &#64;Override
+ *      public void run() {
+ *          ThreadLocalBeanFactory.getInstance().setBeanFactory(otherBeanFactory);
+ *          // now &#64;ThreadConfigurable beans will use "otherBeanFactory" for autowiring:
+ *          new SomeThreadConfigurableBean() ...
+ *      }
+ *  };
+ *  </pre></blockquote>
+ *
+ * <p>
  * Note: to make this annotation behave like Spring's
  * {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation, simply include the
  * {@link ThreadLocalBeanFactory} singleton instance in your bean factory:
