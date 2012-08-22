@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  *  Thread thread = new Thread() {
  *      &#64;Override
  *      public void run() {
- *          ThreadLocalBeanFactory.getInstance().setBeanFactory(otherBeanFactory);
+ *          ThreadLocalBeanFactory.getInstance().set(otherBeanFactory);
  *          // now &#64;ThreadConfigurable beans will use "otherBeanFactory" for autowiring:
  *          new SomeThreadConfigurableBean() ...
  *      }
