@@ -22,32 +22,46 @@ import org.springframework.beans.factory.annotation.Autowire;
  * <p>
  * Works just like Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation,
  * but whereas {@link org.springframework.beans.factory.annotation.Configurable @Configurable} autowires using a fixed
- * bean factory stored in a static variable, {@link ThreadConfigurable @ThreadConfigurable} allows the bean factory
- * that is used for autowiring beans to be changed on a per-thread basis, by invoking
- * {@link ThreadLocalBeanFactory#set ThreadLocalBeanFactory.set()} on the {@link ThreadLocalBeanFactory}
- * singleton instance (see {@link ThreadLocalBeanFactory#getInstance}). This allows the same
+ * bean factory stored in a static variable, {@link ThreadConfigurable @ThreadConfigurable} autowires using a bean
+ * factory that is configurable on a per-thread basis. This allows the same
  * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans to be instantiated and autowired by different
- * application contexts at the same time, where the application context chosen depends on the current thread.
+ * application contexts at the same time, where the application context chosen depends on the thread in which
+ * the instantiation is occurring. This is useful when setting up "parallel universes" within the same application.
+ * </p>
+ *
+ * <p>
+ * The configuring bean factory is determined by the singleton {@link ThreadLocalBeanFactory} instance, i.e., the value
+ * returned by invoking <code>{@link ThreadLocalBeanFactory#getInstance}.{@link ThreadLocalBeanFactory#get get()}</code>.
+ * Note that {@link ThreadConfigurable @ThreadConfigurable} requires that the {@link org.springframework.beans.factory.BeanFactory}
+ * configured in the {@link ThreadLocalBeanFactory} actually be a
+ * {@link org.springframework.beans.factory.config.ConfigurableListableBeanFactory}.
  * </p>
  *
  * <p>
  * With {@link ThreadLocalBeanFactory} the configured bean factory is inherited by spawned child threads,
  * so typically this configuration need only be done once when starting new some process or operation,
- * even if that operation involves multiple threads.
+ * even if that operation creates multiple threads.
  * </p>
  *
  * <p>
  * For example:
  *  <blockquote><pre>
- *  final BeanFactory otherBeanFactory = ...
- *  Thread thread = new Thread() {
+ *  new Thread("context startup") {
  *      &#64;Override
  *      public void run() {
- *          ThreadLocalBeanFactory.getInstance().set(otherBeanFactory);
- *          // now &#64;ThreadConfigurable beans will use "otherBeanFactory" for autowiring:
+ *
+ *          // Setup the context used by &#64;ThreadConfigurable beans created in this thread;
+ *          // to be safe, configure the ThreadLocalBeanFactory before refreshing the context.
+ *          ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(
+ *            new String[] { "applicationContext.xml" }, false);
+ *          ThreadLocalBeanFactory.getInstance().set(context.getBeanFactory());
+ *          context.refresh();
+ *
+ *          // Now &#64;ThreadConfigurable beans will use "context" for autowiring, but only
+ *          // if they are created in this thread (or one of its child threads).
  *          new SomeThreadConfigurableBean() ...
  *      }
- *  };
+ *  }.start();
  *  </pre></blockquote>
  *
  * <p>

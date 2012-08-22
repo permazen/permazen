@@ -12,8 +12,13 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.DisposableBean;
 
 /**
- * Associates a {@link BeanFactory} with each thread. Typically used for autowiring
- * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans.
+ * Associates a {@link BeanFactory} with each thread.
+ *
+ * <p>
+ * Typically used for autowiring {@link ThreadConfigurable @ThreadConfigurable}-annotated beans.
+ * Note that when used with {@link ThreadConfigurable @ThreadConfigurable}, the configured {@link BeanFactory}
+ * must actually be a {@link org.springframework.beans.factory.config.ConfigurableListableBeanFactory}.
+ * </p>
  *
  * <p>
  * Also provides a default singleton instance (which may be substituted if necessary).
