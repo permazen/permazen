@@ -13,7 +13,7 @@ import java.util.Enumeration;
 
 import javax.servlet.ServletContextEvent;
 
-import org.dellroad.stuff.spring.ThreadLocalBeanFactory;
+import org.dellroad.stuff.spring.ThreadConfigurableContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.IntrospectorCleanupListener;
@@ -34,7 +34,7 @@ public class ContextCleanupListener extends IntrospectorCleanupListener {
      * first invoking the superclass version of this method.
      *
      * <p>
-     * Also resets the {@link ThreadLocalBeanFactory} singleton instance
+     * Also resets the {@link ThreadConfigurableContextHolder} singleton instance
      * so Tomcat won't complain about the lingering ThreadLocal variables.
      * </p>
      */
@@ -51,8 +51,8 @@ public class ContextCleanupListener extends IntrospectorCleanupListener {
                 }
             }
 
-            // Reset the ThreadThreadLocalBeanFactory singleton instance to make Tomcat happy
-            ThreadLocalBeanFactory.setInstance(new ThreadLocalBeanFactory());
+            // Reset the ThreadConfigurableContextHolder singleton instance to make Tomcat happy
+            ThreadConfigurableContextHolder.setInstance(new ThreadConfigurableContextHolder());
         } catch (Throwable e) {
             log.error("exception cleaning up servlet context", e);
         }

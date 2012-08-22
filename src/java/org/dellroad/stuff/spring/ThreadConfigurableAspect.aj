@@ -14,10 +14,11 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Aspect that autowires classes marked with the {@link ThreadConfigurable @ThreadConfigurable} annotation using
- * the Spring application context returned by {@link ThreadLocalBeanFactory#get()}.
+ * the Spring application context returned by {@link ThreadConfigurableContextHolder#get()}.
  *
  * <p>
  * This implementation is derived from Spring's {@code AnnotationBeanConfigurerAspect} implementation
@@ -25,7 +26,7 @@ import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
  * </p>
  *
  * @see ThreadConfigurable
- * @see ThreadLocalBeanFactory
+ * @see ThreadConfigurableContextHolder
  */
 public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
 
@@ -67,33 +68,33 @@ public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
     @Override
     protected BeanFactory getBeanFactory(Object bean) {
 
-        // Get ThreadLocalBeanFactory singleton
-        ThreadLocalBeanFactory threadConfigurableBeanFactory = ThreadLocalBeanFactory.getInstance();
-        if (threadConfigurableBeanFactory == null) {
+        // Get ThreadConfigurableContextHolder singleton
+        ThreadConfigurableContextHolder threadConfigurableContextHolder = ThreadConfigurableContextHolder.getInstance();
+        if (threadConfigurableContextHolder == null) {
             if (this.log.isDebugEnabled()) {
                 this.log.debug("can't configure @" + ThreadConfigurable.class.getName()
                   + "-annotated bean of type " + bean.getClass().getName()
-                  + " because the ThreadLocalBeanFactory singleton instance has been set to null;"
+                  + " because the ThreadConfigurableContextHolder singleton instance has been set to null;"
                   + " proceeding without injection");
             }
             return null;
         }
 
-        // Get BeanFactory
-        BeanFactory beanFactory = threadConfigurableBeanFactory.get();
-        if (beanFactory == null) {
+        // Get ConfigurableApplicationContext
+        ConfigurableApplicationContext context = threadConfigurableContextHolder.get();
+        if (context == null) {
             if (this.log.isDebugEnabled()) {
                 this.log.debug("can't configure @" + ThreadConfigurable.class.getName()
                   + "-annotated bean of type " + bean.getClass().getName()
-                  + " because no BeanFactory has been configured for the current thread via "
-                  + ThreadLocalBeanFactory.class.getName() + ".set() nor has a default BeanFactory has been set;"
-                  + " proceeding without injection");
+                  + " because no ConfigurableApplicationContext has been configured for the current thread via "
+                  + ThreadConfigurableContextHolder.class.getName() + ".set() nor has a default"
+                  + " ConfigurableApplicationContext has been set; proceeding without injection");
             }
             return null;
         }
 
-        // Done
-        return beanFactory;
+        // Return associated BeanFactory
+        return context.getBeanFactory();
     }
 
     @Override
