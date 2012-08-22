@@ -321,6 +321,52 @@
     </macrodef>
 
     <!--
+        JPA schema generation
+
+        Requires:
+            path "javac.classpath"
+            path "schema.classpath"
+    -->
+    <macrodef uri="urn:org.dellroad.ant" name="schemagen">
+        <attribute name="jpaxml" description="JPA persistence.xml file"/>
+        <attribute name="log4j" description="Log4J XML config file"/>
+        <attribute name="unit" description="JPA unit"/>
+        <attribute name="dir" description="Output directory"/>
+        <attribute name="file" description="Output filename"/>
+        <element name="fixups" optional="yes" description="Schema fixups (optional)"/>
+        <sequential>
+
+            <!-- Build JAR file for hibernatetool -->
+            <delete file="build/schemagen.jar"/>
+            <delete dir="build/schemagen"/>
+            <mkdir dir="build/schemagen/META-INF"/>
+            <copy file="@{log4j}" tofile="build/schemagen/log4j.xml"/>
+            <copy file="@{jpaxml}" todir="build/schemagen/META-INF"/>
+            <jar destfile="build/schemagen.jar">
+                <fileset dir="build/schemagen" includes="**/*"/>
+                <fileset dir="build/classes" includes="**/*.class"/>
+            </jar>
+            <delete dir="build/schemagen"/>
+
+            <!-- Run hibernatetool -->
+            <taskdef name="hibernatetool" classpathref="schema.classpath" classname="org.hibernate.tool.ant.HibernateToolTask"/>
+            <hibernatetool destdir="@{dir}">
+                <classpath>
+                    <fileset dir="build" includes="schemagen.jar"/>
+                    <path refid="javac.classpath"/>
+                </classpath>
+                <jpaconfiguration persistenceunit="@{unit}"/>
+                <hbm2ddl export="false" drop="false" create="true" update="false" format="true"
+                  outputfilename="@{file}" delimiter=";" haltonerror="true"/>
+            </hibernatetool>
+            <delete file="build/schemagen.jar"/>
+
+            <!-- Apply fixups -->
+            <fixups/>
+        </sequential>
+    </macrodef>
+
+    <!--
         Schema Update Verification
 
         Requirements:
