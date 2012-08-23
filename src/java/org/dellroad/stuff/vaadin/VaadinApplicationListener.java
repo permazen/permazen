@@ -98,7 +98,8 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
     }
 
     /**
-     * Handle a listener event within the context of the {@link ContextApplication} with which this listener is associated.
+     * Handle a listener event. When this method is invoked, it will already be within the context
+     * of the {@link ContextApplication} with which this listener is associated.
      * The current {@link ContextApplication} is also available via {@link ContextApplication#get}.
      *
      * @see ContextApplication#get

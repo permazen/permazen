@@ -29,6 +29,33 @@ import javax.xml.stream.XMLStreamWriter;
 
 /**
  * Outputs the result of an SQL query as XML.
+ *
+ * <p>
+ * For example, the query <code>SELECT ID, LAST_NAME, FIRST_NAME FROM EMPLOYEE</code> might become:
+ * <pre>
+ *  &lt;result-set&gt;
+ *      &lt;query&gt;&lt;![CDATA[SELECT ID, LAST_NAME, FIRST_NAME FROM EMPLOYEE]]&gt;&lt;/query&gt;
+ *      &lt;columns&gt;
+ *          &lt;column index="1" name="ID" precision="20" type="BIGINT" typeName="BIGINT" nullable="false"/&gt;
+ *          &lt;column index="2" name="LAST_NAME" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&gt;
+ *          &lt;column index="3" name="FIRST_NAME" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&gt;
+ *      &lt;/columns&gt;
+ *      &lt;data&gt;
+ *          &lt;row&gt;
+ *              &lt;column index="1"&gt;1302&lt;/column&gt;
+ *              &lt;column index="2"&gt;Washington&lt;/column&gt;
+ *              &lt;column index="3"&gt;George&lt;/column&gt;
+ *          &lt;/row&gt;
+ *          &lt;row&gt;
+ *              &lt;column index="1"&gt;1303&lt;/column&gt;
+ *              &lt;column index="2"&gt;Lincoln&lt;/column&gt;
+ *              &lt;column index="3"&gt;Abraham&lt;/column&gt;
+ *          &lt;/row&gt;
+ *          ...
+ *      &lt;/data&gt;
+ *  &lt;/result-set&gt;
+ * </pre>
+ * </p>
  */
 public class XMLResultSetWriter {
 
