@@ -77,7 +77,7 @@ public class XMLResultSetWriter {
         TYPE_NAMES = Collections.unmodifiableMap(map);
     }
 
-    private static final String DATE_FORMAT = "dd-MM-yyyy";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final String TIMESTAMP_FORMAT = DATE_FORMAT + " HH:mm:ss";
 
     private final XMLStreamWriter writer;
