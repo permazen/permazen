@@ -130,6 +130,16 @@ public class XMLResultSetWriter {
      * the <code>&lt;data&gt;</code> element containing each returned row.
      *
      * <p>
+     * This method just outputs an XML element. To output an entire XML document, you would do something like this:
+     * <pre>
+     *  XMLResultSetWriter xmlResultSetWriter = new XMLResultSetWriter(writer, 4);
+     *  writer.writeStartDocument("UTF-8", "1.0");
+     *  xmlResultSetWriter.write(query, resultSet);
+     *  writer.writeEndDocument();
+     * </pre>
+     * </p>
+     *
+     * <p>
      * The result set is iterated in a forward direction only.
      *
      * @param query the SQL query, or null to omit
@@ -196,26 +206,6 @@ public class XMLResultSetWriter {
 
         // End result set
         this.closeTag();
-    }
-
-    /**
-     * Flush the underlying {@link XMLStreamWriter}.
-     *
-     * @throws XMLStreamException if there is an error flushing the underlying {@link XMLStreamWriter}
-     */
-    public void flush() throws XMLStreamException {
-        this.writer.flush();
-    }
-
-    /**
-     * Close the underlying {@link XMLStreamWriter}.
-     *
-     * @throws XMLStreamException if there is an error closing the underlying {@link XMLStreamWriter}
-     */
-    public void close() throws XMLStreamException {
-        this.writer.writeEndDocument();
-        this.writer.flush();
-        this.writer.close();
     }
 
 // Writing a data row
@@ -403,7 +393,8 @@ public class XMLResultSetWriter {
                 this.writer.writeCharacters(this.indentSpace);
         }
         this.writer.writeEndElement();
-        this.writer.writeCharacters("\n");
+        if (this.nesting > 0)
+            this.writer.writeCharacters("\n");
         this.state = State.LAST_CLOSE;
     }
 }
