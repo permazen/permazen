@@ -26,6 +26,10 @@ import org.springframework.beans.factory.annotation.Autowire;
  * with the servlet context.
  * </p>
  *
+ * <p>
+ * Running the AspectJ compiler on your annotated classes is required to activate this annotation.
+ * </p>
+ *
  * @see org.dellroad.stuff.vaadin
  */
 @Retention(RetentionPolicy.RUNTIME)
