@@ -18,7 +18,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Aspect that autowires classes marked with the {@link ThreadConfigurable @ThreadConfigurable} annotation using
- * the Spring application context returned by {@link ThreadConfigurableContextHolder#get()}.
+ * the per-thread Spring application context configured in the {@link ThreadConfigurableContextHolder} singleton.
  *
  * <p>
  * This implementation is derived from Spring's {@code AnnotationBeanConfigurerAspect} implementation
@@ -87,8 +87,8 @@ public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
                 this.log.debug("can't configure @" + ThreadConfigurable.class.getName()
                   + "-annotated bean of type " + bean.getClass().getName()
                   + " because no ConfigurableApplicationContext has been configured for the current thread via "
-                  + ThreadConfigurableContextHolder.class.getName() + ".set() nor has a default"
-                  + " ConfigurableApplicationContext has been set; proceeding without injection");
+                  + ThreadConfigurableContextHolder.class.getName() + ".set() nor has a default been set;"
+                  + " proceeding without injection");
             }
             return null;
         }
