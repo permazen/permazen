@@ -34,6 +34,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * </p>
  *
  * @see ThreadConfigurable
+ * @see ThreadTransactional
  */
 public class ThreadLocalContext extends InheritableThreadLocal<ConfigurableApplicationContext>
   implements ApplicationContextAware, DisposableBean {
