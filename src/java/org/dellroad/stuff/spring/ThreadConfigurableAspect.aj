@@ -18,7 +18,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Aspect that autowires classes marked with the {@link ThreadConfigurable @ThreadConfigurable} annotation using
- * the per-thread Spring application context configured in the {@link ThreadConfigurableContextHolder} singleton.
+ * the per-thread Spring application context configured in the {@link ThreadLocalContext} singleton.
  *
  * <p>
  * This implementation is derived from Spring's {@code AnnotationBeanConfigurerAspect} implementation
@@ -26,7 +26,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * </p>
  *
  * @see ThreadConfigurable
- * @see ThreadConfigurableContextHolder
+ * @see ThreadLocalContext
  */
 public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
 
@@ -68,26 +68,26 @@ public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
     @Override
     protected BeanFactory getBeanFactory(Object bean) {
 
-        // Get ThreadConfigurableContextHolder singleton
-        ThreadConfigurableContextHolder threadConfigurableContextHolder = ThreadConfigurableContextHolder.getInstance();
-        if (threadConfigurableContextHolder == null) {
+        // Get ThreadLocalContext singleton
+        ThreadLocalContext threadLocalContext = ThreadLocalContext.getInstance();
+        if (threadLocalContext == null) {
             if (this.log.isDebugEnabled()) {
                 this.log.debug("can't configure @" + ThreadConfigurable.class.getName()
                   + "-annotated bean of type " + bean.getClass().getName()
-                  + " because the ThreadConfigurableContextHolder singleton instance has been set to null;"
+                  + " because the ThreadLocalContext singleton instance has been set to null;"
                   + " proceeding without injection");
             }
             return null;
         }
 
         // Get ConfigurableApplicationContext
-        ConfigurableApplicationContext context = threadConfigurableContextHolder.get();
+        ConfigurableApplicationContext context = threadLocalContext.get();
         if (context == null) {
             if (this.log.isDebugEnabled()) {
                 this.log.debug("can't configure @" + ThreadConfigurable.class.getName()
                   + "-annotated bean of type " + bean.getClass().getName()
                   + " because no ConfigurableApplicationContext has been configured for the current thread via "
-                  + ThreadConfigurableContextHolder.class.getName() + ".set() nor has a default been set;"
+                  + ThreadLocalContext.class.getName() + ".set() nor has a default been set;"
                   + " proceeding without injection");
             }
             return null;

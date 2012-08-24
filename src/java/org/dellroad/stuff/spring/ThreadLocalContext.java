@@ -23,7 +23,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * <p>
  * If an instance of this class is included in an application context, then that context will become the default value
  * (by virtue of this class being {@link ApplicationContextAware}). That is, that application context will be returned by
- * {@link #get ThreadConfigurableContextHolder.get()} until another application context is explicitly set.
+ * {@link #get ThreadLocalContext.get()} until another application context is explicitly set.
  * Doing this for the singleton instance makes the including application context the default for all
  * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans.
  * </p>
@@ -35,22 +35,22 @@ import org.springframework.context.ConfigurableApplicationContext;
  *
  * @see ThreadConfigurable
  */
-public class ThreadConfigurableContextHolder extends InheritableThreadLocal<ConfigurableApplicationContext>
+public class ThreadLocalContext extends InheritableThreadLocal<ConfigurableApplicationContext>
   implements ApplicationContextAware, DisposableBean {
 
-    private static ThreadConfigurableContextHolder instance = new ThreadConfigurableContextHolder();
+    private static ThreadLocalContext instance = new ThreadLocalContext();
 
     private ConfigurableApplicationContext defaultContext;
 
     /**
      * Get the singleton instance.
      */
-    public static ThreadConfigurableContextHolder getInstance() {
-        return ThreadConfigurableContextHolder.instance;
+    public static ThreadLocalContext getInstance() {
+        return ThreadLocalContext.instance;
     }
 
     /**
-     * Change the singleton {@link ThreadConfigurableContextHolder} instance.
+     * Change the singleton {@link ThreadLocalContext} instance.
      *
      * <p>
      * This method is normally not needed. However, by changing the behavior of the singleton instance,
@@ -58,8 +58,8 @@ public class ThreadConfigurableContextHolder extends InheritableThreadLocal<Conf
      * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans.
      * </p>
      */
-    public static void setInstance(ThreadConfigurableContextHolder alternate) {
-        ThreadConfigurableContextHolder.instance = alternate;
+    public static void setInstance(ThreadLocalContext alternate) {
+        ThreadLocalContext.instance = alternate;
     }
 
     /**

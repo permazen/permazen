@@ -31,14 +31,14 @@ import org.springframework.beans.factory.annotation.Autowire;
  * </p>
  *
  * <p>
- * The configuring application context is determined by the singleton {@link ThreadConfigurableContextHolder} instance,
- * i.e., it's the value returned by invoking {@link ThreadConfigurableContextHolder#getInstance} to get the singleton
- * {@link ThreadConfigurableContextHolder} instance, and then {@link ThreadConfigurableContextHolder#get
- * ThreadConfigurableContextHolder.get()} to get the application context associated with the current thread.
+ * The configuring application context is determined by the singleton {@link ThreadLocalContext} instance,
+ * i.e., it's the value returned by invoking {@link ThreadLocalContext#getInstance} to get the singleton
+ * {@link ThreadLocalContext} instance, and then {@link ThreadLocalContext#get
+ * ThreadLocalContext.get()} to get the application context associated with the current thread.
  * </p>
  *
  * <p>
- * With {@link ThreadConfigurableContextHolder} the configured application context is inherited by spawned child threads,
+ * With {@link ThreadLocalContext} the configured application context is inherited by spawned child threads,
  * so typically this configuration need only be done once when starting new some process or operation,
  * even if that operation creates multiple threads.
  * </p>
@@ -51,10 +51,10 @@ import org.springframework.beans.factory.annotation.Autowire;
  *      public void run() {
  *
  *          // Setup the context used by &#64;ThreadConfigurable beans created in this thread;
- *          // to be safe, configure the ThreadConfigurableContextHolder before refreshing the context.
+ *          // to be safe, configure the ThreadLocalContext before refreshing the context.
  *          ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(
  *            new String[] { "applicationContext.xml" }, false);
- *          ThreadConfigurableContextHolder.getInstance().set(context);
+ *          ThreadLocalContext.getInstance().set(context);
  *          context.refresh();
  *
  *          // Now &#64;ThreadConfigurable beans will use "context" for autowiring, but only
@@ -67,9 +67,9 @@ import org.springframework.beans.factory.annotation.Autowire;
  * <p>
  * Note: to make this annotation behave like Spring's
  * {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation, include the
- * {@link ThreadConfigurableContextHolder} singleton instance in your bean factory:
+ * {@link ThreadLocalContext} singleton instance in your bean factory:
  * <blockquote><pre>
- *     &lt;bean class="org.dellroad.stuff.spring.ThreadConfigurableContextHolder" factory-method="getInstance"/&gt;
+ *     &lt;bean class="org.dellroad.stuff.spring.ThreadLocalContext" factory-method="getInstance"/&gt;
  * </pre></blockquote>
  * This will set the containing application context as the default for the singleton. This definition should be
  * listed prior to any other bean definitions that could result in {@link ThreadConfigurable @ThreadConfigurable}-annotated
@@ -87,7 +87,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  * Running the AspectJ compiler on your annotated classes is required to activate this annotation.
  * </p>
  *
- * @see ThreadConfigurableContextHolder
+ * @see ThreadLocalContext
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
