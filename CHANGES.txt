@@ -1,4 +1,4 @@
-Version 1.0.495 Released August 24, 2012
+Version 1.0.497 Released August 24, 2012
 
     - Vaadin7: fixed bug preventing ContextApplication.showError() from working
     - Vaadin7: Call Application.setCurrent() in ContextApplication.invoke()
