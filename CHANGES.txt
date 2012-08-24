@@ -12,7 +12,7 @@ Version Next
     - Removed non-Vaadin aspects from aop.xml in the Vaadin add-on JAR (issue #12)
     - Added VaadinExternalListener, changed VaadinApplicationListener to use it
       NOTE: backward-incompatible change.
-    - Added @ThreadConfigurable Spring annotation
+    - Added @ThreadConfigurable and @ThreadTransactional Spring annotations
     - Added XMLResultSetWriter
 
 Version 1.0.432 Released June 29, 2012

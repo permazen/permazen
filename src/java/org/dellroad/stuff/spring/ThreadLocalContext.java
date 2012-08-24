@@ -17,7 +17,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  *
  * <p>
  * Typically used as a singleton to determine the application context for autowiring
- * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans.
+ * {@link ThreadConfigurable @ThreadConfigurable} and {@link ThreadTransactional @ThreadTransactional} beans.
  * </p>
  *
  * <p>

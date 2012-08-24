@@ -88,6 +88,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  * </p>
  *
  * @see ThreadLocalContext
+ * @see ThreadTransactional
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
