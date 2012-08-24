@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed bug in AbstractSimpleContainer when reloading from scratch
+
 Version 1.0.497 Released August 24, 2012
 
     - Vaadin7: fixed bug preventing ContextApplication.showError() from working

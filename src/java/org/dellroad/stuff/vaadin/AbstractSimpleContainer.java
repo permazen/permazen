@@ -132,6 +132,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 
         // Reset item IDs
         this.resetItemIds();
+        this.internalRemoveAllItems();
 
         // Bulk load and register items with id's 0, 1, 2, ...
         int index = 0;
