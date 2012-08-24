@@ -40,14 +40,14 @@ public class PersistentObjectValidationException extends PersistentObjectExcepti
     private static String generateMessage(Set<ConstraintViolation<?>> violations) {
         if (violations == null)
             throw new IllegalArgumentException("null violations");
-        StringBuilder buf = new StringBuilder("object failed to validate with " + violations.size() + " violation(s): ");
+        StringBuilder buf = new StringBuilder("object failed to validate with " + violations.size() + " violation(s):\n");
         boolean first = true;
         for (ConstraintViolation<?> violation : violations) {
-            if (first)
-                first = false;
-            else
-                buf.append("; ");
-            buf.append("[" + violation.getPropertyPath() + "]: " + violation.getMessage());
+            buf.append("    [")
+              .append(violation.getPropertyPath())
+              .append("]: ")
+              .append(violation.getMessage())
+              .append('\n');
         }
         return buf.toString();
     }
