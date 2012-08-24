@@ -1,0 +1,100 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs and other authors. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.spring;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.lang.reflect.AnnotatedElement;<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>    import org.springframework.core.annotation.AnnotationUtils;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import org.springframework.transaction.annotation.SpringTransactionAnnotationParser;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import org.springframework.transaction.interceptor.TransactionAttribute;<a name="line.14"></a>
+<FONT color="green">015</FONT>    <a name="line.15"></a>
+<FONT color="green">016</FONT>    /**<a name="line.16"></a>
+<FONT color="green">017</FONT>     * Strategy implementation for parsing the {@link ThreadTransactional @ThreadTransactional} annotation.<a name="line.17"></a>
+<FONT color="green">018</FONT>     * Works just like {@link SpringTransactionAnnotationParser} but parses {@link ThreadTransactional @ThreadTransactional}<a name="line.18"></a>
+<FONT color="green">019</FONT>     * annotations instead.<a name="line.19"></a>
+<FONT color="green">020</FONT>     *<a name="line.20"></a>
+<FONT color="green">021</FONT>     * @see ThreadTransactional<a name="line.21"></a>
+<FONT color="green">022</FONT>     */<a name="line.22"></a>
+<FONT color="green">023</FONT>    @SuppressWarnings("serial")<a name="line.23"></a>
+<FONT color="green">024</FONT>    public class ThreadTransactionalAnnotationParser extends SpringTransactionAnnotationParser {<a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
+<FONT color="green">026</FONT>        @Override<a name="line.26"></a>
+<FONT color="green">027</FONT>        public TransactionAttribute parseTransactionAnnotation(AnnotatedElement annotatedElement) {<a name="line.27"></a>
+<FONT color="green">028</FONT>            ThreadTransactional threadTransactional = AnnotationUtils.getAnnotation(annotatedElement, ThreadTransactional.class);<a name="line.28"></a>
+<FONT color="green">029</FONT>            if (threadTransactional == null)<a name="line.29"></a>
+<FONT color="green">030</FONT>                return null;<a name="line.30"></a>
+<FONT color="green">031</FONT>            return this.parseTransactionAnnotation(new ThreadTransactionalAdapter(threadTransactional));<a name="line.31"></a>
+<FONT color="green">032</FONT>        }<a name="line.32"></a>
+<FONT color="green">033</FONT>    }<a name="line.33"></a>
+<FONT color="green">034</FONT>    <a name="line.34"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

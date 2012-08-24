@@ -10,34 +10,49 @@
 <FONT color="green">007</FONT>    <a name="line.7"></a>
 <FONT color="green">008</FONT>    package org.dellroad.stuff.vaadin7;<a name="line.8"></a>
 <FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import org.springframework.web.context.ConfigurableWebApplicationContext;<a name="line.10"></a>
+<FONT color="green">010</FONT>    import com.vaadin.Application;<a name="line.10"></a>
 <FONT color="green">011</FONT>    <a name="line.11"></a>
-<FONT color="green">012</FONT>    /**<a name="line.12"></a>
-<FONT color="green">013</FONT>     * Vaadin 7 version of {@link org.dellroad.stuff.vaadin.SpringContextApplication}.<a name="line.13"></a>
-<FONT color="green">014</FONT>     *<a name="line.14"></a>
-<FONT color="green">015</FONT>     * @see org.dellroad.stuff.vaadin.SpringContextApplication<a name="line.15"></a>
-<FONT color="green">016</FONT>     */<a name="line.16"></a>
-<FONT color="green">017</FONT>    @SuppressWarnings("serial")<a name="line.17"></a>
-<FONT color="green">018</FONT>    public class SpringContextApplication extends org.dellroad.stuff.vaadin.SpringContextApplication {<a name="line.18"></a>
-<FONT color="green">019</FONT>    <a name="line.19"></a>
-<FONT color="green">020</FONT>        /**<a name="line.20"></a>
-<FONT color="green">021</FONT>         * Initialize the application. In Vaadin 7 overriding this method is optional.<a name="line.21"></a>
-<FONT color="green">022</FONT>         *<a name="line.22"></a>
-<FONT color="green">023</FONT>         * &lt;p&gt;<a name="line.23"></a>
-<FONT color="green">024</FONT>         * The implementation in {@link ContextApplication} does nothing.<a name="line.24"></a>
-<FONT color="green">025</FONT>         */<a name="line.25"></a>
-<FONT color="green">026</FONT>        @Override<a name="line.26"></a>
-<FONT color="green">027</FONT>        protected void initSpringApplication(ConfigurableWebApplicationContext context) {<a name="line.27"></a>
-<FONT color="green">028</FONT>        }<a name="line.28"></a>
-<FONT color="green">029</FONT>    <a name="line.29"></a>
-<FONT color="green">030</FONT>    // Error handling<a name="line.30"></a>
+<FONT color="green">012</FONT>    import org.springframework.web.context.ConfigurableWebApplicationContext;<a name="line.12"></a>
+<FONT color="green">013</FONT>    <a name="line.13"></a>
+<FONT color="green">014</FONT>    /**<a name="line.14"></a>
+<FONT color="green">015</FONT>     * Vaadin 7 version of {@link org.dellroad.stuff.vaadin.SpringContextApplication}.<a name="line.15"></a>
+<FONT color="green">016</FONT>     *<a name="line.16"></a>
+<FONT color="green">017</FONT>     * @see org.dellroad.stuff.vaadin.SpringContextApplication<a name="line.17"></a>
+<FONT color="green">018</FONT>     */<a name="line.18"></a>
+<FONT color="green">019</FONT>    @SuppressWarnings("serial")<a name="line.19"></a>
+<FONT color="green">020</FONT>    public class SpringContextApplication extends org.dellroad.stuff.vaadin.SpringContextApplication {<a name="line.20"></a>
+<FONT color="green">021</FONT>    <a name="line.21"></a>
+<FONT color="green">022</FONT>        /**<a name="line.22"></a>
+<FONT color="green">023</FONT>         * Initialize the application. In Vaadin 7 overriding this method is optional.<a name="line.23"></a>
+<FONT color="green">024</FONT>         *<a name="line.24"></a>
+<FONT color="green">025</FONT>         * &lt;p&gt;<a name="line.25"></a>
+<FONT color="green">026</FONT>         * The implementation in {@link ContextApplication} does nothing.<a name="line.26"></a>
+<FONT color="green">027</FONT>         */<a name="line.27"></a>
+<FONT color="green">028</FONT>        @Override<a name="line.28"></a>
+<FONT color="green">029</FONT>        protected void initSpringApplication(ConfigurableWebApplicationContext context) {<a name="line.29"></a>
+<FONT color="green">030</FONT>        }<a name="line.30"></a>
 <FONT color="green">031</FONT>    <a name="line.31"></a>
-<FONT color="green">032</FONT>        @Override<a name="line.32"></a>
-<FONT color="green">033</FONT>        public void showError(String title, String description) {<a name="line.33"></a>
-<FONT color="green">034</FONT>            ContextApplication.showError(this.getRoots(), this.getNotificationDelay(), title, description);<a name="line.34"></a>
-<FONT color="green">035</FONT>        }<a name="line.35"></a>
-<FONT color="green">036</FONT>    }<a name="line.36"></a>
-<FONT color="green">037</FONT>    <a name="line.37"></a>
+<FONT color="green">032</FONT>    // Error handling<a name="line.32"></a>
+<FONT color="green">033</FONT>    <a name="line.33"></a>
+<FONT color="green">034</FONT>        @Override<a name="line.34"></a>
+<FONT color="green">035</FONT>        public void showError(String title, String description) {<a name="line.35"></a>
+<FONT color="green">036</FONT>            ContextApplication.showError(this.getRoots(), this.getNotificationDelay(), title, description);<a name="line.36"></a>
+<FONT color="green">037</FONT>        }<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>        @Override<a name="line.39"></a>
+<FONT color="green">040</FONT>        public void invoke(Runnable action) {<a name="line.40"></a>
+<FONT color="green">041</FONT>            final Application previous = Application.getCurrent();<a name="line.41"></a>
+<FONT color="green">042</FONT>            if (previous != null &amp;&amp; previous != this)<a name="line.42"></a>
+<FONT color="green">043</FONT>                throw new IllegalStateException("there is already a current application for this thread (according to Vaadin)");<a name="line.43"></a>
+<FONT color="green">044</FONT>            Application.setCurrent(this);<a name="line.44"></a>
+<FONT color="green">045</FONT>            try {<a name="line.45"></a>
+<FONT color="green">046</FONT>                super.invoke(action);<a name="line.46"></a>
+<FONT color="green">047</FONT>            } finally {<a name="line.47"></a>
+<FONT color="green">048</FONT>                Application.setCurrent(previous);<a name="line.48"></a>
+<FONT color="green">049</FONT>            }<a name="line.49"></a>
+<FONT color="green">050</FONT>        }<a name="line.50"></a>
+<FONT color="green">051</FONT>    }<a name="line.51"></a>
+<FONT color="green">052</FONT>    <a name="line.52"></a>
 
 
 

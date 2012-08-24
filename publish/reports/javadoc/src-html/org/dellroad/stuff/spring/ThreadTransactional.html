@@ -1,0 +1,193 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.spring;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.lang.annotation.Documented;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.lang.annotation.ElementType;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.lang.annotation.Inherited;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import java.lang.annotation.Retention;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import java.lang.annotation.RetentionPolicy;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import java.lang.annotation.Target;<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    import org.springframework.transaction.TransactionDefinition;<a name="line.17"></a>
+<FONT color="green">018</FONT>    import org.springframework.transaction.annotation.Isolation;<a name="line.18"></a>
+<FONT color="green">019</FONT>    import org.springframework.transaction.annotation.Propagation;<a name="line.19"></a>
+<FONT color="green">020</FONT>    <a name="line.20"></a>
+<FONT color="green">021</FONT>    /**<a name="line.21"></a>
+<FONT color="green">022</FONT>     * Works just like Spring's {@link org.springframework.transaction.annotation.Transactional @Transactional} annotation,<a name="line.22"></a>
+<FONT color="green">023</FONT>     * but instead of using a fixed {@link org.springframework.transaction.PlatformTransactionManager} stored in a static<a name="line.23"></a>
+<FONT color="green">024</FONT>     * variable and determined once at startup, this annotation uses a<a name="line.24"></a>
+<FONT color="green">025</FONT>     * {@link org.springframework.transaction.PlatformTransactionManager} found dynamically at runtime in the application context<a name="line.25"></a>
+<FONT color="green">026</FONT>     * that is associated with the current thread by the {@link ThreadLocalContext} singleton. This allows the same transactional<a name="line.26"></a>
+<FONT color="green">027</FONT>     * class to be instantiated in different application contexts with different transaction managers.<a name="line.27"></a>
+<FONT color="green">028</FONT>     *<a name="line.28"></a>
+<FONT color="green">029</FONT>     * &lt;p&gt;<a name="line.29"></a>
+<FONT color="green">030</FONT>     * Stated another way, {@link ThreadConfigurable @ThreadConfigurable} does for<a name="line.30"></a>
+<FONT color="green">031</FONT>     * {@link org.springframework.transaction.annotation.Transactional @Transactional}<a name="line.31"></a>
+<FONT color="green">032</FONT>     * what {@link ThreadConfigurable @ThreadConfigurable} does for<a name="line.32"></a>
+<FONT color="green">033</FONT>     * {@link org.springframework.beans.factory.annotation.Configurable @Configurable}.<a name="line.33"></a>
+<FONT color="green">034</FONT>     * See {@link ThreadConfigurable @ThreadConfigurable} for further discussion.<a name="line.34"></a>
+<FONT color="green">035</FONT>     * &lt;/p&gt;<a name="line.35"></a>
+<FONT color="green">036</FONT>     *<a name="line.36"></a>
+<FONT color="green">037</FONT>     * &lt;p&gt;<a name="line.37"></a>
+<FONT color="green">038</FONT>     * This annotation does not require or use the &lt;code&gt;&amp;lt;tx:annotation-driven/&amp;gt;&lt;/code&gt; XML declaration.<a name="line.38"></a>
+<FONT color="green">039</FONT>     * As with {@link org.springframework.transaction.annotation.Transactional @Transactional}, if you need to<a name="line.39"></a>
+<FONT color="green">040</FONT>     * specifiy a specific {@link org.springframework.transaction.PlatformTransactionManager} by name,<a name="line.40"></a>
+<FONT color="green">041</FONT>     * you can do that by setting the annotation {@link #value}.<a name="line.41"></a>
+<FONT color="green">042</FONT>     * &lt;/p&gt;<a name="line.42"></a>
+<FONT color="green">043</FONT>     *<a name="line.43"></a>
+<FONT color="green">044</FONT>     * &lt;p&gt;<a name="line.44"></a>
+<FONT color="green">045</FONT>     * If a {@link ThreadTransactional @ThreadTransactional}-annotated method is invoked and no application context<a name="line.45"></a>
+<FONT color="green">046</FONT>     * has been configured for the current thread, and there is no default set by way of the {@link ThreadLocalContext}<a name="line.46"></a>
+<FONT color="green">047</FONT>     * singleton, then an {@link IllegalStateException} is thrown.<a name="line.47"></a>
+<FONT color="green">048</FONT>     * &lt;/p&gt;<a name="line.48"></a>
+<FONT color="green">049</FONT>     *<a name="line.49"></a>
+<FONT color="green">050</FONT>     * &lt;p&gt;<a name="line.50"></a>
+<FONT color="green">051</FONT>     * Running the AspectJ compiler on your annotated classes is required to activate this annotation.<a name="line.51"></a>
+<FONT color="green">052</FONT>     * &lt;/p&gt;<a name="line.52"></a>
+<FONT color="green">053</FONT>     *<a name="line.53"></a>
+<FONT color="green">054</FONT>     * @see ThreadTransactional<a name="line.54"></a>
+<FONT color="green">055</FONT>     * @see ThreadLocalContext<a name="line.55"></a>
+<FONT color="green">056</FONT>     * @see org.springframework.transaction.annotation.Transactional<a name="line.56"></a>
+<FONT color="green">057</FONT>     */<a name="line.57"></a>
+<FONT color="green">058</FONT>    @Documented<a name="line.58"></a>
+<FONT color="green">059</FONT>    @Inherited<a name="line.59"></a>
+<FONT color="green">060</FONT>    @Retention(RetentionPolicy.RUNTIME)<a name="line.60"></a>
+<FONT color="green">061</FONT>    @Target({ ElementType.TYPE, ElementType.METHOD })<a name="line.61"></a>
+<FONT color="green">062</FONT>    public @interface ThreadTransactional {<a name="line.62"></a>
+<FONT color="green">063</FONT>    <a name="line.63"></a>
+<FONT color="green">064</FONT>        /**<a name="line.64"></a>
+<FONT color="green">065</FONT>         * Transaction manager bean name.<a name="line.65"></a>
+<FONT color="green">066</FONT>         *<a name="line.66"></a>
+<FONT color="green">067</FONT>         * @see org.springframework.transaction.annotation.Transactional#value<a name="line.67"></a>
+<FONT color="green">068</FONT>         */<a name="line.68"></a>
+<FONT color="green">069</FONT>        String value() default "";<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+<FONT color="green">071</FONT>        /**<a name="line.71"></a>
+<FONT color="green">072</FONT>         * Transaction propagation type.<a name="line.72"></a>
+<FONT color="green">073</FONT>         *<a name="line.73"></a>
+<FONT color="green">074</FONT>         * @see org.springframework.transaction.annotation.Transactional#propagation<a name="line.74"></a>
+<FONT color="green">075</FONT>         */<a name="line.75"></a>
+<FONT color="green">076</FONT>        Propagation propagation() default Propagation.REQUIRED;<a name="line.76"></a>
+<FONT color="green">077</FONT>    <a name="line.77"></a>
+<FONT color="green">078</FONT>        /**<a name="line.78"></a>
+<FONT color="green">079</FONT>         * Transaction isolation level.<a name="line.79"></a>
+<FONT color="green">080</FONT>         *<a name="line.80"></a>
+<FONT color="green">081</FONT>         * @see org.springframework.transaction.annotation.Transactional#isolation<a name="line.81"></a>
+<FONT color="green">082</FONT>         */<a name="line.82"></a>
+<FONT color="green">083</FONT>        Isolation isolation() default Isolation.DEFAULT;<a name="line.83"></a>
+<FONT color="green">084</FONT>    <a name="line.84"></a>
+<FONT color="green">085</FONT>        /**<a name="line.85"></a>
+<FONT color="green">086</FONT>         * Timeout for this transaction.<a name="line.86"></a>
+<FONT color="green">087</FONT>         *<a name="line.87"></a>
+<FONT color="green">088</FONT>         * @see org.springframework.transaction.annotation.Transactional#timeout<a name="line.88"></a>
+<FONT color="green">089</FONT>         */<a name="line.89"></a>
+<FONT color="green">090</FONT>        int timeout() default TransactionDefinition.TIMEOUT_DEFAULT;<a name="line.90"></a>
+<FONT color="green">091</FONT>    <a name="line.91"></a>
+<FONT color="green">092</FONT>        /**<a name="line.92"></a>
+<FONT color="green">093</FONT>         * Whether the transaction is read-only.<a name="line.93"></a>
+<FONT color="green">094</FONT>         *<a name="line.94"></a>
+<FONT color="green">095</FONT>         * @see org.springframework.transaction.annotation.Transactional#readOnly<a name="line.95"></a>
+<FONT color="green">096</FONT>         */<a name="line.96"></a>
+<FONT color="green">097</FONT>        boolean readOnly() default false;<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>        /**<a name="line.99"></a>
+<FONT color="green">100</FONT>         * Rollback classes.<a name="line.100"></a>
+<FONT color="green">101</FONT>         *<a name="line.101"></a>
+<FONT color="green">102</FONT>         * @see org.springframework.transaction.annotation.Transactional#rollbackFor<a name="line.102"></a>
+<FONT color="green">103</FONT>         */<a name="line.103"></a>
+<FONT color="green">104</FONT>        Class&lt;? extends Throwable&gt;[] rollbackFor() default {};<a name="line.104"></a>
+<FONT color="green">105</FONT>    <a name="line.105"></a>
+<FONT color="green">106</FONT>        /**<a name="line.106"></a>
+<FONT color="green">107</FONT>         * Rollback classes.<a name="line.107"></a>
+<FONT color="green">108</FONT>         *<a name="line.108"></a>
+<FONT color="green">109</FONT>         * @see org.springframework.transaction.annotation.Transactional#rollbackForClassName<a name="line.109"></a>
+<FONT color="green">110</FONT>         */<a name="line.110"></a>
+<FONT color="green">111</FONT>        String[] rollbackForClassName() default {};<a name="line.111"></a>
+<FONT color="green">112</FONT>    <a name="line.112"></a>
+<FONT color="green">113</FONT>        /**<a name="line.113"></a>
+<FONT color="green">114</FONT>         * Non-rollback classes.<a name="line.114"></a>
+<FONT color="green">115</FONT>         *<a name="line.115"></a>
+<FONT color="green">116</FONT>         * @see org.springframework.transaction.annotation.Transactional#noRollbackFor<a name="line.116"></a>
+<FONT color="green">117</FONT>         */<a name="line.117"></a>
+<FONT color="green">118</FONT>        Class&lt;? extends Throwable&gt;[] noRollbackFor() default {};<a name="line.118"></a>
+<FONT color="green">119</FONT>    <a name="line.119"></a>
+<FONT color="green">120</FONT>        /**<a name="line.120"></a>
+<FONT color="green">121</FONT>         * Non-rollback classes.<a name="line.121"></a>
+<FONT color="green">122</FONT>         *<a name="line.122"></a>
+<FONT color="green">123</FONT>         * @see org.springframework.transaction.annotation.Transactional#noRollbackForClassName<a name="line.123"></a>
+<FONT color="green">124</FONT>         */<a name="line.124"></a>
+<FONT color="green">125</FONT>        String[] noRollbackForClassName() default {};<a name="line.125"></a>
+<FONT color="green">126</FONT>    <a name="line.126"></a>
+<FONT color="green">127</FONT>    }<a name="line.127"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

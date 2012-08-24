@@ -66,63 +66,75 @@
 <FONT color="green">063</FONT>        }<a name="line.63"></a>
 <FONT color="green">064</FONT>    <a name="line.64"></a>
 <FONT color="green">065</FONT>        /**<a name="line.65"></a>
-<FONT color="green">066</FONT>         * Configure the {@link TransformerFactory} used to create the {@link Transformer} that will be<a name="line.66"></a>
-<FONT color="green">067</FONT>         * used to apply the {@linkplain #setTransform configured XSL transform}.<a name="line.67"></a>
+<FONT color="green">066</FONT>         * Get the configured {@link TransformerFactory} that will be used to create the {@link Transformer}<a name="line.66"></a>
+<FONT color="green">067</FONT>         * that will be used to actually apply the {@linkplain #setTransform configured XSL transform}.<a name="line.67"></a>
 <FONT color="green">068</FONT>         *<a name="line.68"></a>
 <FONT color="green">069</FONT>         * &lt;p&gt;<a name="line.69"></a>
 <FONT color="green">070</FONT>         * This property is optional; if not specified, {@link TransformerFactory#newInstance} is used.<a name="line.70"></a>
 <FONT color="green">071</FONT>         */<a name="line.71"></a>
-<FONT color="green">072</FONT>        public void setTransformerFactory(TransformerFactory transformerFactory) {<a name="line.72"></a>
-<FONT color="green">073</FONT>            this.transformerFactory = transformerFactory;<a name="line.73"></a>
+<FONT color="green">072</FONT>        public TransformerFactory getTransformerFactory() {<a name="line.72"></a>
+<FONT color="green">073</FONT>            return this.transformerFactory;<a name="line.73"></a>
 <FONT color="green">074</FONT>        }<a name="line.74"></a>
 <FONT color="green">075</FONT>    <a name="line.75"></a>
 <FONT color="green">076</FONT>        /**<a name="line.76"></a>
-<FONT color="green">077</FONT>         * Apply this update to the given transaction.<a name="line.77"></a>
-<FONT color="green">078</FONT>         */<a name="line.78"></a>
-<FONT color="green">079</FONT>        @Override<a name="line.79"></a>
-<FONT color="green">080</FONT>        public void apply(PersistentFileTransaction transaction) {<a name="line.80"></a>
-<FONT color="green">081</FONT>    <a name="line.81"></a>
-<FONT color="green">082</FONT>            // Get transform source<a name="line.82"></a>
-<FONT color="green">083</FONT>            InputStream input;<a name="line.83"></a>
-<FONT color="green">084</FONT>            try {<a name="line.84"></a>
-<FONT color="green">085</FONT>                input = this.transform.getInputStream();<a name="line.85"></a>
-<FONT color="green">086</FONT>            } catch (IOException e) {<a name="line.86"></a>
-<FONT color="green">087</FONT>                throw new RuntimeException(e);<a name="line.87"></a>
-<FONT color="green">088</FONT>            }<a name="line.88"></a>
-<FONT color="green">089</FONT>            try {<a name="line.89"></a>
-<FONT color="green">090</FONT>    <a name="line.90"></a>
-<FONT color="green">091</FONT>                // Setup transformer<a name="line.91"></a>
-<FONT color="green">092</FONT>                TransformerFactory tf = this.transformerFactory;<a name="line.92"></a>
-<FONT color="green">093</FONT>                if (tf == null)<a name="line.93"></a>
-<FONT color="green">094</FONT>                    tf = TransformerFactory.newInstance();<a name="line.94"></a>
-<FONT color="green">095</FONT>                Transformer transformer = tf.newTransformer(new StreamSource(input, this.transform.getURI().toString()));<a name="line.95"></a>
-<FONT color="green">096</FONT>                transformer.setErrorListener(new TransformErrorListener(LoggerFactory.getLogger(this.getClass()), true));<a name="line.96"></a>
-<FONT color="green">097</FONT>                if (this.parameters != null) {<a name="line.97"></a>
-<FONT color="green">098</FONT>                    for (String name : this.parameters.stringPropertyNames())<a name="line.98"></a>
-<FONT color="green">099</FONT>                        transformer.setParameter(name, this.parameters.getProperty(name));<a name="line.99"></a>
-<FONT color="green">100</FONT>                }<a name="line.100"></a>
-<FONT color="green">101</FONT>    <a name="line.101"></a>
-<FONT color="green">102</FONT>                // Do the transform<a name="line.102"></a>
-<FONT color="green">103</FONT>                transaction.transform(transformer);<a name="line.103"></a>
-<FONT color="green">104</FONT>    <a name="line.104"></a>
-<FONT color="green">105</FONT>            } catch (IOException e) {<a name="line.105"></a>
-<FONT color="green">106</FONT>                throw new RuntimeException(e);<a name="line.106"></a>
-<FONT color="green">107</FONT>            } catch (TransformerException e) {<a name="line.107"></a>
-<FONT color="green">108</FONT>                throw new RuntimeException(e);<a name="line.108"></a>
-<FONT color="green">109</FONT>            } catch (RuntimeException e) {<a name="line.109"></a>
-<FONT color="green">110</FONT>                if (e.getCause() instanceof TransformerException &amp;&amp; e.getCause().getCause() instanceof RuntimeException)<a name="line.110"></a>
-<FONT color="green">111</FONT>                    e = (RuntimeException)e.getCause().getCause();<a name="line.111"></a>
-<FONT color="green">112</FONT>                throw e;<a name="line.112"></a>
-<FONT color="green">113</FONT>            } finally {<a name="line.113"></a>
-<FONT color="green">114</FONT>                try {<a name="line.114"></a>
-<FONT color="green">115</FONT>                    input.close();<a name="line.115"></a>
-<FONT color="green">116</FONT>                } catch (IOException e) {<a name="line.116"></a>
-<FONT color="green">117</FONT>                    // ignore<a name="line.117"></a>
-<FONT color="green">118</FONT>                }<a name="line.118"></a>
-<FONT color="green">119</FONT>            }<a name="line.119"></a>
-<FONT color="green">120</FONT>        }<a name="line.120"></a>
-<FONT color="green">121</FONT>    }<a name="line.121"></a>
-<FONT color="green">122</FONT>    <a name="line.122"></a>
+<FONT color="green">077</FONT>         * Set the {@link TransformerFactory} to use.<a name="line.77"></a>
+<FONT color="green">078</FONT>         *<a name="line.78"></a>
+<FONT color="green">079</FONT>         * &lt;p&gt;<a name="line.79"></a>
+<FONT color="green">080</FONT>         * This property is optional; if not specified, {@link TransformerFactory#newInstance} is used.<a name="line.80"></a>
+<FONT color="green">081</FONT>         *<a name="line.81"></a>
+<FONT color="green">082</FONT>         * @see #getTransformerFactory<a name="line.82"></a>
+<FONT color="green">083</FONT>         */<a name="line.83"></a>
+<FONT color="green">084</FONT>        public void setTransformerFactory(TransformerFactory transformerFactory) {<a name="line.84"></a>
+<FONT color="green">085</FONT>            this.transformerFactory = transformerFactory;<a name="line.85"></a>
+<FONT color="green">086</FONT>        }<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>        /**<a name="line.88"></a>
+<FONT color="green">089</FONT>         * Apply this update to the given transaction.<a name="line.89"></a>
+<FONT color="green">090</FONT>         */<a name="line.90"></a>
+<FONT color="green">091</FONT>        @Override<a name="line.91"></a>
+<FONT color="green">092</FONT>        public void apply(PersistentFileTransaction transaction) {<a name="line.92"></a>
+<FONT color="green">093</FONT>    <a name="line.93"></a>
+<FONT color="green">094</FONT>            // Get transform source<a name="line.94"></a>
+<FONT color="green">095</FONT>            InputStream input;<a name="line.95"></a>
+<FONT color="green">096</FONT>            try {<a name="line.96"></a>
+<FONT color="green">097</FONT>                input = this.transform.getInputStream();<a name="line.97"></a>
+<FONT color="green">098</FONT>            } catch (IOException e) {<a name="line.98"></a>
+<FONT color="green">099</FONT>                throw new RuntimeException(e);<a name="line.99"></a>
+<FONT color="green">100</FONT>            }<a name="line.100"></a>
+<FONT color="green">101</FONT>            try {<a name="line.101"></a>
+<FONT color="green">102</FONT>    <a name="line.102"></a>
+<FONT color="green">103</FONT>                // Setup transformer<a name="line.103"></a>
+<FONT color="green">104</FONT>                TransformerFactory tf = this.transformerFactory;<a name="line.104"></a>
+<FONT color="green">105</FONT>                if (tf == null)<a name="line.105"></a>
+<FONT color="green">106</FONT>                    tf = TransformerFactory.newInstance();<a name="line.106"></a>
+<FONT color="green">107</FONT>                Transformer transformer = tf.newTransformer(new StreamSource(input, this.transform.getURI().toString()));<a name="line.107"></a>
+<FONT color="green">108</FONT>                transformer.setErrorListener(new TransformErrorListener(LoggerFactory.getLogger(this.getClass()), true));<a name="line.108"></a>
+<FONT color="green">109</FONT>                if (this.parameters != null) {<a name="line.109"></a>
+<FONT color="green">110</FONT>                    for (String name : this.parameters.stringPropertyNames())<a name="line.110"></a>
+<FONT color="green">111</FONT>                        transformer.setParameter(name, this.parameters.getProperty(name));<a name="line.111"></a>
+<FONT color="green">112</FONT>                }<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>                // Do the transform<a name="line.114"></a>
+<FONT color="green">115</FONT>                transaction.transform(transformer);<a name="line.115"></a>
+<FONT color="green">116</FONT>    <a name="line.116"></a>
+<FONT color="green">117</FONT>            } catch (IOException e) {<a name="line.117"></a>
+<FONT color="green">118</FONT>                throw new RuntimeException(e);<a name="line.118"></a>
+<FONT color="green">119</FONT>            } catch (TransformerException e) {<a name="line.119"></a>
+<FONT color="green">120</FONT>                throw new RuntimeException(e);<a name="line.120"></a>
+<FONT color="green">121</FONT>            } catch (RuntimeException e) {<a name="line.121"></a>
+<FONT color="green">122</FONT>                if (e.getCause() instanceof TransformerException &amp;&amp; e.getCause().getCause() instanceof RuntimeException)<a name="line.122"></a>
+<FONT color="green">123</FONT>                    e = (RuntimeException)e.getCause().getCause();<a name="line.123"></a>
+<FONT color="green">124</FONT>                throw e;<a name="line.124"></a>
+<FONT color="green">125</FONT>            } finally {<a name="line.125"></a>
+<FONT color="green">126</FONT>                try {<a name="line.126"></a>
+<FONT color="green">127</FONT>                    input.close();<a name="line.127"></a>
+<FONT color="green">128</FONT>                } catch (IOException e) {<a name="line.128"></a>
+<FONT color="green">129</FONT>                    // ignore<a name="line.129"></a>
+<FONT color="green">130</FONT>                }<a name="line.130"></a>
+<FONT color="green">131</FONT>            }<a name="line.131"></a>
+<FONT color="green">132</FONT>        }<a name="line.132"></a>
+<FONT color="green">133</FONT>    }<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
 
 
 

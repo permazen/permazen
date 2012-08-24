@@ -66,10 +66,12 @@
 <FONT color="green">063</FONT>    <a name="line.63"></a>
 <FONT color="green">064</FONT>        @Override<a name="line.64"></a>
 <FONT color="green">065</FONT>        protected Integer generateItemId(T obj) {<a name="line.65"></a>
-<FONT color="green">066</FONT>            return this.items.size();<a name="line.66"></a>
-<FONT color="green">067</FONT>        }<a name="line.67"></a>
-<FONT color="green">068</FONT>    }<a name="line.68"></a>
-<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">066</FONT>            int itemId = this.items.size();<a name="line.66"></a>
+<FONT color="green">067</FONT>            this.items.add(obj);<a name="line.67"></a>
+<FONT color="green">068</FONT>            return itemId;<a name="line.68"></a>
+<FONT color="green">069</FONT>        }<a name="line.69"></a>
+<FONT color="green">070</FONT>    }<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
 
 
 

@@ -35,7 +35,7 @@
 <FONT color="green">032</FONT>         * Build the query by delegating to {@link #configureQuery configureQuery()} for configuration.<a name="line.32"></a>
 <FONT color="green">033</FONT>         */<a name="line.33"></a>
 <FONT color="green">034</FONT>        @Override<a name="line.34"></a>
-<FONT color="green">035</FONT>        protected final TypedQuery&lt;T&gt; buildQuery(EntityManager entityManager) {<a name="line.35"></a>
+<FONT color="green">035</FONT>        protected TypedQuery&lt;T&gt; buildQuery(EntityManager entityManager) {<a name="line.35"></a>
 <FONT color="green">036</FONT>            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();<a name="line.36"></a>
 <FONT color="green">037</FONT>            CriteriaQuery&lt;T&gt; criteriaQuery = criteriaBuilder.createQuery(this.type);<a name="line.37"></a>
 <FONT color="green">038</FONT>            this.configureQuery(criteriaQuery, criteriaBuilder);<a name="line.38"></a>

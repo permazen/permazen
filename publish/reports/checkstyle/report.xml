@@ -64,8 +64,8 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/ThreadParkingLot.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/TimedWait.java">
-<error line="63" column="52" severity="info" message="&apos;500000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="63" column="63" severity="info" message="&apos;1000000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="62" column="52" severity="info" message="&apos;500000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="62" column="63" severity="info" message="&apos;1000000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/package-info.java">
 </file>
@@ -80,49 +80,49 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/ListableHashSet.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/MapEntry.java">
-<error line="145" column="16" severity="info" message="Anonymous inner class length is 26 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+<error line="147" column="16" severity="info" message="Anonymous inner class length is 26 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/ParseUtil.java">
-<error line="188" column="18" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="188" column="23" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="188" column="28" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="188" column="33" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="189" column="15" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="189" column="23" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="189" column="28" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="189" column="33" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="190" column="15" severity="info" message="&apos;6&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="190" column="28" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="190" column="33" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="191" column="15" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="191" column="33" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="221" column="45" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="222" column="30" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="222" column="35" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="222" column="40" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="222" column="45" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="223" column="26" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="223" column="31" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="223" column="36" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="223" column="41" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="226" column="31" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="226" column="36" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="226" column="41" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="227" column="26" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="227" column="31" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="227" column="36" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="230" column="33" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="230" column="38" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="231" column="26" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="231" column="31" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="236" column="27" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="236" column="44" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="237" column="56" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="239" column="66" severity="info" message="&apos;1000.0&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="274" column="31" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="276" column="61" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="279" column="21" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="299" column="49" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="195" column="18" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="195" column="23" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="195" column="28" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="195" column="33" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="196" column="15" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="196" column="23" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="196" column="28" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="196" column="33" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="197" column="15" severity="info" message="&apos;6&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="197" column="28" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="197" column="33" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="198" column="15" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="198" column="33" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="228" column="45" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="229" column="30" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="229" column="35" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="229" column="40" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="229" column="45" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="230" column="26" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="230" column="31" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="230" column="36" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="230" column="41" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="233" column="31" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="233" column="36" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="233" column="41" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="234" column="26" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="234" column="31" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="234" column="36" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="237" column="33" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="237" column="38" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="238" column="26" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="238" column="31" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="243" column="27" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="243" column="44" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="244" column="56" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="246" column="66" severity="info" message="&apos;1000.0&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="281" column="31" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="283" column="61" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="286" column="21" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="306" column="49" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/SpringParseUtil.java">
 </file>
@@ -182,9 +182,9 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/NotConfiguredException.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentFileTransaction.java">
-<error line="40" column="41" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="40" column="46" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="40" column="53" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="35" column="44" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="35" column="49" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="35" column="56" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObject.java">
 </file>
@@ -221,8 +221,7 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/AbstractSchemaUpdate.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/AbstractSchemaUpdater.java">
-<error line="151" column="43" severity="info" message="Anonymous inner class length is 23 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
-<error line="328" column="5" severity="info" message="Executable statement count is 33 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="336" column="5" severity="info" message="Executable statement count is 33 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/AbstractSpringSchemaUpdate.java">
 </file>
@@ -235,7 +234,7 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SQLCommandList.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SQLSchemaUpdater.java">
-<error line="308" column="23" severity="info" message="Anonymous inner class length is 25 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+<error line="307" column="23" severity="info" message="Anonymous inner class length is 25 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SchemaUpdate.java">
 </file>
@@ -267,6 +266,8 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/AbstractBeanDefinitionParser.java">
 </file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ApplicationContextBean.java">
+</file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/BeanNameComparator.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/DellRoadStuffNamespaceHandler.java">
@@ -285,6 +286,20 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/SQLBeanDefinitionParser.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/SQLUpdateBeanDefinitionParser.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadConfigurable.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadConfigurableBeanWiringInfoResolver.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadConfigurableObject.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadLocalContext.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadTransactional.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadTransactionalAdapter.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadTransactionalAnnotationParser.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/package-info.java">
 </file>
@@ -330,7 +345,7 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/AbstractQueryContainer.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/AbstractSimpleContainer.java">
-<error line="221" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
+<error line="225" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/ContextApplication.java">
 <error line="144" column="29" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -362,6 +377,8 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinConfigurableBeanWiringInfoResolver.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinConfigurableObject.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinExternalListener.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/package-info.java">
 </file>
@@ -409,6 +426,16 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/TransformErrorListener.java">
 </file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/XMLResultSetWriter.java">
+<error line="150" column="5" severity="info" message="Executable statement count is 33 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="213" column="5" severity="info" message="Executable statement count is 36 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="237" column="35" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="333" column="31" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="338" column="51" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="338" column="54" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="339" column="50" severity="info" message="&apos;0xf&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="339" column="55" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/package-info.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/TestSupport.java">
@@ -440,19 +467,22 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/io/package-info.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/java/IdGeneratorTest.java">
-<error line="15" column="5" severity="info" message="Executable statement count is 33 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="15" column="5" severity="info" message="Executable statement count is 38 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 <error line="29" column="23" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="37" column="30" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="39" column="33" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="40" column="31" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="50" column="25" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="51" column="35" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="52" column="25" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="53" column="35" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="54" column="25" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="55" column="35" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="57" column="36" severity="info" message="&apos;123&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="58" column="36" severity="info" message="&apos;123&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="44" column="30" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="46" column="33" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="47" column="31" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="58" column="25" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="59" column="35" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="60" column="37" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="61" column="25" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="62" column="35" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="63" column="37" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="64" column="25" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="65" column="35" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="66" column="37" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="68" column="36" severity="info" message="&apos;123&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="69" column="36" severity="info" message="&apos;123&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/java/ThreadLocalHolderTest.java">
 </file>

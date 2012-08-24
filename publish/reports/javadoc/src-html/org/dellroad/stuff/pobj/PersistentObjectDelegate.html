@@ -111,8 +111,17 @@
 <FONT color="green">108</FONT>         * @param t the exception thrown<a name="line.108"></a>
 <FONT color="green">109</FONT>         */<a name="line.109"></a>
 <FONT color="green">110</FONT>        void handleWritebackException(PersistentObject&lt;T&gt; pobj, Throwable t);<a name="line.110"></a>
-<FONT color="green">111</FONT>    }<a name="line.111"></a>
-<FONT color="green">112</FONT>    <a name="line.112"></a>
+<FONT color="green">111</FONT>    <a name="line.111"></a>
+<FONT color="green">112</FONT>        /**<a name="line.112"></a>
+<FONT color="green">113</FONT>         * Get the default value for the root object graph. This method is invoked at startup when the persistent file does not exist.<a name="line.113"></a>
+<FONT color="green">114</FONT>         * If this method returns null, then an {@linkplain PersistentObject#isAllowEmptyStart empty start} occurs unless the<a name="line.114"></a>
+<FONT color="green">115</FONT>         * {@link PersistentObject} object is configured to disallow them, in which case an exception is thrown.<a name="line.115"></a>
+<FONT color="green">116</FONT>         *<a name="line.116"></a>
+<FONT color="green">117</FONT>         * @return root object initial value, or null if there is no default value<a name="line.117"></a>
+<FONT color="green">118</FONT>         */<a name="line.118"></a>
+<FONT color="green">119</FONT>        T getDefaultValue();<a name="line.119"></a>
+<FONT color="green">120</FONT>    }<a name="line.120"></a>
+<FONT color="green">121</FONT>    <a name="line.121"></a>
 
 
 

@@ -67,11 +67,11 @@
 <FONT color="green">064</FONT>            if (obj == null)<a name="line.64"></a>
 <FONT color="green">065</FONT>                throw new IllegalArgumentException("null obj");<a name="line.65"></a>
 <FONT color="green">066</FONT>            this.flush();<a name="line.66"></a>
-<FONT color="green">067</FONT>            Ref ref = new Ref(obj, this.queue);<a name="line.67"></a>
-<FONT color="green">068</FONT>            Long id = this.idMap.get(ref);<a name="line.68"></a>
-<FONT color="green">069</FONT>            if (id == null) {<a name="line.69"></a>
-<FONT color="green">070</FONT>                if (this.next == 0)<a name="line.70"></a>
-<FONT color="green">071</FONT>                    throw new IllegalStateException("no more identifiers left!");<a name="line.71"></a>
+<FONT color="green">067</FONT>            Long id = this.idMap.get(new Ref(obj));         // don't register on queue just yet<a name="line.67"></a>
+<FONT color="green">068</FONT>            if (id == null) {<a name="line.68"></a>
+<FONT color="green">069</FONT>                if (this.next == 0)<a name="line.69"></a>
+<FONT color="green">070</FONT>                    throw new IllegalStateException("no more identifiers left!");<a name="line.70"></a>
+<FONT color="green">071</FONT>                Ref ref = new Ref(obj, this.queue);             // now register on queue<a name="line.71"></a>
 <FONT color="green">072</FONT>                id = this.next++;<a name="line.72"></a>
 <FONT color="green">073</FONT>                this.idMap.put(ref, id);<a name="line.73"></a>
 <FONT color="green">074</FONT>                this.refMap.put(id, ref);<a name="line.74"></a>
@@ -80,136 +80,154 @@
 <FONT color="green">077</FONT>        }<a name="line.77"></a>
 <FONT color="green">078</FONT>    <a name="line.78"></a>
 <FONT color="green">079</FONT>        /**<a name="line.79"></a>
-<FONT color="green">080</FONT>         * Assign a unique ID to the given object. Does nothing if the object and ID number are already associated.<a name="line.80"></a>
+<FONT color="green">080</FONT>         * Test whether the given object is already registered with this instance.<a name="line.80"></a>
 <FONT color="green">081</FONT>         *<a name="line.81"></a>
-<FONT color="green">082</FONT>         * @param obj object to assign<a name="line.82"></a>
-<FONT color="green">083</FONT>         * @param id unique ID number to assign<a name="line.83"></a>
-<FONT color="green">084</FONT>         * @throws IllegalArgumentException if {@code obj} is null<a name="line.84"></a>
-<FONT color="green">085</FONT>         * @throws IllegalArgumentException if {@code id} has already been assigned to some other object<a name="line.85"></a>
-<FONT color="green">086</FONT>         */<a name="line.86"></a>
-<FONT color="green">087</FONT>        public synchronized void setId(Object obj, long id) {<a name="line.87"></a>
-<FONT color="green">088</FONT>            if (obj == null)<a name="line.88"></a>
-<FONT color="green">089</FONT>                throw new IllegalArgumentException("null obj");<a name="line.89"></a>
-<FONT color="green">090</FONT>            this.flush();<a name="line.90"></a>
-<FONT color="green">091</FONT>            Ref ref = this.refMap.get(id);<a name="line.91"></a>
-<FONT color="green">092</FONT>            if (ref != null) {<a name="line.92"></a>
-<FONT color="green">093</FONT>                if (ref.get() != obj)<a name="line.93"></a>
-<FONT color="green">094</FONT>                    throw new IllegalArgumentException("id " + id + " is already assigned to another object");<a name="line.94"></a>
-<FONT color="green">095</FONT>                return;<a name="line.95"></a>
-<FONT color="green">096</FONT>            }<a name="line.96"></a>
-<FONT color="green">097</FONT>            ref = new Ref(obj, this.queue);<a name="line.97"></a>
-<FONT color="green">098</FONT>            this.idMap.put(ref, id);<a name="line.98"></a>
-<FONT color="green">099</FONT>            this.refMap.put(id, ref);<a name="line.99"></a>
-<FONT color="green">100</FONT>        }<a name="line.100"></a>
-<FONT color="green">101</FONT>    <a name="line.101"></a>
-<FONT color="green">102</FONT>        /**<a name="line.102"></a>
-<FONT color="green">103</FONT>         * Get the object assigned to the given ID.<a name="line.103"></a>
-<FONT color="green">104</FONT>         *<a name="line.104"></a>
-<FONT color="green">105</FONT>         * @param id unique ID<a name="line.105"></a>
-<FONT color="green">106</FONT>         * @return object associated with that ID, or null if no object is assigned to {@code id}<a name="line.106"></a>
-<FONT color="green">107</FONT>         */<a name="line.107"></a>
-<FONT color="green">108</FONT>        public synchronized Object getObject(long id) {<a name="line.108"></a>
-<FONT color="green">109</FONT>            this.flush();<a name="line.109"></a>
-<FONT color="green">110</FONT>            Ref ref = this.refMap.get(id);<a name="line.110"></a>
-<FONT color="green">111</FONT>            return ref != null ? ref.get() : null;<a name="line.111"></a>
-<FONT color="green">112</FONT>        }<a name="line.112"></a>
-<FONT color="green">113</FONT>    <a name="line.113"></a>
-<FONT color="green">114</FONT>        /**<a name="line.114"></a>
-<FONT color="green">115</FONT>         * Flush any cleared weak references.<a name="line.115"></a>
-<FONT color="green">116</FONT>         *<a name="line.116"></a>
-<FONT color="green">117</FONT>         * &lt;p&gt;<a name="line.117"></a>
-<FONT color="green">118</FONT>         * This operation is invoked by {@link #getId getId()}, so it's not necessary to explicitly invoke it.<a name="line.118"></a>
-<FONT color="green">119</FONT>         * However, if a lot of previously ID'd objects have been garbage collected since the last call to<a name="line.119"></a>
-<FONT color="green">120</FONT>         * {@link #getId getId()}, then invoking this method may free up some additional memory.<a name="line.120"></a>
+<FONT color="green">082</FONT>         * @throws IllegalArgumentException if {@code obj} is null<a name="line.82"></a>
+<FONT color="green">083</FONT>         * @return a non-zero, unique identifier for {@code obj} if already registered, otherwise zero<a name="line.83"></a>
+<FONT color="green">084</FONT>         */<a name="line.84"></a>
+<FONT color="green">085</FONT>        public synchronized long checkId(Object obj) {<a name="line.85"></a>
+<FONT color="green">086</FONT>            if (obj == null)<a name="line.86"></a>
+<FONT color="green">087</FONT>                throw new IllegalArgumentException("null obj");<a name="line.87"></a>
+<FONT color="green">088</FONT>            this.flush();<a name="line.88"></a>
+<FONT color="green">089</FONT>            Long id = this.idMap.get(new Ref(obj));<a name="line.89"></a>
+<FONT color="green">090</FONT>            return id != null ? id : 0;<a name="line.90"></a>
+<FONT color="green">091</FONT>        }<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>        /**<a name="line.93"></a>
+<FONT color="green">094</FONT>         * Assign a unique ID to the given object. Does nothing if the object and ID number are already associated.<a name="line.94"></a>
+<FONT color="green">095</FONT>         *<a name="line.95"></a>
+<FONT color="green">096</FONT>         * @param obj object to assign<a name="line.96"></a>
+<FONT color="green">097</FONT>         * @param id unique ID number to assign<a name="line.97"></a>
+<FONT color="green">098</FONT>         * @throws IllegalArgumentException if {@code obj} is null<a name="line.98"></a>
+<FONT color="green">099</FONT>         * @throws IllegalArgumentException if {@code id} has already been assigned to some other object<a name="line.99"></a>
+<FONT color="green">100</FONT>         */<a name="line.100"></a>
+<FONT color="green">101</FONT>        public synchronized void setId(Object obj, long id) {<a name="line.101"></a>
+<FONT color="green">102</FONT>            if (obj == null)<a name="line.102"></a>
+<FONT color="green">103</FONT>                throw new IllegalArgumentException("null obj");<a name="line.103"></a>
+<FONT color="green">104</FONT>            this.flush();<a name="line.104"></a>
+<FONT color="green">105</FONT>            Ref ref = this.refMap.get(id);<a name="line.105"></a>
+<FONT color="green">106</FONT>            if (ref != null) {<a name="line.106"></a>
+<FONT color="green">107</FONT>                if (ref.get() != obj)<a name="line.107"></a>
+<FONT color="green">108</FONT>                    throw new IllegalArgumentException("id " + id + " is already assigned to another object");<a name="line.108"></a>
+<FONT color="green">109</FONT>                return;<a name="line.109"></a>
+<FONT color="green">110</FONT>            }<a name="line.110"></a>
+<FONT color="green">111</FONT>            ref = new Ref(obj, this.queue);<a name="line.111"></a>
+<FONT color="green">112</FONT>            this.idMap.put(ref, id);<a name="line.112"></a>
+<FONT color="green">113</FONT>            this.refMap.put(id, ref);<a name="line.113"></a>
+<FONT color="green">114</FONT>        }<a name="line.114"></a>
+<FONT color="green">115</FONT>    <a name="line.115"></a>
+<FONT color="green">116</FONT>        /**<a name="line.116"></a>
+<FONT color="green">117</FONT>         * Get the object assigned to the given ID.<a name="line.117"></a>
+<FONT color="green">118</FONT>         *<a name="line.118"></a>
+<FONT color="green">119</FONT>         * @param id unique ID<a name="line.119"></a>
+<FONT color="green">120</FONT>         * @return object associated with that ID, or null if no object is assigned to {@code id}<a name="line.120"></a>
 <FONT color="green">121</FONT>         */<a name="line.121"></a>
-<FONT color="green">122</FONT>        public synchronized void flush() {<a name="line.122"></a>
-<FONT color="green">123</FONT>            Reference&lt;? extends Object&gt; entry;<a name="line.123"></a>
-<FONT color="green">124</FONT>            while ((entry = this.queue.poll()) != null) {<a name="line.124"></a>
-<FONT color="green">125</FONT>                Ref ref = (Ref)entry;<a name="line.125"></a>
-<FONT color="green">126</FONT>                Long id = this.idMap.get(ref);<a name="line.126"></a>
-<FONT color="green">127</FONT>                this.idMap.remove(ref);<a name="line.127"></a>
-<FONT color="green">128</FONT>                this.refMap.remove(id);<a name="line.128"></a>
-<FONT color="green">129</FONT>            }<a name="line.129"></a>
-<FONT color="green">130</FONT>        }<a name="line.130"></a>
-<FONT color="green">131</FONT>    <a name="line.131"></a>
-<FONT color="green">132</FONT>        /**<a name="line.132"></a>
-<FONT color="green">133</FONT>         * Create a new {@link IdGenerator} and make it available via {@link #get()} for the duration of the given operation.<a name="line.133"></a>
-<FONT color="green">134</FONT>         *<a name="line.134"></a>
-<FONT color="green">135</FONT>         * &lt;p&gt;<a name="line.135"></a>
-<FONT color="green">136</FONT>         * This method is re-entrant: nested invocations of this method in the same thread re-use the same {@link IdGenerator}<a name="line.136"></a>
-<FONT color="green">137</FONT>         * instance.<a name="line.137"></a>
-<FONT color="green">138</FONT>         *<a name="line.138"></a>
-<FONT color="green">139</FONT>         * @param action action to perform, and which may successfully invoke {@link #get}<a name="line.139"></a>
-<FONT color="green">140</FONT>         * @throws NullPointerException if {@code action} is null<a name="line.140"></a>
-<FONT color="green">141</FONT>         */<a name="line.141"></a>
-<FONT color="green">142</FONT>        public static void run(final Runnable action) {<a name="line.142"></a>
-<FONT color="green">143</FONT>            IdGenerator current = IdGenerator.CURRENT.get();<a name="line.143"></a>
-<FONT color="green">144</FONT>            if (current == null)<a name="line.144"></a>
-<FONT color="green">145</FONT>                current = new IdGenerator();<a name="line.145"></a>
-<FONT color="green">146</FONT>            IdGenerator.CURRENT.invoke(current, action);<a name="line.146"></a>
-<FONT color="green">147</FONT>        }<a name="line.147"></a>
-<FONT color="green">148</FONT>    <a name="line.148"></a>
-<FONT color="green">149</FONT>        /**<a name="line.149"></a>
-<FONT color="green">150</FONT>         * Create a new {@link IdGenerator} and make it available via {@link #get()} for the duration of the given operation.<a name="line.150"></a>
-<FONT color="green">151</FONT>         *<a name="line.151"></a>
-<FONT color="green">152</FONT>         * &lt;p&gt;<a name="line.152"></a>
-<FONT color="green">153</FONT>         * This method is re-entrant: nested invocations of this method in the same thread re-use the same {@link IdGenerator}<a name="line.153"></a>
-<FONT color="green">154</FONT>         * instance.<a name="line.154"></a>
-<FONT color="green">155</FONT>         *<a name="line.155"></a>
-<FONT color="green">156</FONT>         * @param action action to perform, and which may successfully invoke {@link #get}<a name="line.156"></a>
-<FONT color="green">157</FONT>         * @return result of invoking {@code action}<a name="line.157"></a>
-<FONT color="green">158</FONT>         * @throws NullPointerException if {@code action} is null<a name="line.158"></a>
-<FONT color="green">159</FONT>         */<a name="line.159"></a>
-<FONT color="green">160</FONT>        public static &lt;R&gt; R run(final Callable&lt;R&gt; action) throws Exception {<a name="line.160"></a>
-<FONT color="green">161</FONT>            IdGenerator current = IdGenerator.CURRENT.get();<a name="line.161"></a>
-<FONT color="green">162</FONT>            if (current == null)<a name="line.162"></a>
-<FONT color="green">163</FONT>                current = new IdGenerator();<a name="line.163"></a>
-<FONT color="green">164</FONT>            return IdGenerator.CURRENT.invoke(current, action);<a name="line.164"></a>
-<FONT color="green">165</FONT>        }<a name="line.165"></a>
-<FONT color="green">166</FONT>    <a name="line.166"></a>
-<FONT color="green">167</FONT>        /**<a name="line.167"></a>
-<FONT color="green">168</FONT>         * Get the {@link IdGenerator} associated with the current thread.<a name="line.168"></a>
-<FONT color="green">169</FONT>         * This method only works when the current thread is running within an invocation of {@link #run run()};<a name="line.169"></a>
-<FONT color="green">170</FONT>         * otherwise, an {@link IllegalStateException} is thrown.<a name="line.170"></a>
-<FONT color="green">171</FONT>         *<a name="line.171"></a>
-<FONT color="green">172</FONT>         * @return the {@link IdGenerator} created in the most recent, still running invocation of {@link #run} in this thread<a name="line.172"></a>
-<FONT color="green">173</FONT>         * @throws IllegalStateException if there is not such instance<a name="line.173"></a>
-<FONT color="green">174</FONT>         */<a name="line.174"></a>
-<FONT color="green">175</FONT>        public static IdGenerator get() {<a name="line.175"></a>
-<FONT color="green">176</FONT>            return IdGenerator.CURRENT.require();<a name="line.176"></a>
-<FONT color="green">177</FONT>        }<a name="line.177"></a>
-<FONT color="green">178</FONT>    <a name="line.178"></a>
-<FONT color="green">179</FONT>    // Reference to a registered object that weakly references the actual object<a name="line.179"></a>
+<FONT color="green">122</FONT>        public synchronized Object getObject(long id) {<a name="line.122"></a>
+<FONT color="green">123</FONT>            this.flush();<a name="line.123"></a>
+<FONT color="green">124</FONT>            Ref ref = this.refMap.get(id);<a name="line.124"></a>
+<FONT color="green">125</FONT>            return ref != null ? ref.get() : null;<a name="line.125"></a>
+<FONT color="green">126</FONT>        }<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>        /**<a name="line.128"></a>
+<FONT color="green">129</FONT>         * Flush any cleared weak references.<a name="line.129"></a>
+<FONT color="green">130</FONT>         *<a name="line.130"></a>
+<FONT color="green">131</FONT>         * &lt;p&gt;<a name="line.131"></a>
+<FONT color="green">132</FONT>         * This operation is invoked by {@link #getId getId()} and {@link #setId setId()}, so it's usually not necessary<a name="line.132"></a>
+<FONT color="green">133</FONT>         * to explicitly invoke it. However, if a lot of previously ID'd objects have been garbage collected since the<a name="line.133"></a>
+<FONT color="green">134</FONT>         * last call to {@link #getId getId()}, then invoking this method may free up some additional memory.<a name="line.134"></a>
+<FONT color="green">135</FONT>         */<a name="line.135"></a>
+<FONT color="green">136</FONT>        public synchronized void flush() {<a name="line.136"></a>
+<FONT color="green">137</FONT>            Reference&lt;? extends Object&gt; entry;<a name="line.137"></a>
+<FONT color="green">138</FONT>            while ((entry = this.queue.poll()) != null) {<a name="line.138"></a>
+<FONT color="green">139</FONT>                Ref ref = (Ref)entry;<a name="line.139"></a>
+<FONT color="green">140</FONT>                Long id = this.idMap.get(ref);<a name="line.140"></a>
+<FONT color="green">141</FONT>                this.idMap.remove(ref);<a name="line.141"></a>
+<FONT color="green">142</FONT>                this.refMap.remove(id);<a name="line.142"></a>
+<FONT color="green">143</FONT>            }<a name="line.143"></a>
+<FONT color="green">144</FONT>        }<a name="line.144"></a>
+<FONT color="green">145</FONT>    <a name="line.145"></a>
+<FONT color="green">146</FONT>        /**<a name="line.146"></a>
+<FONT color="green">147</FONT>         * Create a new {@link IdGenerator} and make it available via {@link #get()} for the duration of the given operation.<a name="line.147"></a>
+<FONT color="green">148</FONT>         *<a name="line.148"></a>
+<FONT color="green">149</FONT>         * &lt;p&gt;<a name="line.149"></a>
+<FONT color="green">150</FONT>         * This method is re-entrant: nested invocations of this method in the same thread re-use the same {@link IdGenerator}<a name="line.150"></a>
+<FONT color="green">151</FONT>         * instance.<a name="line.151"></a>
+<FONT color="green">152</FONT>         *<a name="line.152"></a>
+<FONT color="green">153</FONT>         * @param action action to perform, and which may successfully invoke {@link #get}<a name="line.153"></a>
+<FONT color="green">154</FONT>         * @throws NullPointerException if {@code action} is null<a name="line.154"></a>
+<FONT color="green">155</FONT>         */<a name="line.155"></a>
+<FONT color="green">156</FONT>        public static void run(final Runnable action) {<a name="line.156"></a>
+<FONT color="green">157</FONT>            IdGenerator current = IdGenerator.CURRENT.get();<a name="line.157"></a>
+<FONT color="green">158</FONT>            if (current == null)<a name="line.158"></a>
+<FONT color="green">159</FONT>                current = new IdGenerator();<a name="line.159"></a>
+<FONT color="green">160</FONT>            IdGenerator.CURRENT.invoke(current, action);<a name="line.160"></a>
+<FONT color="green">161</FONT>        }<a name="line.161"></a>
+<FONT color="green">162</FONT>    <a name="line.162"></a>
+<FONT color="green">163</FONT>        /**<a name="line.163"></a>
+<FONT color="green">164</FONT>         * Create a new {@link IdGenerator} and make it available via {@link #get()} for the duration of the given operation.<a name="line.164"></a>
+<FONT color="green">165</FONT>         *<a name="line.165"></a>
+<FONT color="green">166</FONT>         * &lt;p&gt;<a name="line.166"></a>
+<FONT color="green">167</FONT>         * This method is re-entrant: nested invocations of this method in the same thread re-use the same {@link IdGenerator}<a name="line.167"></a>
+<FONT color="green">168</FONT>         * instance.<a name="line.168"></a>
+<FONT color="green">169</FONT>         *<a name="line.169"></a>
+<FONT color="green">170</FONT>         * @param action action to perform, and which may successfully invoke {@link #get}<a name="line.170"></a>
+<FONT color="green">171</FONT>         * @return result of invoking {@code action}<a name="line.171"></a>
+<FONT color="green">172</FONT>         * @throws NullPointerException if {@code action} is null<a name="line.172"></a>
+<FONT color="green">173</FONT>         */<a name="line.173"></a>
+<FONT color="green">174</FONT>        public static &lt;R&gt; R run(final Callable&lt;R&gt; action) throws Exception {<a name="line.174"></a>
+<FONT color="green">175</FONT>            IdGenerator current = IdGenerator.CURRENT.get();<a name="line.175"></a>
+<FONT color="green">176</FONT>            if (current == null)<a name="line.176"></a>
+<FONT color="green">177</FONT>                current = new IdGenerator();<a name="line.177"></a>
+<FONT color="green">178</FONT>            return IdGenerator.CURRENT.invoke(current, action);<a name="line.178"></a>
+<FONT color="green">179</FONT>        }<a name="line.179"></a>
 <FONT color="green">180</FONT>    <a name="line.180"></a>
-<FONT color="green">181</FONT>        private static final class Ref extends WeakReference&lt;Object&gt; {<a name="line.181"></a>
-<FONT color="green">182</FONT>    <a name="line.182"></a>
-<FONT color="green">183</FONT>            private final int hashCode;<a name="line.183"></a>
-<FONT color="green">184</FONT>    <a name="line.184"></a>
-<FONT color="green">185</FONT>            Ref(Object obj, ReferenceQueue&lt;Object&gt; queue) {<a name="line.185"></a>
-<FONT color="green">186</FONT>                super(obj, queue);<a name="line.186"></a>
-<FONT color="green">187</FONT>                if (obj == null)<a name="line.187"></a>
-<FONT color="green">188</FONT>                    throw new IllegalArgumentException("null obj");<a name="line.188"></a>
-<FONT color="green">189</FONT>                this.hashCode = System.identityHashCode(obj);<a name="line.189"></a>
-<FONT color="green">190</FONT>            }<a name="line.190"></a>
-<FONT color="green">191</FONT>    <a name="line.191"></a>
-<FONT color="green">192</FONT>            @Override<a name="line.192"></a>
-<FONT color="green">193</FONT>            public boolean equals(Object obj) {<a name="line.193"></a>
-<FONT color="green">194</FONT>                if (obj == this)<a name="line.194"></a>
-<FONT color="green">195</FONT>                    return true;<a name="line.195"></a>
-<FONT color="green">196</FONT>                if (obj == null || obj.getClass() != this.getClass())<a name="line.196"></a>
-<FONT color="green">197</FONT>                    return false;<a name="line.197"></a>
-<FONT color="green">198</FONT>                Ref that = (Ref)obj;<a name="line.198"></a>
-<FONT color="green">199</FONT>                obj = this.get();<a name="line.199"></a>
-<FONT color="green">200</FONT>                return obj != null ? obj == that.get() : false;<a name="line.200"></a>
-<FONT color="green">201</FONT>            }<a name="line.201"></a>
-<FONT color="green">202</FONT>    <a name="line.202"></a>
-<FONT color="green">203</FONT>            @Override<a name="line.203"></a>
-<FONT color="green">204</FONT>            public int hashCode() {<a name="line.204"></a>
-<FONT color="green">205</FONT>                return this.hashCode;<a name="line.205"></a>
-<FONT color="green">206</FONT>            }<a name="line.206"></a>
-<FONT color="green">207</FONT>        }<a name="line.207"></a>
-<FONT color="green">208</FONT>    }<a name="line.208"></a>
+<FONT color="green">181</FONT>        /**<a name="line.181"></a>
+<FONT color="green">182</FONT>         * Get the {@link IdGenerator} associated with the current thread.<a name="line.182"></a>
+<FONT color="green">183</FONT>         * This method only works when the current thread is running within an invocation of {@link #run run()};<a name="line.183"></a>
+<FONT color="green">184</FONT>         * otherwise, an {@link IllegalStateException} is thrown.<a name="line.184"></a>
+<FONT color="green">185</FONT>         *<a name="line.185"></a>
+<FONT color="green">186</FONT>         * @return the {@link IdGenerator} created in the most recent, still running invocation of {@link #run} in this thread<a name="line.186"></a>
+<FONT color="green">187</FONT>         * @throws IllegalStateException if there is not such instance<a name="line.187"></a>
+<FONT color="green">188</FONT>         */<a name="line.188"></a>
+<FONT color="green">189</FONT>        public static IdGenerator get() {<a name="line.189"></a>
+<FONT color="green">190</FONT>            return IdGenerator.CURRENT.require();<a name="line.190"></a>
+<FONT color="green">191</FONT>        }<a name="line.191"></a>
+<FONT color="green">192</FONT>    <a name="line.192"></a>
+<FONT color="green">193</FONT>    // Reference to a registered object that weakly references the actual object<a name="line.193"></a>
+<FONT color="green">194</FONT>    <a name="line.194"></a>
+<FONT color="green">195</FONT>        private static final class Ref extends WeakReference&lt;Object&gt; {<a name="line.195"></a>
+<FONT color="green">196</FONT>    <a name="line.196"></a>
+<FONT color="green">197</FONT>            private final int hashCode;<a name="line.197"></a>
+<FONT color="green">198</FONT>    <a name="line.198"></a>
+<FONT color="green">199</FONT>            Ref(Object obj, ReferenceQueue&lt;Object&gt; queue) {<a name="line.199"></a>
+<FONT color="green">200</FONT>                super(obj, queue);<a name="line.200"></a>
+<FONT color="green">201</FONT>                if (obj == null)<a name="line.201"></a>
+<FONT color="green">202</FONT>                    throw new IllegalArgumentException("null obj");<a name="line.202"></a>
+<FONT color="green">203</FONT>                this.hashCode = System.identityHashCode(obj);<a name="line.203"></a>
+<FONT color="green">204</FONT>            }<a name="line.204"></a>
+<FONT color="green">205</FONT>    <a name="line.205"></a>
+<FONT color="green">206</FONT>            Ref(Object obj) {<a name="line.206"></a>
+<FONT color="green">207</FONT>                this(obj, null);<a name="line.207"></a>
+<FONT color="green">208</FONT>            }<a name="line.208"></a>
 <FONT color="green">209</FONT>    <a name="line.209"></a>
+<FONT color="green">210</FONT>            @Override<a name="line.210"></a>
+<FONT color="green">211</FONT>            public boolean equals(Object obj) {<a name="line.211"></a>
+<FONT color="green">212</FONT>                if (obj == this)<a name="line.212"></a>
+<FONT color="green">213</FONT>                    return true;<a name="line.213"></a>
+<FONT color="green">214</FONT>                if (obj == null || obj.getClass() != this.getClass())<a name="line.214"></a>
+<FONT color="green">215</FONT>                    return false;<a name="line.215"></a>
+<FONT color="green">216</FONT>                Ref that = (Ref)obj;<a name="line.216"></a>
+<FONT color="green">217</FONT>                obj = this.get();<a name="line.217"></a>
+<FONT color="green">218</FONT>                return obj != null ? obj == that.get() : false;<a name="line.218"></a>
+<FONT color="green">219</FONT>            }<a name="line.219"></a>
+<FONT color="green">220</FONT>    <a name="line.220"></a>
+<FONT color="green">221</FONT>            @Override<a name="line.221"></a>
+<FONT color="green">222</FONT>            public int hashCode() {<a name="line.222"></a>
+<FONT color="green">223</FONT>                return this.hashCode;<a name="line.223"></a>
+<FONT color="green">224</FONT>            }<a name="line.224"></a>
+<FONT color="green">225</FONT>        }<a name="line.225"></a>
+<FONT color="green">226</FONT>    }<a name="line.226"></a>
+<FONT color="green">227</FONT>    <a name="line.227"></a>
 
 
 

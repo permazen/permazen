@@ -68,8 +68,13 @@
 <FONT color="green">065</FONT>        public void handleWritebackException(PersistentObject&lt;T&gt; pobj, Throwable t) {<a name="line.65"></a>
 <FONT color="green">066</FONT>            this.nested.handleWritebackException(pobj, t);<a name="line.66"></a>
 <FONT color="green">067</FONT>        }<a name="line.67"></a>
-<FONT color="green">068</FONT>    }<a name="line.68"></a>
-<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">068</FONT>    <a name="line.68"></a>
+<FONT color="green">069</FONT>        @Override<a name="line.69"></a>
+<FONT color="green">070</FONT>        public T getDefaultValue() {<a name="line.70"></a>
+<FONT color="green">071</FONT>            return this.nested.getDefaultValue();<a name="line.71"></a>
+<FONT color="green">072</FONT>        }<a name="line.72"></a>
+<FONT color="green">073</FONT>    }<a name="line.73"></a>
+<FONT color="green">074</FONT>    <a name="line.74"></a>
 
 
 

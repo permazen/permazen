@@ -54,113 +54,129 @@
 <FONT color="green">051</FONT>        }<a name="line.51"></a>
 <FONT color="green">052</FONT>    <a name="line.52"></a>
 <FONT color="green">053</FONT>        /**<a name="line.53"></a>
-<FONT color="green">054</FONT>         * Get the target file.<a name="line.54"></a>
+<FONT color="green">054</FONT>         * Convenience constructor.<a name="line.54"></a>
 <FONT color="green">055</FONT>         *<a name="line.55"></a>
-<FONT color="green">056</FONT>         * @return target file, never null<a name="line.56"></a>
-<FONT color="green">057</FONT>         */<a name="line.57"></a>
-<FONT color="green">058</FONT>        public synchronized File getTargetFile() {<a name="line.58"></a>
-<FONT color="green">059</FONT>            return this.targetFile;<a name="line.59"></a>
-<FONT color="green">060</FONT>        }<a name="line.60"></a>
-<FONT color="green">061</FONT>    <a name="line.61"></a>
-<FONT color="green">062</FONT>        /**<a name="line.62"></a>
-<FONT color="green">063</FONT>         * Get the temporary file.<a name="line.63"></a>
-<FONT color="green">064</FONT>         *<a name="line.64"></a>
-<FONT color="green">065</FONT>         * &lt;p&gt;<a name="line.65"></a>
-<FONT color="green">066</FONT>         * If this instance has already been {@linkplain #close closed} (either successfully or not)<a name="line.66"></a>
-<FONT color="green">067</FONT>         * or {@linkplain #cancel canceled}, this will return null.<a name="line.67"></a>
-<FONT color="green">068</FONT>         *<a name="line.68"></a>
-<FONT color="green">069</FONT>         * @return temporary file, or null if {@link #close} or {@link #cancel} has already been invoked<a name="line.69"></a>
-<FONT color="green">070</FONT>         */<a name="line.70"></a>
-<FONT color="green">071</FONT>        public synchronized File getTempFile() {<a name="line.71"></a>
-<FONT color="green">072</FONT>            return this.tempFile;<a name="line.72"></a>
-<FONT color="green">073</FONT>        }<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
-<FONT color="green">075</FONT>        /**<a name="line.75"></a>
-<FONT color="green">076</FONT>         * Cancel this instance. This "aborts" the open "transaction", and deletes the temporary file.<a name="line.76"></a>
-<FONT color="green">077</FONT>         *<a name="line.77"></a>
-<FONT color="green">078</FONT>         * &lt;p&gt;<a name="line.78"></a>
-<FONT color="green">079</FONT>         * Does nothing if {@link #close} or {@link #cancel} has already been invoked.<a name="line.79"></a>
-<FONT color="green">080</FONT>         */<a name="line.80"></a>
-<FONT color="green">081</FONT>        public synchronized void cancel() {<a name="line.81"></a>
-<FONT color="green">082</FONT>            if (this.tempFile != null) {<a name="line.82"></a>
-<FONT color="green">083</FONT>    <a name="line.83"></a>
-<FONT color="green">084</FONT>                // Close output stream to release file descriptor<a name="line.84"></a>
-<FONT color="green">085</FONT>                try {<a name="line.85"></a>
-<FONT color="green">086</FONT>                    super.close();<a name="line.86"></a>
-<FONT color="green">087</FONT>                } catch (IOException e) {<a name="line.87"></a>
-<FONT color="green">088</FONT>                    // ignore<a name="line.88"></a>
-<FONT color="green">089</FONT>                }<a name="line.89"></a>
+<FONT color="green">056</FONT>         * &lt;p&gt;<a name="line.56"></a>
+<FONT color="green">057</FONT>         * This constructor uses a temporary file within the same directory as {@code targetFile}.<a name="line.57"></a>
+<FONT color="green">058</FONT>         *<a name="line.58"></a>
+<FONT color="green">059</FONT>         * @param targetFile the ultimate destination for the output when {@linkplain #close closed}.<a name="line.59"></a>
+<FONT color="green">060</FONT>         * @throws FileNotFoundException if {@code tempFile} cannot be opened for any reason<a name="line.60"></a>
+<FONT color="green">061</FONT>         * @throws IOException if a temporary file could not be created<a name="line.61"></a>
+<FONT color="green">062</FONT>         * @throws SecurityException if a security manager prevents writing to {@code tempFile}<a name="line.62"></a>
+<FONT color="green">063</FONT>         * @throws NullPointerException if either parameter is null<a name="line.63"></a>
+<FONT color="green">064</FONT>         */<a name="line.64"></a>
+<FONT color="green">065</FONT>        public AtomicUpdateFileOutputStream(File targetFile) throws IOException {<a name="line.65"></a>
+<FONT color="green">066</FONT>            this(targetFile, File.createTempFile("atomicupdate", null, targetFile.getParentFile()));<a name="line.66"></a>
+<FONT color="green">067</FONT>        }<a name="line.67"></a>
+<FONT color="green">068</FONT>    <a name="line.68"></a>
+<FONT color="green">069</FONT>        /**<a name="line.69"></a>
+<FONT color="green">070</FONT>         * Get the target file.<a name="line.70"></a>
+<FONT color="green">071</FONT>         *<a name="line.71"></a>
+<FONT color="green">072</FONT>         * @return target file, never null<a name="line.72"></a>
+<FONT color="green">073</FONT>         */<a name="line.73"></a>
+<FONT color="green">074</FONT>        public synchronized File getTargetFile() {<a name="line.74"></a>
+<FONT color="green">075</FONT>            return this.targetFile;<a name="line.75"></a>
+<FONT color="green">076</FONT>        }<a name="line.76"></a>
+<FONT color="green">077</FONT>    <a name="line.77"></a>
+<FONT color="green">078</FONT>        /**<a name="line.78"></a>
+<FONT color="green">079</FONT>         * Get the temporary file.<a name="line.79"></a>
+<FONT color="green">080</FONT>         *<a name="line.80"></a>
+<FONT color="green">081</FONT>         * &lt;p&gt;<a name="line.81"></a>
+<FONT color="green">082</FONT>         * If this instance has already been {@linkplain #close closed} (either successfully or not)<a name="line.82"></a>
+<FONT color="green">083</FONT>         * or {@linkplain #cancel canceled}, this will return null.<a name="line.83"></a>
+<FONT color="green">084</FONT>         *<a name="line.84"></a>
+<FONT color="green">085</FONT>         * @return temporary file, or null if {@link #close} or {@link #cancel} has already been invoked<a name="line.85"></a>
+<FONT color="green">086</FONT>         */<a name="line.86"></a>
+<FONT color="green">087</FONT>        public synchronized File getTempFile() {<a name="line.87"></a>
+<FONT color="green">088</FONT>            return this.tempFile;<a name="line.88"></a>
+<FONT color="green">089</FONT>        }<a name="line.89"></a>
 <FONT color="green">090</FONT>    <a name="line.90"></a>
-<FONT color="green">091</FONT>                // Delete temporary file<a name="line.91"></a>
-<FONT color="green">092</FONT>                this.tempFile.delete();<a name="line.92"></a>
-<FONT color="green">093</FONT>                this.tempFile = null;<a name="line.93"></a>
-<FONT color="green">094</FONT>            }<a name="line.94"></a>
-<FONT color="green">095</FONT>        }<a name="line.95"></a>
-<FONT color="green">096</FONT>    <a name="line.96"></a>
-<FONT color="green">097</FONT>        /**<a name="line.97"></a>
-<FONT color="green">098</FONT>         * Close this instance. This "commits" the open "transaction".<a name="line.98"></a>
-<FONT color="green">099</FONT>         *<a name="line.99"></a>
-<FONT color="green">100</FONT>         * &lt;p&gt;<a name="line.100"></a>
-<FONT color="green">101</FONT>         * If successful, the configured {@code tempFile} will be {@linkplain File#renameTo renamed}<a name="line.101"></a>
-<FONT color="green">102</FONT>         * to the configured destination file {@code targetFile}. In any case, after this method returns<a name="line.102"></a>
-<FONT color="green">103</FONT>         * (either normally or abnormally), the temporary file will be deleted.<a name="line.103"></a>
-<FONT color="green">104</FONT>         *<a name="line.104"></a>
-<FONT color="green">105</FONT>         * @throws IOException if {@link #close} or {@link #cancel} has already been invoked<a name="line.105"></a>
-<FONT color="green">106</FONT>         */<a name="line.106"></a>
-<FONT color="green">107</FONT>        @Override<a name="line.107"></a>
-<FONT color="green">108</FONT>        public synchronized void close() throws IOException {<a name="line.108"></a>
-<FONT color="green">109</FONT>    <a name="line.109"></a>
-<FONT color="green">110</FONT>            // Sanity check<a name="line.110"></a>
-<FONT color="green">111</FONT>            if (this.tempFile == null)<a name="line.111"></a>
-<FONT color="green">112</FONT>                throw new IOException("already closed or canceled");<a name="line.112"></a>
-<FONT color="green">113</FONT>    <a name="line.113"></a>
-<FONT color="green">114</FONT>            // Close temporary file<a name="line.114"></a>
-<FONT color="green">115</FONT>            super.close();<a name="line.115"></a>
-<FONT color="green">116</FONT>    <a name="line.116"></a>
-<FONT color="green">117</FONT>            // Read updated modification time<a name="line.117"></a>
-<FONT color="green">118</FONT>            final long newTimestamp = this.tempFile.lastModified();<a name="line.118"></a>
-<FONT color="green">119</FONT>    <a name="line.119"></a>
-<FONT color="green">120</FONT>            // Rename file, or delete it if that fails<a name="line.120"></a>
-<FONT color="green">121</FONT>            try {<a name="line.121"></a>
-<FONT color="green">122</FONT>                if (!this.tempFile.renameTo(this.targetFile)) {<a name="line.122"></a>
-<FONT color="green">123</FONT>                    throw new IOException("error renaming temporary file `" + this.tempFile.getName()<a name="line.123"></a>
-<FONT color="green">124</FONT>                      + "' to `" + this.targetFile.getName() + "'");<a name="line.124"></a>
-<FONT color="green">125</FONT>                }<a name="line.125"></a>
-<FONT color="green">126</FONT>                this.tempFile = null;<a name="line.126"></a>
-<FONT color="green">127</FONT>            } finally {<a name="line.127"></a>
-<FONT color="green">128</FONT>                if (this.tempFile != null)          // exception thrown, cancel transaction<a name="line.128"></a>
-<FONT color="green">129</FONT>                    this.cancel();<a name="line.129"></a>
-<FONT color="green">130</FONT>            }<a name="line.130"></a>
-<FONT color="green">131</FONT>    <a name="line.131"></a>
-<FONT color="green">132</FONT>            // Update target file timestamp<a name="line.132"></a>
-<FONT color="green">133</FONT>            this.timestamp = newTimestamp;<a name="line.133"></a>
-<FONT color="green">134</FONT>        }<a name="line.134"></a>
+<FONT color="green">091</FONT>        /**<a name="line.91"></a>
+<FONT color="green">092</FONT>         * Cancel this instance. This "aborts" the open "transaction", and deletes the temporary file.<a name="line.92"></a>
+<FONT color="green">093</FONT>         *<a name="line.93"></a>
+<FONT color="green">094</FONT>         * &lt;p&gt;<a name="line.94"></a>
+<FONT color="green">095</FONT>         * Does nothing if {@link #close} or {@link #cancel} has already been invoked.<a name="line.95"></a>
+<FONT color="green">096</FONT>         */<a name="line.96"></a>
+<FONT color="green">097</FONT>        public synchronized void cancel() {<a name="line.97"></a>
+<FONT color="green">098</FONT>            if (this.tempFile != null) {<a name="line.98"></a>
+<FONT color="green">099</FONT>    <a name="line.99"></a>
+<FONT color="green">100</FONT>                // Close output stream to release file descriptor<a name="line.100"></a>
+<FONT color="green">101</FONT>                try {<a name="line.101"></a>
+<FONT color="green">102</FONT>                    super.close();<a name="line.102"></a>
+<FONT color="green">103</FONT>                } catch (IOException e) {<a name="line.103"></a>
+<FONT color="green">104</FONT>                    // ignore<a name="line.104"></a>
+<FONT color="green">105</FONT>                }<a name="line.105"></a>
+<FONT color="green">106</FONT>    <a name="line.106"></a>
+<FONT color="green">107</FONT>                // Delete temporary file<a name="line.107"></a>
+<FONT color="green">108</FONT>                this.tempFile.delete();<a name="line.108"></a>
+<FONT color="green">109</FONT>                this.tempFile = null;<a name="line.109"></a>
+<FONT color="green">110</FONT>            }<a name="line.110"></a>
+<FONT color="green">111</FONT>        }<a name="line.111"></a>
+<FONT color="green">112</FONT>    <a name="line.112"></a>
+<FONT color="green">113</FONT>        /**<a name="line.113"></a>
+<FONT color="green">114</FONT>         * Close this instance. This "commits" the open "transaction".<a name="line.114"></a>
+<FONT color="green">115</FONT>         *<a name="line.115"></a>
+<FONT color="green">116</FONT>         * &lt;p&gt;<a name="line.116"></a>
+<FONT color="green">117</FONT>         * If successful, the configured {@code tempFile} will be {@linkplain File#renameTo renamed}<a name="line.117"></a>
+<FONT color="green">118</FONT>         * to the configured destination file {@code targetFile}. In any case, after this method returns<a name="line.118"></a>
+<FONT color="green">119</FONT>         * (either normally or abnormally), the temporary file will be deleted.<a name="line.119"></a>
+<FONT color="green">120</FONT>         *<a name="line.120"></a>
+<FONT color="green">121</FONT>         * @throws IOException if {@link #close} or {@link #cancel} has already been invoked<a name="line.121"></a>
+<FONT color="green">122</FONT>         */<a name="line.122"></a>
+<FONT color="green">123</FONT>        @Override<a name="line.123"></a>
+<FONT color="green">124</FONT>        public synchronized void close() throws IOException {<a name="line.124"></a>
+<FONT color="green">125</FONT>    <a name="line.125"></a>
+<FONT color="green">126</FONT>            // Sanity check<a name="line.126"></a>
+<FONT color="green">127</FONT>            if (this.tempFile == null)<a name="line.127"></a>
+<FONT color="green">128</FONT>                throw new IOException("already closed or canceled");<a name="line.128"></a>
+<FONT color="green">129</FONT>    <a name="line.129"></a>
+<FONT color="green">130</FONT>            // Close temporary file<a name="line.130"></a>
+<FONT color="green">131</FONT>            super.close();<a name="line.131"></a>
+<FONT color="green">132</FONT>    <a name="line.132"></a>
+<FONT color="green">133</FONT>            // Read updated modification time<a name="line.133"></a>
+<FONT color="green">134</FONT>            final long newTimestamp = this.tempFile.lastModified();<a name="line.134"></a>
 <FONT color="green">135</FONT>    <a name="line.135"></a>
-<FONT color="green">136</FONT>        /**<a name="line.136"></a>
-<FONT color="green">137</FONT>         * Get the last modification timestamp of the target file as it was at the time it was updated by this instance.<a name="line.137"></a>
-<FONT color="green">138</FONT>         *<a name="line.138"></a>
-<FONT color="green">139</FONT>         * &lt;p&gt;<a name="line.139"></a>
-<FONT color="green">140</FONT>         * This method only works after {@link #close} has been successfully invoked, otherwise it returns zero.<a name="line.140"></a>
-<FONT color="green">141</FONT>         *<a name="line.141"></a>
-<FONT color="green">142</FONT>         * @return target file modification time, or zero if {@link #close} has not been successfully invoked<a name="line.142"></a>
-<FONT color="green">143</FONT>         */<a name="line.143"></a>
-<FONT color="green">144</FONT>        public synchronized long getTimestamp() {<a name="line.144"></a>
-<FONT color="green">145</FONT>            return this.timestamp;<a name="line.145"></a>
-<FONT color="green">146</FONT>        }<a name="line.146"></a>
+<FONT color="green">136</FONT>            // Rename file, or delete it if that fails<a name="line.136"></a>
+<FONT color="green">137</FONT>            try {<a name="line.137"></a>
+<FONT color="green">138</FONT>                if (!this.tempFile.renameTo(this.targetFile)) {<a name="line.138"></a>
+<FONT color="green">139</FONT>                    throw new IOException("error renaming temporary file `" + this.tempFile.getName()<a name="line.139"></a>
+<FONT color="green">140</FONT>                      + "' to `" + this.targetFile.getName() + "'");<a name="line.140"></a>
+<FONT color="green">141</FONT>                }<a name="line.141"></a>
+<FONT color="green">142</FONT>                this.tempFile = null;<a name="line.142"></a>
+<FONT color="green">143</FONT>            } finally {<a name="line.143"></a>
+<FONT color="green">144</FONT>                if (this.tempFile != null)          // exception thrown, cancel transaction<a name="line.144"></a>
+<FONT color="green">145</FONT>                    this.cancel();<a name="line.145"></a>
+<FONT color="green">146</FONT>            }<a name="line.146"></a>
 <FONT color="green">147</FONT>    <a name="line.147"></a>
-<FONT color="green">148</FONT>        /**<a name="line.148"></a>
-<FONT color="green">149</FONT>         * Ensure the temporary file is deleted in cases where this instance never got successfully closed.<a name="line.149"></a>
-<FONT color="green">150</FONT>         */<a name="line.150"></a>
-<FONT color="green">151</FONT>        @Override<a name="line.151"></a>
-<FONT color="green">152</FONT>        protected void finalize() throws IOException {<a name="line.152"></a>
-<FONT color="green">153</FONT>            try {<a name="line.153"></a>
-<FONT color="green">154</FONT>                if (this.tempFile != null)<a name="line.154"></a>
-<FONT color="green">155</FONT>                    this.cancel();<a name="line.155"></a>
-<FONT color="green">156</FONT>            } finally {<a name="line.156"></a>
-<FONT color="green">157</FONT>                super.finalize();<a name="line.157"></a>
-<FONT color="green">158</FONT>            }<a name="line.158"></a>
-<FONT color="green">159</FONT>        }<a name="line.159"></a>
-<FONT color="green">160</FONT>    }<a name="line.160"></a>
+<FONT color="green">148</FONT>            // Update target file timestamp<a name="line.148"></a>
+<FONT color="green">149</FONT>            this.timestamp = newTimestamp;<a name="line.149"></a>
+<FONT color="green">150</FONT>        }<a name="line.150"></a>
+<FONT color="green">151</FONT>    <a name="line.151"></a>
+<FONT color="green">152</FONT>        /**<a name="line.152"></a>
+<FONT color="green">153</FONT>         * Get the last modification timestamp of the target file as it was at the time it was updated by this instance.<a name="line.153"></a>
+<FONT color="green">154</FONT>         *<a name="line.154"></a>
+<FONT color="green">155</FONT>         * &lt;p&gt;<a name="line.155"></a>
+<FONT color="green">156</FONT>         * This method only works after {@link #close} has been successfully invoked, otherwise it returns zero.<a name="line.156"></a>
+<FONT color="green">157</FONT>         *<a name="line.157"></a>
+<FONT color="green">158</FONT>         * @return target file modification time, or zero if {@link #close} has not been successfully invoked<a name="line.158"></a>
+<FONT color="green">159</FONT>         */<a name="line.159"></a>
+<FONT color="green">160</FONT>        public synchronized long getTimestamp() {<a name="line.160"></a>
+<FONT color="green">161</FONT>            return this.timestamp;<a name="line.161"></a>
+<FONT color="green">162</FONT>        }<a name="line.162"></a>
+<FONT color="green">163</FONT>    <a name="line.163"></a>
+<FONT color="green">164</FONT>        /**<a name="line.164"></a>
+<FONT color="green">165</FONT>         * Ensure the temporary file is deleted in cases where this instance never got successfully closed.<a name="line.165"></a>
+<FONT color="green">166</FONT>         */<a name="line.166"></a>
+<FONT color="green">167</FONT>        @Override<a name="line.167"></a>
+<FONT color="green">168</FONT>        protected void finalize() throws IOException {<a name="line.168"></a>
+<FONT color="green">169</FONT>            try {<a name="line.169"></a>
+<FONT color="green">170</FONT>                if (this.tempFile != null)<a name="line.170"></a>
+<FONT color="green">171</FONT>                    this.cancel();<a name="line.171"></a>
+<FONT color="green">172</FONT>            } finally {<a name="line.172"></a>
+<FONT color="green">173</FONT>                super.finalize();<a name="line.173"></a>
+<FONT color="green">174</FONT>            }<a name="line.174"></a>
+<FONT color="green">175</FONT>        }<a name="line.175"></a>
+<FONT color="green">176</FONT>    }<a name="line.176"></a>
 
 
 
