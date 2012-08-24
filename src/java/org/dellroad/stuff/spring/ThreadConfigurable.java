@@ -83,6 +83,10 @@ import org.springframework.beans.factory.annotation.Autowire;
  * with the behavior of Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable}.
  * </p>
  *
+ * <p>
+ * Running the AspectJ compiler on your annotated classes is required to activate this annotation.
+ * </p>
+ *
  * @see ThreadConfigurableContextHolder
  */
 @Retention(RetentionPolicy.RUNTIME)
