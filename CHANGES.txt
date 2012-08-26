@@ -1,6 +1,7 @@
 Version Next
 
     - Fixed bug in AbstractSimpleContainer when reloading from scratch
+    - Added ProcessRunner
 
 Version 1.0.497 Released August 24, 2012
 
