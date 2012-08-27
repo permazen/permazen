@@ -18,8 +18,12 @@ import java.io.OutputStream;
 import org.dellroad.stuff.io.NullModemInputStream.WriteCallback;
 
 /**
- * Makes it convenient to execute an external process and gather it's output without having to deal
- * directly with any threads or deadlock issues.
+ * Handles external process I/O and async execution.
+ *
+ * <p>
+ * This class makes it convenient to execute an external process and gather it's output without having to deal
+ * directly with the inherent issues relating to threads, race conditions, and deadlocks.
+ * </p>
  */
 public class ProcessRunner {
 
@@ -37,7 +41,7 @@ public class ProcessRunner {
      * Use this constructor when the process requires no input on {@code stdin}.
      * </p>
      *
-     * @param process newly-created process
+     * @param process a newly-created process
      * @throws IllegalArgumentException if {@code process} is null
      */
     public ProcessRunner(Process process) {
@@ -116,31 +120,35 @@ public class ProcessRunner {
         final InputThread stderr = new InputThread("stderr",
           new BufferedInputStream(this.process.getErrorStream()), this.stderrBuffer);
 
-        // Run it
+        // Start threads
+        stdin.start();
+        stdout.start();
+        stderr.start();
+
+        // Wait for process to exit
+        Integer exitValue = null;
         try {
-
-            // Start threads
-            stdin.start();
-            stdout.start();
-            stderr.start();
-
-            // Wait for process to exit
-            return this.process.waitFor();
+            exitValue = this.process.waitFor();
         } finally {
 
             // Update state
             this.state = 2;
 
-            // Ensure sockets are cleaned up (in case of InterruptedException)
-            stdin.close();
-            stdout.close();
-            stderr.close();
+            // In case of exception prior to process exit, close the sockets to wake up the threads
+            if (exitValue == null) {
+                stdin.close();
+                stdout.close();
+                stderr.close();
+            }
 
             // Wait for threads to finish
             stdin.join();
             stdout.join();
             stderr.join();
         }
+
+        // Done
+        return exitValue;
     }
 
     /**
