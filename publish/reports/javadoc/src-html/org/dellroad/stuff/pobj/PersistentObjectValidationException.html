@@ -43,14 +43,14 @@
 <FONT color="green">040</FONT>        private static String generateMessage(Set&lt;ConstraintViolation&lt;?&gt;&gt; violations) {<a name="line.40"></a>
 <FONT color="green">041</FONT>            if (violations == null)<a name="line.41"></a>
 <FONT color="green">042</FONT>                throw new IllegalArgumentException("null violations");<a name="line.42"></a>
-<FONT color="green">043</FONT>            StringBuilder buf = new StringBuilder("object failed to validate with " + violations.size() + " violation(s): ");<a name="line.43"></a>
+<FONT color="green">043</FONT>            StringBuilder buf = new StringBuilder("object failed to validate with " + violations.size() + " violation(s):\n");<a name="line.43"></a>
 <FONT color="green">044</FONT>            boolean first = true;<a name="line.44"></a>
 <FONT color="green">045</FONT>            for (ConstraintViolation&lt;?&gt; violation : violations) {<a name="line.45"></a>
-<FONT color="green">046</FONT>                if (first)<a name="line.46"></a>
-<FONT color="green">047</FONT>                    first = false;<a name="line.47"></a>
-<FONT color="green">048</FONT>                else<a name="line.48"></a>
-<FONT color="green">049</FONT>                    buf.append("; ");<a name="line.49"></a>
-<FONT color="green">050</FONT>                buf.append("[" + violation.getPropertyPath() + "]: " + violation.getMessage());<a name="line.50"></a>
+<FONT color="green">046</FONT>                buf.append("    [")<a name="line.46"></a>
+<FONT color="green">047</FONT>                  .append(violation.getPropertyPath())<a name="line.47"></a>
+<FONT color="green">048</FONT>                  .append("]: ")<a name="line.48"></a>
+<FONT color="green">049</FONT>                  .append(violation.getMessage())<a name="line.49"></a>
+<FONT color="green">050</FONT>                  .append('\n');<a name="line.50"></a>
 <FONT color="green">051</FONT>            }<a name="line.51"></a>
 <FONT color="green">052</FONT>            return buf.toString();<a name="line.52"></a>
 <FONT color="green">053</FONT>        }<a name="line.53"></a>

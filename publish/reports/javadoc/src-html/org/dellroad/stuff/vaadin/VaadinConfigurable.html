@@ -29,35 +29,39 @@
 <FONT color="green">026</FONT>     * with the servlet context.<a name="line.26"></a>
 <FONT color="green">027</FONT>     * &lt;/p&gt;<a name="line.27"></a>
 <FONT color="green">028</FONT>     *<a name="line.28"></a>
-<FONT color="green">029</FONT>     * @see org.dellroad.stuff.vaadin<a name="line.29"></a>
-<FONT color="green">030</FONT>     */<a name="line.30"></a>
-<FONT color="green">031</FONT>    @Retention(RetentionPolicy.RUNTIME)<a name="line.31"></a>
-<FONT color="green">032</FONT>    @Target(ElementType.TYPE)<a name="line.32"></a>
-<FONT color="green">033</FONT>    @Documented<a name="line.33"></a>
-<FONT color="green">034</FONT>    @Inherited<a name="line.34"></a>
-<FONT color="green">035</FONT>    public @interface VaadinConfigurable {<a name="line.35"></a>
-<FONT color="green">036</FONT>    <a name="line.36"></a>
-<FONT color="green">037</FONT>        /**<a name="line.37"></a>
-<FONT color="green">038</FONT>         * Configuration bean definition template name, if any.<a name="line.38"></a>
-<FONT color="green">039</FONT>         */<a name="line.39"></a>
-<FONT color="green">040</FONT>        String value() default "";<a name="line.40"></a>
-<FONT color="green">041</FONT>    <a name="line.41"></a>
-<FONT color="green">042</FONT>        /**<a name="line.42"></a>
-<FONT color="green">043</FONT>         * Whether and how to automatically autowire dependencies.<a name="line.43"></a>
-<FONT color="green">044</FONT>         */<a name="line.44"></a>
-<FONT color="green">045</FONT>        Autowire autowire() default Autowire.NO;<a name="line.45"></a>
-<FONT color="green">046</FONT>    <a name="line.46"></a>
-<FONT color="green">047</FONT>        /**<a name="line.47"></a>
-<FONT color="green">048</FONT>         * Whether to enable dependency checking.<a name="line.48"></a>
-<FONT color="green">049</FONT>         */<a name="line.49"></a>
-<FONT color="green">050</FONT>        boolean dependencyCheck() default false;<a name="line.50"></a>
-<FONT color="green">051</FONT>    <a name="line.51"></a>
-<FONT color="green">052</FONT>        /**<a name="line.52"></a>
-<FONT color="green">053</FONT>         * Whether to inject dependencies prior to constructor execution.<a name="line.53"></a>
-<FONT color="green">054</FONT>         */<a name="line.54"></a>
-<FONT color="green">055</FONT>        boolean preConstruction() default false;<a name="line.55"></a>
-<FONT color="green">056</FONT>    }<a name="line.56"></a>
-<FONT color="green">057</FONT>    <a name="line.57"></a>
+<FONT color="green">029</FONT>     * &lt;p&gt;<a name="line.29"></a>
+<FONT color="green">030</FONT>     * Running the AspectJ compiler on your annotated classes is required to activate this annotation.<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;/p&gt;<a name="line.31"></a>
+<FONT color="green">032</FONT>     *<a name="line.32"></a>
+<FONT color="green">033</FONT>     * @see org.dellroad.stuff.vaadin<a name="line.33"></a>
+<FONT color="green">034</FONT>     */<a name="line.34"></a>
+<FONT color="green">035</FONT>    @Retention(RetentionPolicy.RUNTIME)<a name="line.35"></a>
+<FONT color="green">036</FONT>    @Target(ElementType.TYPE)<a name="line.36"></a>
+<FONT color="green">037</FONT>    @Documented<a name="line.37"></a>
+<FONT color="green">038</FONT>    @Inherited<a name="line.38"></a>
+<FONT color="green">039</FONT>    public @interface VaadinConfigurable {<a name="line.39"></a>
+<FONT color="green">040</FONT>    <a name="line.40"></a>
+<FONT color="green">041</FONT>        /**<a name="line.41"></a>
+<FONT color="green">042</FONT>         * Configuration bean definition template name, if any.<a name="line.42"></a>
+<FONT color="green">043</FONT>         */<a name="line.43"></a>
+<FONT color="green">044</FONT>        String value() default "";<a name="line.44"></a>
+<FONT color="green">045</FONT>    <a name="line.45"></a>
+<FONT color="green">046</FONT>        /**<a name="line.46"></a>
+<FONT color="green">047</FONT>         * Whether and how to automatically autowire dependencies.<a name="line.47"></a>
+<FONT color="green">048</FONT>         */<a name="line.48"></a>
+<FONT color="green">049</FONT>        Autowire autowire() default Autowire.NO;<a name="line.49"></a>
+<FONT color="green">050</FONT>    <a name="line.50"></a>
+<FONT color="green">051</FONT>        /**<a name="line.51"></a>
+<FONT color="green">052</FONT>         * Whether to enable dependency checking.<a name="line.52"></a>
+<FONT color="green">053</FONT>         */<a name="line.53"></a>
+<FONT color="green">054</FONT>        boolean dependencyCheck() default false;<a name="line.54"></a>
+<FONT color="green">055</FONT>    <a name="line.55"></a>
+<FONT color="green">056</FONT>        /**<a name="line.56"></a>
+<FONT color="green">057</FONT>         * Whether to inject dependencies prior to constructor execution.<a name="line.57"></a>
+<FONT color="green">058</FONT>         */<a name="line.58"></a>
+<FONT color="green">059</FONT>        boolean preConstruction() default false;<a name="line.59"></a>
+<FONT color="green">060</FONT>    }<a name="line.60"></a>
+<FONT color="green">061</FONT>    <a name="line.61"></a>
 
 
 
