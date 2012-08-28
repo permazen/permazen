@@ -1,6 +1,7 @@
-Version Next
+Version 1.0.507 Released August 28, 2012
 
     - Fixed bug in AbstractSimpleContainer when reloading from scratch
+    - Fixed missing class in Vaadin add-on (issue #12)
     - Added ProcessRunner
 
 Version 1.0.497 Released August 24, 2012
