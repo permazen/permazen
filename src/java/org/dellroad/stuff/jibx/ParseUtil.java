@@ -101,16 +101,6 @@ public final class ParseUtil {
     }
 
     /**
-     * Serialize an {@link URI}.
-     *
-     * @deprecated This method is does the same thing as JiBX's default serialization via {@link Object#toString()}
-     */
-    @Deprecated
-    public static String serializeURI(URI uri) {
-        return uri.toString();
-    }
-
-    /**
      * Deserialize an object by reference.
      *
      * <p>
@@ -443,16 +433,6 @@ public final class ParseUtil {
         } catch (PatternSyntaxException e) {
             throw new JiBXParseException("invalid regular expression", string, e);
         }
-    }
-
-    /**
-     * Serialize an {@link Pattern}.
-     *
-     * @deprecated This method is does the same thing as JiBX's default serialization via {@link Object#toString()}
-     */
-    @Deprecated
-    public static String serializePattern(Pattern pattern) {
-        return pattern.toString();
     }
 
     /**
