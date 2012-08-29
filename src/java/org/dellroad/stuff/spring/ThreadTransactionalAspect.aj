@@ -81,11 +81,24 @@ public aspect ThreadTransactionalAspect extends AbstractTransactionAspect {
               + ThreadLocalContext.class.getName() + ".set() nor has a default been set");
         }
 
+        // Logging
+        if (this.logger.isTraceEnabled()) {
+            this.logger.trace("using application context " + context
+              + " to locate transaction manager for @ThreadTransactional method");
+        }
+
         // Get the PlatformTransactionManager, by name or by type
         String qualifier = transactionAttribute.getQualifier();
-        if (StringUtils.hasLength(qualifier))
-            return TransactionAspectUtils.getTransactionManager(context.getBeanFactory(), qualifier);
-        return BeanFactoryUtils.beanOfTypeIncludingAncestors(context.getBeanFactory(), PlatformTransactionManager.class);
+        PlatformTransactionManager transactionManager = StringUtils.hasLength(qualifier) ?
+          TransactionAspectUtils.getTransactionManager(context.getBeanFactory(), qualifier) :
+          BeanFactoryUtils.beanOfTypeIncludingAncestors(context.getBeanFactory(), PlatformTransactionManager.class);
+
+        // Logging
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("found transaction manager " + transactionManager + " for @ThreadTransactional method");
+
+        // Done
+        return transactionManager;
     }
 
 // TransactionAttributeSource wrapper that looks for @ThreadTransactional annotations

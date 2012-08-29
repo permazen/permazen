@@ -15,6 +15,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
+import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 /**
  * Aspect that autowires classes marked with the {@link VaadinConfigurable @VaadinConfigurable} annotation to a
@@ -82,7 +83,16 @@ public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
 
     @Override
     protected BeanFactory getBeanFactory(Object bean) {
-        return SpringContextApplication.get().getApplicationContext().getBeanFactory();
+
+        // Get application context
+        ConfigurableWebApplicationContext context = SpringContextApplication.get().getApplicationContext();
+
+        // Logging
+        if (this.log.isTraceEnabled())
+            this.log.trace("using application context " + context + " to configure @VaadinConfigurable bean " + bean);
+
+        // Return associated bean factory
+        return context.getBeanFactory();
     }
 
     @Override

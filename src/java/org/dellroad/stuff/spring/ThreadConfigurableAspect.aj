@@ -93,6 +93,10 @@ public aspect ThreadConfigurableAspect extends AbstractConfigurableAspect {
             return null;
         }
 
+        // Logging
+        if (this.log.isTraceEnabled())
+            this.log.trace("using application context " + context + " to configure @ThreadConfigurable bean " + bean);
+
         // Return associated BeanFactory
         return context.getBeanFactory();
     }
