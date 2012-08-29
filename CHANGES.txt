@@ -1,3 +1,8 @@
+Version Next
+
+    - Added new method ThreadLocalContext.invokeWith()
+    - Added trace and debug level logging to ThreadLocalContext
+
 Version 1.0.507 Released August 28, 2012
 
     - Fixed bug in AbstractSimpleContainer when reloading from scratch

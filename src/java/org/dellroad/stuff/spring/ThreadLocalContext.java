@@ -7,6 +7,8 @@
 
 package org.dellroad.stuff.spring;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -39,6 +41,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class ThreadLocalContext extends InheritableThreadLocal<ConfigurableApplicationContext>
   implements ApplicationContextAware, DisposableBean {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ThreadLocalContext.class);
+
     private static ThreadLocalContext instance = new ThreadLocalContext();
 
     private ConfigurableApplicationContext defaultContext;
@@ -60,7 +64,52 @@ public class ThreadLocalContext extends InheritableThreadLocal<ConfigurableAppli
      * </p>
      */
     public static void setInstance(ThreadLocalContext alternate) {
+        if (LOG.isDebugEnabled())
+            LOG.debug("replacing singleton " + ThreadLocalContext.instance + " with " + alternate);
         ThreadLocalContext.instance = alternate;
+    }
+
+    /**
+     * Overridden to add trace logging.
+     */
+    @Override
+    public ConfigurableApplicationContext get() {
+        ConfigurableApplicationContext context = super.get();
+        if (LOG.isTraceEnabled())
+            LOG.trace(this + ": returning context " + context);
+        return context;
+    }
+
+    /**
+     * Overridden to add trace logging.
+     */
+    @Override
+    public void set(ConfigurableApplicationContext context) {
+        if (LOG.isTraceEnabled())
+            LOG.trace(this + ": setting new value " + context);
+        super.set(context);
+    }
+
+    /**
+     * Change the application context associated with the current thread, but only for the duration of the given action.
+     * When the action completes, whatever application context was previously associated with the current
+     * thread is restored.
+     *
+     * @param context context to associate with the current thread for the duration of the {@code action}
+     * @param action action to be performed while associated with {@code context}
+     */
+    public void invokeWith(ConfigurableApplicationContext context, Runnable action) {
+        ConfigurableApplicationContext previous = this.get();
+        if (LOG.isDebugEnabled())
+            LOG.debug(this + ": temporarily changing from " + previous + " to " + context + " during " + action);
+        try {
+            this.set(context);
+            action.run();
+        } finally {
+            if (LOG.isDebugEnabled())
+                LOG.debug(this + ": restoring context back to " + previous + " after " + action);
+            this.set(previous);
+        }
     }
 
     /**
@@ -81,6 +130,8 @@ public class ThreadLocalContext extends InheritableThreadLocal<ConfigurableAppli
             throw new IllegalArgumentException("cannot configure default context " + context
               + ": it must be an instance of " + ConfigurableApplicationContext.class.getName());
         }
+        if (LOG.isDebugEnabled())
+            LOG.debug(this + ": setting default context to " + context);
         this.defaultContext = (ConfigurableApplicationContext)context;
     }
 
@@ -90,6 +141,8 @@ public class ThreadLocalContext extends InheritableThreadLocal<ConfigurableAppli
      */
     @Override
     public void destroy() {
+        if (LOG.isDebugEnabled())
+            LOG.debug(this + ": clearing default context (destroy() invoked)");
         this.defaultContext = null;
     }
 
@@ -98,6 +151,8 @@ public class ThreadLocalContext extends InheritableThreadLocal<ConfigurableAppli
      */
     @Override
     protected ConfigurableApplicationContext initialValue() {
+        if (LOG.isDebugEnabled())
+            LOG.debug(this + ": using default context " + this.defaultContext);
         return this.defaultContext;
     }
 }
