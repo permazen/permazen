@@ -52,7 +52,7 @@ public class ProcessRunner {
      * Fixed input constructor.
      *
      * <p>
-     * Use this constructor when the process input can be expressed as a {@link byte[]}.
+     * Use this constructor when the process input can be expressed as a {@code byte[]} array.
      * </p>
      *
      * @param process newly-created process
