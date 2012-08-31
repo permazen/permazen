@@ -21,24 +21,40 @@ import java.util.Set;
 
 /**
  * Support superclass for read-only {@link Container} implementations where each {@link Item} in the container
- * is backed by a Java object, and the Java objects are accessed via a query returning an ordered "query list".
- * The container's {@link Item} ID's are simply the index of the corresponding objects in this list.
+ * is backed by a Java object, and the Java objects are generated via {@linkplain #query a query} that returns
+ * an ordered "query list". The container's item ID's are simply the indexes of the corresponding objects
+ * in this list.
  *
  * <p>
- * This class invokes {@link #query} to generate the query list. The query list is then cached, but this class will invoke
- * {@link #validate validate()} prior to each subsequent use to ensure it is still usable.
- * If not, {@link #query} is invoked to regenerate it.
+ * This class will invoke {@link #query} as needed to (re)generate the query list. The query list is then cached,
+ * but this class always invokes {@link #validate validate()} prior to each subsequent use to ensure the cached
+ * list is still usable. If not, {@link #query} is invoked to regenerate it.
+ * </p>
  *
  * <p>
- * Note that the query list being invalid is an orthogonal concept from the contents of the list having changed;
- * however, the latter implies the former (but not vice-versa). Therefore, after any change to the list content,
- * first {@link #invalidate} and then {@link #fireItemSetChange} should be invoked (for convenience, {@link #reload}
- * will perform these two steps for you). On the other hand, the list can become invalid without the content changing
- * if e.g., the list contains JPA entities and the corresponding {@link javax.persistence.EntityManager} is closed.
+ * Note that the query list being invalid is an orthogonal concept from the contents of the list having changed.
+ * Invalid means "this list can no longer be used" while changed means "this list contains out-of-date information".
+ * Normally, the latter implies the former (but not vice-versa). The list becoming invalid does not in itself not cause
+ * any notifications to be sent, so no new query will be performed until e.g. the user interface explicitly requests
+ * more information.
+ * </p>
  *
  * <p>
- * The subclass may forcibly invalidate the current query list via {@link #invalidate}, e.g., after change to the
- * list content.
+ * Therefore, if the list content changes, first {@link #invalidate} and then {@link #fireItemSetChange}
+ * should be invoked; for convenience, {@link #reload} will perform these two steps for you. On the other hand,
+ * the list can become invalid without the content changing if e.g., the list refers to JPA entities and the
+ * corresponding {@link javax.persistence.EntityManager} has closed.
+ * </p>
+ *
+ * <p>
+ * The subclass may forcibly invalidate the current query list via {@link #invalidate}; this merely sets an internal
+ * flag. In some situations use of {@link #invalidate} is never necessary.
+ * </p>
+ *
+ * <p>
+ * It is also possible for the query list to generate information on-demand, thereby avoiding holding the entire
+ * list in memory at once.
+ * </p>
  *
  * @param <T> the type of the Java objects that back each {@link Item} in the container
  */
@@ -139,7 +155,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     protected abstract List<T> query();
 
     /**
-     * Determine if the given list can still be used or not.
+     * Determine if the given list can still be used or not. If not, {@link #query} will be invoked to refresh it.
      */
     protected abstract boolean validate(List<T> list);
 
