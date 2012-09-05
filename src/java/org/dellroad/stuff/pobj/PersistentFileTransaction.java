@@ -131,5 +131,10 @@ public class PersistentFileTransaction {
         this.updates.clear();
         this.updates.addAll(updateNames);
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[" + this.systemId + "]";
+    }
 }
 
