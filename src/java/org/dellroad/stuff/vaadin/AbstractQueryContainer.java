@@ -16,23 +16,24 @@ import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 /**
  * Support superclass for read-only {@link Container} implementations where each {@link Item} in the container
  * is backed by a Java object, and the Java objects are generated via {@linkplain #query a query} that returns
- * an ordered "query list". The container's item ID's are simply the indexes of the corresponding objects
- * in this list.
+ * a {@link QueryList} containing (some portion of) the backing objects. The container's item ID's are simply
+ * the indexes of the corresponding objects in this list.
  *
  * <p>
- * This class will invoke {@link #query} as needed to (re)generate the query list. The query list is then cached,
- * but this class always invokes {@link #validate validate()} prior to each subsequent use to ensure the cached
- * list is still usable. If not, {@link #query} is invoked to regenerate it.
+ * This class will invoke {@link #query} as needed to (re)generate the query list. The query list is then cached.
+ * However, if any invocation of {@link QueryList#get} throws an {@link InvalidQueryListException}, then the cached
+ * list is discarded and {@link #query} is invoked again to regenerate it. In this way, the {@link QueryList} is
+ * allowed to decide on demand when it is invalid or incapable of providing a specific list member. For example,
+ * when using JPA, a list may be considered invalid if the current EntityManager session has changed.
  * </p>
  *
  * <p>
- * Note that the query list being invalid is an orthogonal concept from the contents of the list having changed.
+ * Note that the {@link QueryList} being invalid is an orthogonal concept from the contents of the list having changed.
  * Invalid means "this list can no longer be used" while changed means "this list contains out-of-date information".
  * Normally, the latter implies the former (but not vice-versa). The list becoming invalid does not in itself not cause
  * any notifications to be sent, so no new query will be performed until e.g. the user interface explicitly requests
@@ -40,32 +41,39 @@ import java.util.Set;
  * </p>
  *
  * <p>
- * Therefore, if the list content changes, first {@link #invalidate} and then {@link #fireItemSetChange}
- * should be invoked; for convenience, {@link #reload} will perform these two steps for you. On the other hand,
- * the list can become invalid without the content changing if e.g., the list refers to JPA entities and the
- * corresponding {@link javax.persistence.EntityManager} has closed.
+ * Therefore, if the list content changes, first invoke {@link #invalidate} to discard the cached {@link QueryList},
+ * and then {@link #fireItemSetChange} to notify listeners; for convenience, {@link #reload} will perform these two
+ * steps for you.
  * </p>
  *
  * <p>
- * The subclass may forcibly invalidate the current query list via {@link #invalidate}; this merely sets an internal
- * flag. In some situations use of {@link #invalidate} is never necessary.
+ * The subclass may forcibly invalidate the current {@link QueryList} via {@link #invalidate}; this merely discards it
+ * and will force a new invocation of {@link #query} on the next container access. In many situations, however,
+ * the use of {@link #invalidate} is never required.
  * </p>
  *
  * <p>
- * It is also possible for the query list to generate information on-demand, thereby avoiding holding the entire
- * list in memory at once.
+ * For scalability reasons the {@link QueryList} may actually only contain a portion of the list, throwing
+ * {@link InvalidQueryListException}s when other list members are accessed.  An "index hint" parameter provided to
+ * {@link #query} indicates which member of the container is of current interest. The returned {@link QueryList}
+ * is required to provide exception-free access only to the indicated member, so in the extreme case only a single
+ * list member could be kept. In practice, normally range of members near to the index hint would be kept;
+ * see for example {@link WindowQueryList}.
  * </p>
  *
  * @param <T> the type of the Java objects that back each {@link Item} in the container
+ * @see QueryList
+ * @see SimpleQueryList
+ * @see WindowQueryList
  */
 @SuppressWarnings("serial")
 public abstract class AbstractQueryContainer<T> extends AbstractContainer implements Container.Ordered, Container.Indexed,
   Container.PropertySetChangeNotifier, Container.ItemSetChangeNotifier {
 
+    protected QueryList<? extends T> queryList;
+
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
     private PropertyExtractor<? super T> propertyExtractor;
-
-    private List<T> currentList;
 
 // Constructors
 
@@ -140,7 +148,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * Reload this container.
      *
      * <p>
-     * This invalidates the current list (if any) and fires an item set change event.
+     * This discards the current cached {@link QueryList} (if any) and fires an item set change event.
      */
     public void reload() {
         this.invalidate();
@@ -150,23 +158,33 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 // Subclass hooks and methods
 
     /**
-     * Perform a query to generate the list of Java objects that back this container.
+     * Perform a query to (re)generate the list of Java objects backing this container.
+     *
+     * <p>
+     * The particular position in the list we are interested in is given as a hint by the {@code index} parameter.
+     * That is, an invocation of <code>{@link QueryList#get}(hint)</code> is likely immediately after this method
+     * returns and if so it must complete without throwing an exception.
+     * </p>
+     *
+     * <p>
+     * The {@code hint} can be used to implement a highly scalable query list containing external objects
+     * (such as from a database) where only a small "window" of objects is actually kept in memory at any one time.
+     * Of course, implementations are also free to ignore {@code hint}. However, the returned {@link QueryList}
+     * must at least tolerate one invocation of <code>{@link QueryList#get}(hint)</code> without throwing an exception,
+     * assuming that {@code hint} does not exceed the size of the list.
+     * </p>
+     *
+     * @param hint index of the list element we are interested in
+     * @return list of Java objects backing this container
      */
-    protected abstract List<T> query();
+    protected abstract QueryList<? extends T> query(int hint);
 
     /**
-     * Determine if the given list can still be used or not. If not, {@link #query} will be invoked to refresh it.
-     */
-    protected abstract boolean validate(List<T> list);
-
-    /**
-     * Invalidate the current query list, if any.
+     * Discard the current cached {@link QueryList}, if any.
      */
     protected void invalidate() {
-        this.currentList = null;
+        this.queryList = null;
     }
-
-// Internal methods
 
     /**
      * Get the Java backing object at the given index in the list.
@@ -174,19 +192,30 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * @return backing object, or null if {@code index} is out of range
      */
     protected T getJavaObject(int index) {
-        List<T> list = this.getList();
-        if (index < 0 || index >= list.size())
+        if (index < 0 || index >= this.ensureList(index).size())
             return null;
-        return list.get(index);
+        try {
+            return this.queryList.get(index);
+        } catch (InvalidQueryListException e) {
+            this.invalidate();
+            try {
+                return this.ensureList(index).get(index);
+            } catch (InvalidQueryListException e2) {
+                throw new RuntimeException("query() was given a hint of " + index + " but QueryList.get(" + index + ") failed", e2);
+            }
+        }
     }
 
     /**
-     * Get the query list, validating it and regenerating if necessary.
+     * Ensure we have a cached query list.
+     *
+     * @param hint index of the list element we are interested in, passed to {@link #query} if no query list is cached
+     * @return cached query list, never null
      */
-    protected List<T> getList() {
-        if (this.currentList == null || !this.validate(this.currentList))
-            this.currentList = this.query();
-        return this.currentList;
+    protected QueryList<? extends T> ensureList(int hint) {
+        if (this.queryList == null)
+            this.queryList = this.query(hint);
+        return this.queryList;
     }
 
 // Container
@@ -204,7 +233,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public Collection<Integer> getItemIds() {
-        return new IntList(this.getList().size());
+        return new IntList(this.ensureList(0).size());
     }
 
     @Override
@@ -226,7 +255,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public int size() {
-        return this.getList().size();
+        return this.ensureList(0).size();
     }
 
     @Override
@@ -234,7 +263,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return false;
         int index = ((Integer)itemId).intValue();
-        return index >= 0 && index < this.getList().size();
+        return index >= 0 && index < this.ensureList(index).size();
     }
 
     /**
@@ -313,8 +342,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return -1;
         int index = ((Integer)itemId).intValue();
-        List<T> list = this.getList();
-        if (index < 0 || index >= list.size())
+        if (index < 0 || index >= this.ensureList(index).size())
             return -1;
         return index;
     }
@@ -326,8 +354,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return null;
         int index = ((Integer)itemId).intValue();
-        List<T> list = this.getList();
-        if (index < 0 || index + 1 >= list.size())
+        if (index < 0 || index + 1 >= this.ensureList(index).size())
             return null;
         return index + 1;
     }
@@ -337,21 +364,20 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return null;
         int index = ((Integer)itemId).intValue();
-        List<T> list = this.getList();
-        if (index - 1 < 0 || index >= list.size())
+        if (index - 1 < 0 || index >= this.ensureList(index).size())
             return null;
         return index - 1;
     }
 
     @Override
     public Integer firstItemId() {
-        return this.getList().isEmpty() ? null : 0;
+        return this.ensureList(0).size() == 0 ? null : 0;
     }
 
     @Override
     public Integer lastItemId() {
-        List<T> list = this.getList();
-        return list.isEmpty() ? null : list.size() - 1;
+        int size = this.ensureList(0).size();
+        return size == 0 ? null : size - 1;
     }
 
     @Override
@@ -359,7 +385,8 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return false;
         int index = ((Integer)itemId).intValue();
-        return !this.getList().isEmpty() && index == 0;
+        int size = this.ensureList(index).size();
+        return size > 0 && index == 0;
     }
 
     @Override
@@ -367,7 +394,8 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return false;
         int index = ((Integer)itemId).intValue();
-        return index == this.getList().size() - 1;
+        int size = this.ensureList(index).size();
+        return size > 0 && index == size - 1;
     }
 
     /**
