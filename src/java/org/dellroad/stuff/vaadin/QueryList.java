@@ -16,9 +16,9 @@ package org.dellroad.stuff.vaadin;
 public interface QueryList<T> {
 
     /**
-     * Get the size of this list.
+     * Get the total size of this list.
      */
-    int size();
+    long size();
 
     /**
      * Get an item in the list, or throw an exception if this instance is no longer valid.
@@ -27,6 +27,6 @@ public interface QueryList<T> {
      * @throws IndexOutOfBoundsException if {@code index} is less than zero or greater than {@link #size}
      * @throws InvalidQueryListException if this list has become invalid or cannot provide the item
      */
-    T get(int index) throws InvalidQueryListException;
+    T get(long index) throws InvalidQueryListException;
 }
 

@@ -7,7 +7,7 @@
 
 package org.dellroad.stuff.vaadin;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,32 +19,32 @@ import java.util.List;
  */
 public class WindowQueryList<T> implements QueryList<T> {
 
-    private final ArrayList<T> window;
-    private final int listSize;
-    private final int minIndex;
-    private final int maxIndex;
+    private final List<? extends T> window;
+    private final long offset;
+    private final long totalSize;
 
     /**
      * Constructor when the original list is given with window bounds.
      *
      * @param list original list from which to cache elements
-     * @param minIndex index of the first list element to cache (inclusive)
-     * @param maxIndex index of the last list element to cache (exclusive)
+     * @param offset index in the list of the first element in the window
+     * @param count number of elements in the window
      * @throws IllegalArgumentException if {@code list} is null
-     * @throws IllegalArgumentException if <code>minIndex &gt; maxIndex</code>
+     * @throws IllegalArgumentException if {@code offset} and/or {@code count} are invalid
      */
-    public WindowQueryList(List<? extends T> list, int minIndex, int maxIndex) {
+    @SuppressWarnings("unchecked")
+    public WindowQueryList(List<? extends T> list, int offset, int count) {
         if (list == null)
             throw new IllegalArgumentException("null list");
-        if (minIndex > maxIndex)
-            throw new IllegalArgumentException("minIndex > maxIndex");
-        this.listSize = list.size();
-        this.minIndex = Math.min(Math.max(minIndex, 0), listSize);
-        this.maxIndex = Math.min(Math.max(maxIndex, 0), listSize);
-        int windowSize = maxIndex - minIndex;
-        this.window = new ArrayList<T>(windowSize);
-        for (int i = 0; i < windowSize; i++)
-            this.window.set(i, list.get(this.minIndex + i));
+        this.totalSize = list.size();
+        if (offset < 0 || offset > this.totalSize)
+            throw new IllegalArgumentException("bad offset");
+        this.offset = offset;
+        if (count < 0 || offset + count > this.totalSize)
+            throw new IllegalArgumentException("bad count");
+
+        // Copy elements to allow original list to be freed
+        this.window = (List<T>)Arrays.asList(list.subList(offset, offset + count).toArray());
     }
 
     /**
@@ -57,31 +57,30 @@ public class WindowQueryList<T> implements QueryList<T> {
      * @throws IllegalArgumentException if <code>offset &lt; 0</code>
      * @throws IllegalArgumentException if <code>offset + window.size() &gt; totalSize</code>
      */
-    public WindowQueryList(int offset, List<? extends T> window, int totalSize) {
+    public WindowQueryList(long offset, List<? extends T> window, long totalSize) {
         if (window == null)
             throw new IllegalArgumentException("null window");
         if (offset < 0)
             throw new IllegalArgumentException("offset < 0");
         if (offset + window.size() > totalSize)
             throw new IllegalArgumentException("offset + window.size() > totalSize");
-        this.window = new ArrayList<T>(window);
-        this.listSize = totalSize;
-        this.minIndex = offset;
-        this.maxIndex = offset + window.size();
+        this.window = window;
+        this.offset = offset;
+        this.totalSize = totalSize;
     }
 
     @Override
-    public int size() {
-        return this.listSize;
+    public long size() {
+        return this.totalSize;
     }
 
     @Override
-    public T get(int index) throws InvalidQueryListException {
-        if (index < 0 || index >= this.listSize)
+    public T get(long index) throws InvalidQueryListException {
+        if (index < 0 || index >= this.totalSize)
             throw new IndexOutOfBoundsException("index = " + index);
-        if (index < this.minIndex || index >= this.maxIndex)
+        if (index < this.offset || index >= this.offset + this.window.size())
             throw new InvalidQueryListException();
-        return this.window.get(index - this.minIndex);
+        return this.window.get((int)(index - this.offset));
     }
 }
 

@@ -177,7 +177,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * @param hint index of the list element we are interested in
      * @return list of Java objects backing this container
      */
-    protected abstract QueryList<? extends T> query(int hint);
+    protected abstract QueryList<? extends T> query(long hint);
 
     /**
      * Discard the current cached {@link QueryList}, if any.
@@ -233,7 +233,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public Collection<Integer> getItemIds() {
-        return new IntList(this.ensureList(0).size());
+        return new IntList((int)this.ensureList(0).size());
     }
 
     @Override
@@ -255,7 +255,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public int size() {
-        return this.ensureList(0).size();
+        return (int)this.ensureList(0).size();
     }
 
     @Override
@@ -376,8 +376,8 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public Integer lastItemId() {
-        int size = this.ensureList(0).size();
-        return size == 0 ? null : size - 1;
+        long size = this.ensureList(0).size();
+        return size == 0 ? null : (int)size - 1;
     }
 
     @Override
@@ -385,7 +385,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return false;
         int index = ((Integer)itemId).intValue();
-        int size = this.ensureList(index).size();
+        long size = this.ensureList(index).size();
         return size > 0 && index == 0;
     }
 
@@ -394,7 +394,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return false;
         int index = ((Integer)itemId).intValue();
-        int size = this.ensureList(index).size();
+        long size = this.ensureList(index).size();
         return size > 0 && index == size - 1;
     }
 

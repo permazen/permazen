@@ -31,13 +31,15 @@ public class SimpleQueryList<T> implements QueryList<T> {
     }
 
     @Override
-    public int size() {
+    public long size() {
         return this.list.size();
     }
 
     @Override
-    public T get(int index) {
-        return this.list.get(index);
+    public T get(long index) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE)
+            throw new IndexOutOfBoundsException("index = " + index);
+        return this.list.get((int)index);
     }
 }
 
