@@ -2,6 +2,7 @@ Version Next
 
     - Added new method ThreadLocalContext.invokeWith()
     - Added trace and debug level logging to ThreadLocalContext
+    - Fixed bug in AnnotatedXMLEventWriter when namespaces used
 
 Version 1.0.507 Released August 28, 2012
 

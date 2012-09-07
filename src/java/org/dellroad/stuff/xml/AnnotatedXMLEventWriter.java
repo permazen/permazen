@@ -32,7 +32,7 @@ public abstract class AnnotatedXMLEventWriter implements XMLEventWriter {
 
     // State:
     //  0 = before document element
-    //  1 = after document element but before ananotation element
+    //  1 = after document element but before annotation element
     //  2 = after annotation element
     private byte state;
 
@@ -51,6 +51,10 @@ public abstract class AnnotatedXMLEventWriter implements XMLEventWriter {
             this.inner.add(event);
             break;
         case 1:
+            if (event.isNamespace() || event.isAttribute()) {
+                this.inner.add(event);
+                break;
+            }
             if (event.isCharacters() && event.asCharacters().isWhiteSpace()) {
                 this.trailingSpace.append(event.asCharacters().getData());
                 this.inner.add(event);
