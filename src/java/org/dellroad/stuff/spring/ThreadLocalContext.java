@@ -100,14 +100,14 @@ public class ThreadLocalContext extends InheritableThreadLocal<ConfigurableAppli
      */
     public void invokeWith(ConfigurableApplicationContext context, Runnable action) {
         ConfigurableApplicationContext previous = this.get();
-        if (LOG.isDebugEnabled())
-            LOG.debug(this + ": temporarily changing from " + previous + " to " + context + " during " + action);
+        if (LOG.isTraceEnabled())
+            LOG.trace(this + ": temporarily changing from " + previous + " to " + context + " during " + action);
         try {
             this.set(context);
             action.run();
         } finally {
-            if (LOG.isDebugEnabled())
-                LOG.debug(this + ": restoring context back to " + previous + " after " + action);
+            if (LOG.isTraceEnabled())
+                LOG.trace(this + ": restoring context back to " + previous + " after " + action);
             this.set(previous);
         }
     }
