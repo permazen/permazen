@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
@@ -81,6 +82,60 @@ public final class JiBXUtil {
                 @Override
                 public T call() throws Exception {
                     return targetClass.cast(unmarshallingContext.unmarshalDocument(input, null));
+                }
+            });
+        } catch (Exception e) {
+            JiBXUtil.unwrapException(e);
+            return null;            // not reached
+        }
+    }
+
+    /**
+     * Read in an object encoded as XML.
+     * This method assumes there is exactly one binding for the given class.
+     *
+     * <p>
+     * This method runs within a new invocation of {@link IdGenerator#run(Callable) IdGenerator.run()} to support object references
+     * (see {@link IdMapper}).
+     *
+     * <p>
+     * The {@code input} is not closed by this method.
+     *
+     * @param targetClass target class
+     * @param input source for the XML document
+     * @throws JiBXException if there is a JiBX parse error
+     * @throws IOException if an error occurs reading from {@code input}
+     */
+    public static <T> T readObject(Class<T> targetClass, Reader input) throws JiBXException, IOException {
+        return JiBXUtil.readObject(targetClass, null, input);
+    }
+
+    /**
+     * Read in an object encoded as XML.
+     *
+     * <p>
+     * This method runs within a new invocation of {@link IdGenerator#run(Callable) IdGenerator.run()} to support object references
+     * (see {@link IdMapper}).
+     *
+     * <p>
+     * The {@code input} is not closed by this method.
+     *
+     * @param targetClass target class
+     * @param bindingName binding name, or null to choose the only one
+     * @param input source for the XML document
+     * @throws JiBXException if there is a JiBX parse error
+     * @throws IOException if an error occurs reading from {@code input}
+     */
+    public static <T> T readObject(final Class<T> targetClass, String bindingName, final Reader input)
+      throws JiBXException, IOException {
+        IBindingFactory bindingFactory = bindingName != null ?
+          BindingDirectory.getFactory(bindingName, targetClass) : BindingDirectory.getFactory(targetClass);
+        final IUnmarshallingContext unmarshallingContext = bindingFactory.createUnmarshallingContext();
+        try {
+            return IdGenerator.run(new Callable<T>() {
+                @Override
+                public T call() throws Exception {
+                    return targetClass.cast(unmarshallingContext.unmarshalDocument(input));
                 }
             });
         } catch (Exception e) {
