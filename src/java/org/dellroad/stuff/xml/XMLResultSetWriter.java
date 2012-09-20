@@ -31,14 +31,14 @@ import javax.xml.stream.XMLStreamWriter;
  * Outputs the result of an SQL query as XML.
  *
  * <p>
- * For example, the query <code>SELECT ID, LAST_NAME, FIRST_NAME FROM EMPLOYEE</code> might become:
+ * For example, the query <code>SELECT ID, LAST_NAME AS LAST, FIRST_NAME AS FIRST FROM EMPLOYEE</code> might become:
  * <pre>
  *  &lt;result-set&gt;
  *      &lt;query&gt;&lt;![CDATA[SELECT ID, LAST_NAME, FIRST_NAME FROM EMPLOYEE]]&gt;&lt;/query&gt;
  *      &lt;columns&gt;
- *          &lt;column index="1" name="ID" precision="20" type="BIGINT" typeName="BIGINT" nullable="false"/&gt;
- *          &lt;column index="2" name="LAST_NAME" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&gt;
- *          &lt;column index="3" name="FIRST_NAME" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&gt;
+ *          &lt;column index="1" name="ID" label="ID" precision="20" type="BIGINT" typeName="BIGINT" nullable="false"/&gt;
+ *          &lt;column index="2" name="LAST_NAME" label="LAST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&gt;
+ *          &lt;column index="3" name="FIRST_NAME" label="FIRST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&gt;
  *      &lt;/columns&gt;
  *      &lt;data&gt;
  *          &lt;row&gt;
@@ -166,7 +166,12 @@ public class XMLResultSetWriter {
         for (int col = 1; col <= numColumns; col++) {
             this.openTag("column");
             this.writer.writeAttribute("index", "" + col);
-            this.writer.writeAttribute("name", metaData.getColumnName(col));
+            String name = metaData.getColumnName(col);
+            if (name != null)
+                this.writer.writeAttribute("name", name);
+            String label = metaData.getColumnLabel(col);
+            if (label != null)
+                this.writer.writeAttribute("label", label);
             int precision = metaData.getPrecision(col);
             if (precision != 0)
                 this.writer.writeAttribute("precision", "" + precision);
