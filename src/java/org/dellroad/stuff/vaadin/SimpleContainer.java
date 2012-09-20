@@ -13,6 +13,9 @@ import java.util.Collection;
 /**
  * An {@link AbstractSimpleContainer} with {@link Integer} item IDs.
  *
+ * <p>
+ * Use {@link #load} to (re)load the container.
+ *
  * @param <T> the type of the Java objects that back each {@link com.vaadin.data.Item} in the container
  * @see AbstractSimpleContainer
  */
