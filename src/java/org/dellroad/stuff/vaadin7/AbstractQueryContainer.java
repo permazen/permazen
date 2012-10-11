@@ -16,6 +16,7 @@ import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -338,6 +339,18 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     }
 
     @Override
+    public List<Integer> getItemIds(int startIndex, int numberOfItems) {
+        if (numberOfItems < 0)
+            throw new IllegalArgumentException("numberOfItems < 0");
+        long size = this.ensureList(startIndex).size();
+        if (startIndex < 0 || startIndex > size)
+            throw new IndexOutOfBoundsException("startIndex out of range");
+        if (startIndex + numberOfItems > size)
+            numberOfItems = (int)(size - startIndex);
+        return new IntList(startIndex, numberOfItems);
+    }
+
+    @Override
     public int indexOfId(Object itemId) {
         if (!(itemId instanceof Integer))
             return -1;
@@ -462,24 +475,30 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     private static class IntList extends AbstractList<Integer> {
 
-        private final int max;
+        private final int min;
+        private final int size;
 
-        public IntList(int max) {
-            if (max < 0)
-                throw new IllegalArgumentException("max < 0");
-            this.max = max;
+        public IntList(int size) {
+            this(0, size);
+        }
+
+        public IntList(int min, int size) {
+            if (size < 0)
+                throw new IllegalArgumentException("size < 0");
+            this.min = min;
+            this.size = size;
         }
 
         @Override
         public int size() {
-            return this.max;
+            return this.size;
         }
 
         @Override
         public Integer get(int index) {
-            if (index < 0 || index >= this.max)
+            if (index < 0 || index >= this.size)
                 throw new IndexOutOfBoundsException();
-            return index;
+            return this.min + index;
         }
     }
 }
