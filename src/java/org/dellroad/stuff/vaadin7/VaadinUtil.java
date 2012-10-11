@@ -59,10 +59,13 @@ public final class VaadinUtil {
         if (action == null)
             throw new IllegalArgumentException("null action");
         session.getLock().lock();
+        VaadinServiceSession previousSession = VaadinServiceSession.getCurrent();
+        VaadinServiceSession.setCurrent(session);
         try {
             action.run();
         } finally {
             session.getLock().unlock();
+            VaadinServiceSession.setCurrent(previousSession);
         }
     }
 
