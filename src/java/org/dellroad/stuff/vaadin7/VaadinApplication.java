@@ -10,6 +10,9 @@ package org.dellroad.stuff.vaadin7;
 import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.VaadinServiceSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A globally accessible "Vaadin application" singleton.
  *
@@ -31,6 +34,8 @@ public class VaadinApplication {
      * The {@link VaadinServiceSession} attribute key under which the singleton {@link VaadinApplication} instance is stored.
      */
     public static final String VAADIN_APPLICATION_ATTRIBUTE_KEY = "vaadinApplication";
+
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * The session that this instance is associated with.
