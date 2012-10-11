@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 /**
  * Marker interface used by the {@code VaadinConfigurableAspect}.

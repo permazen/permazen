@@ -5,7 +5,11 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
+
+import com.vaadin.server.SessionDestroyEvent;
+import com.vaadin.server.SessionDestroyListener;
+import com.vaadin.server.VaadinServiceSession;
 
 import java.util.HashMap;
 
@@ -18,9 +22,9 @@ import org.springframework.beans.factory.config.Scope;
  * A Spring custom {@link Scope} for Vaadin applications.
  *
  * <p>
- * This works for applications that subclass {@link ContextApplication}; objects will be scoped to each
- * {@link ContextApplication} instance. Spring {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-methods}
- * will be invoked when the {@link ContextApplication} is closed.
+ * This scopes beans to the lifetime of the {@link VaadinServiceSession} (formerly known as "Vaadin application").
+ * Spring {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-methods}
+ * will be invoked when the {@link VaadinServiceSession} is closed.
  * </p>
  *
  * <p>
@@ -32,20 +36,20 @@ import org.springframework.beans.factory.config.Scope;
  * Then declare scoped beans normally using the scope name {@code "vaadinApplication"}.
  * </p>
  */
-public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, ContextApplication.CloseListener {
+public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, SessionDestroyListener {
 
     /**
-     * Key to the current application instance. For use by {@link #resolveContextualObject}.
+     * Key to the current {@link VaadinServiceSession} instance. For use by {@link #resolveContextualObject}.
      */
-    public static final String APPLICATION_KEY = "application";
+    public static final String VAADIN_SERVICE_SESSION_KEY = "vaadinServiceSession";
 
     /**
      * The name of this scope (i.e., <code>{@value}</code>).
      */
     public static final String SCOPE_NAME = "vaadinApplication";
 
-    private final HashMap<ContextApplication, ApplicationBeanHolder> beanHolders
-      = new HashMap<ContextApplication, ApplicationBeanHolder>();
+    private final HashMap<VaadinServiceSession, SessionBeanHolder> beanHolders
+      = new HashMap<VaadinServiceSession, SessionBeanHolder>();
 
 // BeanFactoryPostProcessor methods
 
@@ -54,13 +58,14 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
         beanFactory.registerScope(VaadinApplicationScope.SCOPE_NAME, this);
     }
 
-// ContextApplication.CloseListener methods
+// SessionDestroyListener
 
     @Override
-    public void applicationClosed(ContextApplication.CloseEvent closeEvent) {
-        ApplicationBeanHolder beanHolder;
+    public void sessionDestroy(SessionDestroyEvent event) {
+        final VaadinServiceSession session = event.getSession();
+        SessionBeanHolder beanHolder;
         synchronized (this) {
-            beanHolder = this.beanHolders.remove(closeEvent.getContextApplication());
+            beanHolder = this.beanHolders.remove(session);
         }
         if (beanHolder != null)
             beanHolder.close();
@@ -70,58 +75,58 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
 
     @Override
     public synchronized Object get(String name, ObjectFactory<?> objectFactory) {
-        return this.getApplicationBeanHolder(true).getBean(name, objectFactory);
+        return this.getSessionBeanHolder(true).getBean(name, objectFactory);
     }
 
     @Override
     public synchronized Object remove(String name) {
-        ApplicationBeanHolder beanHolder = this.getApplicationBeanHolder(false);
+        SessionBeanHolder beanHolder = this.getSessionBeanHolder(false);
         return beanHolder != null ? beanHolder.remove(name) : null;
     }
 
     @Override
     public synchronized void registerDestructionCallback(String name, Runnable callback) {
-        this.getApplicationBeanHolder(true).registerDestructionCallback(name, callback);
+        this.getSessionBeanHolder(true).registerDestructionCallback(name, callback);
     }
 
     @Override
     public String getConversationId() {
-        ContextApplication application = ContextApplication.currentApplication();
-        if (application == null)
+        VaadinServiceSession session = VaadinServiceSession.getCurrent();
+        if (session == null)
             return null;
-        return application.getClass().getName() + "@" + System.identityHashCode(application);
+        return session.getClass().getName() + "@" + System.identityHashCode(session);
     }
 
     @Override
     public Object resolveContextualObject(String key) {
-        if (APPLICATION_KEY.equals(key))
-            return ContextApplication.currentApplication();
+        if (VAADIN_SERVICE_SESSION_KEY.equals(key))
+            return VaadinServiceSession.getCurrent();
         return null;
     }
 
 // Internal methods
 
-    private synchronized ApplicationBeanHolder getApplicationBeanHolder(boolean create) {
-        ContextApplication application = ContextApplication.get();
-        application.addListener(this);
-        ApplicationBeanHolder beanHolder = this.beanHolders.get(application);
+    private synchronized SessionBeanHolder getSessionBeanHolder(boolean create) {
+        VaadinServiceSession session = VaadinUtil.getCurrentSession();
+        VaadinUtil.addSessionDestroyListener(session, this);
+        SessionBeanHolder beanHolder = this.beanHolders.get(session);
         if (beanHolder == null && create) {
-            beanHolder = new ApplicationBeanHolder(application);
-            this.beanHolders.put(application, beanHolder);
+            beanHolder = new SessionBeanHolder(session);
+            this.beanHolders.put(session, beanHolder);
         }
         return beanHolder;
     }
 
 // Bean holder class corresponding to a single Application instance
 
-    private static class ApplicationBeanHolder {
+    private static class SessionBeanHolder {
 
         private final HashMap<String, Object> beans = new HashMap<String, Object>();
         private final HashMap<String, Runnable> destructionCallbacks = new HashMap<String, Runnable>();
-        private final ContextApplication application;
+        private final VaadinServiceSession session;
 
-        public ApplicationBeanHolder(ContextApplication application) {
-            this.application = application;
+        public SessionBeanHolder(VaadinServiceSession session) {
+            this.session = session;
         }
 
         public Object getBean(String name, ObjectFactory<?> objectFactory) {

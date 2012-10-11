@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -170,7 +170,7 @@ public class PropertyDef<T> {
      * @return property, or null if not found
      * @throws ClassCastException if the property found has a different type than this instance
      */
-    public Property get(Item item) {
+    public Property<T> get(Item item) {
         return this.cast(item.getItemProperty(this.getPropertyId()));
     }
 
@@ -182,7 +182,7 @@ public class PropertyDef<T> {
      * @return property, or null if not found
      * @throws ClassCastException if the property found has a different type than this instance
      */
-    public Property get(Container container, Object itemId) {
+    public Property<T> get(Container container, Object itemId) {
         return this.cast(container.getContainerProperty(itemId, this.getPropertyId()));
     }
 
@@ -196,14 +196,15 @@ public class PropertyDef<T> {
      * @return null if {@code property} is null, otherwise {@code property}
      * @throws ClassCastException if {@code property} has a different type than this definition
      */
-    public Property cast(Property property) {
+    @SuppressWarnings("unchecked")
+    public Property<T> cast(Property/*<?>*/ property) {
         if (property == null)
             return null;
         if (property.getType() != this.getType()) {
             throw new ClassCastException("property type " + property.getType().getName()
               + " != definition type " + this.getType().getName());
         }
-        return property;
+        return (Property<T>)property;
     }
 
     /**

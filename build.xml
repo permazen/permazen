@@ -112,8 +112,7 @@
     </target>
 
     <!-- Compile Aspects -->
-    <target name="aspects" depends="javac, javac-vaadin7" unless="aspects.completed"
-      description="Compile AOP aspects">
+    <target name="aspects" depends="javac" unless="aspects.completed" description="Compile AOP aspects">
         <taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
             <classpath refid="javac.classpath"/>
         </taskdef>
@@ -130,12 +129,36 @@
           showWeaveInfo="true"
           failonerror="true">
             <include name="**/*.aj"/>
+            <exclude name="org/dellroad/stuff/vaadin7/**/*"/>
         </iajc>
         <property name="aspects.completed" value="true"/>
     </target>
 
+    <!-- Compile vaadin7 Aspects -->
+    <target name="aspects-vaadin7" depends="javac, javac-vaadin7" unless="aspects-vaadin7.completed"
+      description="Compile AOP aspects">
+        <taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
+            <classpath refid="javac-vaadin7.classpath"/>
+        </taskdef>
+        <path id="aspect.classpath">
+            <path refid="javac-vaadin7.classpath"/>
+            <pathelement location="build/classes"/>
+        </path>
+        <iajc srcdir="src/java"
+          destDir="build/classes"
+          classpathRef="aspect.classpath"
+          source="1.6"
+          target="1.6"
+          verbose="true"
+          showWeaveInfo="true"
+          failonerror="true">
+            <include name="org/dellroad/stuff/vaadin7/**/*"/>
+        </iajc>
+        <property name="aspects-vaadin7.completed" value="true"/>
+    </target>
+
     <!-- Main JAR -->
-    <target name="jar" depends="javac, javac-vaadin7, jibx-bind, aspects, resources" unless="jar.completed"
+    <target name="jar" depends="javac, javac-vaadin7, jibx-bind, aspects, aspects-vaadin7, resources" unless="jar.completed"
       description="Build main JAR">
         <mkdir dir="build/dist"/>
         <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
@@ -149,7 +172,7 @@
     </target>
 
     <!-- Vaadin addon -->
-    <target name="addon" depends="javac, javac-vaadin7, aspects, resources" unless="addon.completed"
+    <target name="addon" depends="javac, javac-vaadin7, aspects, aspects-vaadin7, resources" unless="addon.completed"
       description="Build Vaadin add-on">
         <mkdir dir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}"/>
         <copy file="src/aop/aop.xml" tofile="build/addon/aop.xml">
@@ -227,7 +250,7 @@
                 <link href="http://static.springsource.org/spring/docs/3.0.x/javadoc-api/"/>
                 <link href="http://jibx.sourceforge.net/api/"/>
                 <link href="http://opencsv.sourceforge.net/apidocs/"/>
-                <link href="http://vaadin.com/download/prerelease/7.0/7.0.0/7.0.0.alpha2/docs/api/"/>
+                <link href="http://vaadin.com/download/prerelease/7.0/7.0.0/7.0.0.beta3/docs/api/"/>
                 <link href="http://www.slf4j.org/api/"/>
                 <link href="http://www.eclipse.org/aspectj/doc/released/runtime-api/"/>
             </links>

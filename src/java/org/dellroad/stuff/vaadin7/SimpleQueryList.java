@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 import java.util.List;
 

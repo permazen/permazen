@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -91,7 +91,7 @@ public class SimpleItem<T> implements Item {
      * @throws UnsupportedOperationException always
      */
     @Override
-    public boolean addItemProperty(Object id, Property property) {      // TODO: VAADIN7
+    public boolean addItemProperty(Object id, Property property) {
         throw new UnsupportedOperationException();
     }
 

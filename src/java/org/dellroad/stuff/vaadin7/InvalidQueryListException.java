@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 /**
  * Exception thrown by {@link QueryList#get} when the list has become invalid.

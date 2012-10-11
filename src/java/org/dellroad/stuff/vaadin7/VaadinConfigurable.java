@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,15 +22,22 @@ import org.springframework.beans.factory.annotation.Autowire;
  * <p>
  * Analogous to Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation,
  * but causes beans to be autowired into the Spring application context associated with the current
- * {@link SpringContextApplication} Vaadin application instead of the Spring application context associated
- * with the servlet context.
+ * {@link com.vaadin.server.VaadinServiceSession} (aka "Vaadin application") by {@link SpringServiceSession} instead of
+ * the Spring application context associated with the servlet context.
  * </p>
  *
  * <p>
- * Running the AspectJ compiler on your annotated classes is required to activate this annotation.
+ * For the this annotation to do anything, {@link VaadinConfigurable @VaadinConfigurable} classes must be woven
+ * (either at build time or runtime) using the
+ * <a href="http://www.eclipse.org/aspectj/doc/released/faq.php#compiler">AspectJ compiler</a> with the
+ * {@code VaadinConfigurableAspect} aspect (included in the <code>dellroad-stuff</code> JAR file), and the
+ * {@link SpringVaadinServlet} must be used.
  * </p>
  *
  * @see org.dellroad.stuff.vaadin
+ * @see SpringVaadinServlet
+ * @see SpringServiceSession
+ * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">Example Code on GitHub</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

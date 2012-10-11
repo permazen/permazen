@@ -5,12 +5,15 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
+
+import com.vaadin.server.VaadinServiceSession;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 import org.dellroad.stuff.spring.AbstractConfigurableAspect;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
@@ -19,20 +22,21 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 /**
  * Aspect that autowires classes marked with the {@link VaadinConfigurable @VaadinConfigurable} annotation to a
- * {@link SpringContextApplication} application context.
+ * {@link SpringServletSession} application context.
  *
  * <p>
  * This aspect does the same thing that Spring's {@code AnnotationBeanConfigurerAspect} aspect does,
  * except that this aspect configures beans using the application context associated with the current
- * {@link SpringContextApplication} Vaadin application rather than the one associated with the overall
+ * {@link VaadinServiceSession} (aka "Vaadin application") rather than the one associated with the overall
  * servlet context (i.e., its parent).
  * </p>
  *
  * <p>
- * As a result, objects so annotated will be configured for their specific {@link SpringContextApplication}
- * instance, and therefore can only be instantiated by threads associated with a current {@link SpringContextApplication}
- * (see {@link ContextApplication#get}). This will be the case when executing within a {@link SpringContextApplication}
- * Vaadin application HTTP request or an invocation of {@link ContextApplication#invoke} on same.
+ * As a result, objects so annotated will be configured for their specific {@link VaadinServiceSession}
+ * instance, and therefore can only be instantiated by threads associated with a current {@link VaadinServiceSession}
+ * (see {@link VaadinApplication#getSession} and {@link VaadinUtil#getCurrentSession}). This will be the case when executing
+ * within a {@link SpringVaadinServlet} Vaadin application HTTP request or an invocation of {@link VaadinApplication#invoke}
+ * (or {@link VaadinUtil#invoke} using the corresponding {@link VaadinServiceSession}).
  * </p>
  *
  * <p>
@@ -40,9 +44,12 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
  * and therefore shares its license (also Apache).
  * </p>
  *
- * @see SpringContextApplication
- * @see ContextApplication#get
+ * @see VaadinApplication
  * @see VaadinConfigurable
+ * @see SpringServletSession
+ * @see SpringVaadinServlet
+ * @see VaadinUtil#getCurrentSession
+ * @see VaadinServiceSession#getCurrent
  */
 public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
 
@@ -85,7 +92,12 @@ public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
     protected BeanFactory getBeanFactory(Object bean) {
 
         // Get application context
-        ConfigurableWebApplicationContext context = SpringContextApplication.get().getApplicationContext();
+        ConfigurableWebApplicationContext context;
+        try {
+            context = SpringServiceSession.getApplicationContext();
+        } catch (IllegalStateException e) {
+            throw new BeanInitializationException("can't get application context to use for autowiring @VaadinConfigurable bean", e);
+        }
 
         // Logging
         if (this.log.isTraceEnabled())

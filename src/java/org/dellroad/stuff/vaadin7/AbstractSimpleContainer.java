@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -213,8 +214,8 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     // Workaround for http://dev.vaadin.com/ticket/8856
     @Override
     @SuppressWarnings("unchecked")
-    public Collection<I> getItemIds() {
-        return (Collection<I>)super.getItemIds();
+    public List<I> getItemIds() {
+        return (List<I>)super.getItemIds();
     }
 
     @Override
@@ -223,7 +224,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     }
 
     @Override
-    public Property getContainerProperty(Object itemId, Object propertyId) {        // TODO: VAADIN7
+    public Property<?> getContainerProperty(Object itemId, Object propertyId) {
         SimpleItem<T> entityItem = this.getItem(itemId);
         if (entityItem == null)
             return null;

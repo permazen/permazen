@@ -1,5 +1,6 @@
 Version Next
 
+    - Update vaadin7 package for 7.0.0.beta3
     - Added HibernateIsolationJpaDialect
     - Added new method ThreadLocalContext.invokeWith()
     - Added trace and debug level logging to ThreadLocalContext

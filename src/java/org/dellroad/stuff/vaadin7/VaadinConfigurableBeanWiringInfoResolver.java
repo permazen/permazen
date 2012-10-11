@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.wiring.BeanWiringInfo;

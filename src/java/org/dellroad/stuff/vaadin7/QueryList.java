@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 /**
  * Cacheable list of Java objects backing an {@link AbstractQueryContainer}.

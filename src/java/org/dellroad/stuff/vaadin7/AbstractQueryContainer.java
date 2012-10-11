@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -422,8 +422,18 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     }
 
     @Override
+    public void addPropertySetChangeListener(Container.PropertySetChangeListener listener) {
+        super.addPropertySetChangeListener(listener);
+    }
+
+    @Override
     public void removeListener(Container.PropertySetChangeListener listener) {
         super.removeListener(listener);
+    }
+
+    @Override
+    public void removePropertySetChangeListener(Container.PropertySetChangeListener listener) {
+        super.removePropertySetChangeListener(listener);
     }
 
 // Container.ItemSetChangeNotifier
@@ -434,8 +444,18 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     }
 
     @Override
+    public void addItemSetChangeListener(Container.ItemSetChangeListener listener) {
+        super.addItemSetChangeListener(listener);
+    }
+
+    @Override
     public void removeListener(Container.ItemSetChangeListener listener) {
         super.removeListener(listener);
+    }
+
+    @Override
+    public void removeItemSetChangeListener(Container.ItemSetChangeListener listener) {
+        super.removeItemSetChangeListener(listener);
     }
 
 // IntList

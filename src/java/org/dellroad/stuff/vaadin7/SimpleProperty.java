@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.util.AbstractProperty;
@@ -23,7 +23,7 @@ import com.vaadin.data.util.AbstractProperty;
  * @see SimpleItem
  */
 @SuppressWarnings("serial")
-public class SimpleProperty<T, V> extends AbstractProperty {                // TODO: VAADIN7
+public class SimpleProperty<T, V> extends AbstractProperty<V> {
 
     private final T object;
     private final PropertyDef<V> propertyDef;

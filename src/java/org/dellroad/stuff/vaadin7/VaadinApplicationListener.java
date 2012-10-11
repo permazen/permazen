@@ -5,7 +5,9 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
+
+import com.vaadin.server.VaadinServiceSession;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -17,15 +19,15 @@ import org.springframework.context.event.SmartApplicationListener;
  *
  * <p>
  * Listeners that are part of a Vaadin application should use this superclass if they are going to be registered
- * with non-Vaadin event multicasters. This will ensure that events are delivered {@linkplain ContextApplication#invoke
- * in the proper Vaadin application context} and memory leaks are avoided.
+ * with non-Vaadin event multicasters. This will ensure that events are delivered
+ * in the proper Vaadin application context and memory leaks are avoided.
  * </p>
  *
  * @param <E> The type of the event
  * @see VaadinExternalListener
- * @see ContextApplication#invoke
+ * @see VaadinUtil#invoke
  * @see VaadinApplicationScope
- * @see SpringContextApplication
+ * @see SpringServiceSession
  */
 public abstract class VaadinApplicationListener<E extends ApplicationEvent>
   extends VaadinExternalListener<ApplicationEventMulticaster> implements SmartApplicationListener {
@@ -35,28 +37,29 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
     /**
      * Convenience constructor. Equivalent to:
      * <blockquote>
-     *  {@link #VaadinApplicationListener(ApplicationEventMulticaster, Class, ContextApplication)
-     *      VaadinApplicationListener(multicaster, eventType, ContextApplication.get())}
+     *  {@link #VaadinApplicationListener(ApplicationEventMulticaster, Class, VaadinServiceSession)
+     *      VaadinApplicationListener(multicaster, eventType, VaadinUtil.getCurrentSession())}
      * </blockquote>
      *
      * @param multicaster the application event multicaster on which this listener will register
+     * @param eventType type of events this instance should receive (others will be ignored)
      * @throws IllegalArgumentException if {@code eventType} is null
-     * @throws IllegalStateException if there is no {@link ContextApplication} associated with the current thread
+     * @throws IllegalArgumentException if there is no {@link VaadinServiceSession} associated with the current thread
      */
     public VaadinApplicationListener(ApplicationEventMulticaster multicaster, Class<E> eventType) {
-        this(multicaster, eventType, ContextApplication.get());
+        this(multicaster, eventType, VaadinUtil.getCurrentSession());
     }
 
     /**
-     * Primary constructor. This results in this instance being registered as a listener on {@code multicaster}.
+     * Primary constructor.
      *
      * @param multicaster the application event multicaster on which this listener will register
      * @param eventType type of events this instance should receive (others will be ignored)
-     * @param application the associated Vaadin application
+     * @param session the associated Vaadin application
      * @throws IllegalArgumentException if either parameter is null
      */
-    public VaadinApplicationListener(ApplicationEventMulticaster multicaster, Class<E> eventType, ContextApplication application) {
-        super(multicaster, application);
+    public VaadinApplicationListener(ApplicationEventMulticaster multicaster, Class<E> eventType, VaadinServiceSession session) {
+        super(multicaster, session);
         if (eventType == null)
             throw new IllegalArgumentException("null eventType");
         this.eventType = eventType;
@@ -99,10 +102,10 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
 
     /**
      * Handle a listener event. When this method is invoked, it will already be within the context
-     * of the {@link ContextApplication} with which this listener is associated.
-     * The current {@link ContextApplication} is also available via {@link ContextApplication#get}.
+     * of the {@link VaadinServiceSession} with which this listener is associated.
      *
-     * @see ContextApplication#get
+     * @see VaadinUtil#invoke
+     * @see VaadinUtil#getCurrentSession
      */
     protected abstract void onApplicationEventInternal(E event);
 

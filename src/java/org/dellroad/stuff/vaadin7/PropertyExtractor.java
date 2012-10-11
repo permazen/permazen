@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.vaadin;
+package org.dellroad.stuff.vaadin7;
 
 /**
  * Classes that can extract {@link com.vaadin.data.Property} values from Java objects.
