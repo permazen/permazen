@@ -76,6 +76,15 @@ public class VaadinApplication {
     }
 
     /**
+     * Close the {@link VaadinServiceSession} associated with this instance.
+     * After invoking this method, the caller would normally ensure that no further references to this
+     * instance remain so that it and the associated {@link VaadinServiceSession} can be freed.
+     */
+    public void close() {
+        this.session.removeFromSession(this.session.getService());
+    }
+
+    /**
      * Get the singleton instance of this class associated with the current {@link VaadinServiceSession}.
      *
      * @return singleton instance for the current Vaadin application, never null
