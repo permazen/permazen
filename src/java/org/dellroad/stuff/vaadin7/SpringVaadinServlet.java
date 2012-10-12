@@ -134,7 +134,7 @@ public class SpringVaadinServlet extends VaadinServlet {
     }
 
     @Override
-    public void servletInitialized() /* throws ServletException */ {
+    protected void servletInitialized() throws ServletException {
 
         // Sanity check
         if (this.servletName == null)
@@ -161,7 +161,7 @@ public class SpringVaadinServlet extends VaadinServlet {
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
-                throw new RuntimeException("error finding class " + listenerClassName, e);
+                throw new ServletException("error finding class " + listenerClassName, e);
             }
         }
 
@@ -173,7 +173,7 @@ public class SpringVaadinServlet extends VaadinServlet {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("error instantiating " + listenerClass, e);
+            throw new ServletException("error instantiating " + listenerClass, e);
         }
 
         // Register session listener
