@@ -81,7 +81,7 @@ public class VaadinApplication {
      * instance remain so that it and the associated {@link VaadinServiceSession} can be freed.
      */
     public void close() {
-        this.session.removeFromSession(this.session.getService());
+        this.session.removeFromSession(this.session.getService());  // TODO: update when fixed: http://dev.vaadin.com/ticket/9859
     }
 
     /**
