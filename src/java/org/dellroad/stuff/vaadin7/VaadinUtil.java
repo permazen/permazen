@@ -9,6 +9,8 @@ package org.dellroad.stuff.vaadin7;
 
 import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionDestroyListener;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServiceSession;
 
 /**
@@ -21,7 +23,7 @@ public final class VaadinUtil {
 
     /**
      * Get the {@link VaadinServiceSession} associated with the current thread.
-     * This is just a wrapper around {@link VaadinServiceSession#getCurrent()} that throws an exception instead
+     * This is just a wrapper around {@link VaadinServiceSession#getCurrent} that throws an exception instead
      * of returning null when there is no session associated with the current thread.
      *
      * @return current {@link VaadinServiceSession}, never null
@@ -35,6 +37,24 @@ public final class VaadinUtil {
               + " are we executing within a Vaadin HTTP request or VaadinUtil.invoke()?");
         }
         return session;
+    }
+
+    /**
+     * Get the {@link VaadinRequest} associated with the current thread.
+     * This is just a wrapper around {@link VaadinService#getCurrentRequest} that throws an exception instead
+     * of returning null when there is no request associated with the current thread.
+     *
+     * @return current {@link VaadinRequest}, never null
+     *
+     * @throws IllegalStateException if there is no {@link VaadinRequest} associated with the current thread
+     */
+    public static VaadinRequest getCurrentRequest() {
+        VaadinRequest request = VaadinService.getCurrentRequest();
+        if (request == null) {
+            throw new IllegalStateException("there is no VaadinRequest associated with the current thread;"
+              + " are we executing within a Vaadin HTTP request?");
+        }
+        return request;
     }
 
     /**

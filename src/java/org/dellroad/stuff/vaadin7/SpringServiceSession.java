@@ -15,6 +15,8 @@ import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.VaadinServiceSession;
 import com.vaadin.server.VaadinServletRequest;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.ServletContext;
@@ -173,18 +175,27 @@ public class SpringServiceSession implements SessionInitListener, SessionDestroy
 
     @Override
     public void sessionInit(SessionInitEvent event) throws ServiceException {
+        this.loadContext(event.getSession(), (VaadinServletRequest)event.getRequest());
+    }
+
+// Context loading
+
+    protected void loadContext(VaadinServiceSession session, VaadinServletRequest vaadinRequest) throws ServiceException {
+
+        // Sanity check
+        if (session == null)
+            throw new IllegalStateException("null session");
+        if (vaadinRequest == null)
+            throw new IllegalStateException("null vaadinRequest");
+        if (this.getApplicationContext(session) != null)
+            throw new IllegalStateException("context already loaded");
 
         // Logging
         this.log.info("creating new application context for Vaadin application [" + this.getApplicationName() + "]");
 
-        // Sanity check
-        final VaadinServiceSession session = event.getSession();
-        if (this.getApplicationContext(session) != null)
-            throw new IllegalStateException("context already loaded");
-
         // Find the application context associated with the servlet; it will become the parent context
         ServletContext servletContext;
-        HttpServletRequest request = ((VaadinServletRequest)event.getRequest()).getHttpServletRequest();
+        HttpServletRequest request = vaadinRequest.getHttpServletRequest();
         try {
             // getServletContext() is a servlet AIP 3.0 method, so don't freak out if it's not there
             servletContext = (ServletContext)HttpServletRequest.class.getMethod("getServletContext").invoke(request);
@@ -233,6 +244,17 @@ public class SpringServiceSession implements SessionInitListener, SessionDestroy
         session.setAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY, null);
         this.log.info("closing Vaadin application [" + this.getApplicationName() + "] application context: " + context);
         context.close();
+    }
+
+// Serialization
+
+    private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
+        input.defaultReadObject();
+        try {
+            this.loadContext(VaadinUtil.getCurrentSession(), (VaadinServletRequest)VaadinUtil.getCurrentRequest());
+        } catch (ServiceException e) {
+            throw new IOException("error reconstituting Spring application context", e);
+        }
     }
 }
 
