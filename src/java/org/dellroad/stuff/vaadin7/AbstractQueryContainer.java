@@ -430,6 +430,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 // Container.PropertySetChangeNotifier
 
     @Override
+    @SuppressWarnings("deprecation")
     public void addListener(Container.PropertySetChangeListener listener) {
         super.addListener(listener);
     }
@@ -440,6 +441,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void removeListener(Container.PropertySetChangeListener listener) {
         super.removeListener(listener);
     }
@@ -452,6 +454,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 // Container.ItemSetChangeNotifier
 
     @Override
+    @SuppressWarnings("deprecation")
     public void addListener(Container.ItemSetChangeListener listener) {
         super.addListener(listener);
     }
@@ -462,6 +465,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void removeListener(Container.ItemSetChangeListener listener) {
         super.removeListener(listener);
     }
