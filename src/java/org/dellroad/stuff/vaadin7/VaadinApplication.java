@@ -46,9 +46,9 @@ public class VaadinApplication {
 
     /**
      * Convenience constructor. Equivalent to:
-     * <blockquote>
+     * <blockquote></code>
      *  {@link #VaadinApplication(VaadinServiceSession) VaadinApplication}({@link VaadinUtil#getCurrentSession})
-     * </blockquote>
+     * </code></blockquote>
      *
      * @throws IllegalStateException if there is no {@link VaadinServiceSession} associated with the current thread
      * @throws IllegalStateException if there is already a {@link VaadinApplication} instance associated with the current session
@@ -90,6 +90,9 @@ public class VaadinApplication {
      * Close the {@link VaadinServiceSession} associated with this instance.
      * After invoking this method, the caller would normally ensure that no further references to this
      * instance remain so that it and the associated {@link VaadinServiceSession} can be freed.
+     *
+     * <p>
+     * The implementation in {@link VaadinApplication} just delegates to {@link com.vaadin.server.VaadinService#closeSession}.
      */
     public void close() {
         this.session.getService().closeSession(this.session);

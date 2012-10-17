@@ -92,11 +92,12 @@ public final class VaadinUtil {
 
     /**
      * Register for a notification when the {@link VaadinServiceSession} is closed, without creating a memory leak.
+     * This method is intended to be used by listeners that are themselves part of a Vaadin application.
      *
      * <p>
      * Explanation: the {@link VaadinServiceSession} class does not provide a listener API directly; instead, you must
      * use the {@link com.vaadin.server.VaadinService} class. However, registering as a listener on the
-     * {@link com.vaadin.server.VaadinService} in order to peform some cleanup operation sets you up for a memory leak
+     * {@link com.vaadin.server.VaadinService} when you are part of a Vaadin application sets you up for a memory leak
      * if you forget to unregister yourself when the notification arrives, because the {@link com.vaadin.server.VaadinService}
      * lifetime is longer than the {@link VaadinServiceSession} lifetime. This method handles that de-registration for
      * you automatically.
