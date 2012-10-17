@@ -7,10 +7,6 @@
 
 package org.dellroad.stuff.vaadin7;
 
-import com.vaadin.server.DeploymentConfiguration;
-import com.vaadin.server.ServiceException;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServiceSession;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
 
@@ -179,21 +175,6 @@ public class SpringVaadinServlet extends VaadinServlet {
         // Register session listener
         servletService.addSessionInitListener(sessionListener);
         servletService.addSessionDestroyListener(sessionListener);
-    }
-
-    /**
-     * Workaround for <a href="http://dev.vaadin.com/ticket/9946">Vaadin Bug #9946</a>.
-     */
-    @Override
-    protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) {
-        return new VaadinServletService(this, deploymentConfiguration) {
-            @Override
-            protected VaadinServiceSession createVaadinSession(VaadinRequest request) throws ServiceException {
-                VaadinServiceSession session = super.createVaadinSession(request);
-                VaadinServiceSession.setCurrent(session);
-                return session;
-            }
-        };
     }
 }
 
