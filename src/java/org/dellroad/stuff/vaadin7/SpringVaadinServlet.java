@@ -16,7 +16,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 /**
- * A {@link VaadinServlet} that manages an associated Spring
+ * A {@link VaadinServlet} that associates and manages a Spring
  * {@link org.springframework.web.context.ConfigurableWebApplicationContext} with each
  * {@link com.vaadin.server.VaadinServiceSession} (aka, "Vaadin application" in the old terminology).
  *
@@ -41,10 +41,10 @@ import javax.servlet.ServletException;
  * </p>
  *
  * <p>
- * The only function of this servlet is to create and register a {@link SpringServiceSession} as a listener on the
+ * The only real function of this servlet is to create and register a {@link SpringServiceSession} as a listener on the
  * {@link com.vaadin.server.VaadinService} associated with this servlet. The {@link SpringServiceSession} in turn detects
  * the creation and destruction of Vaadin application instances (represented by {@link com.vaadin.server.VaadinServiceSession}
- * instances) and does the work of managing the associated Spring application context.
+ * instances) and does the work of managing the associated Spring application contexts.
  * </p>
  *
  * <p>

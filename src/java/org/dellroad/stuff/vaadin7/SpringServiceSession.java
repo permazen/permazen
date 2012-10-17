@@ -32,6 +32,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
  * Manages an associated Spring {@link WebApplicationContext} with each {@link VaadinServiceSession} (aka, "Vaadin application").
+ * Typically created implicitly via {@link SpringVaadinServlet}.
  *
  * <h3>Overview</h3>
  *
@@ -79,7 +80,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * It is also possible to configure beans outside of this application context using AOP, so that any invocation of
  * {@code new FooBar()}, where the class {@code FooBar} is marked {@link VaadinConfigurable @VaadinConfigurable},
  * will automagically cause the new {@code FooBar} object to be configured by the application context associated with
- * the currently running Vaadin application} In effect, this does for Vaadin application beans what Spring's
+ * the currently running Vaadin application. In effect, this does for Vaadin application beans what Spring's
  * {@link org.springframework.beans.factory.annotation.Configurable @Configurable} does for regular beans.
  * </p>
  *
@@ -191,7 +192,8 @@ public class SpringServiceSession implements SessionInitListener, SessionDestroy
             throw new IllegalStateException("context already loaded");
 
         // Logging
-        this.log.info("creating new application context for Vaadin application [" + this.getApplicationName() + "]");
+        this.log.info("creating new application context for Vaadin application [" + this.getApplicationName()
+          + "] in session " + session);
 
         // Find the application context associated with the servlet; it will become the parent context
         ServletContext servletContext;

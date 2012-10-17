@@ -25,14 +25,14 @@ import com.vaadin.server.VaadinServiceSession;
  * Use of this class will ensure two things:
  * <ul>
  *  <li>Events can be delivered {@linkplain VaadinUtil#invoke in the proper Vaadin application context}; and</li>
- *  <li>The listener is automatically unregistered from the external event source when the Vaadin application is closed;
- *      this avoids a memory leak</li>
+ *  <li>The listener is automatically unregistered from the external event source when the Vaadin application is closed,
+ *      avoiding a memory leak</li>
  * </ul>
  * </p>
  *
  * <p>
- * Subclass listener methods should use {@link #handleEvent handleEvent()} to handle events. This will ensure
- * proper locking to avoid race conditions.
+ * <b>Important:</b> subclass listener methods must use {@link #handleEvent handleEvent()} when handling events.
+ * This will ensure proper locking to avoid race conditions.
  * </p>
  *
  * <p>
@@ -140,7 +140,7 @@ public abstract class VaadinExternalListener<S> {
      * Execute the given listener action using the {@link VaadinServiceSession} with which this instance is associated.
      *
      * <p>
-     * Subclass listener methods should handle events using this method, to ensure proper locking to avoid race conditions.
+     * Subclass listener methods should handle events using this method to ensure proper locking to avoid race conditions.
      *
      * @param action action to perform
      * @see VaadinUtil#invoke

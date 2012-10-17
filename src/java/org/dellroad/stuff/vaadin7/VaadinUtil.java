@@ -72,6 +72,7 @@ public final class VaadinUtil {
      * </p>
      *
      * @throws IllegalArgumentException if either parameter is null
+     * @see VaadinApplication#invoke
      */
     public static void invoke(VaadinServiceSession session, Runnable action) {
         if (session == null)
@@ -95,11 +96,13 @@ public final class VaadinUtil {
      * <p>
      * Explanation: the {@link VaadinServiceSession} class does not provide a listener API directly; instead, you must
      * use the {@link com.vaadin.server.VaadinService} class. However, registering as a listener on the
-     * {@link com.vaadin.server.VaadinService} sets you up for a memory leak if you forget to unregister yourself
-     * when the notification arrives, because the {@link com.vaadin.server.VaadinService} lifetime is longer than the
-     * {@link VaadinServiceSession} lifetime. This method handles that de-registration for you.
+     * {@link com.vaadin.server.VaadinService} in order to peform some cleanup operation sets you up for a memory leak
+     * if you forget to unregister yourself when the notification arrives, because the {@link com.vaadin.server.VaadinService}
+     * lifetime is longer than the {@link VaadinServiceSession} lifetime. This method handles that de-registration for
+     * you automatically.
      *
      * @throws IllegalArgumentException if either parameter is null
+     * @see VaadinApplication#addSessionDestroyListener
      */
     public static void addSessionDestroyListener(VaadinServiceSession session, SessionDestroyListener listener) {
         session.getService().addSessionDestroyListener(new LeakAvoidingDestroyListener(session, listener));
@@ -109,6 +112,7 @@ public final class VaadinUtil {
      * Remove a listener added via {@link #addSessionDestroyListener addSessionDestroyListener()}.
      *
      * @throws IllegalArgumentException if either parameter is null
+     * @see VaadinApplication#removeSessionDestroyListener
      */
     public static void removeSessionDestroyListener(VaadinServiceSession session, SessionDestroyListener listener) {
         session.getService().removeSessionDestroyListener(new LeakAvoidingDestroyListener(session, listener));
