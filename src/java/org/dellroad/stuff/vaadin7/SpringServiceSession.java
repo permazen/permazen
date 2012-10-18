@@ -7,11 +7,12 @@
 
 package org.dellroad.stuff.vaadin7;
 
-import com.vaadin.server.ServiceException;
 import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.SessionInitEvent;
 import com.vaadin.server.SessionInitListener;
+import com.vaadin.server.VaadinPortletRequest;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServiceSession;
 import com.vaadin.server.VaadinServletRequest;
 
@@ -175,19 +176,33 @@ public class SpringServiceSession implements SessionInitListener, SessionDestroy
 // SessionInitListener
 
     @Override
-    public void sessionInit(SessionInitEvent event) throws ServiceException {
-        this.loadContext(event.getSession(), (VaadinServletRequest)event.getRequest());
+    public void sessionInit(final SessionInitEvent event) {
+        VaadinUtil.invoke(event.getSession(), new Runnable() {
+            @Override
+            public void run() {
+                SpringServiceSession.this.loadContext(event.getSession(), event.getRequest());
+            }
+        });
     }
 
 // Context loading
 
-    protected void loadContext(VaadinServiceSession session, VaadinServletRequest vaadinRequest) throws ServiceException {
+    /**
+     * Load the Spring application context.
+     *
+     * <p>
+     * This method expects that {@code session} is already {@linkplain VaadinServiceSession#getLock locked}.
+     *
+     * @param session the Vaadin application session
+     * @param request the triggering request
+     */
+    protected void loadContext(VaadinServiceSession session, VaadinRequest request) {
 
         // Sanity check
         if (session == null)
             throw new IllegalStateException("null session");
-        if (vaadinRequest == null)
-            throw new IllegalStateException("null vaadinRequest");
+        if (request == null)
+            throw new IllegalStateException("null request");
         if (this.getApplicationContext(session) != null)
             throw new IllegalStateException("context already loaded");
 
@@ -195,23 +210,35 @@ public class SpringServiceSession implements SessionInitListener, SessionDestroy
         this.log.info("creating new application context for Vaadin application [" + this.getApplicationName()
           + "] in session " + session);
 
-        // Find the application context associated with the servlet; it will become the parent context
-        ServletContext servletContext;
-        HttpServletRequest request = vaadinRequest.getHttpServletRequest();
-        try {
-            // getServletContext() is a servlet AIP 3.0 method, so don't freak out if it's not there
-            servletContext = (ServletContext)HttpServletRequest.class.getMethod("getServletContext").invoke(request);
-        } catch (Exception e) {
-            servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+        // Find the servlet context parent application context
+        ServletContext servletContext = null;
+        WebApplicationContext parent = null;
+        if (request instanceof VaadinServletRequest) {
+
+            // Find servlet context
+            HttpServletRequest httpRequest = ((VaadinServletRequest)request).getHttpServletRequest();
+            try {
+                // getServletContext() is a servlet AIP 3.0 method, so don't freak out if it's not there
+                servletContext = (ServletContext)HttpServletRequest.class.getMethod("getServletContext").invoke(httpRequest);
+            } catch (Exception e) {
+                servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+            }
+
+            // Find associated application context; it will become our parent context
+            parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+        } else if (request instanceof VaadinPortletRequest) {
+            // TODO
         }
-        WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
 
         // Create and configure a new application context for this Application instance
         XmlWebApplicationContext context = new XmlWebApplicationContext();
         context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX
-          + servletContext.getContextPath() + "/" + this.getApplicationName() + "-" + UNIQUE_INDEX.incrementAndGet());
-        context.setParent(parent);
-        context.setServletContext(servletContext);
+          + (servletContext != null ? servletContext.getContextPath() + "/" : "")
+          + this.getApplicationName() + "-" + UNIQUE_INDEX.incrementAndGet());
+        if (parent != null)
+            context.setParent(parent);
+        if (servletContext != null)
+            context.setServletContext(servletContext);
         //context.setServletConfig(??);
         context.setNamespace(this.getApplicationName());
 
@@ -244,19 +271,28 @@ public class SpringServiceSession implements SessionInitListener, SessionDestroy
             return;
         }
         session.setAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY, null);
-        this.log.info("closing Vaadin application [" + this.getApplicationName() + "] application context: " + context);
-        context.close();
+        VaadinUtil.invoke(session, new Runnable() {
+            @Override
+            public void run() {
+                SpringServiceSession.this.log.info("closing Vaadin application ["
+                  + SpringServiceSession.this.getApplicationName() + "] application context: " + context);
+                context.close();
+            }
+        });
     }
 
 // Serialization
 
     private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
         input.defaultReadObject();
-        try {
-            this.loadContext(VaadinUtil.getCurrentSession(), (VaadinServletRequest)VaadinUtil.getCurrentRequest());
-        } catch (ServiceException e) {
-            throw new IOException("error reconstituting Spring application context", e);
-        }
+        final VaadinServiceSession session = VaadinUtil.getCurrentSession();
+        final VaadinRequest request = VaadinUtil.getCurrentRequest();
+        VaadinUtil.invoke(session, new Runnable() {
+            @Override
+            public void run() {
+                SpringServiceSession.this.loadContext(session, request);
+            }
+        });
     }
 }
 
