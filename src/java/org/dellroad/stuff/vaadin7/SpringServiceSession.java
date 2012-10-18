@@ -227,7 +227,7 @@ public class SpringServiceSession implements SessionInitListener, SessionDestroy
             // Find associated application context; it will become our parent context
             parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
         } else if (request instanceof VaadinPortletRequest) {
-            // TODO
+            this.log.warn("portlets are not supported yet");
         }
 
         // Create and configure a new application context for this Application instance
