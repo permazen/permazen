@@ -14,6 +14,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.dellroad.stuff.java.ErrorAction;
 import org.springframework.beans.factory.annotation.Autowire;
 
 /**
@@ -27,7 +28,11 @@ import org.springframework.beans.factory.annotation.Autowire;
  * </p>
  *
  * <p>
- * For the this annotation to do anything, {@link VaadinConfigurable @VaadinConfigurable} classes must be woven
+ * For an extra safety check, consider setting {@link #ifSessionNotLocked} where appropriate.
+ * </p>
+ *
+ * <p>
+ * For the this annotation to function properly, {@link VaadinConfigurable @VaadinConfigurable} classes must be woven
  * (either at build time or runtime) using the
  * <a href="http://www.eclipse.org/aspectj/doc/released/faq.php#compiler">AspectJ compiler</a> with the
  * {@code VaadinConfigurableAspect} aspect (included in the <code>dellroad-stuff</code> JAR file), and the
@@ -37,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  * @see org.dellroad.stuff.vaadin
  * @see SpringVaadinServlet
  * @see SpringServiceSession
- * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">Example Code on GitHub</a>
+ * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3/tree/vaadin7">Example Code on GitHub</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -64,5 +69,15 @@ public @interface VaadinConfigurable {
      * Whether to inject dependencies prior to constructor execution.
      */
     boolean preConstruction() default false;
+
+    /**
+     * What to do when we discover that the {@link com.vaadin.server.VaadinServiceSession} is not
+     * {@linkplain com.vaadin.server.VaadinServiceSession#getLock locked} when the annotated bean is constructed.
+     * For beans that are (or will interact with) Vaadin widgets, containers, etc., this typically
+     * indicates a programming error. In such cases, this property configures what to do, if anything.
+     *
+     * @see com.vaadin.server.VaadinServiceSession#getLock
+     */
+    ErrorAction ifSessionNotLocked() default ErrorAction.IGNORE;
 }
 

@@ -57,7 +57,7 @@
  *
  * <p>
  * The classes in this package are also <a href="https://vaadin.com/directory#addon/spring-stuff">available as a Vaadin Add-on</a>
- * and <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">sample code is available on GitHub</a>.
+ * and <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3/tree/vaadin7">sample code is available on GitHub</a>.
  * </p>
  *
  * @see org.dellroad.stuff.vaadin7.SpringVaadinServlet

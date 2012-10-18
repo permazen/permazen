@@ -1,6 +1,8 @@
 Version Next
 
-    - Update vaadin7 package for 7.0.0.beta4
+    - Added ifApplicationNotLocked() check to @VaadinConfigurable
+    - Update vaadin7 package for 7.0.0.beta5
+    - Added ErrorAction
     - Added HibernateIsolationJpaDialect
     - Added new method ThreadLocalContext.invokeWith()
     - Added trace and debug level logging to ThreadLocalContext

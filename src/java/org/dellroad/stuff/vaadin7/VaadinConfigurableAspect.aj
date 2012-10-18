@@ -11,13 +11,16 @@ import com.vaadin.server.VaadinServiceSession;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.concurrent.locks.ReentrantLock;
 
+import org.dellroad.stuff.java.ErrorAction;
 import org.dellroad.stuff.spring.AbstractConfigurableAspect;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 /**
@@ -89,6 +92,33 @@ public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
 // Our implementation
 
     @Override
+    public void configureBean(Object bean) {
+
+        // Verify that session is locked by this thread, if configured to do so
+        VaadinConfigurable annotation = AnnotationUtils.findAnnotation(bean.getClass(), VaadinConfigurable.class);
+        if (annotation != null) {
+            final ErrorAction errorAction = annotation.ifSessionNotLocked();
+            if (errorAction != ErrorAction.IGNORE) {
+                VaadinServiceSession session = VaadinServiceSession.getCurrent();
+                if (session != null && !((ReentrantLock)session.getLock()).isHeldByCurrentThread()) {
+                    String message = "@VaadinConfigurable bean of type " + bean.getClass().getName() + " is being instantiated"
+                      + " but the current thread has not locked the associated Vaadin session " + session;
+                    switch (errorAction) {
+                    case EXCEPTION:
+                        throw new BeanInitializationException(message);
+                    default:
+                        errorAction.execute(message);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Proceed
+        super.configureBean(bean);
+    }
+
+    @Override
     protected BeanFactory getBeanFactory(Object bean) {
 
         // Get application context
@@ -96,7 +126,7 @@ public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
         try {
             context = SpringServiceSession.getApplicationContext();
         } catch (IllegalStateException e) {
-            throw new BeanInitializationException("can't get application context to use for autowiring @VaadinConfigurable bean", e);
+            throw new BeanInitializationException("can't get application context for autowiring @VaadinConfigurable bean", e);
         }
 
         // Logging
