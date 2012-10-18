@@ -71,7 +71,7 @@ public abstract class ContextApplication extends Application implements Executor
      * </p>
      */
     @Override
-    public final void init() {
+    public final synchronized void init() {             // synchronized to work around http://dev.vaadin.com/ticket/9946
 
         // Set current application
         CURRENT_APPLICATION.set(this);
