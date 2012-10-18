@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  * </p>
  *
  * <p>
- * For an extra safety check, consider setting {@link #ifSessionNotLocked} where appropriate.
+ * For an extra safety check, consider setting {@link #ifApplicationNotLocked} where appropriate.
  * </p>
  *
  * <p>
