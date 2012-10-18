@@ -56,6 +56,33 @@ import javax.xml.stream.XMLStreamWriter;
  *  &lt;/result-set&gt;
  * </pre>
  * </p>
+ *
+ * <p>
+ * If you turn on column name tags via {@link #setColumnNameTags setColumnNameTags()}, the output would look like this:
+ * <pre>
+ *  &lt;result-set&gt;
+ *      &lt;query&gt;&lt;![CDATA[SELECT ID, LAST_NAME, FIRST_NAME FROM EMPLOYEE]]&gt;&lt;/query&gt;
+ *      &lt;columns&gt;
+ *          &lt;column index="1" name="ID" label="ID" precision="20" type="BIGINT" typeName="BIGINT" nullable="false"/&gt;
+ *          &lt;column index="2" name="LAST_NAME" label="LAST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&gt;
+ *          &lt;column index="3" name="FIRST_NAME" label="FIRST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&gt;
+ *      &lt;/columns&gt;
+ *      &lt;data&gt;
+ *          &lt;row&gt;
+ *              &lt;ID index="1"&gt;1302&lt;/ID&gt;
+ *              &lt;LAST index="2"&gt;Washington&lt;/LAST&gt;
+ *              &lt;FIRST index="3"&gt;George&lt;/FIRST&gt;
+ *          &lt;/row&gt;
+ *          &lt;row&gt;
+ *              &lt;ID index="1"&gt;1303&lt;/ID&gt;
+ *              &lt;LAST index="2"&gt;Lincoln&lt;/LAST&gt;
+ *              &lt;FIRST index="3"&gt;Abraham&lt;/FIRST&gt;
+ *          &lt;/row&gt;
+ *          ...
+ *      &lt;/data&gt;
+ *  &lt;/result-set&gt;
+ * </pre>
+ * </p>
  */
 public class XMLResultSetWriter {
 
@@ -84,6 +111,7 @@ public class XMLResultSetWriter {
     private final String indentSpace;
 
     private State state = State.LAST_CLOSE;
+    private boolean columnNameTags;
     private int nesting;
 
     // Tracks state of the output
@@ -107,6 +135,15 @@ public class XMLResultSetWriter {
         char[] spaces = new char[indent];
         Arrays.fill(spaces, ' ');
         this.indentSpace = new String(spaces);
+    }
+
+    /**
+     * Set whether to use the SQL column labels as the XML element names for the data columns
+     * instead of <code>&lt;column&gt;</code>.
+     * Default is false.
+     */
+    public void setColumnNameTags(boolean columnNameTags) {
+        this.columnNameTags = columnNameTags;
     }
 
     /**
@@ -162,6 +199,7 @@ public class XMLResultSetWriter {
         // Emit column info
         final ResultSetMetaData metaData = resultSet.getMetaData();
         final int numColumns = metaData.getColumnCount();
+        String[] columnNames = new String[numColumns];
         this.openTag("columns");
         for (int col = 1; col <= numColumns; col++) {
             this.openTag("column");
@@ -172,6 +210,8 @@ public class XMLResultSetWriter {
             String label = metaData.getColumnLabel(col);
             if (label != null)
                 this.writer.writeAttribute("label", label);
+            if (this.columnNameTags)
+                columnNames[col - 1] = label != null ? label : name != null ? name : null;
             int precision = metaData.getPrecision(col);
             if (precision != 0)
                 this.writer.writeAttribute("precision", "" + precision);
@@ -204,7 +244,7 @@ public class XMLResultSetWriter {
         while (resultSet.next()) {
             this.openTag("row");
             for (int col = 1; col <= numColumns; col++)
-                this.writeDataColumn(resultSet, metaData.getColumnType(col), col);
+                this.writeDataColumn(resultSet, metaData.getColumnType(col), col, columnNames[col - 1]);
             this.closeTag();
         }
         this.closeTag();
@@ -215,7 +255,8 @@ public class XMLResultSetWriter {
 
 // Writing a data row
 
-    private void writeDataColumn(ResultSet resultSet, int columnType, int col) throws SQLException, XMLStreamException {
+    private void writeDataColumn(ResultSet resultSet, int columnType, int col, String columnName)
+      throws SQLException, XMLStreamException {
         Object value = null;
         switch (columnType) {
         case Types.BIT:
@@ -240,7 +281,7 @@ public class XMLResultSetWriter {
                 break;
             int len;
             char[] buf = new char[1024];
-            this.openColumnTag(col);
+            this.openColumnTag(col, columnName);
             try {
                 while ((len = reader.read(buf)) != -1)
                     this.emitText(buf, 0, len);
@@ -289,7 +330,7 @@ public class XMLResultSetWriter {
             InputStream input = resultSet.getBinaryStream(col);
             if (input == null)
                 break;
-            this.openColumnTag(col);
+            this.openColumnTag(col, columnName);
             try {
                 this.writeBinary(input);
                 input.close();
@@ -328,7 +369,7 @@ public class XMLResultSetWriter {
             return;
 
         // Emit value
-        this.openColumnTag(col);
+        this.openColumnTag(col, columnName);
         this.emitText(value.toString());
         this.closeTag();
     }
@@ -349,9 +390,26 @@ public class XMLResultSetWriter {
 
 // XML output formatting
 
-    private void openColumnTag(int col) throws XMLStreamException {
-        this.openTag("column");
+    private void openColumnTag(int col, String columnName) throws XMLStreamException {
+        this.openTag(columnName != null ? this.xmlify(columnName) : "column");
         this.emitAttr("index", "" + col);
+    }
+
+    private String xmlify(String name) {
+        StringBuilder buf = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            final char ch = name.charAt(i);
+            if (Character.isLetter(i) || ch == '_' || ch == ':') {
+                buf.append(ch);
+                continue;
+            }
+            if (i > 0 && (Character.isDigit(ch) || ch == '.' || ch == '-')) {
+                buf.append(ch);
+                continue;
+            }
+            buf.append('_');
+        }
+        return buf.toString();
     }
 
     private void openTag(String name) throws XMLStreamException {
