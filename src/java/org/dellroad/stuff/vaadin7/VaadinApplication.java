@@ -19,12 +19,14 @@ import org.slf4j.LoggerFactory;
  * <p>
  * When constructed, a new instance of this class associates itself with the current {@link VaadinServiceSession}.
  * This singleton instance is then always accessible from any Vaadin thread via {@link #get()}.
+ * </p>
  *
  * <p>
  * Although not tied to Spring, this class would typically be declared as a singleton in the Spring XML application context
  * created by a {@link SpringServiceSession}, allowing other beans and widgets in the Vaadin application context to autowire
  * it and have access to the methods provided here. If this class is subclassed, additional application-specific fields and
  * methods can be supplied to the entire application via the mechanism.
+ * </p>
  *
  * <p>
  * To use this class, simply declare it in the Spring XML application context associated with your Vaadin application
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * <blockquote><pre>
  *  &lt;bean class="org.dellroad.stuff.vaadin7.VaadinApplication"/&gt;
  * </pre></blockquote>
+ * </p>
  *
  * @see SpringVaadinServlet
  * @see SpringServiceSession
@@ -65,9 +68,13 @@ public class VaadinApplication {
      * @throws IllegalStateException if there is already a {@link VaadinApplication} instance associated with {@code session}
      */
     public VaadinApplication(VaadinServiceSession session) {
+
+        // Get session
         if (session == null)
             throw new IllegalArgumentException("null session");
         this.session = session;
+
+        // Set session attribute
         Class<? extends VaadinApplication> attributeKey = this.getClass();
         if (this.session.getAttribute(attributeKey) != null) {
             throw new IllegalStateException("there is already a VaadinApplication associated with VaadinServiceSession "
@@ -75,6 +82,18 @@ public class VaadinApplication {
               + " VaadinApplication in the Vaadin Spring XML application context?");
         }
         VaadinApplication.setAttribute(session, attributeKey, this);
+
+        // Delegate to subclass for further initialization
+        this.init();
+    }
+
+    /**
+     * Perform any further initialization at construction time.
+     *
+     * <p>
+     * The implementation in {@link VaadinApplication} does nothing. Subclasses may override as desired.
+     */
+    protected void init() {
     }
 
     /**
