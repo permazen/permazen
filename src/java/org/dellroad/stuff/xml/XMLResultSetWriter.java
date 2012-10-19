@@ -399,7 +399,7 @@ public class XMLResultSetWriter {
         StringBuilder buf = new StringBuilder(name.length());
         for (int i = 0; i < name.length(); i++) {
             final char ch = name.charAt(i);
-            if (Character.isLetter(i) || ch == '_' || ch == ':') {
+            if (Character.isLetter(ch) || ch == '_' || ch == ':') {
                 buf.append(ch);
                 continue;
             }
