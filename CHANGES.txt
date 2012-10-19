@@ -1,10 +1,10 @@
-Version Next
+Version 1.0.547 Released October 19, 2012
 
-    - Added ThreadLocalContext.wrap()
-    - Added ifApplicationNotLocked() check to @VaadinConfigurable
     - Update vaadin7 package for 7.0.0.beta5
-    - Added ErrorAction
-    - Added HibernateIsolationJpaDialect
+    - Added ThreadLocalContext.wrap()
+    - Added new method @VaadinConfigurable.ifApplicationNotLocked()
+    - Added new class ErrorAction
+    - Added new class HibernateIsolationJpaDialect
     - Added new method ThreadLocalContext.invokeWith()
     - Added trace and debug level logging to ThreadLocalContext
     - Fixed bug in AnnotatedXMLEventWriter when namespaces used
