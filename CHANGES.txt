@@ -1,4 +1,4 @@
-Version 1.0.547 Released October 19, 2012
+Version 1.0.548 Released October 19, 2012
 
     - Update vaadin7 package for 7.0.0.beta5
     - Added ThreadLocalContext.wrap()
