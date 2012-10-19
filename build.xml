@@ -194,6 +194,7 @@
         <delete file="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar"/>
         <jar destfile="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar">
             <fileset dir="build/classes">
+                <include name="org/dellroad/stuff/java/ErrorAction*"/>
                 <include name="org/dellroad/stuff/spring/AbstractConfigurableAspect*"/>
                 <include name="org/dellroad/stuff/vaadin/**/*"/>
                 <include name="org/dellroad/stuff/vaadin7/**/*"/>
