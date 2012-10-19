@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Adapter that converts a {@link ThreadTransactional @ThreadTransactional} annotation into a
- * {@link Transactional adTransactional} one.
+ * {@link Transactional @Transactional} one.
  *
  * <p>
  * Used internally by {@link ThreadTransactionalAnnotationParser}.
