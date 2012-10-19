@@ -10,101 +10,185 @@
 <FONT color="green">007</FONT>    <a name="line.7"></a>
 <FONT color="green">008</FONT>    package org.dellroad.stuff.spring;<a name="line.8"></a>
 <FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import org.springframework.beans.factory.DisposableBean;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import org.springframework.context.ApplicationContext;<a name="line.11"></a>
-<FONT color="green">012</FONT>    import org.springframework.context.ApplicationContextAware;<a name="line.12"></a>
-<FONT color="green">013</FONT>    import org.springframework.context.ConfigurableApplicationContext;<a name="line.13"></a>
-<FONT color="green">014</FONT>    <a name="line.14"></a>
-<FONT color="green">015</FONT>    /**<a name="line.15"></a>
-<FONT color="green">016</FONT>     * Associates a {@link ConfigurableApplicationContext} with each thread. Child threads inherit their parents' value.<a name="line.16"></a>
-<FONT color="green">017</FONT>     *<a name="line.17"></a>
-<FONT color="green">018</FONT>     * &lt;p&gt;<a name="line.18"></a>
-<FONT color="green">019</FONT>     * Typically used as a singleton to determine the application context for autowiring<a name="line.19"></a>
-<FONT color="green">020</FONT>     * {@link ThreadConfigurable @ThreadConfigurable} and {@link ThreadTransactional @ThreadTransactional} beans.<a name="line.20"></a>
-<FONT color="green">021</FONT>     * &lt;/p&gt;<a name="line.21"></a>
-<FONT color="green">022</FONT>     *<a name="line.22"></a>
-<FONT color="green">023</FONT>     * &lt;p&gt;<a name="line.23"></a>
-<FONT color="green">024</FONT>     * If an instance of this class is included in an application context, then that context will become the default value<a name="line.24"></a>
-<FONT color="green">025</FONT>     * (by virtue of this class being {@link ApplicationContextAware}). That is, that application context will be returned by<a name="line.25"></a>
-<FONT color="green">026</FONT>     * {@link #get ThreadLocalContext.get()} until another application context is explicitly set.<a name="line.26"></a>
-<FONT color="green">027</FONT>     * Doing this for the singleton instance makes the including application context the default for all<a name="line.27"></a>
-<FONT color="green">028</FONT>     * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans.<a name="line.28"></a>
-<FONT color="green">029</FONT>     * &lt;/p&gt;<a name="line.29"></a>
-<FONT color="green">030</FONT>     *<a name="line.30"></a>
-<FONT color="green">031</FONT>     * &lt;p&gt;<a name="line.31"></a>
-<FONT color="green">032</FONT>     * For any instance, attempting to configure the default application context more than once (prior to<a name="line.32"></a>
-<FONT color="green">033</FONT>     * {@linkplain #destroy bean disposal}) will generate an exception.<a name="line.33"></a>
-<FONT color="green">034</FONT>     * &lt;/p&gt;<a name="line.34"></a>
-<FONT color="green">035</FONT>     *<a name="line.35"></a>
-<FONT color="green">036</FONT>     * @see ThreadConfigurable<a name="line.36"></a>
-<FONT color="green">037</FONT>     * @see ThreadTransactional<a name="line.37"></a>
-<FONT color="green">038</FONT>     */<a name="line.38"></a>
-<FONT color="green">039</FONT>    public class ThreadLocalContext extends InheritableThreadLocal&lt;ConfigurableApplicationContext&gt;<a name="line.39"></a>
-<FONT color="green">040</FONT>      implements ApplicationContextAware, DisposableBean {<a name="line.40"></a>
-<FONT color="green">041</FONT>    <a name="line.41"></a>
-<FONT color="green">042</FONT>        private static ThreadLocalContext instance = new ThreadLocalContext();<a name="line.42"></a>
+<FONT color="green">010</FONT>    import org.slf4j.Logger;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import org.slf4j.LoggerFactory;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import org.springframework.beans.factory.DisposableBean;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import org.springframework.context.ApplicationContext;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import org.springframework.context.ApplicationContextAware;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import org.springframework.context.ConfigurableApplicationContext;<a name="line.15"></a>
+<FONT color="green">016</FONT>    <a name="line.16"></a>
+<FONT color="green">017</FONT>    /**<a name="line.17"></a>
+<FONT color="green">018</FONT>     * Associates a {@link ConfigurableApplicationContext} with each thread. Child threads inherit their parents' value.<a name="line.18"></a>
+<FONT color="green">019</FONT>     *<a name="line.19"></a>
+<FONT color="green">020</FONT>     * &lt;p&gt;<a name="line.20"></a>
+<FONT color="green">021</FONT>     * Typically used as a singleton to determine the application context for autowiring<a name="line.21"></a>
+<FONT color="green">022</FONT>     * {@link ThreadConfigurable @ThreadConfigurable} and {@link ThreadTransactional @ThreadTransactional} beans.<a name="line.22"></a>
+<FONT color="green">023</FONT>     * &lt;/p&gt;<a name="line.23"></a>
+<FONT color="green">024</FONT>     *<a name="line.24"></a>
+<FONT color="green">025</FONT>     * &lt;p&gt;<a name="line.25"></a>
+<FONT color="green">026</FONT>     * If an instance of this class is included in an application context, then that context will become the default value<a name="line.26"></a>
+<FONT color="green">027</FONT>     * (by virtue of this class being {@link ApplicationContextAware}). That is, that application context will be returned by<a name="line.27"></a>
+<FONT color="green">028</FONT>     * {@link #get ThreadLocalContext.get()} until another application context is explicitly set.<a name="line.28"></a>
+<FONT color="green">029</FONT>     * Doing this for the singleton instance makes the including application context the default for all<a name="line.29"></a>
+<FONT color="green">030</FONT>     * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans.<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;/p&gt;<a name="line.31"></a>
+<FONT color="green">032</FONT>     *<a name="line.32"></a>
+<FONT color="green">033</FONT>     * &lt;p&gt;<a name="line.33"></a>
+<FONT color="green">034</FONT>     * For any instance, attempting to configure the default application context more than once (prior to<a name="line.34"></a>
+<FONT color="green">035</FONT>     * {@linkplain #destroy bean disposal}) will generate an exception.<a name="line.35"></a>
+<FONT color="green">036</FONT>     * &lt;/p&gt;<a name="line.36"></a>
+<FONT color="green">037</FONT>     *<a name="line.37"></a>
+<FONT color="green">038</FONT>     * @see ThreadConfigurable<a name="line.38"></a>
+<FONT color="green">039</FONT>     * @see ThreadTransactional<a name="line.39"></a>
+<FONT color="green">040</FONT>     */<a name="line.40"></a>
+<FONT color="green">041</FONT>    public class ThreadLocalContext extends InheritableThreadLocal&lt;ConfigurableApplicationContext&gt;<a name="line.41"></a>
+<FONT color="green">042</FONT>      implements ApplicationContextAware, DisposableBean {<a name="line.42"></a>
 <FONT color="green">043</FONT>    <a name="line.43"></a>
-<FONT color="green">044</FONT>        private ConfigurableApplicationContext defaultContext;<a name="line.44"></a>
+<FONT color="green">044</FONT>        private static final Logger LOG = LoggerFactory.getLogger(ThreadLocalContext.class);<a name="line.44"></a>
 <FONT color="green">045</FONT>    <a name="line.45"></a>
-<FONT color="green">046</FONT>        /**<a name="line.46"></a>
-<FONT color="green">047</FONT>         * Get the singleton instance.<a name="line.47"></a>
-<FONT color="green">048</FONT>         */<a name="line.48"></a>
-<FONT color="green">049</FONT>        public static ThreadLocalContext getInstance() {<a name="line.49"></a>
-<FONT color="green">050</FONT>            return ThreadLocalContext.instance;<a name="line.50"></a>
-<FONT color="green">051</FONT>        }<a name="line.51"></a>
-<FONT color="green">052</FONT>    <a name="line.52"></a>
-<FONT color="green">053</FONT>        /**<a name="line.53"></a>
-<FONT color="green">054</FONT>         * Change the singleton {@link ThreadLocalContext} instance.<a name="line.54"></a>
-<FONT color="green">055</FONT>         *<a name="line.55"></a>
-<FONT color="green">056</FONT>         * &lt;p&gt;<a name="line.56"></a>
-<FONT color="green">057</FONT>         * This method is normally not needed. However, by changing the behavior of the singleton instance,<a name="line.57"></a>
-<FONT color="green">058</FONT>         * any arbitrary criteria can be used to determine which application context is used to configure<a name="line.58"></a>
-<FONT color="green">059</FONT>         * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans.<a name="line.59"></a>
-<FONT color="green">060</FONT>         * &lt;/p&gt;<a name="line.60"></a>
-<FONT color="green">061</FONT>         */<a name="line.61"></a>
-<FONT color="green">062</FONT>        public static void setInstance(ThreadLocalContext alternate) {<a name="line.62"></a>
-<FONT color="green">063</FONT>            ThreadLocalContext.instance = alternate;<a name="line.63"></a>
-<FONT color="green">064</FONT>        }<a name="line.64"></a>
-<FONT color="green">065</FONT>    <a name="line.65"></a>
-<FONT color="green">066</FONT>        /**<a name="line.66"></a>
-<FONT color="green">067</FONT>         * Configure the default application context. Automatically invoked when this instance<a name="line.67"></a>
-<FONT color="green">068</FONT>         * is included in a application context.<a name="line.68"></a>
-<FONT color="green">069</FONT>         *<a name="line.69"></a>
-<FONT color="green">070</FONT>         * @param context default application context, or null to have no default<a name="line.70"></a>
-<FONT color="green">071</FONT>         * @throws IllegalStateException if the default application context is already configured<a name="line.71"></a>
-<FONT color="green">072</FONT>         * @throws IllegalArgumentException if {@code context} is not a {@link ConfigurableApplicationContext}<a name="line.72"></a>
-<FONT color="green">073</FONT>         */<a name="line.73"></a>
-<FONT color="green">074</FONT>        @Override<a name="line.74"></a>
-<FONT color="green">075</FONT>        public void setApplicationContext(ApplicationContext context) {<a name="line.75"></a>
-<FONT color="green">076</FONT>            if (this.defaultContext != null) {<a name="line.76"></a>
-<FONT color="green">077</FONT>                throw new IllegalStateException("cannot configure default context " + context<a name="line.77"></a>
-<FONT color="green">078</FONT>                  + ": another default context is already configured: " + this.defaultContext);<a name="line.78"></a>
-<FONT color="green">079</FONT>            }<a name="line.79"></a>
-<FONT color="green">080</FONT>            if (!(context instanceof ConfigurableApplicationContext)) {<a name="line.80"></a>
-<FONT color="green">081</FONT>                throw new IllegalArgumentException("cannot configure default context " + context<a name="line.81"></a>
-<FONT color="green">082</FONT>                  + ": it must be an instance of " + ConfigurableApplicationContext.class.getName());<a name="line.82"></a>
-<FONT color="green">083</FONT>            }<a name="line.83"></a>
-<FONT color="green">084</FONT>            this.defaultContext = (ConfigurableApplicationContext)context;<a name="line.84"></a>
-<FONT color="green">085</FONT>        }<a name="line.85"></a>
-<FONT color="green">086</FONT>    <a name="line.86"></a>
-<FONT color="green">087</FONT>        /**<a name="line.87"></a>
-<FONT color="green">088</FONT>         * Removes the default application context. Automatically invoked when an instance of this<a name="line.88"></a>
-<FONT color="green">089</FONT>         * class is included in a application context that is shut down.<a name="line.89"></a>
-<FONT color="green">090</FONT>         */<a name="line.90"></a>
-<FONT color="green">091</FONT>        @Override<a name="line.91"></a>
-<FONT color="green">092</FONT>        public void destroy() {<a name="line.92"></a>
-<FONT color="green">093</FONT>            this.defaultContext = null;<a name="line.93"></a>
-<FONT color="green">094</FONT>        }<a name="line.94"></a>
-<FONT color="green">095</FONT>    <a name="line.95"></a>
-<FONT color="green">096</FONT>        /**<a name="line.96"></a>
-<FONT color="green">097</FONT>         * Returns the default application context configured by {@link #setApplicationContext setApplicationContext()}, if any.<a name="line.97"></a>
-<FONT color="green">098</FONT>         */<a name="line.98"></a>
-<FONT color="green">099</FONT>        @Override<a name="line.99"></a>
-<FONT color="green">100</FONT>        protected ConfigurableApplicationContext initialValue() {<a name="line.100"></a>
-<FONT color="green">101</FONT>            return this.defaultContext;<a name="line.101"></a>
-<FONT color="green">102</FONT>        }<a name="line.102"></a>
-<FONT color="green">103</FONT>    }<a name="line.103"></a>
-<FONT color="green">104</FONT>    <a name="line.104"></a>
+<FONT color="green">046</FONT>        private static ThreadLocalContext instance = new ThreadLocalContext();<a name="line.46"></a>
+<FONT color="green">047</FONT>    <a name="line.47"></a>
+<FONT color="green">048</FONT>        private ConfigurableApplicationContext defaultContext;<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
+<FONT color="green">050</FONT>        /**<a name="line.50"></a>
+<FONT color="green">051</FONT>         * Get the singleton instance.<a name="line.51"></a>
+<FONT color="green">052</FONT>         */<a name="line.52"></a>
+<FONT color="green">053</FONT>        public static ThreadLocalContext getInstance() {<a name="line.53"></a>
+<FONT color="green">054</FONT>            return ThreadLocalContext.instance;<a name="line.54"></a>
+<FONT color="green">055</FONT>        }<a name="line.55"></a>
+<FONT color="green">056</FONT>    <a name="line.56"></a>
+<FONT color="green">057</FONT>        /**<a name="line.57"></a>
+<FONT color="green">058</FONT>         * Change the singleton {@link ThreadLocalContext} instance.<a name="line.58"></a>
+<FONT color="green">059</FONT>         *<a name="line.59"></a>
+<FONT color="green">060</FONT>         * &lt;p&gt;<a name="line.60"></a>
+<FONT color="green">061</FONT>         * This method is normally not needed. However, by changing the behavior of the singleton instance,<a name="line.61"></a>
+<FONT color="green">062</FONT>         * any arbitrary criteria can be used to determine which application context is used to configure<a name="line.62"></a>
+<FONT color="green">063</FONT>         * {@link ThreadConfigurable @ThreadConfigurable}-annotated beans.<a name="line.63"></a>
+<FONT color="green">064</FONT>         * &lt;/p&gt;<a name="line.64"></a>
+<FONT color="green">065</FONT>         */<a name="line.65"></a>
+<FONT color="green">066</FONT>        public static void setInstance(ThreadLocalContext alternate) {<a name="line.66"></a>
+<FONT color="green">067</FONT>            if (LOG.isDebugEnabled())<a name="line.67"></a>
+<FONT color="green">068</FONT>                LOG.debug("replacing singleton " + ThreadLocalContext.instance + " with " + alternate);<a name="line.68"></a>
+<FONT color="green">069</FONT>            ThreadLocalContext.instance = alternate;<a name="line.69"></a>
+<FONT color="green">070</FONT>        }<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
+<FONT color="green">072</FONT>        /**<a name="line.72"></a>
+<FONT color="green">073</FONT>         * Overridden to add trace logging.<a name="line.73"></a>
+<FONT color="green">074</FONT>         */<a name="line.74"></a>
+<FONT color="green">075</FONT>        @Override<a name="line.75"></a>
+<FONT color="green">076</FONT>        public ConfigurableApplicationContext get() {<a name="line.76"></a>
+<FONT color="green">077</FONT>            ConfigurableApplicationContext context = super.get();<a name="line.77"></a>
+<FONT color="green">078</FONT>            if (LOG.isTraceEnabled())<a name="line.78"></a>
+<FONT color="green">079</FONT>                LOG.trace(this + ": returning context " + context);<a name="line.79"></a>
+<FONT color="green">080</FONT>            return context;<a name="line.80"></a>
+<FONT color="green">081</FONT>        }<a name="line.81"></a>
+<FONT color="green">082</FONT>    <a name="line.82"></a>
+<FONT color="green">083</FONT>        /**<a name="line.83"></a>
+<FONT color="green">084</FONT>         * Overridden to add trace logging.<a name="line.84"></a>
+<FONT color="green">085</FONT>         */<a name="line.85"></a>
+<FONT color="green">086</FONT>        @Override<a name="line.86"></a>
+<FONT color="green">087</FONT>        public void set(ConfigurableApplicationContext context) {<a name="line.87"></a>
+<FONT color="green">088</FONT>            if (LOG.isTraceEnabled())<a name="line.88"></a>
+<FONT color="green">089</FONT>                LOG.trace(this + ": setting new value " + context);<a name="line.89"></a>
+<FONT color="green">090</FONT>            super.set(context);<a name="line.90"></a>
+<FONT color="green">091</FONT>        }<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>        /**<a name="line.93"></a>
+<FONT color="green">094</FONT>         * Make the given action behave as if it were executing in the current thread's context.<a name="line.94"></a>
+<FONT color="green">095</FONT>         * This method wraps {@code action} so that, only for the duration of {@link Runnable#run action.run()},<a name="line.95"></a>
+<FONT color="green">096</FONT>         * the application context associated with the thread that invoked {@link #wrap wrap()} (i.e., the current thread)<a name="line.96"></a>
+<FONT color="green">097</FONT>         * is the one associated with whatever thread happens to be invoking {@code action}. In other words, this creates a<a name="line.97"></a>
+<FONT color="green">098</FONT>         * {@link Runnable} that executes {@link Runnable#run action.run()} via {@link #invokeWith invokeWith()} using<a name="line.98"></a>
+<FONT color="green">099</FONT>         * this thread's context.<a name="line.99"></a>
+<FONT color="green">100</FONT>         *<a name="line.100"></a>
+<FONT color="green">101</FONT>         * &lt;p&gt;<a name="line.101"></a>
+<FONT color="green">102</FONT>         * Use this method when you need to hand off a {@link Runnable} to some other code that may execute it<a name="line.102"></a>
+<FONT color="green">103</FONT>         * in a separate thread you don't control (such as a thread in a thread pool) but where you need the<a name="line.103"></a>
+<FONT color="green">104</FONT>         * the action to be associated with the current thread's application context.<a name="line.104"></a>
+<FONT color="green">105</FONT>         * &lt;/p&gt;<a name="line.105"></a>
+<FONT color="green">106</FONT>         *<a name="line.106"></a>
+<FONT color="green">107</FONT>         * @param action action to be performed while associated with the current thread's context<a name="line.107"></a>
+<FONT color="green">108</FONT>         * @return wrapper for {@code action} that ensures the current thread's context is associated during execution<a name="line.108"></a>
+<FONT color="green">109</FONT>         * @see #invokeWith<a name="line.109"></a>
+<FONT color="green">110</FONT>         */<a name="line.110"></a>
+<FONT color="green">111</FONT>        public Runnable wrap(final Runnable action) {<a name="line.111"></a>
+<FONT color="green">112</FONT>            final ConfigurableApplicationContext context = this.get();<a name="line.112"></a>
+<FONT color="green">113</FONT>            return new Runnable() {<a name="line.113"></a>
+<FONT color="green">114</FONT>                @Override<a name="line.114"></a>
+<FONT color="green">115</FONT>                public void run() {<a name="line.115"></a>
+<FONT color="green">116</FONT>                    ThreadLocalContext.this.invokeWith(context, action);<a name="line.116"></a>
+<FONT color="green">117</FONT>                }<a name="line.117"></a>
+<FONT color="green">118</FONT>            };<a name="line.118"></a>
+<FONT color="green">119</FONT>        }<a name="line.119"></a>
+<FONT color="green">120</FONT>    <a name="line.120"></a>
+<FONT color="green">121</FONT>        /**<a name="line.121"></a>
+<FONT color="green">122</FONT>         * Change the application context associated with the current thread, but only for the duration of the given action.<a name="line.122"></a>
+<FONT color="green">123</FONT>         * When the action completes, whatever application context was previously associated with the current<a name="line.123"></a>
+<FONT color="green">124</FONT>         * thread is restored.<a name="line.124"></a>
+<FONT color="green">125</FONT>         *<a name="line.125"></a>
+<FONT color="green">126</FONT>         * @param context context to associate with the current thread for the duration of the {@code action}<a name="line.126"></a>
+<FONT color="green">127</FONT>         * @param action action to be performed while associated with {@code context}<a name="line.127"></a>
+<FONT color="green">128</FONT>         * @see #wrap<a name="line.128"></a>
+<FONT color="green">129</FONT>         */<a name="line.129"></a>
+<FONT color="green">130</FONT>        public void invokeWith(ConfigurableApplicationContext context, Runnable action) {<a name="line.130"></a>
+<FONT color="green">131</FONT>            ConfigurableApplicationContext previous = this.get();<a name="line.131"></a>
+<FONT color="green">132</FONT>            if (LOG.isTraceEnabled())<a name="line.132"></a>
+<FONT color="green">133</FONT>                LOG.trace(this + ": temporarily changing from " + previous + " to " + context + " during " + action);<a name="line.133"></a>
+<FONT color="green">134</FONT>            try {<a name="line.134"></a>
+<FONT color="green">135</FONT>                this.set(context);<a name="line.135"></a>
+<FONT color="green">136</FONT>                action.run();<a name="line.136"></a>
+<FONT color="green">137</FONT>            } finally {<a name="line.137"></a>
+<FONT color="green">138</FONT>                if (LOG.isTraceEnabled())<a name="line.138"></a>
+<FONT color="green">139</FONT>                    LOG.trace(this + ": restoring context back to " + previous + " after " + action);<a name="line.139"></a>
+<FONT color="green">140</FONT>                this.set(previous);<a name="line.140"></a>
+<FONT color="green">141</FONT>            }<a name="line.141"></a>
+<FONT color="green">142</FONT>        }<a name="line.142"></a>
+<FONT color="green">143</FONT>    <a name="line.143"></a>
+<FONT color="green">144</FONT>        /**<a name="line.144"></a>
+<FONT color="green">145</FONT>         * Configure the default application context. Automatically invoked when this instance<a name="line.145"></a>
+<FONT color="green">146</FONT>         * is included in a application context.<a name="line.146"></a>
+<FONT color="green">147</FONT>         *<a name="line.147"></a>
+<FONT color="green">148</FONT>         * @param context default application context, or null to have no default<a name="line.148"></a>
+<FONT color="green">149</FONT>         * @throws IllegalStateException if the default application context is already configured<a name="line.149"></a>
+<FONT color="green">150</FONT>         * @throws IllegalArgumentException if {@code context} is not a {@link ConfigurableApplicationContext}<a name="line.150"></a>
+<FONT color="green">151</FONT>         */<a name="line.151"></a>
+<FONT color="green">152</FONT>        @Override<a name="line.152"></a>
+<FONT color="green">153</FONT>        public void setApplicationContext(ApplicationContext context) {<a name="line.153"></a>
+<FONT color="green">154</FONT>            if (this.defaultContext != null) {<a name="line.154"></a>
+<FONT color="green">155</FONT>                throw new IllegalStateException("cannot configure default context " + context<a name="line.155"></a>
+<FONT color="green">156</FONT>                  + ": another default context is already configured: " + this.defaultContext);<a name="line.156"></a>
+<FONT color="green">157</FONT>            }<a name="line.157"></a>
+<FONT color="green">158</FONT>            if (!(context instanceof ConfigurableApplicationContext)) {<a name="line.158"></a>
+<FONT color="green">159</FONT>                throw new IllegalArgumentException("cannot configure default context " + context<a name="line.159"></a>
+<FONT color="green">160</FONT>                  + ": it must be an instance of " + ConfigurableApplicationContext.class.getName());<a name="line.160"></a>
+<FONT color="green">161</FONT>            }<a name="line.161"></a>
+<FONT color="green">162</FONT>            if (LOG.isDebugEnabled())<a name="line.162"></a>
+<FONT color="green">163</FONT>                LOG.debug(this + ": setting default context to " + context);<a name="line.163"></a>
+<FONT color="green">164</FONT>            this.defaultContext = (ConfigurableApplicationContext)context;<a name="line.164"></a>
+<FONT color="green">165</FONT>        }<a name="line.165"></a>
+<FONT color="green">166</FONT>    <a name="line.166"></a>
+<FONT color="green">167</FONT>        /**<a name="line.167"></a>
+<FONT color="green">168</FONT>         * Removes the default application context. Automatically invoked when an instance of this<a name="line.168"></a>
+<FONT color="green">169</FONT>         * class is included in a application context that is shut down.<a name="line.169"></a>
+<FONT color="green">170</FONT>         */<a name="line.170"></a>
+<FONT color="green">171</FONT>        @Override<a name="line.171"></a>
+<FONT color="green">172</FONT>        public void destroy() {<a name="line.172"></a>
+<FONT color="green">173</FONT>            if (LOG.isDebugEnabled())<a name="line.173"></a>
+<FONT color="green">174</FONT>                LOG.debug(this + ": clearing default context (destroy() invoked)");<a name="line.174"></a>
+<FONT color="green">175</FONT>            this.defaultContext = null;<a name="line.175"></a>
+<FONT color="green">176</FONT>        }<a name="line.176"></a>
+<FONT color="green">177</FONT>    <a name="line.177"></a>
+<FONT color="green">178</FONT>        /**<a name="line.178"></a>
+<FONT color="green">179</FONT>         * Returns the default application context configured by {@link #setApplicationContext setApplicationContext()}, if any.<a name="line.179"></a>
+<FONT color="green">180</FONT>         */<a name="line.180"></a>
+<FONT color="green">181</FONT>        @Override<a name="line.181"></a>
+<FONT color="green">182</FONT>        protected ConfigurableApplicationContext initialValue() {<a name="line.182"></a>
+<FONT color="green">183</FONT>            if (LOG.isDebugEnabled())<a name="line.183"></a>
+<FONT color="green">184</FONT>                LOG.debug(this + ": using default context " + this.defaultContext);<a name="line.184"></a>
+<FONT color="green">185</FONT>            return this.defaultContext;<a name="line.185"></a>
+<FONT color="green">186</FONT>        }<a name="line.186"></a>
+<FONT color="green">187</FONT>    }<a name="line.187"></a>
+<FONT color="green">188</FONT>    <a name="line.188"></a>
 
 
 

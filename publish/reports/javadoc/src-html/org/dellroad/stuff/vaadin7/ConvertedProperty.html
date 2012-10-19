@@ -90,44 +90,45 @@
 <FONT color="green">087</FONT>        }<a name="line.87"></a>
 <FONT color="green">088</FONT>    <a name="line.88"></a>
 <FONT color="green">089</FONT>        @Override<a name="line.89"></a>
-<FONT color="green">090</FONT>        public void addListener(Property.ReadOnlyStatusChangeListener listener) {<a name="line.90"></a>
+<FONT color="green">090</FONT>        public void addReadOnlyStatusChangeListener(Property.ReadOnlyStatusChangeListener listener) {<a name="line.90"></a>
 <FONT color="green">091</FONT>            if (this.readOnlyStatusChangeListener == null &amp;&amp; this.property instanceof Property.ReadOnlyStatusChangeNotifier) {<a name="line.91"></a>
 <FONT color="green">092</FONT>                this.readOnlyStatusChangeListener = new ReadOnlyStatusChangeListener();<a name="line.92"></a>
-<FONT color="green">093</FONT>                ((Property.ReadOnlyStatusChangeNotifier)this.property).addListener(this.readOnlyStatusChangeListener);<a name="line.93"></a>
-<FONT color="green">094</FONT>            }<a name="line.94"></a>
-<FONT color="green">095</FONT>            super.addListener(listener);<a name="line.95"></a>
-<FONT color="green">096</FONT>        }<a name="line.96"></a>
-<FONT color="green">097</FONT>    <a name="line.97"></a>
-<FONT color="green">098</FONT>        @Override<a name="line.98"></a>
-<FONT color="green">099</FONT>        public void addListener(Property.ValueChangeListener listener) {<a name="line.99"></a>
-<FONT color="green">100</FONT>            if (this.valueChangeListener == null &amp;&amp; this.property instanceof Property.ValueChangeNotifier) {<a name="line.100"></a>
-<FONT color="green">101</FONT>                this.valueChangeListener = new ValueChangeListener();<a name="line.101"></a>
-<FONT color="green">102</FONT>                ((Property.ValueChangeNotifier)this.property).addListener(this.valueChangeListener);<a name="line.102"></a>
-<FONT color="green">103</FONT>            }<a name="line.103"></a>
-<FONT color="green">104</FONT>            super.addListener(listener);<a name="line.104"></a>
-<FONT color="green">105</FONT>        }<a name="line.105"></a>
-<FONT color="green">106</FONT>    <a name="line.106"></a>
-<FONT color="green">107</FONT>    // Property.ValueChangeListener relay<a name="line.107"></a>
-<FONT color="green">108</FONT>    <a name="line.108"></a>
-<FONT color="green">109</FONT>        @SuppressWarnings("serial")<a name="line.109"></a>
-<FONT color="green">110</FONT>        private class ValueChangeListener implements Property.ValueChangeListener {<a name="line.110"></a>
-<FONT color="green">111</FONT>            @Override<a name="line.111"></a>
-<FONT color="green">112</FONT>            public void valueChange(Property.ValueChangeEvent event) {<a name="line.112"></a>
-<FONT color="green">113</FONT>                ConvertedProperty.this.fireValueChange();<a name="line.113"></a>
-<FONT color="green">114</FONT>            }<a name="line.114"></a>
-<FONT color="green">115</FONT>        }<a name="line.115"></a>
-<FONT color="green">116</FONT>    <a name="line.116"></a>
-<FONT color="green">117</FONT>    // Property.ReadOnlyStatusChangeListener relay<a name="line.117"></a>
-<FONT color="green">118</FONT>    <a name="line.118"></a>
-<FONT color="green">119</FONT>        @SuppressWarnings("serial")<a name="line.119"></a>
-<FONT color="green">120</FONT>        private class ReadOnlyStatusChangeListener implements Property.ReadOnlyStatusChangeListener {<a name="line.120"></a>
-<FONT color="green">121</FONT>            @Override<a name="line.121"></a>
-<FONT color="green">122</FONT>            public void readOnlyStatusChange(Property.ReadOnlyStatusChangeEvent event) {<a name="line.122"></a>
-<FONT color="green">123</FONT>                ConvertedProperty.this.fireReadOnlyStatusChange();<a name="line.123"></a>
-<FONT color="green">124</FONT>            }<a name="line.124"></a>
-<FONT color="green">125</FONT>        }<a name="line.125"></a>
-<FONT color="green">126</FONT>    }<a name="line.126"></a>
-<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">093</FONT>                ((Property.ReadOnlyStatusChangeNotifier)this.property).addReadOnlyStatusChangeListener(<a name="line.93"></a>
+<FONT color="green">094</FONT>                  this.readOnlyStatusChangeListener);<a name="line.94"></a>
+<FONT color="green">095</FONT>            }<a name="line.95"></a>
+<FONT color="green">096</FONT>            super.addReadOnlyStatusChangeListener(listener);<a name="line.96"></a>
+<FONT color="green">097</FONT>        }<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>        @Override<a name="line.99"></a>
+<FONT color="green">100</FONT>        public void addValueChangeListener(Property.ValueChangeListener listener) {<a name="line.100"></a>
+<FONT color="green">101</FONT>            if (this.valueChangeListener == null &amp;&amp; this.property instanceof Property.ValueChangeNotifier) {<a name="line.101"></a>
+<FONT color="green">102</FONT>                this.valueChangeListener = new ValueChangeListener();<a name="line.102"></a>
+<FONT color="green">103</FONT>                ((Property.ValueChangeNotifier)this.property).addValueChangeListener(this.valueChangeListener);<a name="line.103"></a>
+<FONT color="green">104</FONT>            }<a name="line.104"></a>
+<FONT color="green">105</FONT>            super.addValueChangeListener(listener);<a name="line.105"></a>
+<FONT color="green">106</FONT>        }<a name="line.106"></a>
+<FONT color="green">107</FONT>    <a name="line.107"></a>
+<FONT color="green">108</FONT>    // Property.ValueChangeListener relay<a name="line.108"></a>
+<FONT color="green">109</FONT>    <a name="line.109"></a>
+<FONT color="green">110</FONT>        @SuppressWarnings("serial")<a name="line.110"></a>
+<FONT color="green">111</FONT>        private class ValueChangeListener implements Property.ValueChangeListener {<a name="line.111"></a>
+<FONT color="green">112</FONT>            @Override<a name="line.112"></a>
+<FONT color="green">113</FONT>            public void valueChange(Property.ValueChangeEvent event) {<a name="line.113"></a>
+<FONT color="green">114</FONT>                ConvertedProperty.this.fireValueChange();<a name="line.114"></a>
+<FONT color="green">115</FONT>            }<a name="line.115"></a>
+<FONT color="green">116</FONT>        }<a name="line.116"></a>
+<FONT color="green">117</FONT>    <a name="line.117"></a>
+<FONT color="green">118</FONT>    // Property.ReadOnlyStatusChangeListener relay<a name="line.118"></a>
+<FONT color="green">119</FONT>    <a name="line.119"></a>
+<FONT color="green">120</FONT>        @SuppressWarnings("serial")<a name="line.120"></a>
+<FONT color="green">121</FONT>        private class ReadOnlyStatusChangeListener implements Property.ReadOnlyStatusChangeListener {<a name="line.121"></a>
+<FONT color="green">122</FONT>            @Override<a name="line.122"></a>
+<FONT color="green">123</FONT>            public void readOnlyStatusChange(Property.ReadOnlyStatusChangeEvent event) {<a name="line.123"></a>
+<FONT color="green">124</FONT>                ConvertedProperty.this.fireReadOnlyStatusChange();<a name="line.124"></a>
+<FONT color="green">125</FONT>            }<a name="line.125"></a>
+<FONT color="green">126</FONT>        }<a name="line.126"></a>
+<FONT color="green">127</FONT>    }<a name="line.127"></a>
+<FONT color="green">128</FONT>    <a name="line.128"></a>
 
 
 
