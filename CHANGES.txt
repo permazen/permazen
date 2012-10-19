@@ -1,5 +1,6 @@
 Version Next
 
+    - Added ThreadLocalContext.wrap()
     - Added ifApplicationNotLocked() check to @VaadinConfigurable
     - Update vaadin7 package for 7.0.0.beta5
     - Added ErrorAction

@@ -91,12 +91,41 @@ public class ThreadLocalContext extends InheritableThreadLocal<ConfigurableAppli
     }
 
     /**
+     * Make the given action behave as if it were executing in the current thread's context.
+     * This method wraps {@code action} so that, only for the duration of {@link Runnable#run action.run()},
+     * the application context associated with the thread that invoked {@link #wrap wrap()} (i.e., the current thread)
+     * is the one associated with whatever thread happens to be invoking {@code action}. In other words, this creates a
+     * {@link Runnable} that executes {@link Runnable#run action.run()} via {@link #invokeWith invokeWith()} using
+     * this thread's context.
+     *
+     * <p>
+     * Use this method when you need to hand off a {@link Runnable} to some other code that may execute it
+     * in a separate thread you don't control (such as a thread in a thread pool) but where you need the
+     * the action to be associated with the current thread's application context.
+     * </p>
+     *
+     * @param action action to be performed while associated with the current thread's context
+     * @return wrapper for {@code action} that ensures the current thread's context is associated during execution
+     * @see #invokeWith
+     */
+    public Runnable wrap(final Runnable action) {
+        final ConfigurableApplicationContext context = this.get();
+        return new Runnable() {
+            @Override
+            public void run() {
+                ThreadLocalContext.this.invokeWith(context, action);
+            }
+        };
+    }
+
+    /**
      * Change the application context associated with the current thread, but only for the duration of the given action.
      * When the action completes, whatever application context was previously associated with the current
      * thread is restored.
      *
      * @param context context to associate with the current thread for the duration of the {@code action}
      * @param action action to be performed while associated with {@code context}
+     * @see #wrap
      */
     public void invokeWith(ConfigurableApplicationContext context, Runnable action) {
         ConfigurableApplicationContext previous = this.get();
