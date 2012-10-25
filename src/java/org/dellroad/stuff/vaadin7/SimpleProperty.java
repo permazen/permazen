@@ -73,7 +73,7 @@ public class SimpleProperty<T, V> extends AbstractProperty<V> {
      * @throws Property.ReadOnlyException always
      */
     @Override
-    public void setValue(Object value) {
+    public void setValue(V value) {
         throw new Property.ReadOnlyException();
     }
 
