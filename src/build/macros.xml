@@ -636,6 +636,7 @@
                     set -e;
                     cd dist/RPMS;
                     (
+                        set +e;
                         find * -type f -name '*.rpm' -print | grep -vE '^.*\.suse[0-9.]+\..*$';
                         find * -type f -name '*.rpm' -print | grep -E '^.*\.suse@{susever}\..*$';
                     ) | (
