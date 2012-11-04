@@ -151,7 +151,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
                     while (this.serverSocket != null && this.maxConnections > 0 && this.connections.size() >= this.maxConnections) {
                         if (!logged) {
                             this.log.warn(Thread.currentThread().getName() + " has reached connection limit of "
-                              + this.maxConnections + ", temporarily refusing new connnections");
+                              + this.maxConnections + ", temporarily refusing new connections");
                             logged = true;
                         }
                         try {
