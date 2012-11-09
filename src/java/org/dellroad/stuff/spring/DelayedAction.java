@@ -35,6 +35,7 @@ public abstract class DelayedAction implements Runnable {
 
     private ScheduledFuture future;
     private Date futureDate;
+    private boolean running;
 
     /**
      * Constructor utitilizing a {@link TaskScheduler}.
@@ -81,6 +82,11 @@ public abstract class DelayedAction implements Runnable {
      * The net result is that, for any invocation, this method guarantees exactly one execution of the action will
      * occur approximately on or before the given date; however, multiple invocations of this method prior to action
      * execution can only ever result in a single "shared" action.
+     * </p>
+     *
+     * <p>
+     * This instance's monitor will not be locked during the execution {@link #run run()}, which helps to avoid deadlocks.
+     * </p>
      *
      * @param date scheduled execution time (at the latest)
      * @throws IllegalArgumentException if {@code date} is null
@@ -92,6 +98,15 @@ public abstract class DelayedAction implements Runnable {
         // Sanity check
         if (date == null)
             throw new IllegalArgumentException("null date");
+
+        // Currently executing?
+        while (this.running) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
 
         // Already scheduled?
         if (this.future != null) {
@@ -128,11 +143,24 @@ public abstract class DelayedAction implements Runnable {
      * </p>
      */
     public synchronized void cancel() {
-        if (this.future != null) {
-            this.future.cancel(false);
-            this.future = null;
-            this.futureDate = null;
+
+        // Currently executing?
+        while (this.running) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
+
+        // Anything to do?
+        if (this.future == null)
+            return;
+
+        // Cancel future
+        this.future.cancel(false);
+        this.future = null;
+        this.futureDate = null;
     }
 
     /**
@@ -160,18 +188,26 @@ public abstract class DelayedAction implements Runnable {
         return this.executorService.schedule(action, when - now, TimeUnit.MILLISECONDS);
     }
 
-    private synchronized void futureInvoked(Date date) {
+    // Do the action
+    private void futureInvoked(Date date) {
 
         // Handle race condition where future.cancel() fails
-        if (this.futureDate != date)
-            return;
+        synchronized (this) {
+            if (this.futureDate != date)
+                return;
+            this.running = true;
+        }
 
         // Do the action, then reset state
         try {
             this.run();
         } finally {
-            this.future = null;
-            this.futureDate = null;
+            synchronized (this) {
+                this.future = null;
+                this.futureDate = null;
+                this.running = false;
+                this.notifyAll();
+            }
         }
     }
 }
