@@ -18,34 +18,56 @@ import org.springframework.scheduling.TaskScheduler;
  * Manages a delayed action without race conditions.
  *
  * <p>
- * A "delayed action" is a single action that needs to get done by some time in the future.
+ * A "delayed action" is a some action that needs to get done by some time in the future.
+ * </p>
  *
  * <p>
- * This class collapses multiple schedulings of the action into a single action, i.e.,
- * at most one scheduled action can exist at a time. It also provides a race-free and
- * 100% reliable way to {@link #cancel} a future scheduled action, if any.
+ * This class does two things:
+ * <ul>
+ *  <li>It collapses multiple attempts to schedule the action into a single scheduled action,
+ *  i.e., at most one outstanding scheduled action can exist at a time.</li>
+ *  <li>It provides a race-free and 100% reliable way to {@link #cancel} a future scheduled action, if any.</li>
+ * </ul>
+ * </p>
  *
  * <p>
- * The action itself is defined by the subclass implementation of {@link #run}.
+ * The action itself is defined by the subclass' implementation of {@link #run}.
+ * </p>
+ *
+ * <p>
+ * To avoid races, this class requires the user to supply a <i>locking object</i>. This object's Java lock is used
+ * to serialize scheduling activity and action invocation. In other words, this object is locked during the
+ * execution of {@link #schedule schedule()}, {@link #cancel cancel()}, and {@link #run}.
+ * </p>
+ *
+ * <p>
+ * Therefore, any time the locking object is locked, the state of this {@link DelayedAction} instance is "frozen"
+ * in one of three states: not scheduled, scheduled, or executing. To completely avoid race conditions, user code
+ * must itself lock the locking object itself prior to invoking any methods in this class. Typically the most
+ * convenient locking object to use is the user's own {@code this} object, which can be locked using a
+ * {@code synchronized} method or block.
+ * </p>
  */
 public abstract class DelayedAction implements Runnable {
 
+    private final Object lock;
     private final TaskScheduler taskScheduler;
     private final ScheduledExecutorService executorService;
 
     private ScheduledFuture future;
     private Date futureDate;
-    private boolean running;
 
     /**
      * Constructor utitilizing a {@link TaskScheduler}.
      *
+     * @param lock locking object used to serialize activity, or null for {@code this}
      * @param taskScheduler scheduler object
      * @throws IllegalArgumentException if {@code taskScheduler} is null
      */
-    protected DelayedAction(TaskScheduler taskScheduler) {
+    protected DelayedAction(Object lock, TaskScheduler taskScheduler) {
         if (taskScheduler == null)
             throw new IllegalArgumentException("null taskScheduler");
+        this.lock = lock != null ? lock : this;
         this.taskScheduler = taskScheduler;
         this.executorService = null;
     }
@@ -53,12 +75,14 @@ public abstract class DelayedAction implements Runnable {
     /**
      * Constructor utitilizing a {@link ScheduledExecutorService}.
      *
+     * @param lock locking object used to serialize activity, or null for {@code this}
      * @param executorService scheduler object
      * @throws IllegalArgumentException if {@code executorService} is null
      */
-    protected DelayedAction(ScheduledExecutorService executorService) {
+    protected DelayedAction(Object lock, ScheduledExecutorService executorService) {
         if (executorService == null)
             throw new IllegalArgumentException("null executorService");
+        this.lock = lock != null ? lock : this;
         this.executorService = executorService;
         this.taskScheduler = null;
     }
@@ -70,7 +94,8 @@ public abstract class DelayedAction implements Runnable {
      * More precisely:
      * <ul>
      *  <li>If an action currently executing, before doing anything else this method blocks until it completes;
-     *  if this behavior is undesirable, the caller will need to ensure that this situation doesn't occur.</li>
+     *  if this behavior is undesirable, the caller can avoid this behavior by synchronizing on the locking object
+     *  prior to invoking this method.</li>
      *  <li>If no action is scheduled, one is scheduled for the given time.</li>
      *  <li>If an action is already scheduled, and the given time is on or after the scheduled time, nothing changes.</li>
      *  <li>If an action is already scheduled, and the given time is prior to the scheduled time,
@@ -84,49 +109,39 @@ public abstract class DelayedAction implements Runnable {
      * execution can only ever result in a single "shared" action.
      * </p>
      *
-     * <p>
-     * This instance's monitor will not be locked during the execution {@link #run run()}, which helps to avoid deadlocks.
-     * </p>
-     *
      * @param date scheduled execution time (at the latest)
      * @throws IllegalArgumentException if {@code date} is null
      * @throws org.springframework.core.task.TaskRejectedException
-     *  if the given task was not accepted for internal reasons (e.g. a pool overload handling policy or a pool shutdown in progress)
+     *  if the given task was not accepted for internal reasons (e.g. a pool overload handling policy
+     *  or a pool shutdown in progress)
      */
-    public synchronized void schedule(final Date date) {
+    public void schedule(final Date date) {
+        synchronized (this.lock) {
 
-        // Sanity check
-        if (date == null)
-            throw new IllegalArgumentException("null date");
+            // Sanity check
+            if (date == null)
+                throw new IllegalArgumentException("null date");
 
-        // Currently executing?
-        while (this.running) {
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+            // Already scheduled?
+            if (this.future != null) {
+
+                // Requested time is after scheduled time? Note: must be ">=", not ">" to ensure monotonically increasing Dates
+                if (date.compareTo(this.futureDate) >= 0)
+                    return;
+
+                // Cancel it
+                this.cancel();
             }
+
+            // Schedule it
+            this.future = this.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    DelayedAction.this.futureInvoked(date);
+                }
+            }, date);
+            this.futureDate = date;
         }
-
-        // Already scheduled?
-        if (this.future != null) {
-
-            // Requested time is after scheduled time? Note: must be ">=", not ">" to ensure monotonically increasing Dates
-            if (date.compareTo(this.futureDate) >= 0)
-                return;
-
-            // Cancel it
-            this.cancel();
-        }
-
-        // Schedule it
-        this.future = this.schedule(new Runnable() {
-            @Override
-            public void run() {
-                DelayedAction.this.futureInvoked(date);
-            }
-        }, date);
-        this.futureDate = date;
     }
 
     /**
@@ -136,31 +151,34 @@ public abstract class DelayedAction implements Runnable {
      * More precisely:
      * <ul>
      *  <li>If an action currently executing, before doing anything else this method blocks until it completes;
-     *  if this behavior is undesirable, the caller will need to ensure that this situation doesn't occur.</li>
+     *  if this behavior is undesirable, the caller can avoid this behavior by synchronizing on the locking object
+     *  prior to invoking this method.</li>
      *  <li>If an action is scheduled but has not started yet, it is guaranteed not to run.</li>
      *  <li>If no action is scheduled or executing, nothing changes.</li>
      * </ul>
      * </p>
      */
-    public synchronized void cancel() {
+    public void cancel() {
+        synchronized (this.lock) {
 
-        // Currently executing?
-        while (this.running) {
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            // Anything to do?
+            if (this.future == null)
+                return;
+
+            // Cancel future
+            this.future.cancel(false);
+            this.future = null;
+            this.futureDate = null;
         }
+    }
 
-        // Anything to do?
-        if (this.future == null)
-            return;
-
-        // Cancel future
-        this.future.cancel(false);
-        this.future = null;
-        this.futureDate = null;
+    /**
+     * Determine whether there is currently an outstanding scheduled action.
+     */
+    public boolean isScheduled() {
+        synchronized (this.lock) {
+            return this.future != null;
+        }
     }
 
     /**
@@ -190,23 +208,18 @@ public abstract class DelayedAction implements Runnable {
 
     // Do the action
     private void futureInvoked(Date date) {
+        synchronized (this.lock) {
 
-        // Handle race condition where future.cancel() fails
-        synchronized (this) {
+            // Handle race condition where future.cancel() fails
             if (this.futureDate != date)
                 return;
-            this.running = true;
-        }
 
-        // Do the action, then reset state
-        try {
-            this.run();
-        } finally {
-            synchronized (this) {
+            // Do the action, then reset state
+            try {
+                this.run();
+            } finally {
                 this.future = null;
                 this.futureDate = null;
-                this.running = false;
-                this.notifyAll();
             }
         }
     }
