@@ -29,9 +29,9 @@ import org.dellroad.stuff.schema.AbstractSchemaUpdater;
  * applies needed updates to the persistent XML file.
  *
  * <p>
- * To use this class, provide your normal delegate to the constructor and use this one instead. This will augment
+ * To use this class, wrap your normal delegate in an instance of this class. This will augment
  * the serialization and deserialization process to keep track of which updates have been applied to the XML structure,
- * and apply any needed updates during deserialization.
+ * and automatically and transparently apply any needed updates during deserialization.
  * </p>
  *
  * <p>
@@ -50,6 +50,12 @@ import org.dellroad.stuff.schema.AbstractSchemaUpdater;
  *      &lt;password&gt;secret&lt;/password&gt;
  *  &lt;/MyConfig&gt;
  * </pre></blockquote>
+ * </p>
+ *
+ * <p>
+ * For Spring applications, {@link SpringPersistentObjectSchemaUpdater} provides a convenient declarative way
+ * to define your schema updates via XSLT files.
+ * </p>
  *
  * @param <T> type of the root persistent object
  */

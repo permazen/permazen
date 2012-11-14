@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
  * <h3>Overview</h3>
  *
  * <p>
- * Instances model an in-memory "database" represented by a root Java object and the graph of other objects that
- * it references. The object graph is backed by a persistent XML file, which is read at initialization time and
+ * Instances model a fully validated, in-memory "database" represented by a root Java object and the graph of other objects
+ * that it references. The object graph is backed by a persistent XML file, which is read at initialization time and
  * re-written after each change.
  *
  * <p>
@@ -46,11 +46,19 @@ import org.slf4j.LoggerFactory;
  * persistent XML file is updated by writing out a new, temporary copy and renaming the copy onto the original,
  * using {@link File#renameTo File.renameTo()} for atomicity (on systems that support it, e.g., UNIX variants).
  *
+ * <h3>Validation</h3>
+ *
+ * Validation is peformed in Java (not in XML via XSD) and defined by the provided delegate. This class guarantees
+ * that only a valid root Java object can be set, read or written. An invalid XML file on disk will generate an error
+ * (or be ignored; see "Empty Starts" below); setting an invalid Java root object via {@link #setRoot setRoot()}
+ * with throw an exception.
+ *
  * <h3>Update Details</h3>
  *
  * <p>
  * When the object graph is updated, it must pass validation checks, and then the persistent XML file is updated and
- * listener notifications are sent out. Support for delayed write-back of the persistent XML file is included: this
+ * listener notifications are sent out. Listeners are always notified in a separate thread from the one that invoked
+ * {@link #setRoot setRoot()}. Support for delayed write-back of the persistent XML file is included: this
  * allows modifications that occur in rapid succession to be consolidated into a single filesystem write operation.
  *
  * <p>
@@ -60,18 +68,22 @@ import org.slf4j.LoggerFactory;
  * of some kind to handle optimistic locking failures.
  *
  * <p>
- * Instances can be configured to preserve one or more backup copies of the persistent file on systems that support
- * hard links (requires <a href="https://github.com/twall/jna">JNA</a>; see {@link FileStreamRepository}).
+ * Instances can be configured to automatically preserve one or more backup copies of the persistent file on systems that
+ * support hard links (requires <a href="https://github.com/twall/jna">JNA</a>; see {@link FileStreamRepository}).
  * Set the {@link #getNumBackups numBackups} property to enable.
  *
  * <h3>"Out-of-band" Writes</h3>
  *
  * <p>
  * When a non-zero {@linkplain #getCheckInterval check interval} is configured, instances support "out-of-band" writes
- * to the XML persistent file by some other process. This can be handy in cases where the other process (perhaps hand edits)
- * is updating the persistent file and you want to have a running process pick up the changes just as if
+ * directly to the XML persistent file by some other process. This can be handy in cases where the other process (perhaps hand
+ * edits) is updating the persistent file and you want to have the running Java process pick up the changes just as if
  * {@link PersistentObject#setRoot setRoot()} had been invoked. In particular, instances will detect the appearance
  * of a new persistent file after an instance has started without one. In all cases, persistent objects must properly validate.
+ * To avoid reading a partial file the external process should write the file atomically by creating a temporary file and
+ * renaming it; however, this race window is small and in any case the problem is self-correcting because a partially
+ * written XML file will not validate, and so it will be ignored and retried after another {@linkplain #getCheckInterval
+ * check interval} milliseconds has passed.
  *
  * <p>
  * A special case of this is effected when {@link PersistentObject#setRoot setRoot()} is never explicitly invoked
@@ -104,6 +116,17 @@ import org.slf4j.LoggerFactory;
  * When empty starts and empty stops are both disallowed, there is no "unconfigured" state: {@link #getRoot} can be
  * relied upon to always return a non-null, validated root object.
  *
+ * <h3>Shared Roots</h3>
+ *
+ * Each time {@link #setRoot setRoot()} or {@link #getRoot getRoot()} is invoked, a deep copy of the root object
+ * is made. This prevents external code from changing any node in the "official" object graph held by this instance,
+ * and allows invokers of {@link #getRoot getRoot()} to modify to the returned object graph without affecting other invokers.
+ * However, there may be cases where this deep copy is an expensive operation in terms of time or memory.
+ * The {@link #getSharedRoot getSharedRoot()} method can be used in these situations. This method returns the same
+ * root object each time it is invoked (this shared root is itself a deep copy of the "official" root). Therefore, only
+ * the very first invocation pays the price of a copy. However, all invokers of {@link #getSharedRoot getSharedRoot()}
+ * must treat the object graph as read-only to avoid each other seeing unexpected changes.
+ *
  * <h3>Delegate Function</h3>
  *
  * <p>
@@ -118,6 +141,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> type of the root persistent object
  * @see PersistentObjectDelegate
+ * @see PersistentObjectSchemaUpdater
  */
 public class PersistentObject<T> {
 
@@ -484,6 +508,16 @@ public class PersistentObject<T> {
         this.version = 0;
         this.timestamp = 0;
         this.started = false;
+    }
+
+    /**
+     * Determine whether this instance has a non-null root object.
+     *
+     * @return true if this instance has a non-null root object, false if this instance is not started
+     *  or is in an empty start or empty stop state
+     */
+    public boolean hasRoot() {
+        return this.root != null;
     }
 
     /**

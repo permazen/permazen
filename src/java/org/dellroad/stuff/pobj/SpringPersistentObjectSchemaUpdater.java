@@ -45,11 +45,11 @@ import org.springframework.core.io.Resource;
  *      http://www.springframework.org/schema/beans
  *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"&gt;
  *
- *      &lt;!-- Our persistent object delegate. You supply the XML (un)marshaller (not shown). --&gt;
+ *      &lt;!-- Normal nested persistent object delegate. You supply the XML (un)marshaller (not shown). --&gt;
  *      <b>&lt;bean id="normalDelegate" class="org.dellroad.stuff.pobj.SpringDelegate"
  *        p:marshaller-ref="marshaller" p:unmarshaller-ref="unmarshaller"/&gt;</b>
  *
- *      &lt;!-- Schema updating persistent object delegate. The updates below will be auto-detected. --&gt;
+ *      &lt;!-- Schema updating persistent object delegate; the updates below will be auto-detected. --&gt;
  *      <b>&lt;bean id="updatingDelegate" class="org.dellroad.stuff.pobj.SpringPersistentObjectSchemaUpdater"
  *        p:marshaller-ref="marshaller" p:unmarshaller-ref="unmarshaller" p:defaultXML="classpath:default.xml"&gt;
  *          &lt;constructor-arg ref="normalDelegate"/&gt;
