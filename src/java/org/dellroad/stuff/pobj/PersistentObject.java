@@ -346,7 +346,7 @@ public class PersistentObject<T> {
      */
     public synchronized void setAllowEmptyStart(boolean allowEmptyStart) {
         if (this.isStarted())
-            throw new IllegalStateException("can't set the check interval while started");
+            throw new IllegalStateException("can't change whether empty starts are allowed while started");
         this.allowEmptyStart = allowEmptyStart;
     }
 
