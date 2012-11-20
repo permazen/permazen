@@ -43,6 +43,8 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class VaadinApplication {
 
+    private static final Class<VaadinApplication> ATTRIBUTE_KEY = VaadinApplication.class;
+
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final VaadinServiceSession session;
@@ -74,14 +76,16 @@ public class VaadinApplication {
             throw new IllegalArgumentException("null session");
         this.session = session;
 
-        // Set session attribute
-        Class<? extends VaadinApplication> attributeKey = this.getClass();
-        if (this.session.getAttribute(attributeKey) != null) {
+        // Check for already-existing instance
+        VaadinApplication vaadinApplication = this.session.getAttribute(ATTRIBUTE_KEY);
+        if (vaadinApplication != null) {
             throw new IllegalStateException("there is already a VaadinApplication associated with VaadinServiceSession "
-              + this.session + " under key " + this.getClass().getName() + "; did you declare more than one instance of"
+              + this.session + ": " + vaadinApplication + "; did you accidentally declare more than one instance of"
               + " VaadinApplication in the Vaadin Spring XML application context?");
         }
-        VaadinApplication.setAttribute(session, attributeKey, this);
+
+        // Set session attribute
+        VaadinApplication.setAttribute(this.session, ATTRIBUTE_KEY, this);
 
         // Delegate to subclass for further initialization
         this.init();
@@ -175,15 +179,20 @@ public class VaadinApplication {
             throw new IllegalArgumentException("null clazz");
 
         // Get the application
-        T vaadinApplication = session.getAttribute(clazz);
+        VaadinApplication vaadinApplication = session.getAttribute(ATTRIBUTE_KEY);
         if (vaadinApplication == null) {
             throw new IllegalStateException("there is no VaadinApplication associated with the current VaadinServiceSession"
-              + " under key " + clazz.getName() + "; did you declare an instance of VaadinApplication in the Vaadin Spring"
-              + " XML application context?");
+              + "; did you declare an instance of VaadinApplication in the Vaadin Spring XML application context?");
+        }
+
+        // Check type
+        if (!clazz.isInstance(vaadinApplication)) {
+            throw new IllegalStateException("there is a VaadinApplication associated with the current VaadinServiceSession"
+              + " but it is not an instance of " + clazz + "; instead it has type " + vaadinApplication.getClass().getName());
         }
 
         // Done
-        return vaadinApplication;
+        return clazz.cast(vaadinApplication);
     }
 
     /**
