@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * Although not tied to Spring, this class would typically be declared as a singleton in the Spring XML application context
  * created by a {@link SpringServiceSession}, allowing other beans and widgets in the Vaadin application context to autowire
  * it and have access to the methods provided here. If this class is subclassed, additional application-specific fields and
- * methods can be supplied to the entire application via the mechanism.
+ * methods can be supplied to the entire application via the same mechanism.
  * </p>
  *
  * <p>
