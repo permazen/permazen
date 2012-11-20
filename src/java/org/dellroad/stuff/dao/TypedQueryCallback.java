@@ -20,7 +20,10 @@ import javax.persistence.TypedQuery;
 public abstract class TypedQueryCallback<T, R> extends QueryCallback<R> {
 
     /**
-     * Delegates to {@link #executeQuery(TypedQuery)}.
+     * Execute the query.
+     *
+     * <p>
+     * The implementation in {@link TypedQueryCallback} delegates to {@link #executeQuery(TypedQuery)}.
      */
     @SuppressWarnings("unchecked")
     protected final R executeQuery(Query query) {
@@ -28,7 +31,7 @@ public abstract class TypedQueryCallback<T, R> extends QueryCallback<R> {
     }
 
     /**
-     * Build the typed query.
+     * Build the query as a {@link TypedQuery}.
      */
     @Override
     protected abstract TypedQuery<T> buildQuery(EntityManager entityManager);

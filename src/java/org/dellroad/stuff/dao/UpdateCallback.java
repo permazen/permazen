@@ -14,6 +14,9 @@ import javax.persistence.Query;
  */
 public abstract class UpdateCallback extends QueryCallback<Integer> {
 
+    /**
+     * Execute the query. This method invokes {@link Query#executeUpdate} and returns the result.
+     */
     @Override
     protected final Integer executeQuery(Query query) {
         return query.executeUpdate();

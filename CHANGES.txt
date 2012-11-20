@@ -1,6 +1,7 @@
 Version Next
 
-    - Update vaadin7 package for 7.0.0.beta8
+    - Update AstractDAO to use EntityManager directly (issue #14)
+    - Update vaadin7 package for 7.0.0.beta9
     - Added new class DelayedAction
 
 Version 1.0.548 Released October 19, 2012

@@ -10,27 +10,26 @@ package org.dellroad.stuff.dao;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
 import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.orm.jpa.JpaCallback;
-import org.springframework.orm.jpa.JpaTemplate;
-import org.springframework.orm.jpa.support.JpaDaoSupport;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Support superclass for JPA DAO implementations.
  *
  * @param <T> persistent instance type
+ * @see org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor
  */
-public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
+public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -38,6 +37,11 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
      * Persistent instance type.
      */
     protected final Class<T> type;
+
+    /**
+     * The configured {@link EntityManager}.
+     */
+    protected EntityManager entityManager;
 
     /**
      * Constructor.
@@ -50,26 +54,17 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
         this.type = type;
     }
 
-    /**
-     * Constructor.
-     *
-     * @param type persistent instance type
-     * @param entityManagerFactory {@link EntityManagerFactory} from which to create the {@link JpaTemplate} used by this instance
-     */
-    protected AbstractDAO(Class<T> type, EntityManagerFactory entityManagerFactory) {
-        this(type);
-        this.setEntityManagerFactory(entityManagerFactory);
+// Configuration and lifecycle methods
+
+    @PersistenceContext
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
-    /**
-     * Constructor.
-     *
-     * @param type persistent instance type
-     * @param jpaTemplate {@link JpaTemplate} to be used by this instance
-     */
-    protected AbstractDAO(Class<T> type, JpaTemplate jpaTemplate) {
-        this(type);
-        this.setJpaTemplate(jpaTemplate);
+    @Override
+    public void afterPropertiesSet() {
+        if (this.entityManager == null)
+            throw new IllegalArgumentException("no entityManager configured");
     }
 
 // Meta-data methods
@@ -83,7 +78,7 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
 
     @Override
     public T getById(long id) {
-        return this.getJpaTemplate().find(this.type, id);
+        return this.entityManager.find(this.type, id);
     }
 
     @Override
@@ -98,7 +93,7 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
 
     @Override
     public T getReference(long id) {
-        return this.getJpaTemplate().getReference(this.type, id);
+        return this.entityManager.getReference(this.type, id);
     }
 
     /**
@@ -131,76 +126,58 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
      * Search using a {@link QueryCallback}.
      */
     protected <R> R getBy(QueryCallback<R> callback) {
-        return this.getJpaTemplate().execute(callback);
+        return callback.query(this.entityManager);
     }
 
     /**
      * Perform a bulk update.
      */
     protected int bulkUpdate(UpdateCallback callback) {
-        return this.getJpaTemplate().execute(callback);
+        return callback.query(this.entityManager);
     }
 
 // Lifecycle methods
 
     @Override
     public void save(T obj) {
-        this.getJpaTemplate().persist(obj);
+        this.entityManager.persist(obj);
     }
 
     @Override
     public void delete(T obj) {
-        this.getJpaTemplate().remove(obj);
+        this.entityManager.remove(obj);
     }
 
     @Override
     public T merge(T obj) {
-        return this.getJpaTemplate().merge(obj);
+        return this.entityManager.merge(obj);
     }
 
     @Override
     public void refresh(T obj) {
-        this.getJpaTemplate().refresh(obj);
+        this.entityManager.refresh(obj);
     }
 
     @Override
-    public void detach(final Object obj) {
-        this.getJpaTemplate().execute(new JpaCallback<Void>() {
-            @Override
-            public Void doInJpa(EntityManager entityManager) {
-                entityManager.detach(obj);
-                return null;
-            }
-        });
+    public void detach(Object obj) {
+        this.entityManager.detach(obj);
     }
 
 // Session methods
 
     @Override
     public void flush() {
-        this.getJpaTemplate().flush();
+        this.entityManager.flush();
     }
 
     @Override
-    public void setFlushMode(final FlushModeType flushMode) {
-        this.getJpaTemplate().execute(new JpaCallback<Void>() {
-            @Override
-            public Void doInJpa(EntityManager entityManager) {
-                entityManager.setFlushMode(flushMode);
-                return null;
-            }
-        });
+    public void setFlushMode(FlushModeType flushMode) {
+        this.entityManager.setFlushMode(flushMode);
     }
 
     @Override
     public void clear() {
-        this.getJpaTemplate().execute(new JpaCallback<Void>() {
-            @Override
-            public Void doInJpa(EntityManager entityManager) {
-                entityManager.clear();
-                return null;
-            }
-        });
+        this.entityManager.clear();
     }
 
     @Override
@@ -210,7 +187,7 @@ public abstract class AbstractDAO<T> extends JpaDaoSupport implements DAO<T> {
 
     @Override
     public boolean contains(T obj) {
-        return this.getJpaTemplate().contains(obj);
+        return this.entityManager.contains(obj);
     }
 
 // Type and cast methods
