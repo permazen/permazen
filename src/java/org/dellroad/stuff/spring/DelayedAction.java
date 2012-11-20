@@ -191,6 +191,17 @@ public abstract class DelayedAction implements Runnable {
     }
 
     /**
+     * Get the scheduled time for the outstanding scheduled action, if any.
+     *
+     * @return oustanding action scheduled time, or null if there is no scheduled action
+     */
+    public Date getScheduledTime() {
+        synchronized (this.lock) {
+            return this.futureDate;
+        }
+    }
+
+    /**
      * Schedule the given action using the task scheduler passed to the constructor.
      * Use of this method does not change the state of this instance.
      *
