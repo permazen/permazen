@@ -31,22 +31,31 @@ import org.springframework.scheduling.TaskScheduler;
  * </p>
  *
  * <p>
- * The action itself is defined by the subclass' implementation of {@link #run}.
+ * The action itself is defined by the subclass' implementation of {@link #run run()}.
  * </p>
  *
  * <p>
  * To avoid races, this class requires the user to supply a <i>locking object</i>. This object's Java lock is used
- * to serialize scheduling activity and action invocation. In other words, this object is locked during the
- * execution of {@link #schedule schedule()}, {@link #cancel cancel()}, and {@link #run}.
+ * to serialize scheduling activity and action invocation using normal Java synchronization.
+ * In other words, this object is locked via {@code synchronized} statements during the execution of
+ * {@link #schedule schedule()}, {@link #cancel cancel()}, and {@link #run run()}.
  * </p>
  *
  * <p>
  * Therefore, any time the locking object is locked, the state of this {@link DelayedAction} instance is "frozen"
- * in one of three states: not scheduled, scheduled, or executing. To completely avoid race conditions, user code
- * must itself lock the locking object itself prior to invoking any methods in this class. Typically the most
- * convenient locking object to use is the user's own {@code this} object, which can be locked using a
+ * in one of three states: not scheduled, scheduled, or executing (in the latter case, of course the thread doing the
+ * executing is the one holding the lock). Therefore, to completely avoid race conditions, user code must <i>itself</i>
+ * lock the locking object itself prior to invoking any methods in this class.
+ *
+ * <p>
+ * Typically the most convenient locking object to use is the user's own {@code this} object, which can be locked using a
  * {@code synchronized} method or block.
  * </p>
+ *
+ * <p>
+ * Note: in the case that {@link #run run()} invokes {@link Object#wait Object.wait()} on the locking object, thereby
+ * temporarily releasing the lock, to any other methods in this class it will appear as if that execution has already
+ * completed.
  */
 public abstract class DelayedAction implements Runnable {
 
@@ -214,13 +223,12 @@ public abstract class DelayedAction implements Runnable {
             if (this.futureDate != date)
                 return;
 
-            // Do the action, then reset state
-            try {
-                this.run();
-            } finally {
-                this.future = null;
-                this.futureDate = null;
-            }
+            // Reset state
+            this.future = null;
+            this.futureDate = null;
+
+            // Perform action
+            this.run();
         }
     }
 }
