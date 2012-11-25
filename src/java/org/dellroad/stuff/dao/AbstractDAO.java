@@ -41,7 +41,7 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
     /**
      * The configured {@link EntityManager}.
      */
-    protected EntityManager entityManager;
+    private EntityManager entityManager;
 
     /**
      * Constructor.
@@ -56,6 +56,20 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
 
 // Configuration and lifecycle methods
 
+    /**
+     * Get the configured {@link EntityManager}.
+     */
+    protected EntityManager getEntityManager() {
+        return this.entityManager;
+    }
+
+    /**
+     * Set the configured {@link EntityManager}.
+     *
+     * <p>
+     * This method has a {@link PersistenceContext @PersistenceContext} annotation and normally
+     * would be invoked automatically by Spring.
+     */
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -63,7 +77,7 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        if (this.entityManager == null)
+        if (this.getEntityManager() == null)
             throw new IllegalArgumentException("no entityManager configured");
     }
 
@@ -78,7 +92,7 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
 
     @Override
     public T getById(long id) {
-        return this.entityManager.find(this.type, id);
+        return this.getEntityManager().find(this.type, id);
     }
 
     @Override
@@ -93,7 +107,7 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
 
     @Override
     public T getReference(long id) {
-        return this.entityManager.getReference(this.type, id);
+        return this.getEntityManager().getReference(this.type, id);
     }
 
     /**
@@ -102,8 +116,8 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
     protected List<T> find(final String queryString, final Object... params) {
         return this.getBy(new DAOQueryListCallback() {
             @Override
-            protected TypedQuery<T> buildQuery(EntityManager entityManager) {
-                return AbstractDAO.this.buildQuery(entityManager, queryString, params);
+            protected TypedQuery<T> buildQuery(EntityManager em) {
+                return AbstractDAO.this.buildQuery(em, queryString, params);
             }
         });
     }
@@ -116,8 +130,8 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
     protected T findUnique(final String queryString, final Object... params) {
         return this.getBy(new DAOQueryUniqueCallback() {
             @Override
-            protected TypedQuery<T> buildQuery(EntityManager entityManager) {
-                return AbstractDAO.this.buildQuery(entityManager, queryString, params);
+            protected TypedQuery<T> buildQuery(EntityManager em) {
+                return AbstractDAO.this.buildQuery(em, queryString, params);
             }
         });
     }
@@ -126,58 +140,58 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
      * Search using a {@link QueryCallback}.
      */
     protected <R> R getBy(QueryCallback<R> callback) {
-        return callback.query(this.entityManager);
+        return callback.query(this.getEntityManager());
     }
 
     /**
      * Perform a bulk update.
      */
     protected int bulkUpdate(UpdateCallback callback) {
-        return callback.query(this.entityManager);
+        return callback.query(this.getEntityManager());
     }
 
 // Lifecycle methods
 
     @Override
     public void save(T obj) {
-        this.entityManager.persist(obj);
+        this.getEntityManager().persist(obj);
     }
 
     @Override
     public void delete(T obj) {
-        this.entityManager.remove(obj);
+        this.getEntityManager().remove(obj);
     }
 
     @Override
     public T merge(T obj) {
-        return this.entityManager.merge(obj);
+        return this.getEntityManager().merge(obj);
     }
 
     @Override
     public void refresh(T obj) {
-        this.entityManager.refresh(obj);
+        this.getEntityManager().refresh(obj);
     }
 
     @Override
     public void detach(Object obj) {
-        this.entityManager.detach(obj);
+        this.getEntityManager().detach(obj);
     }
 
 // Session methods
 
     @Override
     public void flush() {
-        this.entityManager.flush();
+        this.getEntityManager().flush();
     }
 
     @Override
     public void setFlushMode(FlushModeType flushMode) {
-        this.entityManager.setFlushMode(flushMode);
+        this.getEntityManager().setFlushMode(flushMode);
     }
 
     @Override
     public void clear() {
-        this.entityManager.clear();
+        this.getEntityManager().clear();
     }
 
     @Override
@@ -187,7 +201,7 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
 
     @Override
     public boolean contains(T obj) {
-        return this.entityManager.contains(obj);
+        return this.getEntityManager().contains(obj);
     }
 
 // Type and cast methods
@@ -210,8 +224,8 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
 
 // Helper methods
 
-    private TypedQuery<T> buildQuery(EntityManager entityManager, String queryString, Object[] params) {
-        TypedQuery<T> query = entityManager.createQuery(queryString, this.type);
+    private TypedQuery<T> buildQuery(EntityManager em, String queryString, Object[] params) {
+        TypedQuery<T> query = em.createQuery(queryString, this.type);
         if (params != null) {
             for (int i = 0; i < params.length; i++)
                 query.setParameter(i + 1, params[i]);
