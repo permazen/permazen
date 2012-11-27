@@ -115,10 +115,10 @@ public class VaadinApplication {
      * instance remain so that it and the associated {@link VaadinSession} can be freed.
      *
      * <p>
-     * The implementation in {@link VaadinApplication} just delegates to {@link com.vaadin.server.VaadinService#closeSession}.
+     * The implementation in {@link VaadinApplication} just delegates to {@link com.vaadin.server.VaadinSession#close}.
      */
     public void close() {
-        this.session.getService().closeSession(this.session);
+        this.session.close();
     }
 
     /**
