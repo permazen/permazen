@@ -16,8 +16,8 @@
 <FONT color="green">013</FONT>    import com.vaadin.server.SessionInitListener;<a name="line.13"></a>
 <FONT color="green">014</FONT>    import com.vaadin.server.VaadinPortletRequest;<a name="line.14"></a>
 <FONT color="green">015</FONT>    import com.vaadin.server.VaadinRequest;<a name="line.15"></a>
-<FONT color="green">016</FONT>    import com.vaadin.server.VaadinServiceSession;<a name="line.16"></a>
-<FONT color="green">017</FONT>    import com.vaadin.server.VaadinServletRequest;<a name="line.17"></a>
+<FONT color="green">016</FONT>    import com.vaadin.server.VaadinServletRequest;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import com.vaadin.server.VaadinSession;<a name="line.17"></a>
 <FONT color="green">018</FONT>    <a name="line.18"></a>
 <FONT color="green">019</FONT>    import java.io.IOException;<a name="line.19"></a>
 <FONT color="green">020</FONT>    import java.io.ObjectInputStream;<a name="line.20"></a>
@@ -35,13 +35,13 @@
 <FONT color="green">032</FONT>    import org.springframework.web.context.support.XmlWebApplicationContext;<a name="line.32"></a>
 <FONT color="green">033</FONT>    <a name="line.33"></a>
 <FONT color="green">034</FONT>    /**<a name="line.34"></a>
-<FONT color="green">035</FONT>     * Manages an associated Spring {@link WebApplicationContext} with each {@link VaadinServiceSession} (aka, "Vaadin application").<a name="line.35"></a>
+<FONT color="green">035</FONT>     * Manages an associated Spring {@link WebApplicationContext} with each {@link VaadinSession} (aka, "Vaadin application").<a name="line.35"></a>
 <FONT color="green">036</FONT>     * Typically created implicitly via {@link SpringVaadinServlet}.<a name="line.36"></a>
 <FONT color="green">037</FONT>     *<a name="line.37"></a>
 <FONT color="green">038</FONT>     * &lt;h3&gt;Overview&lt;/h3&gt;<a name="line.38"></a>
 <FONT color="green">039</FONT>     *<a name="line.39"></a>
 <FONT color="green">040</FONT>     * &lt;p&gt;<a name="line.40"></a>
-<FONT color="green">041</FONT>     * In Vaadin 7, the {@link com.vaadin.server.VaadinServiceSession} object holds the state associated with each client browser<a name="line.41"></a>
+<FONT color="green">041</FONT>     * In Vaadin 7, the {@link com.vaadin.server.VaadinSession} object holds the state associated with each client browser<a name="line.41"></a>
 <FONT color="green">042</FONT>     * connection to a Vaadin servlet. For consistency with older versions of Vaadin, we'll call this a "Vaadin application" instance.<a name="line.42"></a>
 <FONT color="green">043</FONT>     * This class gives each Vaadin such "Vaadin application" instance its own Spring application context, and all such<a name="line.43"></a>
 <FONT color="green">044</FONT>     * application contexts share the same parent context, which is the one associated with the overal servlet web context<a name="line.44"></a>
@@ -60,15 +60,15 @@
 <FONT color="green">057</FONT>     * &lt;h3&gt;Accessing the Spring Context&lt;/h3&gt;<a name="line.57"></a>
 <FONT color="green">058</FONT>     *<a name="line.58"></a>
 <FONT color="green">059</FONT>     * &lt;p&gt;<a name="line.59"></a>
-<FONT color="green">060</FONT>     * The {@link ConfigurableWebApplicationContext} itself is {@linkplain VaadinServiceSession#setAttribute stored as an attribute}<a name="line.60"></a>
-<FONT color="green">061</FONT>     * of the {@link VaadinServiceSession} under the key {@link #APPLICATION_CONTEXT_ATTRIBUTE_KEY}. The<a name="line.61"></a>
+<FONT color="green">060</FONT>     * The {@link ConfigurableWebApplicationContext} itself is {@linkplain VaadinSession#setAttribute stored as an attribute}<a name="line.60"></a>
+<FONT color="green">061</FONT>     * of the {@link VaadinSession} under the key {@link #APPLICATION_CONTEXT_ATTRIBUTE_KEY}. The<a name="line.61"></a>
 <FONT color="green">062</FONT>     * {@link #getApplicationContext() getApplicationContext()} method provides convenient access from anywhere.<a name="line.62"></a>
 <FONT color="green">063</FONT>     * &lt;/p&gt;<a name="line.63"></a>
 <FONT color="green">064</FONT>     *<a name="line.64"></a>
 <FONT color="green">065</FONT>     * &lt;h3&gt;Exposing the Vaadin Application&lt;/h3&gt;<a name="line.65"></a>
 <FONT color="green">066</FONT>     *<a name="line.66"></a>
 <FONT color="green">067</FONT>     * &lt;p&gt;<a name="line.67"></a>
-<FONT color="green">068</FONT>     * The {@link VaadinServiceSession} instance representing the "Vaadin application" can be exposed in the associated Spring<a name="line.68"></a>
+<FONT color="green">068</FONT>     * The {@link VaadinSession} instance representing the "Vaadin application" can be exposed in the associated Spring<a name="line.68"></a>
 <FONT color="green">069</FONT>     * application context and therefore made available for autowiring, etc. Simply add a bean definition that invokes<a name="line.69"></a>
 <FONT color="green">070</FONT>     * {@link VaadinUtil#getCurrentSession}:<a name="line.70"></a>
 <FONT color="green">071</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.71"></a>
@@ -102,13 +102,13 @@
 <FONT color="green">099</FONT>     * @see SpringVaadinServlet<a name="line.99"></a>
 <FONT color="green">100</FONT>     * @see VaadinApplication<a name="line.100"></a>
 <FONT color="green">101</FONT>     * @see com.vaadin.server.VaadinService<a name="line.101"></a>
-<FONT color="green">102</FONT>     * @see com.vaadin.server.VaadinServiceSession<a name="line.102"></a>
+<FONT color="green">102</FONT>     * @see com.vaadin.server.VaadinSession<a name="line.102"></a>
 <FONT color="green">103</FONT>     */<a name="line.103"></a>
 <FONT color="green">104</FONT>    @SuppressWarnings("serial")<a name="line.104"></a>
-<FONT color="green">105</FONT>    public class SpringServiceSession implements SessionInitListener, SessionDestroyListener {<a name="line.105"></a>
+<FONT color="green">105</FONT>    public class SpringVaadinSession implements SessionInitListener, SessionDestroyListener {<a name="line.105"></a>
 <FONT color="green">106</FONT>    <a name="line.106"></a>
 <FONT color="green">107</FONT>        /**<a name="line.107"></a>
-<FONT color="green">108</FONT>         * The {@link VaadinServiceSession} attribute key under which the Spring {@link ConfigurableWebApplicationContext}<a name="line.108"></a>
+<FONT color="green">108</FONT>         * The {@link VaadinSession} attribute key under which the Spring {@link ConfigurableWebApplicationContext}<a name="line.108"></a>
 <FONT color="green">109</FONT>         * is stored.<a name="line.109"></a>
 <FONT color="green">110</FONT>         */<a name="line.110"></a>
 <FONT color="green">111</FONT>        public static final String APPLICATION_CONTEXT_ATTRIBUTE_KEY = "springServiceSessionApplicationContext";<a name="line.111"></a>
@@ -127,7 +127,7 @@
 <FONT color="green">124</FONT>         *  {@code /WEB-INF/ServletName.xml}, where {@code ServletName} is the value of {@code applicationName}<a name="line.124"></a>
 <FONT color="green">125</FONT>         * @throws IllegalArgumentException if {@code applicationName} is null<a name="line.125"></a>
 <FONT color="green">126</FONT>         */<a name="line.126"></a>
-<FONT color="green">127</FONT>        public SpringServiceSession(String applicationName, String configLocation) {<a name="line.127"></a>
+<FONT color="green">127</FONT>        public SpringVaadinSession(String applicationName, String configLocation) {<a name="line.127"></a>
 <FONT color="green">128</FONT>            if (applicationName == null)<a name="line.128"></a>
 <FONT color="green">129</FONT>                throw new IllegalArgumentException("null applicationName");<a name="line.129"></a>
 <FONT color="green">130</FONT>            this.applicationName = applicationName;<a name="line.130"></a>
@@ -142,34 +142,34 @@
 <FONT color="green">139</FONT>        }<a name="line.139"></a>
 <FONT color="green">140</FONT>    <a name="line.140"></a>
 <FONT color="green">141</FONT>        /**<a name="line.141"></a>
-<FONT color="green">142</FONT>         * Get the Spring application context associated with the given {@link VaadinServiceSession}.<a name="line.142"></a>
+<FONT color="green">142</FONT>         * Get the Spring application context associated with the given {@link VaadinSession}.<a name="line.142"></a>
 <FONT color="green">143</FONT>         *<a name="line.143"></a>
 <FONT color="green">144</FONT>         * @return Spring application context, or null if none is found<a name="line.144"></a>
 <FONT color="green">145</FONT>         * @throws IllegalArgumentException if {@code session} is null<a name="line.145"></a>
 <FONT color="green">146</FONT>         */<a name="line.146"></a>
-<FONT color="green">147</FONT>        public static ConfigurableWebApplicationContext getApplicationContext(VaadinServiceSession session) {<a name="line.147"></a>
+<FONT color="green">147</FONT>        public static ConfigurableWebApplicationContext getApplicationContext(VaadinSession session) {<a name="line.147"></a>
 <FONT color="green">148</FONT>            if (session == null)<a name="line.148"></a>
 <FONT color="green">149</FONT>                throw new IllegalArgumentException("null session");<a name="line.149"></a>
 <FONT color="green">150</FONT>            return (ConfigurableWebApplicationContext)session.getAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY);<a name="line.150"></a>
 <FONT color="green">151</FONT>        }<a name="line.151"></a>
 <FONT color="green">152</FONT>    <a name="line.152"></a>
 <FONT color="green">153</FONT>        /**<a name="line.153"></a>
-<FONT color="green">154</FONT>         * Get the Spring application context associated with the current thread's {@link VaadinServiceSession}.<a name="line.154"></a>
+<FONT color="green">154</FONT>         * Get the Spring application context associated with the current thread's {@link VaadinSession}.<a name="line.154"></a>
 <FONT color="green">155</FONT>         *<a name="line.155"></a>
 <FONT color="green">156</FONT>         * @return Spring application context, never null<a name="line.156"></a>
-<FONT color="green">157</FONT>         * @throws IllegalStateException if there is no {@link VaadinServiceSession} associated with the current thread<a name="line.157"></a>
-<FONT color="green">158</FONT>         * @throws IllegalStateException if there is no Spring application context associated with the {@link VaadinServiceSession}<a name="line.158"></a>
+<FONT color="green">157</FONT>         * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread<a name="line.157"></a>
+<FONT color="green">158</FONT>         * @throws IllegalStateException if there is no Spring application context associated with the {@link VaadinSession}<a name="line.158"></a>
 <FONT color="green">159</FONT>         */<a name="line.159"></a>
 <FONT color="green">160</FONT>        public static ConfigurableWebApplicationContext getApplicationContext() {<a name="line.160"></a>
 <FONT color="green">161</FONT>    <a name="line.161"></a>
 <FONT color="green">162</FONT>            // Get current session<a name="line.162"></a>
-<FONT color="green">163</FONT>            VaadinServiceSession session = VaadinUtil.getCurrentSession();<a name="line.163"></a>
+<FONT color="green">163</FONT>            VaadinSession session = VaadinUtil.getCurrentSession();<a name="line.163"></a>
 <FONT color="green">164</FONT>    <a name="line.164"></a>
 <FONT color="green">165</FONT>            // Get the associated application context<a name="line.165"></a>
-<FONT color="green">166</FONT>            ConfigurableWebApplicationContext context = SpringServiceSession.getApplicationContext(session);<a name="line.166"></a>
+<FONT color="green">166</FONT>            ConfigurableWebApplicationContext context = SpringVaadinSession.getApplicationContext(session);<a name="line.166"></a>
 <FONT color="green">167</FONT>            if (context == null) {<a name="line.167"></a>
 <FONT color="green">168</FONT>                throw new IllegalStateException("there is no Spring application context associated with the current"<a name="line.168"></a>
-<FONT color="green">169</FONT>                  + " VaadinServiceSession; are you using SpringVaadinServlet instead of VaadinServlet?");<a name="line.169"></a>
+<FONT color="green">169</FONT>                  + " VaadinSession; are you using SpringVaadinServlet instead of VaadinServlet?");<a name="line.169"></a>
 <FONT color="green">170</FONT>            }<a name="line.170"></a>
 <FONT color="green">171</FONT>    <a name="line.171"></a>
 <FONT color="green">172</FONT>            // Done<a name="line.172"></a>
@@ -183,7 +183,7 @@
 <FONT color="green">180</FONT>            VaadinUtil.invoke(event.getSession(), new Runnable() {<a name="line.180"></a>
 <FONT color="green">181</FONT>                @Override<a name="line.181"></a>
 <FONT color="green">182</FONT>                public void run() {<a name="line.182"></a>
-<FONT color="green">183</FONT>                    SpringServiceSession.this.loadContext(event.getSession(), event.getRequest());<a name="line.183"></a>
+<FONT color="green">183</FONT>                    SpringVaadinSession.this.loadContext(event.getSession(), event.getRequest());<a name="line.183"></a>
 <FONT color="green">184</FONT>                }<a name="line.184"></a>
 <FONT color="green">185</FONT>            });<a name="line.185"></a>
 <FONT color="green">186</FONT>        }<a name="line.186"></a>
@@ -194,12 +194,12 @@
 <FONT color="green">191</FONT>         * Load the Spring application context.<a name="line.191"></a>
 <FONT color="green">192</FONT>         *<a name="line.192"></a>
 <FONT color="green">193</FONT>         * &lt;p&gt;<a name="line.193"></a>
-<FONT color="green">194</FONT>         * This method expects that {@code session} is already {@linkplain VaadinServiceSession#getLock locked}.<a name="line.194"></a>
+<FONT color="green">194</FONT>         * This method expects that {@code session} is already {@linkplain VaadinSession#getLockInstance locked}.<a name="line.194"></a>
 <FONT color="green">195</FONT>         *<a name="line.195"></a>
 <FONT color="green">196</FONT>         * @param session the Vaadin application session<a name="line.196"></a>
 <FONT color="green">197</FONT>         * @param request the triggering request<a name="line.197"></a>
 <FONT color="green">198</FONT>         */<a name="line.198"></a>
-<FONT color="green">199</FONT>        protected void loadContext(VaadinServiceSession session, VaadinRequest request) {<a name="line.199"></a>
+<FONT color="green">199</FONT>        protected void loadContext(VaadinSession session, VaadinRequest request) {<a name="line.199"></a>
 <FONT color="green">200</FONT>    <a name="line.200"></a>
 <FONT color="green">201</FONT>            // Sanity check<a name="line.201"></a>
 <FONT color="green">202</FONT>            if (session == null)<a name="line.202"></a>
@@ -267,7 +267,7 @@
 <FONT color="green">264</FONT>    <a name="line.264"></a>
 <FONT color="green">265</FONT>        @Override<a name="line.265"></a>
 <FONT color="green">266</FONT>        public void sessionDestroy(SessionDestroyEvent event) {<a name="line.266"></a>
-<FONT color="green">267</FONT>            final VaadinServiceSession session = event.getSession();<a name="line.267"></a>
+<FONT color="green">267</FONT>            final VaadinSession session = event.getSession();<a name="line.267"></a>
 <FONT color="green">268</FONT>            final ConfigurableWebApplicationContext context = this.getApplicationContext(session);<a name="line.268"></a>
 <FONT color="green">269</FONT>            if (context == null) {<a name="line.269"></a>
 <FONT color="green">270</FONT>                this.log.error(this.getClass().getSimpleName() + ".sessionDestroy() invoked but no application context found");<a name="line.270"></a>
@@ -277,8 +277,8 @@
 <FONT color="green">274</FONT>            VaadinUtil.invoke(session, new Runnable() {<a name="line.274"></a>
 <FONT color="green">275</FONT>                @Override<a name="line.275"></a>
 <FONT color="green">276</FONT>                public void run() {<a name="line.276"></a>
-<FONT color="green">277</FONT>                    SpringServiceSession.this.log.info("closing Vaadin application ["<a name="line.277"></a>
-<FONT color="green">278</FONT>                      + SpringServiceSession.this.getApplicationName() + "] application context: " + context);<a name="line.278"></a>
+<FONT color="green">277</FONT>                    SpringVaadinSession.this.log.info("closing Vaadin application ["<a name="line.277"></a>
+<FONT color="green">278</FONT>                      + SpringVaadinSession.this.getApplicationName() + "] application context: " + context);<a name="line.278"></a>
 <FONT color="green">279</FONT>                    context.close();<a name="line.279"></a>
 <FONT color="green">280</FONT>                }<a name="line.280"></a>
 <FONT color="green">281</FONT>            });<a name="line.281"></a>
@@ -288,12 +288,12 @@
 <FONT color="green">285</FONT>    <a name="line.285"></a>
 <FONT color="green">286</FONT>        private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {<a name="line.286"></a>
 <FONT color="green">287</FONT>            input.defaultReadObject();<a name="line.287"></a>
-<FONT color="green">288</FONT>            final VaadinServiceSession session = VaadinUtil.getCurrentSession();<a name="line.288"></a>
+<FONT color="green">288</FONT>            final VaadinSession session = VaadinUtil.getCurrentSession();<a name="line.288"></a>
 <FONT color="green">289</FONT>            final VaadinRequest request = VaadinUtil.getCurrentRequest();<a name="line.289"></a>
 <FONT color="green">290</FONT>            VaadinUtil.invoke(session, new Runnable() {<a name="line.290"></a>
 <FONT color="green">291</FONT>                @Override<a name="line.291"></a>
 <FONT color="green">292</FONT>                public void run() {<a name="line.292"></a>
-<FONT color="green">293</FONT>                    SpringServiceSession.this.loadContext(session, request);<a name="line.293"></a>
+<FONT color="green">293</FONT>                    SpringVaadinSession.this.loadContext(session, request);<a name="line.293"></a>
 <FONT color="green">294</FONT>                }<a name="line.294"></a>
 <FONT color="green">295</FONT>            });<a name="line.295"></a>
 <FONT color="green">296</FONT>        }<a name="line.296"></a>

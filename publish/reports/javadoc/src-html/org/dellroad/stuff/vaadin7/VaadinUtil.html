@@ -14,7 +14,7 @@
 <FONT color="green">011</FONT>    import com.vaadin.server.SessionDestroyListener;<a name="line.11"></a>
 <FONT color="green">012</FONT>    import com.vaadin.server.VaadinRequest;<a name="line.12"></a>
 <FONT color="green">013</FONT>    import com.vaadin.server.VaadinService;<a name="line.13"></a>
-<FONT color="green">014</FONT>    import com.vaadin.server.VaadinServiceSession;<a name="line.14"></a>
+<FONT color="green">014</FONT>    import com.vaadin.server.VaadinSession;<a name="line.14"></a>
 <FONT color="green">015</FONT>    <a name="line.15"></a>
 <FONT color="green">016</FONT>    /**<a name="line.16"></a>
 <FONT color="green">017</FONT>     * Miscellaneous utility methods.<a name="line.17"></a>
@@ -25,18 +25,18 @@
 <FONT color="green">022</FONT>        }<a name="line.22"></a>
 <FONT color="green">023</FONT>    <a name="line.23"></a>
 <FONT color="green">024</FONT>        /**<a name="line.24"></a>
-<FONT color="green">025</FONT>         * Get the {@link VaadinServiceSession} associated with the current thread.<a name="line.25"></a>
-<FONT color="green">026</FONT>         * This is just a wrapper around {@link VaadinServiceSession#getCurrent} that throws an exception instead<a name="line.26"></a>
+<FONT color="green">025</FONT>         * Get the {@link VaadinSession} associated with the current thread.<a name="line.25"></a>
+<FONT color="green">026</FONT>         * This is just a wrapper around {@link VaadinSession#getCurrent} that throws an exception instead<a name="line.26"></a>
 <FONT color="green">027</FONT>         * of returning null when there is no session associated with the current thread.<a name="line.27"></a>
 <FONT color="green">028</FONT>         *<a name="line.28"></a>
-<FONT color="green">029</FONT>         * @return current {@link VaadinServiceSession}, never null<a name="line.29"></a>
+<FONT color="green">029</FONT>         * @return current {@link VaadinSession}, never null<a name="line.29"></a>
 <FONT color="green">030</FONT>         *<a name="line.30"></a>
-<FONT color="green">031</FONT>         * @throws IllegalStateException if there is no {@link VaadinServiceSession} associated with the current thread<a name="line.31"></a>
+<FONT color="green">031</FONT>         * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread<a name="line.31"></a>
 <FONT color="green">032</FONT>         */<a name="line.32"></a>
-<FONT color="green">033</FONT>        public static VaadinServiceSession getCurrentSession() {<a name="line.33"></a>
-<FONT color="green">034</FONT>            VaadinServiceSession session = VaadinServiceSession.getCurrent();<a name="line.34"></a>
+<FONT color="green">033</FONT>        public static VaadinSession getCurrentSession() {<a name="line.33"></a>
+<FONT color="green">034</FONT>            VaadinSession session = VaadinSession.getCurrent();<a name="line.34"></a>
 <FONT color="green">035</FONT>            if (session == null) {<a name="line.35"></a>
-<FONT color="green">036</FONT>                throw new IllegalStateException("there is no VaadinServiceSession associated with the current thread;"<a name="line.36"></a>
+<FONT color="green">036</FONT>                throw new IllegalStateException("there is no VaadinSession associated with the current thread;"<a name="line.36"></a>
 <FONT color="green">037</FONT>                  + " are we executing within a Vaadin HTTP request or VaadinUtil.invoke()?");<a name="line.37"></a>
 <FONT color="green">038</FONT>            }<a name="line.38"></a>
 <FONT color="green">039</FONT>            return session;<a name="line.39"></a>
@@ -61,7 +61,7 @@
 <FONT color="green">058</FONT>        }<a name="line.58"></a>
 <FONT color="green">059</FONT>    <a name="line.59"></a>
 <FONT color="green">060</FONT>        /**<a name="line.60"></a>
-<FONT color="green">061</FONT>         * Peform some action while holding the given {@link VaadinServiceSession}'s lock.<a name="line.61"></a>
+<FONT color="green">061</FONT>         * Peform some action while holding the given {@link VaadinSession}'s lock.<a name="line.61"></a>
 <FONT color="green">062</FONT>         *<a name="line.62"></a>
 <FONT color="green">063</FONT>         * &lt;p&gt;<a name="line.63"></a>
 <FONT color="green">064</FONT>         * All back-end threads that interact with Vaadin components must use this method (or equivalent)<a name="line.64"></a>
@@ -70,45 +70,45 @@
 <FONT color="green">067</FONT>         * &lt;/p&gt;<a name="line.67"></a>
 <FONT color="green">068</FONT>         *<a name="line.68"></a>
 <FONT color="green">069</FONT>         * &lt;p&gt;<a name="line.69"></a>
-<FONT color="green">070</FONT>         * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinServiceSession}<a name="line.70"></a>
-<FONT color="green">071</FONT>         * is available via {@link VaadinServiceSession#getCurrent}.<a name="line.71"></a>
+<FONT color="green">070</FONT>         * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinSession}<a name="line.70"></a>
+<FONT color="green">071</FONT>         * is available via {@link VaadinSession#getCurrent}.<a name="line.71"></a>
 <FONT color="green">072</FONT>         * &lt;/p&gt;<a name="line.72"></a>
 <FONT color="green">073</FONT>         *<a name="line.73"></a>
 <FONT color="green">074</FONT>         * @throws IllegalArgumentException if either parameter is null<a name="line.74"></a>
 <FONT color="green">075</FONT>         * @see VaadinApplication#invoke<a name="line.75"></a>
 <FONT color="green">076</FONT>         */<a name="line.76"></a>
-<FONT color="green">077</FONT>        public static void invoke(VaadinServiceSession session, Runnable action) {<a name="line.77"></a>
+<FONT color="green">077</FONT>        public static void invoke(VaadinSession session, Runnable action) {<a name="line.77"></a>
 <FONT color="green">078</FONT>            if (session == null)<a name="line.78"></a>
 <FONT color="green">079</FONT>                throw new IllegalArgumentException("null session");<a name="line.79"></a>
 <FONT color="green">080</FONT>            if (action == null)<a name="line.80"></a>
 <FONT color="green">081</FONT>                throw new IllegalArgumentException("null action");<a name="line.81"></a>
-<FONT color="green">082</FONT>            session.getLock().lock();<a name="line.82"></a>
-<FONT color="green">083</FONT>            VaadinServiceSession previousSession = VaadinServiceSession.getCurrent();<a name="line.83"></a>
-<FONT color="green">084</FONT>            VaadinServiceSession.setCurrent(session);<a name="line.84"></a>
+<FONT color="green">082</FONT>            session.lock();<a name="line.82"></a>
+<FONT color="green">083</FONT>            VaadinSession previousSession = VaadinSession.getCurrent();<a name="line.83"></a>
+<FONT color="green">084</FONT>            VaadinSession.setCurrent(session);<a name="line.84"></a>
 <FONT color="green">085</FONT>            try {<a name="line.85"></a>
 <FONT color="green">086</FONT>                action.run();<a name="line.86"></a>
 <FONT color="green">087</FONT>            } finally {<a name="line.87"></a>
-<FONT color="green">088</FONT>                session.getLock().unlock();<a name="line.88"></a>
-<FONT color="green">089</FONT>                VaadinServiceSession.setCurrent(previousSession);<a name="line.89"></a>
+<FONT color="green">088</FONT>                session.unlock();<a name="line.88"></a>
+<FONT color="green">089</FONT>                VaadinSession.setCurrent(previousSession);<a name="line.89"></a>
 <FONT color="green">090</FONT>            }<a name="line.90"></a>
 <FONT color="green">091</FONT>        }<a name="line.91"></a>
 <FONT color="green">092</FONT>    <a name="line.92"></a>
 <FONT color="green">093</FONT>        /**<a name="line.93"></a>
-<FONT color="green">094</FONT>         * Register for a notification when the {@link VaadinServiceSession} is closed, without creating a memory leak.<a name="line.94"></a>
+<FONT color="green">094</FONT>         * Register for a notification when the {@link VaadinSession} is closed, without creating a memory leak.<a name="line.94"></a>
 <FONT color="green">095</FONT>         * This method is intended to be used by listeners that are themselves part of a Vaadin application.<a name="line.95"></a>
 <FONT color="green">096</FONT>         *<a name="line.96"></a>
 <FONT color="green">097</FONT>         * &lt;p&gt;<a name="line.97"></a>
-<FONT color="green">098</FONT>         * Explanation: the {@link VaadinServiceSession} class does not provide a listener API directly; instead, you must<a name="line.98"></a>
+<FONT color="green">098</FONT>         * Explanation: the {@link VaadinSession} class does not provide a listener API directly; instead, you must<a name="line.98"></a>
 <FONT color="green">099</FONT>         * use the {@link com.vaadin.server.VaadinService} class. However, registering as a listener on the<a name="line.99"></a>
 <FONT color="green">100</FONT>         * {@link com.vaadin.server.VaadinService} when you are part of a Vaadin application sets you up for a memory leak<a name="line.100"></a>
 <FONT color="green">101</FONT>         * if you forget to unregister yourself when the notification arrives, because the {@link com.vaadin.server.VaadinService}<a name="line.101"></a>
-<FONT color="green">102</FONT>         * lifetime is longer than the {@link VaadinServiceSession} lifetime. This method handles that de-registration for<a name="line.102"></a>
+<FONT color="green">102</FONT>         * lifetime is longer than the {@link VaadinSession} lifetime. This method handles that de-registration for<a name="line.102"></a>
 <FONT color="green">103</FONT>         * you automatically.<a name="line.103"></a>
 <FONT color="green">104</FONT>         *<a name="line.104"></a>
 <FONT color="green">105</FONT>         * @throws IllegalArgumentException if either parameter is null<a name="line.105"></a>
 <FONT color="green">106</FONT>         * @see VaadinApplication#addSessionDestroyListener<a name="line.106"></a>
 <FONT color="green">107</FONT>         */<a name="line.107"></a>
-<FONT color="green">108</FONT>        public static void addSessionDestroyListener(VaadinServiceSession session, SessionDestroyListener listener) {<a name="line.108"></a>
+<FONT color="green">108</FONT>        public static void addSessionDestroyListener(VaadinSession session, SessionDestroyListener listener) {<a name="line.108"></a>
 <FONT color="green">109</FONT>            session.getService().addSessionDestroyListener(new LeakAvoidingDestroyListener(session, listener));<a name="line.109"></a>
 <FONT color="green">110</FONT>        }<a name="line.110"></a>
 <FONT color="green">111</FONT>    <a name="line.111"></a>
@@ -118,50 +118,51 @@
 <FONT color="green">115</FONT>         * @throws IllegalArgumentException if either parameter is null<a name="line.115"></a>
 <FONT color="green">116</FONT>         * @see VaadinApplication#removeSessionDestroyListener<a name="line.116"></a>
 <FONT color="green">117</FONT>         */<a name="line.117"></a>
-<FONT color="green">118</FONT>        public static void removeSessionDestroyListener(VaadinServiceSession session, SessionDestroyListener listener) {<a name="line.118"></a>
+<FONT color="green">118</FONT>        public static void removeSessionDestroyListener(VaadinSession session, SessionDestroyListener listener) {<a name="line.118"></a>
 <FONT color="green">119</FONT>            session.getService().removeSessionDestroyListener(new LeakAvoidingDestroyListener(session, listener));<a name="line.119"></a>
 <FONT color="green">120</FONT>        }<a name="line.120"></a>
 <FONT color="green">121</FONT>    <a name="line.121"></a>
 <FONT color="green">122</FONT>    // LeakAvoidingDestroyListener<a name="line.122"></a>
 <FONT color="green">123</FONT>    <a name="line.123"></a>
-<FONT color="green">124</FONT>        private static class LeakAvoidingDestroyListener implements SessionDestroyListener {<a name="line.124"></a>
-<FONT color="green">125</FONT>    <a name="line.125"></a>
-<FONT color="green">126</FONT>            private final VaadinServiceSession session;<a name="line.126"></a>
-<FONT color="green">127</FONT>            private final SessionDestroyListener listener;<a name="line.127"></a>
-<FONT color="green">128</FONT>    <a name="line.128"></a>
-<FONT color="green">129</FONT>            public LeakAvoidingDestroyListener(VaadinServiceSession session, SessionDestroyListener listener) {<a name="line.129"></a>
-<FONT color="green">130</FONT>                if (session == null)<a name="line.130"></a>
-<FONT color="green">131</FONT>                    throw new IllegalArgumentException("null session");<a name="line.131"></a>
-<FONT color="green">132</FONT>                if (listener == null)<a name="line.132"></a>
-<FONT color="green">133</FONT>                    throw new IllegalArgumentException("null listener");<a name="line.133"></a>
-<FONT color="green">134</FONT>                this.session = session;<a name="line.134"></a>
-<FONT color="green">135</FONT>                this.listener = listener;<a name="line.135"></a>
-<FONT color="green">136</FONT>            }<a name="line.136"></a>
-<FONT color="green">137</FONT>    <a name="line.137"></a>
-<FONT color="green">138</FONT>            @Override<a name="line.138"></a>
-<FONT color="green">139</FONT>            public void sessionDestroy(SessionDestroyEvent event) {<a name="line.139"></a>
-<FONT color="green">140</FONT>                final VaadinServiceSession closedSession = event.getSession();<a name="line.140"></a>
-<FONT color="green">141</FONT>                if (closedSession == this.session) {<a name="line.141"></a>
-<FONT color="green">142</FONT>                    this.session.getService().removeSessionDestroyListener(this);       // remove myself as listener to avoid mem leak<a name="line.142"></a>
-<FONT color="green">143</FONT>                    this.listener.sessionDestroy(event);<a name="line.143"></a>
-<FONT color="green">144</FONT>                }<a name="line.144"></a>
-<FONT color="green">145</FONT>            }<a name="line.145"></a>
-<FONT color="green">146</FONT>    <a name="line.146"></a>
-<FONT color="green">147</FONT>            @Override<a name="line.147"></a>
-<FONT color="green">148</FONT>            public boolean equals(Object obj) {<a name="line.148"></a>
-<FONT color="green">149</FONT>                if (obj == null || obj.getClass() != this.getClass())<a name="line.149"></a>
-<FONT color="green">150</FONT>                    return false;<a name="line.150"></a>
-<FONT color="green">151</FONT>                LeakAvoidingDestroyListener that = (LeakAvoidingDestroyListener)obj;<a name="line.151"></a>
-<FONT color="green">152</FONT>                return this.session == that.session &amp;&amp; this.listener.equals(that.listener);<a name="line.152"></a>
-<FONT color="green">153</FONT>            }<a name="line.153"></a>
-<FONT color="green">154</FONT>    <a name="line.154"></a>
-<FONT color="green">155</FONT>            @Override<a name="line.155"></a>
-<FONT color="green">156</FONT>            public int hashCode() {<a name="line.156"></a>
-<FONT color="green">157</FONT>                return this.session.hashCode() ^ this.listener.hashCode();<a name="line.157"></a>
-<FONT color="green">158</FONT>            }<a name="line.158"></a>
-<FONT color="green">159</FONT>        }<a name="line.159"></a>
-<FONT color="green">160</FONT>    }<a name="line.160"></a>
-<FONT color="green">161</FONT>    <a name="line.161"></a>
+<FONT color="green">124</FONT>        @SuppressWarnings("serial")<a name="line.124"></a>
+<FONT color="green">125</FONT>        private static class LeakAvoidingDestroyListener implements SessionDestroyListener {<a name="line.125"></a>
+<FONT color="green">126</FONT>    <a name="line.126"></a>
+<FONT color="green">127</FONT>            private final VaadinSession session;<a name="line.127"></a>
+<FONT color="green">128</FONT>            private final SessionDestroyListener listener;<a name="line.128"></a>
+<FONT color="green">129</FONT>    <a name="line.129"></a>
+<FONT color="green">130</FONT>            public LeakAvoidingDestroyListener(VaadinSession session, SessionDestroyListener listener) {<a name="line.130"></a>
+<FONT color="green">131</FONT>                if (session == null)<a name="line.131"></a>
+<FONT color="green">132</FONT>                    throw new IllegalArgumentException("null session");<a name="line.132"></a>
+<FONT color="green">133</FONT>                if (listener == null)<a name="line.133"></a>
+<FONT color="green">134</FONT>                    throw new IllegalArgumentException("null listener");<a name="line.134"></a>
+<FONT color="green">135</FONT>                this.session = session;<a name="line.135"></a>
+<FONT color="green">136</FONT>                this.listener = listener;<a name="line.136"></a>
+<FONT color="green">137</FONT>            }<a name="line.137"></a>
+<FONT color="green">138</FONT>    <a name="line.138"></a>
+<FONT color="green">139</FONT>            @Override<a name="line.139"></a>
+<FONT color="green">140</FONT>            public void sessionDestroy(SessionDestroyEvent event) {<a name="line.140"></a>
+<FONT color="green">141</FONT>                final VaadinSession closedSession = event.getSession();<a name="line.141"></a>
+<FONT color="green">142</FONT>                if (closedSession == this.session) {<a name="line.142"></a>
+<FONT color="green">143</FONT>                    this.session.getService().removeSessionDestroyListener(this);       // remove myself as listener to avoid mem leak<a name="line.143"></a>
+<FONT color="green">144</FONT>                    this.listener.sessionDestroy(event);<a name="line.144"></a>
+<FONT color="green">145</FONT>                }<a name="line.145"></a>
+<FONT color="green">146</FONT>            }<a name="line.146"></a>
+<FONT color="green">147</FONT>    <a name="line.147"></a>
+<FONT color="green">148</FONT>            @Override<a name="line.148"></a>
+<FONT color="green">149</FONT>            public boolean equals(Object obj) {<a name="line.149"></a>
+<FONT color="green">150</FONT>                if (obj == null || obj.getClass() != this.getClass())<a name="line.150"></a>
+<FONT color="green">151</FONT>                    return false;<a name="line.151"></a>
+<FONT color="green">152</FONT>                LeakAvoidingDestroyListener that = (LeakAvoidingDestroyListener)obj;<a name="line.152"></a>
+<FONT color="green">153</FONT>                return this.session == that.session &amp;&amp; this.listener.equals(that.listener);<a name="line.153"></a>
+<FONT color="green">154</FONT>            }<a name="line.154"></a>
+<FONT color="green">155</FONT>    <a name="line.155"></a>
+<FONT color="green">156</FONT>            @Override<a name="line.156"></a>
+<FONT color="green">157</FONT>            public int hashCode() {<a name="line.157"></a>
+<FONT color="green">158</FONT>                return this.session.hashCode() ^ this.listener.hashCode();<a name="line.158"></a>
+<FONT color="green">159</FONT>            }<a name="line.159"></a>
+<FONT color="green">160</FONT>        }<a name="line.160"></a>
+<FONT color="green">161</FONT>    }<a name="line.161"></a>
+<FONT color="green">162</FONT>    <a name="line.162"></a>
 
 
 

@@ -38,8 +38,8 @@
 <FONT color="green">035</FONT>     * &lt;h3&gt;Overview&lt;/h3&gt;<a name="line.35"></a>
 <FONT color="green">036</FONT>     *<a name="line.36"></a>
 <FONT color="green">037</FONT>     * &lt;p&gt;<a name="line.37"></a>
-<FONT color="green">038</FONT>     * Instances model an in-memory "database" represented by a root Java object and the graph of other objects that<a name="line.38"></a>
-<FONT color="green">039</FONT>     * it references. The object graph is backed by a persistent XML file, which is read at initialization time and<a name="line.39"></a>
+<FONT color="green">038</FONT>     * Instances model a fully validated, in-memory "database" represented by a root Java object and the graph of other objects<a name="line.38"></a>
+<FONT color="green">039</FONT>     * that it references. The object graph is backed by a persistent XML file, which is read at initialization time and<a name="line.39"></a>
 <FONT color="green">040</FONT>     * re-written after each change.<a name="line.40"></a>
 <FONT color="green">041</FONT>     *<a name="line.41"></a>
 <FONT color="green">042</FONT>     * &lt;p&gt;<a name="line.42"></a>
@@ -49,945 +49,979 @@
 <FONT color="green">046</FONT>     * persistent XML file is updated by writing out a new, temporary copy and renaming the copy onto the original,<a name="line.46"></a>
 <FONT color="green">047</FONT>     * using {@link File#renameTo File.renameTo()} for atomicity (on systems that support it, e.g., UNIX variants).<a name="line.47"></a>
 <FONT color="green">048</FONT>     *<a name="line.48"></a>
-<FONT color="green">049</FONT>     * &lt;h3&gt;Update Details&lt;/h3&gt;<a name="line.49"></a>
+<FONT color="green">049</FONT>     * &lt;h3&gt;Validation&lt;/h3&gt;<a name="line.49"></a>
 <FONT color="green">050</FONT>     *<a name="line.50"></a>
-<FONT color="green">051</FONT>     * &lt;p&gt;<a name="line.51"></a>
-<FONT color="green">052</FONT>     * When the object graph is updated, it must pass validation checks, and then the persistent XML file is updated and<a name="line.52"></a>
-<FONT color="green">053</FONT>     * listener notifications are sent out. Support for delayed write-back of the persistent XML file is included: this<a name="line.53"></a>
-<FONT color="green">054</FONT>     * allows modifications that occur in rapid succession to be consolidated into a single filesystem write operation.<a name="line.54"></a>
+<FONT color="green">051</FONT>     * Validation is peformed in Java (not in XML via XSD) and defined by the provided delegate. This class guarantees<a name="line.51"></a>
+<FONT color="green">052</FONT>     * that only a valid root Java object can be set, read or written. An invalid XML file on disk will generate an error<a name="line.52"></a>
+<FONT color="green">053</FONT>     * (or be ignored; see "Empty Starts" below); setting an invalid Java root object via {@link #setRoot setRoot()}<a name="line.53"></a>
+<FONT color="green">054</FONT>     * with throw an exception.<a name="line.54"></a>
 <FONT color="green">055</FONT>     *<a name="line.55"></a>
-<FONT color="green">056</FONT>     * &lt;p&gt;<a name="line.56"></a>
-<FONT color="green">057</FONT>     * Support for optimistic locking is included. There is a "current version" number which is incremented each<a name="line.57"></a>
-<FONT color="green">058</FONT>     * time the object graph is updated; writes may optionally specify this number to ensure no intervening changes<a name="line.58"></a>
-<FONT color="green">059</FONT>     * have occurred. If concurrent updates are expected, applications may choose to implement a 3-way merge algorithm<a name="line.59"></a>
-<FONT color="green">060</FONT>     * of some kind to handle optimistic locking failures.<a name="line.60"></a>
-<FONT color="green">061</FONT>     *<a name="line.61"></a>
-<FONT color="green">062</FONT>     * &lt;p&gt;<a name="line.62"></a>
-<FONT color="green">063</FONT>     * Instances can be configured to preserve one or more backup copies of the persistent file on systems that support<a name="line.63"></a>
-<FONT color="green">064</FONT>     * hard links (requires &lt;a href="https://github.com/twall/jna"&gt;JNA&lt;/a&gt;; see {@link FileStreamRepository}).<a name="line.64"></a>
-<FONT color="green">065</FONT>     * Set the {@link #getNumBackups numBackups} property to enable.<a name="line.65"></a>
-<FONT color="green">066</FONT>     *<a name="line.66"></a>
-<FONT color="green">067</FONT>     * &lt;h3&gt;"Out-of-band" Writes&lt;/h3&gt;<a name="line.67"></a>
-<FONT color="green">068</FONT>     *<a name="line.68"></a>
-<FONT color="green">069</FONT>     * &lt;p&gt;<a name="line.69"></a>
-<FONT color="green">070</FONT>     * When a non-zero {@linkplain #getCheckInterval check interval} is configured, instances support "out-of-band" writes<a name="line.70"></a>
-<FONT color="green">071</FONT>     * to the XML persistent file by some other process. This can be handy in cases where the other process (perhaps hand edits)<a name="line.71"></a>
-<FONT color="green">072</FONT>     * is updating the persistent file and you want to have a running process pick up the changes just as if<a name="line.72"></a>
-<FONT color="green">073</FONT>     * {@link PersistentObject#setRoot setRoot()} had been invoked. In particular, instances will detect the appearance<a name="line.73"></a>
-<FONT color="green">074</FONT>     * of a new persistent file after an instance has started without one. In all cases, persistent objects must properly validate.<a name="line.74"></a>
-<FONT color="green">075</FONT>     *<a name="line.75"></a>
-<FONT color="green">076</FONT>     * &lt;p&gt;<a name="line.76"></a>
-<FONT color="green">077</FONT>     * A special case of this is effected when {@link PersistentObject#setRoot setRoot()} is never explicitly invoked<a name="line.77"></a>
-<FONT color="green">078</FONT>     * by the application. Then some other process must be responsible for all database updates, and this class automatically<a name="line.78"></a>
-<FONT color="green">079</FONT>     * picks them up, validates them, and send out notifications.<a name="line.79"></a>
-<FONT color="green">080</FONT>     *<a name="line.80"></a>
-<FONT color="green">081</FONT>     * &lt;h3&gt;Empty Starts and Stops&lt;/h3&gt;<a name="line.81"></a>
-<FONT color="green">082</FONT>     *<a name="line.82"></a>
-<FONT color="green">083</FONT>     * &lt;p&gt;<a name="line.83"></a>
-<FONT color="green">084</FONT>     * An "empty start" occurs when an instance is {@linkplain #start started} but the persistent XML file is either missing,<a name="line.84"></a>
-<FONT color="green">085</FONT>     * does not validate, or cannot be read for some other reason. In such cases, the instance will start with no object graph,<a name="line.85"></a>
-<FONT color="green">086</FONT>     * and {@link #getRoot} will return null. This situation will correct itself as soon as the object graph is written via<a name="line.86"></a>
-<FONT color="green">087</FONT>     * {@link #setRoot setRoot()} or the persistent file appears (effecting an "out-of-band" update). At that time, {@linkplain<a name="line.87"></a>
-<FONT color="green">088</FONT>     * #addListener listeners} will be notified for the first time, with {@link PersistentObjectEvent#getOldRoot} returning null.<a name="line.88"></a>
-<FONT color="green">089</FONT>     *<a name="line.89"></a>
-<FONT color="green">090</FONT>     * &lt;p&gt;<a name="line.90"></a>
-<FONT color="green">091</FONT>     * Whether empty starts are allowed is determined by the {@link #isAllowEmptyStart allowEmptyStart} property (default<a name="line.91"></a>
-<FONT color="green">092</FONT>     * {@code false}). When empty starts are disallowed and the persistent XML file cannot be successfully read,<a name="line.92"></a>
-<FONT color="green">093</FONT>     * then {@link #start} will instead throw an immediate {@link PersistentObjectException}.<a name="line.93"></a>
+<FONT color="green">056</FONT>     * &lt;h3&gt;Update Details&lt;/h3&gt;<a name="line.56"></a>
+<FONT color="green">057</FONT>     *<a name="line.57"></a>
+<FONT color="green">058</FONT>     * &lt;p&gt;<a name="line.58"></a>
+<FONT color="green">059</FONT>     * When the object graph is updated, it must pass validation checks, and then the persistent XML file is updated and<a name="line.59"></a>
+<FONT color="green">060</FONT>     * listener notifications are sent out. Listeners are always notified in a separate thread from the one that invoked<a name="line.60"></a>
+<FONT color="green">061</FONT>     * {@link #setRoot setRoot()}. Support for delayed write-back of the persistent XML file is included: this<a name="line.61"></a>
+<FONT color="green">062</FONT>     * allows modifications that occur in rapid succession to be consolidated into a single filesystem write operation.<a name="line.62"></a>
+<FONT color="green">063</FONT>     *<a name="line.63"></a>
+<FONT color="green">064</FONT>     * &lt;p&gt;<a name="line.64"></a>
+<FONT color="green">065</FONT>     * Support for optimistic locking is included. There is a "current version" number which is incremented each<a name="line.65"></a>
+<FONT color="green">066</FONT>     * time the object graph is updated; writes may optionally specify this number to ensure no intervening changes<a name="line.66"></a>
+<FONT color="green">067</FONT>     * have occurred. If concurrent updates are expected, applications may choose to implement a 3-way merge algorithm<a name="line.67"></a>
+<FONT color="green">068</FONT>     * of some kind to handle optimistic locking failures.<a name="line.68"></a>
+<FONT color="green">069</FONT>     *<a name="line.69"></a>
+<FONT color="green">070</FONT>     * &lt;p&gt;<a name="line.70"></a>
+<FONT color="green">071</FONT>     * Instances can be configured to automatically preserve one or more backup copies of the persistent file on systems that<a name="line.71"></a>
+<FONT color="green">072</FONT>     * support hard links (requires &lt;a href="https://github.com/twall/jna"&gt;JNA&lt;/a&gt;; see {@link FileStreamRepository}).<a name="line.72"></a>
+<FONT color="green">073</FONT>     * Set the {@link #getNumBackups numBackups} property to enable.<a name="line.73"></a>
+<FONT color="green">074</FONT>     *<a name="line.74"></a>
+<FONT color="green">075</FONT>     * &lt;h3&gt;"Out-of-band" Writes&lt;/h3&gt;<a name="line.75"></a>
+<FONT color="green">076</FONT>     *<a name="line.76"></a>
+<FONT color="green">077</FONT>     * &lt;p&gt;<a name="line.77"></a>
+<FONT color="green">078</FONT>     * When a non-zero {@linkplain #getCheckInterval check interval} is configured, instances support "out-of-band" writes<a name="line.78"></a>
+<FONT color="green">079</FONT>     * directly to the XML persistent file by some other process. This can be handy in cases where the other process (perhaps hand<a name="line.79"></a>
+<FONT color="green">080</FONT>     * edits) is updating the persistent file and you want to have the running Java process pick up the changes just as if<a name="line.80"></a>
+<FONT color="green">081</FONT>     * {@link PersistentObject#setRoot setRoot()} had been invoked. In particular, instances will detect the appearance<a name="line.81"></a>
+<FONT color="green">082</FONT>     * of a new persistent file after an instance has started without one. In all cases, persistent objects must properly validate.<a name="line.82"></a>
+<FONT color="green">083</FONT>     * To avoid reading a partial file the external process should write the file atomically by creating a temporary file and<a name="line.83"></a>
+<FONT color="green">084</FONT>     * renaming it; however, this race window is small and in any case the problem is self-correcting because a partially<a name="line.84"></a>
+<FONT color="green">085</FONT>     * written XML file will not validate, and so it will be ignored and retried after another {@linkplain #getCheckInterval<a name="line.85"></a>
+<FONT color="green">086</FONT>     * check interval} milliseconds has passed.<a name="line.86"></a>
+<FONT color="green">087</FONT>     *<a name="line.87"></a>
+<FONT color="green">088</FONT>     * &lt;p&gt;<a name="line.88"></a>
+<FONT color="green">089</FONT>     * A special case of this is effected when {@link PersistentObject#setRoot setRoot()} is never explicitly invoked<a name="line.89"></a>
+<FONT color="green">090</FONT>     * by the application. Then some other process must be responsible for all database updates, and this class automatically<a name="line.90"></a>
+<FONT color="green">091</FONT>     * picks them up, validates them, and send out notifications.<a name="line.91"></a>
+<FONT color="green">092</FONT>     *<a name="line.92"></a>
+<FONT color="green">093</FONT>     * &lt;h3&gt;Empty Starts and Stops&lt;/h3&gt;<a name="line.93"></a>
 <FONT color="green">094</FONT>     *<a name="line.94"></a>
 <FONT color="green">095</FONT>     * &lt;p&gt;<a name="line.95"></a>
-<FONT color="green">096</FONT>     * Similarly, "empty stops" are allowed when the {@link #isAllowEmptyStop allowEmptyStop} property is set to {@code true}<a name="line.96"></a>
-<FONT color="green">097</FONT>     * (by default it is {@code false}). An "empty stop" occurs when a null value is passed to {@link #setRoot setRoot()}.<a name="line.97"></a>
-<FONT color="green">098</FONT>     * Subsequent invocations of {@link #getRoot} will return {@code null}; however, the persistent file is &lt;b&gt;not&lt;/b&gt;<a name="line.98"></a>
-<FONT color="green">099</FONT>     * modified when null is passed to {@link #setRoot}. When empty stops are disallowed, then invoking<a name="line.99"></a>
-<FONT color="green">100</FONT>     * {@link #setRoot} with a {@code null} object will result in an {@link IllegalArgumentException}.<a name="line.100"></a>
+<FONT color="green">096</FONT>     * An "empty start" occurs when an instance is {@linkplain #start started} but the persistent XML file is either missing,<a name="line.96"></a>
+<FONT color="green">097</FONT>     * does not validate, or cannot be read for some other reason. In such cases, the instance will start with no object graph,<a name="line.97"></a>
+<FONT color="green">098</FONT>     * and {@link #getRoot} will return null. This situation will correct itself as soon as the object graph is written via<a name="line.98"></a>
+<FONT color="green">099</FONT>     * {@link #setRoot setRoot()} or the persistent file appears (effecting an "out-of-band" update). At that time, {@linkplain<a name="line.99"></a>
+<FONT color="green">100</FONT>     * #addListener listeners} will be notified for the first time, with {@link PersistentObjectEvent#getOldRoot} returning null.<a name="line.100"></a>
 <FONT color="green">101</FONT>     *<a name="line.101"></a>
 <FONT color="green">102</FONT>     * &lt;p&gt;<a name="line.102"></a>
-<FONT color="green">103</FONT>     * Allowing empty starts and/or stops essentially creates an "unconfigured" state represented by a null root object.<a name="line.103"></a>
-<FONT color="green">104</FONT>     * When empty starts and empty stops are both disallowed, there is no "unconfigured" state: {@link #getRoot} can be<a name="line.104"></a>
-<FONT color="green">105</FONT>     * relied upon to always return a non-null, validated root object.<a name="line.105"></a>
+<FONT color="green">103</FONT>     * Whether empty starts are allowed is determined by the {@link #isAllowEmptyStart allowEmptyStart} property (default<a name="line.103"></a>
+<FONT color="green">104</FONT>     * {@code false}). When empty starts are disallowed and the persistent XML file cannot be successfully read,<a name="line.104"></a>
+<FONT color="green">105</FONT>     * then {@link #start} will instead throw an immediate {@link PersistentObjectException}.<a name="line.105"></a>
 <FONT color="green">106</FONT>     *<a name="line.106"></a>
-<FONT color="green">107</FONT>     * &lt;h3&gt;Delegate Function&lt;/h3&gt;<a name="line.107"></a>
-<FONT color="green">108</FONT>     *<a name="line.108"></a>
-<FONT color="green">109</FONT>     * &lt;p&gt;<a name="line.109"></a>
-<FONT color="green">110</FONT>     * Instances must be configured with a {@link PersistentObjectDelegate} that knows how to validate the object graph<a name="line.110"></a>
-<FONT color="green">111</FONT>     * and perform conversions to and from XML. See {@link PersistentObjectDelegate} and its implementations for details.<a name="line.111"></a>
-<FONT color="green">112</FONT>     *<a name="line.112"></a>
-<FONT color="green">113</FONT>     * &lt;h3&gt;Schema Changes&lt;/h3&gt;<a name="line.113"></a>
-<FONT color="green">114</FONT>     *<a name="line.114"></a>
-<FONT color="green">115</FONT>     * &lt;p&gt;<a name="line.115"></a>
-<FONT color="green">116</FONT>     * Like any database, the XML schema may evolve over time. The {@link PersistentObjectSchemaUpdater} class provides a simple<a name="line.116"></a>
-<FONT color="green">117</FONT>     * way to apply and manage schema updates using XSLT transforms.<a name="line.117"></a>
+<FONT color="green">107</FONT>     * &lt;p&gt;<a name="line.107"></a>
+<FONT color="green">108</FONT>     * Similarly, "empty stops" are allowed when the {@link #isAllowEmptyStop allowEmptyStop} property is set to {@code true}<a name="line.108"></a>
+<FONT color="green">109</FONT>     * (by default it is {@code false}). An "empty stop" occurs when a null value is passed to {@link #setRoot setRoot()}.<a name="line.109"></a>
+<FONT color="green">110</FONT>     * Subsequent invocations of {@link #getRoot} will return {@code null}; however, the persistent file is &lt;b&gt;not&lt;/b&gt;<a name="line.110"></a>
+<FONT color="green">111</FONT>     * modified when null is passed to {@link #setRoot}. When empty stops are disallowed, then invoking<a name="line.111"></a>
+<FONT color="green">112</FONT>     * {@link #setRoot} with a {@code null} object will result in an {@link IllegalArgumentException}.<a name="line.112"></a>
+<FONT color="green">113</FONT>     *<a name="line.113"></a>
+<FONT color="green">114</FONT>     * &lt;p&gt;<a name="line.114"></a>
+<FONT color="green">115</FONT>     * Allowing empty starts and/or stops essentially creates an "unconfigured" state represented by a null root object.<a name="line.115"></a>
+<FONT color="green">116</FONT>     * When empty starts and empty stops are both disallowed, there is no "unconfigured" state: {@link #getRoot} can be<a name="line.116"></a>
+<FONT color="green">117</FONT>     * relied upon to always return a non-null, validated root object.<a name="line.117"></a>
 <FONT color="green">118</FONT>     *<a name="line.118"></a>
-<FONT color="green">119</FONT>     * @param &lt;T&gt; type of the root persistent object<a name="line.119"></a>
-<FONT color="green">120</FONT>     * @see PersistentObjectDelegate<a name="line.120"></a>
-<FONT color="green">121</FONT>     */<a name="line.121"></a>
-<FONT color="green">122</FONT>    public class PersistentObject&lt;T&gt; {<a name="line.122"></a>
-<FONT color="green">123</FONT>    <a name="line.123"></a>
-<FONT color="green">124</FONT>        private static final long EXECUTOR_SHUTDOWN_TIMEOUT = 1000;             // 1 second<a name="line.124"></a>
-<FONT color="green">125</FONT>    <a name="line.125"></a>
-<FONT color="green">126</FONT>        protected final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.126"></a>
-<FONT color="green">127</FONT>    <a name="line.127"></a>
-<FONT color="green">128</FONT>        private final HashSet&lt;PersistentObjectListener&lt;T&gt;&gt; listeners = new HashSet&lt;PersistentObjectListener&lt;T&gt;&gt;();<a name="line.128"></a>
-<FONT color="green">129</FONT>    <a name="line.129"></a>
-<FONT color="green">130</FONT>        private PersistentObjectDelegate&lt;T&gt; delegate;<a name="line.130"></a>
-<FONT color="green">131</FONT>        private FileStreamRepository streamRepository;<a name="line.131"></a>
-<FONT color="green">132</FONT>        private long writeDelay;<a name="line.132"></a>
-<FONT color="green">133</FONT>        private long checkInterval;<a name="line.133"></a>
-<FONT color="green">134</FONT>    <a name="line.134"></a>
-<FONT color="green">135</FONT>        private T root;                                         // current root object (private)<a name="line.135"></a>
-<FONT color="green">136</FONT>        private T sharedRoot;                                   // current root object (shared)<a name="line.136"></a>
-<FONT color="green">137</FONT>        private T writebackRoot;                                // pending persistent file writeback value<a name="line.137"></a>
-<FONT color="green">138</FONT>        private ScheduledExecutorService scheduledExecutor;     // used for file checking and delayed write-back<a name="line.138"></a>
-<FONT color="green">139</FONT>        private ExecutorService notifyExecutor;                 // used to notify listeners<a name="line.139"></a>
-<FONT color="green">140</FONT>        private ScheduledFuture pendingWrite;                   // a pending delayed write-back<a name="line.140"></a>
-<FONT color="green">141</FONT>        private long version;                                   // current root object version<a name="line.141"></a>
-<FONT color="green">142</FONT>        private long timestamp;                                 // timestamp of persistent file when we last read it<a name="line.142"></a>
-<FONT color="green">143</FONT>        private boolean allowEmptyStart;<a name="line.143"></a>
-<FONT color="green">144</FONT>        private boolean allowEmptyStop;<a name="line.144"></a>
-<FONT color="green">145</FONT>        private boolean started;<a name="line.145"></a>
-<FONT color="green">146</FONT>    <a name="line.146"></a>
-<FONT color="green">147</FONT>        /**<a name="line.147"></a>
-<FONT color="green">148</FONT>         * Constructor.<a name="line.148"></a>
-<FONT color="green">149</FONT>         *<a name="line.149"></a>
-<FONT color="green">150</FONT>         * &lt;p&gt;<a name="line.150"></a>
-<FONT color="green">151</FONT>         * The {@code writeDelay} is the maximum delay after an update operation before a write-back to the persistent file<a name="line.151"></a>
-<FONT color="green">152</FONT>         * must be initiated.<a name="line.152"></a>
-<FONT color="green">153</FONT>         *<a name="line.153"></a>
-<FONT color="green">154</FONT>         * @param delegate delegate supplying required operations<a name="line.154"></a>
-<FONT color="green">155</FONT>         * @param file the file used to persist<a name="line.155"></a>
-<FONT color="green">156</FONT>         * @param writeDelay write delay in milliseconds, or zero for immediate write-back<a name="line.156"></a>
-<FONT color="green">157</FONT>         * @param checkInterval check interval in milliseconds, or zero to disable persistent file checks<a name="line.157"></a>
-<FONT color="green">158</FONT>         * @throws IllegalArgumentException if {@code delegate} or {@code file} is null<a name="line.158"></a>
-<FONT color="green">159</FONT>         * @throws IllegalArgumentException if {@code writeDelay} or {@code checkInterval} is negative<a name="line.159"></a>
-<FONT color="green">160</FONT>         */<a name="line.160"></a>
-<FONT color="green">161</FONT>        public PersistentObject(PersistentObjectDelegate&lt;T&gt; delegate, File file, long writeDelay, long checkInterval) {<a name="line.161"></a>
-<FONT color="green">162</FONT>            this.setDelegate(delegate);<a name="line.162"></a>
-<FONT color="green">163</FONT>            this.setFile(file);<a name="line.163"></a>
-<FONT color="green">164</FONT>            this.setWriteDelay(writeDelay);<a name="line.164"></a>
-<FONT color="green">165</FONT>            this.setCheckInterval(checkInterval);<a name="line.165"></a>
-<FONT color="green">166</FONT>        }<a name="line.166"></a>
-<FONT color="green">167</FONT>    <a name="line.167"></a>
-<FONT color="green">168</FONT>        /**<a name="line.168"></a>
-<FONT color="green">169</FONT>         * Simplified constructor configuring for immediate write-back and no persistent file checks.<a name="line.169"></a>
-<FONT color="green">170</FONT>         *<a name="line.170"></a>
-<FONT color="green">171</FONT>         * &lt;p&gt;<a name="line.171"></a>
-<FONT color="green">172</FONT>         * Equivalent to:<a name="line.172"></a>
-<FONT color="green">173</FONT>         * &lt;blockquote&gt;&lt;code&gt;<a name="line.173"></a>
-<FONT color="green">174</FONT>         *  PersistentObject(delegate, file, 0L, 0L);<a name="line.174"></a>
-<FONT color="green">175</FONT>         * &lt;/code&gt;&lt;/blockquote&gt;<a name="line.175"></a>
-<FONT color="green">176</FONT>         */<a name="line.176"></a>
-<FONT color="green">177</FONT>        public PersistentObject(PersistentObjectDelegate&lt;T&gt; delegate, File file) {<a name="line.177"></a>
-<FONT color="green">178</FONT>            this(delegate, file, 0, 0);<a name="line.178"></a>
-<FONT color="green">179</FONT>        }<a name="line.179"></a>
-<FONT color="green">180</FONT>    <a name="line.180"></a>
-<FONT color="green">181</FONT>        /**<a name="line.181"></a>
-<FONT color="green">182</FONT>         * Default constructor. Caller must still configure the delegate and persistent file prior to start.<a name="line.182"></a>
-<FONT color="green">183</FONT>         */<a name="line.183"></a>
-<FONT color="green">184</FONT>        public PersistentObject() {<a name="line.184"></a>
-<FONT color="green">185</FONT>        }<a name="line.185"></a>
-<FONT color="green">186</FONT>    <a name="line.186"></a>
-<FONT color="green">187</FONT>        /**<a name="line.187"></a>
-<FONT color="green">188</FONT>         * Get the configured {@link PersistentObjectDelegate}.<a name="line.188"></a>
-<FONT color="green">189</FONT>         *<a name="line.189"></a>
-<FONT color="green">190</FONT>         * @return the delegate supplying required operations<a name="line.190"></a>
-<FONT color="green">191</FONT>         */<a name="line.191"></a>
-<FONT color="green">192</FONT>        public PersistentObjectDelegate&lt;T&gt; getDelegate() {<a name="line.192"></a>
-<FONT color="green">193</FONT>            return this.delegate;<a name="line.193"></a>
-<FONT color="green">194</FONT>        }<a name="line.194"></a>
-<FONT color="green">195</FONT>    <a name="line.195"></a>
-<FONT color="green">196</FONT>        /**<a name="line.196"></a>
-<FONT color="green">197</FONT>         * Configure the {@link PersistentObjectDelegate}.<a name="line.197"></a>
-<FONT color="green">198</FONT>         *<a name="line.198"></a>
-<FONT color="green">199</FONT>         * @param delegate delegate supplying required operations<a name="line.199"></a>
-<FONT color="green">200</FONT>         * @throws IllegalArgumentException if {@code delegate} is null<a name="line.200"></a>
-<FONT color="green">201</FONT>         * @throws IllegalStateException if this instance is started<a name="line.201"></a>
-<FONT color="green">202</FONT>         */<a name="line.202"></a>
-<FONT color="green">203</FONT>        public synchronized void setDelegate(PersistentObjectDelegate&lt;T&gt; delegate) {<a name="line.203"></a>
-<FONT color="green">204</FONT>            if (delegate == null)<a name="line.204"></a>
-<FONT color="green">205</FONT>                throw new IllegalArgumentException("null delegate");<a name="line.205"></a>
-<FONT color="green">206</FONT>            if (this.isStarted())<a name="line.206"></a>
-<FONT color="green">207</FONT>                throw new IllegalStateException("can't set the delegate while started");<a name="line.207"></a>
-<FONT color="green">208</FONT>            this.delegate = delegate;<a name="line.208"></a>
+<FONT color="green">119</FONT>     * &lt;h3&gt;Shared Roots&lt;/h3&gt;<a name="line.119"></a>
+<FONT color="green">120</FONT>     *<a name="line.120"></a>
+<FONT color="green">121</FONT>     * Each time {@link #setRoot setRoot()} or {@link #getRoot getRoot()} is invoked, a deep copy of the root object<a name="line.121"></a>
+<FONT color="green">122</FONT>     * is made. This prevents external code from changing any node in the "official" object graph held by this instance,<a name="line.122"></a>
+<FONT color="green">123</FONT>     * and allows invokers of {@link #getRoot getRoot()} to modify to the returned object graph without affecting other invokers.<a name="line.123"></a>
+<FONT color="green">124</FONT>     * However, there may be cases where this deep copy is an expensive operation in terms of time or memory.<a name="line.124"></a>
+<FONT color="green">125</FONT>     * The {@link #getSharedRoot getSharedRoot()} method can be used in these situations. This method returns the same<a name="line.125"></a>
+<FONT color="green">126</FONT>     * root object each time it is invoked (this shared root is itself a deep copy of the "official" root). Therefore, only<a name="line.126"></a>
+<FONT color="green">127</FONT>     * the very first invocation pays the price of a copy. However, all invokers of {@link #getSharedRoot getSharedRoot()}<a name="line.127"></a>
+<FONT color="green">128</FONT>     * must treat the object graph as read-only to avoid each other seeing unexpected changes.<a name="line.128"></a>
+<FONT color="green">129</FONT>     *<a name="line.129"></a>
+<FONT color="green">130</FONT>     * &lt;h3&gt;Delegate Function&lt;/h3&gt;<a name="line.130"></a>
+<FONT color="green">131</FONT>     *<a name="line.131"></a>
+<FONT color="green">132</FONT>     * &lt;p&gt;<a name="line.132"></a>
+<FONT color="green">133</FONT>     * Instances must be configured with a {@link PersistentObjectDelegate} that knows how to validate the object graph<a name="line.133"></a>
+<FONT color="green">134</FONT>     * and perform conversions to and from XML. See {@link PersistentObjectDelegate} and its implementations for details.<a name="line.134"></a>
+<FONT color="green">135</FONT>     *<a name="line.135"></a>
+<FONT color="green">136</FONT>     * &lt;h3&gt;Schema Changes&lt;/h3&gt;<a name="line.136"></a>
+<FONT color="green">137</FONT>     *<a name="line.137"></a>
+<FONT color="green">138</FONT>     * &lt;p&gt;<a name="line.138"></a>
+<FONT color="green">139</FONT>     * Like any database, the XML schema may evolve over time. The {@link PersistentObjectSchemaUpdater} class provides a simple<a name="line.139"></a>
+<FONT color="green">140</FONT>     * way to apply and manage schema updates using XSLT transforms.<a name="line.140"></a>
+<FONT color="green">141</FONT>     *<a name="line.141"></a>
+<FONT color="green">142</FONT>     * @param &lt;T&gt; type of the root persistent object<a name="line.142"></a>
+<FONT color="green">143</FONT>     * @see PersistentObjectDelegate<a name="line.143"></a>
+<FONT color="green">144</FONT>     * @see PersistentObjectSchemaUpdater<a name="line.144"></a>
+<FONT color="green">145</FONT>     */<a name="line.145"></a>
+<FONT color="green">146</FONT>    public class PersistentObject&lt;T&gt; {<a name="line.146"></a>
+<FONT color="green">147</FONT>    <a name="line.147"></a>
+<FONT color="green">148</FONT>        private static final long EXECUTOR_SHUTDOWN_TIMEOUT = 1000;             // 1 second<a name="line.148"></a>
+<FONT color="green">149</FONT>    <a name="line.149"></a>
+<FONT color="green">150</FONT>        protected final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.150"></a>
+<FONT color="green">151</FONT>    <a name="line.151"></a>
+<FONT color="green">152</FONT>        private final HashSet&lt;PersistentObjectListener&lt;T&gt;&gt; listeners = new HashSet&lt;PersistentObjectListener&lt;T&gt;&gt;();<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>        private PersistentObjectDelegate&lt;T&gt; delegate;<a name="line.154"></a>
+<FONT color="green">155</FONT>        private FileStreamRepository streamRepository;<a name="line.155"></a>
+<FONT color="green">156</FONT>        private long writeDelay;<a name="line.156"></a>
+<FONT color="green">157</FONT>        private long checkInterval;<a name="line.157"></a>
+<FONT color="green">158</FONT>    <a name="line.158"></a>
+<FONT color="green">159</FONT>        private T root;                                         // current root object (private)<a name="line.159"></a>
+<FONT color="green">160</FONT>        private T sharedRoot;                                   // current root object (shared)<a name="line.160"></a>
+<FONT color="green">161</FONT>        private T writebackRoot;                                // pending persistent file writeback value<a name="line.161"></a>
+<FONT color="green">162</FONT>        private ScheduledExecutorService scheduledExecutor;     // used for file checking and delayed write-back<a name="line.162"></a>
+<FONT color="green">163</FONT>        private ExecutorService notifyExecutor;                 // used to notify listeners<a name="line.163"></a>
+<FONT color="green">164</FONT>        private ScheduledFuture pendingWrite;                   // a pending delayed write-back<a name="line.164"></a>
+<FONT color="green">165</FONT>        private long version;                                   // current root object version<a name="line.165"></a>
+<FONT color="green">166</FONT>        private long timestamp;                                 // timestamp of persistent file when we last read it<a name="line.166"></a>
+<FONT color="green">167</FONT>        private boolean allowEmptyStart;<a name="line.167"></a>
+<FONT color="green">168</FONT>        private boolean allowEmptyStop;<a name="line.168"></a>
+<FONT color="green">169</FONT>        private boolean started;<a name="line.169"></a>
+<FONT color="green">170</FONT>    <a name="line.170"></a>
+<FONT color="green">171</FONT>        /**<a name="line.171"></a>
+<FONT color="green">172</FONT>         * Constructor.<a name="line.172"></a>
+<FONT color="green">173</FONT>         *<a name="line.173"></a>
+<FONT color="green">174</FONT>         * &lt;p&gt;<a name="line.174"></a>
+<FONT color="green">175</FONT>         * The {@code writeDelay} is the maximum delay after an update operation before a write-back to the persistent file<a name="line.175"></a>
+<FONT color="green">176</FONT>         * must be initiated.<a name="line.176"></a>
+<FONT color="green">177</FONT>         *<a name="line.177"></a>
+<FONT color="green">178</FONT>         * @param delegate delegate supplying required operations<a name="line.178"></a>
+<FONT color="green">179</FONT>         * @param file the file used to persist<a name="line.179"></a>
+<FONT color="green">180</FONT>         * @param writeDelay write delay in milliseconds, or zero for immediate write-back<a name="line.180"></a>
+<FONT color="green">181</FONT>         * @param checkInterval check interval in milliseconds, or zero to disable persistent file checks<a name="line.181"></a>
+<FONT color="green">182</FONT>         * @throws IllegalArgumentException if {@code delegate} or {@code file} is null<a name="line.182"></a>
+<FONT color="green">183</FONT>         * @throws IllegalArgumentException if {@code writeDelay} or {@code checkInterval} is negative<a name="line.183"></a>
+<FONT color="green">184</FONT>         */<a name="line.184"></a>
+<FONT color="green">185</FONT>        public PersistentObject(PersistentObjectDelegate&lt;T&gt; delegate, File file, long writeDelay, long checkInterval) {<a name="line.185"></a>
+<FONT color="green">186</FONT>            this.setDelegate(delegate);<a name="line.186"></a>
+<FONT color="green">187</FONT>            this.setFile(file);<a name="line.187"></a>
+<FONT color="green">188</FONT>            this.setWriteDelay(writeDelay);<a name="line.188"></a>
+<FONT color="green">189</FONT>            this.setCheckInterval(checkInterval);<a name="line.189"></a>
+<FONT color="green">190</FONT>        }<a name="line.190"></a>
+<FONT color="green">191</FONT>    <a name="line.191"></a>
+<FONT color="green">192</FONT>        /**<a name="line.192"></a>
+<FONT color="green">193</FONT>         * Simplified constructor configuring for immediate write-back and no persistent file checks.<a name="line.193"></a>
+<FONT color="green">194</FONT>         *<a name="line.194"></a>
+<FONT color="green">195</FONT>         * &lt;p&gt;<a name="line.195"></a>
+<FONT color="green">196</FONT>         * Equivalent to:<a name="line.196"></a>
+<FONT color="green">197</FONT>         * &lt;blockquote&gt;&lt;code&gt;<a name="line.197"></a>
+<FONT color="green">198</FONT>         *  PersistentObject(delegate, file, 0L, 0L);<a name="line.198"></a>
+<FONT color="green">199</FONT>         * &lt;/code&gt;&lt;/blockquote&gt;<a name="line.199"></a>
+<FONT color="green">200</FONT>         */<a name="line.200"></a>
+<FONT color="green">201</FONT>        public PersistentObject(PersistentObjectDelegate&lt;T&gt; delegate, File file) {<a name="line.201"></a>
+<FONT color="green">202</FONT>            this(delegate, file, 0, 0);<a name="line.202"></a>
+<FONT color="green">203</FONT>        }<a name="line.203"></a>
+<FONT color="green">204</FONT>    <a name="line.204"></a>
+<FONT color="green">205</FONT>        /**<a name="line.205"></a>
+<FONT color="green">206</FONT>         * Default constructor. Caller must still configure the delegate and persistent file prior to start.<a name="line.206"></a>
+<FONT color="green">207</FONT>         */<a name="line.207"></a>
+<FONT color="green">208</FONT>        public PersistentObject() {<a name="line.208"></a>
 <FONT color="green">209</FONT>        }<a name="line.209"></a>
 <FONT color="green">210</FONT>    <a name="line.210"></a>
 <FONT color="green">211</FONT>        /**<a name="line.211"></a>
-<FONT color="green">212</FONT>         * Get the persistent file containing the XML form of the persisted object.<a name="line.212"></a>
+<FONT color="green">212</FONT>         * Get the configured {@link PersistentObjectDelegate}.<a name="line.212"></a>
 <FONT color="green">213</FONT>         *<a name="line.213"></a>
-<FONT color="green">214</FONT>         * @return file used to persist the root object<a name="line.214"></a>
+<FONT color="green">214</FONT>         * @return the delegate supplying required operations<a name="line.214"></a>
 <FONT color="green">215</FONT>         */<a name="line.215"></a>
-<FONT color="green">216</FONT>        public File getFile() {<a name="line.216"></a>
-<FONT color="green">217</FONT>            return this.streamRepository != null ? this.streamRepository.getFile() : null;<a name="line.217"></a>
+<FONT color="green">216</FONT>        public PersistentObjectDelegate&lt;T&gt; getDelegate() {<a name="line.216"></a>
+<FONT color="green">217</FONT>            return this.delegate;<a name="line.217"></a>
 <FONT color="green">218</FONT>        }<a name="line.218"></a>
 <FONT color="green">219</FONT>    <a name="line.219"></a>
 <FONT color="green">220</FONT>        /**<a name="line.220"></a>
-<FONT color="green">221</FONT>         * Set the persistent file containing the XML form of the persisted object.<a name="line.221"></a>
+<FONT color="green">221</FONT>         * Configure the {@link PersistentObjectDelegate}.<a name="line.221"></a>
 <FONT color="green">222</FONT>         *<a name="line.222"></a>
-<FONT color="green">223</FONT>         * @param file the file used to persist the root object<a name="line.223"></a>
-<FONT color="green">224</FONT>         * @throws IllegalArgumentException if {@code file} is null<a name="line.224"></a>
+<FONT color="green">223</FONT>         * @param delegate delegate supplying required operations<a name="line.223"></a>
+<FONT color="green">224</FONT>         * @throws IllegalArgumentException if {@code delegate} is null<a name="line.224"></a>
 <FONT color="green">225</FONT>         * @throws IllegalStateException if this instance is started<a name="line.225"></a>
 <FONT color="green">226</FONT>         */<a name="line.226"></a>
-<FONT color="green">227</FONT>        public synchronized void setFile(File file) {<a name="line.227"></a>
-<FONT color="green">228</FONT>            if (file == null)<a name="line.228"></a>
-<FONT color="green">229</FONT>                throw new IllegalArgumentException("null file");<a name="line.229"></a>
+<FONT color="green">227</FONT>        public synchronized void setDelegate(PersistentObjectDelegate&lt;T&gt; delegate) {<a name="line.227"></a>
+<FONT color="green">228</FONT>            if (delegate == null)<a name="line.228"></a>
+<FONT color="green">229</FONT>                throw new IllegalArgumentException("null delegate");<a name="line.229"></a>
 <FONT color="green">230</FONT>            if (this.isStarted())<a name="line.230"></a>
-<FONT color="green">231</FONT>                throw new IllegalStateException("can't set the persistent file while started");<a name="line.231"></a>
-<FONT color="green">232</FONT>            this.streamRepository = new FileStreamRepository(file);<a name="line.232"></a>
+<FONT color="green">231</FONT>                throw new IllegalStateException("can't set the delegate while started");<a name="line.231"></a>
+<FONT color="green">232</FONT>            this.delegate = delegate;<a name="line.232"></a>
 <FONT color="green">233</FONT>        }<a name="line.233"></a>
 <FONT color="green">234</FONT>    <a name="line.234"></a>
 <FONT color="green">235</FONT>        /**<a name="line.235"></a>
-<FONT color="green">236</FONT>         * Get the maximum delay after an update operation before a write-back to the persistent file<a name="line.236"></a>
-<FONT color="green">237</FONT>         * must be initiated.<a name="line.237"></a>
-<FONT color="green">238</FONT>         *<a name="line.238"></a>
-<FONT color="green">239</FONT>         * @return write delay in milliseconds, or zero for immediate write-back<a name="line.239"></a>
-<FONT color="green">240</FONT>         */<a name="line.240"></a>
-<FONT color="green">241</FONT>        public long getWriteDelay() {<a name="line.241"></a>
-<FONT color="green">242</FONT>            return this.writeDelay;<a name="line.242"></a>
-<FONT color="green">243</FONT>        }<a name="line.243"></a>
-<FONT color="green">244</FONT>    <a name="line.244"></a>
-<FONT color="green">245</FONT>        /**<a name="line.245"></a>
-<FONT color="green">246</FONT>         * Set the maximum delay after an update operation before a write-back to the persistent file<a name="line.246"></a>
-<FONT color="green">247</FONT>         * must be initiated.<a name="line.247"></a>
-<FONT color="green">248</FONT>         *<a name="line.248"></a>
-<FONT color="green">249</FONT>         * @param writeDelay write delay in milliseconds, or zero for immediate write-back<a name="line.249"></a>
-<FONT color="green">250</FONT>         * @throws IllegalArgumentException if {@code writeDelay} is negative<a name="line.250"></a>
-<FONT color="green">251</FONT>         * @throws IllegalStateException if this instance is started<a name="line.251"></a>
-<FONT color="green">252</FONT>         */<a name="line.252"></a>
-<FONT color="green">253</FONT>        public synchronized void setWriteDelay(long writeDelay) {<a name="line.253"></a>
-<FONT color="green">254</FONT>            if (writeDelay &lt; 0)<a name="line.254"></a>
-<FONT color="green">255</FONT>                throw new IllegalArgumentException("negative writeDelay");<a name="line.255"></a>
-<FONT color="green">256</FONT>            if (this.isStarted())<a name="line.256"></a>
-<FONT color="green">257</FONT>                throw new IllegalStateException("can't set the write delay while started");<a name="line.257"></a>
-<FONT color="green">258</FONT>            this.writeDelay = writeDelay;<a name="line.258"></a>
-<FONT color="green">259</FONT>        }<a name="line.259"></a>
-<FONT color="green">260</FONT>    <a name="line.260"></a>
-<FONT color="green">261</FONT>        /**<a name="line.261"></a>
-<FONT color="green">262</FONT>         * Get the delay time between periodic checks for changes in the underlying persistent file.<a name="line.262"></a>
-<FONT color="green">263</FONT>         *<a name="line.263"></a>
-<FONT color="green">264</FONT>         * @return check interval in milliseconds, or zero if periodic checks are disabled<a name="line.264"></a>
-<FONT color="green">265</FONT>         */<a name="line.265"></a>
-<FONT color="green">266</FONT>        public long getCheckInterval() {<a name="line.266"></a>
-<FONT color="green">267</FONT>            return this.checkInterval;<a name="line.267"></a>
-<FONT color="green">268</FONT>        }<a name="line.268"></a>
-<FONT color="green">269</FONT>    <a name="line.269"></a>
-<FONT color="green">270</FONT>        /**<a name="line.270"></a>
-<FONT color="green">271</FONT>         * Set the delay time between periodic checks for changes in the underlying persistent file.<a name="line.271"></a>
+<FONT color="green">236</FONT>         * Get the persistent file containing the XML form of the persisted object.<a name="line.236"></a>
+<FONT color="green">237</FONT>         *<a name="line.237"></a>
+<FONT color="green">238</FONT>         * @return file used to persist the root object<a name="line.238"></a>
+<FONT color="green">239</FONT>         */<a name="line.239"></a>
+<FONT color="green">240</FONT>        public File getFile() {<a name="line.240"></a>
+<FONT color="green">241</FONT>            return this.streamRepository != null ? this.streamRepository.getFile() : null;<a name="line.241"></a>
+<FONT color="green">242</FONT>        }<a name="line.242"></a>
+<FONT color="green">243</FONT>    <a name="line.243"></a>
+<FONT color="green">244</FONT>        /**<a name="line.244"></a>
+<FONT color="green">245</FONT>         * Set the persistent file containing the XML form of the persisted object.<a name="line.245"></a>
+<FONT color="green">246</FONT>         *<a name="line.246"></a>
+<FONT color="green">247</FONT>         * @param file the file used to persist the root object<a name="line.247"></a>
+<FONT color="green">248</FONT>         * @throws IllegalArgumentException if {@code file} is null<a name="line.248"></a>
+<FONT color="green">249</FONT>         * @throws IllegalStateException if this instance is started<a name="line.249"></a>
+<FONT color="green">250</FONT>         */<a name="line.250"></a>
+<FONT color="green">251</FONT>        public synchronized void setFile(File file) {<a name="line.251"></a>
+<FONT color="green">252</FONT>            if (file == null)<a name="line.252"></a>
+<FONT color="green">253</FONT>                throw new IllegalArgumentException("null file");<a name="line.253"></a>
+<FONT color="green">254</FONT>            if (this.isStarted())<a name="line.254"></a>
+<FONT color="green">255</FONT>                throw new IllegalStateException("can't set the persistent file while started");<a name="line.255"></a>
+<FONT color="green">256</FONT>            this.streamRepository = new FileStreamRepository(file);<a name="line.256"></a>
+<FONT color="green">257</FONT>        }<a name="line.257"></a>
+<FONT color="green">258</FONT>    <a name="line.258"></a>
+<FONT color="green">259</FONT>        /**<a name="line.259"></a>
+<FONT color="green">260</FONT>         * Get the maximum delay after an update operation before a write-back to the persistent file<a name="line.260"></a>
+<FONT color="green">261</FONT>         * must be initiated.<a name="line.261"></a>
+<FONT color="green">262</FONT>         *<a name="line.262"></a>
+<FONT color="green">263</FONT>         * @return write delay in milliseconds, or zero for immediate write-back<a name="line.263"></a>
+<FONT color="green">264</FONT>         */<a name="line.264"></a>
+<FONT color="green">265</FONT>        public long getWriteDelay() {<a name="line.265"></a>
+<FONT color="green">266</FONT>            return this.writeDelay;<a name="line.266"></a>
+<FONT color="green">267</FONT>        }<a name="line.267"></a>
+<FONT color="green">268</FONT>    <a name="line.268"></a>
+<FONT color="green">269</FONT>        /**<a name="line.269"></a>
+<FONT color="green">270</FONT>         * Set the maximum delay after an update operation before a write-back to the persistent file<a name="line.270"></a>
+<FONT color="green">271</FONT>         * must be initiated.<a name="line.271"></a>
 <FONT color="green">272</FONT>         *<a name="line.272"></a>
-<FONT color="green">273</FONT>         * @param checkInterval check interval in milliseconds, or zero if periodic checks are disabled<a name="line.273"></a>
+<FONT color="green">273</FONT>         * @param writeDelay write delay in milliseconds, or zero for immediate write-back<a name="line.273"></a>
 <FONT color="green">274</FONT>         * @throws IllegalArgumentException if {@code writeDelay} is negative<a name="line.274"></a>
 <FONT color="green">275</FONT>         * @throws IllegalStateException if this instance is started<a name="line.275"></a>
 <FONT color="green">276</FONT>         */<a name="line.276"></a>
-<FONT color="green">277</FONT>        public synchronized void setCheckInterval(long checkInterval) {<a name="line.277"></a>
-<FONT color="green">278</FONT>            if (checkInterval &lt; 0)<a name="line.278"></a>
-<FONT color="green">279</FONT>                throw new IllegalArgumentException("negative checkInterval");<a name="line.279"></a>
+<FONT color="green">277</FONT>        public synchronized void setWriteDelay(long writeDelay) {<a name="line.277"></a>
+<FONT color="green">278</FONT>            if (writeDelay &lt; 0)<a name="line.278"></a>
+<FONT color="green">279</FONT>                throw new IllegalArgumentException("negative writeDelay");<a name="line.279"></a>
 <FONT color="green">280</FONT>            if (this.isStarted())<a name="line.280"></a>
-<FONT color="green">281</FONT>                throw new IllegalStateException("can't set the check interval while started");<a name="line.281"></a>
-<FONT color="green">282</FONT>            this.checkInterval = checkInterval;<a name="line.282"></a>
+<FONT color="green">281</FONT>                throw new IllegalStateException("can't set the write delay while started");<a name="line.281"></a>
+<FONT color="green">282</FONT>            this.writeDelay = writeDelay;<a name="line.282"></a>
 <FONT color="green">283</FONT>        }<a name="line.283"></a>
 <FONT color="green">284</FONT>    <a name="line.284"></a>
 <FONT color="green">285</FONT>        /**<a name="line.285"></a>
-<FONT color="green">286</FONT>         * Get the version of the current root.<a name="line.286"></a>
+<FONT color="green">286</FONT>         * Get the delay time between periodic checks for changes in the underlying persistent file.<a name="line.286"></a>
 <FONT color="green">287</FONT>         *<a name="line.287"></a>
-<FONT color="green">288</FONT>         * &lt;p&gt;<a name="line.288"></a>
-<FONT color="green">289</FONT>         * This returns a value which increases monotonically with each update.<a name="line.289"></a>
-<FONT color="green">290</FONT>         * The version number is not persisted with the persistent file; each instance of this class keeps<a name="line.290"></a>
-<FONT color="green">291</FONT>         * its own version count. The version is reset to zero when {@link #stop stop()} is invoked.<a name="line.291"></a>
-<FONT color="green">292</FONT>         *<a name="line.292"></a>
-<FONT color="green">293</FONT>         * @return the current positive object version, or zero if no value has been loaded yet or this instance is not started<a name="line.293"></a>
-<FONT color="green">294</FONT>         */<a name="line.294"></a>
-<FONT color="green">295</FONT>        public synchronized long getVersion() {<a name="line.295"></a>
-<FONT color="green">296</FONT>            return this.version;<a name="line.296"></a>
-<FONT color="green">297</FONT>        }<a name="line.297"></a>
-<FONT color="green">298</FONT>    <a name="line.298"></a>
-<FONT color="green">299</FONT>        /**<a name="line.299"></a>
-<FONT color="green">300</FONT>         * Get the number of backup copies to preserve.<a name="line.300"></a>
-<FONT color="green">301</FONT>         *<a name="line.301"></a>
-<FONT color="green">302</FONT>         * &lt;p&gt;<a name="line.302"></a>
-<FONT color="green">303</FONT>         * Backup files have suffixes of the form &lt;code&gt;.1&lt;/code&gt;,  &lt;code&gt;.2&lt;/code&gt;, etc.,<a name="line.303"></a>
-<FONT color="green">304</FONT>         * in reverse chronological order. Each time a new root object is written, the existing files are rotated.<a name="line.304"></a>
-<FONT color="green">305</FONT>         *<a name="line.305"></a>
-<FONT color="green">306</FONT>         * &lt;p&gt;<a name="line.306"></a>
-<FONT color="green">307</FONT>         * Back-ups are created via hard links and are only supported on UNIX systems.<a name="line.307"></a>
-<FONT color="green">308</FONT>         *<a name="line.308"></a>
-<FONT color="green">309</FONT>         * &lt;p&gt;<a name="line.309"></a>
-<FONT color="green">310</FONT>         * The default is zero, which disables backups.<a name="line.310"></a>
-<FONT color="green">311</FONT>         */<a name="line.311"></a>
-<FONT color="green">312</FONT>        public int getNumBackups() {<a name="line.312"></a>
-<FONT color="green">313</FONT>            return this.streamRepository != null ? this.streamRepository.getNumBackups() : 0;<a name="line.313"></a>
-<FONT color="green">314</FONT>        }<a name="line.314"></a>
-<FONT color="green">315</FONT>    <a name="line.315"></a>
-<FONT color="green">316</FONT>        /**<a name="line.316"></a>
-<FONT color="green">317</FONT>         * Set the number of backup copies to preserve.<a name="line.317"></a>
-<FONT color="green">318</FONT>         *<a name="line.318"></a>
-<FONT color="green">319</FONT>         * @throws IllegalArgumentException if {@code numBackups} is negative<a name="line.319"></a>
-<FONT color="green">320</FONT>         * @throws IllegalStateException if no persistent file has been configured yet<a name="line.320"></a>
-<FONT color="green">321</FONT>         * @see #getNumBackups<a name="line.321"></a>
-<FONT color="green">322</FONT>         */<a name="line.322"></a>
-<FONT color="green">323</FONT>        public void setNumBackups(int numBackups) {<a name="line.323"></a>
-<FONT color="green">324</FONT>            if (this.streamRepository == null)<a name="line.324"></a>
-<FONT color="green">325</FONT>                throw new IllegalStateException("the persistent file must be configured prior to the number of backups");<a name="line.325"></a>
-<FONT color="green">326</FONT>            this.streamRepository.setNumBackups(numBackups);<a name="line.326"></a>
-<FONT color="green">327</FONT>        }<a name="line.327"></a>
-<FONT color="green">328</FONT>    <a name="line.328"></a>
-<FONT color="green">329</FONT>        /**<a name="line.329"></a>
-<FONT color="green">330</FONT>         * Determine whether this instance should allow an "empty start".<a name="line.330"></a>
-<FONT color="green">331</FONT>         *<a name="line.331"></a>
-<FONT color="green">332</FONT>         * &lt;p&gt;<a name="line.332"></a>
-<FONT color="green">333</FONT>         * The default for this property is false.<a name="line.333"></a>
-<FONT color="green">334</FONT>         */<a name="line.334"></a>
-<FONT color="green">335</FONT>        public boolean isAllowEmptyStart() {<a name="line.335"></a>
-<FONT color="green">336</FONT>            return this.allowEmptyStart;<a name="line.336"></a>
-<FONT color="green">337</FONT>        }<a name="line.337"></a>
-<FONT color="green">338</FONT>    <a name="line.338"></a>
-<FONT color="green">339</FONT>        /**<a name="line.339"></a>
-<FONT color="green">340</FONT>         * Configure whether an "empty start" is allowed.<a name="line.340"></a>
-<FONT color="green">341</FONT>         *<a name="line.341"></a>
-<FONT color="green">342</FONT>         * &lt;p&gt;<a name="line.342"></a>
-<FONT color="green">343</FONT>         * The default for this property is false.<a name="line.343"></a>
-<FONT color="green">344</FONT>         *<a name="line.344"></a>
-<FONT color="green">345</FONT>         * @throws IllegalStateException if this instance is started<a name="line.345"></a>
+<FONT color="green">288</FONT>         * @return check interval in milliseconds, or zero if periodic checks are disabled<a name="line.288"></a>
+<FONT color="green">289</FONT>         */<a name="line.289"></a>
+<FONT color="green">290</FONT>        public long getCheckInterval() {<a name="line.290"></a>
+<FONT color="green">291</FONT>            return this.checkInterval;<a name="line.291"></a>
+<FONT color="green">292</FONT>        }<a name="line.292"></a>
+<FONT color="green">293</FONT>    <a name="line.293"></a>
+<FONT color="green">294</FONT>        /**<a name="line.294"></a>
+<FONT color="green">295</FONT>         * Set the delay time between periodic checks for changes in the underlying persistent file.<a name="line.295"></a>
+<FONT color="green">296</FONT>         *<a name="line.296"></a>
+<FONT color="green">297</FONT>         * @param checkInterval check interval in milliseconds, or zero if periodic checks are disabled<a name="line.297"></a>
+<FONT color="green">298</FONT>         * @throws IllegalArgumentException if {@code writeDelay} is negative<a name="line.298"></a>
+<FONT color="green">299</FONT>         * @throws IllegalStateException if this instance is started<a name="line.299"></a>
+<FONT color="green">300</FONT>         */<a name="line.300"></a>
+<FONT color="green">301</FONT>        public synchronized void setCheckInterval(long checkInterval) {<a name="line.301"></a>
+<FONT color="green">302</FONT>            if (checkInterval &lt; 0)<a name="line.302"></a>
+<FONT color="green">303</FONT>                throw new IllegalArgumentException("negative checkInterval");<a name="line.303"></a>
+<FONT color="green">304</FONT>            if (this.isStarted())<a name="line.304"></a>
+<FONT color="green">305</FONT>                throw new IllegalStateException("can't set the check interval while started");<a name="line.305"></a>
+<FONT color="green">306</FONT>            this.checkInterval = checkInterval;<a name="line.306"></a>
+<FONT color="green">307</FONT>        }<a name="line.307"></a>
+<FONT color="green">308</FONT>    <a name="line.308"></a>
+<FONT color="green">309</FONT>        /**<a name="line.309"></a>
+<FONT color="green">310</FONT>         * Get the version of the current root.<a name="line.310"></a>
+<FONT color="green">311</FONT>         *<a name="line.311"></a>
+<FONT color="green">312</FONT>         * &lt;p&gt;<a name="line.312"></a>
+<FONT color="green">313</FONT>         * This returns a value which increases monotonically with each update.<a name="line.313"></a>
+<FONT color="green">314</FONT>         * The version number is not persisted with the persistent file; each instance of this class keeps<a name="line.314"></a>
+<FONT color="green">315</FONT>         * its own version count. The version is reset to zero when {@link #stop stop()} is invoked.<a name="line.315"></a>
+<FONT color="green">316</FONT>         *<a name="line.316"></a>
+<FONT color="green">317</FONT>         * @return the current positive object version, or zero if no value has been loaded yet or this instance is not started<a name="line.317"></a>
+<FONT color="green">318</FONT>         */<a name="line.318"></a>
+<FONT color="green">319</FONT>        public synchronized long getVersion() {<a name="line.319"></a>
+<FONT color="green">320</FONT>            return this.version;<a name="line.320"></a>
+<FONT color="green">321</FONT>        }<a name="line.321"></a>
+<FONT color="green">322</FONT>    <a name="line.322"></a>
+<FONT color="green">323</FONT>        /**<a name="line.323"></a>
+<FONT color="green">324</FONT>         * Get the number of backup copies to preserve.<a name="line.324"></a>
+<FONT color="green">325</FONT>         *<a name="line.325"></a>
+<FONT color="green">326</FONT>         * &lt;p&gt;<a name="line.326"></a>
+<FONT color="green">327</FONT>         * Backup files have suffixes of the form &lt;code&gt;.1&lt;/code&gt;,  &lt;code&gt;.2&lt;/code&gt;, etc.,<a name="line.327"></a>
+<FONT color="green">328</FONT>         * in reverse chronological order. Each time a new root object is written, the existing files are rotated.<a name="line.328"></a>
+<FONT color="green">329</FONT>         *<a name="line.329"></a>
+<FONT color="green">330</FONT>         * &lt;p&gt;<a name="line.330"></a>
+<FONT color="green">331</FONT>         * Back-ups are created via hard links and are only supported on UNIX systems.<a name="line.331"></a>
+<FONT color="green">332</FONT>         *<a name="line.332"></a>
+<FONT color="green">333</FONT>         * &lt;p&gt;<a name="line.333"></a>
+<FONT color="green">334</FONT>         * The default is zero, which disables backups.<a name="line.334"></a>
+<FONT color="green">335</FONT>         */<a name="line.335"></a>
+<FONT color="green">336</FONT>        public int getNumBackups() {<a name="line.336"></a>
+<FONT color="green">337</FONT>            return this.streamRepository != null ? this.streamRepository.getNumBackups() : 0;<a name="line.337"></a>
+<FONT color="green">338</FONT>        }<a name="line.338"></a>
+<FONT color="green">339</FONT>    <a name="line.339"></a>
+<FONT color="green">340</FONT>        /**<a name="line.340"></a>
+<FONT color="green">341</FONT>         * Set the number of backup copies to preserve.<a name="line.341"></a>
+<FONT color="green">342</FONT>         *<a name="line.342"></a>
+<FONT color="green">343</FONT>         * @throws IllegalArgumentException if {@code numBackups} is negative<a name="line.343"></a>
+<FONT color="green">344</FONT>         * @throws IllegalStateException if no persistent file has been configured yet<a name="line.344"></a>
+<FONT color="green">345</FONT>         * @see #getNumBackups<a name="line.345"></a>
 <FONT color="green">346</FONT>         */<a name="line.346"></a>
-<FONT color="green">347</FONT>        public synchronized void setAllowEmptyStart(boolean allowEmptyStart) {<a name="line.347"></a>
-<FONT color="green">348</FONT>            if (this.isStarted())<a name="line.348"></a>
-<FONT color="green">349</FONT>                throw new IllegalStateException("can't set the check interval while started");<a name="line.349"></a>
-<FONT color="green">350</FONT>            this.allowEmptyStart = allowEmptyStart;<a name="line.350"></a>
+<FONT color="green">347</FONT>        public void setNumBackups(int numBackups) {<a name="line.347"></a>
+<FONT color="green">348</FONT>            if (this.streamRepository == null)<a name="line.348"></a>
+<FONT color="green">349</FONT>                throw new IllegalStateException("the persistent file must be configured prior to the number of backups");<a name="line.349"></a>
+<FONT color="green">350</FONT>            this.streamRepository.setNumBackups(numBackups);<a name="line.350"></a>
 <FONT color="green">351</FONT>        }<a name="line.351"></a>
 <FONT color="green">352</FONT>    <a name="line.352"></a>
 <FONT color="green">353</FONT>        /**<a name="line.353"></a>
-<FONT color="green">354</FONT>         * Determine whether this instance should allow an "empty stop".<a name="line.354"></a>
+<FONT color="green">354</FONT>         * Determine whether this instance should allow an "empty start".<a name="line.354"></a>
 <FONT color="green">355</FONT>         *<a name="line.355"></a>
 <FONT color="green">356</FONT>         * &lt;p&gt;<a name="line.356"></a>
 <FONT color="green">357</FONT>         * The default for this property is false.<a name="line.357"></a>
 <FONT color="green">358</FONT>         */<a name="line.358"></a>
-<FONT color="green">359</FONT>        public boolean isAllowEmptyStop() {<a name="line.359"></a>
-<FONT color="green">360</FONT>            return this.allowEmptyStop;<a name="line.360"></a>
+<FONT color="green">359</FONT>        public boolean isAllowEmptyStart() {<a name="line.359"></a>
+<FONT color="green">360</FONT>            return this.allowEmptyStart;<a name="line.360"></a>
 <FONT color="green">361</FONT>        }<a name="line.361"></a>
 <FONT color="green">362</FONT>    <a name="line.362"></a>
 <FONT color="green">363</FONT>        /**<a name="line.363"></a>
-<FONT color="green">364</FONT>         * Configure whether an "empty stop" is allowed.<a name="line.364"></a>
+<FONT color="green">364</FONT>         * Configure whether an "empty start" is allowed.<a name="line.364"></a>
 <FONT color="green">365</FONT>         *<a name="line.365"></a>
 <FONT color="green">366</FONT>         * &lt;p&gt;<a name="line.366"></a>
 <FONT color="green">367</FONT>         * The default for this property is false.<a name="line.367"></a>
 <FONT color="green">368</FONT>         *<a name="line.368"></a>
 <FONT color="green">369</FONT>         * @throws IllegalStateException if this instance is started<a name="line.369"></a>
 <FONT color="green">370</FONT>         */<a name="line.370"></a>
-<FONT color="green">371</FONT>        public synchronized void setAllowEmptyStop(boolean allowEmptyStop) {<a name="line.371"></a>
+<FONT color="green">371</FONT>        public synchronized void setAllowEmptyStart(boolean allowEmptyStart) {<a name="line.371"></a>
 <FONT color="green">372</FONT>            if (this.isStarted())<a name="line.372"></a>
-<FONT color="green">373</FONT>                throw new IllegalStateException("can't set the check interval while started");<a name="line.373"></a>
-<FONT color="green">374</FONT>            this.allowEmptyStop = allowEmptyStop;<a name="line.374"></a>
+<FONT color="green">373</FONT>                throw new IllegalStateException("can't change whether empty starts are allowed while started");<a name="line.373"></a>
+<FONT color="green">374</FONT>            this.allowEmptyStart = allowEmptyStart;<a name="line.374"></a>
 <FONT color="green">375</FONT>        }<a name="line.375"></a>
 <FONT color="green">376</FONT>    <a name="line.376"></a>
 <FONT color="green">377</FONT>        /**<a name="line.377"></a>
-<FONT color="green">378</FONT>         * Determine whether this instance is started.<a name="line.378"></a>
-<FONT color="green">379</FONT>         */<a name="line.379"></a>
-<FONT color="green">380</FONT>        public synchronized boolean isStarted() {<a name="line.380"></a>
-<FONT color="green">381</FONT>            return this.started;<a name="line.381"></a>
-<FONT color="green">382</FONT>        }<a name="line.382"></a>
-<FONT color="green">383</FONT>    <a name="line.383"></a>
-<FONT color="green">384</FONT>        /**<a name="line.384"></a>
-<FONT color="green">385</FONT>         * Start this instance. Does nothing if already started.<a name="line.385"></a>
-<FONT color="green">386</FONT>         *<a name="line.386"></a>
-<FONT color="green">387</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.387"></a>
-<FONT color="green">388</FONT>         */<a name="line.388"></a>
-<FONT color="green">389</FONT>        public synchronized void start() {<a name="line.389"></a>
-<FONT color="green">390</FONT>    <a name="line.390"></a>
-<FONT color="green">391</FONT>            // Already started?<a name="line.391"></a>
-<FONT color="green">392</FONT>            if (this.started)<a name="line.392"></a>
-<FONT color="green">393</FONT>                return;<a name="line.393"></a>
-<FONT color="green">394</FONT>    <a name="line.394"></a>
-<FONT color="green">395</FONT>            // Sanity check<a name="line.395"></a>
-<FONT color="green">396</FONT>            if (this.streamRepository == null)<a name="line.396"></a>
-<FONT color="green">397</FONT>                throw new PersistentObjectException("no file configured");<a name="line.397"></a>
-<FONT color="green">398</FONT>            if (this.delegate == null)<a name="line.398"></a>
-<FONT color="green">399</FONT>                throw new PersistentObjectException("no delegate configured");<a name="line.399"></a>
+<FONT color="green">378</FONT>         * Determine whether this instance should allow an "empty stop".<a name="line.378"></a>
+<FONT color="green">379</FONT>         *<a name="line.379"></a>
+<FONT color="green">380</FONT>         * &lt;p&gt;<a name="line.380"></a>
+<FONT color="green">381</FONT>         * The default for this property is false.<a name="line.381"></a>
+<FONT color="green">382</FONT>         */<a name="line.382"></a>
+<FONT color="green">383</FONT>        public boolean isAllowEmptyStop() {<a name="line.383"></a>
+<FONT color="green">384</FONT>            return this.allowEmptyStop;<a name="line.384"></a>
+<FONT color="green">385</FONT>        }<a name="line.385"></a>
+<FONT color="green">386</FONT>    <a name="line.386"></a>
+<FONT color="green">387</FONT>        /**<a name="line.387"></a>
+<FONT color="green">388</FONT>         * Configure whether an "empty stop" is allowed.<a name="line.388"></a>
+<FONT color="green">389</FONT>         *<a name="line.389"></a>
+<FONT color="green">390</FONT>         * &lt;p&gt;<a name="line.390"></a>
+<FONT color="green">391</FONT>         * The default for this property is false.<a name="line.391"></a>
+<FONT color="green">392</FONT>         *<a name="line.392"></a>
+<FONT color="green">393</FONT>         * @throws IllegalStateException if this instance is started<a name="line.393"></a>
+<FONT color="green">394</FONT>         */<a name="line.394"></a>
+<FONT color="green">395</FONT>        public synchronized void setAllowEmptyStop(boolean allowEmptyStop) {<a name="line.395"></a>
+<FONT color="green">396</FONT>            if (this.isStarted())<a name="line.396"></a>
+<FONT color="green">397</FONT>                throw new IllegalStateException("can't set the check interval while started");<a name="line.397"></a>
+<FONT color="green">398</FONT>            this.allowEmptyStop = allowEmptyStop;<a name="line.398"></a>
+<FONT color="green">399</FONT>        }<a name="line.399"></a>
 <FONT color="green">400</FONT>    <a name="line.400"></a>
-<FONT color="green">401</FONT>            // Create executor services<a name="line.401"></a>
-<FONT color="green">402</FONT>            this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();<a name="line.402"></a>
-<FONT color="green">403</FONT>            this.notifyExecutor = Executors.newSingleThreadExecutor();<a name="line.403"></a>
-<FONT color="green">404</FONT>    <a name="line.404"></a>
-<FONT color="green">405</FONT>            // Read file (if it exists)<a name="line.405"></a>
-<FONT color="green">406</FONT>            this.log.info(this + ": starting");<a name="line.406"></a>
-<FONT color="green">407</FONT>            if (this.getFile().exists()) {<a name="line.407"></a>
-<FONT color="green">408</FONT>    <a name="line.408"></a>
-<FONT color="green">409</FONT>                // Apply file<a name="line.409"></a>
-<FONT color="green">410</FONT>                try {<a name="line.410"></a>
-<FONT color="green">411</FONT>                    this.applyFile(this.getFile().lastModified(), true);<a name="line.411"></a>
-<FONT color="green">412</FONT>                } catch (PersistentObjectException e) {<a name="line.412"></a>
-<FONT color="green">413</FONT>                    if (!this.isAllowEmptyStart())<a name="line.413"></a>
-<FONT color="green">414</FONT>                        throw e;<a name="line.414"></a>
-<FONT color="green">415</FONT>                    this.log.warn("empty start: unable to load persistent file `" + this.getFile() + "': " + e);<a name="line.415"></a>
-<FONT color="green">416</FONT>                }<a name="line.416"></a>
-<FONT color="green">417</FONT>            } else {<a name="line.417"></a>
+<FONT color="green">401</FONT>        /**<a name="line.401"></a>
+<FONT color="green">402</FONT>         * Determine whether this instance is started.<a name="line.402"></a>
+<FONT color="green">403</FONT>         */<a name="line.403"></a>
+<FONT color="green">404</FONT>        public synchronized boolean isStarted() {<a name="line.404"></a>
+<FONT color="green">405</FONT>            return this.started;<a name="line.405"></a>
+<FONT color="green">406</FONT>        }<a name="line.406"></a>
+<FONT color="green">407</FONT>    <a name="line.407"></a>
+<FONT color="green">408</FONT>        /**<a name="line.408"></a>
+<FONT color="green">409</FONT>         * Start this instance. Does nothing if already started.<a name="line.409"></a>
+<FONT color="green">410</FONT>         *<a name="line.410"></a>
+<FONT color="green">411</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.411"></a>
+<FONT color="green">412</FONT>         */<a name="line.412"></a>
+<FONT color="green">413</FONT>        public synchronized void start() {<a name="line.413"></a>
+<FONT color="green">414</FONT>    <a name="line.414"></a>
+<FONT color="green">415</FONT>            // Already started?<a name="line.415"></a>
+<FONT color="green">416</FONT>            if (this.started)<a name="line.416"></a>
+<FONT color="green">417</FONT>                return;<a name="line.417"></a>
 <FONT color="green">418</FONT>    <a name="line.418"></a>
-<FONT color="green">419</FONT>                // Persistent file does not exist, so get default value from delegate<a name="line.419"></a>
-<FONT color="green">420</FONT>                final T defaultValue = this.delegate.getDefaultValue();<a name="line.420"></a>
-<FONT color="green">421</FONT>    <a name="line.421"></a>
-<FONT color="green">422</FONT>                // If no default value, we have an empty start situation, otherwise apply the default value<a name="line.422"></a>
-<FONT color="green">423</FONT>                if (defaultValue == null) {<a name="line.423"></a>
-<FONT color="green">424</FONT>                    if (!this.isAllowEmptyStart()) {<a name="line.424"></a>
-<FONT color="green">425</FONT>                        throw new PersistentObjectException("persistent file `" + this.getFile() + "' does not exist,"<a name="line.425"></a>
-<FONT color="green">426</FONT>                          + " there is no default value, and empty starts are disallowed");<a name="line.426"></a>
-<FONT color="green">427</FONT>                    }<a name="line.427"></a>
-<FONT color="green">428</FONT>                    this.log.info(this + ": empty start: persistent file `" + this.getFile() + "' does not exist"<a name="line.428"></a>
-<FONT color="green">429</FONT>                      + " and there is no default value");<a name="line.429"></a>
-<FONT color="green">430</FONT>                } else {<a name="line.430"></a>
-<FONT color="green">431</FONT>                    this.log.info(this + ": persistent file `" + this.getFile() + "' does not exist, applying default value");<a name="line.431"></a>
-<FONT color="green">432</FONT>                    try {<a name="line.432"></a>
-<FONT color="green">433</FONT>                        this.setRootInternal(defaultValue, 0, false, true);<a name="line.433"></a>
-<FONT color="green">434</FONT>                    } catch (PersistentObjectException e) {                             // e.g., validation failure<a name="line.434"></a>
-<FONT color="green">435</FONT>                        if (!this.isAllowEmptyStart())<a name="line.435"></a>
-<FONT color="green">436</FONT>                            throw e;<a name="line.436"></a>
-<FONT color="green">437</FONT>                        this.log.warn("empty start: unable to apply default value: " + e);<a name="line.437"></a>
-<FONT color="green">438</FONT>                    }<a name="line.438"></a>
-<FONT color="green">439</FONT>                }<a name="line.439"></a>
-<FONT color="green">440</FONT>            }<a name="line.440"></a>
-<FONT color="green">441</FONT>    <a name="line.441"></a>
-<FONT color="green">442</FONT>            // Start checking the file<a name="line.442"></a>
-<FONT color="green">443</FONT>            if (this.checkInterval &gt; 0) {<a name="line.443"></a>
-<FONT color="green">444</FONT>                this.scheduledExecutor.scheduleWithFixedDelay(new Runnable() {<a name="line.444"></a>
-<FONT color="green">445</FONT>                    @Override<a name="line.445"></a>
-<FONT color="green">446</FONT>                    public void run() {<a name="line.446"></a>
-<FONT color="green">447</FONT>                        PersistentObject.this.checkFileTimeout();<a name="line.447"></a>
-<FONT color="green">448</FONT>                    }<a name="line.448"></a>
-<FONT color="green">449</FONT>                }, this.checkInterval, this.checkInterval, TimeUnit.MILLISECONDS);<a name="line.449"></a>
-<FONT color="green">450</FONT>            }<a name="line.450"></a>
-<FONT color="green">451</FONT>    <a name="line.451"></a>
-<FONT color="green">452</FONT>            // Done<a name="line.452"></a>
-<FONT color="green">453</FONT>            this.started = true;<a name="line.453"></a>
-<FONT color="green">454</FONT>        }<a name="line.454"></a>
-<FONT color="green">455</FONT>    <a name="line.455"></a>
-<FONT color="green">456</FONT>        /**<a name="line.456"></a>
-<FONT color="green">457</FONT>         * Stop this instance. Does nothing if already stopped.<a name="line.457"></a>
-<FONT color="green">458</FONT>         *<a name="line.458"></a>
-<FONT color="green">459</FONT>         * @throws PersistentObjectException if a delayed write back is pending and error occurs while performing the write<a name="line.459"></a>
-<FONT color="green">460</FONT>         */<a name="line.460"></a>
-<FONT color="green">461</FONT>        public synchronized void stop() {<a name="line.461"></a>
-<FONT color="green">462</FONT>    <a name="line.462"></a>
-<FONT color="green">463</FONT>            // Already stopped?<a name="line.463"></a>
-<FONT color="green">464</FONT>            if (!this.started)<a name="line.464"></a>
-<FONT color="green">465</FONT>                return;<a name="line.465"></a>
-<FONT color="green">466</FONT>    <a name="line.466"></a>
-<FONT color="green">467</FONT>            // Perform any lingering pending save now<a name="line.467"></a>
-<FONT color="green">468</FONT>            if (this.cancelPendingWrite())<a name="line.468"></a>
-<FONT color="green">469</FONT>                this.writeback();<a name="line.469"></a>
-<FONT color="green">470</FONT>    <a name="line.470"></a>
-<FONT color="green">471</FONT>            // Stop executor services<a name="line.471"></a>
-<FONT color="green">472</FONT>            this.log.info(this + ": shutting down");<a name="line.472"></a>
-<FONT color="green">473</FONT>            this.scheduledExecutor.shutdown();<a name="line.473"></a>
-<FONT color="green">474</FONT>            this.notifyExecutor.shutdown();<a name="line.474"></a>
-<FONT color="green">475</FONT>            this.awaitTermination(this.scheduledExecutor, "scheduledExecutor");<a name="line.475"></a>
-<FONT color="green">476</FONT>            this.awaitTermination(this.notifyExecutor, "notifyExecutor");<a name="line.476"></a>
-<FONT color="green">477</FONT>    <a name="line.477"></a>
-<FONT color="green">478</FONT>            // Reset<a name="line.478"></a>
-<FONT color="green">479</FONT>            this.scheduledExecutor = null;<a name="line.479"></a>
-<FONT color="green">480</FONT>            this.notifyExecutor = null;<a name="line.480"></a>
-<FONT color="green">481</FONT>            this.root = null;<a name="line.481"></a>
-<FONT color="green">482</FONT>            this.sharedRoot = null;<a name="line.482"></a>
-<FONT color="green">483</FONT>            this.writebackRoot = null;<a name="line.483"></a>
-<FONT color="green">484</FONT>            this.version = 0;<a name="line.484"></a>
-<FONT color="green">485</FONT>            this.timestamp = 0;<a name="line.485"></a>
-<FONT color="green">486</FONT>            this.started = false;<a name="line.486"></a>
-<FONT color="green">487</FONT>        }<a name="line.487"></a>
-<FONT color="green">488</FONT>    <a name="line.488"></a>
-<FONT color="green">489</FONT>        /**<a name="line.489"></a>
-<FONT color="green">490</FONT>         * Atomically read the root object.<a name="line.490"></a>
-<FONT color="green">491</FONT>         *<a name="line.491"></a>
-<FONT color="green">492</FONT>         * &lt;p&gt;<a name="line.492"></a>
-<FONT color="green">493</FONT>         * In the situation of an empty start or empty stop, this instance is "unconfigured" and null will be returned.<a name="line.493"></a>
-<FONT color="green">494</FONT>         * This can only happen if {@link #setAllowEmptyStart setAllowEmptyStart(true)} or {@link #setAllowEmptyStop<a name="line.494"></a>
-<FONT color="green">495</FONT>         * setAllowEmptyStop(true)} has been invoked.<a name="line.495"></a>
-<FONT color="green">496</FONT>         *<a name="line.496"></a>
-<FONT color="green">497</FONT>         * &lt;p&gt;<a name="line.497"></a>
-<FONT color="green">498</FONT>         * This returns a deep copy of the current root object; any subsequent modifications are not written back.<a name="line.498"></a>
-<FONT color="green">499</FONT>         * Use {@link #getSharedRoot} instead to avoid the cost of the deep copy at the risk of seeing modifications<a name="line.499"></a>
-<FONT color="green">500</FONT>         * caused by other invokers.<a name="line.500"></a>
-<FONT color="green">501</FONT>         *<a name="line.501"></a>
-<FONT color="green">502</FONT>         * @return the current root instance, or null during an empty start or empty stop<a name="line.502"></a>
-<FONT color="green">503</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.503"></a>
-<FONT color="green">504</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.504"></a>
-<FONT color="green">505</FONT>         */<a name="line.505"></a>
-<FONT color="green">506</FONT>        public synchronized T getRoot() {<a name="line.506"></a>
-<FONT color="green">507</FONT>    <a name="line.507"></a>
-<FONT color="green">508</FONT>            // Sanity check<a name="line.508"></a>
-<FONT color="green">509</FONT>            if (!this.started)<a name="line.509"></a>
-<FONT color="green">510</FONT>                throw new IllegalStateException("not started");<a name="line.510"></a>
-<FONT color="green">511</FONT>    <a name="line.511"></a>
-<FONT color="green">512</FONT>            // Copy root<a name="line.512"></a>
-<FONT color="green">513</FONT>            return this.root != null ? this.delegate.copy(this.root) : null;<a name="line.513"></a>
-<FONT color="green">514</FONT>        }<a name="line.514"></a>
-<FONT color="green">515</FONT>    <a name="line.515"></a>
-<FONT color="green">516</FONT>        /**<a name="line.516"></a>
-<FONT color="green">517</FONT>         * Get a shared copy of the root object.<a name="line.517"></a>
-<FONT color="green">518</FONT>         *<a name="line.518"></a>
-<FONT color="green">519</FONT>         * &lt;p&gt;<a name="line.519"></a>
-<FONT color="green">520</FONT>         * This returns a copy of the root object, but it returns the same copy each time until the next change.<a name="line.520"></a>
-<FONT color="green">521</FONT>         * This method is more efficient than {@link #getRoot}, but all callers must agree not to modify the returned object<a name="line.521"></a>
-<FONT color="green">522</FONT>         * or any object in its graph of references.<a name="line.522"></a>
-<FONT color="green">523</FONT>         *<a name="line.523"></a>
-<FONT color="green">524</FONT>         * @return shared copy of the root instance, or null during an empty start or empty stop<a name="line.524"></a>
-<FONT color="green">525</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.525"></a>
-<FONT color="green">526</FONT>         */<a name="line.526"></a>
-<FONT color="green">527</FONT>        public synchronized T getSharedRoot() {<a name="line.527"></a>
-<FONT color="green">528</FONT>            if (this.sharedRoot == null)<a name="line.528"></a>
-<FONT color="green">529</FONT>                this.sharedRoot = this.getRoot();<a name="line.529"></a>
-<FONT color="green">530</FONT>            return this.sharedRoot;<a name="line.530"></a>
-<FONT color="green">531</FONT>        }<a name="line.531"></a>
-<FONT color="green">532</FONT>    <a name="line.532"></a>
-<FONT color="green">533</FONT>        /**<a name="line.533"></a>
-<FONT color="green">534</FONT>         * Read the root object (as with {@link #getRoot}) and its version (as with {@link #getVersion}) in one atomic operation.<a name="line.534"></a>
-<FONT color="green">535</FONT>         * This avoids the race condition inherent in trying to perform these operations separately.<a name="line.535"></a>
-<FONT color="green">536</FONT>         *<a name="line.536"></a>
-<FONT color="green">537</FONT>         * @return snapshot of the current root, or null during an empty start or empty stop<a name="line.537"></a>
-<FONT color="green">538</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.538"></a>
-<FONT color="green">539</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.539"></a>
-<FONT color="green">540</FONT>         * @see #getRoot<a name="line.540"></a>
-<FONT color="green">541</FONT>         */<a name="line.541"></a>
-<FONT color="green">542</FONT>        public synchronized Snapshot getRootSnapshot() {<a name="line.542"></a>
-<FONT color="green">543</FONT>            T myRoot = this.getRoot();<a name="line.543"></a>
-<FONT color="green">544</FONT>            if (myRoot == null)<a name="line.544"></a>
-<FONT color="green">545</FONT>                return null;<a name="line.545"></a>
-<FONT color="green">546</FONT>            return new Snapshot(myRoot, this.version);<a name="line.546"></a>
-<FONT color="green">547</FONT>        }<a name="line.547"></a>
-<FONT color="green">548</FONT>    <a name="line.548"></a>
-<FONT color="green">549</FONT>        /**<a name="line.549"></a>
-<FONT color="green">550</FONT>         * Read the shared root object (as with {@link #getSharedRoot}) and its version (as with {@link #getVersion})<a name="line.550"></a>
-<FONT color="green">551</FONT>         * in one atomic operation.<a name="line.551"></a>
-<FONT color="green">552</FONT>         * This avoids the race condition inherent in trying to perform these operations separately.<a name="line.552"></a>
-<FONT color="green">553</FONT>         *<a name="line.553"></a>
-<FONT color="green">554</FONT>         * @return snapshot of the current shared root, or null during an empty start or empty stop<a name="line.554"></a>
-<FONT color="green">555</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.555"></a>
-<FONT color="green">556</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.556"></a>
-<FONT color="green">557</FONT>         * @see #getSharedRoot<a name="line.557"></a>
-<FONT color="green">558</FONT>         */<a name="line.558"></a>
-<FONT color="green">559</FONT>        public synchronized Snapshot getSharedRootSnapshot() {<a name="line.559"></a>
-<FONT color="green">560</FONT>            T mySharedRoot = this.getSharedRoot();<a name="line.560"></a>
-<FONT color="green">561</FONT>            if (mySharedRoot == null)<a name="line.561"></a>
-<FONT color="green">562</FONT>                return null;<a name="line.562"></a>
-<FONT color="green">563</FONT>            return new Snapshot(mySharedRoot, this.version);<a name="line.563"></a>
-<FONT color="green">564</FONT>        }<a name="line.564"></a>
-<FONT color="green">565</FONT>    <a name="line.565"></a>
-<FONT color="green">566</FONT>        /**<a name="line.566"></a>
-<FONT color="green">567</FONT>         * Atomically update the root object.<a name="line.567"></a>
-<FONT color="green">568</FONT>         *<a name="line.568"></a>
-<FONT color="green">569</FONT>         * &lt;p&gt;<a name="line.569"></a>
-<FONT color="green">570</FONT>         * The given object is deep-copied, the copy replaces the current root, and the new version number is returned.<a name="line.570"></a>
-<FONT color="green">571</FONT>         * If there is no write delay configured, the new version is written to the underlying file immediately and<a name="line.571"></a>
-<FONT color="green">572</FONT>         * a successful return from this method indicates the new root has been persisted. Otherwise, the write will<a name="line.572"></a>
-<FONT color="green">573</FONT>         * occur at a later time in a separate thread.<a name="line.573"></a>
-<FONT color="green">574</FONT>         * &lt;/p&gt;<a name="line.574"></a>
-<FONT color="green">575</FONT>         *<a name="line.575"></a>
-<FONT color="green">576</FONT>         * &lt;p&gt;<a name="line.576"></a>
-<FONT color="green">577</FONT>         * If {@code expectedVersion} is non-zero, then if the current version is not equal to it,<a name="line.577"></a>
-<FONT color="green">578</FONT>         * a {@link PersistentObjectVersionException} exception is thrown. This mechanism<a name="line.578"></a>
-<FONT color="green">579</FONT>         * can be used for optimistic locking.<a name="line.579"></a>
-<FONT color="green">580</FONT>         * &lt;/p&gt;<a name="line.580"></a>
-<FONT color="green">581</FONT>         *<a name="line.581"></a>
-<FONT color="green">582</FONT>         * &lt;p&gt;<a name="line.582"></a>
-<FONT color="green">583</FONT>         * If empty stops are allowed, then {@code newRoot} may be null, in which case it replaces the<a name="line.583"></a>
-<FONT color="green">584</FONT>         * current root and subsequent calls to {@link #getRoot} will return null. When a null<a name="line.584"></a>
-<FONT color="green">585</FONT>         * {@code newRoot} is set, the persistent file is &lt;b&gt;not&lt;/b&gt; modified.<a name="line.585"></a>
-<FONT color="green">586</FONT>         * &lt;/p&gt;<a name="line.586"></a>
+<FONT color="green">419</FONT>            // Sanity check<a name="line.419"></a>
+<FONT color="green">420</FONT>            if (this.streamRepository == null)<a name="line.420"></a>
+<FONT color="green">421</FONT>                throw new PersistentObjectException("no file configured");<a name="line.421"></a>
+<FONT color="green">422</FONT>            if (this.delegate == null)<a name="line.422"></a>
+<FONT color="green">423</FONT>                throw new PersistentObjectException("no delegate configured");<a name="line.423"></a>
+<FONT color="green">424</FONT>    <a name="line.424"></a>
+<FONT color="green">425</FONT>            // Create executor services<a name="line.425"></a>
+<FONT color="green">426</FONT>            this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();<a name="line.426"></a>
+<FONT color="green">427</FONT>            this.notifyExecutor = Executors.newSingleThreadExecutor();<a name="line.427"></a>
+<FONT color="green">428</FONT>    <a name="line.428"></a>
+<FONT color="green">429</FONT>            // Read file (if it exists)<a name="line.429"></a>
+<FONT color="green">430</FONT>            this.log.info(this + ": starting");<a name="line.430"></a>
+<FONT color="green">431</FONT>            if (this.getFile().exists()) {<a name="line.431"></a>
+<FONT color="green">432</FONT>    <a name="line.432"></a>
+<FONT color="green">433</FONT>                // Apply file<a name="line.433"></a>
+<FONT color="green">434</FONT>                try {<a name="line.434"></a>
+<FONT color="green">435</FONT>                    this.applyFile(this.getFile().lastModified(), true);<a name="line.435"></a>
+<FONT color="green">436</FONT>                } catch (PersistentObjectException e) {<a name="line.436"></a>
+<FONT color="green">437</FONT>                    if (!this.isAllowEmptyStart())<a name="line.437"></a>
+<FONT color="green">438</FONT>                        throw e;<a name="line.438"></a>
+<FONT color="green">439</FONT>                    this.log.warn("empty start: unable to load persistent file `" + this.getFile() + "': " + e);<a name="line.439"></a>
+<FONT color="green">440</FONT>                }<a name="line.440"></a>
+<FONT color="green">441</FONT>            } else {<a name="line.441"></a>
+<FONT color="green">442</FONT>    <a name="line.442"></a>
+<FONT color="green">443</FONT>                // Persistent file does not exist, so get default value from delegate<a name="line.443"></a>
+<FONT color="green">444</FONT>                final T defaultValue = this.delegate.getDefaultValue();<a name="line.444"></a>
+<FONT color="green">445</FONT>    <a name="line.445"></a>
+<FONT color="green">446</FONT>                // If no default value, we have an empty start situation, otherwise apply the default value<a name="line.446"></a>
+<FONT color="green">447</FONT>                if (defaultValue == null) {<a name="line.447"></a>
+<FONT color="green">448</FONT>                    if (!this.isAllowEmptyStart()) {<a name="line.448"></a>
+<FONT color="green">449</FONT>                        throw new PersistentObjectException("persistent file `" + this.getFile() + "' does not exist,"<a name="line.449"></a>
+<FONT color="green">450</FONT>                          + " there is no default value, and empty starts are disallowed");<a name="line.450"></a>
+<FONT color="green">451</FONT>                    }<a name="line.451"></a>
+<FONT color="green">452</FONT>                    this.log.info(this + ": empty start: persistent file `" + this.getFile() + "' does not exist"<a name="line.452"></a>
+<FONT color="green">453</FONT>                      + " and there is no default value");<a name="line.453"></a>
+<FONT color="green">454</FONT>                } else {<a name="line.454"></a>
+<FONT color="green">455</FONT>                    this.log.info(this + ": persistent file `" + this.getFile() + "' does not exist, applying default value");<a name="line.455"></a>
+<FONT color="green">456</FONT>                    try {<a name="line.456"></a>
+<FONT color="green">457</FONT>                        this.setRootInternal(defaultValue, 0, false, true);<a name="line.457"></a>
+<FONT color="green">458</FONT>                    } catch (PersistentObjectException e) {                             // e.g., validation failure<a name="line.458"></a>
+<FONT color="green">459</FONT>                        if (!this.isAllowEmptyStart())<a name="line.459"></a>
+<FONT color="green">460</FONT>                            throw e;<a name="line.460"></a>
+<FONT color="green">461</FONT>                        this.log.warn("empty start: unable to apply default value: " + e);<a name="line.461"></a>
+<FONT color="green">462</FONT>                    }<a name="line.462"></a>
+<FONT color="green">463</FONT>                }<a name="line.463"></a>
+<FONT color="green">464</FONT>            }<a name="line.464"></a>
+<FONT color="green">465</FONT>    <a name="line.465"></a>
+<FONT color="green">466</FONT>            // Start checking the file<a name="line.466"></a>
+<FONT color="green">467</FONT>            if (this.checkInterval &gt; 0) {<a name="line.467"></a>
+<FONT color="green">468</FONT>                this.scheduledExecutor.scheduleWithFixedDelay(new Runnable() {<a name="line.468"></a>
+<FONT color="green">469</FONT>                    @Override<a name="line.469"></a>
+<FONT color="green">470</FONT>                    public void run() {<a name="line.470"></a>
+<FONT color="green">471</FONT>                        PersistentObject.this.checkFileTimeout();<a name="line.471"></a>
+<FONT color="green">472</FONT>                    }<a name="line.472"></a>
+<FONT color="green">473</FONT>                }, this.checkInterval, this.checkInterval, TimeUnit.MILLISECONDS);<a name="line.473"></a>
+<FONT color="green">474</FONT>            }<a name="line.474"></a>
+<FONT color="green">475</FONT>    <a name="line.475"></a>
+<FONT color="green">476</FONT>            // Done<a name="line.476"></a>
+<FONT color="green">477</FONT>            this.started = true;<a name="line.477"></a>
+<FONT color="green">478</FONT>        }<a name="line.478"></a>
+<FONT color="green">479</FONT>    <a name="line.479"></a>
+<FONT color="green">480</FONT>        /**<a name="line.480"></a>
+<FONT color="green">481</FONT>         * Stop this instance. Does nothing if already stopped.<a name="line.481"></a>
+<FONT color="green">482</FONT>         *<a name="line.482"></a>
+<FONT color="green">483</FONT>         * @throws PersistentObjectException if a delayed write back is pending and error occurs while performing the write<a name="line.483"></a>
+<FONT color="green">484</FONT>         */<a name="line.484"></a>
+<FONT color="green">485</FONT>        public synchronized void stop() {<a name="line.485"></a>
+<FONT color="green">486</FONT>    <a name="line.486"></a>
+<FONT color="green">487</FONT>            // Already stopped?<a name="line.487"></a>
+<FONT color="green">488</FONT>            if (!this.started)<a name="line.488"></a>
+<FONT color="green">489</FONT>                return;<a name="line.489"></a>
+<FONT color="green">490</FONT>    <a name="line.490"></a>
+<FONT color="green">491</FONT>            // Perform any lingering pending save now<a name="line.491"></a>
+<FONT color="green">492</FONT>            if (this.cancelPendingWrite())<a name="line.492"></a>
+<FONT color="green">493</FONT>                this.writeback();<a name="line.493"></a>
+<FONT color="green">494</FONT>    <a name="line.494"></a>
+<FONT color="green">495</FONT>            // Stop executor services<a name="line.495"></a>
+<FONT color="green">496</FONT>            this.log.info(this + ": shutting down");<a name="line.496"></a>
+<FONT color="green">497</FONT>            this.scheduledExecutor.shutdown();<a name="line.497"></a>
+<FONT color="green">498</FONT>            this.notifyExecutor.shutdown();<a name="line.498"></a>
+<FONT color="green">499</FONT>            this.awaitTermination(this.scheduledExecutor, "scheduledExecutor");<a name="line.499"></a>
+<FONT color="green">500</FONT>            this.awaitTermination(this.notifyExecutor, "notifyExecutor");<a name="line.500"></a>
+<FONT color="green">501</FONT>    <a name="line.501"></a>
+<FONT color="green">502</FONT>            // Reset<a name="line.502"></a>
+<FONT color="green">503</FONT>            this.scheduledExecutor = null;<a name="line.503"></a>
+<FONT color="green">504</FONT>            this.notifyExecutor = null;<a name="line.504"></a>
+<FONT color="green">505</FONT>            this.root = null;<a name="line.505"></a>
+<FONT color="green">506</FONT>            this.sharedRoot = null;<a name="line.506"></a>
+<FONT color="green">507</FONT>            this.writebackRoot = null;<a name="line.507"></a>
+<FONT color="green">508</FONT>            this.version = 0;<a name="line.508"></a>
+<FONT color="green">509</FONT>            this.timestamp = 0;<a name="line.509"></a>
+<FONT color="green">510</FONT>            this.started = false;<a name="line.510"></a>
+<FONT color="green">511</FONT>        }<a name="line.511"></a>
+<FONT color="green">512</FONT>    <a name="line.512"></a>
+<FONT color="green">513</FONT>        /**<a name="line.513"></a>
+<FONT color="green">514</FONT>         * Determine whether this instance has a non-null root object.<a name="line.514"></a>
+<FONT color="green">515</FONT>         *<a name="line.515"></a>
+<FONT color="green">516</FONT>         * @return true if this instance has a non-null root object, false if this instance is not started<a name="line.516"></a>
+<FONT color="green">517</FONT>         *  or is in an empty start or empty stop state<a name="line.517"></a>
+<FONT color="green">518</FONT>         */<a name="line.518"></a>
+<FONT color="green">519</FONT>        public boolean hasRoot() {<a name="line.519"></a>
+<FONT color="green">520</FONT>            return this.root != null;<a name="line.520"></a>
+<FONT color="green">521</FONT>        }<a name="line.521"></a>
+<FONT color="green">522</FONT>    <a name="line.522"></a>
+<FONT color="green">523</FONT>        /**<a name="line.523"></a>
+<FONT color="green">524</FONT>         * Atomically read the root object.<a name="line.524"></a>
+<FONT color="green">525</FONT>         *<a name="line.525"></a>
+<FONT color="green">526</FONT>         * &lt;p&gt;<a name="line.526"></a>
+<FONT color="green">527</FONT>         * In the situation of an empty start or empty stop, this instance is "unconfigured" and null will be returned.<a name="line.527"></a>
+<FONT color="green">528</FONT>         * This can only happen if {@link #setAllowEmptyStart setAllowEmptyStart(true)} or {@link #setAllowEmptyStop<a name="line.528"></a>
+<FONT color="green">529</FONT>         * setAllowEmptyStop(true)} has been invoked.<a name="line.529"></a>
+<FONT color="green">530</FONT>         *<a name="line.530"></a>
+<FONT color="green">531</FONT>         * &lt;p&gt;<a name="line.531"></a>
+<FONT color="green">532</FONT>         * This returns a deep copy of the current root object; any subsequent modifications are not written back.<a name="line.532"></a>
+<FONT color="green">533</FONT>         * Use {@link #getSharedRoot} instead to avoid the cost of the deep copy at the risk of seeing modifications<a name="line.533"></a>
+<FONT color="green">534</FONT>         * caused by other invokers.<a name="line.534"></a>
+<FONT color="green">535</FONT>         *<a name="line.535"></a>
+<FONT color="green">536</FONT>         * @return the current root instance, or null during an empty start or empty stop<a name="line.536"></a>
+<FONT color="green">537</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.537"></a>
+<FONT color="green">538</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.538"></a>
+<FONT color="green">539</FONT>         */<a name="line.539"></a>
+<FONT color="green">540</FONT>        public synchronized T getRoot() {<a name="line.540"></a>
+<FONT color="green">541</FONT>    <a name="line.541"></a>
+<FONT color="green">542</FONT>            // Sanity check<a name="line.542"></a>
+<FONT color="green">543</FONT>            if (!this.started)<a name="line.543"></a>
+<FONT color="green">544</FONT>                throw new IllegalStateException("not started");<a name="line.544"></a>
+<FONT color="green">545</FONT>    <a name="line.545"></a>
+<FONT color="green">546</FONT>            // Copy root<a name="line.546"></a>
+<FONT color="green">547</FONT>            return this.root != null ? this.delegate.copy(this.root) : null;<a name="line.547"></a>
+<FONT color="green">548</FONT>        }<a name="line.548"></a>
+<FONT color="green">549</FONT>    <a name="line.549"></a>
+<FONT color="green">550</FONT>        /**<a name="line.550"></a>
+<FONT color="green">551</FONT>         * Get a shared copy of the root object.<a name="line.551"></a>
+<FONT color="green">552</FONT>         *<a name="line.552"></a>
+<FONT color="green">553</FONT>         * &lt;p&gt;<a name="line.553"></a>
+<FONT color="green">554</FONT>         * This returns a copy of the root object, but it returns the same copy each time until the next change.<a name="line.554"></a>
+<FONT color="green">555</FONT>         * This method is more efficient than {@link #getRoot}, but all callers must agree not to modify the returned object<a name="line.555"></a>
+<FONT color="green">556</FONT>         * or any object in its graph of references.<a name="line.556"></a>
+<FONT color="green">557</FONT>         *<a name="line.557"></a>
+<FONT color="green">558</FONT>         * @return shared copy of the root instance, or null during an empty start or empty stop<a name="line.558"></a>
+<FONT color="green">559</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.559"></a>
+<FONT color="green">560</FONT>         */<a name="line.560"></a>
+<FONT color="green">561</FONT>        public synchronized T getSharedRoot() {<a name="line.561"></a>
+<FONT color="green">562</FONT>            if (this.sharedRoot == null)<a name="line.562"></a>
+<FONT color="green">563</FONT>                this.sharedRoot = this.getRoot();<a name="line.563"></a>
+<FONT color="green">564</FONT>            return this.sharedRoot;<a name="line.564"></a>
+<FONT color="green">565</FONT>        }<a name="line.565"></a>
+<FONT color="green">566</FONT>    <a name="line.566"></a>
+<FONT color="green">567</FONT>        /**<a name="line.567"></a>
+<FONT color="green">568</FONT>         * Read the root object (as with {@link #getRoot}) and its version (as with {@link #getVersion}) in one atomic operation.<a name="line.568"></a>
+<FONT color="green">569</FONT>         * This avoids the race condition inherent in trying to perform these operations separately.<a name="line.569"></a>
+<FONT color="green">570</FONT>         *<a name="line.570"></a>
+<FONT color="green">571</FONT>         * @return snapshot of the current root, or null during an empty start or empty stop<a name="line.571"></a>
+<FONT color="green">572</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.572"></a>
+<FONT color="green">573</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.573"></a>
+<FONT color="green">574</FONT>         * @see #getRoot<a name="line.574"></a>
+<FONT color="green">575</FONT>         */<a name="line.575"></a>
+<FONT color="green">576</FONT>        public synchronized Snapshot getRootSnapshot() {<a name="line.576"></a>
+<FONT color="green">577</FONT>            T myRoot = this.getRoot();<a name="line.577"></a>
+<FONT color="green">578</FONT>            if (myRoot == null)<a name="line.578"></a>
+<FONT color="green">579</FONT>                return null;<a name="line.579"></a>
+<FONT color="green">580</FONT>            return new Snapshot(myRoot, this.version);<a name="line.580"></a>
+<FONT color="green">581</FONT>        }<a name="line.581"></a>
+<FONT color="green">582</FONT>    <a name="line.582"></a>
+<FONT color="green">583</FONT>        /**<a name="line.583"></a>
+<FONT color="green">584</FONT>         * Read the shared root object (as with {@link #getSharedRoot}) and its version (as with {@link #getVersion})<a name="line.584"></a>
+<FONT color="green">585</FONT>         * in one atomic operation.<a name="line.585"></a>
+<FONT color="green">586</FONT>         * This avoids the race condition inherent in trying to perform these operations separately.<a name="line.586"></a>
 <FONT color="green">587</FONT>         *<a name="line.587"></a>
-<FONT color="green">588</FONT>         * &lt;p&gt;<a name="line.588"></a>
-<FONT color="green">589</FONT>         * If the given root object is {@linkplain PersistentObjectDelegate#isSameGraph the same as} the current<a name="line.589"></a>
-<FONT color="green">590</FONT>         * root object, then no action is taken and the current (unchanged) version number is returned.<a name="line.590"></a>
-<FONT color="green">591</FONT>         * &lt;/p&gt;<a name="line.591"></a>
-<FONT color="green">592</FONT>         *<a name="line.592"></a>
-<FONT color="green">593</FONT>         * &lt;p&gt;<a name="line.593"></a>
-<FONT color="green">594</FONT>         * After a successful change, any registered {@linkplain PersistentObjectListener listeners} are notified in a<a name="line.594"></a>
-<FONT color="green">595</FONT>         * separate thread from the one that invoked this method.<a name="line.595"></a>
-<FONT color="green">596</FONT>         * &lt;/p&gt;<a name="line.596"></a>
-<FONT color="green">597</FONT>         *<a name="line.597"></a>
-<FONT color="green">598</FONT>         * @param newRoot new persistent object<a name="line.598"></a>
-<FONT color="green">599</FONT>         * @param expectedVersion expected current version number, or zero to ignore the current version number<a name="line.599"></a>
-<FONT color="green">600</FONT>         * @return the new current version number (unchanged if {@code newRoot} is<a name="line.600"></a>
-<FONT color="green">601</FONT>         *  {@linkplain PersistentObjectDelegate#isSameGraph the same as} the current root)<a name="line.601"></a>
-<FONT color="green">602</FONT>         * @throws IllegalArgumentException if {@code newRoot} is null and empty stops are disallowed<a name="line.602"></a>
-<FONT color="green">603</FONT>         * @throws IllegalArgumentException if {@code expectedVersion} is negative<a name="line.603"></a>
-<FONT color="green">604</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.604"></a>
-<FONT color="green">605</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.605"></a>
-<FONT color="green">606</FONT>         * @throws PersistentObjectVersionException if {@code expectedVersion} is non-zero and not equal to the current version<a name="line.606"></a>
-<FONT color="green">607</FONT>         * @throws PersistentObjectValidationException if the new root has validation errors<a name="line.607"></a>
-<FONT color="green">608</FONT>         */<a name="line.608"></a>
-<FONT color="green">609</FONT>        public final synchronized long setRoot(T newRoot, long expectedVersion) {<a name="line.609"></a>
-<FONT color="green">610</FONT>            return this.setRootInternal(newRoot, expectedVersion, false, false);<a name="line.610"></a>
-<FONT color="green">611</FONT>        }<a name="line.611"></a>
-<FONT color="green">612</FONT>    <a name="line.612"></a>
-<FONT color="green">613</FONT>        @SuppressWarnings("unchecked")<a name="line.613"></a>
-<FONT color="green">614</FONT>        private synchronized long setRootInternal(T newRoot, long expectedVersion, boolean readingFile, boolean allowNotStarted) {<a name="line.614"></a>
-<FONT color="green">615</FONT>    <a name="line.615"></a>
-<FONT color="green">616</FONT>            // Sanity check<a name="line.616"></a>
-<FONT color="green">617</FONT>            if (newRoot == null &amp;&amp; !this.isAllowEmptyStop())<a name="line.617"></a>
-<FONT color="green">618</FONT>                throw new IllegalArgumentException("newRoot is null but empty stops are not enabled");<a name="line.618"></a>
-<FONT color="green">619</FONT>            if (!this.started &amp;&amp; !allowNotStarted)<a name="line.619"></a>
-<FONT color="green">620</FONT>                throw new IllegalStateException("not started");<a name="line.620"></a>
-<FONT color="green">621</FONT>            if (expectedVersion &lt; 0)<a name="line.621"></a>
-<FONT color="green">622</FONT>                throw new IllegalStateException("negative expectedVersion");<a name="line.622"></a>
-<FONT color="green">623</FONT>    <a name="line.623"></a>
-<FONT color="green">624</FONT>            // Check version number<a name="line.624"></a>
-<FONT color="green">625</FONT>            if (expectedVersion != 0 &amp;&amp; this.version != expectedVersion)<a name="line.625"></a>
-<FONT color="green">626</FONT>                throw new PersistentObjectVersionException(this.version, expectedVersion);<a name="line.626"></a>
-<FONT color="green">627</FONT>    <a name="line.627"></a>
-<FONT color="green">628</FONT>            // Check for sameness<a name="line.628"></a>
-<FONT color="green">629</FONT>            if (this.root == null &amp;&amp; newRoot == null)<a name="line.629"></a>
-<FONT color="green">630</FONT>                return this.version;<a name="line.630"></a>
-<FONT color="green">631</FONT>            if (this.root != null &amp;&amp; newRoot != null &amp;&amp; this.delegate.isSameGraph(this.root, newRoot))<a name="line.631"></a>
-<FONT color="green">632</FONT>                return this.version;<a name="line.632"></a>
-<FONT color="green">633</FONT>    <a name="line.633"></a>
-<FONT color="green">634</FONT>            // Validate the new root<a name="line.634"></a>
-<FONT color="green">635</FONT>            if (newRoot != null) {<a name="line.635"></a>
-<FONT color="green">636</FONT>                Set&lt;ConstraintViolation&lt;T&gt;&gt; violations = this.delegate.validate(newRoot);<a name="line.636"></a>
-<FONT color="green">637</FONT>                if (!violations.isEmpty())<a name="line.637"></a>
-<FONT color="green">638</FONT>                    throw new PersistentObjectValidationException((Set&lt;ConstraintViolation&lt;?&gt;&gt;)(Object)violations);<a name="line.638"></a>
-<FONT color="green">639</FONT>            }<a name="line.639"></a>
-<FONT color="green">640</FONT>    <a name="line.640"></a>
-<FONT color="green">641</FONT>            // Do the update<a name="line.641"></a>
-<FONT color="green">642</FONT>            final T oldRoot = this.root;<a name="line.642"></a>
-<FONT color="green">643</FONT>            this.root = newRoot != null ? this.delegate.copy(newRoot) : null;<a name="line.643"></a>
-<FONT color="green">644</FONT>            this.version++;<a name="line.644"></a>
-<FONT color="green">645</FONT>            this.sharedRoot = null;<a name="line.645"></a>
+<FONT color="green">588</FONT>         * @return snapshot of the current shared root, or null during an empty start or empty stop<a name="line.588"></a>
+<FONT color="green">589</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.589"></a>
+<FONT color="green">590</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.590"></a>
+<FONT color="green">591</FONT>         * @see #getSharedRoot<a name="line.591"></a>
+<FONT color="green">592</FONT>         */<a name="line.592"></a>
+<FONT color="green">593</FONT>        public synchronized Snapshot getSharedRootSnapshot() {<a name="line.593"></a>
+<FONT color="green">594</FONT>            T mySharedRoot = this.getSharedRoot();<a name="line.594"></a>
+<FONT color="green">595</FONT>            if (mySharedRoot == null)<a name="line.595"></a>
+<FONT color="green">596</FONT>                return null;<a name="line.596"></a>
+<FONT color="green">597</FONT>            return new Snapshot(mySharedRoot, this.version);<a name="line.597"></a>
+<FONT color="green">598</FONT>        }<a name="line.598"></a>
+<FONT color="green">599</FONT>    <a name="line.599"></a>
+<FONT color="green">600</FONT>        /**<a name="line.600"></a>
+<FONT color="green">601</FONT>         * Atomically update the root object.<a name="line.601"></a>
+<FONT color="green">602</FONT>         *<a name="line.602"></a>
+<FONT color="green">603</FONT>         * &lt;p&gt;<a name="line.603"></a>
+<FONT color="green">604</FONT>         * The given object is deep-copied, the copy replaces the current root, and the new version number is returned.<a name="line.604"></a>
+<FONT color="green">605</FONT>         * If there is no write delay configured, the new version is written to the underlying file immediately and<a name="line.605"></a>
+<FONT color="green">606</FONT>         * a successful return from this method indicates the new root has been persisted. Otherwise, the write will<a name="line.606"></a>
+<FONT color="green">607</FONT>         * occur at a later time in a separate thread.<a name="line.607"></a>
+<FONT color="green">608</FONT>         * &lt;/p&gt;<a name="line.608"></a>
+<FONT color="green">609</FONT>         *<a name="line.609"></a>
+<FONT color="green">610</FONT>         * &lt;p&gt;<a name="line.610"></a>
+<FONT color="green">611</FONT>         * If {@code expectedVersion} is non-zero, then if the current version is not equal to it,<a name="line.611"></a>
+<FONT color="green">612</FONT>         * a {@link PersistentObjectVersionException} exception is thrown. This mechanism<a name="line.612"></a>
+<FONT color="green">613</FONT>         * can be used for optimistic locking.<a name="line.613"></a>
+<FONT color="green">614</FONT>         * &lt;/p&gt;<a name="line.614"></a>
+<FONT color="green">615</FONT>         *<a name="line.615"></a>
+<FONT color="green">616</FONT>         * &lt;p&gt;<a name="line.616"></a>
+<FONT color="green">617</FONT>         * If empty stops are allowed, then {@code newRoot} may be null, in which case it replaces the<a name="line.617"></a>
+<FONT color="green">618</FONT>         * current root and subsequent calls to {@link #getRoot} will return null. When a null<a name="line.618"></a>
+<FONT color="green">619</FONT>         * {@code newRoot} is set, the persistent file is &lt;b&gt;not&lt;/b&gt; modified.<a name="line.619"></a>
+<FONT color="green">620</FONT>         * &lt;/p&gt;<a name="line.620"></a>
+<FONT color="green">621</FONT>         *<a name="line.621"></a>
+<FONT color="green">622</FONT>         * &lt;p&gt;<a name="line.622"></a>
+<FONT color="green">623</FONT>         * If the given root object is {@linkplain PersistentObjectDelegate#isSameGraph the same as} the current<a name="line.623"></a>
+<FONT color="green">624</FONT>         * root object, then no action is taken and the current (unchanged) version number is returned.<a name="line.624"></a>
+<FONT color="green">625</FONT>         * &lt;/p&gt;<a name="line.625"></a>
+<FONT color="green">626</FONT>         *<a name="line.626"></a>
+<FONT color="green">627</FONT>         * &lt;p&gt;<a name="line.627"></a>
+<FONT color="green">628</FONT>         * After a successful change, any registered {@linkplain PersistentObjectListener listeners} are notified in a<a name="line.628"></a>
+<FONT color="green">629</FONT>         * separate thread from the one that invoked this method.<a name="line.629"></a>
+<FONT color="green">630</FONT>         * &lt;/p&gt;<a name="line.630"></a>
+<FONT color="green">631</FONT>         *<a name="line.631"></a>
+<FONT color="green">632</FONT>         * @param newRoot new persistent object<a name="line.632"></a>
+<FONT color="green">633</FONT>         * @param expectedVersion expected current version number, or zero to ignore the current version number<a name="line.633"></a>
+<FONT color="green">634</FONT>         * @return the new current version number (unchanged if {@code newRoot} is<a name="line.634"></a>
+<FONT color="green">635</FONT>         *  {@linkplain PersistentObjectDelegate#isSameGraph the same as} the current root)<a name="line.635"></a>
+<FONT color="green">636</FONT>         * @throws IllegalArgumentException if {@code newRoot} is null and empty stops are disallowed<a name="line.636"></a>
+<FONT color="green">637</FONT>         * @throws IllegalArgumentException if {@code expectedVersion} is negative<a name="line.637"></a>
+<FONT color="green">638</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.638"></a>
+<FONT color="green">639</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.639"></a>
+<FONT color="green">640</FONT>         * @throws PersistentObjectVersionException if {@code expectedVersion} is non-zero and not equal to the current version<a name="line.640"></a>
+<FONT color="green">641</FONT>         * @throws PersistentObjectValidationException if the new root has validation errors<a name="line.641"></a>
+<FONT color="green">642</FONT>         */<a name="line.642"></a>
+<FONT color="green">643</FONT>        public final synchronized long setRoot(T newRoot, long expectedVersion) {<a name="line.643"></a>
+<FONT color="green">644</FONT>            return this.setRootInternal(newRoot, expectedVersion, false, false);<a name="line.644"></a>
+<FONT color="green">645</FONT>        }<a name="line.645"></a>
 <FONT color="green">646</FONT>    <a name="line.646"></a>
-<FONT color="green">647</FONT>            // Perform write-back, either now or later<a name="line.647"></a>
-<FONT color="green">648</FONT>            if (!readingFile &amp;&amp; this.root != null) {<a name="line.648"></a>
-<FONT color="green">649</FONT>                this.writebackRoot = this.root;<a name="line.649"></a>
-<FONT color="green">650</FONT>                if (this.writeDelay == 0)<a name="line.650"></a>
-<FONT color="green">651</FONT>                    this.writeback();<a name="line.651"></a>
-<FONT color="green">652</FONT>                else if (this.pendingWrite == null) {<a name="line.652"></a>
-<FONT color="green">653</FONT>                    this.pendingWrite = this.scheduledExecutor.schedule(new Runnable() {<a name="line.653"></a>
-<FONT color="green">654</FONT>                        @Override<a name="line.654"></a>
-<FONT color="green">655</FONT>                        public void run() {<a name="line.655"></a>
-<FONT color="green">656</FONT>                            PersistentObject.this.writeTimeout();<a name="line.656"></a>
-<FONT color="green">657</FONT>                        }<a name="line.657"></a>
-<FONT color="green">658</FONT>                    }, this.writeDelay, TimeUnit.MILLISECONDS);<a name="line.658"></a>
-<FONT color="green">659</FONT>                }<a name="line.659"></a>
-<FONT color="green">660</FONT>            }<a name="line.660"></a>
+<FONT color="green">647</FONT>        @SuppressWarnings("unchecked")<a name="line.647"></a>
+<FONT color="green">648</FONT>        private synchronized long setRootInternal(T newRoot, long expectedVersion, boolean readingFile, boolean allowNotStarted) {<a name="line.648"></a>
+<FONT color="green">649</FONT>    <a name="line.649"></a>
+<FONT color="green">650</FONT>            // Sanity check<a name="line.650"></a>
+<FONT color="green">651</FONT>            if (newRoot == null &amp;&amp; !this.isAllowEmptyStop())<a name="line.651"></a>
+<FONT color="green">652</FONT>                throw new IllegalArgumentException("newRoot is null but empty stops are not enabled");<a name="line.652"></a>
+<FONT color="green">653</FONT>            if (!this.started &amp;&amp; !allowNotStarted)<a name="line.653"></a>
+<FONT color="green">654</FONT>                throw new IllegalStateException("not started");<a name="line.654"></a>
+<FONT color="green">655</FONT>            if (expectedVersion &lt; 0)<a name="line.655"></a>
+<FONT color="green">656</FONT>                throw new IllegalStateException("negative expectedVersion");<a name="line.656"></a>
+<FONT color="green">657</FONT>    <a name="line.657"></a>
+<FONT color="green">658</FONT>            // Check version number<a name="line.658"></a>
+<FONT color="green">659</FONT>            if (expectedVersion != 0 &amp;&amp; this.version != expectedVersion)<a name="line.659"></a>
+<FONT color="green">660</FONT>                throw new PersistentObjectVersionException(this.version, expectedVersion);<a name="line.660"></a>
 <FONT color="green">661</FONT>    <a name="line.661"></a>
-<FONT color="green">662</FONT>            // Notify listeners<a name="line.662"></a>
-<FONT color="green">663</FONT>            this.notifyListeners(this.version, oldRoot, newRoot);<a name="line.663"></a>
-<FONT color="green">664</FONT>    <a name="line.664"></a>
-<FONT color="green">665</FONT>            // Done<a name="line.665"></a>
-<FONT color="green">666</FONT>            return this.version;<a name="line.666"></a>
-<FONT color="green">667</FONT>        }<a name="line.667"></a>
-<FONT color="green">668</FONT>    <a name="line.668"></a>
-<FONT color="green">669</FONT>        /**<a name="line.669"></a>
-<FONT color="green">670</FONT>         * Atomically update the root object.<a name="line.670"></a>
-<FONT color="green">671</FONT>         *<a name="line.671"></a>
-<FONT color="green">672</FONT>         * &lt;p&gt;<a name="line.672"></a>
-<FONT color="green">673</FONT>         * The is a convenience method, equivalent to:<a name="line.673"></a>
-<FONT color="green">674</FONT>         *  &lt;blockquote&gt;<a name="line.674"></a>
-<FONT color="green">675</FONT>         *  &lt;code&gt;{@link #setRoot(Object, long) setRoot}(newRoot, 0)&lt;/code&gt;<a name="line.675"></a>
-<FONT color="green">676</FONT>         *  &lt;/blockquote&gt;<a name="line.676"></a>
-<FONT color="green">677</FONT>         *<a name="line.677"></a>
-<FONT color="green">678</FONT>         * &lt;p&gt;<a name="line.678"></a>
-<FONT color="green">679</FONT>         * This method cannot throw {@link PersistentObjectVersionException}.<a name="line.679"></a>
-<FONT color="green">680</FONT>         */<a name="line.680"></a>
-<FONT color="green">681</FONT>        public final synchronized long setRoot(T newRoot) {<a name="line.681"></a>
-<FONT color="green">682</FONT>            return this.setRoot(newRoot, 0);<a name="line.682"></a>
-<FONT color="green">683</FONT>        }<a name="line.683"></a>
-<FONT color="green">684</FONT>    <a name="line.684"></a>
-<FONT color="green">685</FONT>        /**<a name="line.685"></a>
-<FONT color="green">686</FONT>         * Check the persistent file for an "out-of-band" update.<a name="line.686"></a>
-<FONT color="green">687</FONT>         *<a name="line.687"></a>
-<FONT color="green">688</FONT>         * &lt;p&gt;<a name="line.688"></a>
-<FONT color="green">689</FONT>         * If the persistent file has a newer timestamp than the timestamp of the most recently read<a name="line.689"></a>
-<FONT color="green">690</FONT>         * or written version, then it will be read and applied to this instance.<a name="line.690"></a>
-<FONT color="green">691</FONT>         *<a name="line.691"></a>
-<FONT color="green">692</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.692"></a>
-<FONT color="green">693</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.693"></a>
-<FONT color="green">694</FONT>         */<a name="line.694"></a>
-<FONT color="green">695</FONT>        public synchronized void checkFile() {<a name="line.695"></a>
-<FONT color="green">696</FONT>    <a name="line.696"></a>
-<FONT color="green">697</FONT>            // Sanity check<a name="line.697"></a>
-<FONT color="green">698</FONT>            if (!this.started)<a name="line.698"></a>
-<FONT color="green">699</FONT>                throw new IllegalStateException("not started");<a name="line.699"></a>
-<FONT color="green">700</FONT>    <a name="line.700"></a>
-<FONT color="green">701</FONT>            // Get file timestamp<a name="line.701"></a>
-<FONT color="green">702</FONT>            long fileTime = this.getFile().lastModified();<a name="line.702"></a>
-<FONT color="green">703</FONT>            if (fileTime == 0)<a name="line.703"></a>
-<FONT color="green">704</FONT>                return;<a name="line.704"></a>
-<FONT color="green">705</FONT>    <a name="line.705"></a>
-<FONT color="green">706</FONT>            // Check whether file has newly appeared or just been updated<a name="line.706"></a>
-<FONT color="green">707</FONT>            if (this.timestamp != 0 &amp;&amp; fileTime &lt;= this.timestamp)<a name="line.707"></a>
-<FONT color="green">708</FONT>                return;<a name="line.708"></a>
-<FONT color="green">709</FONT>    <a name="line.709"></a>
-<FONT color="green">710</FONT>            // Read new file<a name="line.710"></a>
-<FONT color="green">711</FONT>            this.log.info(this + ": detected out-of-band update of persistent file `" + this.getFile() + "'");<a name="line.711"></a>
-<FONT color="green">712</FONT>            this.applyFile(fileTime, false);<a name="line.712"></a>
-<FONT color="green">713</FONT>        }<a name="line.713"></a>
-<FONT color="green">714</FONT>    <a name="line.714"></a>
-<FONT color="green">715</FONT>        /**<a name="line.715"></a>
-<FONT color="green">716</FONT>         * Add a listener to be notified each time the object graph changes.<a name="line.716"></a>
-<FONT color="green">717</FONT>         *<a name="line.717"></a>
-<FONT color="green">718</FONT>         * &lt;p&gt;<a name="line.718"></a>
-<FONT color="green">719</FONT>         * Listeners are notified in a separate thread from the one that caused the root object to change.<a name="line.719"></a>
-<FONT color="green">720</FONT>         *<a name="line.720"></a>
-<FONT color="green">721</FONT>         * @throws IllegalArgumentException if {@code listener} is null<a name="line.721"></a>
-<FONT color="green">722</FONT>         */<a name="line.722"></a>
-<FONT color="green">723</FONT>        public void addListener(PersistentObjectListener&lt;T&gt; listener) {<a name="line.723"></a>
-<FONT color="green">724</FONT>            if (listener == null)<a name="line.724"></a>
-<FONT color="green">725</FONT>                throw new IllegalArgumentException("null listener");<a name="line.725"></a>
-<FONT color="green">726</FONT>            synchronized (this.listeners) {<a name="line.726"></a>
-<FONT color="green">727</FONT>                this.listeners.add(listener);<a name="line.727"></a>
-<FONT color="green">728</FONT>            }<a name="line.728"></a>
-<FONT color="green">729</FONT>        }<a name="line.729"></a>
+<FONT color="green">662</FONT>            // Check for sameness<a name="line.662"></a>
+<FONT color="green">663</FONT>            if (this.root == null &amp;&amp; newRoot == null)<a name="line.663"></a>
+<FONT color="green">664</FONT>                return this.version;<a name="line.664"></a>
+<FONT color="green">665</FONT>            if (this.root != null &amp;&amp; newRoot != null &amp;&amp; this.delegate.isSameGraph(this.root, newRoot))<a name="line.665"></a>
+<FONT color="green">666</FONT>                return this.version;<a name="line.666"></a>
+<FONT color="green">667</FONT>    <a name="line.667"></a>
+<FONT color="green">668</FONT>            // Validate the new root<a name="line.668"></a>
+<FONT color="green">669</FONT>            if (newRoot != null) {<a name="line.669"></a>
+<FONT color="green">670</FONT>                Set&lt;ConstraintViolation&lt;T&gt;&gt; violations = this.delegate.validate(newRoot);<a name="line.670"></a>
+<FONT color="green">671</FONT>                if (!violations.isEmpty())<a name="line.671"></a>
+<FONT color="green">672</FONT>                    throw new PersistentObjectValidationException((Set&lt;ConstraintViolation&lt;?&gt;&gt;)(Object)violations);<a name="line.672"></a>
+<FONT color="green">673</FONT>            }<a name="line.673"></a>
+<FONT color="green">674</FONT>    <a name="line.674"></a>
+<FONT color="green">675</FONT>            // Do the update<a name="line.675"></a>
+<FONT color="green">676</FONT>            final T oldRoot = this.root;<a name="line.676"></a>
+<FONT color="green">677</FONT>            this.root = newRoot != null ? this.delegate.copy(newRoot) : null;<a name="line.677"></a>
+<FONT color="green">678</FONT>            this.version++;<a name="line.678"></a>
+<FONT color="green">679</FONT>            this.sharedRoot = null;<a name="line.679"></a>
+<FONT color="green">680</FONT>    <a name="line.680"></a>
+<FONT color="green">681</FONT>            // Perform write-back, either now or later<a name="line.681"></a>
+<FONT color="green">682</FONT>            if (!readingFile &amp;&amp; this.root != null) {<a name="line.682"></a>
+<FONT color="green">683</FONT>                this.writebackRoot = this.root;<a name="line.683"></a>
+<FONT color="green">684</FONT>                if (this.writeDelay == 0)<a name="line.684"></a>
+<FONT color="green">685</FONT>                    this.writeback();<a name="line.685"></a>
+<FONT color="green">686</FONT>                else if (this.pendingWrite == null) {<a name="line.686"></a>
+<FONT color="green">687</FONT>                    this.pendingWrite = this.scheduledExecutor.schedule(new Runnable() {<a name="line.687"></a>
+<FONT color="green">688</FONT>                        @Override<a name="line.688"></a>
+<FONT color="green">689</FONT>                        public void run() {<a name="line.689"></a>
+<FONT color="green">690</FONT>                            PersistentObject.this.writeTimeout();<a name="line.690"></a>
+<FONT color="green">691</FONT>                        }<a name="line.691"></a>
+<FONT color="green">692</FONT>                    }, this.writeDelay, TimeUnit.MILLISECONDS);<a name="line.692"></a>
+<FONT color="green">693</FONT>                }<a name="line.693"></a>
+<FONT color="green">694</FONT>            }<a name="line.694"></a>
+<FONT color="green">695</FONT>    <a name="line.695"></a>
+<FONT color="green">696</FONT>            // Notify listeners<a name="line.696"></a>
+<FONT color="green">697</FONT>            this.notifyListeners(this.version, oldRoot, newRoot);<a name="line.697"></a>
+<FONT color="green">698</FONT>    <a name="line.698"></a>
+<FONT color="green">699</FONT>            // Done<a name="line.699"></a>
+<FONT color="green">700</FONT>            return this.version;<a name="line.700"></a>
+<FONT color="green">701</FONT>        }<a name="line.701"></a>
+<FONT color="green">702</FONT>    <a name="line.702"></a>
+<FONT color="green">703</FONT>        /**<a name="line.703"></a>
+<FONT color="green">704</FONT>         * Atomically update the root object.<a name="line.704"></a>
+<FONT color="green">705</FONT>         *<a name="line.705"></a>
+<FONT color="green">706</FONT>         * &lt;p&gt;<a name="line.706"></a>
+<FONT color="green">707</FONT>         * The is a convenience method, equivalent to:<a name="line.707"></a>
+<FONT color="green">708</FONT>         *  &lt;blockquote&gt;<a name="line.708"></a>
+<FONT color="green">709</FONT>         *  &lt;code&gt;{@link #setRoot(Object, long) setRoot}(newRoot, 0)&lt;/code&gt;<a name="line.709"></a>
+<FONT color="green">710</FONT>         *  &lt;/blockquote&gt;<a name="line.710"></a>
+<FONT color="green">711</FONT>         *<a name="line.711"></a>
+<FONT color="green">712</FONT>         * &lt;p&gt;<a name="line.712"></a>
+<FONT color="green">713</FONT>         * This method cannot throw {@link PersistentObjectVersionException}.<a name="line.713"></a>
+<FONT color="green">714</FONT>         */<a name="line.714"></a>
+<FONT color="green">715</FONT>        public final synchronized long setRoot(T newRoot) {<a name="line.715"></a>
+<FONT color="green">716</FONT>            return this.setRoot(newRoot, 0);<a name="line.716"></a>
+<FONT color="green">717</FONT>        }<a name="line.717"></a>
+<FONT color="green">718</FONT>    <a name="line.718"></a>
+<FONT color="green">719</FONT>        /**<a name="line.719"></a>
+<FONT color="green">720</FONT>         * Check the persistent file for an "out-of-band" update.<a name="line.720"></a>
+<FONT color="green">721</FONT>         *<a name="line.721"></a>
+<FONT color="green">722</FONT>         * &lt;p&gt;<a name="line.722"></a>
+<FONT color="green">723</FONT>         * If the persistent file has a newer timestamp than the timestamp of the most recently read<a name="line.723"></a>
+<FONT color="green">724</FONT>         * or written version, then it will be read and applied to this instance.<a name="line.724"></a>
+<FONT color="green">725</FONT>         *<a name="line.725"></a>
+<FONT color="green">726</FONT>         * @throws IllegalStateException if this instance is not started<a name="line.726"></a>
+<FONT color="green">727</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.727"></a>
+<FONT color="green">728</FONT>         */<a name="line.728"></a>
+<FONT color="green">729</FONT>        public synchronized void checkFile() {<a name="line.729"></a>
 <FONT color="green">730</FONT>    <a name="line.730"></a>
-<FONT color="green">731</FONT>        /**<a name="line.731"></a>
-<FONT color="green">732</FONT>         * Remove a listener added via {@link #addListener addListener()}.<a name="line.732"></a>
-<FONT color="green">733</FONT>         */<a name="line.733"></a>
-<FONT color="green">734</FONT>        public void removeListener(PersistentObjectListener&lt;T&gt; listener) {<a name="line.734"></a>
-<FONT color="green">735</FONT>            synchronized (this.listeners) {<a name="line.735"></a>
-<FONT color="green">736</FONT>                this.listeners.remove(listener);<a name="line.736"></a>
-<FONT color="green">737</FONT>            }<a name="line.737"></a>
-<FONT color="green">738</FONT>        }<a name="line.738"></a>
+<FONT color="green">731</FONT>            // Sanity check<a name="line.731"></a>
+<FONT color="green">732</FONT>            if (!this.started)<a name="line.732"></a>
+<FONT color="green">733</FONT>                throw new IllegalStateException("not started");<a name="line.733"></a>
+<FONT color="green">734</FONT>    <a name="line.734"></a>
+<FONT color="green">735</FONT>            // Get file timestamp<a name="line.735"></a>
+<FONT color="green">736</FONT>            long fileTime = this.getFile().lastModified();<a name="line.736"></a>
+<FONT color="green">737</FONT>            if (fileTime == 0)<a name="line.737"></a>
+<FONT color="green">738</FONT>                return;<a name="line.738"></a>
 <FONT color="green">739</FONT>    <a name="line.739"></a>
-<FONT color="green">740</FONT>        /**<a name="line.740"></a>
-<FONT color="green">741</FONT>         * Get a simple string description of this instance. This description appears in all log messages.<a name="line.741"></a>
-<FONT color="green">742</FONT>         */<a name="line.742"></a>
-<FONT color="green">743</FONT>        @Override<a name="line.743"></a>
-<FONT color="green">744</FONT>        public String toString() {<a name="line.744"></a>
-<FONT color="green">745</FONT>            return this.getClass().getSimpleName() + "[" + this.getFile().getName() + "]";<a name="line.745"></a>
-<FONT color="green">746</FONT>        }<a name="line.746"></a>
-<FONT color="green">747</FONT>    <a name="line.747"></a>
-<FONT color="green">748</FONT>        /**<a name="line.748"></a>
-<FONT color="green">749</FONT>         * Read the persistent file.<a name="line.749"></a>
-<FONT color="green">750</FONT>         *<a name="line.750"></a>
-<FONT color="green">751</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.751"></a>
-<FONT color="green">752</FONT>         */<a name="line.752"></a>
-<FONT color="green">753</FONT>        protected T read() {<a name="line.753"></a>
-<FONT color="green">754</FONT>    <a name="line.754"></a>
-<FONT color="green">755</FONT>            // Open file<a name="line.755"></a>
-<FONT color="green">756</FONT>            this.log.info(this + ": reading persistent file `" + this.getFile() + "'");<a name="line.756"></a>
-<FONT color="green">757</FONT>            BufferedInputStream input;<a name="line.757"></a>
-<FONT color="green">758</FONT>            try {<a name="line.758"></a>
-<FONT color="green">759</FONT>                input = new BufferedInputStream(this.streamRepository.getInputStream());<a name="line.759"></a>
-<FONT color="green">760</FONT>            } catch (IOException e) {<a name="line.760"></a>
-<FONT color="green">761</FONT>                throw new PersistentObjectException("error opening persistent file", e);<a name="line.761"></a>
+<FONT color="green">740</FONT>            // Check whether file has newly appeared or just been updated<a name="line.740"></a>
+<FONT color="green">741</FONT>            if (this.timestamp != 0 &amp;&amp; fileTime &lt;= this.timestamp)<a name="line.741"></a>
+<FONT color="green">742</FONT>                return;<a name="line.742"></a>
+<FONT color="green">743</FONT>    <a name="line.743"></a>
+<FONT color="green">744</FONT>            // Read new file<a name="line.744"></a>
+<FONT color="green">745</FONT>            this.log.info(this + ": detected out-of-band update of persistent file `" + this.getFile() + "'");<a name="line.745"></a>
+<FONT color="green">746</FONT>            this.applyFile(fileTime, false);<a name="line.746"></a>
+<FONT color="green">747</FONT>        }<a name="line.747"></a>
+<FONT color="green">748</FONT>    <a name="line.748"></a>
+<FONT color="green">749</FONT>        /**<a name="line.749"></a>
+<FONT color="green">750</FONT>         * Add a listener to be notified each time the object graph changes.<a name="line.750"></a>
+<FONT color="green">751</FONT>         *<a name="line.751"></a>
+<FONT color="green">752</FONT>         * &lt;p&gt;<a name="line.752"></a>
+<FONT color="green">753</FONT>         * Listeners are notified in a separate thread from the one that caused the root object to change.<a name="line.753"></a>
+<FONT color="green">754</FONT>         *<a name="line.754"></a>
+<FONT color="green">755</FONT>         * @throws IllegalArgumentException if {@code listener} is null<a name="line.755"></a>
+<FONT color="green">756</FONT>         */<a name="line.756"></a>
+<FONT color="green">757</FONT>        public void addListener(PersistentObjectListener&lt;T&gt; listener) {<a name="line.757"></a>
+<FONT color="green">758</FONT>            if (listener == null)<a name="line.758"></a>
+<FONT color="green">759</FONT>                throw new IllegalArgumentException("null listener");<a name="line.759"></a>
+<FONT color="green">760</FONT>            synchronized (this.listeners) {<a name="line.760"></a>
+<FONT color="green">761</FONT>                this.listeners.add(listener);<a name="line.761"></a>
 <FONT color="green">762</FONT>            }<a name="line.762"></a>
-<FONT color="green">763</FONT>    <a name="line.763"></a>
-<FONT color="green">764</FONT>            // Parse XML<a name="line.764"></a>
-<FONT color="green">765</FONT>            T obj;<a name="line.765"></a>
-<FONT color="green">766</FONT>            try {<a name="line.766"></a>
-<FONT color="green">767</FONT>                StreamSource source = new StreamSource(input);<a name="line.767"></a>
-<FONT color="green">768</FONT>                source.setSystemId(this.getFile());<a name="line.768"></a>
-<FONT color="green">769</FONT>                try {<a name="line.769"></a>
-<FONT color="green">770</FONT>                    obj = this.delegate.deserialize(source);<a name="line.770"></a>
-<FONT color="green">771</FONT>                } catch (IOException e) {<a name="line.771"></a>
-<FONT color="green">772</FONT>                    throw new PersistentObjectException("error reading persistent file", e);<a name="line.772"></a>
-<FONT color="green">773</FONT>                }<a name="line.773"></a>
-<FONT color="green">774</FONT>            } finally {<a name="line.774"></a>
-<FONT color="green">775</FONT>                try {<a name="line.775"></a>
-<FONT color="green">776</FONT>                    input.close();<a name="line.776"></a>
-<FONT color="green">777</FONT>                } catch (IOException e) {<a name="line.777"></a>
-<FONT color="green">778</FONT>                    // ignore<a name="line.778"></a>
-<FONT color="green">779</FONT>                }<a name="line.779"></a>
-<FONT color="green">780</FONT>            }<a name="line.780"></a>
+<FONT color="green">763</FONT>        }<a name="line.763"></a>
+<FONT color="green">764</FONT>    <a name="line.764"></a>
+<FONT color="green">765</FONT>        /**<a name="line.765"></a>
+<FONT color="green">766</FONT>         * Remove a listener added via {@link #addListener addListener()}.<a name="line.766"></a>
+<FONT color="green">767</FONT>         */<a name="line.767"></a>
+<FONT color="green">768</FONT>        public void removeListener(PersistentObjectListener&lt;T&gt; listener) {<a name="line.768"></a>
+<FONT color="green">769</FONT>            synchronized (this.listeners) {<a name="line.769"></a>
+<FONT color="green">770</FONT>                this.listeners.remove(listener);<a name="line.770"></a>
+<FONT color="green">771</FONT>            }<a name="line.771"></a>
+<FONT color="green">772</FONT>        }<a name="line.772"></a>
+<FONT color="green">773</FONT>    <a name="line.773"></a>
+<FONT color="green">774</FONT>        /**<a name="line.774"></a>
+<FONT color="green">775</FONT>         * Get a simple string description of this instance. This description appears in all log messages.<a name="line.775"></a>
+<FONT color="green">776</FONT>         */<a name="line.776"></a>
+<FONT color="green">777</FONT>        @Override<a name="line.777"></a>
+<FONT color="green">778</FONT>        public String toString() {<a name="line.778"></a>
+<FONT color="green">779</FONT>            return this.getClass().getSimpleName() + "[" + this.getFile().getName() + "]";<a name="line.779"></a>
+<FONT color="green">780</FONT>        }<a name="line.780"></a>
 <FONT color="green">781</FONT>    <a name="line.781"></a>
-<FONT color="green">782</FONT>            // Check result<a name="line.782"></a>
-<FONT color="green">783</FONT>            if (obj == null)<a name="line.783"></a>
-<FONT color="green">784</FONT>                throw new PersistentObjectException("null object returned by delegate.deserialize()");<a name="line.784"></a>
-<FONT color="green">785</FONT>    <a name="line.785"></a>
-<FONT color="green">786</FONT>            // Done<a name="line.786"></a>
-<FONT color="green">787</FONT>            return obj;<a name="line.787"></a>
-<FONT color="green">788</FONT>        }<a name="line.788"></a>
-<FONT color="green">789</FONT>    <a name="line.789"></a>
-<FONT color="green">790</FONT>        /**<a name="line.790"></a>
-<FONT color="green">791</FONT>         * Write the persistent file and rotate any backups.<a name="line.791"></a>
-<FONT color="green">792</FONT>         *<a name="line.792"></a>
-<FONT color="green">793</FONT>         * &lt;p&gt;<a name="line.793"></a>
-<FONT color="green">794</FONT>         * A temporary file is created in the same directory and then renamed to provide for an atomic update<a name="line.794"></a>
-<FONT color="green">795</FONT>         * (on supporting operating systems).<a name="line.795"></a>
-<FONT color="green">796</FONT>         *<a name="line.796"></a>
-<FONT color="green">797</FONT>         * @throws IllegalArgumentException if {@code obj} is null<a name="line.797"></a>
-<FONT color="green">798</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.798"></a>
-<FONT color="green">799</FONT>         */<a name="line.799"></a>
-<FONT color="green">800</FONT>        protected final synchronized void write(T obj) {<a name="line.800"></a>
-<FONT color="green">801</FONT>    <a name="line.801"></a>
-<FONT color="green">802</FONT>            // Sanity check<a name="line.802"></a>
-<FONT color="green">803</FONT>            if (obj == null)<a name="line.803"></a>
-<FONT color="green">804</FONT>                throw new IllegalArgumentException("null obj");<a name="line.804"></a>
-<FONT color="green">805</FONT>    <a name="line.805"></a>
-<FONT color="green">806</FONT>            // Open atomic update output and buffer it<a name="line.806"></a>
-<FONT color="green">807</FONT>            AtomicUpdateFileOutputStream updateOutput;<a name="line.807"></a>
-<FONT color="green">808</FONT>            try {<a name="line.808"></a>
-<FONT color="green">809</FONT>                updateOutput = this.streamRepository.getOutputStream();<a name="line.809"></a>
-<FONT color="green">810</FONT>            } catch (IOException e) {<a name="line.810"></a>
-<FONT color="green">811</FONT>                throw new PersistentObjectException("error creating temporary file", e);<a name="line.811"></a>
-<FONT color="green">812</FONT>            }<a name="line.812"></a>
-<FONT color="green">813</FONT>            BufferedOutputStream output = new BufferedOutputStream(updateOutput);<a name="line.813"></a>
-<FONT color="green">814</FONT>    <a name="line.814"></a>
-<FONT color="green">815</FONT>            // Serialize to XML<a name="line.815"></a>
-<FONT color="green">816</FONT>            try {<a name="line.816"></a>
-<FONT color="green">817</FONT>    <a name="line.817"></a>
-<FONT color="green">818</FONT>                // Set up XML result<a name="line.818"></a>
-<FONT color="green">819</FONT>                StreamResult result = new StreamResult(output);<a name="line.819"></a>
-<FONT color="green">820</FONT>                result.setSystemId(updateOutput.getTempFile());<a name="line.820"></a>
-<FONT color="green">821</FONT>    <a name="line.821"></a>
-<FONT color="green">822</FONT>                // Serialize root object<a name="line.822"></a>
-<FONT color="green">823</FONT>                try {<a name="line.823"></a>
-<FONT color="green">824</FONT>                    this.delegate.serialize(obj, result);<a name="line.824"></a>
-<FONT color="green">825</FONT>                } catch (IOException e) {<a name="line.825"></a>
-<FONT color="green">826</FONT>                    throw new PersistentObjectException("error writing persistent file", e);<a name="line.826"></a>
-<FONT color="green">827</FONT>                }<a name="line.827"></a>
-<FONT color="green">828</FONT>    <a name="line.828"></a>
-<FONT color="green">829</FONT>                // Commit output<a name="line.829"></a>
-<FONT color="green">830</FONT>                try {<a name="line.830"></a>
-<FONT color="green">831</FONT>                    output.close();<a name="line.831"></a>
-<FONT color="green">832</FONT>                } catch (IOException e) {<a name="line.832"></a>
-<FONT color="green">833</FONT>                    throw new PersistentObjectException("error closing temporary file", e);<a name="line.833"></a>
-<FONT color="green">834</FONT>                }<a name="line.834"></a>
+<FONT color="green">782</FONT>        /**<a name="line.782"></a>
+<FONT color="green">783</FONT>         * Read the persistent file.<a name="line.783"></a>
+<FONT color="green">784</FONT>         *<a name="line.784"></a>
+<FONT color="green">785</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.785"></a>
+<FONT color="green">786</FONT>         */<a name="line.786"></a>
+<FONT color="green">787</FONT>        protected T read() {<a name="line.787"></a>
+<FONT color="green">788</FONT>    <a name="line.788"></a>
+<FONT color="green">789</FONT>            // Open file<a name="line.789"></a>
+<FONT color="green">790</FONT>            this.log.info(this + ": reading persistent file `" + this.getFile() + "'");<a name="line.790"></a>
+<FONT color="green">791</FONT>            BufferedInputStream input;<a name="line.791"></a>
+<FONT color="green">792</FONT>            try {<a name="line.792"></a>
+<FONT color="green">793</FONT>                input = new BufferedInputStream(this.streamRepository.getInputStream());<a name="line.793"></a>
+<FONT color="green">794</FONT>            } catch (IOException e) {<a name="line.794"></a>
+<FONT color="green">795</FONT>                throw new PersistentObjectException("error opening persistent file", e);<a name="line.795"></a>
+<FONT color="green">796</FONT>            }<a name="line.796"></a>
+<FONT color="green">797</FONT>    <a name="line.797"></a>
+<FONT color="green">798</FONT>            // Parse XML<a name="line.798"></a>
+<FONT color="green">799</FONT>            T obj;<a name="line.799"></a>
+<FONT color="green">800</FONT>            try {<a name="line.800"></a>
+<FONT color="green">801</FONT>                StreamSource source = new StreamSource(input);<a name="line.801"></a>
+<FONT color="green">802</FONT>                source.setSystemId(this.getFile());<a name="line.802"></a>
+<FONT color="green">803</FONT>                try {<a name="line.803"></a>
+<FONT color="green">804</FONT>                    obj = this.delegate.deserialize(source);<a name="line.804"></a>
+<FONT color="green">805</FONT>                } catch (IOException e) {<a name="line.805"></a>
+<FONT color="green">806</FONT>                    throw new PersistentObjectException("error reading persistent file", e);<a name="line.806"></a>
+<FONT color="green">807</FONT>                }<a name="line.807"></a>
+<FONT color="green">808</FONT>            } finally {<a name="line.808"></a>
+<FONT color="green">809</FONT>                try {<a name="line.809"></a>
+<FONT color="green">810</FONT>                    input.close();<a name="line.810"></a>
+<FONT color="green">811</FONT>                } catch (IOException e) {<a name="line.811"></a>
+<FONT color="green">812</FONT>                    // ignore<a name="line.812"></a>
+<FONT color="green">813</FONT>                }<a name="line.813"></a>
+<FONT color="green">814</FONT>            }<a name="line.814"></a>
+<FONT color="green">815</FONT>    <a name="line.815"></a>
+<FONT color="green">816</FONT>            // Check result<a name="line.816"></a>
+<FONT color="green">817</FONT>            if (obj == null)<a name="line.817"></a>
+<FONT color="green">818</FONT>                throw new PersistentObjectException("null object returned by delegate.deserialize()");<a name="line.818"></a>
+<FONT color="green">819</FONT>    <a name="line.819"></a>
+<FONT color="green">820</FONT>            // Done<a name="line.820"></a>
+<FONT color="green">821</FONT>            return obj;<a name="line.821"></a>
+<FONT color="green">822</FONT>        }<a name="line.822"></a>
+<FONT color="green">823</FONT>    <a name="line.823"></a>
+<FONT color="green">824</FONT>        /**<a name="line.824"></a>
+<FONT color="green">825</FONT>         * Write the persistent file and rotate any backups.<a name="line.825"></a>
+<FONT color="green">826</FONT>         *<a name="line.826"></a>
+<FONT color="green">827</FONT>         * &lt;p&gt;<a name="line.827"></a>
+<FONT color="green">828</FONT>         * A temporary file is created in the same directory and then renamed to provide for an atomic update<a name="line.828"></a>
+<FONT color="green">829</FONT>         * (on supporting operating systems).<a name="line.829"></a>
+<FONT color="green">830</FONT>         *<a name="line.830"></a>
+<FONT color="green">831</FONT>         * @throws IllegalArgumentException if {@code obj} is null<a name="line.831"></a>
+<FONT color="green">832</FONT>         * @throws PersistentObjectException if an error occurs<a name="line.832"></a>
+<FONT color="green">833</FONT>         */<a name="line.833"></a>
+<FONT color="green">834</FONT>        protected final synchronized void write(T obj) {<a name="line.834"></a>
 <FONT color="green">835</FONT>    <a name="line.835"></a>
-<FONT color="green">836</FONT>                // Success<a name="line.836"></a>
-<FONT color="green">837</FONT>                output = null;<a name="line.837"></a>
-<FONT color="green">838</FONT>            } finally {<a name="line.838"></a>
-<FONT color="green">839</FONT>                if (output != null)<a name="line.839"></a>
-<FONT color="green">840</FONT>                    updateOutput.cancel();<a name="line.840"></a>
-<FONT color="green">841</FONT>            }<a name="line.841"></a>
-<FONT color="green">842</FONT>    <a name="line.842"></a>
-<FONT color="green">843</FONT>            // Update file timestamp<a name="line.843"></a>
-<FONT color="green">844</FONT>            this.timestamp = this.streamRepository.getFileTimestamp();<a name="line.844"></a>
-<FONT color="green">845</FONT>        }<a name="line.845"></a>
-<FONT color="green">846</FONT>    <a name="line.846"></a>
-<FONT color="green">847</FONT>        /**<a name="line.847"></a>
-<FONT color="green">848</FONT>         * Notify listeners of a change in value.<a name="line.848"></a>
-<FONT color="green">849</FONT>         *<a name="line.849"></a>
-<FONT color="green">850</FONT>         * @param newVersion the version number associated with the new root<a name="line.850"></a>
-<FONT color="green">851</FONT>         */<a name="line.851"></a>
-<FONT color="green">852</FONT>        protected void notifyListeners(long newVersion, T oldRoot, T newRoot) {<a name="line.852"></a>
-<FONT color="green">853</FONT>    <a name="line.853"></a>
-<FONT color="green">854</FONT>            // Snapshot listeners<a name="line.854"></a>
-<FONT color="green">855</FONT>            final ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt; listenersCopy = new ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt;();<a name="line.855"></a>
-<FONT color="green">856</FONT>            synchronized (this.listeners) {<a name="line.856"></a>
-<FONT color="green">857</FONT>                listenersCopy.addAll(this.listeners);<a name="line.857"></a>
-<FONT color="green">858</FONT>            }<a name="line.858"></a>
-<FONT color="green">859</FONT>    <a name="line.859"></a>
-<FONT color="green">860</FONT>            // Notify them<a name="line.860"></a>
-<FONT color="green">861</FONT>            final PersistentObjectEvent&lt;T&gt; event = new PersistentObjectEvent&lt;T&gt;(this, newVersion, oldRoot, newRoot);<a name="line.861"></a>
-<FONT color="green">862</FONT>            this.notifyExecutor.submit(new Runnable() {<a name="line.862"></a>
-<FONT color="green">863</FONT>                @Override<a name="line.863"></a>
-<FONT color="green">864</FONT>                public void run() {<a name="line.864"></a>
-<FONT color="green">865</FONT>                    PersistentObject.this.doNotifyListeners(listenersCopy, event);<a name="line.865"></a>
-<FONT color="green">866</FONT>                }<a name="line.866"></a>
-<FONT color="green">867</FONT>            });<a name="line.867"></a>
-<FONT color="green">868</FONT>        }<a name="line.868"></a>
+<FONT color="green">836</FONT>            // Sanity check<a name="line.836"></a>
+<FONT color="green">837</FONT>            if (obj == null)<a name="line.837"></a>
+<FONT color="green">838</FONT>                throw new IllegalArgumentException("null obj");<a name="line.838"></a>
+<FONT color="green">839</FONT>    <a name="line.839"></a>
+<FONT color="green">840</FONT>            // Open atomic update output and buffer it<a name="line.840"></a>
+<FONT color="green">841</FONT>            AtomicUpdateFileOutputStream updateOutput;<a name="line.841"></a>
+<FONT color="green">842</FONT>            try {<a name="line.842"></a>
+<FONT color="green">843</FONT>                updateOutput = this.streamRepository.getOutputStream();<a name="line.843"></a>
+<FONT color="green">844</FONT>            } catch (IOException e) {<a name="line.844"></a>
+<FONT color="green">845</FONT>                throw new PersistentObjectException("error creating temporary file", e);<a name="line.845"></a>
+<FONT color="green">846</FONT>            }<a name="line.846"></a>
+<FONT color="green">847</FONT>            BufferedOutputStream output = new BufferedOutputStream(updateOutput);<a name="line.847"></a>
+<FONT color="green">848</FONT>    <a name="line.848"></a>
+<FONT color="green">849</FONT>            // Serialize to XML<a name="line.849"></a>
+<FONT color="green">850</FONT>            try {<a name="line.850"></a>
+<FONT color="green">851</FONT>    <a name="line.851"></a>
+<FONT color="green">852</FONT>                // Set up XML result<a name="line.852"></a>
+<FONT color="green">853</FONT>                StreamResult result = new StreamResult(output);<a name="line.853"></a>
+<FONT color="green">854</FONT>                result.setSystemId(updateOutput.getTempFile());<a name="line.854"></a>
+<FONT color="green">855</FONT>    <a name="line.855"></a>
+<FONT color="green">856</FONT>                // Serialize root object<a name="line.856"></a>
+<FONT color="green">857</FONT>                try {<a name="line.857"></a>
+<FONT color="green">858</FONT>                    this.delegate.serialize(obj, result);<a name="line.858"></a>
+<FONT color="green">859</FONT>                } catch (IOException e) {<a name="line.859"></a>
+<FONT color="green">860</FONT>                    throw new PersistentObjectException("error writing persistent file", e);<a name="line.860"></a>
+<FONT color="green">861</FONT>                }<a name="line.861"></a>
+<FONT color="green">862</FONT>    <a name="line.862"></a>
+<FONT color="green">863</FONT>                // Commit output<a name="line.863"></a>
+<FONT color="green">864</FONT>                try {<a name="line.864"></a>
+<FONT color="green">865</FONT>                    output.close();<a name="line.865"></a>
+<FONT color="green">866</FONT>                } catch (IOException e) {<a name="line.866"></a>
+<FONT color="green">867</FONT>                    throw new PersistentObjectException("error closing temporary file", e);<a name="line.867"></a>
+<FONT color="green">868</FONT>                }<a name="line.868"></a>
 <FONT color="green">869</FONT>    <a name="line.869"></a>
-<FONT color="green">870</FONT>        // Read the persistent file and apply it<a name="line.870"></a>
-<FONT color="green">871</FONT>        private synchronized void applyFile(long newTimestamp, boolean allowNotStarted) {<a name="line.871"></a>
-<FONT color="green">872</FONT>            this.cancelPendingWrite();<a name="line.872"></a>
-<FONT color="green">873</FONT>            this.timestamp = newTimestamp;                              // update timestamp even if update fails to avoid loops<a name="line.873"></a>
-<FONT color="green">874</FONT>            this.setRootInternal(this.read(), 0, true, allowNotStarted);<a name="line.874"></a>
-<FONT color="green">875</FONT>        }<a name="line.875"></a>
+<FONT color="green">870</FONT>                // Success<a name="line.870"></a>
+<FONT color="green">871</FONT>                output = null;<a name="line.871"></a>
+<FONT color="green">872</FONT>            } finally {<a name="line.872"></a>
+<FONT color="green">873</FONT>                if (output != null)<a name="line.873"></a>
+<FONT color="green">874</FONT>                    updateOutput.cancel();<a name="line.874"></a>
+<FONT color="green">875</FONT>            }<a name="line.875"></a>
 <FONT color="green">876</FONT>    <a name="line.876"></a>
-<FONT color="green">877</FONT>        // Handle a write-back timeout<a name="line.877"></a>
-<FONT color="green">878</FONT>        private synchronized void writeTimeout() {<a name="line.878"></a>
-<FONT color="green">879</FONT>    <a name="line.879"></a>
-<FONT color="green">880</FONT>            // Check for cancel race<a name="line.880"></a>
-<FONT color="green">881</FONT>            if (this.pendingWrite == null)<a name="line.881"></a>
-<FONT color="green">882</FONT>                return;<a name="line.882"></a>
-<FONT color="green">883</FONT>            this.pendingWrite = null;<a name="line.883"></a>
-<FONT color="green">884</FONT>    <a name="line.884"></a>
-<FONT color="green">885</FONT>            // Write it<a name="line.885"></a>
-<FONT color="green">886</FONT>            try {<a name="line.886"></a>
-<FONT color="green">887</FONT>                this.writeback();<a name="line.887"></a>
-<FONT color="green">888</FONT>            } catch (ThreadDeath t) {<a name="line.888"></a>
-<FONT color="green">889</FONT>                throw t;<a name="line.889"></a>
-<FONT color="green">890</FONT>            } catch (Throwable t) {<a name="line.890"></a>
-<FONT color="green">891</FONT>                this.delegate.handleWritebackException(this, t);<a name="line.891"></a>
+<FONT color="green">877</FONT>            // Update file timestamp<a name="line.877"></a>
+<FONT color="green">878</FONT>            this.timestamp = this.streamRepository.getFileTimestamp();<a name="line.878"></a>
+<FONT color="green">879</FONT>        }<a name="line.879"></a>
+<FONT color="green">880</FONT>    <a name="line.880"></a>
+<FONT color="green">881</FONT>        /**<a name="line.881"></a>
+<FONT color="green">882</FONT>         * Notify listeners of a change in value.<a name="line.882"></a>
+<FONT color="green">883</FONT>         *<a name="line.883"></a>
+<FONT color="green">884</FONT>         * @param newVersion the version number associated with the new root<a name="line.884"></a>
+<FONT color="green">885</FONT>         */<a name="line.885"></a>
+<FONT color="green">886</FONT>        protected void notifyListeners(long newVersion, T oldRoot, T newRoot) {<a name="line.886"></a>
+<FONT color="green">887</FONT>    <a name="line.887"></a>
+<FONT color="green">888</FONT>            // Snapshot listeners<a name="line.888"></a>
+<FONT color="green">889</FONT>            final ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt; listenersCopy = new ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt;();<a name="line.889"></a>
+<FONT color="green">890</FONT>            synchronized (this.listeners) {<a name="line.890"></a>
+<FONT color="green">891</FONT>                listenersCopy.addAll(this.listeners);<a name="line.891"></a>
 <FONT color="green">892</FONT>            }<a name="line.892"></a>
-<FONT color="green">893</FONT>        }<a name="line.893"></a>
-<FONT color="green">894</FONT>    <a name="line.894"></a>
-<FONT color="green">895</FONT>        // Handle a check file timeout<a name="line.895"></a>
-<FONT color="green">896</FONT>        private synchronized void checkFileTimeout() {<a name="line.896"></a>
-<FONT color="green">897</FONT>    <a name="line.897"></a>
-<FONT color="green">898</FONT>            // Handle race condition<a name="line.898"></a>
-<FONT color="green">899</FONT>            if (!this.started)<a name="line.899"></a>
-<FONT color="green">900</FONT>                return;<a name="line.900"></a>
-<FONT color="green">901</FONT>    <a name="line.901"></a>
-<FONT color="green">902</FONT>            // Check file<a name="line.902"></a>
-<FONT color="green">903</FONT>            try {<a name="line.903"></a>
-<FONT color="green">904</FONT>                this.checkFile();<a name="line.904"></a>
-<FONT color="green">905</FONT>            } catch (ThreadDeath t) {<a name="line.905"></a>
-<FONT color="green">906</FONT>                throw t;<a name="line.906"></a>
-<FONT color="green">907</FONT>            } catch (Throwable t) {<a name="line.907"></a>
-<FONT color="green">908</FONT>                this.log.error(this + ": error attempting to apply out-of-band update", t);<a name="line.908"></a>
-<FONT color="green">909</FONT>            }<a name="line.909"></a>
-<FONT color="green">910</FONT>        }<a name="line.910"></a>
-<FONT color="green">911</FONT>    <a name="line.911"></a>
-<FONT color="green">912</FONT>        // Write back root to persistent file<a name="line.912"></a>
-<FONT color="green">913</FONT>        private synchronized void writeback() {<a name="line.913"></a>
-<FONT color="green">914</FONT>            T objectToWrite = this.writebackRoot;<a name="line.914"></a>
-<FONT color="green">915</FONT>            assert objectToWrite != null;<a name="line.915"></a>
-<FONT color="green">916</FONT>            this.writebackRoot = null;<a name="line.916"></a>
-<FONT color="green">917</FONT>            this.write(objectToWrite);<a name="line.917"></a>
-<FONT color="green">918</FONT>        }<a name="line.918"></a>
-<FONT color="green">919</FONT>    <a name="line.919"></a>
-<FONT color="green">920</FONT>        // Cancel a pending write and return true if there was one<a name="line.920"></a>
-<FONT color="green">921</FONT>        private synchronized boolean cancelPendingWrite() {<a name="line.921"></a>
-<FONT color="green">922</FONT>            if (this.pendingWrite == null)<a name="line.922"></a>
-<FONT color="green">923</FONT>                return false;<a name="line.923"></a>
-<FONT color="green">924</FONT>            this.pendingWrite.cancel(false);<a name="line.924"></a>
-<FONT color="green">925</FONT>            this.pendingWrite = null;<a name="line.925"></a>
-<FONT color="green">926</FONT>            return true;<a name="line.926"></a>
+<FONT color="green">893</FONT>    <a name="line.893"></a>
+<FONT color="green">894</FONT>            // Notify them<a name="line.894"></a>
+<FONT color="green">895</FONT>            final PersistentObjectEvent&lt;T&gt; event = new PersistentObjectEvent&lt;T&gt;(this, newVersion, oldRoot, newRoot);<a name="line.895"></a>
+<FONT color="green">896</FONT>            this.notifyExecutor.submit(new Runnable() {<a name="line.896"></a>
+<FONT color="green">897</FONT>                @Override<a name="line.897"></a>
+<FONT color="green">898</FONT>                public void run() {<a name="line.898"></a>
+<FONT color="green">899</FONT>                    PersistentObject.this.doNotifyListeners(listenersCopy, event);<a name="line.899"></a>
+<FONT color="green">900</FONT>                }<a name="line.900"></a>
+<FONT color="green">901</FONT>            });<a name="line.901"></a>
+<FONT color="green">902</FONT>        }<a name="line.902"></a>
+<FONT color="green">903</FONT>    <a name="line.903"></a>
+<FONT color="green">904</FONT>        // Read the persistent file and apply it<a name="line.904"></a>
+<FONT color="green">905</FONT>        private synchronized void applyFile(long newTimestamp, boolean allowNotStarted) {<a name="line.905"></a>
+<FONT color="green">906</FONT>            this.cancelPendingWrite();<a name="line.906"></a>
+<FONT color="green">907</FONT>            this.timestamp = newTimestamp;                              // update timestamp even if update fails to avoid loops<a name="line.907"></a>
+<FONT color="green">908</FONT>            this.setRootInternal(this.read(), 0, true, allowNotStarted);<a name="line.908"></a>
+<FONT color="green">909</FONT>        }<a name="line.909"></a>
+<FONT color="green">910</FONT>    <a name="line.910"></a>
+<FONT color="green">911</FONT>        // Handle a write-back timeout<a name="line.911"></a>
+<FONT color="green">912</FONT>        private synchronized void writeTimeout() {<a name="line.912"></a>
+<FONT color="green">913</FONT>    <a name="line.913"></a>
+<FONT color="green">914</FONT>            // Check for cancel race<a name="line.914"></a>
+<FONT color="green">915</FONT>            if (this.pendingWrite == null)<a name="line.915"></a>
+<FONT color="green">916</FONT>                return;<a name="line.916"></a>
+<FONT color="green">917</FONT>            this.pendingWrite = null;<a name="line.917"></a>
+<FONT color="green">918</FONT>    <a name="line.918"></a>
+<FONT color="green">919</FONT>            // Write it<a name="line.919"></a>
+<FONT color="green">920</FONT>            try {<a name="line.920"></a>
+<FONT color="green">921</FONT>                this.writeback();<a name="line.921"></a>
+<FONT color="green">922</FONT>            } catch (ThreadDeath t) {<a name="line.922"></a>
+<FONT color="green">923</FONT>                throw t;<a name="line.923"></a>
+<FONT color="green">924</FONT>            } catch (Throwable t) {<a name="line.924"></a>
+<FONT color="green">925</FONT>                this.delegate.handleWritebackException(this, t);<a name="line.925"></a>
+<FONT color="green">926</FONT>            }<a name="line.926"></a>
 <FONT color="green">927</FONT>        }<a name="line.927"></a>
 <FONT color="green">928</FONT>    <a name="line.928"></a>
-<FONT color="green">929</FONT>        // Notify listeners. This is invoked in a separate thread.<a name="line.929"></a>
-<FONT color="green">930</FONT>        private void doNotifyListeners(ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt; list, PersistentObjectEvent&lt;T&gt; event) {<a name="line.930"></a>
-<FONT color="green">931</FONT>            for (PersistentObjectListener&lt;T&gt; listener : list) {<a name="line.931"></a>
-<FONT color="green">932</FONT>                try {<a name="line.932"></a>
-<FONT color="green">933</FONT>                    listener.handleEvent(event);<a name="line.933"></a>
-<FONT color="green">934</FONT>                } catch (ThreadDeath t) {<a name="line.934"></a>
-<FONT color="green">935</FONT>                    throw t;<a name="line.935"></a>
-<FONT color="green">936</FONT>                } catch (Throwable t) {<a name="line.936"></a>
-<FONT color="green">937</FONT>                    this.log.error(this + ": error notifying listener " + listener, t);<a name="line.937"></a>
-<FONT color="green">938</FONT>                }<a name="line.938"></a>
-<FONT color="green">939</FONT>            }<a name="line.939"></a>
-<FONT color="green">940</FONT>        }<a name="line.940"></a>
-<FONT color="green">941</FONT>    <a name="line.941"></a>
-<FONT color="green">942</FONT>        // Wait for an ExecutorService to completely shut down<a name="line.942"></a>
-<FONT color="green">943</FONT>        private void awaitTermination(ExecutorService executor, String name) {<a name="line.943"></a>
-<FONT color="green">944</FONT>            boolean shutdown = false;<a name="line.944"></a>
-<FONT color="green">945</FONT>            try {<a name="line.945"></a>
-<FONT color="green">946</FONT>                shutdown = executor.awaitTermination(EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);<a name="line.946"></a>
-<FONT color="green">947</FONT>            } catch (InterruptedException e) {<a name="line.947"></a>
-<FONT color="green">948</FONT>                this.log.warn(this + ": interrupted while awaiting " + name + " termination");<a name="line.948"></a>
-<FONT color="green">949</FONT>            }<a name="line.949"></a>
-<FONT color="green">950</FONT>            if (!shutdown)<a name="line.950"></a>
-<FONT color="green">951</FONT>                this.log.warn(this + ": failed to completely shut down " + name);<a name="line.951"></a>
+<FONT color="green">929</FONT>        // Handle a check file timeout<a name="line.929"></a>
+<FONT color="green">930</FONT>        private synchronized void checkFileTimeout() {<a name="line.930"></a>
+<FONT color="green">931</FONT>    <a name="line.931"></a>
+<FONT color="green">932</FONT>            // Handle race condition<a name="line.932"></a>
+<FONT color="green">933</FONT>            if (!this.started)<a name="line.933"></a>
+<FONT color="green">934</FONT>                return;<a name="line.934"></a>
+<FONT color="green">935</FONT>    <a name="line.935"></a>
+<FONT color="green">936</FONT>            // Check file<a name="line.936"></a>
+<FONT color="green">937</FONT>            try {<a name="line.937"></a>
+<FONT color="green">938</FONT>                this.checkFile();<a name="line.938"></a>
+<FONT color="green">939</FONT>            } catch (ThreadDeath t) {<a name="line.939"></a>
+<FONT color="green">940</FONT>                throw t;<a name="line.940"></a>
+<FONT color="green">941</FONT>            } catch (Throwable t) {<a name="line.941"></a>
+<FONT color="green">942</FONT>                this.log.error(this + ": error attempting to apply out-of-band update", t);<a name="line.942"></a>
+<FONT color="green">943</FONT>            }<a name="line.943"></a>
+<FONT color="green">944</FONT>        }<a name="line.944"></a>
+<FONT color="green">945</FONT>    <a name="line.945"></a>
+<FONT color="green">946</FONT>        // Write back root to persistent file<a name="line.946"></a>
+<FONT color="green">947</FONT>        private synchronized void writeback() {<a name="line.947"></a>
+<FONT color="green">948</FONT>            T objectToWrite = this.writebackRoot;<a name="line.948"></a>
+<FONT color="green">949</FONT>            assert objectToWrite != null;<a name="line.949"></a>
+<FONT color="green">950</FONT>            this.writebackRoot = null;<a name="line.950"></a>
+<FONT color="green">951</FONT>            this.write(objectToWrite);<a name="line.951"></a>
 <FONT color="green">952</FONT>        }<a name="line.952"></a>
 <FONT color="green">953</FONT>    <a name="line.953"></a>
-<FONT color="green">954</FONT>    // Snapshot class<a name="line.954"></a>
-<FONT color="green">955</FONT>    <a name="line.955"></a>
-<FONT color="green">956</FONT>        /**<a name="line.956"></a>
-<FONT color="green">957</FONT>         * Holds a "snapshot" of a {@link PersistentObject} root object along with the version number<a name="line.957"></a>
-<FONT color="green">958</FONT>         * corresponding to the snapshot.<a name="line.958"></a>
-<FONT color="green">959</FONT>         *<a name="line.959"></a>
-<FONT color="green">960</FONT>         * @see PersistentObject#getRootSnapshot<a name="line.960"></a>
-<FONT color="green">961</FONT>         */<a name="line.961"></a>
-<FONT color="green">962</FONT>        public class Snapshot {<a name="line.962"></a>
-<FONT color="green">963</FONT>    <a name="line.963"></a>
-<FONT color="green">964</FONT>            private final T root;<a name="line.964"></a>
-<FONT color="green">965</FONT>            private final long version;<a name="line.965"></a>
-<FONT color="green">966</FONT>    <a name="line.966"></a>
-<FONT color="green">967</FONT>            public Snapshot(T root, long version) {<a name="line.967"></a>
-<FONT color="green">968</FONT>                this.root = root;<a name="line.968"></a>
-<FONT color="green">969</FONT>                this.version = version;<a name="line.969"></a>
-<FONT color="green">970</FONT>            }<a name="line.970"></a>
-<FONT color="green">971</FONT>    <a name="line.971"></a>
-<FONT color="green">972</FONT>            /**<a name="line.972"></a>
-<FONT color="green">973</FONT>             * Get the persistent root associated with this instance.<a name="line.973"></a>
-<FONT color="green">974</FONT>             */<a name="line.974"></a>
-<FONT color="green">975</FONT>            public T getRoot() {<a name="line.975"></a>
-<FONT color="green">976</FONT>                return this.root;<a name="line.976"></a>
-<FONT color="green">977</FONT>            }<a name="line.977"></a>
-<FONT color="green">978</FONT>    <a name="line.978"></a>
-<FONT color="green">979</FONT>            /**<a name="line.979"></a>
-<FONT color="green">980</FONT>             * Get the version number of the persistent root associated with this instance.<a name="line.980"></a>
-<FONT color="green">981</FONT>             */<a name="line.981"></a>
-<FONT color="green">982</FONT>            public long getVersion() {<a name="line.982"></a>
-<FONT color="green">983</FONT>                return this.version;<a name="line.983"></a>
-<FONT color="green">984</FONT>            }<a name="line.984"></a>
-<FONT color="green">985</FONT>        }<a name="line.985"></a>
-<FONT color="green">986</FONT>    }<a name="line.986"></a>
+<FONT color="green">954</FONT>        // Cancel a pending write and return true if there was one<a name="line.954"></a>
+<FONT color="green">955</FONT>        private synchronized boolean cancelPendingWrite() {<a name="line.955"></a>
+<FONT color="green">956</FONT>            if (this.pendingWrite == null)<a name="line.956"></a>
+<FONT color="green">957</FONT>                return false;<a name="line.957"></a>
+<FONT color="green">958</FONT>            this.pendingWrite.cancel(false);<a name="line.958"></a>
+<FONT color="green">959</FONT>            this.pendingWrite = null;<a name="line.959"></a>
+<FONT color="green">960</FONT>            return true;<a name="line.960"></a>
+<FONT color="green">961</FONT>        }<a name="line.961"></a>
+<FONT color="green">962</FONT>    <a name="line.962"></a>
+<FONT color="green">963</FONT>        // Notify listeners. This is invoked in a separate thread.<a name="line.963"></a>
+<FONT color="green">964</FONT>        private void doNotifyListeners(ArrayList&lt;PersistentObjectListener&lt;T&gt;&gt; list, PersistentObjectEvent&lt;T&gt; event) {<a name="line.964"></a>
+<FONT color="green">965</FONT>            for (PersistentObjectListener&lt;T&gt; listener : list) {<a name="line.965"></a>
+<FONT color="green">966</FONT>                try {<a name="line.966"></a>
+<FONT color="green">967</FONT>                    listener.handleEvent(event);<a name="line.967"></a>
+<FONT color="green">968</FONT>                } catch (ThreadDeath t) {<a name="line.968"></a>
+<FONT color="green">969</FONT>                    throw t;<a name="line.969"></a>
+<FONT color="green">970</FONT>                } catch (Throwable t) {<a name="line.970"></a>
+<FONT color="green">971</FONT>                    this.log.error(this + ": error notifying listener " + listener, t);<a name="line.971"></a>
+<FONT color="green">972</FONT>                }<a name="line.972"></a>
+<FONT color="green">973</FONT>            }<a name="line.973"></a>
+<FONT color="green">974</FONT>        }<a name="line.974"></a>
+<FONT color="green">975</FONT>    <a name="line.975"></a>
+<FONT color="green">976</FONT>        // Wait for an ExecutorService to completely shut down<a name="line.976"></a>
+<FONT color="green">977</FONT>        private void awaitTermination(ExecutorService executor, String name) {<a name="line.977"></a>
+<FONT color="green">978</FONT>            boolean shutdown = false;<a name="line.978"></a>
+<FONT color="green">979</FONT>            try {<a name="line.979"></a>
+<FONT color="green">980</FONT>                shutdown = executor.awaitTermination(EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);<a name="line.980"></a>
+<FONT color="green">981</FONT>            } catch (InterruptedException e) {<a name="line.981"></a>
+<FONT color="green">982</FONT>                this.log.warn(this + ": interrupted while awaiting " + name + " termination");<a name="line.982"></a>
+<FONT color="green">983</FONT>            }<a name="line.983"></a>
+<FONT color="green">984</FONT>            if (!shutdown)<a name="line.984"></a>
+<FONT color="green">985</FONT>                this.log.warn(this + ": failed to completely shut down " + name);<a name="line.985"></a>
+<FONT color="green">986</FONT>        }<a name="line.986"></a>
 <FONT color="green">987</FONT>    <a name="line.987"></a>
+<FONT color="green">988</FONT>    // Snapshot class<a name="line.988"></a>
+<FONT color="green">989</FONT>    <a name="line.989"></a>
+<FONT color="green">990</FONT>        /**<a name="line.990"></a>
+<FONT color="green">991</FONT>         * Holds a "snapshot" of a {@link PersistentObject} root object along with the version number<a name="line.991"></a>
+<FONT color="green">992</FONT>         * corresponding to the snapshot.<a name="line.992"></a>
+<FONT color="green">993</FONT>         *<a name="line.993"></a>
+<FONT color="green">994</FONT>         * @see PersistentObject#getRootSnapshot<a name="line.994"></a>
+<FONT color="green">995</FONT>         */<a name="line.995"></a>
+<FONT color="green">996</FONT>        public class Snapshot {<a name="line.996"></a>
+<FONT color="green">997</FONT>    <a name="line.997"></a>
+<FONT color="green">998</FONT>            private final T root;<a name="line.998"></a>
+<FONT color="green">999</FONT>            private final long version;<a name="line.999"></a>
+<FONT color="green">1000</FONT>    <a name="line.1000"></a>
+<FONT color="green">1001</FONT>            public Snapshot(T root, long version) {<a name="line.1001"></a>
+<FONT color="green">1002</FONT>                this.root = root;<a name="line.1002"></a>
+<FONT color="green">1003</FONT>                this.version = version;<a name="line.1003"></a>
+<FONT color="green">1004</FONT>            }<a name="line.1004"></a>
+<FONT color="green">1005</FONT>    <a name="line.1005"></a>
+<FONT color="green">1006</FONT>            /**<a name="line.1006"></a>
+<FONT color="green">1007</FONT>             * Get the persistent root associated with this instance.<a name="line.1007"></a>
+<FONT color="green">1008</FONT>             */<a name="line.1008"></a>
+<FONT color="green">1009</FONT>            public T getRoot() {<a name="line.1009"></a>
+<FONT color="green">1010</FONT>                return this.root;<a name="line.1010"></a>
+<FONT color="green">1011</FONT>            }<a name="line.1011"></a>
+<FONT color="green">1012</FONT>    <a name="line.1012"></a>
+<FONT color="green">1013</FONT>            /**<a name="line.1013"></a>
+<FONT color="green">1014</FONT>             * Get the version number of the persistent root associated with this instance.<a name="line.1014"></a>
+<FONT color="green">1015</FONT>             */<a name="line.1015"></a>
+<FONT color="green">1016</FONT>            public long getVersion() {<a name="line.1016"></a>
+<FONT color="green">1017</FONT>                return this.version;<a name="line.1017"></a>
+<FONT color="green">1018</FONT>            }<a name="line.1018"></a>
+<FONT color="green">1019</FONT>        }<a name="line.1019"></a>
+<FONT color="green">1020</FONT>    }<a name="line.1020"></a>
+<FONT color="green">1021</FONT>    <a name="line.1021"></a>
 
 
 

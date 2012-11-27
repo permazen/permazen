@@ -12,7 +12,7 @@
 <FONT color="green">009</FONT>    <a name="line.9"></a>
 <FONT color="green">010</FONT>    import com.vaadin.server.SessionDestroyEvent;<a name="line.10"></a>
 <FONT color="green">011</FONT>    import com.vaadin.server.SessionDestroyListener;<a name="line.11"></a>
-<FONT color="green">012</FONT>    import com.vaadin.server.VaadinServiceSession;<a name="line.12"></a>
+<FONT color="green">012</FONT>    import com.vaadin.server.VaadinSession;<a name="line.12"></a>
 <FONT color="green">013</FONT>    <a name="line.13"></a>
 <FONT color="green">014</FONT>    /**<a name="line.14"></a>
 <FONT color="green">015</FONT>     * Support superclass customized for use by listeners that are part of a Vaadin application when listening<a name="line.15"></a>
@@ -48,24 +48,24 @@
 <FONT color="green">045</FONT>     * @see VaadinUtil#invoke<a name="line.45"></a>
 <FONT color="green">046</FONT>     * @see VaadinApplicationScope<a name="line.46"></a>
 <FONT color="green">047</FONT>     * @see VaadinApplicationListener<a name="line.47"></a>
-<FONT color="green">048</FONT>     * @see SpringServiceSession<a name="line.48"></a>
+<FONT color="green">048</FONT>     * @see SpringVaadinSession<a name="line.48"></a>
 <FONT color="green">049</FONT>     */<a name="line.49"></a>
 <FONT color="green">050</FONT>    public abstract class VaadinExternalListener&lt;S&gt; {<a name="line.50"></a>
 <FONT color="green">051</FONT>    <a name="line.51"></a>
 <FONT color="green">052</FONT>        private final S eventSource;<a name="line.52"></a>
-<FONT color="green">053</FONT>        private final VaadinServiceSession session;<a name="line.53"></a>
+<FONT color="green">053</FONT>        private final VaadinSession session;<a name="line.53"></a>
 <FONT color="green">054</FONT>        private final CloseListener closeListener = new CloseListener();<a name="line.54"></a>
 <FONT color="green">055</FONT>    <a name="line.55"></a>
 <FONT color="green">056</FONT>        /**<a name="line.56"></a>
 <FONT color="green">057</FONT>         * Convenience constructor. Equivalent to:<a name="line.57"></a>
 <FONT color="green">058</FONT>         * &lt;blockquote&gt;<a name="line.58"></a>
-<FONT color="green">059</FONT>         *  {@link #VaadinExternalListener(Object, VaadinServiceSession)<a name="line.59"></a>
+<FONT color="green">059</FONT>         *  {@link #VaadinExternalListener(Object, VaadinSession)<a name="line.59"></a>
 <FONT color="green">060</FONT>         *      VaadinExternalListener(eventSource, VaadinUtil.getCurrentSession())}<a name="line.60"></a>
 <FONT color="green">061</FONT>         * &lt;/blockquote&gt;<a name="line.61"></a>
 <FONT color="green">062</FONT>         *<a name="line.62"></a>
 <FONT color="green">063</FONT>         * @param eventSource the event source on which this listener will register<a name="line.63"></a>
 <FONT color="green">064</FONT>         * @throws IllegalArgumentException if {@code eventSource} is null<a name="line.64"></a>
-<FONT color="green">065</FONT>         * @throws IllegalStateException if there is no {@link VaadinServiceSession} associated with the current thread<a name="line.65"></a>
+<FONT color="green">065</FONT>         * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread<a name="line.65"></a>
 <FONT color="green">066</FONT>         */<a name="line.66"></a>
 <FONT color="green">067</FONT>        protected VaadinExternalListener(S eventSource) {<a name="line.67"></a>
 <FONT color="green">068</FONT>            this(eventSource, VaadinUtil.getCurrentSession());<a name="line.68"></a>
@@ -74,7 +74,7 @@
 <FONT color="green">071</FONT>        /**<a name="line.71"></a>
 <FONT color="green">072</FONT>         * Convenience constructor. Equivalent to:<a name="line.72"></a>
 <FONT color="green">073</FONT>         * &lt;blockquote&gt;<a name="line.73"></a>
-<FONT color="green">074</FONT>         *  {@link #VaadinExternalListener(Object, VaadinServiceSession) VaadinExternalListener(eventSource, application.getSession())}<a name="line.74"></a>
+<FONT color="green">074</FONT>         *  {@link #VaadinExternalListener(Object, VaadinSession) VaadinExternalListener(eventSource, application.getSession())}<a name="line.74"></a>
 <FONT color="green">075</FONT>         * &lt;/blockquote&gt;<a name="line.75"></a>
 <FONT color="green">076</FONT>         *<a name="line.76"></a>
 <FONT color="green">077</FONT>         * @param eventSource the event source on which this listener will register<a name="line.77"></a>
@@ -93,7 +93,7 @@
 <FONT color="green">090</FONT>         * @param session the associated Vaadin application's session<a name="line.90"></a>
 <FONT color="green">091</FONT>         * @throws IllegalArgumentException if either parameter is null<a name="line.91"></a>
 <FONT color="green">092</FONT>         */<a name="line.92"></a>
-<FONT color="green">093</FONT>        protected VaadinExternalListener(S eventSource, VaadinServiceSession session) {<a name="line.93"></a>
+<FONT color="green">093</FONT>        protected VaadinExternalListener(S eventSource, VaadinSession session) {<a name="line.93"></a>
 <FONT color="green">094</FONT>            if (eventSource == null)<a name="line.94"></a>
 <FONT color="green">095</FONT>                throw new IllegalArgumentException("null eventSource");<a name="line.95"></a>
 <FONT color="green">096</FONT>            if (session == null)<a name="line.96"></a>
@@ -126,9 +126,9 @@
 <FONT color="green">123</FONT>        }<a name="line.123"></a>
 <FONT color="green">124</FONT>    <a name="line.124"></a>
 <FONT color="green">125</FONT>        /**<a name="line.125"></a>
-<FONT color="green">126</FONT>         * Get the {@link VaadinServiceSession} (aka Vaadin application) with which this instance is associated.<a name="line.126"></a>
+<FONT color="green">126</FONT>         * Get the {@link VaadinSession} (aka Vaadin application) with which this instance is associated.<a name="line.126"></a>
 <FONT color="green">127</FONT>         */<a name="line.127"></a>
-<FONT color="green">128</FONT>        public final VaadinServiceSession getSession() {<a name="line.128"></a>
+<FONT color="green">128</FONT>        public final VaadinSession getSession() {<a name="line.128"></a>
 <FONT color="green">129</FONT>            return this.session;<a name="line.129"></a>
 <FONT color="green">130</FONT>        }<a name="line.130"></a>
 <FONT color="green">131</FONT>    <a name="line.131"></a>
@@ -140,7 +140,7 @@
 <FONT color="green">137</FONT>        }<a name="line.137"></a>
 <FONT color="green">138</FONT>    <a name="line.138"></a>
 <FONT color="green">139</FONT>        /**<a name="line.139"></a>
-<FONT color="green">140</FONT>         * Execute the given listener action using the {@link VaadinServiceSession} with which this instance is associated.<a name="line.140"></a>
+<FONT color="green">140</FONT>         * Execute the given listener action using the {@link VaadinSession} with which this instance is associated.<a name="line.140"></a>
 <FONT color="green">141</FONT>         *<a name="line.141"></a>
 <FONT color="green">142</FONT>         * &lt;p&gt;<a name="line.142"></a>
 <FONT color="green">143</FONT>         * Subclass listener methods should handle events using this method to ensure proper locking to avoid race conditions.<a name="line.143"></a>
@@ -174,15 +174,16 @@
 <FONT color="green">171</FONT>    <a name="line.171"></a>
 <FONT color="green">172</FONT>    // Application close listener<a name="line.172"></a>
 <FONT color="green">173</FONT>    <a name="line.173"></a>
-<FONT color="green">174</FONT>        private final class CloseListener implements SessionDestroyListener {<a name="line.174"></a>
-<FONT color="green">175</FONT>    <a name="line.175"></a>
-<FONT color="green">176</FONT>            @Override<a name="line.176"></a>
-<FONT color="green">177</FONT>            public void sessionDestroy(SessionDestroyEvent event) {<a name="line.177"></a>
-<FONT color="green">178</FONT>                VaadinExternalListener.this.unregister();<a name="line.178"></a>
-<FONT color="green">179</FONT>            }<a name="line.179"></a>
-<FONT color="green">180</FONT>        }<a name="line.180"></a>
-<FONT color="green">181</FONT>    }<a name="line.181"></a>
-<FONT color="green">182</FONT>    <a name="line.182"></a>
+<FONT color="green">174</FONT>        @SuppressWarnings("serial")<a name="line.174"></a>
+<FONT color="green">175</FONT>        private final class CloseListener implements SessionDestroyListener {<a name="line.175"></a>
+<FONT color="green">176</FONT>    <a name="line.176"></a>
+<FONT color="green">177</FONT>            @Override<a name="line.177"></a>
+<FONT color="green">178</FONT>            public void sessionDestroy(SessionDestroyEvent event) {<a name="line.178"></a>
+<FONT color="green">179</FONT>                VaadinExternalListener.this.unregister();<a name="line.179"></a>
+<FONT color="green">180</FONT>            }<a name="line.180"></a>
+<FONT color="green">181</FONT>        }<a name="line.181"></a>
+<FONT color="green">182</FONT>    }<a name="line.182"></a>
+<FONT color="green">183</FONT>    <a name="line.183"></a>
 
 
 
