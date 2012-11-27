@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  * <p>
  * Analogous to Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation,
  * but causes beans to be autowired into the Spring application context associated with the current
- * {@link com.vaadin.server.VaadinServiceSession} (aka "Vaadin application") by {@link SpringServiceSession} instead of
+ * {@link com.vaadin.server.VaadinSession} (aka "Vaadin application") by {@link SpringVaadinSession} instead of
  * the Spring application context associated with the servlet context.
  * </p>
  *
@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  *
  * @see org.dellroad.stuff.vaadin
  * @see SpringVaadinServlet
- * @see SpringServiceSession
+ * @see SpringVaadinSession
  * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3/tree/vaadin7">Example Code on GitHub</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -71,12 +71,12 @@ public @interface VaadinConfigurable {
     boolean preConstruction() default false;
 
     /**
-     * What to do when we discover that the {@link com.vaadin.server.VaadinServiceSession} is not
-     * {@linkplain com.vaadin.server.VaadinServiceSession#getLock locked} when the annotated bean is constructed.
+     * What to do when we discover that the {@link com.vaadin.server.VaadinSession} is not
+     * {@linkplain com.vaadin.server.VaadinSession#getLockInstance locked} when the annotated bean is constructed.
      * For beans that are (or will interact with) Vaadin widgets, containers, etc., this typically
      * indicates a programming error. In such cases, this property configures what to do, if anything.
      *
-     * @see com.vaadin.server.VaadinServiceSession#getLock
+     * @see com.vaadin.server.VaadinSession#getLockInstance
      */
     ErrorAction ifSessionNotLocked() default ErrorAction.IGNORE;
 }

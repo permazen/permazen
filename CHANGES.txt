@@ -2,7 +2,7 @@ Version Next
 
     - Vaadin7: fix bug that broke VaadinApplication.get() when subclassed
     - Update AstractDAO to use EntityManager directly (issue #14)
-    - Update vaadin7 package for 7.0.0.beta9
+    - Update vaadin7 package for 7.0.0.beta10
     - Added new class DelayedAction
 
 Version 1.0.548 Released October 19, 2012

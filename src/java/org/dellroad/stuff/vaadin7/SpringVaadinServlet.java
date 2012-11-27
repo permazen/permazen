@@ -10,9 +10,9 @@ package org.dellroad.stuff.vaadin7;
 import com.vaadin.server.DeploymentConfiguration;
 import com.vaadin.server.ServiceException;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServiceSession;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
+import com.vaadin.server.VaadinSession;
 
 import java.util.Properties;
 
@@ -22,7 +22,7 @@ import javax.servlet.ServletException;
 /**
  * A {@link VaadinServlet} that associates and manages a Spring
  * {@link org.springframework.web.context.ConfigurableWebApplicationContext} with each
- * {@link com.vaadin.server.VaadinServiceSession} (aka, "Vaadin application" in the old terminology).
+ * {@link com.vaadin.server.VaadinSession} (aka, "Vaadin application" in the old terminology).
  *
  * <p>
  * The {@code vaadinContextConfigLocation} servlet parameter may be used to specify the Spring XML config
@@ -45,9 +45,9 @@ import javax.servlet.ServletException;
  * </p>
  *
  * <p>
- * The only real function of this servlet is to create and register a {@link SpringServiceSession} as a listener on the
- * {@link com.vaadin.server.VaadinService} associated with this servlet. The {@link SpringServiceSession} in turn detects
- * the creation and destruction of Vaadin application instances (represented by {@link com.vaadin.server.VaadinServiceSession}
+ * The only real function of this servlet is to create and register a {@link SpringVaadinSession} as a listener on the
+ * {@link com.vaadin.server.VaadinService} associated with this servlet. The {@link SpringVaadinSession} in turn detects
+ * the creation and destruction of Vaadin application instances (represented by {@link com.vaadin.server.VaadinSession}
  * instances) and does the work of managing the associated Spring application contexts.
  * </p>
  *
@@ -87,15 +87,15 @@ import javax.servlet.ServletException;
  * <td>{@code listenerClass}</td>
  * <td align="center">No</td>
  * <td>
- *  Specify the name of a custom class extending {@link SpringServiceSession} and having the same constructor arguments.
- *  If omitted, {@link SpringServiceSession} is used.
+ *  Specify the name of a custom class extending {@link SpringVaadinSession} and having the same constructor arguments.
+ *  If omitted, {@link SpringVaadinSession} is used.
  * </td>
  * </tr>
  * </table>
  * </div>
  * </p>
  *
- * @see SpringServiceSession
+ * @see SpringVaadinSession
  * @see VaadinConfigurable
  * @see VaadinApplication
  */
@@ -111,7 +111,7 @@ public class SpringVaadinServlet extends VaadinServlet {
 
     /**
      * Servlet initialization parameter (<code>{@value #LISTENER_CLASS_PARAMETER}</code>) used to specify
-     * the name of an custom subclass of {@link SpringServiceSession}.
+     * the name of an custom subclass of {@link SpringVaadinSession}.
      * This parameter is optional.
      */
     public static final String LISTENER_CLASS_PARAMETER = "listenerClass";
@@ -153,11 +153,11 @@ public class SpringVaadinServlet extends VaadinServlet {
             applicationName = this.servletName;
 
         // Detect listener class to use
-        Class<? extends SpringServiceSession> listenerClass = SpringServiceSession.class;
+        Class<? extends SpringVaadinSession> listenerClass = SpringVaadinSession.class;
         if (listenerClassName != null) {
             try {
                 listenerClass = Class.forName(listenerClassName, false, Thread.currentThread().getContextClassLoader())
-                  .asSubclass(SpringServiceSession.class);
+                  .asSubclass(SpringVaadinSession.class);
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
@@ -166,7 +166,7 @@ public class SpringVaadinServlet extends VaadinServlet {
         }
 
         // Create session listener
-        SpringServiceSession sessionListener;
+        SpringVaadinSession sessionListener;
         try {
             sessionListener = listenerClass.getConstructor(String.class, String.class)
               .newInstance(applicationName, contextLocation);
@@ -188,9 +188,9 @@ public class SpringVaadinServlet extends VaadinServlet {
     protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) {
         return new VaadinServletService(this, deploymentConfiguration) {
             @Override
-            protected VaadinServiceSession createVaadinSession(VaadinRequest request) throws ServiceException {
-                VaadinServiceSession session = super.createVaadinSession(request);
-                VaadinServiceSession.setCurrent(session);
+            protected VaadinSession createVaadinSession(VaadinRequest request) throws ServiceException {
+                VaadinSession session = super.createVaadinSession(request);
+                VaadinSession.setCurrent(session);
                 return session;
             }
         };

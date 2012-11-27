@@ -9,7 +9,7 @@ package org.dellroad.stuff.vaadin7;
 
 import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionDestroyListener;
-import com.vaadin.server.VaadinServiceSession;
+import com.vaadin.server.VaadinSession;
 
 import java.util.HashMap;
 
@@ -22,9 +22,9 @@ import org.springframework.beans.factory.config.Scope;
  * A Spring custom {@link Scope} for Vaadin applications.
  *
  * <p>
- * This scopes beans to the lifetime of the {@link VaadinServiceSession} (formerly known as "Vaadin application").
+ * This scopes beans to the lifetime of the {@link VaadinSession} (formerly known as "Vaadin application").
  * Spring {@linkplain org.springframework.beans.factory.DisposableBean#destroy destroy-methods}
- * will be invoked when the {@link VaadinServiceSession} is closed.
+ * will be invoked when the {@link VaadinSession} is closed.
  * </p>
  *
  * <p>
@@ -36,10 +36,11 @@ import org.springframework.beans.factory.config.Scope;
  * Then declare scoped beans normally using the scope name {@code "vaadinApplication"}.
  * </p>
  */
+@SuppressWarnings("serial")
 public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, SessionDestroyListener {
 
     /**
-     * Key to the current {@link VaadinServiceSession} instance. For use by {@link #resolveContextualObject}.
+     * Key to the current {@link VaadinSession} instance. For use by {@link #resolveContextualObject}.
      */
     public static final String VAADIN_SERVICE_SESSION_KEY = "vaadinServiceSession";
 
@@ -48,8 +49,7 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
      */
     public static final String SCOPE_NAME = "vaadinApplication";
 
-    private final HashMap<VaadinServiceSession, SessionBeanHolder> beanHolders
-      = new HashMap<VaadinServiceSession, SessionBeanHolder>();
+    private final HashMap<VaadinSession, SessionBeanHolder> beanHolders = new HashMap<VaadinSession, SessionBeanHolder>();
 
 // BeanFactoryPostProcessor methods
 
@@ -62,7 +62,7 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
 
     @Override
     public void sessionDestroy(SessionDestroyEvent event) {
-        final VaadinServiceSession session = event.getSession();
+        final VaadinSession session = event.getSession();
         SessionBeanHolder beanHolder;
         synchronized (this) {
             beanHolder = this.beanHolders.remove(session);
@@ -91,7 +91,7 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
 
     @Override
     public String getConversationId() {
-        VaadinServiceSession session = VaadinServiceSession.getCurrent();
+        VaadinSession session = VaadinSession.getCurrent();
         if (session == null)
             return null;
         return session.getClass().getName() + "@" + System.identityHashCode(session);
@@ -100,14 +100,14 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
     @Override
     public Object resolveContextualObject(String key) {
         if (VAADIN_SERVICE_SESSION_KEY.equals(key))
-            return VaadinServiceSession.getCurrent();
+            return VaadinSession.getCurrent();
         return null;
     }
 
 // Internal methods
 
     private synchronized SessionBeanHolder getSessionBeanHolder(boolean create) {
-        VaadinServiceSession session = VaadinUtil.getCurrentSession();
+        VaadinSession session = VaadinUtil.getCurrentSession();
         VaadinUtil.addSessionDestroyListener(session, this);
         SessionBeanHolder beanHolder = this.beanHolders.get(session);
         if (beanHolder == null && create) {
@@ -123,9 +123,9 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
 
         private final HashMap<String, Object> beans = new HashMap<String, Object>();
         private final HashMap<String, Runnable> destructionCallbacks = new HashMap<String, Runnable>();
-        private final VaadinServiceSession session;
+        private final VaadinSession session;
 
-        public SessionBeanHolder(VaadinServiceSession session) {
+        public SessionBeanHolder(VaadinSession session) {
             this.session = session;
         }
 

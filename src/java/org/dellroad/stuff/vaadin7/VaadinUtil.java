@@ -11,7 +11,7 @@ import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
-import com.vaadin.server.VaadinServiceSession;
+import com.vaadin.server.VaadinSession;
 
 /**
  * Miscellaneous utility methods.
@@ -22,18 +22,18 @@ public final class VaadinUtil {
     }
 
     /**
-     * Get the {@link VaadinServiceSession} associated with the current thread.
-     * This is just a wrapper around {@link VaadinServiceSession#getCurrent} that throws an exception instead
+     * Get the {@link VaadinSession} associated with the current thread.
+     * This is just a wrapper around {@link VaadinSession#getCurrent} that throws an exception instead
      * of returning null when there is no session associated with the current thread.
      *
-     * @return current {@link VaadinServiceSession}, never null
+     * @return current {@link VaadinSession}, never null
      *
-     * @throws IllegalStateException if there is no {@link VaadinServiceSession} associated with the current thread
+     * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread
      */
-    public static VaadinServiceSession getCurrentSession() {
-        VaadinServiceSession session = VaadinServiceSession.getCurrent();
+    public static VaadinSession getCurrentSession() {
+        VaadinSession session = VaadinSession.getCurrent();
         if (session == null) {
-            throw new IllegalStateException("there is no VaadinServiceSession associated with the current thread;"
+            throw new IllegalStateException("there is no VaadinSession associated with the current thread;"
               + " are we executing within a Vaadin HTTP request or VaadinUtil.invoke()?");
         }
         return session;
@@ -58,7 +58,7 @@ public final class VaadinUtil {
     }
 
     /**
-     * Peform some action while holding the given {@link VaadinServiceSession}'s lock.
+     * Peform some action while holding the given {@link VaadinSession}'s lock.
      *
      * <p>
      * All back-end threads that interact with Vaadin components must use this method (or equivalent)
@@ -67,45 +67,45 @@ public final class VaadinUtil {
      * </p>
      *
      * <p>
-     * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinServiceSession}
-     * is available via {@link VaadinServiceSession#getCurrent}.
+     * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinSession}
+     * is available via {@link VaadinSession#getCurrent}.
      * </p>
      *
      * @throws IllegalArgumentException if either parameter is null
      * @see VaadinApplication#invoke
      */
-    public static void invoke(VaadinServiceSession session, Runnable action) {
+    public static void invoke(VaadinSession session, Runnable action) {
         if (session == null)
             throw new IllegalArgumentException("null session");
         if (action == null)
             throw new IllegalArgumentException("null action");
-        session.getLock().lock();
-        VaadinServiceSession previousSession = VaadinServiceSession.getCurrent();
-        VaadinServiceSession.setCurrent(session);
+        session.lock();
+        VaadinSession previousSession = VaadinSession.getCurrent();
+        VaadinSession.setCurrent(session);
         try {
             action.run();
         } finally {
-            session.getLock().unlock();
-            VaadinServiceSession.setCurrent(previousSession);
+            session.unlock();
+            VaadinSession.setCurrent(previousSession);
         }
     }
 
     /**
-     * Register for a notification when the {@link VaadinServiceSession} is closed, without creating a memory leak.
+     * Register for a notification when the {@link VaadinSession} is closed, without creating a memory leak.
      * This method is intended to be used by listeners that are themselves part of a Vaadin application.
      *
      * <p>
-     * Explanation: the {@link VaadinServiceSession} class does not provide a listener API directly; instead, you must
+     * Explanation: the {@link VaadinSession} class does not provide a listener API directly; instead, you must
      * use the {@link com.vaadin.server.VaadinService} class. However, registering as a listener on the
      * {@link com.vaadin.server.VaadinService} when you are part of a Vaadin application sets you up for a memory leak
      * if you forget to unregister yourself when the notification arrives, because the {@link com.vaadin.server.VaadinService}
-     * lifetime is longer than the {@link VaadinServiceSession} lifetime. This method handles that de-registration for
+     * lifetime is longer than the {@link VaadinSession} lifetime. This method handles that de-registration for
      * you automatically.
      *
      * @throws IllegalArgumentException if either parameter is null
      * @see VaadinApplication#addSessionDestroyListener
      */
-    public static void addSessionDestroyListener(VaadinServiceSession session, SessionDestroyListener listener) {
+    public static void addSessionDestroyListener(VaadinSession session, SessionDestroyListener listener) {
         session.getService().addSessionDestroyListener(new LeakAvoidingDestroyListener(session, listener));
     }
 
@@ -115,18 +115,19 @@ public final class VaadinUtil {
      * @throws IllegalArgumentException if either parameter is null
      * @see VaadinApplication#removeSessionDestroyListener
      */
-    public static void removeSessionDestroyListener(VaadinServiceSession session, SessionDestroyListener listener) {
+    public static void removeSessionDestroyListener(VaadinSession session, SessionDestroyListener listener) {
         session.getService().removeSessionDestroyListener(new LeakAvoidingDestroyListener(session, listener));
     }
 
 // LeakAvoidingDestroyListener
 
+    @SuppressWarnings("serial")
     private static class LeakAvoidingDestroyListener implements SessionDestroyListener {
 
-        private final VaadinServiceSession session;
+        private final VaadinSession session;
         private final SessionDestroyListener listener;
 
-        public LeakAvoidingDestroyListener(VaadinServiceSession session, SessionDestroyListener listener) {
+        public LeakAvoidingDestroyListener(VaadinSession session, SessionDestroyListener listener) {
             if (session == null)
                 throw new IllegalArgumentException("null session");
             if (listener == null)
@@ -137,7 +138,7 @@ public final class VaadinUtil {
 
         @Override
         public void sessionDestroy(SessionDestroyEvent event) {
-            final VaadinServiceSession closedSession = event.getSession();
+            final VaadinSession closedSession = event.getSession();
             if (closedSession == this.session) {
                 this.session.getService().removeSessionDestroyListener(this);       // remove myself as listener to avoid mem leak
                 this.listener.sessionDestroy(event);

@@ -8,7 +8,7 @@
 package org.dellroad.stuff.vaadin7;
 
 import com.vaadin.server.SessionDestroyListener;
-import com.vaadin.server.VaadinServiceSession;
+import com.vaadin.server.VaadinSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +17,13 @@ import org.slf4j.LoggerFactory;
  * A globally accessible "Vaadin application" singleton.
  *
  * <p>
- * When constructed, a new instance of this class associates itself with the current {@link VaadinServiceSession}.
+ * When constructed, a new instance of this class associates itself with the current {@link VaadinSession}.
  * This singleton instance is then always accessible from any Vaadin thread via {@link #get()}.
  * </p>
  *
  * <p>
  * Although not tied to Spring, this class would typically be declared as a singleton in the Spring XML application context
- * created by a {@link SpringServiceSession}, allowing other beans and widgets in the Vaadin application context to autowire
+ * created by a {@link SpringVaadinSession}, allowing other beans and widgets in the Vaadin application context to autowire
  * it and have access to the methods provided here. If this class is subclassed, additional application-specific fields and
  * methods can be supplied to the entire application via the same mechanism.
  * </p>
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * @see SpringVaadinServlet
- * @see SpringServiceSession
+ * @see SpringVaadinSession
  * @see com.vaadin.server.VaadinService
  */
 @SuppressWarnings("serial")
@@ -47,15 +47,15 @@ public class VaadinApplication {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final VaadinServiceSession session;
+    private final VaadinSession session;
 
     /**
      * Convenience constructor. Equivalent to:
      * <blockquote></code>
-     *  {@link #VaadinApplication(VaadinServiceSession) VaadinApplication}({@link VaadinUtil#getCurrentSession})
+     *  {@link #VaadinApplication(VaadinSession) VaadinApplication}({@link VaadinUtil#getCurrentSession})
      * </code></blockquote>
      *
-     * @throws IllegalStateException if there is no {@link VaadinServiceSession} associated with the current thread
+     * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread
      * @throws IllegalStateException if there is already a {@link VaadinApplication} instance associated with the current session
      */
     public VaadinApplication() {
@@ -69,7 +69,7 @@ public class VaadinApplication {
      * @throws IllegalArgumentException if {@code session} is null
      * @throws IllegalStateException if there is already a {@link VaadinApplication} instance associated with {@code session}
      */
-    public VaadinApplication(VaadinServiceSession session) {
+    public VaadinApplication(VaadinSession session) {
 
         // Get session
         if (session == null)
@@ -79,7 +79,7 @@ public class VaadinApplication {
         // Check for already-existing instance
         VaadinApplication vaadinApplication = this.session.getAttribute(ATTRIBUTE_KEY);
         if (vaadinApplication != null) {
-            throw new IllegalStateException("there is already a VaadinApplication associated with VaadinServiceSession "
+            throw new IllegalStateException("there is already a VaadinApplication associated with VaadinSession "
               + this.session + ": " + vaadinApplication + "; did you accidentally declare more than one instance of"
               + " VaadinApplication in the Vaadin Spring XML application context?");
         }
@@ -101,18 +101,18 @@ public class VaadinApplication {
     }
 
     /**
-     * Get the {@link VaadinServiceSession} associated with this instance.
+     * Get the {@link VaadinSession} associated with this instance.
      *
-     * @return associated VaadinServiceSession, never null
+     * @return associated VaadinSession, never null
      */
-    public VaadinServiceSession getSession() {
+    public VaadinSession getSession() {
         return this.session;
     }
 
     /**
-     * Close the {@link VaadinServiceSession} associated with this instance.
+     * Close the {@link VaadinSession} associated with this instance.
      * After invoking this method, the caller would normally ensure that no further references to this
-     * instance remain so that it and the associated {@link VaadinServiceSession} can be freed.
+     * instance remain so that it and the associated {@link VaadinSession} can be freed.
      *
      * <p>
      * The implementation in {@link VaadinApplication} just delegates to {@link com.vaadin.server.VaadinService#closeSession}.
@@ -122,7 +122,7 @@ public class VaadinApplication {
     }
 
     /**
-     * Get the singleton {@link VaadinApplication} instance associated with the current {@link VaadinServiceSession}.
+     * Get the singleton {@link VaadinApplication} instance associated with the current {@link VaadinSession}.
      *
      * <p>
      * This is a convenience method, equivalent to:
@@ -131,7 +131,7 @@ public class VaadinApplication {
      * </code></blockquote>
      *
      * @return singleton instance for the current Vaadin application, never null
-     * @throws IllegalStateException if there is no {@link VaadinServiceSession} associated with the current thread
+     * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread
      * @throws IllegalStateException if there is no {@link VaadinApplication} instance associated with the current session
      */
     public static VaadinApplication get() {
@@ -139,7 +139,7 @@ public class VaadinApplication {
     }
 
     /**
-     * Get the singleton instance of the specified class associated with the current {@link VaadinServiceSession}.
+     * Get the singleton instance of the specified class associated with the current {@link VaadinSession}.
      *
      * <p>
      * This is a convenience method, equivalent to:
@@ -153,7 +153,7 @@ public class VaadinApplication {
      * @param clazz singleton instance type
      * @return singleton instance of {@code clazz} in the session, never null
      * @throws IllegalArgumentException if {@code clazz} is null
-     * @throws IllegalStateException if there is no {@link VaadinServiceSession} associated with the current thread
+     * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread
      * @throws IllegalStateException if there is no singleton of type {@code clazz} associated with the current session
      */
     public static <T extends VaadinApplication> T get(Class<T> clazz) {
@@ -170,7 +170,7 @@ public class VaadinApplication {
      * @throws IllegalArgumentException if {@code clazz} is null
      * @throws IllegalStateException if there is no singleton of type {@code clazz} associated with the {@code session}
      */
-    public static <T extends VaadinApplication> T get(VaadinServiceSession session, Class<T> clazz) {
+    public static <T extends VaadinApplication> T get(VaadinSession session, Class<T> clazz) {
 
         // Sanity check
         if (session == null)
@@ -181,13 +181,13 @@ public class VaadinApplication {
         // Get the application
         VaadinApplication vaadinApplication = session.getAttribute(ATTRIBUTE_KEY);
         if (vaadinApplication == null) {
-            throw new IllegalStateException("there is no VaadinApplication associated with the current VaadinServiceSession"
+            throw new IllegalStateException("there is no VaadinApplication associated with the current VaadinSession"
               + "; did you declare an instance of VaadinApplication in the Vaadin Spring XML application context?");
         }
 
         // Check type
         if (!clazz.isInstance(vaadinApplication)) {
-            throw new IllegalStateException("there is a VaadinApplication associated with the current VaadinServiceSession"
+            throw new IllegalStateException("there is a VaadinApplication associated with the current VaadinSession"
               + " but it is not an instance of " + clazz + "; instead it has type " + vaadinApplication.getClass().getName());
         }
 
@@ -196,11 +196,11 @@ public class VaadinApplication {
     }
 
     /**
-     * Peform some action while holding the lock of the {@link VaadinServiceSession} associated with this instance.
+     * Peform some action while holding the lock of the {@link VaadinSession} associated with this instance.
      *
      * <p>
      * This is a convenience method that in turn invokes {@link VaadinUtil#invoke VaadinUtil.invoke()} using the
-     * {@link VaadinServiceSession} associated with this instance.
+     * {@link VaadinSession} associated with this instance.
      *
      * @param action action to perform
      * @throws IllegalArgumentException if {@code action} is null
@@ -211,12 +211,12 @@ public class VaadinApplication {
     }
 
     /**
-     * Register for a notification when the {@link VaadinServiceSession} is closed, without creating a memory leak.
+     * Register for a notification when the {@link VaadinSession} is closed, without creating a memory leak.
      *
      * <p>
      * This is a convenience method that in turn invokes
      * {@link VaadinUtil#addSessionDestroyListener VaadinUtil.addSessionDestroyListener()} using the
-     * {@link VaadinServiceSession} associated with this instance.
+     * {@link VaadinSession} associated with this instance.
      *
      * @throws IllegalArgumentException if {@code listener} is null
      * @see VaadinUtil#addSessionDestroyListener
@@ -231,7 +231,7 @@ public class VaadinApplication {
      * <p>
      * This is a convenience method that in turn invokes
      * {@link VaadinUtil#removeSessionDestroyListener VaadinUtil.removeSessionDestroyListener()} using the
-     * {@link VaadinServiceSession} associated with this instance.
+     * {@link VaadinSession} associated with this instance.
      *
      * @throws IllegalArgumentException if {@code listener} is null
      * @see VaadinUtil#removeSessionDestroyListener
@@ -241,7 +241,7 @@ public class VaadinApplication {
     }
 
     // This method exists solely to bind the generic type
-    private static <T> void setAttribute(VaadinServiceSession session, Class<T> clazz, Object value) {
+    private static <T> void setAttribute(VaadinSession session, Class<T> clazz, Object value) {
         session.setAttribute(clazz, clazz.cast(value));
     }
 }

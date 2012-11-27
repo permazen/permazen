@@ -7,7 +7,7 @@
 
 package org.dellroad.stuff.vaadin7;
 
-import com.vaadin.server.VaadinServiceSession;
+import com.vaadin.server.VaadinSession;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -27,7 +27,7 @@ import org.springframework.context.event.SmartApplicationListener;
  * @see VaadinExternalListener
  * @see VaadinUtil#invoke
  * @see VaadinApplicationScope
- * @see SpringServiceSession
+ * @see SpringVaadinSession
  */
 public abstract class VaadinApplicationListener<E extends ApplicationEvent>
   extends VaadinExternalListener<ApplicationEventMulticaster> implements SmartApplicationListener {
@@ -37,14 +37,14 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
     /**
      * Convenience constructor. Equivalent to:
      * <blockquote>
-     *  {@link #VaadinApplicationListener(ApplicationEventMulticaster, Class, VaadinServiceSession)
+     *  {@link #VaadinApplicationListener(ApplicationEventMulticaster, Class, VaadinSession)
      *      VaadinApplicationListener(multicaster, eventType, VaadinUtil.getCurrentSession())}
      * </blockquote>
      *
      * @param multicaster the application event multicaster on which this listener will register
      * @param eventType type of events this instance should receive (others will be ignored)
      * @throws IllegalArgumentException if {@code eventType} is null
-     * @throws IllegalArgumentException if there is no {@link VaadinServiceSession} associated with the current thread
+     * @throws IllegalArgumentException if there is no {@link VaadinSession} associated with the current thread
      */
     public VaadinApplicationListener(ApplicationEventMulticaster multicaster, Class<E> eventType) {
         this(multicaster, eventType, VaadinUtil.getCurrentSession());
@@ -58,7 +58,7 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
      * @param session the associated Vaadin application
      * @throws IllegalArgumentException if either parameter is null
      */
-    public VaadinApplicationListener(ApplicationEventMulticaster multicaster, Class<E> eventType, VaadinServiceSession session) {
+    public VaadinApplicationListener(ApplicationEventMulticaster multicaster, Class<E> eventType, VaadinSession session) {
         super(multicaster, session);
         if (eventType == null)
             throw new IllegalArgumentException("null eventType");
@@ -102,7 +102,7 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
 
     /**
      * Handle a listener event. When this method is invoked, it will already be within the context
-     * of the {@link VaadinServiceSession} with which this listener is associated.
+     * of the {@link VaadinSession} with which this listener is associated.
      *
      * @see VaadinUtil#invoke
      * @see VaadinUtil#getCurrentSession

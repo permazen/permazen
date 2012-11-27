@@ -9,7 +9,7 @@ package org.dellroad.stuff.vaadin7;
 
 import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionDestroyListener;
-import com.vaadin.server.VaadinServiceSession;
+import com.vaadin.server.VaadinSession;
 
 /**
  * Support superclass customized for use by listeners that are part of a Vaadin application when listening
@@ -45,24 +45,24 @@ import com.vaadin.server.VaadinServiceSession;
  * @see VaadinUtil#invoke
  * @see VaadinApplicationScope
  * @see VaadinApplicationListener
- * @see SpringServiceSession
+ * @see SpringVaadinSession
  */
 public abstract class VaadinExternalListener<S> {
 
     private final S eventSource;
-    private final VaadinServiceSession session;
+    private final VaadinSession session;
     private final CloseListener closeListener = new CloseListener();
 
     /**
      * Convenience constructor. Equivalent to:
      * <blockquote>
-     *  {@link #VaadinExternalListener(Object, VaadinServiceSession)
+     *  {@link #VaadinExternalListener(Object, VaadinSession)
      *      VaadinExternalListener(eventSource, VaadinUtil.getCurrentSession())}
      * </blockquote>
      *
      * @param eventSource the event source on which this listener will register
      * @throws IllegalArgumentException if {@code eventSource} is null
-     * @throws IllegalStateException if there is no {@link VaadinServiceSession} associated with the current thread
+     * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread
      */
     protected VaadinExternalListener(S eventSource) {
         this(eventSource, VaadinUtil.getCurrentSession());
@@ -71,7 +71,7 @@ public abstract class VaadinExternalListener<S> {
     /**
      * Convenience constructor. Equivalent to:
      * <blockquote>
-     *  {@link #VaadinExternalListener(Object, VaadinServiceSession) VaadinExternalListener(eventSource, application.getSession())}
+     *  {@link #VaadinExternalListener(Object, VaadinSession) VaadinExternalListener(eventSource, application.getSession())}
      * </blockquote>
      *
      * @param eventSource the event source on which this listener will register
@@ -90,7 +90,7 @@ public abstract class VaadinExternalListener<S> {
      * @param session the associated Vaadin application's session
      * @throws IllegalArgumentException if either parameter is null
      */
-    protected VaadinExternalListener(S eventSource, VaadinServiceSession session) {
+    protected VaadinExternalListener(S eventSource, VaadinSession session) {
         if (eventSource == null)
             throw new IllegalArgumentException("null eventSource");
         if (session == null)
@@ -123,9 +123,9 @@ public abstract class VaadinExternalListener<S> {
     }
 
     /**
-     * Get the {@link VaadinServiceSession} (aka Vaadin application) with which this instance is associated.
+     * Get the {@link VaadinSession} (aka Vaadin application) with which this instance is associated.
      */
-    public final VaadinServiceSession getSession() {
+    public final VaadinSession getSession() {
         return this.session;
     }
 
@@ -137,7 +137,7 @@ public abstract class VaadinExternalListener<S> {
     }
 
     /**
-     * Execute the given listener action using the {@link VaadinServiceSession} with which this instance is associated.
+     * Execute the given listener action using the {@link VaadinSession} with which this instance is associated.
      *
      * <p>
      * Subclass listener methods should handle events using this method to ensure proper locking to avoid race conditions.
@@ -171,6 +171,7 @@ public abstract class VaadinExternalListener<S> {
 
 // Application close listener
 
+    @SuppressWarnings("serial")
     private final class CloseListener implements SessionDestroyListener {
 
         @Override

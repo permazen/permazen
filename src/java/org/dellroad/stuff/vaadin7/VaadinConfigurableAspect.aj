@@ -7,7 +7,7 @@
 
 package org.dellroad.stuff.vaadin7;
 
-import com.vaadin.server.VaadinServiceSession;
+import com.vaadin.server.VaadinSession;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -30,16 +30,16 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
  * <p>
  * This aspect does the same thing that Spring's {@code AnnotationBeanConfigurerAspect} aspect does,
  * except that this aspect configures beans using the application context associated with the current
- * {@link VaadinServiceSession} (aka "Vaadin application") rather than the one associated with the overall
+ * {@link VaadinSession} (aka "Vaadin application") rather than the one associated with the overall
  * servlet context (i.e., its parent).
  * </p>
  *
  * <p>
- * As a result, objects so annotated will be configured for their specific {@link VaadinServiceSession}
- * instance, and therefore can only be instantiated by threads associated with a current {@link VaadinServiceSession}
+ * As a result, objects so annotated will be configured for their specific {@link VaadinSession}
+ * instance, and therefore can only be instantiated by threads associated with a current {@link VaadinSession}
  * (see {@link VaadinApplication#getSession} and {@link VaadinUtil#getCurrentSession}). This will be the case when executing
  * within a {@link SpringVaadinServlet} Vaadin application HTTP request or an invocation of {@link VaadinApplication#invoke}
- * (or {@link VaadinUtil#invoke} using the corresponding {@link VaadinServiceSession}).
+ * (or {@link VaadinUtil#invoke} using the corresponding {@link VaadinSession}).
  * </p>
  *
  * <p>
@@ -52,7 +52,7 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
  * @see SpringServletSession
  * @see SpringVaadinServlet
  * @see VaadinUtil#getCurrentSession
- * @see VaadinServiceSession#getCurrent
+ * @see VaadinSession#getCurrent
  */
 public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
 
@@ -99,8 +99,8 @@ public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
         if (annotation != null) {
             final ErrorAction errorAction = annotation.ifSessionNotLocked();
             if (errorAction != ErrorAction.IGNORE) {
-                VaadinServiceSession session = VaadinServiceSession.getCurrent();
-                if (session != null && !((ReentrantLock)session.getLock()).isHeldByCurrentThread()) {
+                VaadinSession session = VaadinSession.getCurrent();
+                if (session != null && !((ReentrantLock)session.getLockInstance()).isHeldByCurrentThread()) {
                     String message = "@VaadinConfigurable bean of type " + bean.getClass().getName() + " is being instantiated"
                       + " but the current thread has not locked the associated Vaadin session " + session;
                     switch (errorAction) {
@@ -124,7 +124,7 @@ public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
         // Get application context
         ConfigurableWebApplicationContext context;
         try {
-            context = SpringServiceSession.getApplicationContext();
+            context = SpringVaadinSession.getApplicationContext();
         } catch (IllegalStateException e) {
             throw new BeanInitializationException("can't get application context for autowiring @VaadinConfigurable bean", e);
         }

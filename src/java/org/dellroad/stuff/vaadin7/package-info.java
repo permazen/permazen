@@ -32,8 +32,8 @@
  * Key classes include:
  * <ul>
  *  <li>{@link org.dellroad.stuff.vaadin7.SpringVaadinServlet} associates a Spring application context
- *      with each "Vaadin application" instance (i.e., each {@link com.vaadin.server.VaadinServiceSession}) using
- *      the {@link org.dellroad.stuff.vaadin7.SpringServiceSession} class (which does the bulk of the work).
+ *      with each "Vaadin application" instance (i.e., each {@link com.vaadin.server.VaadinSession}) using
+ *      the {@link org.dellroad.stuff.vaadin7.SpringVaadinSession} class (which does the bulk of the work).
  *      The parent context is the application context associated with the overall servlet context already set up by Spring.
  *      This is analogous to what Spring's {@link org.springframework.web.servlet.DispatcherServlet} does
  *      for each servlet instance. Beans inside this context have a lifecycle which exactly tracks the Vaadin application,
@@ -62,7 +62,7 @@
  *
  * @see org.dellroad.stuff.vaadin7.SpringVaadinServlet
  * @see org.dellroad.stuff.vaadin7.VaadinConfigurable
- * @see org.dellroad.stuff.vaadin7.SpringServiceSession
+ * @see org.dellroad.stuff.vaadin7.SpringVaadinSession
  * @see org.dellroad.stuff.vaadin7.VaadinApplicationScope
  * @see org.dellroad.stuff.vaadin7.VaadinExternalListener
  * @see org.dellroad.stuff.vaadin7.VaadinApplicationListener
