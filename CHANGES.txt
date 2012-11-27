@@ -1,4 +1,4 @@
-Version 1.0.570 Released November 27, 2012
+Version 1.0.571 Released November 27, 2012
 
     - Vaadin7: fix bug that broke VaadinApplication.get() when subclassed
     - Vaadin7: remove workaround for Vaadin bug #9946, which is now fixed
