@@ -24,6 +24,7 @@
  * <li>All changes must fully validate</li>
  * <li>Versioning support for optimistic locking</li>
  * <li>Support for "out-of-band" persistent file updates</li>
+ * <li>Support for automatic re-indexing on change</li>
  * <li>Support for listener notifications on update</li>
  * <li>Support for schema updates via XSLT transforms using the {@link org.dellroad.stuff.schema} classes</li>
  * </ul>
