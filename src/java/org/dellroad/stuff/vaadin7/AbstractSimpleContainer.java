@@ -49,7 +49,19 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
     private PropertyExtractor<? super T> propertyExtractor;
 
-// Constructor
+// Constructors
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * After using this constructor, subsequent invocations of {@link #setPropertyExtractor setPropertyExtractor()}
+     * and {@link #setProperties setProperties()} are required to define the properties of this container
+     * and how to extract them.
+     */
+    protected AbstractSimpleContainer() {
+        this(null);
+    }
 
     /**
      * Constructor.
@@ -58,24 +70,26 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * After using this constructor, a subsequent invocation of {@link #setProperties setProperties()} is required
      * to define the properties of this container.
      *
-     * @param propertyExtractor used to extract properties from the underlying Java objects
-     * @throws IllegalArgumentException if {@code propertyExtractor} is null
+     * @param propertyExtractor used to extract properties from the underlying Java objects;
+     *  may be null but then container is not usable until one is configured via
+     * {@link #setPropertyExtractor setPropertyExtractor()}
      */
     protected AbstractSimpleContainer(PropertyExtractor<? super T> propertyExtractor) {
-        this.setItemSorter(new SimpleItemSorter());
-        this.setPropertyExtractor(propertyExtractor);
+        this(propertyExtractor, null);
     }
 
     /**
      * Primary constructor.
      *
-     * @param propertyExtractor used to extract properties from the underlying Java objects
-     * @param propertyDefs container property definitions
-     * @throws IllegalArgumentException if either parameter is null
+     * @param propertyExtractor used to extract properties from the underlying Java objects;
+     *  may be null but then container is not usable until one is configured via
+     * {@link #setPropertyExtractor setPropertyExtractor()}
+     * @param propertyDefs container property definitions; null is treated like the empty set
      */
     protected AbstractSimpleContainer(PropertyExtractor<? super T> propertyExtractor,
       Collection<? extends PropertyDef<?>> propertyDefs) {
-        this(propertyExtractor);
+        this.setItemSorter(new SimpleItemSorter());
+        this.setPropertyExtractor(propertyExtractor);
         this.setProperties(propertyDefs);
     }
 
@@ -92,25 +106,22 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * Change the configured {@link PropertyExtractor} for this container.
      * Invoking this method does not result in any container notifications.
      *
-     * @param propertyExtractor used to extract properties from the underlying Java objects
-     * @throws IllegalArgumentException if {@code propertyExtractor} is null
+     * @param propertyExtractor used to extract properties from the underlying Java objects;
+     *  may be null but the container is not usable without one
      */
     public void setPropertyExtractor(PropertyExtractor<? super T> propertyExtractor) {
-        if (propertyExtractor == null)
-            throw new IllegalArgumentException("null extractor");
         this.propertyExtractor = propertyExtractor;
     }
 
     /**
      * Change the configured properties of this container.
      *
-     * @param propertyDefs container property definitions
-     * @throws IllegalArgumentException if {@code propertyDefs} is null
+     * @param propertyDefs container property definitions; null is treated like the empty set
      * @throws IllegalArgumentException if {@code propertyDefs} contains a property with a duplicate name
      */
     public void setProperties(Collection<? extends PropertyDef<?>> propertyDefs) {
         if (propertyDefs == null)
-            throw new IllegalArgumentException("null propertyDefs");
+            propertyDefs = Collections.<PropertyDef<?>>emptySet();
         this.propertyMap.clear();
         for (PropertyDef<?> propertyDef : propertyDefs) {
             if (this.propertyMap.put(propertyDef.getName(), propertyDef) != null)
