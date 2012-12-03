@@ -55,7 +55,7 @@ public abstract class ContextMainClass extends MainClass {
     }
 
     @Override
-    public final int run(final String[] args) throws Exception {
+    public int run(final String[] args) throws Exception {
 
         // Open context
         openContext();
