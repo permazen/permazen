@@ -100,7 +100,7 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
         return this.getBy(new DAOCriteriaListCallback() {
             @Override
             protected void configureQuery(CriteriaQuery<T> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                // no criteria - we want them all
+                criteriaQuery.from(this.type);
             }
         });
     }
