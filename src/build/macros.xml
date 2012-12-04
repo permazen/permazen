@@ -385,6 +385,9 @@
         <attribute name="changes" description="Update schema file"/>
         <attribute name="expected" description="Expected result schema file"/>
         <attribute name="classpathref" description="Classpath reference containing MySQL driver and Liquibase &gt; 2.0.0"/>
+        <attribute name="dbhost" default="localhost" description="Database host"/>
+        <attribute name="dbuser" default="schemacheck" description="Database username"/>
+        <attribute name="dbpass" default="schemacheck" description="Database password"/>
         <sequential>
 
             <!-- Reset -->
@@ -392,8 +395,8 @@
             <mkdir dir="build/schemacheck"/>
 
             <!-- Create check databases -->
-            <sql driver="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost/" classpathref="@{classpathref}"
-              userid="schemacheck" password="schemacheck" print="false" showheaders="false" showtrailers="false">
+            <sql driver="com.mysql.jdbc.Driver" url="jdbc:mysql://@{dbhost}/" classpathref="@{classpathref}"
+              userid="@{dbuser}" password="@{dbpass}" print="false" showheaders="false" showtrailers="false">
                 <transaction>
                     DROP DATABASE IF EXISTS `schemacheck_1`;
                     DROP DATABASE IF EXISTS `schemacheck_2`;
@@ -403,32 +406,32 @@
             </sql>
 
             <!-- Apply original schema plus all updates to database #1 -->
-            <sql driver="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost/schemacheck_1?autoGenerateTestcaseScript=true"
-              classpathref="@{classpathref}" userid="schemacheck" password="schemacheck" print="false" showheaders="false"
+            <sql driver="com.mysql.jdbc.Driver" url="jdbc:mysql://@{dbhost}/schemacheck_1?autoGenerateTestcaseScript=true"
+              classpathref="@{classpathref}" userid="@{dbuser}" password="@{dbpass}" print="false" showheaders="false"
               showtrailers="false" autocommit="true">
                 <transaction src="@{original}"/>
                 <transaction src="@{changes}"/>
             </sql>
 
             <!-- Apply up-to-date schema to database #2 -->
-            <sql driver="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost/schemacheck_2" classpathref="@{classpathref}"
-              userid="schemacheck" password="schemacheck" print="false" showheaders="false" showtrailers="false">
+            <sql driver="com.mysql.jdbc.Driver" url="jdbc:mysql://@{dbhost}/schemacheck_2" classpathref="@{classpathref}"
+              userid="@{dbuser}" password="@{dbpass}" print="false" showheaders="false" showtrailers="false">
                 <transaction src="@{expected}"/>
             </sql>
 
             <!-- Dump schemas as flat files -->
             <exec executable="mysqldump" output="build/schemacheck/1.sql" logError="true" failonerror="true">
-                <arg line="-u schemacheck --password=schemacheck --host=localhost --no-data schemacheck_1"/>
+                <arg line="-u @{dbuser} --password=@{dbpass} --host=@{dbhost} --no-data schemacheck_1"/>
             </exec>
             <exec executable="mysqldump" output="build/schemacheck/2.sql" logError="true" failonerror="true">
-                <arg line="-u schemacheck --password=schemacheck --host=localhost --no-data schemacheck_2"/>
+                <arg line="-u @{dbuser} --password=@{dbpass} --host=@{dbhost} --no-data schemacheck_2"/>
             </exec>
 
             <!-- Compute schema diff using liquibase -->
             <taskdef resource="liquibasetasks.properties" classpathref="@{classpathref}"/>
             <diffDatabase driver="com.mysql.jdbc.Driver" classpathref="@{classpathref}"
-              url="jdbc:mysql://localhost/schemacheck_1" username="schemacheck" password="schemacheck"
-              referenceUrl="jdbc:mysql://localhost/schemacheck_2" referenceUsername="schemacheck" referencePassword="schemacheck"
+              url="jdbc:mysql://@{dbhost}/schemacheck_1" username="@{dbuser}" password="@{dbpass}"
+              referenceUrl="jdbc:mysql://@{dbhost}/schemacheck_2" referenceUsername="@{dbuser}" referencePassword="@{dbpass}"
               outputFile="build/schemacheck/diff.txt">
             </diffDatabase>
             <exec executable="sh" logError="true" failonerror="false">
@@ -443,8 +446,8 @@
             </exec>
 
             <!-- Drop databases -->
-            <sql driver="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost/" classpathref="@{classpathref}"
-              userid="schemacheck" password="schemacheck" print="false" showheaders="false" showtrailers="false">
+            <sql driver="com.mysql.jdbc.Driver" url="jdbc:mysql://@{dbhost}/" classpathref="@{classpathref}"
+              userid="@{dbuser}" password="@{dbpass}" print="false" showheaders="false" showtrailers="false">
                 DROP DATABASE `schemacheck_1`;
                 DROP DATABASE `schemacheck_2`;
             </sql>
@@ -462,7 +465,7 @@
             <exec executable="diff" logError="true" failonerror="false">
                 <arg value="-u"/>
                 <arg value="-I"/>
-                <arg value="^-- Host: localhost"/>
+                <arg value="^-- Host: @{dbhost}"/>
                 <arg value="-I"/>
                 <arg value="^-- Dump completed on"/>
                 <arg value="build/schemacheck/1.sql"/>
