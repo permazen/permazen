@@ -58,7 +58,7 @@ public class SpringXSLPersistentObjectSchemaUpdate<T> extends SpringPersistentOb
     /**
      * Configure XSLT parameters. This is an optional property.
      */
-    public void setParameters(Properties properties) {
+    public void setParameters(Properties parameters) {
         this.parameters = parameters;
     }
 
