@@ -10,6 +10,8 @@ package org.dellroad.stuff.schema;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -62,42 +64,51 @@ public abstract class AbstractUpdatingDataSource implements DataSource {
 
     @Override
     public Connection getConnection() throws SQLException {
-        return getUpdatedDataSource().getConnection();
+        return this.getUpdatedDataSource().getConnection();
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        return getUpdatedDataSource().getConnection(username, password);
+        return this.getUpdatedDataSource().getConnection(username, password);
     }
 
     @Override
     public PrintWriter getLogWriter() throws SQLException {
-        return getUpdatedDataSource().getLogWriter();
+        return this.getUpdatedDataSource().getLogWriter();
     }
 
     @Override
     public void setLogWriter(PrintWriter pw) throws SQLException {
-        getUpdatedDataSource().setLogWriter(pw);
+        this.getUpdatedDataSource().setLogWriter(pw);
     }
 
     @Override
     public void setLoginTimeout(int timeout) throws SQLException {
-        getUpdatedDataSource().setLoginTimeout(timeout);
+        this.getUpdatedDataSource().setLoginTimeout(timeout);
     }
 
     @Override
     public int getLoginTimeout() throws SQLException {
-        return getUpdatedDataSource().getLoginTimeout();
+        return this.getUpdatedDataSource().getLoginTimeout();
     }
 
     @Override
     public <T> T unwrap(Class<T> cl) throws SQLException {
-        return cl.cast(getUpdatedDataSource());
+        return cl.cast(this.getUpdatedDataSource());
     }
 
     @Override
     public boolean isWrapperFor(Class<?> cl) throws SQLException {
-        return cl.isInstance(getUpdatedDataSource());
+        return cl.isInstance(this.getUpdatedDataSource());
+    }
+
+    //@Override (Java7)
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        try {
+            return (Logger)DataSource.class.getMethod("getParentLogger").invoke(this.getUpdatedDataSource());
+        } catch (Exception e) {
+            throw new SQLFeatureNotSupportedException(e);
+        }
     }
 
     // Internal methods
