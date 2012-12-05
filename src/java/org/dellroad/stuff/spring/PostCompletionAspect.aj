@@ -9,13 +9,9 @@ package org.dellroad.stuff.spring;
 
 import java.util.concurrent.Executor;
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.SuppressAjWarnings;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.annotation.Order;
 import org.springframework.transaction.aspectj.AnnotationTransactionAspect;
 
 /**

@@ -17,8 +17,6 @@ import org.dellroad.stuff.java.ErrorAction;
 import org.dellroad.stuff.spring.AbstractConfigurableAspect;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
-import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.context.ConfigurableWebApplicationContext;

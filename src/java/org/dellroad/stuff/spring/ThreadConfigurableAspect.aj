@@ -11,8 +11,6 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.aspectj.AbstractDependencyInjectionAspect;
-import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
 import org.springframework.context.ConfigurableApplicationContext;
 
