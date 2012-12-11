@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 import org.springframework.scheduling.TaskScheduler;
 
@@ -35,10 +36,10 @@ import org.springframework.scheduling.TaskScheduler;
  * </p>
  *
  * <p>
- * To avoid races, this class requires the user to supply a <i>locking object</i>. This object's Java lock is used
- * to serialize scheduling activity and action invocation using normal Java synchronization.
- * In other words, this object is locked via {@code synchronized} statements during the execution of
- * {@link #schedule schedule()}, {@link #cancel cancel()}, and {@link #run run()}.
+ * To avoid races, this class requires the user to supply a <i>locking object</i>. This may either be a normal
+ * Java object, in which case normal Java synchronization is used, or a {@link Lock} object. The locking object is
+ * used to serialize scheduling activity and action invocation. In other words, the locking object is locked during
+ * the execution of {@link #schedule schedule()}, {@link #cancel cancel()}, and {@link #run run()}.
  * </p>
  *
  * <p>
@@ -46,6 +47,7 @@ import org.springframework.scheduling.TaskScheduler;
  * in one of three states: not scheduled, scheduled, or executing (in the latter case, of course the thread doing the
  * executing is the one holding the lock). Therefore, to completely avoid race conditions, user code must <i>itself</i>
  * lock the locking object itself prior to invoking any methods in this class.
+ * </p>
  *
  * <p>
  * Typically the most convenient locking object to use is the user's own {@code this} object, which can be locked using a
@@ -59,7 +61,8 @@ import org.springframework.scheduling.TaskScheduler;
  */
 public abstract class DelayedAction implements Runnable {
 
-    private final Object lock;
+    private final Lock lock;
+    private final Object objLock;
     private final TaskScheduler taskScheduler;
     private final ScheduledExecutorService executorService;
 
@@ -67,33 +70,68 @@ public abstract class DelayedAction implements Runnable {
     private Date futureDate;
 
     /**
-     * Constructor utitilizing a {@link TaskScheduler}.
+     * Constructor utitilizing a {@link TaskScheduler} and normal Java object locking.
      *
      * @param lock locking object used to serialize activity, or null for {@code this}
      * @param taskScheduler scheduler object
      * @throws IllegalArgumentException if {@code taskScheduler} is null
      */
     protected DelayedAction(Object lock, TaskScheduler taskScheduler) {
+        this(null, lock, taskScheduler, null);
         if (taskScheduler == null)
             throw new IllegalArgumentException("null taskScheduler");
-        this.lock = lock != null ? lock : this;
-        this.taskScheduler = taskScheduler;
-        this.executorService = null;
     }
 
     /**
-     * Constructor utitilizing a {@link ScheduledExecutorService}.
+     * Constructor utitilizing a {@link ScheduledExecutorService} and normal Java object locking.
      *
      * @param lock locking object used to serialize activity, or null for {@code this}
      * @param executorService scheduler object
      * @throws IllegalArgumentException if {@code executorService} is null
      */
     protected DelayedAction(Object lock, ScheduledExecutorService executorService) {
+        this(null, lock, null, executorService);
         if (executorService == null)
             throw new IllegalArgumentException("null executorService");
-        this.lock = lock != null ? lock : this;
+    }
+
+    /**
+     * Constructor utitilizing a {@link TaskScheduler} and a {@link Lock} for locking.
+     *
+     * @param lock locking object used to serialize activity
+     * @param taskScheduler scheduler object
+     * @throws IllegalArgumentException if {@code lock} is null
+     * @throws IllegalArgumentException if {@code taskScheduler} is null
+     */
+    protected DelayedAction(Lock lock, TaskScheduler taskScheduler) {
+        this(lock, null, taskScheduler, null);
+        if (lock == null)
+            throw new IllegalArgumentException("null lock");
+        if (taskScheduler == null)
+            throw new IllegalArgumentException("null taskScheduler");
+    }
+
+    /**
+     * Constructor utitilizing a {@link ScheduledExecutorService} and a {@link Lock} for locking.
+     *
+     * @param lock locking object used to serialize activity
+     * @param executorService scheduler object
+     * @throws IllegalArgumentException if {@code lock} is null
+     * @throws IllegalArgumentException if {@code executorService} is null
+     */
+    protected DelayedAction(Lock lock, ScheduledExecutorService executorService) {
+        this(lock, null, null, executorService);
+        if (lock == null)
+            throw new IllegalArgumentException("null lock");
+        if (executorService == null)
+            throw new IllegalArgumentException("null executorService");
+    }
+
+    private DelayedAction(Lock lock, Object objLock, TaskScheduler taskScheduler, ScheduledExecutorService executorService) {
+        this.lock = lock;
+        this.objLock = objLock != null ? objLock : this;
+        this.taskScheduler = taskScheduler;
         this.executorService = executorService;
-        this.taskScheduler = null;
     }
 
     /**
@@ -125,32 +163,38 @@ public abstract class DelayedAction implements Runnable {
      *  or a pool shutdown in progress)
      */
     public void schedule(final Date date) {
-        synchronized (this.lock) {
-
-            // Sanity check
-            if (date == null)
-                throw new IllegalArgumentException("null date");
-
-            // Already scheduled?
-            if (this.future != null) {
-
-                // Requested time is after scheduled time? Note: must be ">=", not ">" to ensure monotonically increasing Dates
-                if (date.compareTo(this.futureDate) >= 0)
-                    return;
-
-                // Cancel it
-                this.cancel();
+        this.runLocked(new Runnable() {
+            @Override
+            public void run() {
+                DelayedAction.this.scheduleWhileLocked(date);
             }
+        });
+    }
+    private void scheduleWhileLocked(final Date date) {
 
-            // Schedule it
-            this.future = this.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    DelayedAction.this.futureInvoked(date);
-                }
-            }, date);
-            this.futureDate = date;
+        // Sanity check
+        if (date == null)
+            throw new IllegalArgumentException("null date");
+
+        // Already scheduled?
+        if (this.future != null) {
+
+            // Requested time is after scheduled time? Note: must be ">=", not ">" to ensure monotonically increasing Dates
+            if (date.compareTo(this.futureDate) >= 0)
+                return;
+
+            // Cancel it
+            this.cancel();
         }
+
+        // Schedule it
+        this.future = this.schedule(new Runnable() {
+            @Override
+            public void run() {
+                DelayedAction.this.futureInvoked(date);
+            }
+        }, date);
+        this.futureDate = date;
     }
 
     /**
@@ -168,26 +212,37 @@ public abstract class DelayedAction implements Runnable {
      * </p>
      */
     public void cancel() {
-        synchronized (this.lock) {
+        this.runLocked(new Runnable() {
+            @Override
+            public void run() {
+                DelayedAction.this.cancelWhileLocked();
+            }
+        });
+    }
+    private void cancelWhileLocked() {
 
-            // Anything to do?
-            if (this.future == null)
-                return;
+        // Anything to do?
+        if (this.future == null)
+            return;
 
-            // Cancel future
-            this.future.cancel(false);
-            this.future = null;
-            this.futureDate = null;
-        }
+        // Cancel future
+        this.future.cancel(false);
+        this.future = null;
+        this.futureDate = null;
     }
 
     /**
      * Determine whether there is currently an outstanding scheduled action.
      */
     public boolean isScheduled() {
-        synchronized (this.lock) {
-            return this.future != null;
-        }
+        final boolean[] result = new boolean[1];
+        this.runLocked(new Runnable() {
+            @Override
+            public void run() {
+                result[0] = DelayedAction.this.future != null;
+            }
+        });
+        return result[0];
     }
 
     /**
@@ -196,9 +251,14 @@ public abstract class DelayedAction implements Runnable {
      * @return oustanding action scheduled time, or null if there is no scheduled action
      */
     public Date getScheduledTime() {
-        synchronized (this.lock) {
-            return this.futureDate;
-        }
+        final Date[] result = new Date[1];
+        this.runLocked(new Runnable() {
+            @Override
+            public void run() {
+                result[0] = DelayedAction.this.futureDate;
+            }
+        });
+        return result[0];
     }
 
     /**
@@ -227,19 +287,41 @@ public abstract class DelayedAction implements Runnable {
     }
 
     // Do the action
-    private void futureInvoked(Date date) {
-        synchronized (this.lock) {
+    private void futureInvoked(final Date date) {
+        this.runLocked(new Runnable() {
+            @Override
+            public void run() {
+                DelayedAction.this.futureInvokedWhileLocked(date);
+            }
+        });
+    }
+    private void futureInvokedWhileLocked(Date date) {
 
-            // Handle race condition where future.cancel() fails
-            if (this.futureDate != date)
-                return;
+        // Handle race condition where future.cancel() fails
+        if (this.futureDate != date)
+            return;
 
-            // Reset state
-            this.future = null;
-            this.futureDate = null;
+        // Reset state
+        this.future = null;
+        this.futureDate = null;
 
-            // Perform action
-            this.run();
+        // Perform action
+        this.run();
+    }
+
+    // Invoke action while locked
+    private void runLocked(Runnable action) {
+        if (this.objLock != null) {
+            synchronized (this.objLock) {
+                action.run();
+            }
+        } else {
+            this.lock.lock();
+            try {
+                action.run();
+            } finally {
+                this.lock.unlock();
+            }
         }
     }
 }
