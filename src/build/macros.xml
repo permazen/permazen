@@ -581,6 +581,7 @@
         <attribute name="repodir" default="/opt/repo/devel" description="Base RPM repository directory"/>
         <attribute name="susever" default="" description="Repository openSuSE version (default current)"/>
         <attribute name="purge" default="false" description="Whether to remove all other revisions from repository"/>
+        <attribute name="pattern" default="*.rpm" description="Filename glob pattern"/>
         <sequential>
 
             <!-- Refuse to publish uncommitted code -->
@@ -607,7 +608,7 @@
                         <arg value="
                             set -e;
 
-                            for FILE in `find dist/RPMS -type f -name \*.rpm -print`; do
+                            for FILE in `find dist/RPMS -type f -name '@{pattern}' -print`; do
                                 NAME=`rpm -qp --queryformat='%{name}\n' &quot;$${FILE}&quot;`;
                                 (
                                     if [ -z '@{repohost}' -o '@{repohost}' = `hostname` ]; then
@@ -640,8 +641,8 @@
                     cd dist/RPMS;
                     (
                         set +e;
-                        find * -type f -name '*.rpm' -print | grep -vE '^.*\.suse[0-9.]+\..*$';
-                        find * -type f -name '*.rpm' -print | grep -E '^.*\.suse@{susever}\..*$';
+                        find * -type f -name '@{pattern}' -print | grep -vE '^.*\.suse[0-9.]+\..*$';
+                        find * -type f -name '@{pattern}' -print | grep -E '^.*\.suse@{susever}\..*$';
                     ) | (
                         if [ -z '@{repohost}' -o '@{repohost}' = `hostname` ]; then
                             echo 'Publishing RPMs to @{repodir}/${_rpmdist.@{susever}}:';
