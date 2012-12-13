@@ -129,7 +129,7 @@ public abstract class DelayedAction implements Runnable {
 
     private DelayedAction(Lock lock, Object objLock, TaskScheduler taskScheduler, ScheduledExecutorService executorService) {
         this.lock = lock;
-        this.objLock = objLock != null ? objLock : this;
+        this.objLock = lock != null ? null : objLock != null ? objLock : this;
         this.taskScheduler = taskScheduler;
         this.executorService = executorService;
     }
