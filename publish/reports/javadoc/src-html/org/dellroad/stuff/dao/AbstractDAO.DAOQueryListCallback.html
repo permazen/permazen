@@ -103,7 +103,7 @@
 <FONT color="green">100</FONT>            return this.getBy(new DAOCriteriaListCallback() {<a name="line.100"></a>
 <FONT color="green">101</FONT>                @Override<a name="line.101"></a>
 <FONT color="green">102</FONT>                protected void configureQuery(CriteriaQuery&lt;T&gt; criteriaQuery, CriteriaBuilder criteriaBuilder) {<a name="line.102"></a>
-<FONT color="green">103</FONT>                    // no criteria - we want them all<a name="line.103"></a>
+<FONT color="green">103</FONT>                    criteriaQuery.from(this.type);<a name="line.103"></a>
 <FONT color="green">104</FONT>                }<a name="line.104"></a>
 <FONT color="green">105</FONT>            });<a name="line.105"></a>
 <FONT color="green">106</FONT>        }<a name="line.106"></a>

@@ -354,7 +354,7 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/AbstractQueryContainer.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/AbstractSimpleContainer.java">
-<error line="226" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
+<error line="237" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/ContextApplication.java">
 <error line="144" column="29" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -392,6 +392,8 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinConfigurableBeanWiringInfoResolver.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinConfigurableObject.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinDelayedAction.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinExternalListener.java">
 </file>
@@ -440,6 +442,8 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinConfigurableBeanWiringInfoResolver.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinConfigurableObject.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinDelayedAction.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinExternalListener.java">
 </file>
