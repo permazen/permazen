@@ -1,5 +1,5 @@
 
-Version 1.0.591 Released December 14, 2012
+Version 1.0.592 Released December 14, 2012
 
     - Add default constructors to Abstract{Simple,Query}Container hierarchy
     - Fixed bug in SpringXSLPersistentObjectSchemaUpdate.setParameters()

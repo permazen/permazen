@@ -42,7 +42,7 @@ public abstract class VaadinDelayedAction extends DelayedAction {
     }
 
     /**
-     * Invokes {@link #runInVaadin} in the context of the configured {@link Application}.
+     * Invokes {@link #runInVaadin} in the context of the configured {@link ContextApplication}.
      */
     @Override
     public final void run() {
@@ -55,7 +55,7 @@ public abstract class VaadinDelayedAction extends DelayedAction {
     }
 
     /**
-     * Perform the action. This method will be invoked in the context of the configured {@link Application}.
+     * Perform the action. This method will be invoked in the context of the configured {@link ContextApplication}.
      */
     protected abstract void runInVaadin();
 }
