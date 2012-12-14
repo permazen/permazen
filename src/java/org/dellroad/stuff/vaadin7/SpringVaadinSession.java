@@ -201,6 +201,7 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
         // Sanity check
         if (session == null)
             throw new IllegalStateException("null session");
+        VaadinUtil.assertSession(session);
         if (request == null)
             throw new IllegalStateException("null request");
         if (SpringVaadinSession.getApplicationContext(session) != null)

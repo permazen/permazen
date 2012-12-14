@@ -13,12 +13,48 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinSession;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * Miscellaneous utility methods.
  */
 public final class VaadinUtil {
 
     private VaadinUtil() {
+    }
+
+    /**
+     * Verify that we are running in the context of the given session and holding the session's lock.
+     * This method can be used by any code that manipulates Vaadin state to assert that the proper Vaadin
+     * locking has been performed.
+     *
+     * @param session session we are supposed to be running with
+     * @throws IllegalArgumentException if {@code session} is null
+     * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread
+     * @throws IllegalStateException if the {@link VaadinSession} associated with the current thread is not {@code session}
+     * @throws IllegalStateException if the {@link VaadinSession} associated with the current thread is not locked
+     * @throws IllegalStateException if the {@link VaadinSession} associated with the current thread is locked by another thread
+     */
+    public static void assertSession(VaadinSession session) {
+        if (session == null)
+            throw new IllegalArgumentException("null session");
+        final VaadinSession currentSession = VaadinSession.getCurrent();
+        if (currentSession == null)
+            throw new IllegalStateException("there is no VaadinSession associated with the current thread");
+        if (currentSession != session) {
+            throw new IllegalStateException("the VaadinSession associated with the current thread " + currentSession
+              + " is not the same session as the given one " + session);
+        }
+        final ReentrantLock lock = (ReentrantLock)session.getLockInstance();
+        if (!lock.isHeldByCurrentThread()) {
+            if (!lock.isLocked()) {
+                throw new IllegalStateException("the VaadinSession associated with the current thread " + currentSession
+                  + " is not locked by any thread");
+            } else {
+                throw new IllegalStateException("the VaadinSession associated with the current thread " + currentSession
+                  + " is locked by some other thread");
+            }
+        }
     }
 
     /**
