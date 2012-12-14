@@ -3,7 +3,8 @@ Version Next
 
     - Add default constructors to Abstract{Simple,Query}Container hierarchy
     - Fixed bug in SpringXSLPersistentObjectSchemaUpdate.setParameters()
-    - Add DelayedAction support for java.util.concurrent.locks.Lock
+    - Add DelayedAction support for use with a Lock; added VaadinDelayedAction
+    - Fixed broken maven dependencies in the Vaadin add-on (issue #15)
     - Fixed bug in AbstractDAO.getAll()
 
 Version 1.0.571 Released November 27, 2012
