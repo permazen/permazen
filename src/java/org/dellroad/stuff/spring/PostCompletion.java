@@ -66,7 +66,7 @@ public final class PostCompletion {
      * @param action action to invoke
      * @throws IllegalArgumentException if {@code action} is null
      */
-    public static void execute(Callable action) {
+    public static void execute(Callable<?> action) {
         PostCompletion.execute(action, false);
     }
 
@@ -79,7 +79,7 @@ public final class PostCompletion {
      * @throws IllegalStateException if not running within a
      *  {@link PostCompletionSupport @PostCompletionSupport}-annotated method.
      */
-    public static void execute(Callable action, boolean always) {
+    public static void execute(Callable<?> action, boolean always) {
         PostCompletion.get().add(action, always);
     }
 

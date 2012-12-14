@@ -91,7 +91,8 @@ public class SimpleItem<T> implements Item {
      * @throws UnsupportedOperationException always
      */
     @Override
-    public boolean addItemProperty(Object id, Property property) {
+    @SuppressWarnings("rawtypes")
+    public boolean addItemProperty(Object id, Property/*<?>*/ property) {
         throw new UnsupportedOperationException();
     }
 

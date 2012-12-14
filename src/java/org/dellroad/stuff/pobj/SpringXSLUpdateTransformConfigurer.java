@@ -78,7 +78,7 @@ public class SpringXSLUpdateTransformConfigurer implements BeanPostProcessor, Re
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
         if (bean instanceof SpringXSLPersistentObjectSchemaUpdate) {
-            SpringXSLPersistentObjectSchemaUpdate update = (SpringXSLPersistentObjectSchemaUpdate)bean;
+            SpringXSLPersistentObjectSchemaUpdate<?> update = (SpringXSLPersistentObjectSchemaUpdate)bean;
             if (update.getTransform() == null)
                 update.setTransform(this.resourceLoader.getResource(this.getImpliedTransformResourceLocation(beanName)));
             if (update.getTransformerFactory() == null && this.transformerFactory != null)

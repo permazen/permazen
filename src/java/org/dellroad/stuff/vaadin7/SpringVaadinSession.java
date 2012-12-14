@@ -203,7 +203,7 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
             throw new IllegalStateException("null session");
         if (request == null)
             throw new IllegalStateException("null request");
-        if (this.getApplicationContext(session) != null)
+        if (SpringVaadinSession.getApplicationContext(session) != null)
             throw new IllegalStateException("context already loaded");
 
         // Logging
@@ -265,7 +265,7 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
     @Override
     public void sessionDestroy(SessionDestroyEvent event) {
         final VaadinSession session = event.getSession();
-        final ConfigurableWebApplicationContext context = this.getApplicationContext(session);
+        final ConfigurableWebApplicationContext context = SpringVaadinSession.getApplicationContext(session);
         if (context == null) {
             this.log.error(this.getClass().getSimpleName() + ".sessionDestroy() invoked but no application context found");
             return;

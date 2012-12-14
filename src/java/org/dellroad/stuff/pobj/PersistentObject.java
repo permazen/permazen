@@ -161,7 +161,7 @@ public class PersistentObject<T> {
     private T writebackRoot;                                // pending persistent file writeback value
     private ScheduledExecutorService scheduledExecutor;     // used for file checking and delayed write-back
     private ExecutorService notifyExecutor;                 // used to notify listeners
-    private ScheduledFuture pendingWrite;                   // a pending delayed write-back
+    private ScheduledFuture<?> pendingWrite;                // a pending delayed write-back
     private long version;                                   // current root object version
     private long timestamp;                                 // timestamp of persistent file when we last read it
     private boolean allowEmptyStart;

@@ -197,7 +197,7 @@ public class PropertyDef<T> {
      * @throws ClassCastException if {@code property} has a different type than this definition
      */
     @SuppressWarnings("unchecked")
-    public Property<T> cast(Property/*<?>*/ property) {
+    public Property<T> cast(Property<?> property) {
         if (property == null)
             return null;
         if (property.getType() != this.getType()) {
@@ -226,7 +226,7 @@ public class PropertyDef<T> {
      * @return true if the operation succeeded, false if not
      * @throws UnsupportedOperationException if the operation is not supported
      */
-    public boolean addTo(Item item, Property property) {
+    public boolean addTo(Item item, Property<T> property) {
         return item.addItemProperty(this.getPropertyId(), property);
     }
 
@@ -248,7 +248,7 @@ public class PropertyDef<T> {
      * @throws ClassCastException if the property in {@code item} has the wrong type
      */
     public T read(Item item) {
-        Property property = this.get(item);
+        Property<T> property = this.get(item);
         if (property == null)
             return null;
         return this.type.cast(property.getValue());

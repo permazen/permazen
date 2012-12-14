@@ -66,7 +66,7 @@ public abstract class DelayedAction implements Runnable {
     private final TaskScheduler taskScheduler;
     private final ScheduledExecutorService executorService;
 
-    private ScheduledFuture future;
+    private ScheduledFuture<?> future;
     private Date futureDate;
 
     /**

@@ -69,7 +69,7 @@ public class StreamsTest extends TestSupport implements NullModemOutputStream.Re
 
     @Override
     public void readFrom(InputStream input) throws IOException {
-        this.data = this.readAll(input);
+        this.data = StreamsTest.readAll(input);
         synchronized (this) {
             this.notifyAll();
         }

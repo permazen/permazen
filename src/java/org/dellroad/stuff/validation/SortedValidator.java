@@ -22,7 +22,7 @@ import javax.validation.ConstraintValidatorContext;
 public class SortedValidator extends AbstractValidator<Sorted, Object> {
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public boolean isValid(Object value, ConstraintValidatorContext context) {
 
         // Ignore null values

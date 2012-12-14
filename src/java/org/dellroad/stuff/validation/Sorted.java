@@ -38,6 +38,7 @@ public @interface Sorted {
      * Specifies a {@link java.util.Comparator} to use. If none is specified, the natural sort ordering is used.
      * The class must have a default constructor.
      */
+    @SuppressWarnings("rawtypes")
     Class<? extends Comparator> comparator() default Comparator.class;
 
     /**

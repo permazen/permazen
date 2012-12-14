@@ -254,7 +254,8 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     }
 
     @Override
-    public Property getContainerProperty(Object itemId, Object propertyId) {
+    @SuppressWarnings("rawtypes")
+    public Property/*<?>*/ getContainerProperty(Object itemId, Object propertyId) {
         SimpleItem<T> item = this.getItem(itemId);
         return item != null ? item.getItemProperty(propertyId) : null;
     }

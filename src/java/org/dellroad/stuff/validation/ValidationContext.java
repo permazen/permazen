@@ -32,7 +32,7 @@ import org.dellroad.stuff.java.ThreadLocalHolder;
  */
 public class ValidationContext<T> {
 
-    private static final ThreadLocalHolder<ValidationContext> CURRENT = new ThreadLocalHolder<ValidationContext>();
+    private static final ThreadLocalHolder<ValidationContext<?>> CURRENT = new ThreadLocalHolder<ValidationContext<?>>();
 
     private final T root;
 
