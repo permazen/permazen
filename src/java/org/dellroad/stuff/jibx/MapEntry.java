@@ -40,8 +40,8 @@ import org.jibx.runtime.JiBXParseException;
  * <blockquote><pre>
  *     // JiBX holder for a single entry in the Directory map
  *     public static class DirectoryEntry extends MapEntry&lt;String, Person&gt; {
- *        public String getKey()   { return super.getKey();   }   // sometimes JiBX bind fails without this
- *        public Person getValue() { return super.getValue(); }   // sometimes JiBX bind fails without this
+ *        public String getKey()   { return super.getKey();   }   // JiBX requires exact return types
+ *        public Person getValue() { return super.getValue(); }   // JiBX requires exact return types
  *     }
  *
  *     // JiBX "add-method" that adds a new entry to the directory
