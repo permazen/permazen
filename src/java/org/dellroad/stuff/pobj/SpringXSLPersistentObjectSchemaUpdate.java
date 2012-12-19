@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -106,6 +107,7 @@ public class SpringXSLPersistentObjectSchemaUpdate<T> extends SpringPersistentOb
                 tf = TransformerFactory.newInstance();
             Transformer transformer = tf.newTransformer(new StreamSource(input, this.transform.getURI().toString()));
             transformer.setErrorListener(new TransformErrorListener(LoggerFactory.getLogger(this.getClass()), true));
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             if (this.parameters != null) {
                 for (String name : this.parameters.stringPropertyNames())
                     transformer.setParameter(name, this.parameters.getProperty(name));
