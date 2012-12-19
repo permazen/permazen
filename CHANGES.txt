@@ -1,4 +1,9 @@
 
+Version Next
+
+    - Fixed bug in StringEncoder.enquote(byte[]) when non-zero offset
+    - Added VaadinUtil.assertSession()
+
 Version 1.0.592 Released December 14, 2012
 
     - Add default constructors to Abstract{Simple,Query}Container hierarchy
