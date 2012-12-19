@@ -194,7 +194,7 @@ public final class StringEncoder {
     public static String enquote(byte[] data, int off, int len) {
         char[] chars = new char[len];
         for (int i = 0; i < len; i++)
-            chars[i] = (char)(data[i] & 0xff);
+            chars[i] = (char)(data[off + i] & 0xff);
         return enquote(new String(chars));
     }
 
