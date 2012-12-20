@@ -425,7 +425,7 @@ public abstract class ContextApplication extends Application implements Executor
         try {
             terminated = this.executorService.awaitTermination(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            // ok, give up
+            Thread.currentThread().interrupt();
         }
 
         // Log warnings if it didn't finish

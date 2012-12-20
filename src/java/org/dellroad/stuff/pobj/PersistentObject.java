@@ -982,6 +982,7 @@ public class PersistentObject<T> {
             shutdown = executor.awaitTermination(EXECUTOR_SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             this.log.warn(this + ": interrupted while awaiting " + name + " termination");
+            Thread.currentThread().interrupt();
         }
         if (!shutdown)
             this.log.warn(this + ": failed to completely shut down " + name);
