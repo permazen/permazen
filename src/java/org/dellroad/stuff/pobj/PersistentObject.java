@@ -11,6 +11,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -850,7 +852,7 @@ public class PersistentObject<T> {
         try {
 
             // Set up XML result
-            StreamResult result = new StreamResult(output);
+            StreamResult result = new StreamResult(new OutputStreamWriter(output, Charset.forName("UTF-8")));
             result.setSystemId(updateOutput.getTempFile());
 
             // Serialize root object

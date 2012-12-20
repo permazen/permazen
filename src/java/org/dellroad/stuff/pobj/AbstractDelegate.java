@@ -7,9 +7,9 @@
 
 package org.dellroad.stuff.pobj;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractDelegate<T> implements PersistentObjectDelegate<T> {
 
+    private static final int BUFFER_SIZE = 16 * 1024 - 32;
+
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -45,13 +47,13 @@ public abstract class AbstractDelegate<T> implements PersistentObjectDelegate<T>
     public T copy(T original) {
         if (original == null)
             throw new IllegalArgumentException("null original");
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(32 * 1024 - 32);
+        StringWriter buffer = new StringWriter(BUFFER_SIZE);
         try {
             this.serialize(original, new StreamResult(buffer));
         } catch (IOException e) {
             throw new PersistentObjectException("exception during serialize()");
         }
-        StreamSource source = new StreamSource(new ByteArrayInputStream(buffer.toByteArray()));
+        StreamSource source = new StreamSource(new StringReader(buffer.toString()));
         T copy;
         try {
             copy = this.deserialize(source);

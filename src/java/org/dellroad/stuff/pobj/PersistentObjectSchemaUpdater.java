@@ -7,8 +7,8 @@
 
 package org.dellroad.stuff.pobj;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -233,7 +233,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
                 throw new PersistentObjectException("internal inconsistency: unapplied updates remain: " + unappliedUpdates);
 
             // Deserialize the now up-to-date XML structure using the provided delegate
-            StreamSource updatedSource = new StreamSource(new ByteArrayInputStream(transaction.getData()));
+            StreamSource updatedSource = new StreamSource(new StringReader(transaction.getData()));
             updatedSource.setSystemId(transaction.getSystemId());
             return this.delegate.deserialize(updatedSource);
         } catch (RuntimeException e) {

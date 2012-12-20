@@ -7,9 +7,9 @@
 
 package org.dellroad.stuff.pobj;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,14 +32,14 @@ import javax.xml.transform.stream.StreamSource;
  */
 public class PersistentFileTransaction {
 
-    private static final int BUFFER_SIZE = 32 * 1024 - 32;
+    private static final int BUFFER_SIZE = 16 * 1024 - 32;
 
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
     private final ArrayList<String> updates = new ArrayList<String>();
     private final String systemId;
 
-    private byte[] current;
+    private String current;
 
     /**
      * Constructor.
@@ -57,7 +57,7 @@ public class PersistentFileTransaction {
     /**
      * Get the current XML data. Does not include the XML update list.
      */
-    public byte[] getData() {
+    public String getData() {
         return this.current;
     }
 
@@ -90,12 +90,12 @@ public class PersistentFileTransaction {
 
         // Debug
         //System.out.println("************************** BEFORE TRANSFORM");
-        //System.out.println(new String(this.current));
+        //System.out.println(this.current);
 
         // Set up source and result
-        StreamSource source = new StreamSource(new ByteArrayInputStream(this.current));
+        StreamSource source = new StreamSource(new StringReader(this.current));
         source.setSystemId(this.systemId);
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUFFER_SIZE);
+        StringWriter buffer = new StringWriter(BUFFER_SIZE);
         StreamResult result = new StreamResult(buffer);
         result.setSystemId(this.systemId);
 
@@ -103,17 +103,17 @@ public class PersistentFileTransaction {
         transformer.transform(source, result);
 
         // Save result as the new current value
-        this.current = buffer.toByteArray();
+        this.current = buffer.toString();
 
         // Debug
         //System.out.println("************************** AFTER TRANSFORM");
-        //System.out.println(new String(this.current));
+        //System.out.println(this.current);
     }
 
     private void read(Source source) throws IOException, XMLStreamException {
 
         // Read in XML, extracting and removing the updates list in the process
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUFFER_SIZE);
+        StringWriter buffer = new StringWriter(BUFFER_SIZE);
         XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(buffer);
         XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(source);
         UpdatesXMLEventReader updatesReader = new UpdatesXMLEventReader(eventReader);
@@ -127,7 +127,7 @@ public class PersistentFileTransaction {
             throw new PersistentObjectException("XML file does not contain an updates list");
 
         // Save current content (without updates) and updates list
-        this.current = buffer.toByteArray();
+        this.current = buffer.toString();
         this.updates.clear();
         this.updates.addAll(updateNames);
     }
