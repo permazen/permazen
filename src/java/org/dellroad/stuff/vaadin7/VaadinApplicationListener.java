@@ -117,7 +117,7 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
      * is assignable to the type given in the constructor. Subclasses may override as desired.
      */
     @Override
-    public boolean supportsEventType(@SuppressWarnings("hiding") Class<? extends ApplicationEvent> eventType) {
+    public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
         return this.eventType.isAssignableFrom(eventType);
     }
 

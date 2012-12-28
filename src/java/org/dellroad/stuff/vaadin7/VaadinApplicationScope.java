@@ -111,7 +111,7 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
         VaadinUtil.addSessionDestroyListener(session, this);
         SessionBeanHolder beanHolder = this.beanHolders.get(session);
         if (beanHolder == null && create) {
-            beanHolder = new SessionBeanHolder(session);
+            beanHolder = new SessionBeanHolder();
             this.beanHolders.put(session, beanHolder);
         }
         return beanHolder;
@@ -123,11 +123,6 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
 
         private final HashMap<String, Object> beans = new HashMap<String, Object>();
         private final HashMap<String, Runnable> destructionCallbacks = new HashMap<String, Runnable>();
-        private final VaadinSession session;
-
-        public SessionBeanHolder(VaadinSession session) {
-            this.session = session;
-        }
 
         public Object getBean(String name, ObjectFactory<?> objectFactory) {
             Object bean = this.beans.get(name);
@@ -152,10 +147,6 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
                 callback.run();
             this.beans.clear();
             this.destructionCallbacks.clear();
-        }
-
-        public boolean isEmpty() {
-            return this.beans.isEmpty();
         }
     }
 }

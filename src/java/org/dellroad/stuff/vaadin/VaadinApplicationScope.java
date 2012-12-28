@@ -106,7 +106,7 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
         application.addListener(this);
         ApplicationBeanHolder beanHolder = this.beanHolders.get(application);
         if (beanHolder == null && create) {
-            beanHolder = new ApplicationBeanHolder(application);
+            beanHolder = new ApplicationBeanHolder();
             this.beanHolders.put(application, beanHolder);
         }
         return beanHolder;
@@ -118,11 +118,6 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
 
         private final HashMap<String, Object> beans = new HashMap<String, Object>();
         private final HashMap<String, Runnable> destructionCallbacks = new HashMap<String, Runnable>();
-        private final ContextApplication application;
-
-        public ApplicationBeanHolder(ContextApplication application) {
-            this.application = application;
-        }
 
         public Object getBean(String name, ObjectFactory<?> objectFactory) {
             Object bean = this.beans.get(name);
@@ -147,10 +142,6 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
                 callback.run();
             this.beans.clear();
             this.destructionCallbacks.clear();
-        }
-
-        public boolean isEmpty() {
-            return this.beans.isEmpty();
         }
     }
 }

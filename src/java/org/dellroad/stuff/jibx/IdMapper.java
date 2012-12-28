@@ -210,11 +210,8 @@ import org.jibx.runtime.impl.MarshallingContext;
  */
 public class IdMapper extends IdDefRefMapperBase {
 
-    private final String uri;
     private final int index;
     private final String name;
-    private final String className;
-
     // This is here to work around bogus JiBX binding error
     private IdMapper() {
         super(null, 0, null);
@@ -223,10 +220,8 @@ public class IdMapper extends IdDefRefMapperBase {
 
     public IdMapper(String uri, int index, String name, String className) {
         super(uri, index, name);
-        this.uri = uri;
         this.index = index;
         this.name = name;
-        this.className = className;
     }
 
     /**
@@ -280,7 +275,6 @@ public class IdMapper extends IdDefRefMapperBase {
     public static long parseId(String idref) {
         if (idref == null || idref.length() == 0 || !idref.matches("N-?\\d+"))
             throw new IllegalArgumentException("invalid id value `" + idref + "'");
-        long id;
         try {
             return Long.parseLong(idref.substring(1), 10);
         } catch (NumberFormatException e) {

@@ -15,7 +15,7 @@ import org.dellroad.stuff.io.OutputStreamWriter;
 import org.jibx.runtime.JiBXException;
 
 /**
- * {@link OutputStream} over which XML documents are passed. This class is a companion to {@link XMLDocumentOutputStream}.
+ * {@link OutputStream} over which XML documents are passed. This class is a companion to {@link XMLDocumentInputStream}.
  *
  * <p>
  * XML documents are created from Java objects via {@link JiBXUtil#writeObject(Object, OutputStream) JiBXUtil.writeObject()}.
@@ -30,21 +30,16 @@ import org.jibx.runtime.JiBXException;
  */
 public class XMLDocumentOutputStream<T> {
 
-    private final Class<T> type;
     private final OutputStreamWriter output;
 
     /**
      * Constructor.
      *
-     * @param type Java type for XML documents
      * @param output data destination
      */
-    public XMLDocumentOutputStream(Class<T> type, OutputStream output) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+    public XMLDocumentOutputStream(OutputStream output) {
         if (output == null)
             throw new IllegalArgumentException("null output");
-        this.type = type;
         this.output = new OutputStreamWriter(new BufferedOutputStream(output));
     }
 

@@ -299,7 +299,6 @@ public class SimpleObjectParser<T> {
             Method setter = property.getWriteMethod();
             if (setter == null)
                 continue;
-            Class<?> type = property.getPropertyType();
             this.propertyMap.put(property.getName(), property);
         }
     }

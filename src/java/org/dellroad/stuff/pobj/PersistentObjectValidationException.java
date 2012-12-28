@@ -41,7 +41,6 @@ public class PersistentObjectValidationException extends PersistentObjectExcepti
         if (violations == null)
             throw new IllegalArgumentException("null violations");
         StringBuilder buf = new StringBuilder("object failed to validate with " + violations.size() + " violation(s):\n");
-        boolean first = true;
         for (ConstraintViolation<?> violation : violations) {
             buf.append("    [")
               .append(violation.getPropertyPath())

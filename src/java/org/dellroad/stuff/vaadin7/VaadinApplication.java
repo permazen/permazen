@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
  * @see SpringVaadinSession
  * @see com.vaadin.server.VaadinService
  */
-@SuppressWarnings("serial")
 public class VaadinApplication {
 
     private static final Class<VaadinApplication> ATTRIBUTE_KEY = VaadinApplication.class;

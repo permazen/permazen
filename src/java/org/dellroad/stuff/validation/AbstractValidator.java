@@ -24,7 +24,7 @@ public abstract class AbstractValidator<C extends Annotation, T> implements Cons
     protected C annotation;
 
     @Override
-    public void initialize(@SuppressWarnings("hiding") C annotation) {
+    public void initialize(C annotation) {
         this.annotation = annotation;
     }
 

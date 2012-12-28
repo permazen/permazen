@@ -253,7 +253,6 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected void initializeDatabase(PersistentFileTransaction transaction) throws Exception {
         throw new UnsupportedOperationException();
     }

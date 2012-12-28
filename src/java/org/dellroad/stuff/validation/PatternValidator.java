@@ -40,7 +40,6 @@ public class PatternValidator extends AbstractValidator<Pattern, Object> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean isValid(Object value, ConstraintValidatorContext context) {
 
         // Handle null

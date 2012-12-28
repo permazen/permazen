@@ -336,9 +336,9 @@ public abstract class AbstractSchemaUpdater<D, T> {
     private void applySchemaUpdates(D database) throws Exception {
 
         // Sanity check
-        final HashSet<SchemaUpdate<T>> allUpdates = new HashSet<SchemaUpdate<T>>(this.getUpdates());
-        if (allUpdates == null)
+        if (this.getUpdates() == null)
             throw new IllegalArgumentException("no updates configured");
+        final HashSet<SchemaUpdate<T>> allUpdates = new HashSet<SchemaUpdate<T>>(this.getUpdates());
 
         // Create mapping from update name to update; multiple updates will have multiple names
         TreeMap<String, SchemaUpdate<T>> updateMap = new TreeMap<String, SchemaUpdate<T>>();
