@@ -215,7 +215,7 @@ public class PersistentObject<T> {
      *
      * @return the delegate supplying required operations
      */
-    public PersistentObjectDelegate<T> getDelegate() {
+    public synchronized PersistentObjectDelegate<T> getDelegate() {
         return this.delegate;
     }
 
@@ -239,7 +239,7 @@ public class PersistentObject<T> {
      *
      * @return file used to persist the root object
      */
-    public File getFile() {
+    public synchronized File getFile() {
         return this.streamRepository != null ? this.streamRepository.getFile() : null;
     }
 
@@ -264,7 +264,7 @@ public class PersistentObject<T> {
      *
      * @return write delay in milliseconds, or zero for immediate write-back
      */
-    public long getWriteDelay() {
+    public synchronized long getWriteDelay() {
         return this.writeDelay;
     }
 
@@ -289,7 +289,7 @@ public class PersistentObject<T> {
      *
      * @return check interval in milliseconds, or zero if periodic checks are disabled
      */
-    public long getCheckInterval() {
+    public synchronized long getCheckInterval() {
         return this.checkInterval;
     }
 

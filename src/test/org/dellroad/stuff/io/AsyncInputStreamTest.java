@@ -24,12 +24,12 @@ public class AsyncInputStreamTest extends TestSupport implements AsyncInputStrea
     public synchronized void testAsyncInputStream() {
 
         // Set up test
-        this.buf = new byte[5000 + (int)this.random.nextDouble() * 20000];
-        this.wantFail = 10000 + (int)this.random.nextDouble() * 20000;
+        this.buf = new byte[5000 + (int)(this.random.nextDouble() * 20000)];
+        this.wantFail = 10000 + (int)(this.random.nextDouble() * 20000);
         this.random.nextBytes(this.buf);
 
         // Create input and wait for all data to be read (or exception thrown)
-        AsyncInputStream ais = new AsyncInputStream(new ByteArrayInputStream(this.buf), this.getClass().getName(), this);
+        new AsyncInputStream(new ByteArrayInputStream(this.buf), this.getClass().getName(), this);
         while (!this.gotEOF && !this.gotFail) {
             try {
                 this.wait();
