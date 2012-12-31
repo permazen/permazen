@@ -2,6 +2,7 @@
 
 <!-- $Id$ -->
 <ivysettings>
+    <settings defaultResolver="ivyroundup"/>
     <resolvers>
 
         <!-- Ivy RoundUp -->
