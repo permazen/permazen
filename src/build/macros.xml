@@ -626,7 +626,7 @@
                                               = &quot;'\''&quot;'&quot;$${NAME}&quot;'&quot;'\''&quot; &amp;&amp; echo &quot;@&quot;'\'
                                           \| xargs -n 1 -r -I@ sh -c \''echo @; rm @'\';
                                     fi;
-                                ) | sed ${sed.extended.flag} 's|^.*/([^/]+)$|    \1|g';
+                                ) | sed ${sed.extended.flag} 's|^.*/([^/]+)$$|    \1|g';
                             done;
                         "/>
                     </exec>
@@ -641,8 +641,8 @@
                     cd dist/RPMS;
                     (
                         set +e;
-                        find * -type f -name '@{pattern}' -print | grep -vE '^.*\.suse[0-9.]+\..*$';
-                        find * -type f -name '@{pattern}' -print | grep -E '^.*\.suse@{susever}\..*$';
+                        find * -type f -name '@{pattern}' -print | grep -vE '^.*\.suse[0-9.]+\..*$$';
+                        find * -type f -name '@{pattern}' -print | grep -E '^.*\.suse@{susever}\..*$$';
                     ) | (
                         if [ -z '@{repohost}' -o '@{repohost}' = `hostname` ]; then
                             echo 'Publishing RPMs to @{repodir}/${_rpmdist.@{susever}}:';
