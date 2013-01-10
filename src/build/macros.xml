@@ -697,6 +697,26 @@
         </sequential>
     </macrodef>
 
+    <!-- RPM install (to local machine) -->
+    <macrodef uri="urn:org.dellroad.ant" name="rpminstall">
+        <attribute name="susever" default="" description="Repository openSuSE version (default current)"/>
+        <attribute name="force" default="false" description="Whether to force installation (rpm --force)"/>
+        <attribute name="pattern" default="*.rpm" description="Filename glob pattern"/>
+        <sequential>
+            <exec executable="/bin/bash" logError="true" failonerror="true">
+                <arg value="-c"/>
+                <arg value="
+                    set -e;
+                    FORCE_FLAG='';
+                    if [ '@{force}' = 'true' ]; then
+                        FORCE_FLAG='--force';
+                    fi;
+                    find dist/RPMS -type f -name '@{pattern}' -print0 | xargs -0rt echo sudo rpm -Uvh $${FORCE_FLAG};
+                "/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <!--
         Unit test macro
 
