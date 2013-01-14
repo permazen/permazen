@@ -249,7 +249,7 @@
         <sequential>
             <exec outputproperty="@{property}" executable="/bin/sh" logError="true" failonerror="true">
                 <arg value="-c"/>
-                <arg value="svnversion -c @{dir} | sed ${sed.extended.flag} -e 's/^[0-9]+://g' -e 's/^-1M$/0/g'"/>
+                <arg value="svnversion -c @{dir} | sed ${sed.extended.flag} -e 's/^[0-9]+://g' -e 's/^-1M$$/0/g' -e 's/^Unversioned directory$$/0/g'"/>
             </exec>
         </sequential>
     </macrodef>
