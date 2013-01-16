@@ -32,6 +32,10 @@ public class CSVOutput {
     /**
      * Constructor.
      *
+     * <p>
+     * The column headers will be written out automatically.
+     * </p>
+     *
      * @param writer destination for the CSV output
      * @param columns CSV columns names in their desired order
      * @throws IllegalArgumentException if {@code writer} is null
@@ -44,6 +48,10 @@ public class CSVOutput {
 
     /**
      * Constructor.
+     *
+     * <p>
+     * The column headers will be written out automatically.
+     * </p>
      *
      * @param writer destination for the CSV output
      * @param columns CSV columns names, iterated in their desired order
@@ -59,6 +67,10 @@ public class CSVOutput {
 
     /**
      * Constructor.
+     *
+     * <p>
+     * The column headers will be written out automatically.
+     * </p>
      *
      * @param writer CSV output object
      * @param columns CSV columns names, iterated in their desired order
