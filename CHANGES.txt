@@ -4,6 +4,7 @@ Version Next
     - Fix character encoding bug in pobj package (always use UTF-8)
     - Fixed bug in StringEncoder.enquote(byte[]) when non-zero offset
     - Update vaadin7 package for 7.0.0.beta11
+    - Added updateTable-oracle.sql
     - Added VaadinUtil.assertSession()
 
 Version 1.0.592 Released December 14, 2012
