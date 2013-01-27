@@ -33,7 +33,7 @@
         <dependency force="true" org="org.jmock" name="jmock" rev="2.5.1" conf="build,test->core"/>
         <dependency force="true" org="org.hamcrest" name="hamcrest" rev="1.1" conf="build->default"/>
         <dependency force="true" org="org.hibernate" name="hibernate" rev="4.1+" conf="build-&gt;core"/>
-        <dependency force="true" org="org.slf4j" name="slf4j" rev="1.6.1" conf="build->default;test->log4j"/>
+        <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7.2" conf="build->default;test->log4j"/>
         <dependency force="true" org="org.springframework" name="spring" rev="3.1+"
           conf="build->aop,beans,aspects,context-support,expression,orm,oxm,tx,web-servlet"/>
         <dependency force="true" org="org.aopalliance" name="aopalliance" rev="1.+" conf="build->default"/>
