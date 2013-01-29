@@ -20,6 +20,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.stax.StAXResult;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.dellroad.stuff.schema.AbstractSchemaUpdater;
@@ -189,7 +190,11 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
             List<String> updateNameList = this.updateNames != null ? this.updateNames : this.getAllUpdateNames();
 
             // Wrap result with a writer that adds the update list
-            XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(result);
+            XMLEventWriter eventWriter;
+            if (result instanceof StreamResult && ((StreamResult)result).getOutputStream() != null)
+                eventWriter = this.xmlOutputFactory.createXMLEventWriter(((StreamResult)result).getOutputStream(), "UTF-8");
+            else
+                eventWriter = this.xmlOutputFactory.createXMLEventWriter(result);
             UpdatesXMLEventWriter updatesWriter = new UpdatesXMLEventWriter(eventWriter, updateNameList);
 
             // Serialize using the provided delegate

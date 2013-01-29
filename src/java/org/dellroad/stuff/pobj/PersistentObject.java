@@ -11,8 +11,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +22,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.validation.ConstraintViolation;
+import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -852,8 +852,7 @@ public class PersistentObject<T> {
         try {
 
             // Set up XML result
-            StreamResult result = new StreamResult(new OutputStreamWriter(output, Charset.forName("UTF-8")));
-            result.setSystemId(updateOutput.getTempFile());
+            Result result = this.createResult(output, updateOutput.getTempFile());
 
             // Serialize root object
             try {
@@ -878,6 +877,22 @@ public class PersistentObject<T> {
 
         // Update file timestamp
         this.timestamp = this.streamRepository.getFileTimestamp();
+    }
+
+    /**
+     * Create a {@link Result} targeting the given {@link OutputStream}.
+     *
+     * <p>
+     * The implementation in {@link PersistentObject} creates and returns a {@link StreamResult}.
+     * </p>
+     *
+     * @param output XML output stream
+     * @param systemId system ID
+     */
+    protected Result createResult(OutputStream output, File systemId) {
+        StreamResult result = new StreamResult(output);
+        result.setSystemId(systemId);
+        return result;
     }
 
     /**
