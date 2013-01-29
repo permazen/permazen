@@ -88,7 +88,7 @@ public class UpdatesXMLEventTest extends TestSupport {
         XMLEventReader reader = this.xmlInputFactory.createXMLEventReader(input);
         if (readUpdates)
             reader = new UpdatesXMLEventReader(reader);
-        XMLEventWriter writer = this.xmlOutputFactory.createXMLEventWriter(output);
+        XMLEventWriter writer = this.xmlOutputFactory.createXMLEventWriter(output, "UTF-8");
         if (updates != null)
             writer = new UpdatesXMLEventWriter(writer, Arrays.asList(updates));
         writer.add(reader);
