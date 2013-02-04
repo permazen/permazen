@@ -15,18 +15,17 @@ import com.vaadin.server.VaadinPortletRequest;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.server.WrappedHttpSession;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
-import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
@@ -212,30 +211,22 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
           + "] in session " + session);
 
         // Find the servlet context parent application context
+        String contextPath = "/";
         ServletContext servletContext = null;
         WebApplicationContext parent = null;
         if (request instanceof VaadinServletRequest) {
-
-            // Find servlet context
-            HttpServletRequest httpRequest = ((VaadinServletRequest)request).getHttpServletRequest();
-            try {
-                // getServletContext() is a servlet AIP 3.0 method, so don't freak out if it's not there
-                servletContext = (ServletContext)HttpServletRequest.class.getMethod("getServletContext").invoke(httpRequest);
-            } catch (Exception e) {
-                servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
-            }
-
-            // Find associated application context; it will become our parent context
+            contextPath = ((VaadinServletRequest)request).getHttpServletRequest().getContextPath() + "/";
+            servletContext = ((WrappedHttpSession)session.getSession()).getHttpSession().getServletContext();
             parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-        } else if (request instanceof VaadinPortletRequest) {
+        } else if (request instanceof VaadinPortletRequest)
             this.log.warn("portlets are not supported yet");
-        }
+        else
+            this.log.warn("unsupported VaadinRequest instance: " + request);
 
         // Create and configure a new application context for this Application instance
         XmlWebApplicationContext context = new XmlWebApplicationContext();
         context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX
-          + (servletContext != null ? servletContext.getContextPath() + "/" : "")
-          + this.getApplicationName() + "-" + UNIQUE_INDEX.incrementAndGet());
+          + contextPath + this.getApplicationName() + "-" + UNIQUE_INDEX.incrementAndGet());
         if (parent != null)
             context.setParent(parent);
         if (servletContext != null)

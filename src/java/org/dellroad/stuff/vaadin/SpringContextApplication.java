@@ -15,7 +15,6 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -24,7 +23,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.SourceFilteringListener;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
-import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
@@ -264,23 +262,20 @@ public abstract class SpringContextApplication extends ContextApplication {
             throw new IllegalStateException("context already loaded");
 
         // Find the application context associated with the servlet; it will be the parent
-        ServletContext servletContext;
-        HttpServletRequest request = ContextApplication.currentRequest();
-        try {
-            // getServletContext() is a servlet AIP 3.0 method, so don't freak out if it's not there
-            servletContext = (ServletContext)HttpServletRequest.class.getMethod("getServletContext").invoke(request);
-        } catch (Exception e) {
-            servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
-        }
+        String contextPath = ContextApplication.currentRequest().getContextPath() + "/";
+        com.vaadin.service.ApplicationContext applicationContext = SpringContextApplication.get().getContext();
+        ServletContext servletContext = ((com.vaadin.terminal.gwt.server.WebApplicationContext)applicationContext)
+          .getHttpSession().getServletContext();
         WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
 
         // Create and configure a new application context for this Application instance
         this.context = new XmlWebApplicationContext();
         this.context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX
-          + servletContext.getContextPath() + "/" + this.getApplicationName() + "-"
-          + SpringContextApplication.UNIQUE_INDEX.incrementAndGet());
-        this.context.setParent(parent);
-        this.context.setServletContext(servletContext);
+          + contextPath + this.getApplicationName() + "-" + UNIQUE_INDEX.incrementAndGet());
+        if (parent != null)
+            context.setParent(parent);
+        if (servletContext != null)
+            context.setServletContext(servletContext);
         //context.setServletConfig(??);
         this.context.setNamespace(this.getApplicationName());
 
