@@ -70,6 +70,15 @@ public class StackXMLEventReader extends EventReaderDelegate {
     }
 
     @Override
+    public Object next() {
+        try {
+            return this.nextEvent();
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public XMLEvent nextEvent() throws XMLStreamException {
         return this.adjust(super.nextEvent());
     }
