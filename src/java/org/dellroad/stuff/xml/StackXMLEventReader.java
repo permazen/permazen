@@ -29,6 +29,10 @@ import javax.xml.stream.util.EventReaderDelegate;
  * <p>
  * Invocations of {@link #peek} do not affect the element stack.
  * </p>
+ *
+ * <p>
+ * If an {@link XMLStreamException} is thrown at any point, the element stack is no longer guaranteed to track properly.
+ * </p>
  */
 public class StackXMLEventReader extends EventReaderDelegate {
 
@@ -67,6 +71,13 @@ public class StackXMLEventReader extends EventReaderDelegate {
      */
     public List<StartElement> getElementStack() {
         return new ArrayList<StartElement>(this.stack);
+    }
+
+    @Override
+    public String getElementText() throws XMLStreamException {
+        String text = super.getElementText();
+        this.stack.remove(this.stack.size() - 1);
+        return text;
     }
 
     @Override
