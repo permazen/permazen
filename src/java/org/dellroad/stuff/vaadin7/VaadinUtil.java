@@ -99,12 +99,20 @@ public final class VaadinUtil {
      * <p>
      * All back-end threads that interact with Vaadin components must use this method (or equivalent)
      * to avoid race conditions. Since session locks are re-entrant, it will not cause problems if this
-     * method is used by a "front-end" (i.e., Vaadin HTTP request) thread.
+     * method is also used by a "front-end" (i.e., Vaadin HTTP request) thread.
      * </p>
      *
      * <p>
      * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinSession}
      * is available via {@link VaadinSession#getCurrent}.
+     * </p>
+     *
+     * <p>
+     * <b>Warning:</b> background threads should be careful when invoking this method to ensure they
+     * are not already holding an application-specific lock that a separate HTTP request thread could
+     * attempt to acquire during its normal processing: because the HTTP request thread will probably
+     * already be holding the session lock when it attempts to acquire the application-specific lock,
+     * this creates the potential for a lock-ordering reversal deadlock.
      * </p>
      *
      * @throws IllegalArgumentException if either parameter is null
