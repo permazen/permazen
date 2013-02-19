@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  */
 public class VersionComparator implements Comparator<String> {
 
-    private static final Pattern PATTERN = Pattern.compile("[0-9]+|[^0-9.]+|\\.");
+    private static final Pattern PART_PATTERN = Pattern.compile("[0-9]+|[^0-9.]+|\\.");
 
     private final Comparator<String> partComparator;
 
@@ -56,20 +56,9 @@ public class VersionComparator implements Comparator<String> {
     public int compare(String v1, String v2) {
 
         // Chop up version into parts, where a part is a contiguous all-digit or all-non-digit sequence
-        final String[] versions = new String[] { v1, v2 };
         List<List<String>> partsList = new ArrayList<List<String>>(2);
-        partsList.add(new ArrayList<String>());
-        partsList.add(new ArrayList<String>());
-        for (int i = 0; i < 2; i++) {
-            int pos = 0;
-            for (Matcher matcher = PATTERN.matcher(versions[i]); matcher.find(pos); pos = matcher.end()) {
-                final String part = matcher.group();
-                if (!part.equals("."))
-                    partsList.get(i).add(part);
-                else if (matcher.end() == versions[i].length() || versions[i].charAt(matcher.end()) == '.')
-                    partsList.get(i).add("");
-            }
-        }
+        partsList.add(this.separateIntoParts(v1));
+        partsList.add(this.separateIntoParts(v2));
 
         // Compare parts pair-wise
         for (int i = 0; true; i++) {
@@ -87,6 +76,35 @@ public class VersionComparator implements Comparator<String> {
             if (diff != 0)
                 return diff;
         }
+    }
+
+    /**
+     * Split a version string into parts.
+     *
+     * <p>
+     * The implementation in {@link VersionComparator} defines a <b>part</b> as a contiguous sequence
+     * of one or more digits, or a contiguous sequence of one or more non-digits, and where the period character
+     * ('.') serves as a part separator.
+     * </p>
+     *
+     * <p>
+     * Subclasses may choose to override this method to define parts differently.
+     * </p>
+     *
+     * @param version the original version string
+     * @return the parts of the version string
+     */
+    protected List<String> separateIntoParts(String version) {
+        final ArrayList<String> partsList = new ArrayList<String>();
+        int pos = 0;
+        for (Matcher matcher = PART_PATTERN.matcher(version); matcher.find(pos); pos = matcher.end()) {
+            final String part = matcher.group();
+            if (!part.equals("."))
+                partsList.add(part);
+            else if (matcher.end() == version.length() || version.charAt(matcher.end()) == '.')
+                partsList.add("");
+        }
+        return partsList;
     }
 }
 
