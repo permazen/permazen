@@ -8,6 +8,7 @@ Version Next
     - Update vaadin7 package for 7.0.0.beta11
     - Added updateTable-oracle.sql
     - Added VaadinUtil.assertSession()
+    - Added VersionComparator
     - Added ValidationUtil
 
 Version 1.0.592 Released December 14, 2012
