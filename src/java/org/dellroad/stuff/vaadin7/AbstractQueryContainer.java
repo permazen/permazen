@@ -22,8 +22,10 @@ import java.util.Set;
 /**
  * Support superclass for read-only {@link Container} implementations where each {@link Item} in the container
  * is backed by a Java object, and the Java objects are generated via {@linkplain #query a query} that returns
- * a {@link QueryList} containing (some portion of) the backing objects. The container's item ID's are simply
- * the indexes of the corresponding objects in this list.
+ * a {@link QueryList} containing only some portion of the total list of backing objects at any one time. The
+ * container's item ID's are simply the indexes of the corresponding objects in this list. The {@link QueryList}
+ * interface is designed for scalability; at minimum, it is required to provide only the size of the total list
+ * (which may only be an estimate) and one list item at a specified index.
  *
  * <p>
  * This class will invoke {@link #query} as needed to (re)generate the query list. The query list is then cached.
@@ -184,6 +186,12 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * Of course, implementations are also free to ignore {@code hint}. However, the returned {@link QueryList}
      * must at least tolerate one invocation of <code>{@link QueryList#get get}(hint)</code> without throwing an exception,
      * assuming that {@code hint} does not exceed the size of the list.
+     * </p>
+     *
+     * <p>
+     * Note that it's perfectly acceptable for the returned {@link QueryList} to have a {@link QueryList#size size()}
+     * that is less than the given {@code hint}. This may occur for example if previously {@link QueryList#size size()}
+     * returned an estimate that was too high.
      * </p>
      *
      * @param hint index of the list element we are interested in
@@ -347,6 +355,11 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public Integer getIdByIndex(int index) {
+        if (index < 0)
+            throw new IndexOutOfBoundsException("index < " + index);
+        final long size = this.ensureList(index).size();
+        if (index >= size)
+            throw new IndexOutOfBoundsException("index=" + index + " but size=" + size);
         return index;
     }
 
@@ -354,9 +367,9 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     public List<Integer> getItemIds(int startIndex, int numberOfItems) {
         if (numberOfItems < 0)
             throw new IllegalArgumentException("numberOfItems < 0");
-        long size = this.ensureList(startIndex).size();
+        final long size = this.ensureList(startIndex).size();
         if (startIndex < 0 || startIndex > size)
-            throw new IndexOutOfBoundsException("startIndex out of range");
+            throw new IndexOutOfBoundsException("startIndex=" + startIndex + " but size=" + size);
         if (startIndex + numberOfItems > size)
             numberOfItems = (int)(size - startIndex);
         return new IntList(startIndex, numberOfItems);
@@ -366,7 +379,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     public int indexOfId(Object itemId) {
         if (!(itemId instanceof Integer))
             return -1;
-        int index = ((Integer)itemId).intValue();
+        final int index = ((Integer)itemId).intValue();
         if (index < 0 || index >= this.ensureList(index).size())
             return -1;
         return index;
