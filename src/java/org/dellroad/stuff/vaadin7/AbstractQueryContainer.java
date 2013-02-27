@@ -182,7 +182,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * The {@code hint} can be used to implement a highly scalable query list containing external objects
      * (such as from a database) where only a small "window" of objects is actually kept in memory at any one time.
      * Of course, implementations are also free to ignore {@code hint}. However, the returned {@link QueryList}
-     * must at least tolerate one invocation of <code>{@link QueryList#get}(hint)</code> without throwing an exception,
+     * must at least tolerate one invocation of <code>{@link QueryList#get get}(hint)</code> without throwing an exception,
      * assuming that {@code hint} does not exceed the size of the list.
      * </p>
      *
