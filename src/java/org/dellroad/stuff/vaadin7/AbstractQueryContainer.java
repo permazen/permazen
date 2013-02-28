@@ -44,9 +44,9 @@ import java.util.Set;
  * </p>
  *
  * <p>
- * Therefore, if the list content changes, first invoke {@link #invalidate} to discard the cached {@link QueryList},
- * and then {@link #fireItemSetChange} to notify listeners; for convenience, {@link #reload} will perform these two
- * steps for you.
+ * Therefore, if the list size or content changes, first invoke {@link #invalidate} to discard the cached {@link QueryList},
+ * and then {@link #fireItemSetChange} to notify listeners; for convenience, {@link #reload} will perform these two steps for
+ * you. The new size and content will be provided by the {@link QueryList} returned by the next invocation of {@link #query}.
  * </p>
  *
  * <p>
@@ -177,7 +177,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * <p>
      * The particular position in the list we are interested in is given as a hint by the {@code index} parameter.
      * That is, an invocation of <code>{@link QueryList#get}(hint)</code> is likely immediately after this method
-     * returns and if so it must complete without throwing an exception.
+     * returns and if so it must complete without throwing an exception, unless {@code hint} is out of range.
      * </p>
      *
      * <p>
@@ -212,16 +212,20 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * @return backing object, or null if {@code index} is out of range
      */
     protected T getJavaObject(int index) {
-        if (index < 0 || index >= this.ensureList(index).size())
-            return null;
-        try {
-            return this.queryList.get(index);
-        } catch (InvalidQueryListException e) {
-            this.invalidate();
+        for (boolean first = true; true; first = false) {
+            if (index < 0 || index >= this.ensureList(index).size())
+                return null;
             try {
-                return this.ensureList(index).get(index);
-            } catch (InvalidQueryListException e2) {
-                throw new RuntimeException("query() was given a hint of " + index + " but QueryList.get(" + index + ") failed", e2);
+                return this.queryList.get(index);
+            } catch (IndexOutOfBoundsException e) {
+                this.invalidate();
+                return null;
+            } catch (InvalidQueryListException e) {
+                this.invalidate();
+                if (!first) {
+                    throw new RuntimeException("query() was given a hint of "
+                      + index + " but QueryList.get(" + index + ") failed", e);
+                }
             }
         }
     }
@@ -253,7 +257,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public Collection<Integer> getItemIds() {
-        return new IntList((int)this.ensureList(0).size());
+        return new IntList(this.size());
     }
 
     @Override

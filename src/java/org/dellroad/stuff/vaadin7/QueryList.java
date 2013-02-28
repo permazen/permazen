@@ -21,10 +21,11 @@ public interface QueryList<T> {
     long size();
 
     /**
-     * Get an item in the list, or throw an exception if this instance is no longer valid.
+     * Get an item in the list, or throw an exception if this instance is no longer valid
+     * or cannot provide the item.
      *
      * @param index index of the item (zero-based)
-     * @throws IndexOutOfBoundsException if {@code index} is less than zero or greater than {@link #size}
+     * @throws IndexOutOfBoundsException if {@code index} is less than zero or greater than or equal to {@link #size}
      * @throws InvalidQueryListException if this list has become invalid or cannot provide the item
      */
     T get(long index) throws InvalidQueryListException;
