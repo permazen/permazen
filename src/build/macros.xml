@@ -711,7 +711,7 @@
                     if [ '@{force}' = 'true' ]; then
                         FORCE_FLAG='--force';
                     fi;
-                    echo 'Installings RPMs on the local machine:';
+                    echo 'Installing RPMs on the local machine:';
                     cd dist/RPMS;
                     (
                         set +e;
