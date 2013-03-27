@@ -1,11 +1,12 @@
 
 Version Next
 
+    - Added AbstractQueryList.handleSizeChange()
     - Added IndentXMLEventWriter and StackXMLEventReader
     - Fix character encoding bug in pobj package (always use UTF-8)
     - Fixed bug in StringEncoder.enquote(byte[]) when non-zero offset
     - Support Vaadin Touchkit and servlet 2.3 API (issue #18)
-    - Update vaadin7 package for 7.0.0.beta11
+    - Update vaadin7 package for 7.0+
     - Added updateTable-oracle.sql
     - Added VaadinUtil.assertSession()
     - Added VersionComparator

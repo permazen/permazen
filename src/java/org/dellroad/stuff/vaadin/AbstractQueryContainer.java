@@ -21,8 +21,10 @@ import java.util.Set;
 /**
  * Support superclass for read-only {@link Container} implementations where each {@link Item} in the container
  * is backed by a Java object, and the Java objects are generated via {@linkplain #query a query} that returns
- * a {@link QueryList} containing (some portion of) the backing objects. The container's item ID's are simply
- * the indexes of the corresponding objects in this list.
+ * a {@link QueryList} containing only some portion of the total list of backing objects at any one time. The
+ * container's item ID's are simply the indexes of the corresponding objects in this list. The {@link QueryList}
+ * interface is designed for scalability; at minimum, it is required to provide only the size of the total list
+ * (which may only be an estimate) and one list item at a specified index.
  *
  * <p>
  * This class will invoke {@link #query} as needed to (re)generate the query list. The query list is then cached.
@@ -41,9 +43,9 @@ import java.util.Set;
  * </p>
  *
  * <p>
- * Therefore, if the list content changes, first invoke {@link #invalidate} to discard the cached {@link QueryList},
- * and then {@link #fireItemSetChange} to notify listeners; for convenience, {@link #reload} will perform these two
- * steps for you.
+ * Therefore, if the list size or content changes, first invoke {@link #invalidate} to discard the cached {@link QueryList},
+ * and then {@link #fireItemSetChange} to notify listeners; for convenience, {@link #reload} will perform these two steps for
+ * you. The new size and content will be provided by the {@link QueryList} returned by the next invocation of {@link #query}.
  * </p>
  *
  * <p>
@@ -70,7 +72,8 @@ import java.util.Set;
 public abstract class AbstractQueryContainer<T> extends AbstractContainer implements Container.Ordered, Container.Indexed,
   Container.PropertySetChangeNotifier, Container.ItemSetChangeNotifier {
 
-    protected QueryList<? extends T> queryList;
+    private QueryList<? extends T> queryList;
+    private long totalSize = -1;
 
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
     private PropertyExtractor<? super T> propertyExtractor;
@@ -174,15 +177,15 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * <p>
      * The particular position in the list we are interested in is given as a hint by the {@code index} parameter.
      * That is, an invocation of <code>{@link QueryList#get}(hint)</code> is likely immediately after this method
-     * returns and if so it must complete without throwing an exception.
+     * returns and if so it must complete without throwing an exception, unless {@code hint} is out of range.
      * </p>
      *
      * <p>
      * The {@code hint} can be used to implement a highly scalable query list containing external objects
      * (such as from a database) where only a small "window" of objects is actually kept in memory at any one time.
      * Of course, implementations are also free to ignore {@code hint}. However, the returned {@link QueryList}
-     * must at least tolerate one invocation of <code>{@link QueryList#get}(hint)</code> without throwing an exception,
-     * assuming that {@code hint} does not exceed the size of the list.
+     * must at least tolerate one invocation of <code>{@link QueryList#get get}(hint)</code> without throwing an exception
+     * when {@code hint} is less that the {@link QueryList#size size()} of the returned {@link QueryList}.
      * </p>
      *
      * @param hint index of the list element we are interested in
@@ -203,30 +206,71 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * @return backing object, or null if {@code index} is out of range
      */
     protected T getJavaObject(int index) {
-        if (index < 0 || index >= this.ensureList(index).size())
-            return null;
-        try {
-            return this.queryList.get(index);
-        } catch (InvalidQueryListException e) {
-            this.invalidate();
+        Exception exception;
+        long currentSize;
+        for (boolean first = true; true; first = false) {
+            currentSize = this.ensureList(index);
+            if (index < 0 || index >= currentSize)
+                return null;
             try {
-                return this.ensureList(index).get(index);
-            } catch (InvalidQueryListException e2) {
-                throw new RuntimeException("query() was given a hint of " + index + " but QueryList.get(" + index + ") failed", e2);
+                return this.queryList.get(index);
+            } catch (InvalidQueryListException e) {
+                this.invalidate();
+                if (!first) {
+                    exception = e;
+                    break;
+                }
+            } catch (IndexOutOfBoundsException e) {
+                exception = e;
+                break;
             }
         }
+
+        // The QueryList is behaving badly
+        throw new RuntimeException("query(" + index + ") returned a QueryList with size() = "
+          + currentSize + " but QueryList.get(" + index + ") failed", exception);
     }
 
     /**
      * Ensure we have a cached query list.
      *
      * @param hint index of the list element we are interested in, passed to {@link #query} if no query list is cached
-     * @return cached query list, never null
+     * @return the size of the cached query list
      */
-    protected QueryList<? extends T> ensureList(int hint) {
-        if (this.queryList == null)
+    protected long ensureList(int hint) {
+        if (this.queryList == null) {
             this.queryList = this.query(hint);
-        return this.queryList;
+            final long oldTotalSize = this.totalSize;
+            final long newTotalSize = this.queryList.size();
+            this.totalSize = newTotalSize;
+            if (oldTotalSize != -1 && newTotalSize != oldTotalSize)
+                this.handleSizeChange();
+        }
+        return this.totalSize;
+    }
+
+    /**
+     * Invoked when a new {@link QueryList} has returned a changed {@link QueryList#size size()}
+     * for the underlying list.
+     *
+     * <p>
+     * Normally, this implies an item set change notification will be generated elsewhere and so
+     * no additional action needs to be taken by this method. However, some implementations may
+     * lack such a mechanism, for example, when the container's size is only ever calculated when
+     * {@link #query} is invoked. In such cases, this method may trigger a notification.
+     * </p>
+     *
+     * <p>
+     * Note: to avoid re-entrancy problems, this method should not send out any notifications itself;
+     * instead, it may schedule notifications to be delivered later (perhaps in a different thread).
+     * </p>
+     *
+     * <p>
+     * The implementation in {@link AbstractQueryContainer} does nothing, assuming the notification is handled
+     * elsewhere. Subclasses may override if needed.
+     * </p>
+     */
+    protected void handleSizeChange() {
     }
 
 // Container
@@ -244,7 +288,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public Collection<Integer> getItemIds() {
-        return new IntList((int)this.ensureList(0).size());
+        return new IntList(this.size());
     }
 
     @Override
@@ -266,7 +310,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public int size() {
-        return (int)this.ensureList(0).size();
+        return (int)this.ensureList(0);
     }
 
     @Override
@@ -274,7 +318,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return false;
         int index = ((Integer)itemId).intValue();
-        return index >= 0 && index < this.ensureList(index).size();
+        return index >= 0 && index < this.ensureList(index);
     }
 
     /**
@@ -345,6 +389,11 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     @Override
     public Integer getIdByIndex(int index) {
+        if (index < 0)
+            throw new IndexOutOfBoundsException("index < " + index);
+        final long size = this.ensureList(index);
+        if (index >= size)
+            throw new IndexOutOfBoundsException("index=" + index + " but size=" + size);
         return index;
     }
 
@@ -352,8 +401,8 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     public int indexOfId(Object itemId) {
         if (!(itemId instanceof Integer))
             return -1;
-        int index = ((Integer)itemId).intValue();
-        if (index < 0 || index >= this.ensureList(index).size())
+        final int index = ((Integer)itemId).intValue();
+        if (index < 0 || index >= this.ensureList(index))
             return -1;
         return index;
     }
@@ -365,7 +414,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return null;
         int index = ((Integer)itemId).intValue();
-        if (index < 0 || index + 1 >= this.ensureList(index).size())
+        if (index < 0 || index + 1 >= this.ensureList(index))
             return null;
         return index + 1;
     }
@@ -375,19 +424,19 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return null;
         int index = ((Integer)itemId).intValue();
-        if (index - 1 < 0 || index >= this.ensureList(index).size())
+        if (index - 1 < 0 || index >= this.ensureList(index))
             return null;
         return index - 1;
     }
 
     @Override
     public Integer firstItemId() {
-        return this.ensureList(0).size() == 0 ? null : 0;
+        return this.ensureList(0) == 0 ? null : 0;
     }
 
     @Override
     public Integer lastItemId() {
-        long size = this.ensureList(0).size();
+        long size = this.ensureList(0);
         return size == 0 ? null : (int)size - 1;
     }
 
@@ -396,7 +445,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return false;
         int index = ((Integer)itemId).intValue();
-        long size = this.ensureList(index).size();
+        long size = this.ensureList(index);
         return size > 0 && index == 0;
     }
 
@@ -405,7 +454,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (!(itemId instanceof Integer))
             return false;
         int index = ((Integer)itemId).intValue();
-        long size = this.ensureList(index).size();
+        long size = this.ensureList(index);
         return size > 0 && index == size - 1;
     }
 
@@ -453,24 +502,30 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 
     private static class IntList extends AbstractList<Integer> {
 
-        private final int max;
+        private final int min;
+        private final int size;
 
-        public IntList(int max) {
-            if (max < 0)
-                throw new IllegalArgumentException("max < 0");
-            this.max = max;
+        public IntList(int size) {
+            this(0, size);
+        }
+
+        public IntList(int min, int size) {
+            if (size < 0)
+                throw new IllegalArgumentException("size < 0");
+            this.min = min;
+            this.size = size;
         }
 
         @Override
         public int size() {
-            return this.max;
+            return this.size;
         }
 
         @Override
         public Integer get(int index) {
-            if (index < 0 || index >= this.max)
+            if (index < 0 || index >= this.size)
                 throw new IndexOutOfBoundsException();
-            return index;
+            return this.min + index;
         }
     }
 }
