@@ -68,6 +68,7 @@ import java.util.Set;
  * @see QueryList
  * @see SimpleQueryList
  * @see WindowQueryList
+ * @see AbstractUnsizedContainer
  */
 @SuppressWarnings("serial")
 public abstract class AbstractQueryContainer<T> extends AbstractContainer implements Container.Ordered, Container.Indexed,
