@@ -171,7 +171,7 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
 
             // Ensure that it is at least large enough to avoid causing another, redundant subsequent resize. This also
             // ensures that it is strictly larger than the last item in our window so we can always trigger another query.
-            largerSize = Math.min(largerSize, lowerBound + this.windowSize);
+            largerSize = Math.max(largerSize, lowerBound + this.windowSize);
 
             // Increase size estimate (maybe)
             this.size = Math.max(this.size, largerSize);
