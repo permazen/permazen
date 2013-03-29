@@ -89,6 +89,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * After using this constructor, subsequent invocations of {@link #setPropertyExtractor setPropertyExtractor()}
      * and {@link #setProperties setProperties()} are required to define the properties of this container
      * and how to extract them.
+     * </p>
      */
     protected AbstractQueryContainer() {
         this(null);
@@ -100,6 +101,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * <p>
      * After using this constructor, a subsequent invocation of {@link #setProperties setProperties()} is required
      * to define the properties of this container.
+     * </p>
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via

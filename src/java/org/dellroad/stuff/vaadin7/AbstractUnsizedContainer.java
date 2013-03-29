@@ -7,6 +7,7 @@
 
 package org.dellroad.stuff.vaadin7;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -37,26 +38,112 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
 
     private long size;
 
-    /**
-     * Primary constructor.
-     *
-     * @param windowSize size of our query window
-     * @throws IllegalArgumentException if {@code windowSize} is less than 1
-     */
-    protected AbstractUnsizedContainer(int windowSize) {
-        if (windowSize < 1)
-            throw new IllegalArgumentException("windowSize = " + windowSize);
-        this.windowSize = windowSize;
-    }
+// Constructors
 
     /**
      * Conveinence constructor. Equivalent to:
      *  <blockquote><code>
      *      {@link #AbstractUnsizedContainer(int) AbstractUnsizedContainer}({@link #DEFAULT_WINDOW_SIZE})
      *  </code></blockquote>
+     *
+     * <p>
+     * After using this constructor, subsequent invocations of {@link #setPropertyExtractor setPropertyExtractor()}
+     * and {@link #setProperties setProperties()} are required to define the properties of this container
+     * and how to extract them.
+     * </p>
      */
     protected AbstractUnsizedContainer() {
         this(DEFAULT_WINDOW_SIZE);
+    }
+
+    /**
+     * Conveinence constructor. Equivalent to:
+     *  <blockquote><code>
+     *      {@link #AbstractUnsizedContainer(int, PropertyExtractor) AbstractUnsizedContainer}({@link #DEFAULT_WINDOW_SIZE},
+     *          propertyExtractor)
+     *  </code></blockquote>
+     *
+     * <p>
+     * After using this constructor, a subsequent invocation of {@link #setProperties setProperties()} is required
+     * to define the properties of this container.
+     * </p>
+     *
+     * @param propertyExtractor used to extract properties from the underlying Java objects;
+     *  may be null but then container is not usable until one is configured via
+     * {@link #setPropertyExtractor setPropertyExtractor()}
+     */
+    protected AbstractUnsizedContainer(PropertyExtractor<? super T> propertyExtractor) {
+        this(DEFAULT_WINDOW_SIZE, propertyExtractor);
+    }
+
+    /**
+     * Conveinence constructor. Equivalent to:
+     *  <blockquote><code>
+     *      {@link #AbstractUnsizedContainer(int, PropertyExtractor, Collection) AbstractUnsizedContainer}({@link
+     *          #DEFAULT_WINDOW_SIZE}, propertyExtractor, propertyDefs)
+     *  </code></blockquote>
+     *
+     * @param propertyExtractor used to extract properties from the underlying Java objects;
+     *  may be null but then container is not usable until one is configured via
+     * {@link #setPropertyExtractor setPropertyExtractor()}
+     * @param propertyDefs container property definitions; null is treated like the empty set
+     */
+    protected AbstractUnsizedContainer(PropertyExtractor<? super T> propertyExtractor,
+      Collection<? extends PropertyDef<?>> propertyDefs) {
+        this(DEFAULT_WINDOW_SIZE, propertyExtractor, propertyDefs);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * After using this constructor, subsequent invocations of {@link #setPropertyExtractor setPropertyExtractor()}
+     * and {@link #setProperties setProperties()} are required to define the properties of this container
+     * and how to extract them.
+     * </p>
+     *
+     * @param windowSize size of the query window
+     * @throws IllegalArgumentException if {@code windowSize} is less than 1
+     */
+    protected AbstractUnsizedContainer(int windowSize) {
+        this(windowSize, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * After using this constructor, a subsequent invocation of {@link #setProperties setProperties()} is required
+     * to define the properties of this container.
+     * </p>
+     *
+     * @param windowSize size of the query window
+     * @param propertyExtractor used to extract properties from the underlying Java objects;
+     *  may be null but then container is not usable until one is configured via
+     * {@link #setPropertyExtractor setPropertyExtractor()}
+     * @throws IllegalArgumentException if {@code windowSize} is less than 1
+     */
+    protected AbstractUnsizedContainer(int windowSize, PropertyExtractor<? super T> propertyExtractor) {
+        this(windowSize, propertyExtractor, null);
+    }
+
+    /**
+     * Primary constructor.
+     *
+     * @param windowSize size of the query window (how big of a chunk we query at one time)
+     * @param propertyExtractor used to extract properties from the underlying Java objects;
+     *  may be null but then container is not usable until one is configured via
+     * {@link #setPropertyExtractor setPropertyExtractor()}
+     * @param propertyDefs container property definitions; null is treated like the empty set
+     * @throws IllegalArgumentException if {@code windowSize} is less than 1
+     */
+    protected AbstractUnsizedContainer(int windowSize, PropertyExtractor<? super T> propertyExtractor,
+      Collection<? extends PropertyDef<?>> propertyDefs) {
+        if (windowSize < 1)
+            throw new IllegalArgumentException("windowSize = " + windowSize);
+        this.windowSize = windowSize;
+        this.setPropertyExtractor(propertyExtractor);
+        this.setProperties(propertyDefs);
     }
 
     @Override
