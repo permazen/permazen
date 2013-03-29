@@ -41,7 +41,7 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
 // Constructors
 
     /**
-     * Conveinence constructor. Equivalent to:
+     * Convenience constructor. Equivalent to:
      *  <blockquote><code>
      *      {@link #AbstractUnsizedContainer(int) AbstractUnsizedContainer}({@link #DEFAULT_WINDOW_SIZE})
      *  </code></blockquote>
@@ -57,7 +57,7 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
     }
 
     /**
-     * Conveinence constructor. Equivalent to:
+     * Convenience constructor. Equivalent to:
      *  <blockquote><code>
      *      {@link #AbstractUnsizedContainer(int, PropertyExtractor) AbstractUnsizedContainer}({@link #DEFAULT_WINDOW_SIZE},
      *          propertyExtractor)
@@ -77,7 +77,7 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
     }
 
     /**
-     * Conveinence constructor. Equivalent to:
+     * Convenience constructor. Equivalent to:
      *  <blockquote><code>
      *      {@link #AbstractUnsizedContainer(int, PropertyExtractor, Collection) AbstractUnsizedContainer}({@link
      *          #DEFAULT_WINDOW_SIZE}, propertyExtractor, propertyDefs)
