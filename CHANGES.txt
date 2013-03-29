@@ -1,6 +1,7 @@
 
 Version Next
 
+    - Added VaadinUtil.invokeLater() and VaadinApplication.invokeLater()
     - Added AbstractUnsizedContainer and AbstractQueryList.handleSizeChange()
     - Added IndentXMLEventWriter and StackXMLEventReader
     - Fix character encoding bug in pobj package (always use UTF-8)

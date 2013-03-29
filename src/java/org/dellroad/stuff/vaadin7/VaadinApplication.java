@@ -210,6 +210,21 @@ public class VaadinApplication {
     }
 
     /**
+     * Peform some action asynchronously while holding the lock of the {@link VaadinSession} associated with this instance.
+     *
+     * <p>
+     * This is a convenience method that in turn invokes {@link VaadinUtil#invokeLater VaadinUtil.invokeLater()} using the
+     * {@link VaadinSession} associated with this instance.
+     *
+     * @param action action to perform
+     * @throws IllegalArgumentException if {@code action} is null
+     * @see VaadinUtil#invokeLater
+     */
+    public void invokeLater(Runnable action) {
+        VaadinUtil.invokeLater(this.session, action);
+    }
+
+    /**
      * Register for a notification when the {@link VaadinSession} is closed, without creating a memory leak.
      *
      * <p>

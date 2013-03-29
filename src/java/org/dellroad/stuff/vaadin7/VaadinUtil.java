@@ -15,6 +15,8 @@ import com.vaadin.server.VaadinSession;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * Miscellaneous utility methods.
  */
@@ -103,8 +105,8 @@ public final class VaadinUtil {
      * </p>
      *
      * <p>
-     * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinSession}
-     * is available via {@link VaadinSession#getCurrent}.
+     * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinSession} is available
+     * via {@link VaadinSession#getCurrent}; consider also using {@link VaadinApplication#invoke} instead of this method.
      * </p>
      *
      * <p>
@@ -132,6 +134,27 @@ public final class VaadinUtil {
             session.unlock();
             VaadinSession.setCurrent(previousSession);
         }
+    }
+
+    /**
+     * Peform some action while holding the given {@link VaadinSession}'s lock asynchronously in a different thread.
+     *
+     * <p>
+     * This method works like {@link #invoke} but the given {@code action} will take place asynchronously,
+     * in particular, after the current thread has unlocked the {@code session} if it is locked. In any case,
+     * this method always returns immediately.
+     * </p>
+     *
+     * <p>
+     * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinSession} is available
+     * via {@link VaadinSession#getCurrent}; consider also using {@link VaadinApplication#invokeLater} instead of this method.
+     *
+     * @throws IllegalArgumentException if either parameter is null
+     * @see #invoke
+     * @see VaadinApplication#invokeLater
+     */
+    public static void invokeLater(VaadinSession session, Runnable action) {
+        new Thread(new InvokeRunnable(session, action)).start();            // until #11219 is fixed, have to create a new thread
     }
 
     /**
@@ -200,6 +223,39 @@ public final class VaadinUtil {
         @Override
         public int hashCode() {
             return this.session.hashCode() ^ this.listener.hashCode();
+        }
+    }
+
+// InvokeRunnable - used by invokeLater()
+
+    private static final class InvokeRunnable implements Runnable {
+
+        private final VaadinSession session;
+        private final Runnable action;
+
+        InvokeRunnable(VaadinSession session, Runnable action) {
+            if (session == null)
+                throw new IllegalArgumentException("null session");
+            if (action == null)
+                throw new IllegalArgumentException("null action");
+            this.session = session;
+            this.action = action;
+        }
+
+        @Override
+        public void run() {
+            try {
+                VaadinUtil.invoke(this.session, this.action);
+            } catch (ThreadDeath t) {
+                throw t;
+            } catch (Throwable e) {
+                LoggerFactory.getLogger(this.action.getClass()).error("exception thrown by invokeLater() action " + this.action, e);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return this.action.toString();
         }
     }
 }
