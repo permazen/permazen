@@ -150,8 +150,8 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
     protected QueryList<T> query(long hint) {
 
         // Clip hint value
-        hint = Math.max(hint, this.size - 1);
-        hint = Math.min(hint, 0);
+        hint = Math.min(hint, this.size - 1);
+        hint = Math.max(hint, 0);
 
         // Query underlying data for the window of items centered at "hint"
         final long offset = Math.max(0, hint - this.windowSize / 2);
@@ -165,7 +165,7 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
         else if (querySize < this.windowSize)   // we overlapped the end; now we know the exact size
             this.size = offset + querySize;
         else                                    // we are somewhere in the middle; we have a (possibly new) lower bound on the size
-            this.size = Math.max(this.size, offset + querySize);
+            this.size = Math.max(this.size, offset + querySize + 1);
 
         // See if size changed
         if (this.size != previousSize)
@@ -173,6 +173,20 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
 
         // Return QueryList
         return new WindowQueryList<T>(offset, window, this.size);
+    }
+
+    /**
+     * Get the window size configured at construction time.
+     */
+    public int getWindowSize() {
+        return this.windowSize;
+    }
+
+    /**
+     * Get the current size estimate for the underlying data.
+     */
+    public long getCurrentSizeEstimate() {
+        return this.size;
     }
 
     /**
