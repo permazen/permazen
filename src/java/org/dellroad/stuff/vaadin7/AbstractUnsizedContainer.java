@@ -32,7 +32,7 @@ import java.util.List;
 @SuppressWarnings("serial")
 public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer<T> {
 
-    public static final int DEFAULT_WINDOW_SIZE = 500;
+    public static final int DEFAULT_WINDOW_SIZE = 50;
 
     private final int windowSize;
 
@@ -163,8 +163,19 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
             this.size = this.getSmallerEstimate(offset);
         else if (querySize < this.windowSize)   // we overlapped the end; now we know the exact size
             this.size = offset + querySize;
-        else                                    // we are somewhere in the middle; we have a (possibly new) lower bound on the size
-            this.size = Math.max(this.size, Math.max(offset + querySize + 1, this.getLargerEstimate(offset + querySize)));
+        else {                                   // we are somewhere in the middle
+
+            // Get estimate of new larger size
+            final long lowerBound = offset + querySize;
+            long largerSize = this.getLargerEstimate(lowerBound);
+
+            // Ensure that it is at least large enough to avoid causing another, redundant subsequent resize. This also
+            // ensures that it is strictly larger than the last item in our window so we can always trigger another query.
+            largerSize = Math.min(largerSize, lowerBound + this.windowSize);
+
+            // Increase size estimate (maybe)
+            this.size = Math.max(this.size, largerSize);
+        }
 
         // Return QueryList
         return new WindowQueryList<T>(offset, window, this.size);
@@ -206,15 +217,14 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
 
     /**
      * Estimate the size of the underlying data given that {@code lowerBound} is a lower bound.
-     * The returned estimate should be at least {@code lowerBound + 1}, to ensure that an attempt
-     * will eventually be made to read beyond the current window, therefore triggering another query.
+     * This effectively determines how much data will appear to be "beyond" the current window.
      *
      * <p>
      * The implementation in {@link AbstractUnsizedContainer} returns {@code lowerBound * 1.25}.
      * </p>
      *
      * @param lowerBound a lower bound on the size of the underlying data
-     * @return estimate of the actual size of the underlying data, at least {@code lowerBound + 1}
+     * @return estimate of the actual size of the underlying data
      */
     protected long getLargerEstimate(long lowerBound) {
         return lowerBound + (lowerBound >> 2);
