@@ -176,7 +176,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * Perform a query to (re)generate the list of Java objects backing this container.
      *
      * <p>
-     * The particular position in the list we are interested in is given as a hint by the {@code index} parameter.
+     * The particular position in the list we are interested in is given as a hint by the {@code hint} parameter.
      * That is, an invocation of <code>{@link QueryList#get}(hint)</code> is likely immediately after this method
      * returns and if so it must complete without throwing an exception, unless {@code hint} is out of range.
      * </p>
