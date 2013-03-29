@@ -160,11 +160,11 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
 
         // Update size estimate
         if (querySize <= 0)                     // the underlying data has shrunk on us
-            this.size = this.shrink(offset);
+            this.size = this.getSmallerEstimate(offset);
         else if (querySize < this.windowSize)   // we overlapped the end; now we know the exact size
             this.size = offset + querySize;
         else                                    // we are somewhere in the middle; we have a (possibly new) lower bound on the size
-            this.size = Math.max(this.size, offset + querySize + 1);
+            this.size = Math.max(this.size, Math.max(offset + querySize + 1, this.getLargerEstimate(offset + querySize)));
 
         // Return QueryList
         return new WindowQueryList<T>(offset, window, this.size);
@@ -194,14 +194,30 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
      * </p>
      *
      * <p>
-     * The implementation in {@link AbstractUnsizedContainer} returns {@code size * 0.75}.
+     * The implementation in {@link AbstractUnsizedContainer} returns {@code upperBound * 0.75}.
      * </p>
      *
      * @param upperBound an upper bound on the size of the underlying data
      * @return estimate of the actual size of the underlying data
      */
-    protected long shrink(long upperBound) {
-        return (size >> 1) + (size >> 2);
+    protected long getSmallerEstimate(long upperBound) {
+        return (upperBound >> 1) + (upperBound >> 2);
+    }
+
+    /**
+     * Estimate the size of the underlying data given that {@code lowerBound} is a lower bound.
+     * The returned estimate should be at least {@code lowerBound + 1}, to ensure that an attempt
+     * will eventually be made to read beyond the current window, therefore triggering another query.
+     *
+     * <p>
+     * The implementation in {@link AbstractUnsizedContainer} returns {@code lowerBound * 1.25}.
+     * </p>
+     *
+     * @param lowerBound a lower bound on the size of the underlying data
+     * @return estimate of the actual size of the underlying data, at least {@code lowerBound + 1}
+     */
+    protected long getLargerEstimate(long lowerBound) {
+        return lowerBound + (lowerBound >> 2);
     }
 
     /**
