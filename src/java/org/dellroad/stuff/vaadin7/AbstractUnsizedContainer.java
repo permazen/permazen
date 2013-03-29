@@ -158,18 +158,13 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
         final List<? extends T> window = this.queryWindow(offset, this.windowSize);
         final int querySize = window.size();
 
-        // Check size of the returned window
-        final long previousSize = this.size;
+        // Update size estimate
         if (querySize <= 0)                     // the underlying data has shrunk on us
             this.size = this.shrink(offset);
         else if (querySize < this.windowSize)   // we overlapped the end; now we know the exact size
             this.size = offset + querySize;
         else                                    // we are somewhere in the middle; we have a (possibly new) lower bound on the size
             this.size = Math.max(this.size, offset + querySize + 1);
-
-        // See if size changed
-        if (this.size != previousSize)
-            this.handleSizeChange();
 
         // Return QueryList
         return new WindowQueryList<T>(offset, window, this.size);
