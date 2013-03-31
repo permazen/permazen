@@ -7,6 +7,8 @@
 
 package org.dellroad.stuff.vaadin7;
 
+import com.vaadin.data.Container;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -18,7 +20,15 @@ import java.util.List;
  * via {@link #queryWindow queryWindow()}; when the requested window goes beyond the end of the underlying data,
  * a short or empty result is returned. Based on just this information, this class maintains an estimate of
  * the size of the underlying data. Each time that size estimate changes, {@link #handleSizeChange} is invoked
- * to schedule a (non-reentrant) property set change notification.
+ * to schedule a (non-reentrant) property set change notification. Once the end of the underlying data is reached,
+ * the size is known.
+ * </p>
+ *
+ * <p>
+ * If the actual size of the underlying data is constant, this class will eventually find it. If the
+ * actual size of the underlying data can change (either up or down), this class will adapt accordingly,
+ * but only when it learns of the new size through an invocation of {@link #queryWindow queryWindow()};
+ * as this depends on how the container is used, this may not occur for a long time.
  * </p>
  *
  * <p>
@@ -37,6 +47,7 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
     private final int windowSize;
 
     private long size;
+    private boolean sizeIsKnown;
 
 // Constructors
 
@@ -159,22 +170,30 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
         final int querySize = window.size();
 
         // Update size estimate
-        if (querySize <= 0)                     // the underlying data has shrunk on us
+        if (querySize <= 0) {                               // the underlying data has shrunk on us
+            this.sizeIsKnown = false;
             this.size = this.getSmallerEstimate(offset);
-        else if (querySize < this.windowSize)   // we overlapped the end; now we know the exact size
+        } else if (querySize < this.windowSize) {           // we overlapped the end; now we know the exact size
             this.size = offset + querySize;
-        else {                                   // we are somewhere in the middle
+            this.sizeIsKnown = true;
+        } else if (!this.sizeIsKnown) {                     // we are somewhere in the middle and size is not yet known
 
-            // Get estimate of new larger size
+            // Get lower bound on size estimate
             final long lowerBound = offset + querySize;
-            long largerSize = this.getLargerEstimate(lowerBound);
 
-            // Ensure that it is at least large enough to avoid causing another, redundant subsequent resize. This also
-            // ensures that it is strictly larger than the last item in our window so we can always trigger another query.
-            largerSize = Math.max(largerSize, lowerBound + this.windowSize);
+            // If current size is less than lowerBound + 1, need to expand (the +1 is to leave room to trigger a requery)
+            if (this.size < lowerBound + 1) {
 
-            // Increase size estimate (maybe)
-            this.size = Math.max(this.size, largerSize);
+                // Get estimate of new larger size
+                long largerSize = this.getLargerEstimate(lowerBound);
+
+                // Ensure that it is at least large enough to avoid causing another, redundant subsequent resize. This also
+                // ensures that it is strictly larger than the last item in our window so we can always trigger another query.
+                largerSize = Math.max(largerSize, lowerBound + this.windowSize);
+
+                // Increase size estimate (maybe)
+                this.size = Math.max(this.size, largerSize);
+            }
         }
 
         // Return QueryList
@@ -228,6 +247,12 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
      */
     protected long getLargerEstimate(long lowerBound) {
         return lowerBound + (lowerBound >> 2);
+    }
+
+    @Override
+    protected void fireItemSetChange(Container.ItemSetChangeEvent event) {
+        this.sizeIsKnown = false;
+        super.fireItemSetChange(event);
     }
 
     /**
