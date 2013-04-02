@@ -248,7 +248,7 @@
                 <filter token="VERSION" value="${full.version}"/>
             </filterset>
         </copy>
-        <dellroad:javadoc overview="build/javadoc/overview.html">
+        <dellroad:ajavadoc>
             <additional-classpath>
                 <pathelement path="build/classes"/>
                 <path refid="vaadin7.classpath"/>

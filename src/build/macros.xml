@@ -844,7 +844,6 @@
     -->
     <macrodef uri="urn:org.dellroad.ant" name="ajavadoc">
         <attribute name="title" default="Java Class Library API"/>
-        <attribute name="overview" default="${basedir}/src/java/overview.html"/>
         <element name="links" optional="yes"/>
         <element name="excludes" optional="yes"/>
         <element name="additional-classpath" optional="yes"/>
