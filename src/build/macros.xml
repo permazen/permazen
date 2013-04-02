@@ -818,7 +818,7 @@
                     <delete dir="build/reports/javadoc"/>
                     <mkdir dir="build/reports/javadoc"/>
                     <javadoc destdir="build/reports/javadoc" use="true" overview="@{overview}"
-                      source="1.5" breakiterator="yes" linksource="true"
+                      source="1.6" breakiterator="yes" linksource="true"
                       windowtitle="@{title}" doctitle="@{title}" failonerror="true">
                         <classpath>
                             <additional-classpath/>
@@ -830,6 +830,50 @@
                         </packageset>
                         <links/>
                     </javadoc>
+                </sequential>
+            </antcontrib:outofdate>
+        </sequential>
+    </macrodef>
+
+    <!--
+        Javadoc macro supporting AOP aspects
+
+        Requires:
+            path "javac.classpath"
+            AspectJ taskdefs defined
+    -->
+    <macrodef uri="urn:org.dellroad.ant" name="ajavadoc">
+        <attribute name="title" default="Java Class Library API"/>
+        <attribute name="overview" default="${basedir}/src/java/overview.html"/>
+        <element name="links" optional="yes"/>
+        <element name="excludes" optional="yes"/>
+        <element name="additional-classpath" optional="yes"/>
+        <sequential>
+            <antcontrib:outofdate>
+                <sourcefiles>
+                    <fileset dir="src/java">
+                        <include name="**/*.java"/>
+                        <include name="**/*.aj"/>
+                        <excludes/>
+                    </fileset>
+                </sourcefiles>
+                <targetfiles path="build/reports/javadoc/index.html"/>
+                <sequential>
+                    <delete dir="build/reports/javadoc"/>
+                    <mkdir dir="build/reports/javadoc"/>
+                    <ajdoc destdir="build/reports/javadoc"
+                      source="1.6" windowtitle="@{title}" failonerror="true">
+                        <classpath>
+                            <additional-classpath/>
+                            <path refid="javac.classpath"/>
+                        </classpath>
+                        <fileset dir="src/java" defaultexcludes="yes">
+                            <include name="**/*.java"/>
+                            <include name="**/*.aj"/>
+                            <excludes/>
+                        </fileset>
+                        <links/>
+                    </ajdoc>
                 </sequential>
             </antcontrib:outofdate>
         </sequential>
