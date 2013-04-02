@@ -38,7 +38,7 @@ import org.springframework.transaction.annotation.Propagation;
  * This annotation does not require or use the <code>&lt;tx:annotation-driven/&gt;</code> XML declaration.
  * As with {@link org.springframework.transaction.annotation.Transactional @Transactional}, if you need to
  * specifiy a specific {@link org.springframework.transaction.PlatformTransactionManager} by name,
- * you can do that by setting the annotation {@link #value}.
+ * you can do that by setting the annotation {@link org.dellroad.stuff.spring.ThreadTransactional#value}.
  * </p>
  *
  * <p>

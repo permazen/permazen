@@ -28,7 +28,8 @@ import org.springframework.beans.factory.annotation.Autowire;
  * </p>
  *
  * <p>
- * For an extra safety check, consider setting {@link #ifSessionNotLocked} where appropriate.
+ * For an extra safety check, consider setting {@link org.dellroad.stuff.vaadin7.VaadinConfigurable#ifSessionNotLocked}
+ * where appropriate.
  * </p>
  *
  * <p>
@@ -39,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  * {@link SpringVaadinServlet} must be used.
  * </p>
  *
- * @see org.dellroad.stuff.vaadin
+ * @see org.dellroad.stuff.vaadin7
  * @see SpringVaadinServlet
  * @see SpringVaadinSession
  * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3/tree/vaadin7">Example Code on GitHub</a>

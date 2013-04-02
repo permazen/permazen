@@ -66,6 +66,10 @@
  * and <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3">sample code is available on GitHub</a>.
  * </p>
  *
+ * <p>
+ * This package is for Vaadin 6.x. For Vaadin 7.x, see the {@link org.dellroad.stuff.vaadin7} package.
+ * </p>
+ *
  * @see <a href="http://vaadin.com/">Vaadin</a>
  * @see <a href="https://vaadin.com/directory#addon/spring-stuff">Spring Stuff Vaadin Add-on</a>
  */

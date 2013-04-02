@@ -60,6 +60,10 @@
  * and <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3/tree/vaadin7">sample code is available on GitHub</a>.
  * </p>
  *
+ * <p>
+ * This package is for Vaadin 7.x. For Vaadin 6.x, see the {@link org.dellroad.stuff.vaadin} package.
+ * </p>
+ *
  * @see org.dellroad.stuff.vaadin7.SpringVaadinServlet
  * @see org.dellroad.stuff.vaadin7.VaadinConfigurable
  * @see org.dellroad.stuff.vaadin7.SpringVaadinSession
