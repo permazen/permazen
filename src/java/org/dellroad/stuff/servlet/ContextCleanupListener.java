@@ -23,6 +23,7 @@ import org.springframework.web.util.IntrospectorCleanupListener;
  *
  * @see <a href="http://opensource.atlassian.com/confluence/spring/pages/viewpage.action?pageId=2669">Spring Wiki Discussion of
  *      ClassLoader Memory Leaks</a>
+ * @see http://bugs.mysql.com/bug.php?id=65909
  * @since 1.0.49
  */
 public class ContextCleanupListener extends IntrospectorCleanupListener {
@@ -43,12 +44,22 @@ public class ContextCleanupListener extends IntrospectorCleanupListener {
         try {
             super.contextDestroyed(event);
 
+            // Get my class loader
+            final ClassLoader thisClassLoader = this.getClass().getClassLoader();
+
+            // Work around MySQL bug http://bugs.mysql.com/bug.php?id=65909
+            try {
+                Class.forName("com.mysql.jdbc.AbandonedConnectionCleanupThread", false,
+                  thisClassLoader).getMethod("shutdown").invoke(null);
+            } catch (Exception e) {
+                // ignore
+            }
+
             // Unregister JDBC drivers
             for (Enumeration<Driver> e = DriverManager.getDrivers(); e.hasMoreElements(); ) {
-                Driver driver = e.nextElement();
-                if (driver.getClass().getClassLoader() == getClass().getClassLoader()) {
+                final Driver driver = e.nextElement();
+                if (driver.getClass().getClassLoader() == thisClassLoader)
                     DriverManager.deregisterDriver(driver);
-                }
             }
 
             // Reset the ThreadLocalContext singleton instance to make Tomcat happy
