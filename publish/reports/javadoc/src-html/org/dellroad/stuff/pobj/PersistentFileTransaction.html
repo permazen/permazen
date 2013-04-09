@@ -10,9 +10,9 @@
 <FONT color="green">007</FONT>    <a name="line.7"></a>
 <FONT color="green">008</FONT>    package org.dellroad.stuff.pobj;<a name="line.8"></a>
 <FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.io.ByteArrayInputStream;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import java.io.ByteArrayOutputStream;<a name="line.11"></a>
-<FONT color="green">012</FONT>    import java.io.IOException;<a name="line.12"></a>
+<FONT color="green">010</FONT>    import java.io.IOException;<a name="line.10"></a>
+<FONT color="green">011</FONT>    import java.io.StringReader;<a name="line.11"></a>
+<FONT color="green">012</FONT>    import java.io.StringWriter;<a name="line.12"></a>
 <FONT color="green">013</FONT>    import java.util.ArrayList;<a name="line.13"></a>
 <FONT color="green">014</FONT>    import java.util.List;<a name="line.14"></a>
 <FONT color="green">015</FONT>    <a name="line.15"></a>
@@ -35,14 +35,14 @@
 <FONT color="green">032</FONT>     */<a name="line.32"></a>
 <FONT color="green">033</FONT>    public class PersistentFileTransaction {<a name="line.33"></a>
 <FONT color="green">034</FONT>    <a name="line.34"></a>
-<FONT color="green">035</FONT>        private static final int BUFFER_SIZE = 32 * 1024 - 32;<a name="line.35"></a>
+<FONT color="green">035</FONT>        private static final int BUFFER_SIZE = 16 * 1024 - 32;<a name="line.35"></a>
 <FONT color="green">036</FONT>    <a name="line.36"></a>
 <FONT color="green">037</FONT>        private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();<a name="line.37"></a>
 <FONT color="green">038</FONT>        private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();<a name="line.38"></a>
 <FONT color="green">039</FONT>        private final ArrayList&lt;String&gt; updates = new ArrayList&lt;String&gt;();<a name="line.39"></a>
 <FONT color="green">040</FONT>        private final String systemId;<a name="line.40"></a>
 <FONT color="green">041</FONT>    <a name="line.41"></a>
-<FONT color="green">042</FONT>        private byte[] current;<a name="line.42"></a>
+<FONT color="green">042</FONT>        private String current;<a name="line.42"></a>
 <FONT color="green">043</FONT>    <a name="line.43"></a>
 <FONT color="green">044</FONT>        /**<a name="line.44"></a>
 <FONT color="green">045</FONT>         * Constructor.<a name="line.45"></a>
@@ -60,7 +60,7 @@
 <FONT color="green">057</FONT>        /**<a name="line.57"></a>
 <FONT color="green">058</FONT>         * Get the current XML data. Does not include the XML update list.<a name="line.58"></a>
 <FONT color="green">059</FONT>         */<a name="line.59"></a>
-<FONT color="green">060</FONT>        public byte[] getData() {<a name="line.60"></a>
+<FONT color="green">060</FONT>        public String getData() {<a name="line.60"></a>
 <FONT color="green">061</FONT>            return this.current;<a name="line.61"></a>
 <FONT color="green">062</FONT>        }<a name="line.62"></a>
 <FONT color="green">063</FONT>    <a name="line.63"></a>
@@ -93,12 +93,12 @@
 <FONT color="green">090</FONT>    <a name="line.90"></a>
 <FONT color="green">091</FONT>            // Debug<a name="line.91"></a>
 <FONT color="green">092</FONT>            //System.out.println("************************** BEFORE TRANSFORM");<a name="line.92"></a>
-<FONT color="green">093</FONT>            //System.out.println(new String(this.current));<a name="line.93"></a>
+<FONT color="green">093</FONT>            //System.out.println(this.current);<a name="line.93"></a>
 <FONT color="green">094</FONT>    <a name="line.94"></a>
 <FONT color="green">095</FONT>            // Set up source and result<a name="line.95"></a>
-<FONT color="green">096</FONT>            StreamSource source = new StreamSource(new ByteArrayInputStream(this.current));<a name="line.96"></a>
+<FONT color="green">096</FONT>            StreamSource source = new StreamSource(new StringReader(this.current));<a name="line.96"></a>
 <FONT color="green">097</FONT>            source.setSystemId(this.systemId);<a name="line.97"></a>
-<FONT color="green">098</FONT>            ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUFFER_SIZE);<a name="line.98"></a>
+<FONT color="green">098</FONT>            StringWriter buffer = new StringWriter(BUFFER_SIZE);<a name="line.98"></a>
 <FONT color="green">099</FONT>            StreamResult result = new StreamResult(buffer);<a name="line.99"></a>
 <FONT color="green">100</FONT>            result.setSystemId(this.systemId);<a name="line.100"></a>
 <FONT color="green">101</FONT>    <a name="line.101"></a>
@@ -106,17 +106,17 @@
 <FONT color="green">103</FONT>            transformer.transform(source, result);<a name="line.103"></a>
 <FONT color="green">104</FONT>    <a name="line.104"></a>
 <FONT color="green">105</FONT>            // Save result as the new current value<a name="line.105"></a>
-<FONT color="green">106</FONT>            this.current = buffer.toByteArray();<a name="line.106"></a>
+<FONT color="green">106</FONT>            this.current = buffer.toString();<a name="line.106"></a>
 <FONT color="green">107</FONT>    <a name="line.107"></a>
 <FONT color="green">108</FONT>            // Debug<a name="line.108"></a>
 <FONT color="green">109</FONT>            //System.out.println("************************** AFTER TRANSFORM");<a name="line.109"></a>
-<FONT color="green">110</FONT>            //System.out.println(new String(this.current));<a name="line.110"></a>
+<FONT color="green">110</FONT>            //System.out.println(this.current);<a name="line.110"></a>
 <FONT color="green">111</FONT>        }<a name="line.111"></a>
 <FONT color="green">112</FONT>    <a name="line.112"></a>
 <FONT color="green">113</FONT>        private void read(Source source) throws IOException, XMLStreamException {<a name="line.113"></a>
 <FONT color="green">114</FONT>    <a name="line.114"></a>
 <FONT color="green">115</FONT>            // Read in XML, extracting and removing the updates list in the process<a name="line.115"></a>
-<FONT color="green">116</FONT>            ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUFFER_SIZE);<a name="line.116"></a>
+<FONT color="green">116</FONT>            StringWriter buffer = new StringWriter(BUFFER_SIZE);<a name="line.116"></a>
 <FONT color="green">117</FONT>            XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(buffer);<a name="line.117"></a>
 <FONT color="green">118</FONT>            XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(source);<a name="line.118"></a>
 <FONT color="green">119</FONT>            UpdatesXMLEventReader updatesReader = new UpdatesXMLEventReader(eventReader);<a name="line.119"></a>
@@ -130,7 +130,7 @@
 <FONT color="green">127</FONT>                throw new PersistentObjectException("XML file does not contain an updates list");<a name="line.127"></a>
 <FONT color="green">128</FONT>    <a name="line.128"></a>
 <FONT color="green">129</FONT>            // Save current content (without updates) and updates list<a name="line.129"></a>
-<FONT color="green">130</FONT>            this.current = buffer.toByteArray();<a name="line.130"></a>
+<FONT color="green">130</FONT>            this.current = buffer.toString();<a name="line.130"></a>
 <FONT color="green">131</FONT>            this.updates.clear();<a name="line.131"></a>
 <FONT color="green">132</FONT>            this.updates.addAll(updateNames);<a name="line.132"></a>
 <FONT color="green">133</FONT>        }<a name="line.133"></a>

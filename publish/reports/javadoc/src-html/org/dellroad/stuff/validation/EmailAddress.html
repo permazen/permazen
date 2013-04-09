@@ -28,17 +28,22 @@
 <FONT color="green">025</FONT>    @Constraint(validatedBy = {})<a name="line.25"></a>
 <FONT color="green">026</FONT>    @Target({ ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE })<a name="line.26"></a>
 <FONT color="green">027</FONT>    @Retention(RetentionPolicy.RUNTIME)<a name="line.27"></a>
-<FONT color="green">028</FONT>    @Pattern(regexp = "^[-+._\\p{Alnum}]+@[-\\p{Alnum}]+(\\.[-.\\p{Alnum}]+)+$")<a name="line.28"></a>
+<FONT color="green">028</FONT>    @Pattern(regexp = EmailAddress.PATTERN)<a name="line.28"></a>
 <FONT color="green">029</FONT>    @ReportAsSingleViolation<a name="line.29"></a>
 <FONT color="green">030</FONT>    public @interface EmailAddress {<a name="line.30"></a>
 <FONT color="green">031</FONT>    <a name="line.31"></a>
-<FONT color="green">032</FONT>        String message() default "Invalid email address";<a name="line.32"></a>
-<FONT color="green">033</FONT>    <a name="line.33"></a>
-<FONT color="green">034</FONT>        Class&lt;?&gt;[] groups() default {};<a name="line.34"></a>
-<FONT color="green">035</FONT>    <a name="line.35"></a>
-<FONT color="green">036</FONT>        Class&lt;? extends Payload&gt;[] payload() default {};<a name="line.36"></a>
-<FONT color="green">037</FONT>    }<a name="line.37"></a>
+<FONT color="green">032</FONT>        /**<a name="line.32"></a>
+<FONT color="green">033</FONT>         * The regular expression string used by this constraint to validate email addresses: {@value}<a name="line.33"></a>
+<FONT color="green">034</FONT>         */<a name="line.34"></a>
+<FONT color="green">035</FONT>        String PATTERN = "^[-+%._\\p{Alnum}]+@([-\\p{Alnum}]+\\.)+[-\\p{Alnum}]+$";<a name="line.35"></a>
+<FONT color="green">036</FONT>    <a name="line.36"></a>
+<FONT color="green">037</FONT>        String message() default "Invalid email address";<a name="line.37"></a>
 <FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>        Class&lt;?&gt;[] groups() default {};<a name="line.39"></a>
+<FONT color="green">040</FONT>    <a name="line.40"></a>
+<FONT color="green">041</FONT>        Class&lt;? extends Payload&gt;[] payload() default {};<a name="line.41"></a>
+<FONT color="green">042</FONT>    }<a name="line.42"></a>
+<FONT color="green">043</FONT>    <a name="line.43"></a>
 
 
 

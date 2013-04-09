@@ -81,7 +81,7 @@
 <FONT color="green">078</FONT>        @Override<a name="line.78"></a>
 <FONT color="green">079</FONT>        public Object postProcessBeforeInitialization(Object bean, String beanName) {<a name="line.79"></a>
 <FONT color="green">080</FONT>            if (bean instanceof SpringXSLPersistentObjectSchemaUpdate) {<a name="line.80"></a>
-<FONT color="green">081</FONT>                SpringXSLPersistentObjectSchemaUpdate update = (SpringXSLPersistentObjectSchemaUpdate)bean;<a name="line.81"></a>
+<FONT color="green">081</FONT>                SpringXSLPersistentObjectSchemaUpdate&lt;?&gt; update = (SpringXSLPersistentObjectSchemaUpdate&lt;?&gt;)bean;<a name="line.81"></a>
 <FONT color="green">082</FONT>                if (update.getTransform() == null)<a name="line.82"></a>
 <FONT color="green">083</FONT>                    update.setTransform(this.resourceLoader.getResource(this.getImpliedTransformResourceLocation(beanName)));<a name="line.83"></a>
 <FONT color="green">084</FONT>                if (update.getTransformerFactory() == null &amp;&amp; this.transformerFactory != null)<a name="line.84"></a>

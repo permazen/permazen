@@ -1,0 +1,216 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    <a name="line.1"></a>
+<FONT color="green">002</FONT>    /*<a name="line.2"></a>
+<FONT color="green">003</FONT>     * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<FONT color="green">004</FONT>     *<a name="line.4"></a>
+<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
+<FONT color="green">006</FONT>     */<a name="line.6"></a>
+<FONT color="green">007</FONT>    <a name="line.7"></a>
+<FONT color="green">008</FONT>    package org.dellroad.stuff.xml;<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>    import java.util.Arrays;<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>    import javax.xml.namespace.NamespaceContext;<a name="line.12"></a>
+<FONT color="green">013</FONT>    import javax.xml.stream.XMLEventFactory;<a name="line.13"></a>
+<FONT color="green">014</FONT>    import javax.xml.stream.XMLEventReader;<a name="line.14"></a>
+<FONT color="green">015</FONT>    import javax.xml.stream.XMLEventWriter;<a name="line.15"></a>
+<FONT color="green">016</FONT>    import javax.xml.stream.XMLStreamException;<a name="line.16"></a>
+<FONT color="green">017</FONT>    import javax.xml.stream.events.XMLEvent;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    /**<a name="line.19"></a>
+<FONT color="green">020</FONT>     * Wrapper for an underlying {@link XMLEventWriter} that automatically adds indentation to the event stream.<a name="line.20"></a>
+<FONT color="green">021</FONT>     */<a name="line.21"></a>
+<FONT color="green">022</FONT>    public class IndentXMLEventWriter implements XMLEventWriter {<a name="line.22"></a>
+<FONT color="green">023</FONT>    <a name="line.23"></a>
+<FONT color="green">024</FONT>        private final XMLEventWriter writer;<a name="line.24"></a>
+<FONT color="green">025</FONT>        private final XMLEventFactory factory;<a name="line.25"></a>
+<FONT color="green">026</FONT>        private final int indent;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>        private int lastEvent = -1;<a name="line.28"></a>
+<FONT color="green">029</FONT>        private int depth;<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>        /**<a name="line.31"></a>
+<FONT color="green">032</FONT>         * Constructor.<a name="line.32"></a>
+<FONT color="green">033</FONT>         *<a name="line.33"></a>
+<FONT color="green">034</FONT>         * @param writer underlying writer<a name="line.34"></a>
+<FONT color="green">035</FONT>         * @param factory event factory<a name="line.35"></a>
+<FONT color="green">036</FONT>         * @param indent indent amount, or negative to not add any whitespace<a name="line.36"></a>
+<FONT color="green">037</FONT>         * @throws IllegalArgumentException if {@code writer} or {@code factory} is null<a name="line.37"></a>
+<FONT color="green">038</FONT>         */<a name="line.38"></a>
+<FONT color="green">039</FONT>        public IndentXMLEventWriter(XMLEventWriter writer, XMLEventFactory factory, int indent) {<a name="line.39"></a>
+<FONT color="green">040</FONT>            if (writer == null)<a name="line.40"></a>
+<FONT color="green">041</FONT>                throw new IllegalArgumentException("null writer");<a name="line.41"></a>
+<FONT color="green">042</FONT>            if (factory == null)<a name="line.42"></a>
+<FONT color="green">043</FONT>                throw new IllegalArgumentException("null factory");<a name="line.43"></a>
+<FONT color="green">044</FONT>            this.writer = writer;<a name="line.44"></a>
+<FONT color="green">045</FONT>            this.factory = factory;<a name="line.45"></a>
+<FONT color="green">046</FONT>            this.indent = indent;<a name="line.46"></a>
+<FONT color="green">047</FONT>        }<a name="line.47"></a>
+<FONT color="green">048</FONT>    <a name="line.48"></a>
+<FONT color="green">049</FONT>        /**<a name="line.49"></a>
+<FONT color="green">050</FONT>         * Convenience constructor. Equivalent to:<a name="line.50"></a>
+<FONT color="green">051</FONT>         * &lt;blockquote&gt;<a name="line.51"></a>
+<FONT color="green">052</FONT>         *  {@link #IndentXMLEventWriter(XMLEventWriter, XMLEventFactory, int)<a name="line.52"></a>
+<FONT color="green">053</FONT>         *      IndentXMLEventWriter(writer, XMLEventFactory.newFactory(), indent)}<a name="line.53"></a>
+<FONT color="green">054</FONT>         * &lt;/blockquote&gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>         *<a name="line.55"></a>
+<FONT color="green">056</FONT>         * @param writer underlying writer<a name="line.56"></a>
+<FONT color="green">057</FONT>         * @param indent indent amount, or negative to not add any whitespace<a name="line.57"></a>
+<FONT color="green">058</FONT>         * @throws IllegalArgumentException if {@code writer} or {@code factory} is null<a name="line.58"></a>
+<FONT color="green">059</FONT>         */<a name="line.59"></a>
+<FONT color="green">060</FONT>        public IndentXMLEventWriter(XMLEventWriter writer, int indent) {<a name="line.60"></a>
+<FONT color="green">061</FONT>            this(writer, XMLEventFactory.newFactory(), indent);<a name="line.61"></a>
+<FONT color="green">062</FONT>        }<a name="line.62"></a>
+<FONT color="green">063</FONT>    <a name="line.63"></a>
+<FONT color="green">064</FONT>        @Override<a name="line.64"></a>
+<FONT color="green">065</FONT>        public void add(XMLEvent event) throws XMLStreamException {<a name="line.65"></a>
+<FONT color="green">066</FONT>            switch (event.getEventType()) {<a name="line.66"></a>
+<FONT color="green">067</FONT>            case XMLEvent.START_ELEMENT:<a name="line.67"></a>
+<FONT color="green">068</FONT>                switch (lastEvent) {<a name="line.68"></a>
+<FONT color="green">069</FONT>                case XMLEvent.START_ELEMENT:<a name="line.69"></a>
+<FONT color="green">070</FONT>                case XMLEvent.END_ELEMENT:<a name="line.70"></a>
+<FONT color="green">071</FONT>                    this.indent(this.depth);<a name="line.71"></a>
+<FONT color="green">072</FONT>                    break;<a name="line.72"></a>
+<FONT color="green">073</FONT>                default:<a name="line.73"></a>
+<FONT color="green">074</FONT>                    break;<a name="line.74"></a>
+<FONT color="green">075</FONT>                }<a name="line.75"></a>
+<FONT color="green">076</FONT>                this.depth++;<a name="line.76"></a>
+<FONT color="green">077</FONT>                break;<a name="line.77"></a>
+<FONT color="green">078</FONT>            case XMLEvent.END_ELEMENT:<a name="line.78"></a>
+<FONT color="green">079</FONT>                this.depth--;<a name="line.79"></a>
+<FONT color="green">080</FONT>                switch (lastEvent) {<a name="line.80"></a>
+<FONT color="green">081</FONT>                case XMLEvent.START_ELEMENT:<a name="line.81"></a>
+<FONT color="green">082</FONT>                    break;<a name="line.82"></a>
+<FONT color="green">083</FONT>                case XMLEvent.END_ELEMENT:<a name="line.83"></a>
+<FONT color="green">084</FONT>                    this.indent(this.depth);<a name="line.84"></a>
+<FONT color="green">085</FONT>                    break;<a name="line.85"></a>
+<FONT color="green">086</FONT>                default:<a name="line.86"></a>
+<FONT color="green">087</FONT>                    break;<a name="line.87"></a>
+<FONT color="green">088</FONT>                }<a name="line.88"></a>
+<FONT color="green">089</FONT>                break;<a name="line.89"></a>
+<FONT color="green">090</FONT>            default:<a name="line.90"></a>
+<FONT color="green">091</FONT>                break;<a name="line.91"></a>
+<FONT color="green">092</FONT>            }<a name="line.92"></a>
+<FONT color="green">093</FONT>            this.lastEvent = event.getEventType();<a name="line.93"></a>
+<FONT color="green">094</FONT>            this.writer.add(event);<a name="line.94"></a>
+<FONT color="green">095</FONT>        }<a name="line.95"></a>
+<FONT color="green">096</FONT>    <a name="line.96"></a>
+<FONT color="green">097</FONT>        @Override<a name="line.97"></a>
+<FONT color="green">098</FONT>        public void flush() throws XMLStreamException {<a name="line.98"></a>
+<FONT color="green">099</FONT>            this.writer.flush();<a name="line.99"></a>
+<FONT color="green">100</FONT>        }<a name="line.100"></a>
+<FONT color="green">101</FONT>    <a name="line.101"></a>
+<FONT color="green">102</FONT>        @Override<a name="line.102"></a>
+<FONT color="green">103</FONT>        public void close() throws XMLStreamException {<a name="line.103"></a>
+<FONT color="green">104</FONT>            this.writer.close();<a name="line.104"></a>
+<FONT color="green">105</FONT>        }<a name="line.105"></a>
+<FONT color="green">106</FONT>    <a name="line.106"></a>
+<FONT color="green">107</FONT>        @Override<a name="line.107"></a>
+<FONT color="green">108</FONT>        public void add(XMLEventReader reader) throws XMLStreamException {<a name="line.108"></a>
+<FONT color="green">109</FONT>            while (reader.hasNext())<a name="line.109"></a>
+<FONT color="green">110</FONT>                this.add(reader.nextEvent());<a name="line.110"></a>
+<FONT color="green">111</FONT>        }<a name="line.111"></a>
+<FONT color="green">112</FONT>    <a name="line.112"></a>
+<FONT color="green">113</FONT>        @Override<a name="line.113"></a>
+<FONT color="green">114</FONT>        public String getPrefix(String uri) throws XMLStreamException {<a name="line.114"></a>
+<FONT color="green">115</FONT>            return this.writer.getPrefix(uri);<a name="line.115"></a>
+<FONT color="green">116</FONT>        }<a name="line.116"></a>
+<FONT color="green">117</FONT>    <a name="line.117"></a>
+<FONT color="green">118</FONT>        @Override<a name="line.118"></a>
+<FONT color="green">119</FONT>        public void setPrefix(String prefix, String uri) throws XMLStreamException {<a name="line.119"></a>
+<FONT color="green">120</FONT>            this.writer.setPrefix(prefix, uri);<a name="line.120"></a>
+<FONT color="green">121</FONT>        }<a name="line.121"></a>
+<FONT color="green">122</FONT>    <a name="line.122"></a>
+<FONT color="green">123</FONT>        @Override<a name="line.123"></a>
+<FONT color="green">124</FONT>        public void setDefaultNamespace(String uri) throws XMLStreamException {<a name="line.124"></a>
+<FONT color="green">125</FONT>            this.writer.setDefaultNamespace(uri);<a name="line.125"></a>
+<FONT color="green">126</FONT>        }<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>        @Override<a name="line.128"></a>
+<FONT color="green">129</FONT>        public void setNamespaceContext(NamespaceContext context) throws XMLStreamException {<a name="line.129"></a>
+<FONT color="green">130</FONT>            this.writer.setNamespaceContext(context);<a name="line.130"></a>
+<FONT color="green">131</FONT>        }<a name="line.131"></a>
+<FONT color="green">132</FONT>    <a name="line.132"></a>
+<FONT color="green">133</FONT>        @Override<a name="line.133"></a>
+<FONT color="green">134</FONT>        public NamespaceContext getNamespaceContext() {<a name="line.134"></a>
+<FONT color="green">135</FONT>            return this.writer.getNamespaceContext();<a name="line.135"></a>
+<FONT color="green">136</FONT>        }<a name="line.136"></a>
+<FONT color="green">137</FONT>    <a name="line.137"></a>
+<FONT color="green">138</FONT>        /**<a name="line.138"></a>
+<FONT color="green">139</FONT>         * Emit a newline followed by indentation to the given depth.<a name="line.139"></a>
+<FONT color="green">140</FONT>         */<a name="line.140"></a>
+<FONT color="green">141</FONT>        protected void indent(int depth) throws XMLStreamException {<a name="line.141"></a>
+<FONT color="green">142</FONT>            if (this.indent &lt; 0)<a name="line.142"></a>
+<FONT color="green">143</FONT>                return;<a name="line.143"></a>
+<FONT color="green">144</FONT>            char[] buf = new char[1 + depth * this.indent];<a name="line.144"></a>
+<FONT color="green">145</FONT>            Arrays.fill(buf, ' ');<a name="line.145"></a>
+<FONT color="green">146</FONT>            buf[0] = '\n';<a name="line.146"></a>
+<FONT color="green">147</FONT>            this.writer.add(this.factory.createIgnorableSpace(new String(buf)));<a name="line.147"></a>
+<FONT color="green">148</FONT>        }<a name="line.148"></a>
+<FONT color="green">149</FONT>    }<a name="line.149"></a>
+<FONT color="green">150</FONT>    <a name="line.150"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

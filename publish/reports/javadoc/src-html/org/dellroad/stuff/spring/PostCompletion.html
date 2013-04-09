@@ -69,7 +69,7 @@
 <FONT color="green">066</FONT>         * @param action action to invoke<a name="line.66"></a>
 <FONT color="green">067</FONT>         * @throws IllegalArgumentException if {@code action} is null<a name="line.67"></a>
 <FONT color="green">068</FONT>         */<a name="line.68"></a>
-<FONT color="green">069</FONT>        public static void execute(Callable action) {<a name="line.69"></a>
+<FONT color="green">069</FONT>        public static void execute(Callable&lt;?&gt; action) {<a name="line.69"></a>
 <FONT color="green">070</FONT>            PostCompletion.execute(action, false);<a name="line.70"></a>
 <FONT color="green">071</FONT>        }<a name="line.71"></a>
 <FONT color="green">072</FONT>    <a name="line.72"></a>
@@ -82,7 +82,7 @@
 <FONT color="green">079</FONT>         * @throws IllegalStateException if not running within a<a name="line.79"></a>
 <FONT color="green">080</FONT>         *  {@link PostCompletionSupport @PostCompletionSupport}-annotated method.<a name="line.80"></a>
 <FONT color="green">081</FONT>         */<a name="line.81"></a>
-<FONT color="green">082</FONT>        public static void execute(Callable action, boolean always) {<a name="line.82"></a>
+<FONT color="green">082</FONT>        public static void execute(Callable&lt;?&gt; action, boolean always) {<a name="line.82"></a>
 <FONT color="green">083</FONT>            PostCompletion.get().add(action, always);<a name="line.83"></a>
 <FONT color="green">084</FONT>        }<a name="line.84"></a>
 <FONT color="green">085</FONT>    <a name="line.85"></a>

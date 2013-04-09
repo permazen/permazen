@@ -428,7 +428,7 @@
 <FONT color="green">425</FONT>            try {<a name="line.425"></a>
 <FONT color="green">426</FONT>                terminated = this.executorService.awaitTermination(1, TimeUnit.SECONDS);<a name="line.426"></a>
 <FONT color="green">427</FONT>            } catch (InterruptedException e) {<a name="line.427"></a>
-<FONT color="green">428</FONT>                // ok, give up<a name="line.428"></a>
+<FONT color="green">428</FONT>                Thread.currentThread().interrupt();<a name="line.428"></a>
 <FONT color="green">429</FONT>            }<a name="line.429"></a>
 <FONT color="green">430</FONT>    <a name="line.430"></a>
 <FONT color="green">431</FONT>            // Log warnings if it didn't finish<a name="line.431"></a>

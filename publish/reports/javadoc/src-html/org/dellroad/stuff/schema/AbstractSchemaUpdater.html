@@ -339,9 +339,9 @@
 <FONT color="green">336</FONT>        private void applySchemaUpdates(D database) throws Exception {<a name="line.336"></a>
 <FONT color="green">337</FONT>    <a name="line.337"></a>
 <FONT color="green">338</FONT>            // Sanity check<a name="line.338"></a>
-<FONT color="green">339</FONT>            final HashSet&lt;SchemaUpdate&lt;T&gt;&gt; allUpdates = new HashSet&lt;SchemaUpdate&lt;T&gt;&gt;(this.getUpdates());<a name="line.339"></a>
-<FONT color="green">340</FONT>            if (allUpdates == null)<a name="line.340"></a>
-<FONT color="green">341</FONT>                throw new IllegalArgumentException("no updates configured");<a name="line.341"></a>
+<FONT color="green">339</FONT>            if (this.getUpdates() == null)<a name="line.339"></a>
+<FONT color="green">340</FONT>                throw new IllegalArgumentException("no updates configured");<a name="line.340"></a>
+<FONT color="green">341</FONT>            final HashSet&lt;SchemaUpdate&lt;T&gt;&gt; allUpdates = new HashSet&lt;SchemaUpdate&lt;T&gt;&gt;(this.getUpdates());<a name="line.341"></a>
 <FONT color="green">342</FONT>    <a name="line.342"></a>
 <FONT color="green">343</FONT>            // Create mapping from update name to update; multiple updates will have multiple names<a name="line.343"></a>
 <FONT color="green">344</FONT>            TreeMap&lt;String, SchemaUpdate&lt;T&gt;&gt; updateMap = new TreeMap&lt;String, SchemaUpdate&lt;T&gt;&gt;();<a name="line.344"></a>

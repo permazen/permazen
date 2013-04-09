@@ -200,7 +200,7 @@
 <FONT color="green">197</FONT>         * @throws ClassCastException if {@code property} has a different type than this definition<a name="line.197"></a>
 <FONT color="green">198</FONT>         */<a name="line.198"></a>
 <FONT color="green">199</FONT>        @SuppressWarnings("unchecked")<a name="line.199"></a>
-<FONT color="green">200</FONT>        public Property&lt;T&gt; cast(Property/*&lt;?&gt;*/ property) {<a name="line.200"></a>
+<FONT color="green">200</FONT>        public Property&lt;T&gt; cast(Property&lt;?&gt; property) {<a name="line.200"></a>
 <FONT color="green">201</FONT>            if (property == null)<a name="line.201"></a>
 <FONT color="green">202</FONT>                return null;<a name="line.202"></a>
 <FONT color="green">203</FONT>            if (property.getType() != this.getType()) {<a name="line.203"></a>
@@ -229,7 +229,7 @@
 <FONT color="green">226</FONT>         * @return true if the operation succeeded, false if not<a name="line.226"></a>
 <FONT color="green">227</FONT>         * @throws UnsupportedOperationException if the operation is not supported<a name="line.227"></a>
 <FONT color="green">228</FONT>         */<a name="line.228"></a>
-<FONT color="green">229</FONT>        public boolean addTo(Item item, Property property) {<a name="line.229"></a>
+<FONT color="green">229</FONT>        public boolean addTo(Item item, Property&lt;T&gt; property) {<a name="line.229"></a>
 <FONT color="green">230</FONT>            return item.addItemProperty(this.getPropertyId(), property);<a name="line.230"></a>
 <FONT color="green">231</FONT>        }<a name="line.231"></a>
 <FONT color="green">232</FONT>    <a name="line.232"></a>
@@ -251,7 +251,7 @@
 <FONT color="green">248</FONT>         * @throws ClassCastException if the property in {@code item} has the wrong type<a name="line.248"></a>
 <FONT color="green">249</FONT>         */<a name="line.249"></a>
 <FONT color="green">250</FONT>        public T read(Item item) {<a name="line.250"></a>
-<FONT color="green">251</FONT>            Property property = this.get(item);<a name="line.251"></a>
+<FONT color="green">251</FONT>            Property&lt;T&gt; property = this.get(item);<a name="line.251"></a>
 <FONT color="green">252</FONT>            if (property == null)<a name="line.252"></a>
 <FONT color="green">253</FONT>                return null;<a name="line.253"></a>
 <FONT color="green">254</FONT>            return this.type.cast(property.getValue());<a name="line.254"></a>

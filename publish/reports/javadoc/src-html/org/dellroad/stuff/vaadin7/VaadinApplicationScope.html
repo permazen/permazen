@@ -34,7 +34,7 @@
 <FONT color="green">031</FONT>     * To enable this scope, simply add this bean to your application context as a singleton (it will register itself):<a name="line.31"></a>
 <FONT color="green">032</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.32"></a>
 <FONT color="green">033</FONT>     *  &amp;lt;!-- Enable the "vaadinApplication" custom scope --&amp;gt;<a name="line.33"></a>
-<FONT color="green">034</FONT>     *  &amp;lt;bean class="org.dellroad.stuff.vaadin.VaadinApplicationScope"/&amp;gt;<a name="line.34"></a>
+<FONT color="green">034</FONT>     *  &amp;lt;bean class="org.dellroad.stuff.vaadin7.VaadinApplicationScope"/&amp;gt;<a name="line.34"></a>
 <FONT color="green">035</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.35"></a>
 <FONT color="green">036</FONT>     * Then declare scoped beans normally using the scope name {@code "vaadinApplication"}.<a name="line.36"></a>
 <FONT color="green">037</FONT>     * &lt;/p&gt;<a name="line.37"></a>
@@ -114,7 +114,7 @@
 <FONT color="green">111</FONT>            VaadinUtil.addSessionDestroyListener(session, this);<a name="line.111"></a>
 <FONT color="green">112</FONT>            SessionBeanHolder beanHolder = this.beanHolders.get(session);<a name="line.112"></a>
 <FONT color="green">113</FONT>            if (beanHolder == null &amp;&amp; create) {<a name="line.113"></a>
-<FONT color="green">114</FONT>                beanHolder = new SessionBeanHolder(session);<a name="line.114"></a>
+<FONT color="green">114</FONT>                beanHolder = new SessionBeanHolder();<a name="line.114"></a>
 <FONT color="green">115</FONT>                this.beanHolders.put(session, beanHolder);<a name="line.115"></a>
 <FONT color="green">116</FONT>            }<a name="line.116"></a>
 <FONT color="green">117</FONT>            return beanHolder;<a name="line.117"></a>
@@ -126,43 +126,34 @@
 <FONT color="green">123</FONT>    <a name="line.123"></a>
 <FONT color="green">124</FONT>            private final HashMap&lt;String, Object&gt; beans = new HashMap&lt;String, Object&gt;();<a name="line.124"></a>
 <FONT color="green">125</FONT>            private final HashMap&lt;String, Runnable&gt; destructionCallbacks = new HashMap&lt;String, Runnable&gt;();<a name="line.125"></a>
-<FONT color="green">126</FONT>            private final VaadinSession session;<a name="line.126"></a>
-<FONT color="green">127</FONT>    <a name="line.127"></a>
-<FONT color="green">128</FONT>            public SessionBeanHolder(VaadinSession session) {<a name="line.128"></a>
-<FONT color="green">129</FONT>                this.session = session;<a name="line.129"></a>
-<FONT color="green">130</FONT>            }<a name="line.130"></a>
-<FONT color="green">131</FONT>    <a name="line.131"></a>
-<FONT color="green">132</FONT>            public Object getBean(String name, ObjectFactory&lt;?&gt; objectFactory) {<a name="line.132"></a>
-<FONT color="green">133</FONT>                Object bean = this.beans.get(name);<a name="line.133"></a>
-<FONT color="green">134</FONT>                if (bean == null) {<a name="line.134"></a>
-<FONT color="green">135</FONT>                    bean = objectFactory.getObject();<a name="line.135"></a>
-<FONT color="green">136</FONT>                    this.beans.put(name, bean);<a name="line.136"></a>
-<FONT color="green">137</FONT>                }<a name="line.137"></a>
-<FONT color="green">138</FONT>                return bean;<a name="line.138"></a>
+<FONT color="green">126</FONT>    <a name="line.126"></a>
+<FONT color="green">127</FONT>            public Object getBean(String name, ObjectFactory&lt;?&gt; objectFactory) {<a name="line.127"></a>
+<FONT color="green">128</FONT>                Object bean = this.beans.get(name);<a name="line.128"></a>
+<FONT color="green">129</FONT>                if (bean == null) {<a name="line.129"></a>
+<FONT color="green">130</FONT>                    bean = objectFactory.getObject();<a name="line.130"></a>
+<FONT color="green">131</FONT>                    this.beans.put(name, bean);<a name="line.131"></a>
+<FONT color="green">132</FONT>                }<a name="line.132"></a>
+<FONT color="green">133</FONT>                return bean;<a name="line.133"></a>
+<FONT color="green">134</FONT>            }<a name="line.134"></a>
+<FONT color="green">135</FONT>    <a name="line.135"></a>
+<FONT color="green">136</FONT>            public Object remove(String name) {<a name="line.136"></a>
+<FONT color="green">137</FONT>                this.destructionCallbacks.remove(name);<a name="line.137"></a>
+<FONT color="green">138</FONT>                return this.beans.remove(name);<a name="line.138"></a>
 <FONT color="green">139</FONT>            }<a name="line.139"></a>
 <FONT color="green">140</FONT>    <a name="line.140"></a>
-<FONT color="green">141</FONT>            public Object remove(String name) {<a name="line.141"></a>
-<FONT color="green">142</FONT>                this.destructionCallbacks.remove(name);<a name="line.142"></a>
-<FONT color="green">143</FONT>                return this.beans.remove(name);<a name="line.143"></a>
-<FONT color="green">144</FONT>            }<a name="line.144"></a>
-<FONT color="green">145</FONT>    <a name="line.145"></a>
-<FONT color="green">146</FONT>            public void registerDestructionCallback(String name, Runnable callback) {<a name="line.146"></a>
-<FONT color="green">147</FONT>                this.destructionCallbacks.put(name, callback);<a name="line.147"></a>
-<FONT color="green">148</FONT>            }<a name="line.148"></a>
-<FONT color="green">149</FONT>    <a name="line.149"></a>
-<FONT color="green">150</FONT>            public void close() {<a name="line.150"></a>
-<FONT color="green">151</FONT>                for (Runnable callback : this.destructionCallbacks.values())<a name="line.151"></a>
-<FONT color="green">152</FONT>                    callback.run();<a name="line.152"></a>
-<FONT color="green">153</FONT>                this.beans.clear();<a name="line.153"></a>
-<FONT color="green">154</FONT>                this.destructionCallbacks.clear();<a name="line.154"></a>
-<FONT color="green">155</FONT>            }<a name="line.155"></a>
-<FONT color="green">156</FONT>    <a name="line.156"></a>
-<FONT color="green">157</FONT>            public boolean isEmpty() {<a name="line.157"></a>
-<FONT color="green">158</FONT>                return this.beans.isEmpty();<a name="line.158"></a>
-<FONT color="green">159</FONT>            }<a name="line.159"></a>
-<FONT color="green">160</FONT>        }<a name="line.160"></a>
-<FONT color="green">161</FONT>    }<a name="line.161"></a>
-<FONT color="green">162</FONT>    <a name="line.162"></a>
+<FONT color="green">141</FONT>            public void registerDestructionCallback(String name, Runnable callback) {<a name="line.141"></a>
+<FONT color="green">142</FONT>                this.destructionCallbacks.put(name, callback);<a name="line.142"></a>
+<FONT color="green">143</FONT>            }<a name="line.143"></a>
+<FONT color="green">144</FONT>    <a name="line.144"></a>
+<FONT color="green">145</FONT>            public void close() {<a name="line.145"></a>
+<FONT color="green">146</FONT>                for (Runnable callback : this.destructionCallbacks.values())<a name="line.146"></a>
+<FONT color="green">147</FONT>                    callback.run();<a name="line.147"></a>
+<FONT color="green">148</FONT>                this.beans.clear();<a name="line.148"></a>
+<FONT color="green">149</FONT>                this.destructionCallbacks.clear();<a name="line.149"></a>
+<FONT color="green">150</FONT>            }<a name="line.150"></a>
+<FONT color="green">151</FONT>        }<a name="line.151"></a>
+<FONT color="green">152</FONT>    }<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
 
 
 

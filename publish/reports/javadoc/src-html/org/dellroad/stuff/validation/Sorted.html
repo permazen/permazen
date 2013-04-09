@@ -41,14 +41,15 @@
 <FONT color="green">038</FONT>         * Specifies a {@link java.util.Comparator} to use. If none is specified, the natural sort ordering is used.<a name="line.38"></a>
 <FONT color="green">039</FONT>         * The class must have a default constructor.<a name="line.39"></a>
 <FONT color="green">040</FONT>         */<a name="line.40"></a>
-<FONT color="green">041</FONT>        Class&lt;? extends Comparator&gt; comparator() default Comparator.class;<a name="line.41"></a>
-<FONT color="green">042</FONT>    <a name="line.42"></a>
-<FONT color="green">043</FONT>        /**<a name="line.43"></a>
-<FONT color="green">044</FONT>         * Configures whether the sorting should be strict, i.e., whether adjacent equal elements should be disallowed.<a name="line.44"></a>
-<FONT color="green">045</FONT>         */<a name="line.45"></a>
-<FONT color="green">046</FONT>        boolean strict() default true;<a name="line.46"></a>
-<FONT color="green">047</FONT>    }<a name="line.47"></a>
-<FONT color="green">048</FONT>    <a name="line.48"></a>
+<FONT color="green">041</FONT>        @SuppressWarnings("rawtypes")<a name="line.41"></a>
+<FONT color="green">042</FONT>        Class&lt;? extends Comparator&gt; comparator() default Comparator.class;<a name="line.42"></a>
+<FONT color="green">043</FONT>    <a name="line.43"></a>
+<FONT color="green">044</FONT>        /**<a name="line.44"></a>
+<FONT color="green">045</FONT>         * Configures whether the sorting should be strict, i.e., whether adjacent equal elements should be disallowed.<a name="line.45"></a>
+<FONT color="green">046</FONT>         */<a name="line.46"></a>
+<FONT color="green">047</FONT>        boolean strict() default true;<a name="line.47"></a>
+<FONT color="green">048</FONT>    }<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
 
 
 

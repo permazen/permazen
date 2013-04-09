@@ -120,7 +120,7 @@
 <FONT color="green">117</FONT>         * is assignable to the type given in the constructor. Subclasses may override as desired.<a name="line.117"></a>
 <FONT color="green">118</FONT>         */<a name="line.118"></a>
 <FONT color="green">119</FONT>        @Override<a name="line.119"></a>
-<FONT color="green">120</FONT>        public boolean supportsEventType(@SuppressWarnings("hiding") Class&lt;? extends ApplicationEvent&gt; eventType) {<a name="line.120"></a>
+<FONT color="green">120</FONT>        public boolean supportsEventType(Class&lt;? extends ApplicationEvent&gt; eventType) {<a name="line.120"></a>
 <FONT color="green">121</FONT>            return this.eventType.isAssignableFrom(eventType);<a name="line.121"></a>
 <FONT color="green">122</FONT>        }<a name="line.122"></a>
 <FONT color="green">123</FONT>    <a name="line.123"></a>

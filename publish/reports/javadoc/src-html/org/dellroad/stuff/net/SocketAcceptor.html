@@ -247,8 +247,8 @@
 <FONT color="green">244</FONT>            } finally {<a name="line.244"></a>
 <FONT color="green">245</FONT>                this.log.info("acceptor thread " + Thread.currentThread().getName() + " exiting");<a name="line.245"></a>
 <FONT color="green">246</FONT>                this.closeServerSocket();<a name="line.246"></a>
-<FONT color="green">247</FONT>                this.serverThread = null;<a name="line.247"></a>
-<FONT color="green">248</FONT>                synchronized (this) {<a name="line.248"></a>
+<FONT color="green">247</FONT>                synchronized (this) {<a name="line.247"></a>
+<FONT color="green">248</FONT>                    this.serverThread = null;<a name="line.248"></a>
 <FONT color="green">249</FONT>                    this.notifyAll();<a name="line.249"></a>
 <FONT color="green">250</FONT>                }<a name="line.250"></a>
 <FONT color="green">251</FONT>            }<a name="line.251"></a>

@@ -197,7 +197,7 @@
 <FONT color="green">194</FONT>        public static String enquote(byte[] data, int off, int len) {<a name="line.194"></a>
 <FONT color="green">195</FONT>            char[] chars = new char[len];<a name="line.195"></a>
 <FONT color="green">196</FONT>            for (int i = 0; i &lt; len; i++)<a name="line.196"></a>
-<FONT color="green">197</FONT>                chars[i] = (char)(data[i] &amp; 0xff);<a name="line.197"></a>
+<FONT color="green">197</FONT>                chars[i] = (char)(data[off + i] &amp; 0xff);<a name="line.197"></a>
 <FONT color="green">198</FONT>            return enquote(new String(chars));<a name="line.198"></a>
 <FONT color="green">199</FONT>        }<a name="line.199"></a>
 <FONT color="green">200</FONT>    <a name="line.200"></a>

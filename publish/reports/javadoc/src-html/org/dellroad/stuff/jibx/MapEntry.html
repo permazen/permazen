@@ -43,8 +43,8 @@
 <FONT color="green">040</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.40"></a>
 <FONT color="green">041</FONT>     *     // JiBX holder for a single entry in the Directory map<a name="line.41"></a>
 <FONT color="green">042</FONT>     *     public static class DirectoryEntry extends MapEntry&amp;lt;String, Person&amp;gt; {<a name="line.42"></a>
-<FONT color="green">043</FONT>     *        public String getKey()   { return super.getKey();   }   // sometimes JiBX bind fails without this<a name="line.43"></a>
-<FONT color="green">044</FONT>     *        public Person getValue() { return super.getValue(); }   // sometimes JiBX bind fails without this<a name="line.44"></a>
+<FONT color="green">043</FONT>     *        public String getKey()   { return super.getKey();   }   // JiBX requires exact return types<a name="line.43"></a>
+<FONT color="green">044</FONT>     *        public Person getValue() { return super.getValue(); }   // JiBX requires exact return types<a name="line.44"></a>
 <FONT color="green">045</FONT>     *     }<a name="line.45"></a>
 <FONT color="green">046</FONT>     *<a name="line.46"></a>
 <FONT color="green">047</FONT>     *     // JiBX "add-method" that adds a new entry to the directory<a name="line.47"></a>
