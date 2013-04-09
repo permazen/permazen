@@ -25,9 +25,14 @@ import javax.validation.constraints.Pattern;
 @Constraint(validatedBy = {})
 @Target({ ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Pattern(regexp = "^[-+._\\p{Alnum}]+@[-\\p{Alnum}]+(\\.[-.\\p{Alnum}]+)+$")
+@Pattern(regexp = EmailAddress.PATTERN)
 @ReportAsSingleViolation
 public @interface EmailAddress {
+
+    /**
+     * The regular expression string used by this constraint to validate email addresses: {@value}
+     */
+    String PATTERN = "^[-+%._\\p{Alnum}]+@([-\\p{Alnum}]+\\.)+[-\\p{Alnum}]+$";
 
     String message() default "Invalid email address";
 
