@@ -20,6 +20,17 @@ public final class ValidationUtil {
     }
 
     /**
+     * Validate the given object.
+     *
+     * <p>
+     * This method simply creates a {@link ValidationContext} with the given root and invokes {@link ValidationContext#validate()}.
+     * </p>
+     */
+    public static <T> Set<ConstraintViolation<T>> validate(T obj) {
+        return new ValidationContext<T>(obj).validate();
+    }
+
+    /**
      * Describe the validation errors in a friendly format.
      *
      * @param violations validation violations
