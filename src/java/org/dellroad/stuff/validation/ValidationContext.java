@@ -7,6 +7,8 @@
 
 package org.dellroad.stuff.validation;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -34,6 +36,7 @@ public class ValidationContext<T> {
 
     private static final ThreadLocalHolder<ValidationContext<?>> CURRENT = new ThreadLocalHolder<ValidationContext<?>>();
 
+    private final HashMap<String, Set<Object>> uniqueDomainMap = new HashMap<String, Set<Object>>();
     private final T root;
 
     /**
@@ -144,6 +147,21 @@ public class ValidationContext<T> {
      */
     public static <T> T getCurrentRoot(Class<T> type) {
         return type.cast(ValidationContext.getCurrentRoot());
+    }
+
+    /**
+     * Get the uniqueness domain with the given name. Used to validate {@link Unique @Unique} constraints.
+     *
+     * @param domain name of the uniqueness domain
+     * @return set containing the unique values that have already been seen during this validation check
+     */
+    public Set<Object> getUniqueDomain(String domain) {
+        Set<Object> uniqueDomain = this.uniqueDomainMap.get(domain);
+        if (uniqueDomain == null) {
+            uniqueDomain = new HashSet<Object>();
+            this.uniqueDomainMap.put(domain, uniqueDomain);
+        }
+        return uniqueDomain;
     }
 }
 
