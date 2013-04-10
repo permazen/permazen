@@ -21,7 +21,7 @@ import javax.validation.Payload;
  * Uniqueness domains are identified by an arbitrary name; each domain is independent of the others.
  *
  * <p>
- * By supplying a {@link #uniquifier} you can change the unique value associated with each constrained property value is;
+ * By supplying a {@link #uniquifier} you can change the unique value associated with the constrained property;
  * by default, it is just the value of the property.
  * </p>
  *
