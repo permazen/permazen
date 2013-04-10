@@ -1067,9 +1067,10 @@
         ************* PREDEFINED TARGETS ****************
 -->
 
-    <target name="clean" depends="clean-project">
+    <target name="clean" depends="clean-project" unless="clean.completed">
         <delete dir="build"/>
         <delete dir="dist"/>
+        <property name="clean.completed" value="true"/>
     </target>
     <target name="clean-project"/>
 
@@ -1176,7 +1177,7 @@
 
     <target name="javac-project"/>
 
-    <target name="reports" depends="reports-project">
+    <target name="reports" depends="reports-project" unless="reports.completed">
         <dellroad:svnrevision property="svn_revision"/>
         <dellroad:suseversion property="suse_version"/>
         <tstamp>
@@ -1217,13 +1218,11 @@
             </antcontrib:then>
         </antcontrib:if>
 -->
+        <property name="reports.completed" value="true"/>
     </target>
     <target name="reports-project"/>
 
-    <!-- Backward compatibility -->
-    <target name="remove-unused-imports" depends="checkstyle-cleanup"/>
-
-    <target name="checkstyle-cleanup">
+    <target name="checkstyle-cleanup" unless="checkstyle-cleanup.completed">
         <exec executable="/bin/bash" logError="true" failonerror="true">
             <arg value="-c"/>
             <arg value="
@@ -1243,6 +1242,7 @@
             <arg value="-x"/>
             <arg value="build/reports/checkstyle/cleanup.sh"/>
         </exec>
+        <property name="checkstyle-cleanup.completed" value="true"/>
     </target>
 
     <!-- Application should override -->
