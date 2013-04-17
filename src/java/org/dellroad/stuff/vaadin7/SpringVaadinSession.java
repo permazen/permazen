@@ -25,6 +25,7 @@ import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -59,6 +60,11 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * The {@link ConfigurableWebApplicationContext} itself is {@linkplain VaadinSession#setAttribute stored as an attribute}
  * of the {@link VaadinSession} under the key {@link #APPLICATION_CONTEXT_ATTRIBUTE_KEY}. The
  * {@link #getApplicationContext() getApplicationContext()} method provides convenient access from anywhere.
+ * </p>
+ *
+ * <p>
+ * Invoking {@link #configureBean configureBean()} at any time will configure a bean manually. To have beans configured
+ * automatically at construction time, use {@link VaadinConfigurable @VaadinConfigurable} (see below).
  * </p>
  *
  * <h3>Exposing the Vaadin Application</h3>
@@ -115,6 +121,8 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
     private final String applicationName;
     private final String configLocation;
 
+// Constructor
+
     /**
      * Constructor.
      *
@@ -129,6 +137,8 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
         this.applicationName = applicationName;
         this.configLocation = configLocation;
     }
+
+// Public API
 
     /**
      * Get the name of this Vaadin application.
@@ -170,6 +180,21 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
 
         // Done
         return context;
+    }
+
+    /**
+     * Configure the given bean using the Spring application context associated with the current thread's {@link VaadinSession}.
+     *
+     * @param bean Java bean to configure
+     * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread
+     * @throws IllegalStateException if there is no Spring application context associated with the {@link VaadinSession}
+     */
+    public static void configureBean(Object bean) {
+        final BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
+        beanConfigurerSupport.setBeanFactory(SpringVaadinSession.getApplicationContext().getBeanFactory());
+        beanConfigurerSupport.afterPropertiesSet();
+        beanConfigurerSupport.configureBean(bean);
+        beanConfigurerSupport.destroy();
     }
 
 // SessionInitListener

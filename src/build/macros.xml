@@ -19,8 +19,9 @@
 
 -->
 
-    <!-- Project should override this as necessary -->
+    <!-- Project should override these as necessary -->
     <property name="javac.compiler.flags" value="-Xlint:all"/>
+    <property name="java.source.version" value="1.6"/>
 
 <!--
         ************* DETERMINE BASE DIRECTORY ****************
@@ -786,8 +787,8 @@
         <javac includeantruntime="no"
                compiler="modern"
                deprecation="true"
-               source="1.6"
-               target="1.6"
+               source="${java.source.version}"
+               target="${java.source.version}"
                debug="true">
             <compilerarg line="${javac.compiler.flags}"/>
         </javac>
@@ -818,7 +819,7 @@
                     <delete dir="build/reports/javadoc"/>
                     <mkdir dir="build/reports/javadoc"/>
                     <javadoc destdir="build/reports/javadoc" use="true" overview="@{overview}"
-                      source="1.6" breakiterator="yes" linksource="true"
+                      source="${java.source.version}" breakiterator="yes" linksource="true"
                       windowtitle="@{title}" doctitle="@{title}" failonerror="true">
                         <classpath>
                             <additional-classpath/>
@@ -861,7 +862,7 @@
                     <delete dir="build/reports/javadoc"/>
                     <mkdir dir="build/reports/javadoc"/>
                     <ajdoc destdir="build/reports/javadoc"
-                      source="1.6" windowtitle="@{title}" failonerror="true">
+                      source="${java.source.version}" windowtitle="@{title}" failonerror="true">
                         <classpath>
                             <additional-classpath/>
                             <path refid="javac.classpath"/>

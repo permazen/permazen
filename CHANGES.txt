@@ -1,4 +1,8 @@
 
+Version next
+
+    - Added SpringVaadinSession.configureBean()
+
 Version 1.0.659 Released April 9, 2013
 
     - Added @Unique validation constraint and related classes
