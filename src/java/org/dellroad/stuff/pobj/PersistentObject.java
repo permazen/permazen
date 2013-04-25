@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.validation.ConstraintViolation;
 import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -781,8 +782,9 @@ public class PersistentObject<T> {
     }
 
     /**
-     * Read the persistent file.
+     * Read the persistent file. Does not validate it.
      *
+     * @throws PersistentObjectException if the file does not exist or cannot be read
      * @throws PersistentObjectException if an error occurs
      */
     protected T read() {
@@ -797,15 +799,10 @@ public class PersistentObject<T> {
         }
 
         // Parse XML
-        T obj;
         try {
             StreamSource source = new StreamSource(input);
             source.setSystemId(this.getFile());
-            try {
-                obj = this.delegate.deserialize(source);
-            } catch (IOException e) {
-                throw new PersistentObjectException("error reading persistent file", e);
-            }
+            return PersistentObject.read(this.delegate, source, false);
         } finally {
             try {
                 input.close();
@@ -813,13 +810,6 @@ public class PersistentObject<T> {
                 // ignore
             }
         }
-
-        // Check result
-        if (obj == null)
-            throw new PersistentObjectException("null object returned by delegate.deserialize()");
-
-        // Done
-        return obj;
     }
 
     /**
@@ -830,6 +820,7 @@ public class PersistentObject<T> {
      * (on supporting operating systems).
      * </p>
      *
+     * @param obj root object to write
      * @throws IllegalArgumentException if {@code obj} is null
      * @throws PersistentObjectException if an error occurs
      */
@@ -855,11 +846,7 @@ public class PersistentObject<T> {
             Result result = this.createResult(output, updateOutput.getTempFile());
 
             // Serialize root object
-            try {
-                this.delegate.serialize(obj, result);
-            } catch (IOException e) {
-                throw new PersistentObjectException("error writing persistent file", e);
-            }
+            PersistentObject.write(obj, this.delegate, result);
 
             // Commit output
             try {
@@ -1014,34 +1001,74 @@ public class PersistentObject<T> {
      * </p>
      *
      * @param delegate delegate supplying required operations
-     * @param file the file to read from
-     * @return deserialized root object, or {@code null} if file does not exist
+     * @param source source for serialized root object
+     * @param validate whether to also validate the root object
+     * @return deserialized root object, never null
      * @throws IllegalArgumentException if any parameter is null
+     * @throws PersistentObjectValidationException if {@code validate} is true and the deserialized root has validation errors
      * @throws PersistentObjectException if an error occurs
      */
-    public static <T> T read(PersistentObjectDelegate<T> delegate, File file) {
-        final PersistentObject<T> pobj = new PersistentObject<T>(delegate, file);
-        return pobj.getFile().exists() ? pobj.read() : null;
+    public static <T> T read(PersistentObjectDelegate<T> delegate, Source source, boolean validate) {
+
+        // Sanity check
+        if (delegate == null)
+            throw new IllegalArgumentException("null delegate");
+        if (source == null)
+            throw new IllegalArgumentException("null source");
+
+        // Parse XML
+        T root;
+        try {
+            root = delegate.deserialize(source);
+        } catch (IOException e) {
+            throw new PersistentObjectException("error reading persistent object", e);
+        }
+
+        // Check result
+        if (root == null)
+            throw new PersistentObjectException("null object returned by delegate.deserialize()");
+
+        // Validate result
+        if (validate) {
+            final Set<ConstraintViolation<T>> violations = delegate.validate(root);
+            if (!violations.isEmpty())
+                throw new PersistentObjectValidationException(violations);
+        }
+
+        // Done
+        return root;
     }
 
     /**
-     * Write a persistent object to a file using the given delegate. The file update is atomic (see {@link #write()}).
+     * Write a persistent object using the given delegate.
      *
      * <p>
-     * This is a convenience method that can be used for one-time serialization into a {@link File} without having
+     * This is a convenience method that can be used for one-time serialization without having
      * to go through the whole {@link PersistentObject} lifecycle.
      * </p>
      *
      * @param root root object to serialize
-     * @param root root object to serialize
      * @param delegate delegate supplying required operations
-     * @param file the file to write to
+     * @param result destination
      * @throws IllegalArgumentException if any parameter is null
      * @throws PersistentObjectException if an error occurs
      */
-    public static <T> void write(T root, PersistentObjectDelegate<T> delegate, File file) {
-        final PersistentObject<T> pobj = new PersistentObject<T>(delegate, file);
-        pobj.write(root);
+    public static <T> void write(T root, PersistentObjectDelegate<T> delegate, Result result) {
+
+        // Sanity check
+        if (root == null)
+            throw new IllegalArgumentException("null root");
+        if (delegate == null)
+            throw new IllegalArgumentException("null delegate");
+        if (result == null)
+            throw new IllegalArgumentException("null result");
+
+        // Serialize root object
+        try {
+            delegate.serialize(root, result);
+        } catch (IOException e) {
+            throw new PersistentObjectException("error writing persistent file", e);
+        }
     }
 
 // Snapshot class
