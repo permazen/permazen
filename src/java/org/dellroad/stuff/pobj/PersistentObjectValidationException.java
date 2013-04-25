@@ -25,9 +25,10 @@ public class PersistentObjectValidationException extends PersistentObjectExcepti
      * @param violations set of violations
      * @throws IllegalArgumentException if {@code violations} is null
      */
-    public PersistentObjectValidationException(Set<ConstraintViolation<?>> violations) {
+    @SuppressWarnings("unchecked")
+    public <T> PersistentObjectValidationException(Set<ConstraintViolation<T>> violations) {
         super(PersistentObjectValidationException.generateMessage(violations));
-        this.violations = violations;
+        this.violations = (Set<ConstraintViolation<?>>)(Object)violations;
     }
 
     /**
@@ -37,11 +38,11 @@ public class PersistentObjectValidationException extends PersistentObjectExcepti
         return this.violations;
     }
 
-    private static String generateMessage(Set<ConstraintViolation<?>> violations) {
+    private static <T> String generateMessage(Set<ConstraintViolation<T>> violations) {
         if (violations == null)
             throw new IllegalArgumentException("null violations");
         StringBuilder buf = new StringBuilder("object failed to validate with " + violations.size() + " violation(s):\n");
-        for (ConstraintViolation<?> violation : violations) {
+        for (ConstraintViolation<T> violation : violations) {
             buf.append("    [")
               .append(violation.getPropertyPath())
               .append("]: ")

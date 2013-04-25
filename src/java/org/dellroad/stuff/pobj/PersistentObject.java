@@ -646,7 +646,6 @@ public class PersistentObject<T> {
         return this.setRootInternal(newRoot, expectedVersion, false, false);
     }
 
-    @SuppressWarnings("unchecked")
     private synchronized long setRootInternal(T newRoot, long expectedVersion, boolean readingFile, boolean allowNotStarted) {
 
         // Sanity check
@@ -671,7 +670,7 @@ public class PersistentObject<T> {
         if (newRoot != null) {
             Set<ConstraintViolation<T>> violations = this.delegate.validate(newRoot);
             if (!violations.isEmpty())
-                throw new PersistentObjectValidationException((Set<ConstraintViolation<?>>)(Object)violations);
+                throw new PersistentObjectValidationException(violations);
         }
 
         // Do the update
