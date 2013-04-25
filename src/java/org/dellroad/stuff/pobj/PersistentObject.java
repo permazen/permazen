@@ -993,10 +993,10 @@ public class PersistentObject<T> {
 // Convience reader & writer
 
     /**
-     * Read in a persistent object from a file using the given delegate.
+     * Read in a persistent object using the given delegate.
      *
      * <p>
-     * This is a convenience method that can be used for a one-time deserialization from a {@link File} without having
+     * This is a convenience method that can be used for a one-time deserialization from an XML {@link Source} without having
      * to go through the whole {@link PersistentObject} lifecycle.
      * </p>
      *
@@ -1043,7 +1043,7 @@ public class PersistentObject<T> {
      * Write a persistent object using the given delegate.
      *
      * <p>
-     * This is a convenience method that can be used for one-time serialization without having
+     * This is a convenience method that can be used for one-time serialization to an XML {@link Result} without having
      * to go through the whole {@link PersistentObject} lifecycle.
      * </p>
      *
