@@ -829,6 +829,7 @@ public class PersistentObject<T> {
      * <p>
      * A temporary file is created in the same directory and then renamed to provide for an atomic update
      * (on supporting operating systems).
+     * </p>
      *
      * @throws IllegalArgumentException if {@code obj} is null
      * @throws PersistentObjectException if an error occurs
@@ -1001,6 +1002,47 @@ public class PersistentObject<T> {
         }
         if (!shutdown)
             this.log.warn(this + ": failed to completely shut down " + name);
+    }
+
+// Convience reader & writer
+
+    /**
+     * Read in a persistent object from a file using the given delegate.
+     *
+     * <p>
+     * This is a convenience method that can be used for a one-time deserialization from a {@link File} without having
+     * to go through the whole {@link PersistentObject} lifecycle.
+     * </p>
+     *
+     * @param delegate delegate supplying required operations
+     * @param file the file to read from
+     * @return deserialized root object, or {@code null} if file does not exist
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws PersistentObjectException if an error occurs
+     */
+    public static <T> T read(PersistentObjectDelegate<T> delegate, File file) {
+        final PersistentObject<T> pobj = new PersistentObject<T>(delegate, file);
+        return pobj.getFile().exists() ? pobj.read() : null;
+    }
+
+    /**
+     * Write a persistent object to a file using the given delegate. The file update is atomic (see {@link #write()}).
+     *
+     * <p>
+     * This is a convenience method that can be used for one-time serialization into a {@link File} without having
+     * to go through the whole {@link PersistentObject} lifecycle.
+     * </p>
+     *
+     * @param root root object to serialize
+     * @param root root object to serialize
+     * @param delegate delegate supplying required operations
+     * @param file the file to write to
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws PersistentObjectException if an error occurs
+     */
+    public static <T> void write(T root, PersistentObjectDelegate<T> delegate, File file) {
+        final PersistentObject<T> pobj = new PersistentObject<T>(delegate, file);
+        pobj.write(root);
     }
 
 // Snapshot class
