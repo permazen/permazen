@@ -10,6 +10,7 @@ package org.dellroad.stuff.pobj;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -1037,6 +1038,47 @@ public class PersistentObject<T> {
 
         // Done
         return root;
+    }
+
+    /**
+     * Read in a persistent object from the given {@link File} using the given delegate.
+     *
+     * <p>
+     * This is a wrapper around {@link #read(PersistentObjectDelegate, Source, validate)} that handles
+     * opening and closing the given {@link File}.
+     * </p>
+     *
+     * @param delegate delegate supplying required operations
+     * @param file file to read from
+     * @param validate whether to also validate the root object
+     * @return deserialized root object, never null
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws PersistentObjectValidationException if {@code validate} is true and the deserialized root has validation errors
+     * @throws PersistentObjectException if {@code file} cannot be read
+     * @throws PersistentObjectException if an error occurs
+     */
+    public static <T> T read(PersistentObjectDelegate<T> delegate, File file, boolean validate) {
+
+        // Open file
+        BufferedInputStream input;
+        try {
+            input = new BufferedInputStream(new FileInputStream(file));
+        } catch (IOException e) {
+            throw new PersistentObjectException("error opening persistent file", e);
+        }
+
+        // Parse XML
+        try {
+            StreamSource source = new StreamSource(input);
+            source.setSystemId(file);
+            return PersistentObject.read(delegate, source, validate);
+        } finally {
+            try {
+                input.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
     }
 
     /**
