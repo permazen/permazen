@@ -42,20 +42,32 @@ import org.slf4j.LoggerFactory;
  * Instances model a fully validated, in-memory "database" represented by a root Java object and the graph of other objects
  * that it references. The object graph is backed by a persistent XML file, which is read at initialization time and
  * re-written after each change.
+ * </p>
  *
  * <p>
  * Changes are applied "wholesale" to the entire object graph, and are serialized and atomic. In other words, the
  * entire object graph is read from, and written to, this class by value. As a result, it is not possible to change
  * only a portion of the "database". The entire object graph is read and written as one thing. Similarly, the
  * persistent XML file is updated by writing out a new, temporary copy and renaming the copy onto the original,
- * using {@link File#renameTo File.renameTo()} for atomicity (on systems that support it, e.g., UNIX variants).
+ * using {@link File#renameTo File.renameTo()} for atomicity (on systems that support it, e.g., UNIX variants),
+ * so that from a filesystem perspective, it won't be possible to open an inconsistent or partially written XML file.
+ * </p>
+ *
+ * <p>
+ * This class is most appropriate for use with information that must be carefully controlled and validated,
+ * but that doesn't change frequently. Configuration information for an application stored in a {@code config.xml}
+ * file is a typical use case; then beans whose behavior is determined by the configured information can subclass
+ * {@link AbstractConfiguredBean} and have their lifecycles managed automatically.
+ * </p>
  *
  * <h3>Validation</h3>
  *
+ * <p>
  * Validation is peformed in Java (not in XML via XSD) and defined by the provided delegate. This class guarantees
  * that only a valid root Java object can be set, read or written. An invalid XML file on disk will generate an error
  * (or be ignored; see "Empty Starts" below); setting an invalid Java root object via {@link #setRoot setRoot()}
  * with throw an exception.
+ * </p>
  *
  * <h3>Update Details</h3>
  *
@@ -64,17 +76,20 @@ import org.slf4j.LoggerFactory;
  * listener notifications are sent out. Listeners are always notified in a separate thread from the one that invoked
  * {@link #setRoot setRoot()}. Support for delayed write-back of the persistent XML file is included: this
  * allows modifications that occur in rapid succession to be consolidated into a single filesystem write operation.
+ * </p>
  *
  * <p>
  * Support for optimistic locking is included. There is a "current version" number which is incremented each
  * time the object graph is updated; writes may optionally specify this number to ensure no intervening changes
  * have occurred. If concurrent updates are expected, applications may choose to implement a 3-way merge algorithm
  * of some kind to handle optimistic locking failures.
+ * </p>
  *
  * <p>
  * Instances can be configured to automatically preserve one or more backup copies of the persistent file on systems that
  * support hard links (requires <a href="https://github.com/twall/jna">JNA</a>; see {@link FileStreamRepository}).
  * Set the {@link #getNumBackups numBackups} property to enable.
+ * </p>
  *
  * <h3>"Out-of-band" Writes</h3>
  *
@@ -88,11 +103,13 @@ import org.slf4j.LoggerFactory;
  * renaming it; however, this race window is small and in any case the problem is self-correcting because a partially
  * written XML file will not validate, and so it will be ignored and retried after another {@linkplain #getCheckInterval
  * check interval} milliseconds has passed.
+ * </p>
  *
  * <p>
  * A special case of this is effected when {@link PersistentObject#setRoot setRoot()} is never explicitly invoked
  * by the application. Then some other process must be responsible for all database updates, and this class automatically
  * picks them up, validates them, and send out notifications.
+ * </p>
  *
  * <h3>Empty Starts and Stops</h3>
  *
@@ -102,11 +119,13 @@ import org.slf4j.LoggerFactory;
  * and {@link #getRoot} will return null. This situation will correct itself as soon as the object graph is written via
  * {@link #setRoot setRoot()} or the persistent file appears (effecting an "out-of-band" update). At that time, {@linkplain
  * #addListener listeners} will be notified for the first time, with {@link PersistentObjectEvent#getOldRoot} returning null.
+ * </p>
  *
  * <p>
  * Whether empty starts are allowed is determined by the {@link #isAllowEmptyStart allowEmptyStart} property (default
  * {@code false}). When empty starts are disallowed and the persistent XML file cannot be successfully read,
  * then {@link #start} will instead throw an immediate {@link PersistentObjectException}.
+ * </p>
  *
  * <p>
  * Similarly, "empty stops" are allowed when the {@link #isAllowEmptyStop allowEmptyStop} property is set to {@code true}
@@ -114,11 +133,13 @@ import org.slf4j.LoggerFactory;
  * Subsequent invocations of {@link #getRoot} will return {@code null}; however, the persistent file is <b>not</b>
  * modified when null is passed to {@link #setRoot}. When empty stops are disallowed, then invoking
  * {@link #setRoot} with a {@code null} object will result in an {@link IllegalArgumentException}.
+ * </p>
  *
  * <p>
  * Allowing empty starts and/or stops essentially creates an "unconfigured" state represented by a null root object.
  * When empty starts and empty stops are both disallowed, there is no "unconfigured" state: {@link #getRoot} can be
  * relied upon to always return a non-null, validated root object.
+ * </p>
  *
  * <h3>Shared Roots</h3>
  *
@@ -130,22 +151,26 @@ import org.slf4j.LoggerFactory;
  * root object each time it is invoked (this shared root is itself a deep copy of the "official" root). Therefore, only
  * the very first invocation pays the price of a copy. However, all invokers of {@link #getSharedRoot getSharedRoot()}
  * must treat the object graph as read-only to avoid each other seeing unexpected changes.
+ * </p>
  *
  * <h3>Delegate Function</h3>
  *
  * <p>
  * Instances must be configured with a {@link PersistentObjectDelegate} that knows how to validate the object graph
  * and perform conversions to and from XML. See {@link PersistentObjectDelegate} and its implementations for details.
+ * </p>
  *
  * <h3>Schema Changes</h3>
  *
  * <p>
  * Like any database, the XML schema may evolve over time. The {@link PersistentObjectSchemaUpdater} class provides a simple
  * way to apply and manage schema updates using XSLT transforms.
+ * </p>
  *
  * @param <T> type of the root persistent object
  * @see PersistentObjectDelegate
  * @see PersistentObjectSchemaUpdater
+ * @see AbstractConfiguredBean
  */
 public class PersistentObject<T> {
 
@@ -1044,7 +1069,7 @@ public class PersistentObject<T> {
      * Read in a persistent object from the given {@link File} using the given delegate.
      *
      * <p>
-     * This is a wrapper around {@link #read(PersistentObjectDelegate, Source, validate)} that handles
+     * This is a wrapper around {@link #read(PersistentObjectDelegate, Source, boolean)} that handles
      * opening and closing the given {@link File}.
      * </p>
      *
