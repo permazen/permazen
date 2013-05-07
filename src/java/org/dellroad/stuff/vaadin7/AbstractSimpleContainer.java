@@ -312,6 +312,11 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     }
 
     @Override
+    public Collection<Container.Filter> getContainerFilters() {
+        return super.getContainerFilters();
+    }
+
+    @Override
     public void removeAllContainerFilters() {
         this.removeAllFilters();
     }

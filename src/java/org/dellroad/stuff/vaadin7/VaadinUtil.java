@@ -13,8 +13,6 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinSession;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.slf4j.LoggerFactory;
 
 /**
@@ -47,15 +45,9 @@ public final class VaadinUtil {
             throw new IllegalStateException("the VaadinSession associated with the current thread " + currentSession
               + " is not the same session as the given one " + session);
         }
-        final ReentrantLock lock = (ReentrantLock)session.getLockInstance();
-        if (!lock.isHeldByCurrentThread()) {
-            if (!lock.isLocked()) {
-                throw new IllegalStateException("the VaadinSession associated with the current thread " + currentSession
-                  + " is not locked by any thread");
-            } else {
-                throw new IllegalStateException("the VaadinSession associated with the current thread " + currentSession
-                  + " is locked by some other thread");
-            }
+        if (!session.hasLock()) {
+            throw new IllegalStateException("the VaadinSession associated with the current thread " + currentSession
+              + " is not locked by this thread");
         }
     }
 
@@ -125,15 +117,7 @@ public final class VaadinUtil {
             throw new IllegalArgumentException("null session");
         if (action == null)
             throw new IllegalArgumentException("null action");
-        session.lock();
-        VaadinSession previousSession = VaadinSession.getCurrent();
-        VaadinSession.setCurrent(session);
-        try {
-            action.run();
-        } finally {
-            session.unlock();
-            VaadinSession.setCurrent(previousSession);
-        }
+        session.access(action);
     }
 
     /**
@@ -154,7 +138,7 @@ public final class VaadinUtil {
      * @see VaadinApplication#invokeLater
      */
     public static void invokeLater(VaadinSession session, Runnable action) {
-        new Thread(new InvokeRunnable(session, action)).start();            // until #11219 is fixed, have to create a new thread
+        new Thread(new InvokeRunnable(session, action)).start();            // until #11481 is fixed, have to create a new thread
     }
 
     /**
