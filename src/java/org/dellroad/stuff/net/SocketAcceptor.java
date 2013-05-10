@@ -157,7 +157,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
                         try {
                             this.wait();
                         } catch (InterruptedException e) {
-                            // ignore
+                            Thread.currentThread().interrupt();
                         }
                     }
                     if (logged)
@@ -273,7 +273,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
             try {
                 this.wait();
             } catch (InterruptedException e) {
-                // ignore
+                Thread.currentThread().interrupt();
             }
         }
 
@@ -307,7 +307,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
             try {
                 this.wait();
             } catch (InterruptedException e) {
-                // ignore
+                Thread.currentThread().interrupt();
             }
         }
         if (logged)
