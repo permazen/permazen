@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Reads are performed in a dedicated background thread, from which the configured listener is notified.
  * The background thread runs until this instance is {@linkplain #close closed}, EOF or an exception is detected
- * on the input, or a listener callback method throws an exception.
+ * on the input, or a listener callback method throws an exception. A null listener may be supplied; in which case
+ * this class will just sink the {@link InputStream}.
  * </p>
  *
  * <p>
