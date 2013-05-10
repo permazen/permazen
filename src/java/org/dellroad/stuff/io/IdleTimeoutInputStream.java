@@ -16,7 +16,7 @@ import org.dellroad.stuff.java.TimedWait;
 
 /**
  * Wraps an {@link InputStream} and enforces a maximum time limit on how long any {@link InputStream#read read()}
- * operation may block. If the time limit is exceeded, the stream is closed.
+ * operation may block. If the time limit is exceeded, an {@link IdleTimeoutException} is thrown.
  *
  * <p>
  * As a side effect of its design, this class may also be used to artificially inject data, EOF, or exceptions into the
@@ -160,7 +160,7 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
             // Did we time out? If so throw exception.
             if (timedOut) {
                 this.asyncInputStream.close();
-                this.exception = new IOException("no input received after " + this.timeout + " milliseconds");
+                this.exception = new IdleTimeoutException(this.timeout);
                 this.state = EXCEPTION;
                 throw (IOException)this.exception;
             }
