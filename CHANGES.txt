@@ -3,6 +3,7 @@ Version next
 
     - Added PersistentObject read() and write() convenience methods
     - Added SpringVaadinSession.configureBean()
+    - Added IdleTimeoutInputStream
 
 Version 1.0.659 Released April 9, 2013
 
