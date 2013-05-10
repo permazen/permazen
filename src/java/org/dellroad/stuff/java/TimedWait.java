@@ -14,6 +14,8 @@ package org.dellroad.stuff.java;
  */
 public final class TimedWait {
 
+    private static final long MAX_WAIT_MILLISECONDS = 0x7fffffffffffffffL / 1000000L;
+
     private TimedWait() {
     }
 
@@ -24,10 +26,12 @@ public final class TimedWait {
      * <p>
      * This method assumes that {@code obj} will be notified whent the predicate becomes true and that the current thread
      * is already synchronized on {@code obj}.
+     * </p>
      *
      * <p>
      * This method uses {@link System#nanoTime} instead of {@link System#currentTimeMillis} and so is immune to
      * adjustments in clock time.
+     * </p>
      *
      * @param obj       object to sleep on; must already be locked
      * @param timeout   wait timeout in milliseconds, or zero for an infinite wait
@@ -41,7 +45,7 @@ public final class TimedWait {
 
         // Sanity check timeout value
         if (timeout < 0)
-            throw new IllegalArgumentException("timeout = " + timeout);
+            throw new IllegalArgumentException("timeout < 0");
 
         // Record start time (only if there's a timeout)
         long startTime = timeout > 0 ? System.nanoTime() : 0;
@@ -53,8 +57,8 @@ public final class TimedWait {
             if (timeout < 0)
                 return false;
 
-            // Wait for remaining timeout to be woken up
-            obj.wait(timeout);
+            // Wait for remaining timeout to be woken up, but not more than 292 years :)
+            obj.wait(Math.min(timeout, MAX_WAIT_MILLISECONDS));
 
             // If there's a timeout, subtract the time we just waited (rounding to the nearest millisecond)
             if (timeout > 0) {
