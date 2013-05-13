@@ -3,7 +3,6 @@
 <!-- $Id$ -->
 <aspectj>
     <aspects>
-        <aspect name="org.dellroad.stuff.spring.PostCompletionAspect"/>
         <aspect name="org.dellroad.stuff.spring.ThreadConfigurableAspect"/>
         <aspect name="org.dellroad.stuff.spring.ThreadTransactionalAspect"/>
         <aspect name="org.dellroad.stuff.vaadin.VaadinConfigurableAspect"/>

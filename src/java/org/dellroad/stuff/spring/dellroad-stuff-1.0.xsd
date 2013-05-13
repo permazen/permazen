@@ -61,25 +61,6 @@
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="post-completion">
-        <xsd:annotation>
-            <xsd:documentation source="java:org.dellroad.stuff.spring.PostCompletionBeanDefinitionParser">
-                <![CDATA[
-    Activates the @PostCompletionSupport aspect.
-                ]]>
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:complexType>
-            <xsd:attribute name="executor" type="xsd:ID" use="required">
-                <xsd:annotation>
-                    <xsd:documentation><![CDATA[
-        Specifies the executor to use for post-completion callbacks.
-                    ]]></xsd:documentation>
-                </xsd:annotation>
-            </xsd:attribute>
-        </xsd:complexType>
-    </xsd:element>
-
     <xsd:complexType name="sql-base-type">
         <xsd:simpleContent>
             <xsd:extension base="xsd:string">
