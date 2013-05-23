@@ -1,10 +1,12 @@
 
-Version next
+Version Next
 
+    - Added @RetryTransaction and RetryTransactionAspect
     - Added PersistentObject read() and write() convenience methods
     - Added SpringVaadinSession.configureBean()
     - Added IdleTimeoutInputStream
     - Removed @PostCompletionSupport (use TransactionSynchronizationManager)
+    - Update vaadin7 package to Vaadin 7.1.x (note: no longer works for 7.0.x)
 
 Version 1.0.659 Released April 9, 2013
 
