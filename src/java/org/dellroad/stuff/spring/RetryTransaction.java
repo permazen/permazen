@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * <p>
  * Note, beans involved in transactions should either be stateless, or be prepared to rollback any state changes on transaction
  * failure; of course, this is true whether or not transactions are automatically being retried, but adding automatic retry
- * can magnify pre-existing bugs of that nature.
+ * can magnify pre-existing bugs of that nature. {@link TransactionalState} can simplify stateful beans.
  * </p>
  *
  * <p>
@@ -78,6 +78,7 @@ import java.lang.annotation.Target;
  * </p>
  * </p>
  *
+ * @see TransactionalState
  * @see org.springframework.transaction.annotation.Transactional
  */
 @Documented

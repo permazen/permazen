@@ -1,7 +1,7 @@
 
 Version Next
 
-    - Added @RetryTransaction and RetryTransactionAspect
+    - Added @RetryTransaction and TransactionalState
     - Added PersistentObject read() and write() convenience methods
     - Added SpringVaadinSession.configureBean()
     - Added IdleTimeoutInputStream
