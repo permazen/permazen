@@ -22,23 +22,24 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <p>
- * This automatic retry loic is very handy for solving the problem of transient deadlocks that can occur in complex Java/ORM
+ * This automatic retry logic is very handy for solving the problem of transient deadlocks that can occur in complex Java/ORM
  * applications. Due to the ORM layer hiding the details of the underlying data access patterns, it's often difficult
- * to design Java/ORM applications while ensuring that transient deadlocks can't occur. Since these deadlocks can often be dealt
- * with simply by retrying the transaction, having retry logic automatically applied can eliminate this problem.
+ * to design Java/ORM applications while ensuring that transient deadlocks at the database layer can't occur. Since these
+ * deadlocks can often be dealt with simply by retrying the transaction, having retry logic automatically applied can
+ * eliminate this problem.
  * </p>
  *
  * <p>
  * Note, beans involved in transactions should either be stateless, or be prepared to rollback any state changes on transaction
  * failure; of course, this is true whether or not transactions are automatically being retried, but adding automatic retry
- * can magnify pre-existing bugs of this nature.
+ * can magnify pre-existing bugs of that nature.
  * </p>
  *
  * <p>
- * For automatic retry to work, the following conditions must be satisfied:
+ * For the automatic retry logic to activate, the following conditions must be satisfied:
  * <ul>
  *  <li>
- *      The method and/or the containing type must be annotated with both
+ *      The method (and/or the containing type) must be annotated with
  *      {@link org.springframework.transaction.annotation.Transactional @Transactional}
  *      and {@link RetryTransaction @RetryTransaction}
  *  </li>
@@ -47,6 +48,7 @@ import java.lang.annotation.Target;
  *      {@linkplain org.springframework.transaction.annotation.Transactional#propagation propagation} set to either
  *      {@link org.springframework.transaction.TransactionDefinition#PROPAGATION_REQUIRED PROPAGATION_REQUIRED} or
  *      {@link org.springframework.transaction.TransactionDefinition#PROPAGATION_REQUIRES_NEW PROPAGATION_REQUIRES_NEW}
+ *      (other propagation values do not involve creating new transactions).
  *  </li>
  *  <li>
  *      In the case of
@@ -66,7 +68,7 @@ import java.lang.annotation.Target;
  *      for example:
  *      <blockquote><code>
  *      &lt;bean class="org.dellroad.stuff.spring.RetryTransactionAspect" factory-method="aspectOf"
- *        <b>p:exceptionTranslator-ref="myJpaDialect"</b>/&gt;
+ *        p:exceptionTranslator-ref="myJpaDialect"/&gt;
  *       </code></blockquote>
  *  </li>
  * </ul>
@@ -85,17 +87,17 @@ import java.lang.annotation.Target;
 public @interface RetryTransaction {
 
     /**
-     * Default maximum number of retry attempts ({@value #DEFAULT_MAX_RETRIES}).
+     * Default maximum number of retry attempts.
      */
     int DEFAULT_MAX_RETRIES = 4;
 
     /**
-     * Default initial delay ({@value #DEFAULT_INITIAL_DELAY} milliseconds).
+     * Default initial delay.
      */
     long DEFAULT_INITIAL_DELAY = 100;
 
     /**
-     * Default maximum delay ({@value #DEFAULT_MAXIMUM_DELAY} milliseconds).
+     * Default maximum delay.
      */
     long DEFAULT_MAXIMUM_DELAY = 30 * 1000;
 
