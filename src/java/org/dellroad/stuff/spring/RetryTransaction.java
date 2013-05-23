@@ -104,6 +104,7 @@ public @interface RetryTransaction {
     /**
      * The maximum number of transaction retry attempts.
      * If the transaction fails, it will be retried at most this many times.
+     * This limit applies to retries only; it does not apply to the very first attempt, which is always made.
      */
     int maxRetries() default DEFAULT_MAX_RETRIES;
 
