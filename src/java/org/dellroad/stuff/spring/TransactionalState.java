@@ -30,6 +30,11 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * </p>
  *
  * <p>
+ * If there are multiple simultaneous transactions, each transaction will see its own copy of the original
+ * committed value, and the last transaction's commit will overwrite any previously committed value.
+ * </p>
+ *
+ * <p>
  * Subclasses must implement {@link #deepCopy deepCopy} so that the contained value can be deep-copied for new transactions.
  * </p>
  *
