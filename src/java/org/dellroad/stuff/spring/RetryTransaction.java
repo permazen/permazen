@@ -76,9 +76,24 @@ import java.lang.annotation.Target;
  * <p>
  * Normal activity is logged at trace level, retries are logged at debug level, and errors are logged at error level.
  * </p>
+ *
+ * <p>
+ * Transactional code can determine the transaction attempt number using the aspect's static method
+ * {@code RetryTransaction.getAttempt()}. This method returns the current attempt number (1, 2, 3...),
+ * or zero if the current thread is not executing within activated retry logic:
+ *  <blockquote><pre>
+ *      import org.dellroad.stuff.spring.RetryTransactionAspect;
+ *      ...
+ *      &#64;RetryTransaction
+ *      &#64;Transactional
+ *      public void doSomething() {
+ *          ...
+ *          final int attempt = RetryTransactionAspect.getAttempt();
+ *          ...
+ *      }
+ *   </pre></blockquote>
  * </p>
  *
- * @see TransactionalState
  * @see org.springframework.transaction.annotation.Transactional
  */
 @Documented

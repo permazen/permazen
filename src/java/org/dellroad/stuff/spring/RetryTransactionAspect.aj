@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.Random;
 
 import org.aspectj.lang.reflect.MethodSignature;
+import org.dellroad.stuff.java.ThreadLocalHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,6 +34,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public aspect RetryTransactionAspect implements InitializingBean {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final ThreadLocalHolder<Integer> attemptHolder = new ThreadLocalHolder<Integer>();
     private final Random random = new Random();
 
     // This knows how to read information from @Transactional annotation
@@ -62,7 +64,7 @@ public aspect RetryTransactionAspect implements InitializingBean {
      * to a subclass of TransientDataAccessException, the method will be executed again, with a delay
      * between attempts.
      */
-    Object around(Object txObject) : retryTransactionalMethodExecution(txObject) {
+    Object around(final Object txObject) : retryTransactionalMethodExecution(txObject) {
 
         // Get method info
         final MethodSignature methodSignature = (MethodSignature)thisJoinPoint.getSignature();
@@ -121,7 +123,13 @@ public aspect RetryTransactionAspect implements InitializingBean {
                 // Make next attempt
                 if (this.log.isTraceEnabled())
                     this.log.trace("starting @Transactional method {} (attempt #{})", method, attempt);
-                final Object result = proceed(txObject);
+                final Object[] result = new Object[1];
+                this.attemptHolder.invoke(attempt, new Runnable() {
+                    @Override
+                    public void run() {
+                        result[0] = proceed(txObject);
+                    }
+                });
                 if (attempt > 1) {
                     if (this.log.isDebugEnabled())
                         this.log.debug("successfully completed @Transactional method {} on re-try attempt #{}", method, attempt);
@@ -131,7 +139,7 @@ public aspect RetryTransactionAspect implements InitializingBean {
                 }
 
                 // We're done
-                return result;
+                return result[0];
             } catch (RuntimeException e) {
 
                 // Translate the exception
@@ -155,6 +163,16 @@ public aspect RetryTransactionAspect implements InitializingBean {
         // All attempts failed
         this.log.error("@Transactional method {} failed after {} attempts, giving up!", method, retryTransaction.maxRetries());
         throw transientException;
+    }
+
+    /**
+     * Get the current transaction attempt number.
+     *
+     * @return transaction attempt number, or zero if this aspect is not active in the current thread
+     */
+    public static int getAttempt() {
+        final Integer attempt = RetryTransactionAspect.aspectOf().attemptHolder.get();
+        return attempt != null ? attempt : 0;
     }
 
     /**
