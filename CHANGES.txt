@@ -1,6 +1,7 @@
 
 Version Next
 
+    - Added ThreadParkingLot.getParkedThreads()
     - Added @RetryTransaction and associated AOP aspect
     - Added PersistentObject read() and write() convenience methods
     - Added SpringVaadinSession.configureBean()

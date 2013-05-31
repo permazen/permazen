@@ -7,7 +7,9 @@
 
 package org.dellroad.stuff.java;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A place for threads to be parked and unparked.
@@ -59,12 +61,23 @@ public class ThreadParkingLot {
 
     /**
      * Determine if the given thread is currently parked on this instance.
+     * Obviously, things can change so this only gives an answer at the point in time invoked.
      *
      * @param thread the thread in question
      * @return {@code true} if {@code thread} is currently parked on this instance, {@code false} otherwise
      */
     public synchronized boolean isParked(Thread thread) {
         return this.parkedThreads.contains(thread);
+    }
+
+    /**
+     * Get all of the threads parked on this instance.
+     * Obviously, things can change so this only gives an snapshot at the point in time invoked.
+     *
+     * @return an unmodifiable {@link Set} containing a snapshot of all threads currently parked on this instance
+     */
+    public synchronized Set<Thread> getParkedThreads() {
+        return Collections.unmodifiableSet(new HashSet<Thread>(this.parkedThreads));
     }
 }
 
