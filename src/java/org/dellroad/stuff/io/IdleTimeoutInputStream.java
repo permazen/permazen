@@ -259,6 +259,7 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
         switch (this.state) {
         case OPEN:
             this.state = EXCEPTION;
+            this.exception = e;
             this.notifyAll();
             break;
         case EOF:
