@@ -37,6 +37,11 @@ public aspect RetryTransactionAspect implements InitializingBean {
     private final ThreadLocalHolder<Integer> attemptHolder = new ThreadLocalHolder<Integer>();
     private final Random random = new Random();
 
+    // Default values for retry settings
+    private int maxRetriesDefault = RetryTransaction.DEFAULT_MAX_RETRIES;
+    private long initialDelayDefault = RetryTransaction.DEFAULT_INITIAL_DELAY;
+    private long maximumDelayDefault = RetryTransaction.DEFAULT_MAXIMUM_DELAY;
+
     // This knows how to read information from @Transactional annotation
     private final AnnotationTransactionAttributeSource transactionAttributeSource = new AnnotationTransactionAttributeSource(false);
 
@@ -48,6 +53,27 @@ public aspect RetryTransactionAspect implements InitializingBean {
      */
     public void setPersistenceExceptionTranslator(PersistenceExceptionTranslator persistenceExceptionTranslator) {
         this.persistenceExceptionTranslator = persistenceExceptionTranslator;
+    }
+
+    /**
+     * Configure the aspect-wide default for {@link RetryTransaction#maxRetries}.
+     */
+    public void setMaxRetriesDefault(int maxRetriesDefault) {
+        this.maxRetriesDefault = maxRetriesDefault;
+    }
+
+    /**
+     * Configure the aspect-wide default for {@link RetryTransaction#initialDelay}.
+     */
+    public void setInitialDelayDefault(int initialDelayDefault) {
+        this.initialDelayDefault = initialDelayDefault;
+    }
+
+    /**
+     * Configure the aspect-wide default for {@link RetryTransaction#maximumDelay}.
+     */
+    public void setMaximumDelayDefault(int maximumDelayDefault) {
+        this.maximumDelayDefault = maximumDelayDefault;
     }
 
     @Override
@@ -98,6 +124,14 @@ public aspect RetryTransactionAspect implements InitializingBean {
         if (retryTransaction == null)
             throw new RuntimeException("internal error: no @RetryTransaction annotation found for method " + method);
 
+        // Get retry parameters, applying defaults if necessary
+        final int maxRetries = retryTransaction.maxRetries() != -1 ?
+          retryTransaction.maxRetries() : this.maxRetriesDefault;
+        final long initialDelay = retryTransaction.initialDelay() != -1 ?
+          retryTransaction.initialDelay() : this.initialDelayDefault;
+        final long maximumDelay = retryTransaction.maximumDelay() != -1 ?
+          retryTransaction.maximumDelay() : this.maximumDelayDefault;
+
         // Sanity check we are configured
         if (this.persistenceExceptionTranslator == null)
             throw new RuntimeException("@RetryTransaction aspect must be configured before use");
@@ -109,7 +143,7 @@ public aspect RetryTransactionAspect implements InitializingBean {
 
             // If this is not the first attempt, sleep for a while
             if (attempt > 1) {
-                final long delay = this.calculateDelay(attempt, retryTransaction.initialDelay(), retryTransaction.maximumDelay());
+                final long delay = this.calculateDelay(attempt, initialDelay, maximumDelay);
                 if (this.log.isDebugEnabled())
                     this.log.debug("pausing {}ms before retrying @Transactional method {}", delay, method);
                 this.pause(delay);
@@ -158,10 +192,10 @@ public aspect RetryTransactionAspect implements InitializingBean {
                 transientException = (TransientDataAccessException)translatedException;
             }
         }
-        while (attempt++ <= retryTransaction.maxRetries());
+        while (attempt++ <= maxRetries);
 
         // All attempts failed
-        this.log.error("@Transactional method {} failed after {} attempts, giving up!", method, retryTransaction.maxRetries());
+        this.log.error("@Transactional method {} failed after {} attempts, giving up!", method, maxRetries);
         throw transientException;
     }
 
