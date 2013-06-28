@@ -68,12 +68,12 @@ public class ConvertedProperty<P, M> extends AbstractProperty<P> {
 
     @Override
     public P getValue() {
-        return this.converter.convertToPresentation(this.property.getValue(), this.locale);
+        return this.converter.convertToPresentation(this.property.getValue(), this.getType(), this.locale);
     }
 
     @Override
     public void setValue(P value) {
-        this.property.setValue(this.converter.convertToModel(value, this.locale));
+        this.property.setValue(this.converter.convertToModel(value, this.converter.getModelType(), this.locale));
     }
 
     @Override
