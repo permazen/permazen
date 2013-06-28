@@ -1,128 +1,133 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.xml;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.util.ArrayList;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import java.util.List;<a name="line.11"></a>
-<FONT color="green">012</FONT>    <a name="line.12"></a>
-<FONT color="green">013</FONT>    import javax.xml.stream.XMLEventReader;<a name="line.13"></a>
-<FONT color="green">014</FONT>    import javax.xml.stream.XMLStreamException;<a name="line.14"></a>
-<FONT color="green">015</FONT>    import javax.xml.stream.events.StartElement;<a name="line.15"></a>
-<FONT color="green">016</FONT>    import javax.xml.stream.events.XMLEvent;<a name="line.16"></a>
-<FONT color="green">017</FONT>    import javax.xml.stream.util.EventReaderDelegate;<a name="line.17"></a>
-<FONT color="green">018</FONT>    <a name="line.18"></a>
-<FONT color="green">019</FONT>    /**<a name="line.19"></a>
-<FONT color="green">020</FONT>     * Wrapper for a {@link XMLEventReader} that keeps track of the current element(s) being parsed as a stack<a name="line.20"></a>
-<FONT color="green">021</FONT>     * of {@link StartElement} events.<a name="line.21"></a>
-<FONT color="green">022</FONT>     *<a name="line.22"></a>
-<FONT color="green">023</FONT>     * &lt;p&gt;<a name="line.23"></a>
-<FONT color="green">024</FONT>     * Each time a {@link StartElement} is read from the underlying {@link XMLEventReader}, it is pushed onto<a name="line.24"></a>
-<FONT color="green">025</FONT>     * the stack; each time a {@link javax.xml.stream.events.EndElement} is read from the underlying {@link XMLEventReader},<a name="line.25"></a>
-<FONT color="green">026</FONT>     * the previously push {@link StartElement} is popped off.<a name="line.26"></a>
-<FONT color="green">027</FONT>     * &lt;/p&gt;<a name="line.27"></a>
-<FONT color="green">028</FONT>     *<a name="line.28"></a>
-<FONT color="green">029</FONT>     * &lt;p&gt;<a name="line.29"></a>
-<FONT color="green">030</FONT>     * Invocations of {@link #peek} do not affect the element stack.<a name="line.30"></a>
-<FONT color="green">031</FONT>     * &lt;/p&gt;<a name="line.31"></a>
-<FONT color="green">032</FONT>     *<a name="line.32"></a>
-<FONT color="green">033</FONT>     * &lt;p&gt;<a name="line.33"></a>
-<FONT color="green">034</FONT>     * If an {@link XMLStreamException} is thrown at any point, the element stack is no longer guaranteed to track properly.<a name="line.34"></a>
-<FONT color="green">035</FONT>     * &lt;/p&gt;<a name="line.35"></a>
-<FONT color="green">036</FONT>     */<a name="line.36"></a>
-<FONT color="green">037</FONT>    public class StackXMLEventReader extends EventReaderDelegate {<a name="line.37"></a>
-<FONT color="green">038</FONT>    <a name="line.38"></a>
-<FONT color="green">039</FONT>        private final ArrayList&lt;StartElement&gt; stack = new ArrayList&lt;StartElement&gt;();<a name="line.39"></a>
-<FONT color="green">040</FONT>    <a name="line.40"></a>
-<FONT color="green">041</FONT>        /**<a name="line.41"></a>
-<FONT color="green">042</FONT>         * Constructor.<a name="line.42"></a>
-<FONT color="green">043</FONT>         *<a name="line.43"></a>
-<FONT color="green">044</FONT>         * @param reader underlying reader<a name="line.44"></a>
-<FONT color="green">045</FONT>         * @throws IllegalArgumentException if {@code reader} is null<a name="line.45"></a>
-<FONT color="green">046</FONT>         */<a name="line.46"></a>
-<FONT color="green">047</FONT>        public StackXMLEventReader(XMLEventReader reader) {<a name="line.47"></a>
-<FONT color="green">048</FONT>            super(reader);<a name="line.48"></a>
-<FONT color="green">049</FONT>            if (reader == null)<a name="line.49"></a>
-<FONT color="green">050</FONT>                throw new IllegalArgumentException("null reader");<a name="line.50"></a>
-<FONT color="green">051</FONT>        }<a name="line.51"></a>
-<FONT color="green">052</FONT>    <a name="line.52"></a>
-<FONT color="green">053</FONT>        /**<a name="line.53"></a>
-<FONT color="green">054</FONT>         * Get the top-most {@link StartElement} event on the stack. This corresponds to the innermost XML<a name="line.54"></a>
-<FONT color="green">055</FONT>         * element currently being read.<a name="line.55"></a>
-<FONT color="green">056</FONT>         *<a name="line.56"></a>
-<FONT color="green">057</FONT>         * @return current element, or null if the current parse position is outside of the document element<a name="line.57"></a>
-<FONT color="green">058</FONT>         */<a name="line.58"></a>
-<FONT color="green">059</FONT>        public StartElement getTopElement() {<a name="line.59"></a>
-<FONT color="green">060</FONT>            return !this.stack.isEmpty() ? this.stack.get(this.stack.size() - 1) : null;<a name="line.60"></a>
-<FONT color="green">061</FONT>        }<a name="line.61"></a>
-<FONT color="green">062</FONT>    <a name="line.62"></a>
-<FONT color="green">063</FONT>        /**<a name="line.63"></a>
-<FONT color="green">064</FONT>         * Get the entire stack of {@link StartElement}s.<a name="line.64"></a>
-<FONT color="green">065</FONT>         *<a name="line.65"></a>
-<FONT color="green">066</FONT>         * &lt;p&gt;<a name="line.66"></a>
-<FONT color="green">067</FONT>         * A copy is returned; changes to the returned list do not affect this instance.<a name="line.67"></a>
-<FONT color="green">068</FONT>         * &lt;/p&gt;<a name="line.68"></a>
-<FONT color="green">069</FONT>         *<a name="line.69"></a>
-<FONT color="green">070</FONT>         * @return element stack; the first element in the list is the document element<a name="line.70"></a>
-<FONT color="green">071</FONT>         */<a name="line.71"></a>
-<FONT color="green">072</FONT>        public List&lt;StartElement&gt; getElementStack() {<a name="line.72"></a>
-<FONT color="green">073</FONT>            return new ArrayList&lt;StartElement&gt;(this.stack);<a name="line.73"></a>
-<FONT color="green">074</FONT>        }<a name="line.74"></a>
-<FONT color="green">075</FONT>    <a name="line.75"></a>
-<FONT color="green">076</FONT>        @Override<a name="line.76"></a>
-<FONT color="green">077</FONT>        public String getElementText() throws XMLStreamException {<a name="line.77"></a>
-<FONT color="green">078</FONT>            String text = super.getElementText();<a name="line.78"></a>
-<FONT color="green">079</FONT>            this.stack.remove(this.stack.size() - 1);<a name="line.79"></a>
-<FONT color="green">080</FONT>            return text;<a name="line.80"></a>
-<FONT color="green">081</FONT>        }<a name="line.81"></a>
-<FONT color="green">082</FONT>    <a name="line.82"></a>
-<FONT color="green">083</FONT>        @Override<a name="line.83"></a>
-<FONT color="green">084</FONT>        public Object next() {<a name="line.84"></a>
-<FONT color="green">085</FONT>            try {<a name="line.85"></a>
-<FONT color="green">086</FONT>                return this.nextEvent();<a name="line.86"></a>
-<FONT color="green">087</FONT>            } catch (XMLStreamException e) {<a name="line.87"></a>
-<FONT color="green">088</FONT>                throw new RuntimeException(e);<a name="line.88"></a>
-<FONT color="green">089</FONT>            }<a name="line.89"></a>
-<FONT color="green">090</FONT>        }<a name="line.90"></a>
-<FONT color="green">091</FONT>    <a name="line.91"></a>
-<FONT color="green">092</FONT>        @Override<a name="line.92"></a>
-<FONT color="green">093</FONT>        public XMLEvent nextEvent() throws XMLStreamException {<a name="line.93"></a>
-<FONT color="green">094</FONT>            return this.adjust(super.nextEvent());<a name="line.94"></a>
-<FONT color="green">095</FONT>        }<a name="line.95"></a>
-<FONT color="green">096</FONT>    <a name="line.96"></a>
-<FONT color="green">097</FONT>        @Override<a name="line.97"></a>
-<FONT color="green">098</FONT>        public XMLEvent nextTag() throws XMLStreamException {<a name="line.98"></a>
-<FONT color="green">099</FONT>            return this.adjust(super.nextTag());<a name="line.99"></a>
-<FONT color="green">100</FONT>        }<a name="line.100"></a>
-<FONT color="green">101</FONT>    <a name="line.101"></a>
-<FONT color="green">102</FONT>        /**<a name="line.102"></a>
-<FONT color="green">103</FONT>         * Adjust the stack after reading the given event.<a name="line.103"></a>
-<FONT color="green">104</FONT>         *<a name="line.104"></a>
-<FONT color="green">105</FONT>         * @param event newly read event<a name="line.105"></a>
-<FONT color="green">106</FONT>         * @return {@code event}<a name="line.106"></a>
-<FONT color="green">107</FONT>         */<a name="line.107"></a>
-<FONT color="green">108</FONT>        protected XMLEvent adjust(XMLEvent event) {<a name="line.108"></a>
-<FONT color="green">109</FONT>            switch (event.getEventType()) {<a name="line.109"></a>
-<FONT color="green">110</FONT>            case XMLEvent.START_ELEMENT:<a name="line.110"></a>
-<FONT color="green">111</FONT>                this.stack.add(event.asStartElement());<a name="line.111"></a>
-<FONT color="green">112</FONT>                break;<a name="line.112"></a>
-<FONT color="green">113</FONT>            case XMLEvent.END_ELEMENT:<a name="line.113"></a>
-<FONT color="green">114</FONT>                this.stack.remove(this.stack.size() - 1);<a name="line.114"></a>
-<FONT color="green">115</FONT>                break;<a name="line.115"></a>
-<FONT color="green">116</FONT>            default:<a name="line.116"></a>
-<FONT color="green">117</FONT>                break;<a name="line.117"></a>
-<FONT color="green">118</FONT>            }<a name="line.118"></a>
-<FONT color="green">119</FONT>            return event;<a name="line.119"></a>
-<FONT color="green">120</FONT>        }<a name="line.120"></a>
-<FONT color="green">121</FONT>    }<a name="line.121"></a>
-<FONT color="green">122</FONT>    <a name="line.122"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.xml;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.ArrayList;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.List;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>import javax.xml.stream.XMLEventReader;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import javax.xml.stream.XMLStreamException;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import javax.xml.stream.events.StartElement;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import javax.xml.stream.events.XMLEvent;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import javax.xml.stream.util.EventReaderDelegate;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * Wrapper for a {@link XMLEventReader} that keeps track of the current element(s) being parsed as a stack<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * of {@link StartElement} events.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> *<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * &lt;p&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Each time a {@link StartElement} is read from the underlying {@link XMLEventReader}, it is pushed onto<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * the stack; each time a {@link javax.xml.stream.events.EndElement} is read from the underlying {@link XMLEventReader},<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * the previously push {@link StartElement} is popped off.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * &lt;/p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * Invocations of {@link #peek} do not affect the element stack.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * &lt;/p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * If an {@link XMLStreamException} is thrown at any point, the element stack is no longer guaranteed to track properly.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;/p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>public class StackXMLEventReader extends EventReaderDelegate {<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    private final ArrayList&lt;StartElement&gt; stack = new ArrayList&lt;StartElement&gt;();<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    /**<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * Constructor.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     *<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @param reader underlying reader<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * @throws IllegalArgumentException if {@code reader} is null<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    public StackXMLEventReader(XMLEventReader reader) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        super(reader);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        if (reader == null)<a name="line.49"></a>
+<span class="sourceLineNo">050</span>            throw new IllegalArgumentException("null reader");<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * Get the top-most {@link StartElement} event on the stack. This corresponds to the innermost XML<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * element currently being read.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     *<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * @return current element, or null if the current parse position is outside of the document element<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    public StartElement getTopElement() {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        return !this.stack.isEmpty() ? this.stack.get(this.stack.size() - 1) : null;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>    /**<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * Get the entire stack of {@link StartElement}s.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     *<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * &lt;p&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * A copy is returned; changes to the returned list do not affect this instance.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * &lt;/p&gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     *<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @return element stack; the first element in the list is the document element<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    public List&lt;StartElement&gt; getElementStack() {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        return new ArrayList&lt;StartElement&gt;(this.stack);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>    @Override<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    public String getElementText() throws XMLStreamException {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        String text = super.getElementText();<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        this.stack.remove(this.stack.size() - 1);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        return text;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    @Override<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public Object next() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        try {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            return this.nextEvent();<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        } catch (XMLStreamException e) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            throw new RuntimeException(e);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        }<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>    @Override<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    public XMLEvent nextEvent() throws XMLStreamException {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        return this.adjust(super.nextEvent());<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    @Override<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    public XMLEvent nextTag() throws XMLStreamException {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        return this.adjust(super.nextTag());<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * Adjust the stack after reading the given event.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     *<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * @param event newly read event<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * @return {@code event}<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    protected XMLEvent adjust(XMLEvent event) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        switch (event.getEventType()) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        case XMLEvent.START_ELEMENT:<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            this.stack.add(event.asStartElement());<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            break;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        case XMLEvent.END_ELEMENT:<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            this.stack.remove(this.stack.size() - 1);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            break;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        default:<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            break;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        }<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        return event;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>}<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
 
 
 
@@ -183,6 +188,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

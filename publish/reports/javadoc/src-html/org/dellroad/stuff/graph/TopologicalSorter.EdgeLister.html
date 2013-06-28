@@ -1,177 +1,182 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2008-2009 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.graph;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.util.ArrayList;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import java.util.Collection;<a name="line.11"></a>
-<FONT color="green">012</FONT>    import java.util.Collections;<a name="line.12"></a>
-<FONT color="green">013</FONT>    import java.util.Comparator;<a name="line.13"></a>
-<FONT color="green">014</FONT>    import java.util.HashMap;<a name="line.14"></a>
-<FONT color="green">015</FONT>    import java.util.List;<a name="line.15"></a>
-<FONT color="green">016</FONT>    import java.util.Set;<a name="line.16"></a>
-<FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>    /**<a name="line.18"></a>
-<FONT color="green">019</FONT>     * Topological sorting utility class.<a name="line.19"></a>
-<FONT color="green">020</FONT>     */<a name="line.20"></a>
-<FONT color="green">021</FONT>    public class TopologicalSorter&lt;E&gt; {<a name="line.21"></a>
-<FONT color="green">022</FONT>    <a name="line.22"></a>
-<FONT color="green">023</FONT>        private final Collection&lt;E&gt; nodes;<a name="line.23"></a>
-<FONT color="green">024</FONT>        private final EdgeLister&lt;E&gt; edgeLister;<a name="line.24"></a>
-<FONT color="green">025</FONT>        private final Comparator&lt;? super E&gt; tieBreaker;<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
-<FONT color="green">027</FONT>        private HashMap&lt;E, Boolean&gt; visited;<a name="line.27"></a>
-<FONT color="green">028</FONT>        private ArrayList&lt;E&gt; ordering;<a name="line.28"></a>
-<FONT color="green">029</FONT>    <a name="line.29"></a>
-<FONT color="green">030</FONT>        /**<a name="line.30"></a>
-<FONT color="green">031</FONT>         * Primary constructor.<a name="line.31"></a>
-<FONT color="green">032</FONT>         *<a name="line.32"></a>
-<FONT color="green">033</FONT>         * @param nodes partially ordered nodes to be sorted<a name="line.33"></a>
-<FONT color="green">034</FONT>         * @param edgeLister provides the edges defining the partial order<a name="line.34"></a>
-<FONT color="green">035</FONT>         * @param tieBreaker used to sort nodes that are not otherwise ordered,<a name="line.35"></a>
-<FONT color="green">036</FONT>         *  or null to tie break based on the original ordering<a name="line.36"></a>
-<FONT color="green">037</FONT>         */<a name="line.37"></a>
-<FONT color="green">038</FONT>        public TopologicalSorter(Collection&lt;E&gt; nodes, EdgeLister&lt;E&gt; edgeLister, Comparator&lt;? super E&gt; tieBreaker) {<a name="line.38"></a>
-<FONT color="green">039</FONT>            this.nodes = nodes;<a name="line.39"></a>
-<FONT color="green">040</FONT>            this.edgeLister = edgeLister;<a name="line.40"></a>
-<FONT color="green">041</FONT>            if (tieBreaker == null)<a name="line.41"></a>
-<FONT color="green">042</FONT>                tieBreaker = getDefaultTieBreaker();<a name="line.42"></a>
-<FONT color="green">043</FONT>            this.tieBreaker = tieBreaker;<a name="line.43"></a>
-<FONT color="green">044</FONT>        }<a name="line.44"></a>
-<FONT color="green">045</FONT>    <a name="line.45"></a>
-<FONT color="green">046</FONT>        /**<a name="line.46"></a>
-<FONT color="green">047</FONT>         * Convenience constructor for when ties should be broken based on the original ordering.<a name="line.47"></a>
-<FONT color="green">048</FONT>         *<a name="line.48"></a>
-<FONT color="green">049</FONT>         * &lt;p&gt;<a name="line.49"></a>
-<FONT color="green">050</FONT>         * Equivalent to:<a name="line.50"></a>
-<FONT color="green">051</FONT>         *  &lt;blockquote&gt;<a name="line.51"></a>
-<FONT color="green">052</FONT>         *  {@code TopologicalSorter(nodes, edgeLister, null);}<a name="line.52"></a>
-<FONT color="green">053</FONT>         *  &lt;/blockquote&gt;<a name="line.53"></a>
-<FONT color="green">054</FONT>         * &lt;/p&gt;<a name="line.54"></a>
-<FONT color="green">055</FONT>         */<a name="line.55"></a>
-<FONT color="green">056</FONT>        public TopologicalSorter(Collection&lt;E&gt; nodes, EdgeLister&lt;E&gt; edgeLister) {<a name="line.56"></a>
-<FONT color="green">057</FONT>            this(nodes, edgeLister, null);<a name="line.57"></a>
-<FONT color="green">058</FONT>        }<a name="line.58"></a>
-<FONT color="green">059</FONT>    <a name="line.59"></a>
-<FONT color="green">060</FONT>        /**<a name="line.60"></a>
-<FONT color="green">061</FONT>         * Produce a total ordering of the nodes consistent with the partial ordering<a name="line.61"></a>
-<FONT color="green">062</FONT>         * implied by the edge lister and tie breaker provided to the constructor.<a name="line.62"></a>
-<FONT color="green">063</FONT>         *<a name="line.63"></a>
-<FONT color="green">064</FONT>         * &lt;p&gt;<a name="line.64"></a>
-<FONT color="green">065</FONT>         * The returned list will have the property that if there is an edge from X to Y,<a name="line.65"></a>
-<FONT color="green">066</FONT>         * then X will appear before Y in the list. If there is no edge (or sequence of edges) from X to Y<a name="line.66"></a>
-<FONT color="green">067</FONT>         * in either direction, then X will appear before Y if the tie breaker sorts X before Y.<a name="line.67"></a>
-<FONT color="green">068</FONT>         * &lt;/p&gt;<a name="line.68"></a>
-<FONT color="green">069</FONT>         *<a name="line.69"></a>
-<FONT color="green">070</FONT>         * @return sorted, mutable list of nodes<a name="line.70"></a>
-<FONT color="green">071</FONT>         * @throws IllegalArgumentException if the partial ordering relation contains a cycle<a name="line.71"></a>
-<FONT color="green">072</FONT>         */<a name="line.72"></a>
-<FONT color="green">073</FONT>        public List&lt;E&gt; sort() {<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
-<FONT color="green">075</FONT>            // Order nodes according to reverse tie breaker ordering<a name="line.75"></a>
-<FONT color="green">076</FONT>            ArrayList&lt;E&gt; startList = Collections.list(Collections.enumeration(this.nodes));<a name="line.76"></a>
-<FONT color="green">077</FONT>            Collections.sort(startList, getTieBreaker(true));<a name="line.77"></a>
-<FONT color="green">078</FONT>    <a name="line.78"></a>
-<FONT color="green">079</FONT>            // Perform depth-first search through nodes<a name="line.79"></a>
-<FONT color="green">080</FONT>            this.visited = new HashMap&lt;E, Boolean&gt;(startList.size());<a name="line.80"></a>
-<FONT color="green">081</FONT>            this.ordering = new ArrayList&lt;E&gt;(startList.size());<a name="line.81"></a>
-<FONT color="green">082</FONT>            for (E node : startList)<a name="line.82"></a>
-<FONT color="green">083</FONT>                visit(node, true);<a name="line.83"></a>
-<FONT color="green">084</FONT>    <a name="line.84"></a>
-<FONT color="green">085</FONT>            // Reverse list<a name="line.85"></a>
-<FONT color="green">086</FONT>            Collections.reverse(this.ordering);<a name="line.86"></a>
-<FONT color="green">087</FONT>            return this.ordering;<a name="line.87"></a>
-<FONT color="green">088</FONT>        }<a name="line.88"></a>
-<FONT color="green">089</FONT>    <a name="line.89"></a>
-<FONT color="green">090</FONT>        /**<a name="line.90"></a>
-<FONT color="green">091</FONT>         * Same as {@link #sort sort()} but treats all edges as reversed.<a name="line.91"></a>
-<FONT color="green">092</FONT>         *<a name="line.92"></a>
-<FONT color="green">093</FONT>         * &lt;p&gt;<a name="line.93"></a>
-<FONT color="green">094</FONT>         * The returned list will have the property that if there is an edge from X to Y,<a name="line.94"></a>
-<FONT color="green">095</FONT>         * then Y will appear before X in the list. If there is no edge (or sequence of edges) from X to Y<a name="line.95"></a>
-<FONT color="green">096</FONT>         * in either direction, then X will appear before Y if the tie breaker sorts X before Y.<a name="line.96"></a>
-<FONT color="green">097</FONT>         * &lt;/p&gt;<a name="line.97"></a>
-<FONT color="green">098</FONT>         *<a name="line.98"></a>
-<FONT color="green">099</FONT>         * @return sorted, mutable list of nodes<a name="line.99"></a>
-<FONT color="green">100</FONT>         * @throws IllegalArgumentException if the partial ordering relation contains a cycle<a name="line.100"></a>
-<FONT color="green">101</FONT>         */<a name="line.101"></a>
-<FONT color="green">102</FONT>        public List&lt;E&gt; sortEdgesReversed() {<a name="line.102"></a>
-<FONT color="green">103</FONT>    <a name="line.103"></a>
-<FONT color="green">104</FONT>            // Order nodes according to normal tie breaker ordering<a name="line.104"></a>
-<FONT color="green">105</FONT>            ArrayList&lt;E&gt; startList = Collections.list(Collections.enumeration(this.nodes));<a name="line.105"></a>
-<FONT color="green">106</FONT>            Collections.sort(startList, getTieBreaker(false));<a name="line.106"></a>
-<FONT color="green">107</FONT>    <a name="line.107"></a>
-<FONT color="green">108</FONT>            // Perform depth-first search through nodes<a name="line.108"></a>
-<FONT color="green">109</FONT>            this.visited = new HashMap&lt;E, Boolean&gt;(startList.size());<a name="line.109"></a>
-<FONT color="green">110</FONT>            this.ordering = new ArrayList&lt;E&gt;(startList.size());<a name="line.110"></a>
-<FONT color="green">111</FONT>            for (E node : startList)<a name="line.111"></a>
-<FONT color="green">112</FONT>                visit(node, false);<a name="line.112"></a>
-<FONT color="green">113</FONT>    <a name="line.113"></a>
-<FONT color="green">114</FONT>            // Done<a name="line.114"></a>
-<FONT color="green">115</FONT>            return this.ordering;<a name="line.115"></a>
-<FONT color="green">116</FONT>        }<a name="line.116"></a>
-<FONT color="green">117</FONT>    <a name="line.117"></a>
-<FONT color="green">118</FONT>        private void visit(E node, boolean reverse) {<a name="line.118"></a>
-<FONT color="green">119</FONT>    <a name="line.119"></a>
-<FONT color="green">120</FONT>            // Have we been here before?<a name="line.120"></a>
-<FONT color="green">121</FONT>            Boolean state = this.visited.get(node);<a name="line.121"></a>
-<FONT color="green">122</FONT>            if (state != null) {<a name="line.122"></a>
-<FONT color="green">123</FONT>                if (!state.booleanValue())<a name="line.123"></a>
-<FONT color="green">124</FONT>                    throw new IllegalArgumentException("cycle in graph containing " + node);<a name="line.124"></a>
-<FONT color="green">125</FONT>                return;<a name="line.125"></a>
-<FONT color="green">126</FONT>            }<a name="line.126"></a>
-<FONT color="green">127</FONT>            this.visited.put(node, false);<a name="line.127"></a>
-<FONT color="green">128</FONT>    <a name="line.128"></a>
-<FONT color="green">129</FONT>            // Get all destination nodes of all out-edges<a name="line.129"></a>
-<FONT color="green">130</FONT>            ArrayList&lt;E&gt; targets = Collections.list(Collections.enumeration(this.edgeLister.getOutEdges(node)));<a name="line.130"></a>
-<FONT color="green">131</FONT>    <a name="line.131"></a>
-<FONT color="green">132</FONT>            // Sort them in reverse desired order and recurse<a name="line.132"></a>
-<FONT color="green">133</FONT>            Collections.sort(targets, getTieBreaker(reverse));<a name="line.133"></a>
-<FONT color="green">134</FONT>            for (E target : targets)<a name="line.134"></a>
-<FONT color="green">135</FONT>                visit(target, reverse);<a name="line.135"></a>
-<FONT color="green">136</FONT>    <a name="line.136"></a>
-<FONT color="green">137</FONT>            // Add this node to list in post-order and mark complete<a name="line.137"></a>
-<FONT color="green">138</FONT>            this.ordering.add(node);<a name="line.138"></a>
-<FONT color="green">139</FONT>            this.visited.put(node, true);<a name="line.139"></a>
-<FONT color="green">140</FONT>        }<a name="line.140"></a>
-<FONT color="green">141</FONT>    <a name="line.141"></a>
-<FONT color="green">142</FONT>        private Comparator&lt;? super E&gt; getDefaultTieBreaker() {<a name="line.142"></a>
-<FONT color="green">143</FONT>            final HashMap&lt;E, Integer&gt; orderMap = new HashMap&lt;E, Integer&gt;(this.nodes.size());<a name="line.143"></a>
-<FONT color="green">144</FONT>            int posn = 0;<a name="line.144"></a>
-<FONT color="green">145</FONT>            for (E node : this.nodes)<a name="line.145"></a>
-<FONT color="green">146</FONT>                orderMap.put(node, posn++);<a name="line.146"></a>
-<FONT color="green">147</FONT>            return new Comparator&lt;E&gt;() {<a name="line.147"></a>
-<FONT color="green">148</FONT>                public int compare(E node1, E node2) {<a name="line.148"></a>
-<FONT color="green">149</FONT>                    return orderMap.get(node1) - orderMap.get(node2);<a name="line.149"></a>
-<FONT color="green">150</FONT>                }<a name="line.150"></a>
-<FONT color="green">151</FONT>            };<a name="line.151"></a>
-<FONT color="green">152</FONT>        }<a name="line.152"></a>
-<FONT color="green">153</FONT>    <a name="line.153"></a>
-<FONT color="green">154</FONT>        private Comparator&lt;? super E&gt; getTieBreaker(boolean reverse) {<a name="line.154"></a>
-<FONT color="green">155</FONT>            if (reverse)<a name="line.155"></a>
-<FONT color="green">156</FONT>                return Collections.reverseOrder(this.tieBreaker);<a name="line.156"></a>
-<FONT color="green">157</FONT>            return this.tieBreaker;<a name="line.157"></a>
-<FONT color="green">158</FONT>        }<a name="line.158"></a>
-<FONT color="green">159</FONT>    <a name="line.159"></a>
-<FONT color="green">160</FONT>        /**<a name="line.160"></a>
-<FONT color="green">161</FONT>         * Implemented by classes that can enumerate the outgoing edges from a node in a graph.<a name="line.161"></a>
-<FONT color="green">162</FONT>         */<a name="line.162"></a>
-<FONT color="green">163</FONT>        public interface EdgeLister&lt;E&gt; {<a name="line.163"></a>
-<FONT color="green">164</FONT>    <a name="line.164"></a>
-<FONT color="green">165</FONT>            /**<a name="line.165"></a>
-<FONT color="green">166</FONT>             * Get the set of all nodes X for which there is an edge from {@code node} to X.<a name="line.166"></a>
-<FONT color="green">167</FONT>             */<a name="line.167"></a>
-<FONT color="green">168</FONT>            Set&lt;E&gt; getOutEdges(E node);<a name="line.168"></a>
-<FONT color="green">169</FONT>        }<a name="line.169"></a>
-<FONT color="green">170</FONT>    }<a name="line.170"></a>
-<FONT color="green">171</FONT>    <a name="line.171"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2008-2009 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.graph;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.ArrayList;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.Collection;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.Collections;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.Comparator;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.util.HashMap;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.List;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.util.Set;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * Topological sorting utility class.<a name="line.19"></a>
+<span class="sourceLineNo">020</span> */<a name="line.20"></a>
+<span class="sourceLineNo">021</span>public class TopologicalSorter&lt;E&gt; {<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>    private final Collection&lt;E&gt; nodes;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>    private final EdgeLister&lt;E&gt; edgeLister;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>    private final Comparator&lt;? super E&gt; tieBreaker;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>    private HashMap&lt;E, Boolean&gt; visited;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>    private ArrayList&lt;E&gt; ordering;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>    /**<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * Primary constructor.<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     *<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * @param nodes partially ordered nodes to be sorted<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * @param edgeLister provides the edges defining the partial order<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * @param tieBreaker used to sort nodes that are not otherwise ordered,<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     *  or null to tie break based on the original ordering<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    public TopologicalSorter(Collection&lt;E&gt; nodes, EdgeLister&lt;E&gt; edgeLister, Comparator&lt;? super E&gt; tieBreaker) {<a name="line.38"></a>
+<span class="sourceLineNo">039</span>        this.nodes = nodes;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        this.edgeLister = edgeLister;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        if (tieBreaker == null)<a name="line.41"></a>
+<span class="sourceLineNo">042</span>            tieBreaker = getDefaultTieBreaker();<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        this.tieBreaker = tieBreaker;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    /**<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * Convenience constructor for when ties should be broken based on the original ordering.<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     *<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * &lt;p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * Equivalent to:<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     *  &lt;blockquote&gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     *  {@code TopologicalSorter(nodes, edgeLister, null);}<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     *  &lt;/blockquote&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * &lt;/p&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    public TopologicalSorter(Collection&lt;E&gt; nodes, EdgeLister&lt;E&gt; edgeLister) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        this(nodes, edgeLister, null);<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    }<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * Produce a total ordering of the nodes consistent with the partial ordering<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * implied by the edge lister and tie breaker provided to the constructor.<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     *<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * &lt;p&gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * The returned list will have the property that if there is an edge from X to Y,<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * then X will appear before Y in the list. If there is no edge (or sequence of edges) from X to Y<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * in either direction, then X will appear before Y if the tie breaker sorts X before Y.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * &lt;/p&gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     *<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @return sorted, mutable list of nodes<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * @throws IllegalArgumentException if the partial ordering relation contains a cycle<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    public List&lt;E&gt; sort() {<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>        // Order nodes according to reverse tie breaker ordering<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        ArrayList&lt;E&gt; startList = Collections.list(Collections.enumeration(this.nodes));<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        Collections.sort(startList, getTieBreaker(true));<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>        // Perform depth-first search through nodes<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        this.visited = new HashMap&lt;E, Boolean&gt;(startList.size());<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        this.ordering = new ArrayList&lt;E&gt;(startList.size());<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        for (E node : startList)<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            visit(node, true);<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>        // Reverse list<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        Collections.reverse(this.ordering);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        return this.ordering;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>    /**<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * Same as {@link #sort sort()} but treats all edges as reversed.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     *<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * &lt;p&gt;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * The returned list will have the property that if there is an edge from X to Y,<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * then Y will appear before X in the list. If there is no edge (or sequence of edges) from X to Y<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * in either direction, then X will appear before Y if the tie breaker sorts X before Y.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * &lt;/p&gt;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     *<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @return sorted, mutable list of nodes<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * @throws IllegalArgumentException if the partial ordering relation contains a cycle<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public List&lt;E&gt; sortEdgesReversed() {<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>        // Order nodes according to normal tie breaker ordering<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        ArrayList&lt;E&gt; startList = Collections.list(Collections.enumeration(this.nodes));<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        Collections.sort(startList, getTieBreaker(false));<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>        // Perform depth-first search through nodes<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        this.visited = new HashMap&lt;E, Boolean&gt;(startList.size());<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        this.ordering = new ArrayList&lt;E&gt;(startList.size());<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        for (E node : startList)<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            visit(node, false);<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>        // Done<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        return this.ordering;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>    private void visit(E node, boolean reverse) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>        // Have we been here before?<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        Boolean state = this.visited.get(node);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        if (state != null) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            if (!state.booleanValue())<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                throw new IllegalArgumentException("cycle in graph containing " + node);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>            return;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        }<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        this.visited.put(node, false);<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>        // Get all destination nodes of all out-edges<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        ArrayList&lt;E&gt; targets = Collections.list(Collections.enumeration(this.edgeLister.getOutEdges(node)));<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>        // Sort them in reverse desired order and recurse<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        Collections.sort(targets, getTieBreaker(reverse));<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        for (E target : targets)<a name="line.134"></a>
+<span class="sourceLineNo">135</span>            visit(target, reverse);<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>        // Add this node to list in post-order and mark complete<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        this.ordering.add(node);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        this.visited.put(node, true);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    }<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>    private Comparator&lt;? super E&gt; getDefaultTieBreaker() {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        final HashMap&lt;E, Integer&gt; orderMap = new HashMap&lt;E, Integer&gt;(this.nodes.size());<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        int posn = 0;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        for (E node : this.nodes)<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            orderMap.put(node, posn++);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        return new Comparator&lt;E&gt;() {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            public int compare(E node1, E node2) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                return orderMap.get(node1) - orderMap.get(node2);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        };<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>    private Comparator&lt;? super E&gt; getTieBreaker(boolean reverse) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        if (reverse)<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            return Collections.reverseOrder(this.tieBreaker);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        return this.tieBreaker;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    }<a name="line.158"></a>
+<span class="sourceLineNo">159</span><a name="line.159"></a>
+<span class="sourceLineNo">160</span>    /**<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * Implemented by classes that can enumerate the outgoing edges from a node in a graph.<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     */<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    public interface EdgeLister&lt;E&gt; {<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>        /**<a name="line.165"></a>
+<span class="sourceLineNo">166</span>         * Get the set of all nodes X for which there is an edge from {@code node} to X.<a name="line.166"></a>
+<span class="sourceLineNo">167</span>         */<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        Set&lt;E&gt; getOutEdges(E node);<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    }<a name="line.169"></a>
+<span class="sourceLineNo">170</span>}<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
 
 
 
@@ -232,6 +237,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

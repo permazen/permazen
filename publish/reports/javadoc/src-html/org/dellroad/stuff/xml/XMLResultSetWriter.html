@@ -1,470 +1,475 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.xml;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.io.IOException;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import java.io.InputStream;<a name="line.11"></a>
-<FONT color="green">012</FONT>    import java.io.Reader;<a name="line.12"></a>
-<FONT color="green">013</FONT>    import java.lang.reflect.Field;<a name="line.13"></a>
-<FONT color="green">014</FONT>    import java.lang.reflect.Modifier;<a name="line.14"></a>
-<FONT color="green">015</FONT>    import java.sql.Date;<a name="line.15"></a>
-<FONT color="green">016</FONT>    import java.sql.ResultSet;<a name="line.16"></a>
-<FONT color="green">017</FONT>    import java.sql.ResultSetMetaData;<a name="line.17"></a>
-<FONT color="green">018</FONT>    import java.sql.SQLException;<a name="line.18"></a>
-<FONT color="green">019</FONT>    import java.sql.Timestamp;<a name="line.19"></a>
-<FONT color="green">020</FONT>    import java.sql.Types;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import java.text.SimpleDateFormat;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import java.util.Arrays;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import java.util.Collections;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import java.util.HashMap;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import java.util.Map;<a name="line.25"></a>
-<FONT color="green">026</FONT>    <a name="line.26"></a>
-<FONT color="green">027</FONT>    import javax.xml.stream.XMLStreamException;<a name="line.27"></a>
-<FONT color="green">028</FONT>    import javax.xml.stream.XMLStreamWriter;<a name="line.28"></a>
-<FONT color="green">029</FONT>    <a name="line.29"></a>
-<FONT color="green">030</FONT>    /**<a name="line.30"></a>
-<FONT color="green">031</FONT>     * Outputs the result of an SQL query as XML.<a name="line.31"></a>
-<FONT color="green">032</FONT>     *<a name="line.32"></a>
-<FONT color="green">033</FONT>     * &lt;p&gt;<a name="line.33"></a>
-<FONT color="green">034</FONT>     * For example, the query &lt;code&gt;SELECT ID, LAST_NAME AS LAST, FIRST_NAME AS FIRST FROM EMPLOYEE&lt;/code&gt; might become:<a name="line.34"></a>
-<FONT color="green">035</FONT>     * &lt;pre&gt;<a name="line.35"></a>
-<FONT color="green">036</FONT>     *  &amp;lt;result-set&amp;gt;<a name="line.36"></a>
-<FONT color="green">037</FONT>     *      &amp;lt;query&amp;gt;&amp;lt;![CDATA[SELECT ID, LAST_NAME, FIRST_NAME FROM EMPLOYEE]]&amp;gt;&amp;lt;/query&amp;gt;<a name="line.37"></a>
-<FONT color="green">038</FONT>     *      &amp;lt;columns&amp;gt;<a name="line.38"></a>
-<FONT color="green">039</FONT>     *          &amp;lt;column index="1" name="ID" label="ID" precision="20" type="BIGINT" typeName="BIGINT" nullable="false"/&amp;gt;<a name="line.39"></a>
-<FONT color="green">040</FONT>     *          &amp;lt;column index="2" name="LAST_NAME" label="LAST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&amp;gt;<a name="line.40"></a>
-<FONT color="green">041</FONT>     *          &amp;lt;column index="3" name="FIRST_NAME" label="FIRST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&amp;gt;<a name="line.41"></a>
-<FONT color="green">042</FONT>     *      &amp;lt;/columns&amp;gt;<a name="line.42"></a>
-<FONT color="green">043</FONT>     *      &amp;lt;data&amp;gt;<a name="line.43"></a>
-<FONT color="green">044</FONT>     *          &amp;lt;row&amp;gt;<a name="line.44"></a>
-<FONT color="green">045</FONT>     *              &amp;lt;column index="1"&amp;gt;1302&amp;lt;/column&amp;gt;<a name="line.45"></a>
-<FONT color="green">046</FONT>     *              &amp;lt;column index="2"&amp;gt;Washington&amp;lt;/column&amp;gt;<a name="line.46"></a>
-<FONT color="green">047</FONT>     *              &amp;lt;column index="3"&amp;gt;George&amp;lt;/column&amp;gt;<a name="line.47"></a>
-<FONT color="green">048</FONT>     *          &amp;lt;/row&amp;gt;<a name="line.48"></a>
-<FONT color="green">049</FONT>     *          &amp;lt;row&amp;gt;<a name="line.49"></a>
-<FONT color="green">050</FONT>     *              &amp;lt;column index="1"&amp;gt;1303&amp;lt;/column&amp;gt;<a name="line.50"></a>
-<FONT color="green">051</FONT>     *              &amp;lt;column index="2"&amp;gt;Lincoln&amp;lt;/column&amp;gt;<a name="line.51"></a>
-<FONT color="green">052</FONT>     *              &amp;lt;column index="3"&amp;gt;Abraham&amp;lt;/column&amp;gt;<a name="line.52"></a>
-<FONT color="green">053</FONT>     *          &amp;lt;/row&amp;gt;<a name="line.53"></a>
-<FONT color="green">054</FONT>     *          ...<a name="line.54"></a>
-<FONT color="green">055</FONT>     *      &amp;lt;/data&amp;gt;<a name="line.55"></a>
-<FONT color="green">056</FONT>     *  &amp;lt;/result-set&amp;gt;<a name="line.56"></a>
-<FONT color="green">057</FONT>     * &lt;/pre&gt;<a name="line.57"></a>
-<FONT color="green">058</FONT>     * &lt;/p&gt;<a name="line.58"></a>
-<FONT color="green">059</FONT>     *<a name="line.59"></a>
-<FONT color="green">060</FONT>     * &lt;p&gt;<a name="line.60"></a>
-<FONT color="green">061</FONT>     * If you turn on column name tags via {@link #setColumnNameTags setColumnNameTags()}, the output would look like this:<a name="line.61"></a>
-<FONT color="green">062</FONT>     * &lt;pre&gt;<a name="line.62"></a>
-<FONT color="green">063</FONT>     *  &amp;lt;result-set&amp;gt;<a name="line.63"></a>
-<FONT color="green">064</FONT>     *      &amp;lt;query&amp;gt;&amp;lt;![CDATA[SELECT ID, LAST_NAME, FIRST_NAME FROM EMPLOYEE]]&amp;gt;&amp;lt;/query&amp;gt;<a name="line.64"></a>
-<FONT color="green">065</FONT>     *      &amp;lt;columns&amp;gt;<a name="line.65"></a>
-<FONT color="green">066</FONT>     *          &amp;lt;column index="1" name="ID" label="ID" precision="20" type="BIGINT" typeName="BIGINT" nullable="false"/&amp;gt;<a name="line.66"></a>
-<FONT color="green">067</FONT>     *          &amp;lt;column index="2" name="LAST_NAME" label="LAST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&amp;gt;<a name="line.67"></a>
-<FONT color="green">068</FONT>     *          &amp;lt;column index="3" name="FIRST_NAME" label="FIRST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&amp;gt;<a name="line.68"></a>
-<FONT color="green">069</FONT>     *      &amp;lt;/columns&amp;gt;<a name="line.69"></a>
-<FONT color="green">070</FONT>     *      &amp;lt;data&amp;gt;<a name="line.70"></a>
-<FONT color="green">071</FONT>     *          &amp;lt;row&amp;gt;<a name="line.71"></a>
-<FONT color="green">072</FONT>     *              &amp;lt;ID index="1"&amp;gt;1302&amp;lt;/ID&amp;gt;<a name="line.72"></a>
-<FONT color="green">073</FONT>     *              &amp;lt;LAST index="2"&amp;gt;Washington&amp;lt;/LAST&amp;gt;<a name="line.73"></a>
-<FONT color="green">074</FONT>     *              &amp;lt;FIRST index="3"&amp;gt;George&amp;lt;/FIRST&amp;gt;<a name="line.74"></a>
-<FONT color="green">075</FONT>     *          &amp;lt;/row&amp;gt;<a name="line.75"></a>
-<FONT color="green">076</FONT>     *          &amp;lt;row&amp;gt;<a name="line.76"></a>
-<FONT color="green">077</FONT>     *              &amp;lt;ID index="1"&amp;gt;1303&amp;lt;/ID&amp;gt;<a name="line.77"></a>
-<FONT color="green">078</FONT>     *              &amp;lt;LAST index="2"&amp;gt;Lincoln&amp;lt;/LAST&amp;gt;<a name="line.78"></a>
-<FONT color="green">079</FONT>     *              &amp;lt;FIRST index="3"&amp;gt;Abraham&amp;lt;/FIRST&amp;gt;<a name="line.79"></a>
-<FONT color="green">080</FONT>     *          &amp;lt;/row&amp;gt;<a name="line.80"></a>
-<FONT color="green">081</FONT>     *          ...<a name="line.81"></a>
-<FONT color="green">082</FONT>     *      &amp;lt;/data&amp;gt;<a name="line.82"></a>
-<FONT color="green">083</FONT>     *  &amp;lt;/result-set&amp;gt;<a name="line.83"></a>
-<FONT color="green">084</FONT>     * &lt;/pre&gt;<a name="line.84"></a>
-<FONT color="green">085</FONT>     * &lt;/p&gt;<a name="line.85"></a>
-<FONT color="green">086</FONT>     */<a name="line.86"></a>
-<FONT color="green">087</FONT>    public class XMLResultSetWriter {<a name="line.87"></a>
-<FONT color="green">088</FONT>    <a name="line.88"></a>
-<FONT color="green">089</FONT>        /**<a name="line.89"></a>
-<FONT color="green">090</FONT>         * Mapping from result set {@link Types} values to their corresponding names.<a name="line.90"></a>
-<FONT color="green">091</FONT>         */<a name="line.91"></a>
-<FONT color="green">092</FONT>        public static final Map&lt;Integer, String&gt; TYPE_NAMES;<a name="line.92"></a>
-<FONT color="green">093</FONT>        static {<a name="line.93"></a>
-<FONT color="green">094</FONT>            HashMap&lt;Integer, String&gt; map = new HashMap&lt;Integer, String&gt;();<a name="line.94"></a>
-<FONT color="green">095</FONT>            for (Field field : Types.class.getDeclaredFields()) {<a name="line.95"></a>
-<FONT color="green">096</FONT>                if (field.getType() != Integer.TYPE || field.getModifiers() != (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL))<a name="line.96"></a>
-<FONT color="green">097</FONT>                    continue;<a name="line.97"></a>
-<FONT color="green">098</FONT>                try {<a name="line.98"></a>
-<FONT color="green">099</FONT>                    map.put(field.getInt(null), field.getName());<a name="line.99"></a>
-<FONT color="green">100</FONT>                } catch (IllegalAccessException e) {<a name="line.100"></a>
-<FONT color="green">101</FONT>                    throw new RuntimeException(e);<a name="line.101"></a>
-<FONT color="green">102</FONT>                }<a name="line.102"></a>
-<FONT color="green">103</FONT>            }<a name="line.103"></a>
-<FONT color="green">104</FONT>            TYPE_NAMES = Collections.unmodifiableMap(map);<a name="line.104"></a>
-<FONT color="green">105</FONT>        }<a name="line.105"></a>
-<FONT color="green">106</FONT>    <a name="line.106"></a>
-<FONT color="green">107</FONT>        private static final String DATE_FORMAT = "yyyy-MM-dd";<a name="line.107"></a>
-<FONT color="green">108</FONT>        private static final String TIMESTAMP_FORMAT = DATE_FORMAT + " HH:mm:ss";<a name="line.108"></a>
-<FONT color="green">109</FONT>    <a name="line.109"></a>
-<FONT color="green">110</FONT>        private final XMLStreamWriter writer;<a name="line.110"></a>
-<FONT color="green">111</FONT>        private final String indentSpace;<a name="line.111"></a>
-<FONT color="green">112</FONT>    <a name="line.112"></a>
-<FONT color="green">113</FONT>        private State state = State.LAST_CLOSE;<a name="line.113"></a>
-<FONT color="green">114</FONT>        private boolean columnNameTags;<a name="line.114"></a>
-<FONT color="green">115</FONT>        private int nesting;<a name="line.115"></a>
-<FONT color="green">116</FONT>    <a name="line.116"></a>
-<FONT color="green">117</FONT>        // Tracks state of the output<a name="line.117"></a>
-<FONT color="green">118</FONT>        private enum State {<a name="line.118"></a>
-<FONT color="green">119</FONT>            LAST_OPEN,<a name="line.119"></a>
-<FONT color="green">120</FONT>            LAST_CLOSE,<a name="line.120"></a>
-<FONT color="green">121</FONT>            LAST_TEXT<a name="line.121"></a>
-<FONT color="green">122</FONT>        };<a name="line.122"></a>
-<FONT color="green">123</FONT>    <a name="line.123"></a>
-<FONT color="green">124</FONT>        /**<a name="line.124"></a>
-<FONT color="green">125</FONT>         * Constructor.<a name="line.125"></a>
-<FONT color="green">126</FONT>         *<a name="line.126"></a>
-<FONT color="green">127</FONT>         * @param writer where to write the XML<a name="line.127"></a>
-<FONT color="green">128</FONT>         * @param indent number of spaces for indentation<a name="line.128"></a>
-<FONT color="green">129</FONT>         * @throws IllegalArgumentException if {@code writer} is null<a name="line.129"></a>
-<FONT color="green">130</FONT>         */<a name="line.130"></a>
-<FONT color="green">131</FONT>        public XMLResultSetWriter(XMLStreamWriter writer, int indent) {<a name="line.131"></a>
-<FONT color="green">132</FONT>            if (writer == null)<a name="line.132"></a>
-<FONT color="green">133</FONT>                throw new IllegalArgumentException("null writer");<a name="line.133"></a>
-<FONT color="green">134</FONT>            this.writer = writer;<a name="line.134"></a>
-<FONT color="green">135</FONT>            char[] spaces = new char[indent];<a name="line.135"></a>
-<FONT color="green">136</FONT>            Arrays.fill(spaces, ' ');<a name="line.136"></a>
-<FONT color="green">137</FONT>            this.indentSpace = new String(spaces);<a name="line.137"></a>
-<FONT color="green">138</FONT>        }<a name="line.138"></a>
-<FONT color="green">139</FONT>    <a name="line.139"></a>
-<FONT color="green">140</FONT>        /**<a name="line.140"></a>
-<FONT color="green">141</FONT>         * Set whether to use the SQL column labels as the XML element names for the data columns<a name="line.141"></a>
-<FONT color="green">142</FONT>         * instead of &lt;code&gt;&amp;lt;column&amp;gt;&lt;/code&gt;.<a name="line.142"></a>
-<FONT color="green">143</FONT>         * Default is false.<a name="line.143"></a>
-<FONT color="green">144</FONT>         */<a name="line.144"></a>
-<FONT color="green">145</FONT>        public void setColumnNameTags(boolean columnNameTags) {<a name="line.145"></a>
-<FONT color="green">146</FONT>            this.columnNameTags = columnNameTags;<a name="line.146"></a>
-<FONT color="green">147</FONT>        }<a name="line.147"></a>
-<FONT color="green">148</FONT>    <a name="line.148"></a>
-<FONT color="green">149</FONT>        /**<a name="line.149"></a>
-<FONT color="green">150</FONT>         * Write the given {@link ResultSet} out within a &lt;code&gt;&amp;lt;result-set&amp;gt;&lt;/code&gt; XML element.<a name="line.150"></a>
-<FONT color="green">151</FONT>         *<a name="line.151"></a>
-<FONT color="green">152</FONT>         * &lt;p&gt;<a name="line.152"></a>
-<FONT color="green">153</FONT>         * This is a convenience method, equivalent to:<a name="line.153"></a>
-<FONT color="green">154</FONT>         *  &lt;blockquote&gt;&lt;code&gt;<a name="line.154"></a>
-<FONT color="green">155</FONT>         *      write(null, resultSet)<a name="line.155"></a>
-<FONT color="green">156</FONT>         *  &lt;/code&gt;&lt;/blockquote&gt;<a name="line.156"></a>
-<FONT color="green">157</FONT>         * element is included.<a name="line.157"></a>
-<FONT color="green">158</FONT>         */<a name="line.158"></a>
-<FONT color="green">159</FONT>        public void write(ResultSet resultSet) throws SQLException, XMLStreamException {<a name="line.159"></a>
-<FONT color="green">160</FONT>            this.write(null, resultSet);<a name="line.160"></a>
-<FONT color="green">161</FONT>        }<a name="line.161"></a>
-<FONT color="green">162</FONT>    <a name="line.162"></a>
-<FONT color="green">163</FONT>        /**<a name="line.163"></a>
-<FONT color="green">164</FONT>         * Write the given {@link ResultSet} out within a &lt;code&gt;&amp;lt;result-set&amp;gt;&lt;/code&gt; XML element including the query.<a name="line.164"></a>
-<FONT color="green">165</FONT>         * The given SQL query will be present as a &lt;code&gt;&amp;lt;query&amp;gt;&lt;/code&gt; first child element,<a name="line.165"></a>
-<FONT color="green">166</FONT>         * followed by a &lt;code&gt;&amp;lt;columns&amp;gt;&lt;/code&gt; element containing column meta-data, and finally<a name="line.166"></a>
-<FONT color="green">167</FONT>         * the &lt;code&gt;&amp;lt;data&amp;gt;&lt;/code&gt; element containing each returned row.<a name="line.167"></a>
-<FONT color="green">168</FONT>         *<a name="line.168"></a>
-<FONT color="green">169</FONT>         * &lt;p&gt;<a name="line.169"></a>
-<FONT color="green">170</FONT>         * This method just outputs an XML element. To output an entire XML document, you would do something like this:<a name="line.170"></a>
-<FONT color="green">171</FONT>         * &lt;pre&gt;<a name="line.171"></a>
-<FONT color="green">172</FONT>         *  XMLResultSetWriter xmlResultSetWriter = new XMLResultSetWriter(writer, 4);<a name="line.172"></a>
-<FONT color="green">173</FONT>         *  writer.writeStartDocument("UTF-8", "1.0");<a name="line.173"></a>
-<FONT color="green">174</FONT>         *  xmlResultSetWriter.write(query, resultSet);<a name="line.174"></a>
-<FONT color="green">175</FONT>         *  writer.writeEndDocument();<a name="line.175"></a>
-<FONT color="green">176</FONT>         * &lt;/pre&gt;<a name="line.176"></a>
-<FONT color="green">177</FONT>         * &lt;/p&gt;<a name="line.177"></a>
-<FONT color="green">178</FONT>         *<a name="line.178"></a>
-<FONT color="green">179</FONT>         * &lt;p&gt;<a name="line.179"></a>
-<FONT color="green">180</FONT>         * The result set is iterated in a forward direction only.<a name="line.180"></a>
-<FONT color="green">181</FONT>         *<a name="line.181"></a>
-<FONT color="green">182</FONT>         * @param query the SQL query, or null to omit<a name="line.182"></a>
-<FONT color="green">183</FONT>         * @param resultSet result of the query<a name="line.183"></a>
-<FONT color="green">184</FONT>         * @throws XMLStreamException if there is an error writing out the XML<a name="line.184"></a>
-<FONT color="green">185</FONT>         * @throws SQLException if there is an error reading from {@code resultSet}<a name="line.185"></a>
-<FONT color="green">186</FONT>         */<a name="line.186"></a>
-<FONT color="green">187</FONT>        public void write(String query, ResultSet resultSet) throws SQLException, XMLStreamException {<a name="line.187"></a>
-<FONT color="green">188</FONT>    <a name="line.188"></a>
-<FONT color="green">189</FONT>            // Start result set<a name="line.189"></a>
-<FONT color="green">190</FONT>            this.openTag("result-set");<a name="line.190"></a>
-<FONT color="green">191</FONT>    <a name="line.191"></a>
-<FONT color="green">192</FONT>            // Emit query<a name="line.192"></a>
-<FONT color="green">193</FONT>            if (query != null) {<a name="line.193"></a>
-<FONT color="green">194</FONT>                this.openTag("query");<a name="line.194"></a>
-<FONT color="green">195</FONT>                this.emitCData(query);<a name="line.195"></a>
-<FONT color="green">196</FONT>                this.closeTag();<a name="line.196"></a>
-<FONT color="green">197</FONT>            }<a name="line.197"></a>
-<FONT color="green">198</FONT>    <a name="line.198"></a>
-<FONT color="green">199</FONT>            // Emit column info<a name="line.199"></a>
-<FONT color="green">200</FONT>            final ResultSetMetaData metaData = resultSet.getMetaData();<a name="line.200"></a>
-<FONT color="green">201</FONT>            final int numColumns = metaData.getColumnCount();<a name="line.201"></a>
-<FONT color="green">202</FONT>            String[] columnNames = new String[numColumns];<a name="line.202"></a>
-<FONT color="green">203</FONT>            this.openTag("columns");<a name="line.203"></a>
-<FONT color="green">204</FONT>            for (int col = 1; col &lt;= numColumns; col++) {<a name="line.204"></a>
-<FONT color="green">205</FONT>                this.openTag("column");<a name="line.205"></a>
-<FONT color="green">206</FONT>                this.writer.writeAttribute("index", "" + col);<a name="line.206"></a>
-<FONT color="green">207</FONT>                String name = metaData.getColumnName(col);<a name="line.207"></a>
-<FONT color="green">208</FONT>                if (name != null)<a name="line.208"></a>
-<FONT color="green">209</FONT>                    this.writer.writeAttribute("name", name);<a name="line.209"></a>
-<FONT color="green">210</FONT>                String label = metaData.getColumnLabel(col);<a name="line.210"></a>
-<FONT color="green">211</FONT>                if (label != null)<a name="line.211"></a>
-<FONT color="green">212</FONT>                    this.writer.writeAttribute("label", label);<a name="line.212"></a>
-<FONT color="green">213</FONT>                if (this.columnNameTags)<a name="line.213"></a>
-<FONT color="green">214</FONT>                    columnNames[col - 1] = label != null ? label : name != null ? name : null;<a name="line.214"></a>
-<FONT color="green">215</FONT>                int precision = metaData.getPrecision(col);<a name="line.215"></a>
-<FONT color="green">216</FONT>                if (precision != 0)<a name="line.216"></a>
-<FONT color="green">217</FONT>                    this.writer.writeAttribute("precision", "" + precision);<a name="line.217"></a>
-<FONT color="green">218</FONT>                int scale = metaData.getScale(col);<a name="line.218"></a>
-<FONT color="green">219</FONT>                if (scale != 0)<a name="line.219"></a>
-<FONT color="green">220</FONT>                    this.writer.writeAttribute("scale", "" + scale);<a name="line.220"></a>
-<FONT color="green">221</FONT>                int type = metaData.getColumnType(col);<a name="line.221"></a>
-<FONT color="green">222</FONT>                final String typeName = XMLResultSetWriter.TYPE_NAMES.get(type);<a name="line.222"></a>
-<FONT color="green">223</FONT>                this.writer.writeAttribute("type", typeName != null ? typeName : "" + type);<a name="line.223"></a>
-<FONT color="green">224</FONT>                this.writer.writeAttribute("typeName", metaData.getColumnTypeName(col));<a name="line.224"></a>
-<FONT color="green">225</FONT>                String nullableDesc;<a name="line.225"></a>
-<FONT color="green">226</FONT>                switch (metaData.isNullable(col)) {<a name="line.226"></a>
-<FONT color="green">227</FONT>                case ResultSetMetaData.columnNullable:<a name="line.227"></a>
-<FONT color="green">228</FONT>                    nullableDesc = "true";<a name="line.228"></a>
-<FONT color="green">229</FONT>                    break;<a name="line.229"></a>
-<FONT color="green">230</FONT>                case ResultSetMetaData.columnNoNulls:<a name="line.230"></a>
-<FONT color="green">231</FONT>                    nullableDesc = "false";<a name="line.231"></a>
-<FONT color="green">232</FONT>                    break;<a name="line.232"></a>
-<FONT color="green">233</FONT>                default:<a name="line.233"></a>
-<FONT color="green">234</FONT>                    nullableDesc = "unknown";<a name="line.234"></a>
-<FONT color="green">235</FONT>                    break;<a name="line.235"></a>
-<FONT color="green">236</FONT>                }<a name="line.236"></a>
-<FONT color="green">237</FONT>                this.writer.writeAttribute("nullable", nullableDesc);<a name="line.237"></a>
-<FONT color="green">238</FONT>                this.closeTag();<a name="line.238"></a>
-<FONT color="green">239</FONT>            }<a name="line.239"></a>
-<FONT color="green">240</FONT>            this.closeTag();<a name="line.240"></a>
-<FONT color="green">241</FONT>    <a name="line.241"></a>
-<FONT color="green">242</FONT>            // Emit result data<a name="line.242"></a>
-<FONT color="green">243</FONT>            this.openTag("data");<a name="line.243"></a>
-<FONT color="green">244</FONT>            while (resultSet.next()) {<a name="line.244"></a>
-<FONT color="green">245</FONT>                this.openTag("row");<a name="line.245"></a>
-<FONT color="green">246</FONT>                for (int col = 1; col &lt;= numColumns; col++)<a name="line.246"></a>
-<FONT color="green">247</FONT>                    this.writeDataColumn(resultSet, metaData.getColumnType(col), col, columnNames[col - 1]);<a name="line.247"></a>
-<FONT color="green">248</FONT>                this.closeTag();<a name="line.248"></a>
-<FONT color="green">249</FONT>            }<a name="line.249"></a>
-<FONT color="green">250</FONT>            this.closeTag();<a name="line.250"></a>
-<FONT color="green">251</FONT>    <a name="line.251"></a>
-<FONT color="green">252</FONT>            // End result set<a name="line.252"></a>
-<FONT color="green">253</FONT>            this.closeTag();<a name="line.253"></a>
-<FONT color="green">254</FONT>        }<a name="line.254"></a>
-<FONT color="green">255</FONT>    <a name="line.255"></a>
-<FONT color="green">256</FONT>    // Writing a data row<a name="line.256"></a>
-<FONT color="green">257</FONT>    <a name="line.257"></a>
-<FONT color="green">258</FONT>        private void writeDataColumn(ResultSet resultSet, int columnType, int col, String columnName)<a name="line.258"></a>
-<FONT color="green">259</FONT>          throws SQLException, XMLStreamException {<a name="line.259"></a>
-<FONT color="green">260</FONT>            Object value = null;<a name="line.260"></a>
-<FONT color="green">261</FONT>            switch (columnType) {<a name="line.261"></a>
-<FONT color="green">262</FONT>            case Types.BIT:<a name="line.262"></a>
-<FONT color="green">263</FONT>            case Types.BOOLEAN:<a name="line.263"></a>
-<FONT color="green">264</FONT>            {<a name="line.264"></a>
-<FONT color="green">265</FONT>                boolean b = resultSet.getBoolean(col);<a name="line.265"></a>
-<FONT color="green">266</FONT>                if (!resultSet.wasNull())<a name="line.266"></a>
-<FONT color="green">267</FONT>                    value = "" + b;<a name="line.267"></a>
-<FONT color="green">268</FONT>                break;<a name="line.268"></a>
-<FONT color="green">269</FONT>            }<a name="line.269"></a>
-<FONT color="green">270</FONT>            case Types.CLOB:<a name="line.270"></a>
-<FONT color="green">271</FONT>            case Types.NCLOB:<a name="line.271"></a>
-<FONT color="green">272</FONT>            case Types.LONGVARCHAR:<a name="line.272"></a>
-<FONT color="green">273</FONT>            case Types.LONGNVARCHAR:<a name="line.273"></a>
-<FONT color="green">274</FONT>            case Types.VARCHAR:<a name="line.274"></a>
-<FONT color="green">275</FONT>            case Types.NVARCHAR:<a name="line.275"></a>
-<FONT color="green">276</FONT>            case Types.CHAR:<a name="line.276"></a>
-<FONT color="green">277</FONT>            case Types.NCHAR:<a name="line.277"></a>
-<FONT color="green">278</FONT>            {<a name="line.278"></a>
-<FONT color="green">279</FONT>                Reader reader = resultSet.getCharacterStream(col);<a name="line.279"></a>
-<FONT color="green">280</FONT>                if (reader == null)<a name="line.280"></a>
-<FONT color="green">281</FONT>                    break;<a name="line.281"></a>
-<FONT color="green">282</FONT>                int len;<a name="line.282"></a>
-<FONT color="green">283</FONT>                char[] buf = new char[1024];<a name="line.283"></a>
-<FONT color="green">284</FONT>                this.openColumnTag(col, columnName);<a name="line.284"></a>
-<FONT color="green">285</FONT>                try {<a name="line.285"></a>
-<FONT color="green">286</FONT>                    while ((len = reader.read(buf)) != -1)<a name="line.286"></a>
-<FONT color="green">287</FONT>                        this.emitText(buf, 0, len);<a name="line.287"></a>
-<FONT color="green">288</FONT>                    reader.close();<a name="line.288"></a>
-<FONT color="green">289</FONT>                } catch (IOException e) {<a name="line.289"></a>
-<FONT color="green">290</FONT>                    throw (SQLException)new SQLException("error reading from CLOB").initCause(e);<a name="line.290"></a>
-<FONT color="green">291</FONT>                }<a name="line.291"></a>
-<FONT color="green">292</FONT>                this.closeTag();<a name="line.292"></a>
-<FONT color="green">293</FONT>                return;<a name="line.293"></a>
-<FONT color="green">294</FONT>            }<a name="line.294"></a>
-<FONT color="green">295</FONT>            case Types.BIGINT:<a name="line.295"></a>
-<FONT color="green">296</FONT>            case Types.DECIMAL:<a name="line.296"></a>
-<FONT color="green">297</FONT>            case Types.DOUBLE:<a name="line.297"></a>
-<FONT color="green">298</FONT>            case Types.FLOAT:<a name="line.298"></a>
-<FONT color="green">299</FONT>            case Types.REAL:<a name="line.299"></a>
-<FONT color="green">300</FONT>            case Types.NUMERIC:<a name="line.300"></a>
-<FONT color="green">301</FONT>                value = resultSet.getBigDecimal(col);<a name="line.301"></a>
-<FONT color="green">302</FONT>                break;<a name="line.302"></a>
-<FONT color="green">303</FONT>            case Types.INTEGER:<a name="line.303"></a>
-<FONT color="green">304</FONT>            case Types.TINYINT:<a name="line.304"></a>
-<FONT color="green">305</FONT>            case Types.SMALLINT:<a name="line.305"></a>
-<FONT color="green">306</FONT>                value = resultSet.getInt(col);<a name="line.306"></a>
-<FONT color="green">307</FONT>                break;<a name="line.307"></a>
-<FONT color="green">308</FONT>            case Types.DATE:<a name="line.308"></a>
-<FONT color="green">309</FONT>            {<a name="line.309"></a>
-<FONT color="green">310</FONT>                Date date = resultSet.getDate(col);<a name="line.310"></a>
-<FONT color="green">311</FONT>                if (date != null)<a name="line.311"></a>
-<FONT color="green">312</FONT>                    value = new SimpleDateFormat(DATE_FORMAT).format(date);<a name="line.312"></a>
-<FONT color="green">313</FONT>                break;<a name="line.313"></a>
-<FONT color="green">314</FONT>            }<a name="line.314"></a>
-<FONT color="green">315</FONT>            case Types.TIME:<a name="line.315"></a>
-<FONT color="green">316</FONT>                value = resultSet.getTime(col);<a name="line.316"></a>
-<FONT color="green">317</FONT>                break;<a name="line.317"></a>
-<FONT color="green">318</FONT>            case Types.TIMESTAMP:<a name="line.318"></a>
-<FONT color="green">319</FONT>            {<a name="line.319"></a>
-<FONT color="green">320</FONT>                Timestamp timestamp = resultSet.getTimestamp(col);<a name="line.320"></a>
-<FONT color="green">321</FONT>                if (timestamp != null)<a name="line.321"></a>
-<FONT color="green">322</FONT>                    value = new SimpleDateFormat(TIMESTAMP_FORMAT).format(timestamp);<a name="line.322"></a>
-<FONT color="green">323</FONT>                break;<a name="line.323"></a>
-<FONT color="green">324</FONT>            }<a name="line.324"></a>
-<FONT color="green">325</FONT>            case Types.BLOB:<a name="line.325"></a>
-<FONT color="green">326</FONT>            case Types.BINARY:<a name="line.326"></a>
-<FONT color="green">327</FONT>            case Types.VARBINARY:<a name="line.327"></a>
-<FONT color="green">328</FONT>            case Types.LONGVARBINARY:<a name="line.328"></a>
-<FONT color="green">329</FONT>            {<a name="line.329"></a>
-<FONT color="green">330</FONT>                InputStream input = resultSet.getBinaryStream(col);<a name="line.330"></a>
-<FONT color="green">331</FONT>                if (input == null)<a name="line.331"></a>
-<FONT color="green">332</FONT>                    break;<a name="line.332"></a>
-<FONT color="green">333</FONT>                this.openColumnTag(col, columnName);<a name="line.333"></a>
-<FONT color="green">334</FONT>                try {<a name="line.334"></a>
-<FONT color="green">335</FONT>                    this.writeBinary(input);<a name="line.335"></a>
-<FONT color="green">336</FONT>                    input.close();<a name="line.336"></a>
-<FONT color="green">337</FONT>                } catch (IOException e) {<a name="line.337"></a>
-<FONT color="green">338</FONT>                    throw (SQLException)new SQLException("error reading from BLOB").initCause(e);<a name="line.338"></a>
-<FONT color="green">339</FONT>                }<a name="line.339"></a>
-<FONT color="green">340</FONT>                this.closeTag();<a name="line.340"></a>
-<FONT color="green">341</FONT>                return;<a name="line.341"></a>
-<FONT color="green">342</FONT>            }<a name="line.342"></a>
-<FONT color="green">343</FONT>            case Types.ROWID:<a name="line.343"></a>
-<FONT color="green">344</FONT>            {<a name="line.344"></a>
-<FONT color="green">345</FONT>                try {<a name="line.345"></a>
-<FONT color="green">346</FONT>                    value = resultSet.getRowId(col);<a name="line.346"></a>
-<FONT color="green">347</FONT>                } catch (AbstractMethodError e) {<a name="line.347"></a>
-<FONT color="green">348</FONT>                    value = resultSet.getObject(col);<a name="line.348"></a>
-<FONT color="green">349</FONT>                }<a name="line.349"></a>
-<FONT color="green">350</FONT>                break;<a name="line.350"></a>
-<FONT color="green">351</FONT>            }<a name="line.351"></a>
-<FONT color="green">352</FONT>            // Unhandled cases...<a name="line.352"></a>
-<FONT color="green">353</FONT>            case Types.ARRAY:<a name="line.353"></a>
-<FONT color="green">354</FONT>            case Types.DATALINK:<a name="line.354"></a>
-<FONT color="green">355</FONT>            case Types.DISTINCT:<a name="line.355"></a>
-<FONT color="green">356</FONT>            case Types.JAVA_OBJECT:<a name="line.356"></a>
-<FONT color="green">357</FONT>            case Types.NULL:<a name="line.357"></a>
-<FONT color="green">358</FONT>            case Types.OTHER:<a name="line.358"></a>
-<FONT color="green">359</FONT>            case Types.REF:<a name="line.359"></a>
-<FONT color="green">360</FONT>            case Types.SQLXML:<a name="line.360"></a>
-<FONT color="green">361</FONT>            case Types.STRUCT:<a name="line.361"></a>
-<FONT color="green">362</FONT>            default:<a name="line.362"></a>
-<FONT color="green">363</FONT>                value = resultSet.getObject(col);<a name="line.363"></a>
-<FONT color="green">364</FONT>                break;<a name="line.364"></a>
-<FONT color="green">365</FONT>            }<a name="line.365"></a>
-<FONT color="green">366</FONT>    <a name="line.366"></a>
-<FONT color="green">367</FONT>            // Handle null by omitting the tag entirely<a name="line.367"></a>
-<FONT color="green">368</FONT>            if (value == null || resultSet.wasNull())<a name="line.368"></a>
-<FONT color="green">369</FONT>                return;<a name="line.369"></a>
-<FONT color="green">370</FONT>    <a name="line.370"></a>
-<FONT color="green">371</FONT>            // Emit value<a name="line.371"></a>
-<FONT color="green">372</FONT>            this.openColumnTag(col, columnName);<a name="line.372"></a>
-<FONT color="green">373</FONT>            this.emitText(value.toString());<a name="line.373"></a>
-<FONT color="green">374</FONT>            this.closeTag();<a name="line.374"></a>
-<FONT color="green">375</FONT>        }<a name="line.375"></a>
-<FONT color="green">376</FONT>    <a name="line.376"></a>
-<FONT color="green">377</FONT>        private void writeBinary(InputStream input) throws IOException, XMLStreamException {<a name="line.377"></a>
-<FONT color="green">378</FONT>            int len;<a name="line.378"></a>
-<FONT color="green">379</FONT>            byte[] buf = new byte[1024];<a name="line.379"></a>
-<FONT color="green">380</FONT>            char[] ch = new char[2];<a name="line.380"></a>
-<FONT color="green">381</FONT>            while ((len = input.read(buf)) != -1) {<a name="line.381"></a>
-<FONT color="green">382</FONT>                for (int i = 0; i &lt; len; i++) {<a name="line.382"></a>
-<FONT color="green">383</FONT>                    int val = buf[i] &amp; 0xff;<a name="line.383"></a>
-<FONT color="green">384</FONT>                    ch[0] = Character.forDigit(val &gt;&gt; 4, 16);<a name="line.384"></a>
-<FONT color="green">385</FONT>                    ch[1] = Character.forDigit(val &amp; 0xf, 16);<a name="line.385"></a>
-<FONT color="green">386</FONT>                    this.emitText(ch, 0, 2);<a name="line.386"></a>
-<FONT color="green">387</FONT>                }<a name="line.387"></a>
-<FONT color="green">388</FONT>            }<a name="line.388"></a>
-<FONT color="green">389</FONT>        }<a name="line.389"></a>
-<FONT color="green">390</FONT>    <a name="line.390"></a>
-<FONT color="green">391</FONT>    // XML output formatting<a name="line.391"></a>
-<FONT color="green">392</FONT>    <a name="line.392"></a>
-<FONT color="green">393</FONT>        private void openColumnTag(int col, String columnName) throws XMLStreamException {<a name="line.393"></a>
-<FONT color="green">394</FONT>            this.openTag(columnName != null ? this.xmlify(columnName) : "column");<a name="line.394"></a>
-<FONT color="green">395</FONT>            this.emitAttr("index", "" + col);<a name="line.395"></a>
-<FONT color="green">396</FONT>        }<a name="line.396"></a>
-<FONT color="green">397</FONT>    <a name="line.397"></a>
-<FONT color="green">398</FONT>        private String xmlify(String name) {<a name="line.398"></a>
-<FONT color="green">399</FONT>            StringBuilder buf = new StringBuilder(name.length());<a name="line.399"></a>
-<FONT color="green">400</FONT>            for (int i = 0; i &lt; name.length(); i++) {<a name="line.400"></a>
-<FONT color="green">401</FONT>                final char ch = name.charAt(i);<a name="line.401"></a>
-<FONT color="green">402</FONT>                if (Character.isLetter(ch) || ch == '_' || ch == ':') {<a name="line.402"></a>
-<FONT color="green">403</FONT>                    buf.append(ch);<a name="line.403"></a>
-<FONT color="green">404</FONT>                    continue;<a name="line.404"></a>
-<FONT color="green">405</FONT>                }<a name="line.405"></a>
-<FONT color="green">406</FONT>                if (i &gt; 0 &amp;&amp; (Character.isDigit(ch) || ch == '.' || ch == '-')) {<a name="line.406"></a>
-<FONT color="green">407</FONT>                    buf.append(ch);<a name="line.407"></a>
-<FONT color="green">408</FONT>                    continue;<a name="line.408"></a>
-<FONT color="green">409</FONT>                }<a name="line.409"></a>
-<FONT color="green">410</FONT>                buf.append('_');<a name="line.410"></a>
-<FONT color="green">411</FONT>            }<a name="line.411"></a>
-<FONT color="green">412</FONT>            return buf.toString();<a name="line.412"></a>
-<FONT color="green">413</FONT>        }<a name="line.413"></a>
-<FONT color="green">414</FONT>    <a name="line.414"></a>
-<FONT color="green">415</FONT>        private void openTag(String name) throws XMLStreamException {<a name="line.415"></a>
-<FONT color="green">416</FONT>            switch (this.state) {<a name="line.416"></a>
-<FONT color="green">417</FONT>            case LAST_OPEN:<a name="line.417"></a>
-<FONT color="green">418</FONT>                this.writer.writeCharacters("\n");<a name="line.418"></a>
-<FONT color="green">419</FONT>                break;<a name="line.419"></a>
-<FONT color="green">420</FONT>            case LAST_CLOSE:<a name="line.420"></a>
-<FONT color="green">421</FONT>                break;<a name="line.421"></a>
-<FONT color="green">422</FONT>            case LAST_TEXT:<a name="line.422"></a>
-<FONT color="green">423</FONT>            default:<a name="line.423"></a>
-<FONT color="green">424</FONT>                throw new RuntimeException("mixed element content not supported");<a name="line.424"></a>
-<FONT color="green">425</FONT>            }<a name="line.425"></a>
-<FONT color="green">426</FONT>            for (int i = 0; i &lt; this.nesting; i++)<a name="line.426"></a>
-<FONT color="green">427</FONT>                this.writer.writeCharacters(this.indentSpace);<a name="line.427"></a>
-<FONT color="green">428</FONT>            this.writer.writeStartElement(name);<a name="line.428"></a>
-<FONT color="green">429</FONT>            this.nesting++;<a name="line.429"></a>
-<FONT color="green">430</FONT>            this.state = State.LAST_OPEN;<a name="line.430"></a>
-<FONT color="green">431</FONT>        }<a name="line.431"></a>
-<FONT color="green">432</FONT>    <a name="line.432"></a>
-<FONT color="green">433</FONT>        private void emitAttr(String name, String value) throws XMLStreamException {<a name="line.433"></a>
-<FONT color="green">434</FONT>            this.writer.writeAttribute(name, value);<a name="line.434"></a>
-<FONT color="green">435</FONT>        }<a name="line.435"></a>
-<FONT color="green">436</FONT>    <a name="line.436"></a>
-<FONT color="green">437</FONT>        private void emitText(String content) throws XMLStreamException {<a name="line.437"></a>
-<FONT color="green">438</FONT>            this.writer.writeCharacters(content);<a name="line.438"></a>
-<FONT color="green">439</FONT>            this.state = State.LAST_TEXT;<a name="line.439"></a>
-<FONT color="green">440</FONT>        }<a name="line.440"></a>
-<FONT color="green">441</FONT>    <a name="line.441"></a>
-<FONT color="green">442</FONT>        private void emitText(char[] buf, int off, int len) throws XMLStreamException {<a name="line.442"></a>
-<FONT color="green">443</FONT>            this.writer.writeCharacters(buf, off, len);<a name="line.443"></a>
-<FONT color="green">444</FONT>            this.state = State.LAST_TEXT;<a name="line.444"></a>
-<FONT color="green">445</FONT>        }<a name="line.445"></a>
-<FONT color="green">446</FONT>    <a name="line.446"></a>
-<FONT color="green">447</FONT>        private void emitCData(String content) throws XMLStreamException {<a name="line.447"></a>
-<FONT color="green">448</FONT>            this.writer.writeCData(content);<a name="line.448"></a>
-<FONT color="green">449</FONT>            this.state = State.LAST_TEXT;<a name="line.449"></a>
-<FONT color="green">450</FONT>        }<a name="line.450"></a>
-<FONT color="green">451</FONT>    <a name="line.451"></a>
-<FONT color="green">452</FONT>        private void closeTag() throws XMLStreamException {<a name="line.452"></a>
-<FONT color="green">453</FONT>            this.nesting--;<a name="line.453"></a>
-<FONT color="green">454</FONT>            if (this.state == State.LAST_CLOSE) {<a name="line.454"></a>
-<FONT color="green">455</FONT>                for (int i = 0; i &lt; this.nesting; i++)<a name="line.455"></a>
-<FONT color="green">456</FONT>                    this.writer.writeCharacters(this.indentSpace);<a name="line.456"></a>
-<FONT color="green">457</FONT>            }<a name="line.457"></a>
-<FONT color="green">458</FONT>            this.writer.writeEndElement();<a name="line.458"></a>
-<FONT color="green">459</FONT>            if (this.nesting &gt; 0)<a name="line.459"></a>
-<FONT color="green">460</FONT>                this.writer.writeCharacters("\n");<a name="line.460"></a>
-<FONT color="green">461</FONT>            this.state = State.LAST_CLOSE;<a name="line.461"></a>
-<FONT color="green">462</FONT>        }<a name="line.462"></a>
-<FONT color="green">463</FONT>    }<a name="line.463"></a>
-<FONT color="green">464</FONT>    <a name="line.464"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.xml;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.io.IOException;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.io.InputStream;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.io.Reader;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.lang.reflect.Field;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.lang.reflect.Modifier;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.sql.Date;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.sql.ResultSet;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.sql.ResultSetMetaData;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.sql.SQLException;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.sql.Timestamp;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.sql.Types;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.text.SimpleDateFormat;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.Arrays;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.Collections;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.util.HashMap;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import java.util.Map;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>import javax.xml.stream.XMLStreamException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import javax.xml.stream.XMLStreamWriter;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>/**<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * Outputs the result of an SQL query as XML.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * For example, the query &lt;code&gt;SELECT ID, LAST_NAME AS LAST, FIRST_NAME AS FIRST FROM EMPLOYEE&lt;/code&gt; might become:<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;pre&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *  &amp;lt;result-set&amp;gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *      &amp;lt;query&amp;gt;&amp;lt;![CDATA[SELECT ID, LAST_NAME, FIRST_NAME FROM EMPLOYEE]]&amp;gt;&amp;lt;/query&amp;gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *      &amp;lt;columns&amp;gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *          &amp;lt;column index="1" name="ID" label="ID" precision="20" type="BIGINT" typeName="BIGINT" nullable="false"/&amp;gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *          &amp;lt;column index="2" name="LAST_NAME" label="LAST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&amp;gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *          &amp;lt;column index="3" name="FIRST_NAME" label="FIRST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&amp;gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *      &amp;lt;/columns&amp;gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *      &amp;lt;data&amp;gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *          &amp;lt;row&amp;gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *              &amp;lt;column index="1"&amp;gt;1302&amp;lt;/column&amp;gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *              &amp;lt;column index="2"&amp;gt;Washington&amp;lt;/column&amp;gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *              &amp;lt;column index="3"&amp;gt;George&amp;lt;/column&amp;gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *          &amp;lt;/row&amp;gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *          &amp;lt;row&amp;gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *              &amp;lt;column index="1"&amp;gt;1303&amp;lt;/column&amp;gt;<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *              &amp;lt;column index="2"&amp;gt;Lincoln&amp;lt;/column&amp;gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span> *              &amp;lt;column index="3"&amp;gt;Abraham&amp;lt;/column&amp;gt;<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *          &amp;lt;/row&amp;gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *          ...<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *      &amp;lt;/data&amp;gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *  &amp;lt;/result-set&amp;gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * &lt;/pre&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * &lt;/p&gt;<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * &lt;p&gt;<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * If you turn on column name tags via {@link #setColumnNameTags setColumnNameTags()}, the output would look like this:<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * &lt;pre&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *  &amp;lt;result-set&amp;gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *      &amp;lt;query&amp;gt;&amp;lt;![CDATA[SELECT ID, LAST_NAME, FIRST_NAME FROM EMPLOYEE]]&amp;gt;&amp;lt;/query&amp;gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *      &amp;lt;columns&amp;gt;<a name="line.65"></a>
+<span class="sourceLineNo">066</span> *          &amp;lt;column index="1" name="ID" label="ID" precision="20" type="BIGINT" typeName="BIGINT" nullable="false"/&amp;gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span> *          &amp;lt;column index="2" name="LAST_NAME" label="LAST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&amp;gt;<a name="line.67"></a>
+<span class="sourceLineNo">068</span> *          &amp;lt;column index="3" name="FIRST_NAME" label="FIRST" precision="255" type="VARCHAR" typeName="VARCHAR" nullable="false"/&amp;gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span> *      &amp;lt;/columns&amp;gt;<a name="line.69"></a>
+<span class="sourceLineNo">070</span> *      &amp;lt;data&amp;gt;<a name="line.70"></a>
+<span class="sourceLineNo">071</span> *          &amp;lt;row&amp;gt;<a name="line.71"></a>
+<span class="sourceLineNo">072</span> *              &amp;lt;ID index="1"&amp;gt;1302&amp;lt;/ID&amp;gt;<a name="line.72"></a>
+<span class="sourceLineNo">073</span> *              &amp;lt;LAST index="2"&amp;gt;Washington&amp;lt;/LAST&amp;gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span> *              &amp;lt;FIRST index="3"&amp;gt;George&amp;lt;/FIRST&amp;gt;<a name="line.74"></a>
+<span class="sourceLineNo">075</span> *          &amp;lt;/row&amp;gt;<a name="line.75"></a>
+<span class="sourceLineNo">076</span> *          &amp;lt;row&amp;gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *              &amp;lt;ID index="1"&amp;gt;1303&amp;lt;/ID&amp;gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span> *              &amp;lt;LAST index="2"&amp;gt;Lincoln&amp;lt;/LAST&amp;gt;<a name="line.78"></a>
+<span class="sourceLineNo">079</span> *              &amp;lt;FIRST index="3"&amp;gt;Abraham&amp;lt;/FIRST&amp;gt;<a name="line.79"></a>
+<span class="sourceLineNo">080</span> *          &amp;lt;/row&amp;gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span> *          ...<a name="line.81"></a>
+<span class="sourceLineNo">082</span> *      &amp;lt;/data&amp;gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span> *  &amp;lt;/result-set&amp;gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span> * &lt;/pre&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span> * &lt;/p&gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span> */<a name="line.86"></a>
+<span class="sourceLineNo">087</span>public class XMLResultSetWriter {<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    /**<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * Mapping from result set {@link Types} values to their corresponding names.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    public static final Map&lt;Integer, String&gt; TYPE_NAMES;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    static {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        HashMap&lt;Integer, String&gt; map = new HashMap&lt;Integer, String&gt;();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        for (Field field : Types.class.getDeclaredFields()) {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>            if (field.getType() != Integer.TYPE || field.getModifiers() != (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL))<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                continue;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>            try {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                map.put(field.getInt(null), field.getName());<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            } catch (IllegalAccessException e) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                throw new RuntimeException(e);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            }<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        }<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        TYPE_NAMES = Collections.unmodifiableMap(map);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>    private static final String DATE_FORMAT = "yyyy-MM-dd";<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    private static final String TIMESTAMP_FORMAT = DATE_FORMAT + " HH:mm:ss";<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>    private final XMLStreamWriter writer;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    private final String indentSpace;<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>    private State state = State.LAST_CLOSE;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    private boolean columnNameTags;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    private int nesting;<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>    // Tracks state of the output<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    private enum State {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        LAST_OPEN,<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        LAST_CLOSE,<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        LAST_TEXT<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    };<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>    /**<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * Constructor.<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     *<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * @param writer where to write the XML<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * @param indent number of spaces for indentation<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @throws IllegalArgumentException if {@code writer} is null<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     */<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    public XMLResultSetWriter(XMLStreamWriter writer, int indent) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        if (writer == null)<a name="line.132"></a>
+<span class="sourceLineNo">133</span>            throw new IllegalArgumentException("null writer");<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        this.writer = writer;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        char[] spaces = new char[indent];<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        Arrays.fill(spaces, ' ');<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        this.indentSpace = new String(spaces);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    }<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * Set whether to use the SQL column labels as the XML element names for the data columns<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * instead of &lt;code&gt;&amp;lt;column&amp;gt;&lt;/code&gt;.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * Default is false.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    public void setColumnNameTags(boolean columnNameTags) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        this.columnNameTags = columnNameTags;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>    /**<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * Write the given {@link ResultSet} out within a &lt;code&gt;&amp;lt;result-set&amp;gt;&lt;/code&gt; XML element.<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     *<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * &lt;p&gt;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * This is a convenience method, equivalent to:<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     *  &lt;blockquote&gt;&lt;code&gt;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     *      write(null, resultSet)<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     *  &lt;/code&gt;&lt;/blockquote&gt;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * element is included.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     */<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    public void write(ResultSet resultSet) throws SQLException, XMLStreamException {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        this.write(null, resultSet);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>    /**<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * Write the given {@link ResultSet} out within a &lt;code&gt;&amp;lt;result-set&amp;gt;&lt;/code&gt; XML element including the query.<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * The given SQL query will be present as a &lt;code&gt;&amp;lt;query&amp;gt;&lt;/code&gt; first child element,<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * followed by a &lt;code&gt;&amp;lt;columns&amp;gt;&lt;/code&gt; element containing column meta-data, and finally<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * the &lt;code&gt;&amp;lt;data&amp;gt;&lt;/code&gt; element containing each returned row.<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     *<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * &lt;p&gt;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * This method just outputs an XML element. To output an entire XML document, you would do something like this:<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * &lt;pre&gt;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     *  XMLResultSetWriter xmlResultSetWriter = new XMLResultSetWriter(writer, 4);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     *  writer.writeStartDocument("UTF-8", "1.0");<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     *  xmlResultSetWriter.write(query, resultSet);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     *  writer.writeEndDocument();<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * &lt;/pre&gt;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * &lt;/p&gt;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     *<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * &lt;p&gt;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * The result set is iterated in a forward direction only.<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     *<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     * @param query the SQL query, or null to omit<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * @param resultSet result of the query<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     * @throws XMLStreamException if there is an error writing out the XML<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * @throws SQLException if there is an error reading from {@code resultSet}<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     */<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    public void write(String query, ResultSet resultSet) throws SQLException, XMLStreamException {<a name="line.187"></a>
+<span class="sourceLineNo">188</span><a name="line.188"></a>
+<span class="sourceLineNo">189</span>        // Start result set<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        this.openTag("result-set");<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>        // Emit query<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        if (query != null) {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            this.openTag("query");<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            this.emitCData(query);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>            this.closeTag();<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>        // Emit column info<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        final ResultSetMetaData metaData = resultSet.getMetaData();<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        final int numColumns = metaData.getColumnCount();<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        String[] columnNames = new String[numColumns];<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        this.openTag("columns");<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        for (int col = 1; col &lt;= numColumns; col++) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            this.openTag("column");<a name="line.205"></a>
+<span class="sourceLineNo">206</span>            this.writer.writeAttribute("index", "" + col);<a name="line.206"></a>
+<span class="sourceLineNo">207</span>            String name = metaData.getColumnName(col);<a name="line.207"></a>
+<span class="sourceLineNo">208</span>            if (name != null)<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                this.writer.writeAttribute("name", name);<a name="line.209"></a>
+<span class="sourceLineNo">210</span>            String label = metaData.getColumnLabel(col);<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            if (label != null)<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                this.writer.writeAttribute("label", label);<a name="line.212"></a>
+<span class="sourceLineNo">213</span>            if (this.columnNameTags)<a name="line.213"></a>
+<span class="sourceLineNo">214</span>                columnNames[col - 1] = label != null ? label : name != null ? name : null;<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            int precision = metaData.getPrecision(col);<a name="line.215"></a>
+<span class="sourceLineNo">216</span>            if (precision != 0)<a name="line.216"></a>
+<span class="sourceLineNo">217</span>                this.writer.writeAttribute("precision", "" + precision);<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            int scale = metaData.getScale(col);<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            if (scale != 0)<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                this.writer.writeAttribute("scale", "" + scale);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            int type = metaData.getColumnType(col);<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            final String typeName = XMLResultSetWriter.TYPE_NAMES.get(type);<a name="line.222"></a>
+<span class="sourceLineNo">223</span>            this.writer.writeAttribute("type", typeName != null ? typeName : "" + type);<a name="line.223"></a>
+<span class="sourceLineNo">224</span>            this.writer.writeAttribute("typeName", metaData.getColumnTypeName(col));<a name="line.224"></a>
+<span class="sourceLineNo">225</span>            String nullableDesc;<a name="line.225"></a>
+<span class="sourceLineNo">226</span>            switch (metaData.isNullable(col)) {<a name="line.226"></a>
+<span class="sourceLineNo">227</span>            case ResultSetMetaData.columnNullable:<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                nullableDesc = "true";<a name="line.228"></a>
+<span class="sourceLineNo">229</span>                break;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>            case ResultSetMetaData.columnNoNulls:<a name="line.230"></a>
+<span class="sourceLineNo">231</span>                nullableDesc = "false";<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                break;<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            default:<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                nullableDesc = "unknown";<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                break;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            }<a name="line.236"></a>
+<span class="sourceLineNo">237</span>            this.writer.writeAttribute("nullable", nullableDesc);<a name="line.237"></a>
+<span class="sourceLineNo">238</span>            this.closeTag();<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        }<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        this.closeTag();<a name="line.240"></a>
+<span class="sourceLineNo">241</span><a name="line.241"></a>
+<span class="sourceLineNo">242</span>        // Emit result data<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        this.openTag("data");<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        while (resultSet.next()) {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>            this.openTag("row");<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            for (int col = 1; col &lt;= numColumns; col++)<a name="line.246"></a>
+<span class="sourceLineNo">247</span>                this.writeDataColumn(resultSet, metaData.getColumnType(col), col, columnNames[col - 1]);<a name="line.247"></a>
+<span class="sourceLineNo">248</span>            this.closeTag();<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        }<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        this.closeTag();<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>        // End result set<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        this.closeTag();<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    }<a name="line.254"></a>
+<span class="sourceLineNo">255</span><a name="line.255"></a>
+<span class="sourceLineNo">256</span>// Writing a data row<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>    private void writeDataColumn(ResultSet resultSet, int columnType, int col, String columnName)<a name="line.258"></a>
+<span class="sourceLineNo">259</span>      throws SQLException, XMLStreamException {<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        Object value = null;<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        switch (columnType) {<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        case Types.BIT:<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        case Types.BOOLEAN:<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>            boolean b = resultSet.getBoolean(col);<a name="line.265"></a>
+<span class="sourceLineNo">266</span>            if (!resultSet.wasNull())<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                value = "" + b;<a name="line.267"></a>
+<span class="sourceLineNo">268</span>            break;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        }<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        case Types.CLOB:<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        case Types.NCLOB:<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        case Types.LONGVARCHAR:<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        case Types.LONGNVARCHAR:<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        case Types.VARCHAR:<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        case Types.NVARCHAR:<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        case Types.CHAR:<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        case Types.NCHAR:<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        {<a name="line.278"></a>
+<span class="sourceLineNo">279</span>            Reader reader = resultSet.getCharacterStream(col);<a name="line.279"></a>
+<span class="sourceLineNo">280</span>            if (reader == null)<a name="line.280"></a>
+<span class="sourceLineNo">281</span>                break;<a name="line.281"></a>
+<span class="sourceLineNo">282</span>            int len;<a name="line.282"></a>
+<span class="sourceLineNo">283</span>            char[] buf = new char[1024];<a name="line.283"></a>
+<span class="sourceLineNo">284</span>            this.openColumnTag(col, columnName);<a name="line.284"></a>
+<span class="sourceLineNo">285</span>            try {<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                while ((len = reader.read(buf)) != -1)<a name="line.286"></a>
+<span class="sourceLineNo">287</span>                    this.emitText(buf, 0, len);<a name="line.287"></a>
+<span class="sourceLineNo">288</span>                reader.close();<a name="line.288"></a>
+<span class="sourceLineNo">289</span>            } catch (IOException e) {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>                throw (SQLException)new SQLException("error reading from CLOB").initCause(e);<a name="line.290"></a>
+<span class="sourceLineNo">291</span>            }<a name="line.291"></a>
+<span class="sourceLineNo">292</span>            this.closeTag();<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            return;<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        }<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        case Types.BIGINT:<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        case Types.DECIMAL:<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        case Types.DOUBLE:<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        case Types.FLOAT:<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        case Types.REAL:<a name="line.299"></a>
+<span class="sourceLineNo">300</span>        case Types.NUMERIC:<a name="line.300"></a>
+<span class="sourceLineNo">301</span>            value = resultSet.getBigDecimal(col);<a name="line.301"></a>
+<span class="sourceLineNo">302</span>            break;<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        case Types.INTEGER:<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        case Types.TINYINT:<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        case Types.SMALLINT:<a name="line.305"></a>
+<span class="sourceLineNo">306</span>            value = resultSet.getInt(col);<a name="line.306"></a>
+<span class="sourceLineNo">307</span>            break;<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        case Types.DATE:<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        {<a name="line.309"></a>
+<span class="sourceLineNo">310</span>            Date date = resultSet.getDate(col);<a name="line.310"></a>
+<span class="sourceLineNo">311</span>            if (date != null)<a name="line.311"></a>
+<span class="sourceLineNo">312</span>                value = new SimpleDateFormat(DATE_FORMAT).format(date);<a name="line.312"></a>
+<span class="sourceLineNo">313</span>            break;<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        }<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        case Types.TIME:<a name="line.315"></a>
+<span class="sourceLineNo">316</span>            value = resultSet.getTime(col);<a name="line.316"></a>
+<span class="sourceLineNo">317</span>            break;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        case Types.TIMESTAMP:<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            Timestamp timestamp = resultSet.getTimestamp(col);<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            if (timestamp != null)<a name="line.321"></a>
+<span class="sourceLineNo">322</span>                value = new SimpleDateFormat(TIMESTAMP_FORMAT).format(timestamp);<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            break;<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        }<a name="line.324"></a>
+<span class="sourceLineNo">325</span>        case Types.BLOB:<a name="line.325"></a>
+<span class="sourceLineNo">326</span>        case Types.BINARY:<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        case Types.VARBINARY:<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        case Types.LONGVARBINARY:<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        {<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            InputStream input = resultSet.getBinaryStream(col);<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            if (input == null)<a name="line.331"></a>
+<span class="sourceLineNo">332</span>                break;<a name="line.332"></a>
+<span class="sourceLineNo">333</span>            this.openColumnTag(col, columnName);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            try {<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                this.writeBinary(input);<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                input.close();<a name="line.336"></a>
+<span class="sourceLineNo">337</span>            } catch (IOException e) {<a name="line.337"></a>
+<span class="sourceLineNo">338</span>                throw (SQLException)new SQLException("error reading from BLOB").initCause(e);<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            }<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            this.closeTag();<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            return;<a name="line.341"></a>
+<span class="sourceLineNo">342</span>        }<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        case Types.ROWID:<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        {<a name="line.344"></a>
+<span class="sourceLineNo">345</span>            try {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                value = resultSet.getRowId(col);<a name="line.346"></a>
+<span class="sourceLineNo">347</span>            } catch (AbstractMethodError e) {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                value = resultSet.getObject(col);<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            }<a name="line.349"></a>
+<span class="sourceLineNo">350</span>            break;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        }<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        // Unhandled cases...<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        case Types.ARRAY:<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        case Types.DATALINK:<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        case Types.DISTINCT:<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        case Types.JAVA_OBJECT:<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        case Types.NULL:<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        case Types.OTHER:<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        case Types.REF:<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        case Types.SQLXML:<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        case Types.STRUCT:<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        default:<a name="line.362"></a>
+<span class="sourceLineNo">363</span>            value = resultSet.getObject(col);<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            break;<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        }<a name="line.365"></a>
+<span class="sourceLineNo">366</span><a name="line.366"></a>
+<span class="sourceLineNo">367</span>        // Handle null by omitting the tag entirely<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        if (value == null || resultSet.wasNull())<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            return;<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>        // Emit value<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        this.openColumnTag(col, columnName);<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        this.emitText(value.toString());<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        this.closeTag();<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    }<a name="line.375"></a>
+<span class="sourceLineNo">376</span><a name="line.376"></a>
+<span class="sourceLineNo">377</span>    private void writeBinary(InputStream input) throws IOException, XMLStreamException {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        int len;<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        byte[] buf = new byte[1024];<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        char[] ch = new char[2];<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        while ((len = input.read(buf)) != -1) {<a name="line.381"></a>
+<span class="sourceLineNo">382</span>            for (int i = 0; i &lt; len; i++) {<a name="line.382"></a>
+<span class="sourceLineNo">383</span>                int val = buf[i] &amp; 0xff;<a name="line.383"></a>
+<span class="sourceLineNo">384</span>                ch[0] = Character.forDigit(val &gt;&gt; 4, 16);<a name="line.384"></a>
+<span class="sourceLineNo">385</span>                ch[1] = Character.forDigit(val &amp; 0xf, 16);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>                this.emitText(ch, 0, 2);<a name="line.386"></a>
+<span class="sourceLineNo">387</span>            }<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        }<a name="line.388"></a>
+<span class="sourceLineNo">389</span>    }<a name="line.389"></a>
+<span class="sourceLineNo">390</span><a name="line.390"></a>
+<span class="sourceLineNo">391</span>// XML output formatting<a name="line.391"></a>
+<span class="sourceLineNo">392</span><a name="line.392"></a>
+<span class="sourceLineNo">393</span>    private void openColumnTag(int col, String columnName) throws XMLStreamException {<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        this.openTag(columnName != null ? this.xmlify(columnName) : "column");<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        this.emitAttr("index", "" + col);<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    }<a name="line.396"></a>
+<span class="sourceLineNo">397</span><a name="line.397"></a>
+<span class="sourceLineNo">398</span>    private String xmlify(String name) {<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        StringBuilder buf = new StringBuilder(name.length());<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        for (int i = 0; i &lt; name.length(); i++) {<a name="line.400"></a>
+<span class="sourceLineNo">401</span>            final char ch = name.charAt(i);<a name="line.401"></a>
+<span class="sourceLineNo">402</span>            if (Character.isLetter(ch) || ch == '_' || ch == ':') {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                buf.append(ch);<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                continue;<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            }<a name="line.405"></a>
+<span class="sourceLineNo">406</span>            if (i &gt; 0 &amp;&amp; (Character.isDigit(ch) || ch == '.' || ch == '-')) {<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                buf.append(ch);<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                continue;<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            }<a name="line.409"></a>
+<span class="sourceLineNo">410</span>            buf.append('_');<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        }<a name="line.411"></a>
+<span class="sourceLineNo">412</span>        return buf.toString();<a name="line.412"></a>
+<span class="sourceLineNo">413</span>    }<a name="line.413"></a>
+<span class="sourceLineNo">414</span><a name="line.414"></a>
+<span class="sourceLineNo">415</span>    private void openTag(String name) throws XMLStreamException {<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        switch (this.state) {<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        case LAST_OPEN:<a name="line.417"></a>
+<span class="sourceLineNo">418</span>            this.writer.writeCharacters("\n");<a name="line.418"></a>
+<span class="sourceLineNo">419</span>            break;<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        case LAST_CLOSE:<a name="line.420"></a>
+<span class="sourceLineNo">421</span>            break;<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        case LAST_TEXT:<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        default:<a name="line.423"></a>
+<span class="sourceLineNo">424</span>            throw new RuntimeException("mixed element content not supported");<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        }<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        for (int i = 0; i &lt; this.nesting; i++)<a name="line.426"></a>
+<span class="sourceLineNo">427</span>            this.writer.writeCharacters(this.indentSpace);<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        this.writer.writeStartElement(name);<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        this.nesting++;<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        this.state = State.LAST_OPEN;<a name="line.430"></a>
+<span class="sourceLineNo">431</span>    }<a name="line.431"></a>
+<span class="sourceLineNo">432</span><a name="line.432"></a>
+<span class="sourceLineNo">433</span>    private void emitAttr(String name, String value) throws XMLStreamException {<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        this.writer.writeAttribute(name, value);<a name="line.434"></a>
+<span class="sourceLineNo">435</span>    }<a name="line.435"></a>
+<span class="sourceLineNo">436</span><a name="line.436"></a>
+<span class="sourceLineNo">437</span>    private void emitText(String content) throws XMLStreamException {<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        this.writer.writeCharacters(content);<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        this.state = State.LAST_TEXT;<a name="line.439"></a>
+<span class="sourceLineNo">440</span>    }<a name="line.440"></a>
+<span class="sourceLineNo">441</span><a name="line.441"></a>
+<span class="sourceLineNo">442</span>    private void emitText(char[] buf, int off, int len) throws XMLStreamException {<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        this.writer.writeCharacters(buf, off, len);<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        this.state = State.LAST_TEXT;<a name="line.444"></a>
+<span class="sourceLineNo">445</span>    }<a name="line.445"></a>
+<span class="sourceLineNo">446</span><a name="line.446"></a>
+<span class="sourceLineNo">447</span>    private void emitCData(String content) throws XMLStreamException {<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        this.writer.writeCData(content);<a name="line.448"></a>
+<span class="sourceLineNo">449</span>        this.state = State.LAST_TEXT;<a name="line.449"></a>
+<span class="sourceLineNo">450</span>    }<a name="line.450"></a>
+<span class="sourceLineNo">451</span><a name="line.451"></a>
+<span class="sourceLineNo">452</span>    private void closeTag() throws XMLStreamException {<a name="line.452"></a>
+<span class="sourceLineNo">453</span>        this.nesting--;<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        if (this.state == State.LAST_CLOSE) {<a name="line.454"></a>
+<span class="sourceLineNo">455</span>            for (int i = 0; i &lt; this.nesting; i++)<a name="line.455"></a>
+<span class="sourceLineNo">456</span>                this.writer.writeCharacters(this.indentSpace);<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        }<a name="line.457"></a>
+<span class="sourceLineNo">458</span>        this.writer.writeEndElement();<a name="line.458"></a>
+<span class="sourceLineNo">459</span>        if (this.nesting &gt; 0)<a name="line.459"></a>
+<span class="sourceLineNo">460</span>            this.writer.writeCharacters("\n");<a name="line.460"></a>
+<span class="sourceLineNo">461</span>        this.state = State.LAST_CLOSE;<a name="line.461"></a>
+<span class="sourceLineNo">462</span>    }<a name="line.462"></a>
+<span class="sourceLineNo">463</span>}<a name="line.463"></a>
+<span class="sourceLineNo">464</span><a name="line.464"></a>
 
 
 
@@ -525,6 +530,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

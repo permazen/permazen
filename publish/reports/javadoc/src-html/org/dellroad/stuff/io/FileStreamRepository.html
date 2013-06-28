@@ -1,208 +1,213 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.io;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.io.File;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import java.io.FileInputStream;<a name="line.11"></a>
-<FONT color="green">012</FONT>    import java.io.IOException;<a name="line.12"></a>
-<FONT color="green">013</FONT>    import java.io.InputStream;<a name="line.13"></a>
-<FONT color="green">014</FONT>    <a name="line.14"></a>
-<FONT color="green">015</FONT>    import org.slf4j.Logger;<a name="line.15"></a>
-<FONT color="green">016</FONT>    import org.slf4j.LoggerFactory;<a name="line.16"></a>
-<FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>    /**<a name="line.18"></a>
-<FONT color="green">019</FONT>     * Provides a file-based implementation of the {@link StreamRepository} interface with<a name="line.19"></a>
-<FONT color="green">020</FONT>     * the added feature of automated backups.<a name="line.20"></a>
-<FONT color="green">021</FONT>     *<a name="line.21"></a>
-<FONT color="green">022</FONT>     * &lt;p&gt;<a name="line.22"></a>
-<FONT color="green">023</FONT>     * Atomic updates are implemented using an {@link AtomicUpdateFileOutputStream}.<a name="line.23"></a>
-<FONT color="green">024</FONT>     *<a name="line.24"></a>
-<FONT color="green">025</FONT>     * &lt;p&gt;<a name="line.25"></a>
-<FONT color="green">026</FONT>     * When backups are configured, the base file must be copied, not moved, to the first backup on update to avoid<a name="line.26"></a>
-<FONT color="green">027</FONT>     * a small window where the base file doesn't exist. This class uses {@linkplain HardLink hard links} to perform<a name="line.27"></a>
-<FONT color="green">028</FONT>     * this "copy" efficiently. This behavior can be altered by overriding {@link #copy copy()} on systems not supporting<a name="line.28"></a>
-<FONT color="green">029</FONT>     * hard links.<a name="line.29"></a>
-<FONT color="green">030</FONT>     */<a name="line.30"></a>
-<FONT color="green">031</FONT>    public class FileStreamRepository implements StreamRepository {<a name="line.31"></a>
-<FONT color="green">032</FONT>    <a name="line.32"></a>
-<FONT color="green">033</FONT>        private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.33"></a>
-<FONT color="green">034</FONT>    <a name="line.34"></a>
-<FONT color="green">035</FONT>        private final File file;<a name="line.35"></a>
-<FONT color="green">036</FONT>    <a name="line.36"></a>
-<FONT color="green">037</FONT>        private int numBackups;<a name="line.37"></a>
-<FONT color="green">038</FONT>        private long timestamp;<a name="line.38"></a>
-<FONT color="green">039</FONT>    <a name="line.39"></a>
-<FONT color="green">040</FONT>        /**<a name="line.40"></a>
-<FONT color="green">041</FONT>         * Primary constructor.<a name="line.41"></a>
-<FONT color="green">042</FONT>         *<a name="line.42"></a>
-<FONT color="green">043</FONT>         * @param file the file that will store the stream content<a name="line.43"></a>
-<FONT color="green">044</FONT>         * @param numBackups number of backup copies to keep<a name="line.44"></a>
-<FONT color="green">045</FONT>         */<a name="line.45"></a>
-<FONT color="green">046</FONT>        public FileStreamRepository(File file, int numBackups) {<a name="line.46"></a>
-<FONT color="green">047</FONT>            if (file == null)<a name="line.47"></a>
-<FONT color="green">048</FONT>                throw new IllegalArgumentException("null file");<a name="line.48"></a>
-<FONT color="green">049</FONT>            if (numBackups &lt; 0)<a name="line.49"></a>
-<FONT color="green">050</FONT>                throw new IllegalArgumentException("negative numBackups");<a name="line.50"></a>
-<FONT color="green">051</FONT>            this.file = file;<a name="line.51"></a>
-<FONT color="green">052</FONT>            this.numBackups = numBackups;<a name="line.52"></a>
-<FONT color="green">053</FONT>        }<a name="line.53"></a>
-<FONT color="green">054</FONT>    <a name="line.54"></a>
-<FONT color="green">055</FONT>        /**<a name="line.55"></a>
-<FONT color="green">056</FONT>         * Convenience constructor for the case where no backup copies are needed.<a name="line.56"></a>
-<FONT color="green">057</FONT>         *<a name="line.57"></a>
-<FONT color="green">058</FONT>         * &lt;p&gt;<a name="line.58"></a>
-<FONT color="green">059</FONT>         * Equivalent to:<a name="line.59"></a>
-<FONT color="green">060</FONT>         * &lt;blockquote&gt;&lt;code&gt;<a name="line.60"></a>
-<FONT color="green">061</FONT>         *  FileStreamRepository(file, 0);<a name="line.61"></a>
-<FONT color="green">062</FONT>         * &lt;/code&gt;&lt;/blockquote&gt;<a name="line.62"></a>
-<FONT color="green">063</FONT>         */<a name="line.63"></a>
-<FONT color="green">064</FONT>        public FileStreamRepository(File file) {<a name="line.64"></a>
-<FONT color="green">065</FONT>            this(file, 0);<a name="line.65"></a>
-<FONT color="green">066</FONT>        }<a name="line.66"></a>
-<FONT color="green">067</FONT>    <a name="line.67"></a>
-<FONT color="green">068</FONT>        /**<a name="line.68"></a>
-<FONT color="green">069</FONT>         * Get the configured {@link File}.<a name="line.69"></a>
-<FONT color="green">070</FONT>         *<a name="line.70"></a>
-<FONT color="green">071</FONT>         * @return the file that stores the stream content (same as given to constructor)<a name="line.71"></a>
-<FONT color="green">072</FONT>         */<a name="line.72"></a>
-<FONT color="green">073</FONT>        public final File getFile() {<a name="line.73"></a>
-<FONT color="green">074</FONT>            return this.file;<a name="line.74"></a>
-<FONT color="green">075</FONT>        }<a name="line.75"></a>
-<FONT color="green">076</FONT>    <a name="line.76"></a>
-<FONT color="green">077</FONT>        /**<a name="line.77"></a>
-<FONT color="green">078</FONT>         * Get the configured number of backup files.<a name="line.78"></a>
-<FONT color="green">079</FONT>         *<a name="line.79"></a>
-<FONT color="green">080</FONT>         * @return the number of backup files to maintain<a name="line.80"></a>
-<FONT color="green">081</FONT>         */<a name="line.81"></a>
-<FONT color="green">082</FONT>        public final int getNumBackups() {<a name="line.82"></a>
-<FONT color="green">083</FONT>            return this.numBackups;<a name="line.83"></a>
-<FONT color="green">084</FONT>        }<a name="line.84"></a>
-<FONT color="green">085</FONT>    <a name="line.85"></a>
-<FONT color="green">086</FONT>        /**<a name="line.86"></a>
-<FONT color="green">087</FONT>         * Change the number of backup files to maintain.<a name="line.87"></a>
-<FONT color="green">088</FONT>         *<a name="line.88"></a>
-<FONT color="green">089</FONT>         * &lt;p&gt;<a name="line.89"></a>
-<FONT color="green">090</FONT>         * If the number of backups is reduced, the "extra" backup files are not touched.<a name="line.90"></a>
-<FONT color="green">091</FONT>         *<a name="line.91"></a>
-<FONT color="green">092</FONT>         * @param numBackups number of backup files<a name="line.92"></a>
-<FONT color="green">093</FONT>         * @throws IllegalArgumentException if {@code numBackups} is less than zero<a name="line.93"></a>
-<FONT color="green">094</FONT>         */<a name="line.94"></a>
-<FONT color="green">095</FONT>        public void setNumBackups(int numBackups) {<a name="line.95"></a>
-<FONT color="green">096</FONT>            this.numBackups = numBackups;<a name="line.96"></a>
-<FONT color="green">097</FONT>        }<a name="line.97"></a>
-<FONT color="green">098</FONT>    <a name="line.98"></a>
-<FONT color="green">099</FONT>        @Override<a name="line.99"></a>
-<FONT color="green">100</FONT>        public InputStream getInputStream() throws IOException {<a name="line.100"></a>
-<FONT color="green">101</FONT>            return new FileInputStream(this.file);<a name="line.101"></a>
-<FONT color="green">102</FONT>        }<a name="line.102"></a>
-<FONT color="green">103</FONT>    <a name="line.103"></a>
-<FONT color="green">104</FONT>        @Override<a name="line.104"></a>
-<FONT color="green">105</FONT>        public AtomicUpdateFileOutputStream getOutputStream() throws IOException {<a name="line.105"></a>
-<FONT color="green">106</FONT>            File tempFile = File.createTempFile(this.file.getName(), null, this.file.getParentFile());<a name="line.106"></a>
-<FONT color="green">107</FONT>            return new AtomicUpdateFileOutputStream(this.file, tempFile) {<a name="line.107"></a>
-<FONT color="green">108</FONT>                @Override<a name="line.108"></a>
-<FONT color="green">109</FONT>                public void close() throws IOException {<a name="line.109"></a>
-<FONT color="green">110</FONT>                    synchronized (FileStreamRepository.this) {<a name="line.110"></a>
-<FONT color="green">111</FONT>    <a name="line.111"></a>
-<FONT color="green">112</FONT>                        // Rotate backups<a name="line.112"></a>
-<FONT color="green">113</FONT>                        FileStreamRepository.this.rotateBackups();<a name="line.113"></a>
-<FONT color="green">114</FONT>    <a name="line.114"></a>
-<FONT color="green">115</FONT>                        // Save and update file<a name="line.115"></a>
-<FONT color="green">116</FONT>                        super.close();<a name="line.116"></a>
-<FONT color="green">117</FONT>    <a name="line.117"></a>
-<FONT color="green">118</FONT>                        // Update timestamp<a name="line.118"></a>
-<FONT color="green">119</FONT>                        FileStreamRepository.this.timestamp = this.getTimestamp();<a name="line.119"></a>
-<FONT color="green">120</FONT>                    }<a name="line.120"></a>
-<FONT color="green">121</FONT>                }<a name="line.121"></a>
-<FONT color="green">122</FONT>            };<a name="line.122"></a>
-<FONT color="green">123</FONT>        }<a name="line.123"></a>
-<FONT color="green">124</FONT>    <a name="line.124"></a>
-<FONT color="green">125</FONT>        /**<a name="line.125"></a>
-<FONT color="green">126</FONT>         * Get the last modification timestamp of the target file as known to this instance.<a name="line.126"></a>
-<FONT color="green">127</FONT>         *<a name="line.127"></a>
-<FONT color="green">128</FONT>         * &lt;p&gt;<a name="line.128"></a>
-<FONT color="green">129</FONT>         * This returns the modification timestamp as known by this instance; it does not ask the filesystem<a name="line.129"></a>
-<FONT color="green">130</FONT>         * for the actual last modification timestamp. So if the two are different, then the file has<a name="line.130"></a>
-<FONT color="green">131</FONT>         * been updated by some external process. In other words, this returns the modification timestamp<a name="line.131"></a>
-<FONT color="green">132</FONT>         * of the underlying file as it was at the time of the most recent update.<a name="line.132"></a>
-<FONT color="green">133</FONT>         *<a name="line.133"></a>
-<FONT color="green">134</FONT>         * @return file's last modification timestamp as known by this instance,<a name="line.134"></a>
-<FONT color="green">135</FONT>         *  or zero if the file has not yet been successfully written to<a name="line.135"></a>
-<FONT color="green">136</FONT>         */<a name="line.136"></a>
-<FONT color="green">137</FONT>        public synchronized long getFileTimestamp() {<a name="line.137"></a>
-<FONT color="green">138</FONT>            return this.timestamp;<a name="line.138"></a>
-<FONT color="green">139</FONT>        }<a name="line.139"></a>
-<FONT color="green">140</FONT>    <a name="line.140"></a>
-<FONT color="green">141</FONT>        /**<a name="line.141"></a>
-<FONT color="green">142</FONT>         * Generate a backup file name.<a name="line.142"></a>
-<FONT color="green">143</FONT>         *<a name="line.143"></a>
-<FONT color="green">144</FONT>         * &lt;p&gt;<a name="line.144"></a>
-<FONT color="green">145</FONT>         * The implementation in {@link FileStreamRepository} returns a file with the same name as {@code file}<a name="line.145"></a>
-<FONT color="green">146</FONT>         * plus a suffix &lt;code&gt;.1&lt;/code&gt;,  &lt;code&gt;.2&lt;/code&gt;, &lt;code&gt;.3&lt;/code&gt;, etc. corresponding to {@code index}.<a name="line.146"></a>
-<FONT color="green">147</FONT>         * Subclasses may override as desired.<a name="line.147"></a>
-<FONT color="green">148</FONT>         *<a name="line.148"></a>
-<FONT color="green">149</FONT>         * @param file the file that stores the current stream content (i.e., from {@link #getFile})<a name="line.149"></a>
-<FONT color="green">150</FONT>         * @param index backup index, always greater than or equal to 1<a name="line.150"></a>
-<FONT color="green">151</FONT>         */<a name="line.151"></a>
-<FONT color="green">152</FONT>        protected File getBackupFile(File file, int index) {<a name="line.152"></a>
-<FONT color="green">153</FONT>            return new File(file.toString() + "." + index);<a name="line.153"></a>
-<FONT color="green">154</FONT>        }<a name="line.154"></a>
-<FONT color="green">155</FONT>    <a name="line.155"></a>
-<FONT color="green">156</FONT>        /**<a name="line.156"></a>
-<FONT color="green">157</FONT>         * Copy (or hard link, if possible) a file.<a name="line.157"></a>
-<FONT color="green">158</FONT>         *<a name="line.158"></a>
-<FONT color="green">159</FONT>         * &lt;p&gt;<a name="line.159"></a>
-<FONT color="green">160</FONT>         * The implementation in {@link FileStreamRepository} uses {@linkplain HardLink hard links}.<a name="line.160"></a>
-<FONT color="green">161</FONT>         *<a name="line.161"></a>
-<FONT color="green">162</FONT>         * @param src source file<a name="line.162"></a>
-<FONT color="green">163</FONT>         * @param dst destination file<a name="line.163"></a>
-<FONT color="green">164</FONT>         * @throws IOException if unsuccessful<a name="line.164"></a>
-<FONT color="green">165</FONT>         */<a name="line.165"></a>
-<FONT color="green">166</FONT>        protected void copy(File src, File dst) throws IOException {<a name="line.166"></a>
-<FONT color="green">167</FONT>            if (dst.exists())      // this happens when this.numBackups == 1<a name="line.167"></a>
-<FONT color="green">168</FONT>                dst.delete();<a name="line.168"></a>
-<FONT color="green">169</FONT>            // TODO: check device and inode via stat(2) and don't do anything here if its the same file.<a name="line.169"></a>
-<FONT color="green">170</FONT>            // This can happen if closing the temporary file throws an Exception, leaving file.1 === file<a name="line.170"></a>
-<FONT color="green">171</FONT>            HardLink.link(src, dst);<a name="line.171"></a>
-<FONT color="green">172</FONT>        }<a name="line.172"></a>
-<FONT color="green">173</FONT>    <a name="line.173"></a>
-<FONT color="green">174</FONT>        /**<a name="line.174"></a>
-<FONT color="green">175</FONT>         * Rotate backup files.<a name="line.175"></a>
-<FONT color="green">176</FONT>         */<a name="line.176"></a>
-<FONT color="green">177</FONT>        private synchronized void rotateBackups() throws IOException {<a name="line.177"></a>
-<FONT color="green">178</FONT>    <a name="line.178"></a>
-<FONT color="green">179</FONT>            // Generate file names: 0 -&gt; "file", 1 -&gt; "file.1", 2 -&gt; "file.2", etc.<a name="line.179"></a>
-<FONT color="green">180</FONT>            File[] files = new File[this.numBackups + 1];<a name="line.180"></a>
-<FONT color="green">181</FONT>            files[0] = this.getFile();<a name="line.181"></a>
-<FONT color="green">182</FONT>            for (int i = 0; i &lt; this.numBackups; i++)<a name="line.182"></a>
-<FONT color="green">183</FONT>                files[i + 1] = this.getBackupFile(this.getFile(), i + 1);<a name="line.183"></a>
-<FONT color="green">184</FONT>    <a name="line.184"></a>
-<FONT color="green">185</FONT>            // Rotate backups<a name="line.185"></a>
-<FONT color="green">186</FONT>            for (int i = this.numBackups - 1; i &gt;= 0; i--) {<a name="line.186"></a>
-<FONT color="green">187</FONT>                final File src = files[i];<a name="line.187"></a>
-<FONT color="green">188</FONT>                final File dst = files[i + 1];<a name="line.188"></a>
-<FONT color="green">189</FONT>    <a name="line.189"></a>
-<FONT color="green">190</FONT>                // For the first backup, create a copy so there's no window when the target file does not exist<a name="line.190"></a>
-<FONT color="green">191</FONT>                if (i == 0) {<a name="line.191"></a>
-<FONT color="green">192</FONT>                    try {<a name="line.192"></a>
-<FONT color="green">193</FONT>                        this.copy(src, dst);<a name="line.193"></a>
-<FONT color="green">194</FONT>                    } catch (IOException e) {<a name="line.194"></a>
-<FONT color="green">195</FONT>                        this.log.warn("failed to copy `" + src + "' to backup `" + dst + "'");<a name="line.195"></a>
-<FONT color="green">196</FONT>                    }<a name="line.196"></a>
-<FONT color="green">197</FONT>                } else<a name="line.197"></a>
-<FONT color="green">198</FONT>                    src.renameTo(dst);      // OK if this fails, that means the backup file doesn't exist yet<a name="line.198"></a>
-<FONT color="green">199</FONT>            }<a name="line.199"></a>
-<FONT color="green">200</FONT>        }<a name="line.200"></a>
-<FONT color="green">201</FONT>    }<a name="line.201"></a>
-<FONT color="green">202</FONT>    <a name="line.202"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.io;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.io.File;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.io.FileInputStream;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.io.IOException;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.io.InputStream;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.slf4j.Logger;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.slf4j.LoggerFactory;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * Provides a file-based implementation of the {@link StreamRepository} interface with<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * the added feature of automated backups.<a name="line.20"></a>
+<span class="sourceLineNo">021</span> *<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * &lt;p&gt;<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * Atomic updates are implemented using an {@link AtomicUpdateFileOutputStream}.<a name="line.23"></a>
+<span class="sourceLineNo">024</span> *<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;p&gt;<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * When backups are configured, the base file must be copied, not moved, to the first backup on update to avoid<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * a small window where the base file doesn't exist. This class uses {@linkplain HardLink hard links} to perform<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * this "copy" efficiently. This behavior can be altered by overriding {@link #copy copy()} on systems not supporting<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * hard links.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>public class FileStreamRepository implements StreamRepository {<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>    private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>    private final File file;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>    private int numBackups;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    private long timestamp;<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    /**<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * Primary constructor.<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     *<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * @param file the file that will store the stream content<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @param numBackups number of backup copies to keep<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    public FileStreamRepository(File file, int numBackups) {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        if (file == null)<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            throw new IllegalArgumentException("null file");<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        if (numBackups &lt; 0)<a name="line.49"></a>
+<span class="sourceLineNo">050</span>            throw new IllegalArgumentException("negative numBackups");<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        this.file = file;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        this.numBackups = numBackups;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    /**<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * Convenience constructor for the case where no backup copies are needed.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     *<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * &lt;p&gt;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * Equivalent to:<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * &lt;blockquote&gt;&lt;code&gt;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     *  FileStreamRepository(file, 0);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * &lt;/code&gt;&lt;/blockquote&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     */<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    public FileStreamRepository(File file) {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        this(file, 0);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /**<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * Get the configured {@link File}.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     *<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * @return the file that stores the stream content (same as given to constructor)<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    public final File getFile() {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        return this.file;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    }<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * Get the configured number of backup files.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @return the number of backup files to maintain<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    public final int getNumBackups() {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        return this.numBackups;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    /**<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * Change the number of backup files to maintain.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     *<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * &lt;p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * If the number of backups is reduced, the "extra" backup files are not touched.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @param numBackups number of backup files<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @throws IllegalArgumentException if {@code numBackups} is less than zero<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    public void setNumBackups(int numBackups) {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        this.numBackups = numBackups;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    @Override<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    public InputStream getInputStream() throws IOException {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        return new FileInputStream(this.file);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    @Override<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    public AtomicUpdateFileOutputStream getOutputStream() throws IOException {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        File tempFile = File.createTempFile(this.file.getName(), null, this.file.getParentFile());<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        return new AtomicUpdateFileOutputStream(this.file, tempFile) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            @Override<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            public void close() throws IOException {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                synchronized (FileStreamRepository.this) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>                    // Rotate backups<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                    FileStreamRepository.this.rotateBackups();<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>                    // Save and update file<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                    super.close();<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>                    // Update timestamp<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                    FileStreamRepository.this.timestamp = this.getTimestamp();<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            }<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        };<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * Get the last modification timestamp of the target file as known to this instance.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * &lt;p&gt;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * This returns the modification timestamp as known by this instance; it does not ask the filesystem<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * for the actual last modification timestamp. So if the two are different, then the file has<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * been updated by some external process. In other words, this returns the modification timestamp<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * of the underlying file as it was at the time of the most recent update.<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * @return file's last modification timestamp as known by this instance,<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     *  or zero if the file has not yet been successfully written to<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     */<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    public synchronized long getFileTimestamp() {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        return this.timestamp;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    }<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>    /**<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * Generate a backup file name.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     *<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * &lt;p&gt;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * The implementation in {@link FileStreamRepository} returns a file with the same name as {@code file}<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * plus a suffix &lt;code&gt;.1&lt;/code&gt;,  &lt;code&gt;.2&lt;/code&gt;, &lt;code&gt;.3&lt;/code&gt;, etc. corresponding to {@code index}.<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * Subclasses may override as desired.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     *<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * @param file the file that stores the current stream content (i.e., from {@link #getFile})<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * @param index backup index, always greater than or equal to 1<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     */<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    protected File getBackupFile(File file, int index) {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        return new File(file.toString() + "." + index);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    }<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>    /**<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * Copy (or hard link, if possible) a file.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     *<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * &lt;p&gt;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * The implementation in {@link FileStreamRepository} uses {@linkplain HardLink hard links}.<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     *<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * @param src source file<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * @param dst destination file<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * @throws IOException if unsuccessful<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    protected void copy(File src, File dst) throws IOException {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        if (dst.exists())      // this happens when this.numBackups == 1<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            dst.delete();<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        // TODO: check device and inode via stat(2) and don't do anything here if its the same file.<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        // This can happen if closing the temporary file throws an Exception, leaving file.1 === file<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        HardLink.link(src, dst);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>    /**<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * Rotate backup files.<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     */<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    private synchronized void rotateBackups() throws IOException {<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>        // Generate file names: 0 -&gt; "file", 1 -&gt; "file.1", 2 -&gt; "file.2", etc.<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        File[] files = new File[this.numBackups + 1];<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        files[0] = this.getFile();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        for (int i = 0; i &lt; this.numBackups; i++)<a name="line.182"></a>
+<span class="sourceLineNo">183</span>            files[i + 1] = this.getBackupFile(this.getFile(), i + 1);<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>        // Rotate backups<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        for (int i = this.numBackups - 1; i &gt;= 0; i--) {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            final File src = files[i];<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            final File dst = files[i + 1];<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>            // For the first backup, create a copy so there's no window when the target file does not exist<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            if (i == 0) {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                try {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                    this.copy(src, dst);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                } catch (IOException e) {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                    this.log.warn("failed to copy `" + src + "' to backup `" + dst + "'");<a name="line.195"></a>
+<span class="sourceLineNo">196</span>                }<a name="line.196"></a>
+<span class="sourceLineNo">197</span>            } else<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                src.renameTo(dst);      // OK if this fails, that means the backup file doesn't exist yet<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        }<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    }<a name="line.200"></a>
+<span class="sourceLineNo">201</span>}<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
 
 
 
@@ -263,6 +268,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

@@ -1,125 +1,130 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.spring;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.sql.Connection;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import java.sql.SQLException;<a name="line.11"></a>
-<FONT color="green">012</FONT>    <a name="line.12"></a>
-<FONT color="green">013</FONT>    import javax.persistence.EntityManager;<a name="line.13"></a>
-<FONT color="green">014</FONT>    <a name="line.14"></a>
-<FONT color="green">015</FONT>    import org.slf4j.Logger;<a name="line.15"></a>
-<FONT color="green">016</FONT>    import org.slf4j.LoggerFactory;<a name="line.16"></a>
-<FONT color="green">017</FONT>    import org.springframework.jdbc.datasource.DataSourceUtils;<a name="line.17"></a>
-<FONT color="green">018</FONT>    import org.springframework.orm.jpa.vendor.HibernateJpaDialect;<a name="line.18"></a>
-<FONT color="green">019</FONT>    import org.springframework.transaction.TransactionDefinition;<a name="line.19"></a>
-<FONT color="green">020</FONT>    <a name="line.20"></a>
-<FONT color="green">021</FONT>    /**<a name="line.21"></a>
-<FONT color="green">022</FONT>     * Hibernate JPA adapter that adds supports for setting a non-default transaction isolation level.<a name="line.22"></a>
-<FONT color="green">023</FONT>     *<a name="line.23"></a>
-<FONT color="green">024</FONT>     * &lt;p&gt;<a name="line.24"></a>
-<FONT color="green">025</FONT>     * The JPA specification, which is database technology agnostic, does not define a way to set SQL database isolation levels.<a name="line.25"></a>
-<FONT color="green">026</FONT>     * This fixes the "Standard JPA does not support custom isolation levels - use a special JpaDialect" Spring exception<a name="line.26"></a>
-<FONT color="green">027</FONT>     * that will otherwise occur.<a name="line.27"></a>
-<FONT color="green">028</FONT>     *<a name="line.28"></a>
-<FONT color="green">029</FONT>     * @see &lt;a href="https://jira.springsource.org/browse/SPR-3812"&gt;SPR-3812&lt;/a&gt;<a name="line.29"></a>
-<FONT color="green">030</FONT>     * @see &lt;a href="http://stackoverflow.com/questions/5234240/hibernatespringjpaisolation-does-not-work"&gt;Question on stackoverflow.com&lt;/a&gt;<a name="line.30"></a>
-<FONT color="green">031</FONT>     */<a name="line.31"></a>
-<FONT color="green">032</FONT>    @SuppressWarnings("serial")<a name="line.32"></a>
-<FONT color="green">033</FONT>    public class HibernateIsolationJpaDialect extends HibernateJpaDialect {<a name="line.33"></a>
-<FONT color="green">034</FONT>    <a name="line.34"></a>
-<FONT color="green">035</FONT>        private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.35"></a>
-<FONT color="green">036</FONT>    <a name="line.36"></a>
-<FONT color="green">037</FONT>        @Override<a name="line.37"></a>
-<FONT color="green">038</FONT>        public TransactionDataWrapper beginTransaction(EntityManager entityManager, TransactionDefinition definition)<a name="line.38"></a>
-<FONT color="green">039</FONT>          throws SQLException {<a name="line.39"></a>
-<FONT color="green">040</FONT>    <a name="line.40"></a>
-<FONT color="green">041</FONT>            // Set transaction timeout<a name="line.41"></a>
-<FONT color="green">042</FONT>            if (definition.getTimeout() != TransactionDefinition.TIMEOUT_DEFAULT)<a name="line.42"></a>
-<FONT color="green">043</FONT>                this.getSession(entityManager).getTransaction().setTimeout(definition.getTimeout());<a name="line.43"></a>
-<FONT color="green">044</FONT>    <a name="line.44"></a>
-<FONT color="green">045</FONT>            // Set isolation level on the associated JDBC connection<a name="line.45"></a>
-<FONT color="green">046</FONT>            Integer oldIsolation = null;<a name="line.46"></a>
-<FONT color="green">047</FONT>            Connection connection = null;<a name="line.47"></a>
-<FONT color="green">048</FONT>            if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {<a name="line.48"></a>
-<FONT color="green">049</FONT>                connection = this.getJdbcConnection(entityManager, definition.isReadOnly()).getConnection();<a name="line.49"></a>
-<FONT color="green">050</FONT>                if (this.log.isTraceEnabled())<a name="line.50"></a>
-<FONT color="green">051</FONT>                    this.log.trace("setting isolation level to " + definition.getIsolationLevel() + " on " + connection);<a name="line.51"></a>
-<FONT color="green">052</FONT>                oldIsolation = DataSourceUtils.prepareConnectionForTransaction(connection, definition);<a name="line.52"></a>
-<FONT color="green">053</FONT>            }<a name="line.53"></a>
-<FONT color="green">054</FONT>    <a name="line.54"></a>
-<FONT color="green">055</FONT>            // Start transaction<a name="line.55"></a>
-<FONT color="green">056</FONT>            entityManager.getTransaction().begin();<a name="line.56"></a>
-<FONT color="green">057</FONT>    <a name="line.57"></a>
-<FONT color="green">058</FONT>            // Prepare transaction<a name="line.58"></a>
-<FONT color="green">059</FONT>            return this.prepareTransaction(entityManager, definition, connection, oldIsolation);<a name="line.59"></a>
-<FONT color="green">060</FONT>        }<a name="line.60"></a>
-<FONT color="green">061</FONT>    <a name="line.61"></a>
-<FONT color="green">062</FONT>        /**<a name="line.62"></a>
-<FONT color="green">063</FONT>         * Prepare transaction.<a name="line.63"></a>
-<FONT color="green">064</FONT>         */<a name="line.64"></a>
-<FONT color="green">065</FONT>        protected TransactionDataWrapper prepareTransaction(EntityManager entityManager, TransactionDefinition definition,<a name="line.65"></a>
-<FONT color="green">066</FONT>          Connection connection, Integer oldIsolation) {<a name="line.66"></a>
-<FONT color="green">067</FONT>    <a name="line.67"></a>
-<FONT color="green">068</FONT>            // Do superclass preparation<a name="line.68"></a>
-<FONT color="green">069</FONT>            Object transactionData = this.prepareTransaction(entityManager, definition.isReadOnly(), definition.getName());<a name="line.69"></a>
-<FONT color="green">070</FONT>    <a name="line.70"></a>
-<FONT color="green">071</FONT>            // Wrap result<a name="line.71"></a>
-<FONT color="green">072</FONT>            return new TransactionDataWrapper(transactionData, connection, oldIsolation);<a name="line.72"></a>
-<FONT color="green">073</FONT>        }<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
-<FONT color="green">075</FONT>        @Override<a name="line.75"></a>
-<FONT color="green">076</FONT>        public void cleanupTransaction(Object obj) {<a name="line.76"></a>
-<FONT color="green">077</FONT>    <a name="line.77"></a>
-<FONT color="green">078</FONT>            // Let superclass cleanup<a name="line.78"></a>
-<FONT color="green">079</FONT>            final TransactionDataWrapper wrapper = (TransactionDataWrapper)obj;<a name="line.79"></a>
-<FONT color="green">080</FONT>            super.cleanupTransaction(wrapper.getTransactionData());<a name="line.80"></a>
-<FONT color="green">081</FONT>    <a name="line.81"></a>
-<FONT color="green">082</FONT>            // Restore isolation level on the JDBC connection<a name="line.82"></a>
-<FONT color="green">083</FONT>            Connection connection = wrapper.getConnection();<a name="line.83"></a>
-<FONT color="green">084</FONT>            if (connection != null) {<a name="line.84"></a>
-<FONT color="green">085</FONT>                if (this.log.isTraceEnabled())<a name="line.85"></a>
-<FONT color="green">086</FONT>                    this.log.trace("restoring isolation level to " + wrapper.getIsolation() + " on " + connection);<a name="line.86"></a>
-<FONT color="green">087</FONT>                DataSourceUtils.resetConnectionAfterTransaction(connection, wrapper.getIsolation());<a name="line.87"></a>
-<FONT color="green">088</FONT>            }<a name="line.88"></a>
-<FONT color="green">089</FONT>        }<a name="line.89"></a>
-<FONT color="green">090</FONT>    <a name="line.90"></a>
-<FONT color="green">091</FONT>        /**<a name="line.91"></a>
-<FONT color="green">092</FONT>         * Wraps superclass transaction data and adds isolation level to restore.<a name="line.92"></a>
-<FONT color="green">093</FONT>         */<a name="line.93"></a>
-<FONT color="green">094</FONT>        protected class TransactionDataWrapper {<a name="line.94"></a>
-<FONT color="green">095</FONT>    <a name="line.95"></a>
-<FONT color="green">096</FONT>            private final Object transactionData;<a name="line.96"></a>
-<FONT color="green">097</FONT>            private final Connection connection;<a name="line.97"></a>
-<FONT color="green">098</FONT>            private final Integer isolation;<a name="line.98"></a>
-<FONT color="green">099</FONT>    <a name="line.99"></a>
-<FONT color="green">100</FONT>            public TransactionDataWrapper(Object transactionData, Connection connection, Integer isolation) {<a name="line.100"></a>
-<FONT color="green">101</FONT>                this.transactionData = transactionData;<a name="line.101"></a>
-<FONT color="green">102</FONT>                this.connection = connection;<a name="line.102"></a>
-<FONT color="green">103</FONT>                this.isolation = isolation;<a name="line.103"></a>
-<FONT color="green">104</FONT>            }<a name="line.104"></a>
-<FONT color="green">105</FONT>    <a name="line.105"></a>
-<FONT color="green">106</FONT>            public Object getTransactionData() {<a name="line.106"></a>
-<FONT color="green">107</FONT>                return this.transactionData;<a name="line.107"></a>
-<FONT color="green">108</FONT>            }<a name="line.108"></a>
-<FONT color="green">109</FONT>    <a name="line.109"></a>
-<FONT color="green">110</FONT>            public Connection getConnection() {<a name="line.110"></a>
-<FONT color="green">111</FONT>                return this.connection;<a name="line.111"></a>
-<FONT color="green">112</FONT>            }<a name="line.112"></a>
-<FONT color="green">113</FONT>    <a name="line.113"></a>
-<FONT color="green">114</FONT>            public Integer getIsolation() {<a name="line.114"></a>
-<FONT color="green">115</FONT>                return this.isolation;<a name="line.115"></a>
-<FONT color="green">116</FONT>            }<a name="line.116"></a>
-<FONT color="green">117</FONT>        }<a name="line.117"></a>
-<FONT color="green">118</FONT>    }<a name="line.118"></a>
-<FONT color="green">119</FONT>    <a name="line.119"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.spring;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.sql.Connection;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.sql.SQLException;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>import javax.persistence.EntityManager;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.slf4j.Logger;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.slf4j.LoggerFactory;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.springframework.jdbc.datasource.DataSourceUtils;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.springframework.orm.jpa.vendor.HibernateJpaDialect;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.springframework.transaction.TransactionDefinition;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>/**<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * Hibernate JPA adapter that adds supports for setting a non-default transaction isolation level.<a name="line.22"></a>
+<span class="sourceLineNo">023</span> *<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * &lt;p&gt;<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * The JPA specification, which is database technology agnostic, does not define a way to set SQL database isolation levels.<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * This fixes the "Standard JPA does not support custom isolation levels - use a special JpaDialect" Spring exception<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * that will otherwise occur.<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * @see &lt;a href="https://jira.springsource.org/browse/SPR-3812"&gt;SPR-3812&lt;/a&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * @see &lt;a href="http://stackoverflow.com/questions/5234240/hibernatespringjpaisolation-does-not-work"&gt;Question on stackoverflow.com&lt;/a&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>@SuppressWarnings("serial")<a name="line.32"></a>
+<span class="sourceLineNo">033</span>public class HibernateIsolationJpaDialect extends HibernateJpaDialect {<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>    private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>    @Override<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    public TransactionDataWrapper beginTransaction(EntityManager entityManager, TransactionDefinition definition)<a name="line.38"></a>
+<span class="sourceLineNo">039</span>      throws SQLException {<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>        // Set transaction timeout<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        if (definition.getTimeout() != TransactionDefinition.TIMEOUT_DEFAULT)<a name="line.42"></a>
+<span class="sourceLineNo">043</span>            this.getSession(entityManager).getTransaction().setTimeout(definition.getTimeout());<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>        // Set isolation level on the associated JDBC connection<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        Integer oldIsolation = null;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        Connection connection = null;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>            connection = this.getJdbcConnection(entityManager, definition.isReadOnly()).getConnection();<a name="line.49"></a>
+<span class="sourceLineNo">050</span>            if (this.log.isTraceEnabled())<a name="line.50"></a>
+<span class="sourceLineNo">051</span>                this.log.trace("setting isolation level to " + definition.getIsolationLevel() + " on " + connection);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>            oldIsolation = DataSourceUtils.prepareConnectionForTransaction(connection, definition);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>        // Start transaction<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        entityManager.getTransaction().begin();<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>        // Prepare transaction<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        return this.prepareTransaction(entityManager, definition, connection, oldIsolation);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>    /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * Prepare transaction.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    protected TransactionDataWrapper prepareTransaction(EntityManager entityManager, TransactionDefinition definition,<a name="line.65"></a>
+<span class="sourceLineNo">066</span>      Connection connection, Integer oldIsolation) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>        // Do superclass preparation<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        Object transactionData = this.prepareTransaction(entityManager, definition.isReadOnly(), definition.getName());<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>        // Wrap result<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        return new TransactionDataWrapper(transactionData, connection, oldIsolation);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    @Override<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    public void cleanupTransaction(Object obj) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>        // Let superclass cleanup<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        final TransactionDataWrapper wrapper = (TransactionDataWrapper)obj;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        super.cleanupTransaction(wrapper.getTransactionData());<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>        // Restore isolation level on the JDBC connection<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        Connection connection = wrapper.getConnection();<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        if (connection != null) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            if (this.log.isTraceEnabled())<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                this.log.trace("restoring isolation level to " + wrapper.getIsolation() + " on " + connection);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            DataSourceUtils.resetConnectionAfterTransaction(connection, wrapper.getIsolation());<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        }<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>    /**<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * Wraps superclass transaction data and adds isolation level to restore.<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     */<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    protected class TransactionDataWrapper {<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>        private final Object transactionData;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        private final Connection connection;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        private final Integer isolation;<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>        public TransactionDataWrapper(Object transactionData, Connection connection, Integer isolation) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            this.transactionData = transactionData;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            this.connection = connection;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            this.isolation = isolation;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>        public Object getTransactionData() {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>            return this.transactionData;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        }<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>        public Connection getConnection() {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            return this.connection;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>        public Integer getIsolation() {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            return this.isolation;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        }<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>}<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
 
 
 
@@ -180,6 +185,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

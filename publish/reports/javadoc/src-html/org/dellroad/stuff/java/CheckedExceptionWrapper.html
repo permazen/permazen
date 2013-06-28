@@ -1,49 +1,54 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.java;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    /**<a name="line.10"></a>
-<FONT color="green">011</FONT>     * Wraps checked exceptions so they can be thrown across API methods that don't declare them.<a name="line.11"></a>
-<FONT color="green">012</FONT>     */<a name="line.12"></a>
-<FONT color="green">013</FONT>    @SuppressWarnings("serial")<a name="line.13"></a>
-<FONT color="green">014</FONT>    public class CheckedExceptionWrapper extends RuntimeException {<a name="line.14"></a>
-<FONT color="green">015</FONT>    <a name="line.15"></a>
-<FONT color="green">016</FONT>        private final Exception exception;<a name="line.16"></a>
-<FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>        /**<a name="line.18"></a>
-<FONT color="green">019</FONT>         * Constructor.<a name="line.19"></a>
-<FONT color="green">020</FONT>         *<a name="line.20"></a>
-<FONT color="green">021</FONT>         * @throws IllegalArgumentException if {@code exception} is {@code null}<a name="line.21"></a>
-<FONT color="green">022</FONT>         */<a name="line.22"></a>
-<FONT color="green">023</FONT>        public CheckedExceptionWrapper(Exception exception) {<a name="line.23"></a>
-<FONT color="green">024</FONT>            if (exception == null)<a name="line.24"></a>
-<FONT color="green">025</FONT>                throw new IllegalArgumentException("null exception");<a name="line.25"></a>
-<FONT color="green">026</FONT>            this.exception = exception;<a name="line.26"></a>
-<FONT color="green">027</FONT>        }<a name="line.27"></a>
-<FONT color="green">028</FONT>    <a name="line.28"></a>
-<FONT color="green">029</FONT>        /**<a name="line.29"></a>
-<FONT color="green">030</FONT>         * Get the wrapped exception.<a name="line.30"></a>
-<FONT color="green">031</FONT>         */<a name="line.31"></a>
-<FONT color="green">032</FONT>        public Exception getException() {<a name="line.32"></a>
-<FONT color="green">033</FONT>            return this.exception;<a name="line.33"></a>
-<FONT color="green">034</FONT>        }<a name="line.34"></a>
-<FONT color="green">035</FONT>    <a name="line.35"></a>
-<FONT color="green">036</FONT>        /**<a name="line.36"></a>
-<FONT color="green">037</FONT>         * Throw the wrapped exception.<a name="line.37"></a>
-<FONT color="green">038</FONT>         */<a name="line.38"></a>
-<FONT color="green">039</FONT>        public void throwException() throws Exception {<a name="line.39"></a>
-<FONT color="green">040</FONT>            throw this.exception;<a name="line.40"></a>
-<FONT color="green">041</FONT>        }<a name="line.41"></a>
-<FONT color="green">042</FONT>    }<a name="line.42"></a>
-<FONT color="green">043</FONT>    <a name="line.43"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.java;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Wraps checked exceptions so they can be thrown across API methods that don't declare them.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>@SuppressWarnings("serial")<a name="line.13"></a>
+<span class="sourceLineNo">014</span>public class CheckedExceptionWrapper extends RuntimeException {<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>    private final Exception exception;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>    /**<a name="line.18"></a>
+<span class="sourceLineNo">019</span>     * Constructor.<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     *<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * @throws IllegalArgumentException if {@code exception} is {@code null}<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     */<a name="line.22"></a>
+<span class="sourceLineNo">023</span>    public CheckedExceptionWrapper(Exception exception) {<a name="line.23"></a>
+<span class="sourceLineNo">024</span>        if (exception == null)<a name="line.24"></a>
+<span class="sourceLineNo">025</span>            throw new IllegalArgumentException("null exception");<a name="line.25"></a>
+<span class="sourceLineNo">026</span>        this.exception = exception;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    }<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    /**<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * Get the wrapped exception.<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    public Exception getException() {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        return this.exception;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    }<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    /**<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * Throw the wrapped exception.<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    public void throwException() throws Exception {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        throw this.exception;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    }<a name="line.41"></a>
+<span class="sourceLineNo">042</span>}<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
 
 
 
@@ -104,6 +109,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

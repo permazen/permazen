@@ -1,120 +1,125 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.servlet;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.io.IOException;<a name="line.10"></a>
-<FONT color="green">011</FONT>    <a name="line.11"></a>
-<FONT color="green">012</FONT>    import javax.servlet.FilterChain;<a name="line.12"></a>
-<FONT color="green">013</FONT>    import javax.servlet.ServletException;<a name="line.13"></a>
-<FONT color="green">014</FONT>    import javax.servlet.http.HttpServletRequest;<a name="line.14"></a>
-<FONT color="green">015</FONT>    import javax.servlet.http.HttpServletResponse;<a name="line.15"></a>
-<FONT color="green">016</FONT>    <a name="line.16"></a>
-<FONT color="green">017</FONT>    import org.slf4j.Logger;<a name="line.17"></a>
-<FONT color="green">018</FONT>    import org.slf4j.LoggerFactory;<a name="line.18"></a>
-<FONT color="green">019</FONT>    import org.springframework.transaction.PlatformTransactionManager;<a name="line.19"></a>
-<FONT color="green">020</FONT>    import org.springframework.transaction.TransactionStatus;<a name="line.20"></a>
-<FONT color="green">021</FONT>    import org.springframework.transaction.support.DefaultTransactionDefinition;<a name="line.21"></a>
-<FONT color="green">022</FONT>    import org.springframework.transaction.support.TransactionCallback;<a name="line.22"></a>
-<FONT color="green">023</FONT>    import org.springframework.transaction.support.TransactionTemplate;<a name="line.23"></a>
-<FONT color="green">024</FONT>    import org.springframework.web.context.WebApplicationContext;<a name="line.24"></a>
-<FONT color="green">025</FONT>    import org.springframework.web.context.support.WebApplicationContextUtils;<a name="line.25"></a>
-<FONT color="green">026</FONT>    import org.springframework.web.filter.OncePerRequestFilter;<a name="line.26"></a>
-<FONT color="green">027</FONT>    <a name="line.27"></a>
-<FONT color="green">028</FONT>    /**<a name="line.28"></a>
-<FONT color="green">029</FONT>     * Servlet filter that wraps execution in a transaction. A {@link TransactionTemplate} must exist in the<a name="line.29"></a>
-<FONT color="green">030</FONT>     * associated {@link WebApplicationContext} and is identified by name via {@link #setTransactionManagerBeanName<a name="line.30"></a>
-<FONT color="green">031</FONT>     * setTransactionManagerBeanName()} (by default, {@link #DEFAULT_TRANSACTION_MANAGER_BEAN_NAME}).<a name="line.31"></a>
-<FONT color="green">032</FONT>     *<a name="line.32"></a>
-<FONT color="green">033</FONT>     * &lt;p&gt;<a name="line.33"></a>
-<FONT color="green">034</FONT>     * Transaction properties are configurable via filter &lt;code&gt;&amp;lt;init-param&amp;gt;&lt;/code&gt;'s {@code isolation},<a name="line.34"></a>
-<FONT color="green">035</FONT>     * {@code propagation}, and {@code readOnly}.<a name="line.35"></a>
-<FONT color="green">036</FONT>     * &lt;/p&gt;<a name="line.36"></a>
-<FONT color="green">037</FONT>     */<a name="line.37"></a>
-<FONT color="green">038</FONT>    public class OpenTransactionInViewFilter extends OncePerRequestFilter {<a name="line.38"></a>
-<FONT color="green">039</FONT>    <a name="line.39"></a>
-<FONT color="green">040</FONT>        public static final String DEFAULT_TRANSACTION_MANAGER_BEAN_NAME = "transactionManager";<a name="line.40"></a>
-<FONT color="green">041</FONT>    <a name="line.41"></a>
-<FONT color="green">042</FONT>        protected final Logger log = LoggerFactory.getLogger(getClass());<a name="line.42"></a>
-<FONT color="green">043</FONT>    <a name="line.43"></a>
-<FONT color="green">044</FONT>        private final DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();<a name="line.44"></a>
-<FONT color="green">045</FONT>    <a name="line.45"></a>
-<FONT color="green">046</FONT>        private WebApplicationContext webApplicationContext;<a name="line.46"></a>
-<FONT color="green">047</FONT>        private String transactionManagerBeanName = DEFAULT_TRANSACTION_MANAGER_BEAN_NAME;<a name="line.47"></a>
-<FONT color="green">048</FONT>        private PlatformTransactionManager transactionManager;<a name="line.48"></a>
-<FONT color="green">049</FONT>    <a name="line.49"></a>
-<FONT color="green">050</FONT>        @Override<a name="line.50"></a>
-<FONT color="green">051</FONT>        protected void initFilterBean() throws ServletException {<a name="line.51"></a>
-<FONT color="green">052</FONT>            super.initFilterBean();<a name="line.52"></a>
-<FONT color="green">053</FONT>            log.debug("finding containing WebApplicationContext");<a name="line.53"></a>
-<FONT color="green">054</FONT>            try {<a name="line.54"></a>
-<FONT color="green">055</FONT>                this.webApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());<a name="line.55"></a>
-<FONT color="green">056</FONT>            } catch (IllegalStateException e) {<a name="line.56"></a>
-<FONT color="green">057</FONT>                throw new ServletException("could not locate containing WebApplicationContext");<a name="line.57"></a>
-<FONT color="green">058</FONT>            }<a name="line.58"></a>
-<FONT color="green">059</FONT>        }<a name="line.59"></a>
-<FONT color="green">060</FONT>    <a name="line.60"></a>
-<FONT color="green">061</FONT>        public void setIsolation(String isolation) {<a name="line.61"></a>
-<FONT color="green">062</FONT>            this.transactionDefinition.setIsolationLevelName(isolation);<a name="line.62"></a>
-<FONT color="green">063</FONT>        }<a name="line.63"></a>
-<FONT color="green">064</FONT>    <a name="line.64"></a>
-<FONT color="green">065</FONT>        public void setPropagation(String propagation) {<a name="line.65"></a>
-<FONT color="green">066</FONT>            this.transactionDefinition.setPropagationBehaviorName(propagation);<a name="line.66"></a>
-<FONT color="green">067</FONT>        }<a name="line.67"></a>
-<FONT color="green">068</FONT>    <a name="line.68"></a>
-<FONT color="green">069</FONT>        public void setReadOnly(boolean readOnly) {<a name="line.69"></a>
-<FONT color="green">070</FONT>            this.transactionDefinition.setReadOnly(readOnly);<a name="line.70"></a>
-<FONT color="green">071</FONT>        }<a name="line.71"></a>
-<FONT color="green">072</FONT>    <a name="line.72"></a>
-<FONT color="green">073</FONT>        public void setTransactionManagerBeanName(String transactionManagerBeanName) {<a name="line.73"></a>
-<FONT color="green">074</FONT>            this.transactionManagerBeanName = transactionManagerBeanName;<a name="line.74"></a>
-<FONT color="green">075</FONT>        }<a name="line.75"></a>
-<FONT color="green">076</FONT>    <a name="line.76"></a>
-<FONT color="green">077</FONT>        protected synchronized PlatformTransactionManager getTransactionManager() {<a name="line.77"></a>
-<FONT color="green">078</FONT>            if (this.transactionManager == null) {<a name="line.78"></a>
-<FONT color="green">079</FONT>                this.transactionManager = this.webApplicationContext.getBean(<a name="line.79"></a>
-<FONT color="green">080</FONT>                  this.transactionManagerBeanName, PlatformTransactionManager.class);<a name="line.80"></a>
-<FONT color="green">081</FONT>            }<a name="line.81"></a>
-<FONT color="green">082</FONT>            return this.transactionManager;<a name="line.82"></a>
-<FONT color="green">083</FONT>        }<a name="line.83"></a>
-<FONT color="green">084</FONT>    <a name="line.84"></a>
-<FONT color="green">085</FONT>        @Override<a name="line.85"></a>
-<FONT color="green">086</FONT>        protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,<a name="line.86"></a>
-<FONT color="green">087</FONT>          final FilterChain filterChain) throws ServletException, IOException {<a name="line.87"></a>
-<FONT color="green">088</FONT>            TransactionTemplate transactionTemplate = new TransactionTemplate(getTransactionManager(), this.transactionDefinition);<a name="line.88"></a>
-<FONT color="green">089</FONT>            try {<a name="line.89"></a>
-<FONT color="green">090</FONT>                transactionTemplate.execute(new TransactionCallback&lt;Void&gt;() {<a name="line.90"></a>
-<FONT color="green">091</FONT>    <a name="line.91"></a>
-<FONT color="green">092</FONT>                    @Override<a name="line.92"></a>
-<FONT color="green">093</FONT>                    public Void doInTransaction(TransactionStatus status) {<a name="line.93"></a>
-<FONT color="green">094</FONT>                        try {<a name="line.94"></a>
-<FONT color="green">095</FONT>                            filterChain.doFilter(request, response);<a name="line.95"></a>
-<FONT color="green">096</FONT>                        } catch (IOException e) {<a name="line.96"></a>
-<FONT color="green">097</FONT>                            throw new RuntimeException(e);<a name="line.97"></a>
-<FONT color="green">098</FONT>                        } catch (ServletException e) {<a name="line.98"></a>
-<FONT color="green">099</FONT>                            throw new RuntimeException(e);<a name="line.99"></a>
-<FONT color="green">100</FONT>                        }<a name="line.100"></a>
-<FONT color="green">101</FONT>                        return null;<a name="line.101"></a>
-<FONT color="green">102</FONT>                    }<a name="line.102"></a>
-<FONT color="green">103</FONT>                });<a name="line.103"></a>
-<FONT color="green">104</FONT>            } catch (RuntimeException e) {<a name="line.104"></a>
-<FONT color="green">105</FONT>                Throwable nested = e.getCause();<a name="line.105"></a>
-<FONT color="green">106</FONT>                if (nested instanceof IOException)<a name="line.106"></a>
-<FONT color="green">107</FONT>                    throw (IOException)nested;<a name="line.107"></a>
-<FONT color="green">108</FONT>                if (nested instanceof ServletException)<a name="line.108"></a>
-<FONT color="green">109</FONT>                    throw (ServletException)nested;<a name="line.109"></a>
-<FONT color="green">110</FONT>                throw e;<a name="line.110"></a>
-<FONT color="green">111</FONT>            }<a name="line.111"></a>
-<FONT color="green">112</FONT>        }<a name="line.112"></a>
-<FONT color="green">113</FONT>    }<a name="line.113"></a>
-<FONT color="green">114</FONT>    <a name="line.114"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.servlet;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.io.IOException;<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.servlet.FilterChain;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import javax.servlet.ServletException;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import javax.servlet.http.HttpServletRequest;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import javax.servlet.http.HttpServletResponse;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.slf4j.Logger;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.slf4j.LoggerFactory;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.springframework.transaction.PlatformTransactionManager;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.springframework.transaction.TransactionStatus;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.springframework.transaction.support.DefaultTransactionDefinition;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.springframework.transaction.support.TransactionCallback;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.springframework.transaction.support.TransactionTemplate;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.springframework.web.context.WebApplicationContext;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.springframework.web.context.support.WebApplicationContextUtils;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.springframework.web.filter.OncePerRequestFilter;<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * Servlet filter that wraps execution in a transaction. A {@link TransactionTemplate} must exist in the<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * associated {@link WebApplicationContext} and is identified by name via {@link #setTransactionManagerBeanName<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * setTransactionManagerBeanName()} (by default, {@link #DEFAULT_TRANSACTION_MANAGER_BEAN_NAME}).<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * Transaction properties are configurable via filter &lt;code&gt;&amp;lt;init-param&amp;gt;&lt;/code&gt;'s {@code isolation},<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * {@code propagation}, and {@code readOnly}.<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;/p&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>public class OpenTransactionInViewFilter extends OncePerRequestFilter {<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    public static final String DEFAULT_TRANSACTION_MANAGER_BEAN_NAME = "transactionManager";<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>    protected final Logger log = LoggerFactory.getLogger(getClass());<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private final DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private WebApplicationContext webApplicationContext;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    private String transactionManagerBeanName = DEFAULT_TRANSACTION_MANAGER_BEAN_NAME;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private PlatformTransactionManager transactionManager;<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    @Override<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    protected void initFilterBean() throws ServletException {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        super.initFilterBean();<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        log.debug("finding containing WebApplicationContext");<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        try {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            this.webApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        } catch (IllegalStateException e) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            throw new ServletException("could not locate containing WebApplicationContext");<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        }<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    public void setIsolation(String isolation) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        this.transactionDefinition.setIsolationLevelName(isolation);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>    public void setPropagation(String propagation) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        this.transactionDefinition.setPropagationBehaviorName(propagation);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public void setReadOnly(boolean readOnly) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        this.transactionDefinition.setReadOnly(readOnly);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    public void setTransactionManagerBeanName(String transactionManagerBeanName) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        this.transactionManagerBeanName = transactionManagerBeanName;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    }<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    protected synchronized PlatformTransactionManager getTransactionManager() {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        if (this.transactionManager == null) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            this.transactionManager = this.webApplicationContext.getBean(<a name="line.79"></a>
+<span class="sourceLineNo">080</span>              this.transactionManagerBeanName, PlatformTransactionManager.class);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        }<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        return this.transactionManager;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    }<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>    @Override<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      final FilterChain filterChain) throws ServletException, IOException {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        TransactionTemplate transactionTemplate = new TransactionTemplate(getTransactionManager(), this.transactionDefinition);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        try {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            transactionTemplate.execute(new TransactionCallback&lt;Void&gt;() {<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>                @Override<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                public Void doInTransaction(TransactionStatus status) {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                    try {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                        filterChain.doFilter(request, response);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                    } catch (IOException e) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                        throw new RuntimeException(e);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                    } catch (ServletException e) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                        throw new RuntimeException(e);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                    return null;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                }<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            });<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        } catch (RuntimeException e) {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            Throwable nested = e.getCause();<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            if (nested instanceof IOException)<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                throw (IOException)nested;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            if (nested instanceof ServletException)<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                throw (ServletException)nested;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            throw e;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">113</span>}<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
 
 
 
@@ -175,6 +180,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

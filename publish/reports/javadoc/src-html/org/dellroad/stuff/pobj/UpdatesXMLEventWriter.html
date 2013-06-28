@@ -1,65 +1,70 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.pobj;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.util.List;<a name="line.10"></a>
-<FONT color="green">011</FONT>    <a name="line.11"></a>
-<FONT color="green">012</FONT>    import javax.xml.stream.XMLEventWriter;<a name="line.12"></a>
-<FONT color="green">013</FONT>    import javax.xml.stream.XMLStreamException;<a name="line.13"></a>
-<FONT color="green">014</FONT>    <a name="line.14"></a>
-<FONT color="green">015</FONT>    import org.dellroad.stuff.xml.AnnotatedXMLEventWriter;<a name="line.15"></a>
-<FONT color="green">016</FONT>    <a name="line.16"></a>
-<FONT color="green">017</FONT>    /**<a name="line.17"></a>
-<FONT color="green">018</FONT>     * {@link AnnotatedXMLEventWriter} that inserts the schema update list into the document<a name="line.18"></a>
-<FONT color="green">019</FONT>     * using an {@link PersistentObjectSchemaUpdater#UPDATES_ELEMENT_NAME} annotation element.<a name="line.19"></a>
-<FONT color="green">020</FONT>     * Used by {@link PersistentObjectSchemaUpdater}.<a name="line.20"></a>
-<FONT color="green">021</FONT>     */<a name="line.21"></a>
-<FONT color="green">022</FONT>    public class UpdatesXMLEventWriter extends AnnotatedXMLEventWriter {<a name="line.22"></a>
-<FONT color="green">023</FONT>    <a name="line.23"></a>
-<FONT color="green">024</FONT>        private final List&lt;String&gt; updates;<a name="line.24"></a>
-<FONT color="green">025</FONT>    <a name="line.25"></a>
-<FONT color="green">026</FONT>        /**<a name="line.26"></a>
-<FONT color="green">027</FONT>         * Constructor.<a name="line.27"></a>
-<FONT color="green">028</FONT>         *<a name="line.28"></a>
-<FONT color="green">029</FONT>         * @param inner nested output<a name="line.29"></a>
-<FONT color="green">030</FONT>         * @param updates list of updates to add<a name="line.30"></a>
-<FONT color="green">031</FONT>         * @throws IllegalArgumentException if {@code updates} is null<a name="line.31"></a>
-<FONT color="green">032</FONT>         */<a name="line.32"></a>
-<FONT color="green">033</FONT>        public UpdatesXMLEventWriter(XMLEventWriter inner, List&lt;String&gt; updates) {<a name="line.33"></a>
-<FONT color="green">034</FONT>            super(inner);<a name="line.34"></a>
-<FONT color="green">035</FONT>            if (updates == null)<a name="line.35"></a>
-<FONT color="green">036</FONT>                throw new IllegalArgumentException("null updates");<a name="line.36"></a>
-<FONT color="green">037</FONT>            this.updates = updates;<a name="line.37"></a>
-<FONT color="green">038</FONT>        }<a name="line.38"></a>
-<FONT color="green">039</FONT>    <a name="line.39"></a>
-<FONT color="green">040</FONT>        @Override<a name="line.40"></a>
-<FONT color="green">041</FONT>        protected void addAnnotationElement() throws XMLStreamException {<a name="line.41"></a>
-<FONT color="green">042</FONT>            this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null, null));<a name="line.42"></a>
-<FONT color="green">043</FONT>            this.add(this.xmlEventFactory.createAttribute(PersistentObjectSchemaUpdater.XMLNS_ATTRIBUTE_NAME,<a name="line.43"></a>
-<FONT color="green">044</FONT>              PersistentObjectSchemaUpdater.NAMESPACE_URI));<a name="line.44"></a>
-<FONT color="green">045</FONT>            final String space = this.getTrailingSpace();<a name="line.45"></a>
-<FONT color="green">046</FONT>            final String space2 = space.length() &gt; 0 ? space + "    " : "";<a name="line.46"></a>
-<FONT color="green">047</FONT>            if (!this.updates.isEmpty()) {<a name="line.47"></a>
-<FONT color="green">048</FONT>                for (String updateName : this.updates) {<a name="line.48"></a>
-<FONT color="green">049</FONT>                    this.add(this.xmlEventFactory.createCharacters(space2));<a name="line.49"></a>
-<FONT color="green">050</FONT>                    this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null, null));<a name="line.50"></a>
-<FONT color="green">051</FONT>                    this.add(this.xmlEventFactory.createCharacters(updateName));<a name="line.51"></a>
-<FONT color="green">052</FONT>                    this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null));<a name="line.52"></a>
-<FONT color="green">053</FONT>                }<a name="line.53"></a>
-<FONT color="green">054</FONT>                this.add(this.xmlEventFactory.createCharacters(space));<a name="line.54"></a>
-<FONT color="green">055</FONT>            }<a name="line.55"></a>
-<FONT color="green">056</FONT>            this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null));<a name="line.56"></a>
-<FONT color="green">057</FONT>        }<a name="line.57"></a>
-<FONT color="green">058</FONT>    }<a name="line.58"></a>
-<FONT color="green">059</FONT>    <a name="line.59"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.pobj;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.List;<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.xml.stream.XMLEventWriter;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import javax.xml.stream.XMLStreamException;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.dellroad.stuff.xml.AnnotatedXMLEventWriter;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>/**<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * {@link AnnotatedXMLEventWriter} that inserts the schema update list into the document<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * using an {@link PersistentObjectSchemaUpdater#UPDATES_ELEMENT_NAME} annotation element.<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * Used by {@link PersistentObjectSchemaUpdater}.<a name="line.20"></a>
+<span class="sourceLineNo">021</span> */<a name="line.21"></a>
+<span class="sourceLineNo">022</span>public class UpdatesXMLEventWriter extends AnnotatedXMLEventWriter {<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>    private final List&lt;String&gt; updates;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>    /**<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     * Constructor.<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     *<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @param inner nested output<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * @param updates list of updates to add<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * @throws IllegalArgumentException if {@code updates} is null<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    public UpdatesXMLEventWriter(XMLEventWriter inner, List&lt;String&gt; updates) {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        super(inner);<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        if (updates == null)<a name="line.35"></a>
+<span class="sourceLineNo">036</span>            throw new IllegalArgumentException("null updates");<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        this.updates = updates;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    @Override<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    protected void addAnnotationElement() throws XMLStreamException {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null, null));<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        this.add(this.xmlEventFactory.createAttribute(PersistentObjectSchemaUpdater.XMLNS_ATTRIBUTE_NAME,<a name="line.43"></a>
+<span class="sourceLineNo">044</span>          PersistentObjectSchemaUpdater.NAMESPACE_URI));<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        final String space = this.getTrailingSpace();<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        final String space2 = space.length() &gt; 0 ? space + "    " : "";<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        if (!this.updates.isEmpty()) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            for (String updateName : this.updates) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>                this.add(this.xmlEventFactory.createCharacters(space2));<a name="line.49"></a>
+<span class="sourceLineNo">050</span>                this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null, null));<a name="line.50"></a>
+<span class="sourceLineNo">051</span>                this.add(this.xmlEventFactory.createCharacters(updateName));<a name="line.51"></a>
+<span class="sourceLineNo">052</span>                this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null));<a name="line.52"></a>
+<span class="sourceLineNo">053</span>            }<a name="line.53"></a>
+<span class="sourceLineNo">054</span>            this.add(this.xmlEventFactory.createCharacters(space));<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        }<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null));<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
+<span class="sourceLineNo">058</span>}<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
 
 
 
@@ -120,6 +125,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

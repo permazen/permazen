@@ -1,80 +1,85 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.schema;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.util.List;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import java.util.Set;<a name="line.11"></a>
-<FONT color="green">012</FONT>    <a name="line.12"></a>
-<FONT color="green">013</FONT>    /**<a name="line.13"></a>
-<FONT color="green">014</FONT>     * A one-time database schema update. Instances typically perform changes to the database schema, though non-schema updates<a name="line.14"></a>
-<FONT color="green">015</FONT>     * that just manipulate the data in the database are perfectly valid as well.<a name="line.15"></a>
-<FONT color="green">016</FONT>     *<a name="line.16"></a>
-<FONT color="green">017</FONT>     * &lt;p&gt;<a name="line.17"></a>
-<FONT color="green">018</FONT>     * Each {@link SchemaUpdate} has a unique name among all updates ever applied to a single database, and zero<a name="line.18"></a>
-<FONT color="green">019</FONT>     * or more required predecessors, which are other dependent updates that must be applied first.<a name="line.19"></a>
-<FONT color="green">020</FONT>     * &lt;/p&gt;<a name="line.20"></a>
-<FONT color="green">021</FONT>     *<a name="line.21"></a>
-<FONT color="green">022</FONT>     * &lt;p&gt;<a name="line.22"></a>
-<FONT color="green">023</FONT>     * Once an update has been applied to a database, it must not be changed; otherwise, inconsistencies<a name="line.23"></a>
-<FONT color="green">024</FONT>     * can exist between databases that were updated using the old version vs. databases that were<a name="line.24"></a>
-<FONT color="green">025</FONT>     * updated using the new version. If an update has been applied but had the wrong behavior, instead of<a name="line.25"></a>
-<FONT color="green">026</FONT>     * changing the update, it's better to create a new update that depends on the first as a predecessor<a name="line.26"></a>
-<FONT color="green">027</FONT>     * and corrects the mistake.<a name="line.27"></a>
-<FONT color="green">028</FONT>     * &lt;/p&gt;<a name="line.28"></a>
-<FONT color="green">029</FONT>     *<a name="line.29"></a>
-<FONT color="green">030</FONT>     * &lt;p&gt;<a name="line.30"></a>
-<FONT color="green">031</FONT>     * If you do have to change an update after it has been applied, then those databases that have<a name="line.31"></a>
-<FONT color="green">032</FONT>     * already seen the previous version of the update must be manually corrected so they are in the<a name="line.32"></a>
-<FONT color="green">033</FONT>     * same state that the new version of the update would have left them.<a name="line.33"></a>
-<FONT color="green">034</FONT>     * &lt;/p&gt;<a name="line.34"></a>
-<FONT color="green">035</FONT>     *<a name="line.35"></a>
-<FONT color="green">036</FONT>     * @param &lt;T&gt; database transaction type<a name="line.36"></a>
-<FONT color="green">037</FONT>     */<a name="line.37"></a>
-<FONT color="green">038</FONT>    public interface SchemaUpdate&lt;T&gt; {<a name="line.38"></a>
-<FONT color="green">039</FONT>    <a name="line.39"></a>
-<FONT color="green">040</FONT>        /**<a name="line.40"></a>
-<FONT color="green">041</FONT>         * Get the unique name of this update. This name must be unique among all updates ever applied to the database<a name="line.41"></a>
-<FONT color="green">042</FONT>         * and must never change once this update has been applied to any database.<a name="line.42"></a>
-<FONT color="green">043</FONT>         *<a name="line.43"></a>
-<FONT color="green">044</FONT>         * @return the name of this update; must not be the empty string<a name="line.44"></a>
-<FONT color="green">045</FONT>         */<a name="line.45"></a>
-<FONT color="green">046</FONT>        String getName();<a name="line.46"></a>
-<FONT color="green">047</FONT>    <a name="line.47"></a>
-<FONT color="green">048</FONT>        /**<a name="line.48"></a>
-<FONT color="green">049</FONT>         * Get the the other updates (if any) that must be applied &lt;b&gt;before&lt;/b&gt; this update may be applied.<a name="line.49"></a>
-<FONT color="green">050</FONT>         *<a name="line.50"></a>
-<FONT color="green">051</FONT>         * @return set of zero or more other updates<a name="line.51"></a>
-<FONT color="green">052</FONT>         * @see #getName<a name="line.52"></a>
-<FONT color="green">053</FONT>         */<a name="line.53"></a>
-<FONT color="green">054</FONT>        Set&lt;SchemaUpdate&lt;T&gt;&gt; getRequiredPredecessors();<a name="line.54"></a>
-<FONT color="green">055</FONT>    <a name="line.55"></a>
-<FONT color="green">056</FONT>        /**<a name="line.56"></a>
-<FONT color="green">057</FONT>         * Get the action(s) that comprise this update. Ideally, individual actions should be atomic database operations, i.e.,<a name="line.57"></a>
-<FONT color="green">058</FONT>         * each one should either finish completely, or else leave the database in a state where it can be tried again.<a name="line.58"></a>
-<FONT color="green">059</FONT>         * In any case, each action will be applied within its own transaction when transactions are supported by the database<a name="line.59"></a>
-<FONT color="green">060</FONT>         * unless {@link #isSingleAction} returns true.<a name="line.60"></a>
-<FONT color="green">061</FONT>         *<a name="line.61"></a>
-<FONT color="green">062</FONT>         * @return a list of zero or more actions to apply<a name="line.62"></a>
-<FONT color="green">063</FONT>         * @see #isSingleAction<a name="line.63"></a>
-<FONT color="green">064</FONT>         */<a name="line.64"></a>
-<FONT color="green">065</FONT>        List&lt;? extends DatabaseAction&lt;T&gt;&gt; getDatabaseActions();<a name="line.65"></a>
-<FONT color="green">066</FONT>    <a name="line.66"></a>
-<FONT color="green">067</FONT>        /**<a name="line.67"></a>
-<FONT color="green">068</FONT>         * Determine whether, if this instance contains multiple individual actions, should they be applied in a single<a name="line.68"></a>
-<FONT color="green">069</FONT>         * transaction and recorded as a single update. Normally this is false. If true, partially completed updates<a name="line.69"></a>
-<FONT color="green">070</FONT>         * can result if one of the action fails.<a name="line.70"></a>
-<FONT color="green">071</FONT>         */<a name="line.71"></a>
-<FONT color="green">072</FONT>        boolean isSingleAction();<a name="line.72"></a>
-<FONT color="green">073</FONT>    }<a name="line.73"></a>
-<FONT color="green">074</FONT>    <a name="line.74"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.schema;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.List;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.Set;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>/**<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * A one-time database schema update. Instances typically perform changes to the database schema, though non-schema updates<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * that just manipulate the data in the database are perfectly valid as well.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> *<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * &lt;p&gt;<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * Each {@link SchemaUpdate} has a unique name among all updates ever applied to a single database, and zero<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * or more required predecessors, which are other dependent updates that must be applied first.<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * &lt;/p&gt;<a name="line.20"></a>
+<span class="sourceLineNo">021</span> *<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * &lt;p&gt;<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * Once an update has been applied to a database, it must not be changed; otherwise, inconsistencies<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * can exist between databases that were updated using the old version vs. databases that were<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * updated using the new version. If an update has been applied but had the wrong behavior, instead of<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * changing the update, it's better to create a new update that depends on the first as a predecessor<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * and corrects the mistake.<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;/p&gt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;p&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * If you do have to change an update after it has been applied, then those databases that have<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * already seen the previous version of the update must be manually corrected so they are in the<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * same state that the new version of the update would have left them.<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;/p&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * @param &lt;T&gt; database transaction type<a name="line.36"></a>
+<span class="sourceLineNo">037</span> */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>public interface SchemaUpdate&lt;T&gt; {<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    /**<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * Get the unique name of this update. This name must be unique among all updates ever applied to the database<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * and must never change once this update has been applied to any database.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     *<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @return the name of this update; must not be the empty string<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    String getName();<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * Get the the other updates (if any) that must be applied &lt;b&gt;before&lt;/b&gt; this update may be applied.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     *<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * @return set of zero or more other updates<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * @see #getName<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    Set&lt;SchemaUpdate&lt;T&gt;&gt; getRequiredPredecessors();<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * Get the action(s) that comprise this update. Ideally, individual actions should be atomic database operations, i.e.,<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * each one should either finish completely, or else leave the database in a state where it can be tried again.<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * In any case, each action will be applied within its own transaction when transactions are supported by the database<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * unless {@link #isSingleAction} returns true.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     *<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * @return a list of zero or more actions to apply<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @see #isSingleAction<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    List&lt;? extends DatabaseAction&lt;T&gt;&gt; getDatabaseActions();<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * Determine whether, if this instance contains multiple individual actions, should they be applied in a single<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * transaction and recorded as a single update. Normally this is false. If true, partially completed updates<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * can result if one of the action fails.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    boolean isSingleAction();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>}<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
 
 
 
@@ -135,6 +140,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

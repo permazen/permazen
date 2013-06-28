@@ -1,186 +1,191 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.vaadin7;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import com.vaadin.server.VaadinServlet;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import com.vaadin.server.VaadinServletService;<a name="line.11"></a>
-<FONT color="green">012</FONT>    <a name="line.12"></a>
-<FONT color="green">013</FONT>    import java.util.Properties;<a name="line.13"></a>
-<FONT color="green">014</FONT>    <a name="line.14"></a>
-<FONT color="green">015</FONT>    import javax.servlet.ServletConfig;<a name="line.15"></a>
-<FONT color="green">016</FONT>    import javax.servlet.ServletException;<a name="line.16"></a>
-<FONT color="green">017</FONT>    <a name="line.17"></a>
-<FONT color="green">018</FONT>    /**<a name="line.18"></a>
-<FONT color="green">019</FONT>     * A {@link VaadinServlet} that associates and manages a Spring<a name="line.19"></a>
-<FONT color="green">020</FONT>     * {@link org.springframework.web.context.ConfigurableWebApplicationContext} with each<a name="line.20"></a>
-<FONT color="green">021</FONT>     * {@link com.vaadin.server.VaadinSession} (aka, "Vaadin application" in the old terminology).<a name="line.21"></a>
-<FONT color="green">022</FONT>     *<a name="line.22"></a>
-<FONT color="green">023</FONT>     * &lt;p&gt;<a name="line.23"></a>
-<FONT color="green">024</FONT>     * The {@code vaadinContextConfigLocation} servlet parameter may be used to specify the Spring XML config<a name="line.24"></a>
-<FONT color="green">025</FONT>     * file location(s). For example:<a name="line.25"></a>
-<FONT color="green">026</FONT>     *<a name="line.26"></a>
-<FONT color="green">027</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.27"></a>
-<FONT color="green">028</FONT>     * &amp;lt;servlet&amp;gt;<a name="line.28"></a>
-<FONT color="green">029</FONT>     *     &amp;lt;servlet-name&amp;gt;My Vaadin App&amp;lt;/servlet-name&amp;gt;<a name="line.29"></a>
-<FONT color="green">030</FONT>     *     &amp;lt;servlet-class&amp;gt;org.dellroad.stuff.vaadin7.SpringVaadinServlet&amp;lt;/servlet-class&amp;gt;<a name="line.30"></a>
-<FONT color="green">031</FONT>     *     &amp;lt;init-param&amp;gt;<a name="line.31"></a>
-<FONT color="green">032</FONT>     *         &amp;lt;param-name&amp;gt;UI&amp;lt;/param-name&amp;gt;<a name="line.32"></a>
-<FONT color="green">033</FONT>     *         &amp;lt;param-value&amp;gt;com.example.MyApplicationUI&amp;lt;/param-value&amp;gt;<a name="line.33"></a>
-<FONT color="green">034</FONT>     *     &amp;lt;/init-param&amp;gt;<a name="line.34"></a>
-<FONT color="green">035</FONT>     *     &amp;lt;init-param&amp;gt;<a name="line.35"></a>
-<FONT color="green">036</FONT>     *         &amp;lt;param-name&amp;gt;configLocation&amp;lt;/param-name&amp;gt;<a name="line.36"></a>
-<FONT color="green">037</FONT>     *         &amp;lt;param-value&amp;gt;classpath:com/example/MyApplicationContext.xml&amp;lt;/param-value&amp;gt;<a name="line.37"></a>
-<FONT color="green">038</FONT>     *     &amp;lt;/init-param&amp;gt;<a name="line.38"></a>
-<FONT color="green">039</FONT>     * &amp;lt;/servlet&amp;gt;<a name="line.39"></a>
-<FONT color="green">040</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.40"></a>
-<FONT color="green">041</FONT>     * &lt;/p&gt;<a name="line.41"></a>
-<FONT color="green">042</FONT>     *<a name="line.42"></a>
-<FONT color="green">043</FONT>     * &lt;p&gt;<a name="line.43"></a>
-<FONT color="green">044</FONT>     * The only real function of this servlet is to create and register a {@link SpringVaadinSession} as a listener on the<a name="line.44"></a>
-<FONT color="green">045</FONT>     * {@link com.vaadin.server.VaadinService} associated with this servlet. The {@link SpringVaadinSession} in turn detects<a name="line.45"></a>
-<FONT color="green">046</FONT>     * the creation and destruction of Vaadin application instances (represented by {@link com.vaadin.server.VaadinSession}<a name="line.46"></a>
-<FONT color="green">047</FONT>     * instances) and does the work of managing the associated Spring application contexts.<a name="line.47"></a>
-<FONT color="green">048</FONT>     * &lt;/p&gt;<a name="line.48"></a>
-<FONT color="green">049</FONT>     *<a name="line.49"></a>
-<FONT color="green">050</FONT>     * &lt;p&gt;<a name="line.50"></a>
-<FONT color="green">051</FONT>     * Use of this servlet in place of the standard Vaadin servlet is required for the {@link VaadinConfigurable @VaadinConfigurable}<a name="line.51"></a>
-<FONT color="green">052</FONT>     * annotation to work.<a name="line.52"></a>
-<FONT color="green">053</FONT>     * &lt;/p&gt;<a name="line.53"></a>
-<FONT color="green">054</FONT>     *<a name="line.54"></a>
-<FONT color="green">055</FONT>     * &lt;p&gt;<a name="line.55"></a>
-<FONT color="green">056</FONT>     * Supported URL parameters:<a name="line.56"></a>
-<FONT color="green">057</FONT>     * &lt;div style="margin-left: 20px;"&gt;<a name="line.57"></a>
-<FONT color="green">058</FONT>     * &lt;table border="1" cellpadding="3" cellspacing="0"&gt;<a name="line.58"></a>
-<FONT color="green">059</FONT>     * &lt;tr bgcolor="#ccffcc"&gt;<a name="line.59"></a>
-<FONT color="green">060</FONT>     *  &lt;th align="left"&gt;Parameter Name&lt;/th&gt;<a name="line.60"></a>
-<FONT color="green">061</FONT>     *  &lt;th align="left"&gt;Required?&lt;/th&gt;<a name="line.61"></a>
-<FONT color="green">062</FONT>     *  &lt;th align="left"&gt;Description&lt;/th&gt;<a name="line.62"></a>
-<FONT color="green">063</FONT>     * &lt;/tr&gt;<a name="line.63"></a>
-<FONT color="green">064</FONT>     * &lt;tr&gt;<a name="line.64"></a>
-<FONT color="green">065</FONT>     * &lt;td&gt;{@code applicationName}&lt;/td&gt;<a name="line.65"></a>
-<FONT color="green">066</FONT>     * &lt;td align="center"&gt;No&lt;/td&gt;<a name="line.66"></a>
-<FONT color="green">067</FONT>     * &lt;td&gt;<a name="line.67"></a>
-<FONT color="green">068</FONT>     *  Vaadin application name. Used for logging purposes and as the name of the XML application context file<a name="line.68"></a>
-<FONT color="green">069</FONT>     *  when {@code configLocation} is not specified. If this parameter is not specified, the<a name="line.69"></a>
-<FONT color="green">070</FONT>     *  name of the servlet is used.<a name="line.70"></a>
-<FONT color="green">071</FONT>     * &lt;/td&gt;<a name="line.71"></a>
-<FONT color="green">072</FONT>     * &lt;/tr&gt;<a name="line.72"></a>
-<FONT color="green">073</FONT>     * &lt;tr&gt;<a name="line.73"></a>
-<FONT color="green">074</FONT>     * &lt;td&gt;{@code configLocation}&lt;/td&gt;<a name="line.74"></a>
-<FONT color="green">075</FONT>     * &lt;td align="center"&gt;No&lt;/td&gt;<a name="line.75"></a>
-<FONT color="green">076</FONT>     * &lt;td&gt;<a name="line.76"></a>
-<FONT color="green">077</FONT>     *  Location of Spring application context XML file(s). Multiple locations are separated by whitespace.<a name="line.77"></a>
-<FONT color="green">078</FONT>     *  If omitted, {@code /WEB-INF/ServletName.xml} is used, where {@code ServletName} is the name of the Vaadin<a name="line.78"></a>
-<FONT color="green">079</FONT>     *  application (see {@code applicationName}).<a name="line.79"></a>
-<FONT color="green">080</FONT>     * &lt;/td&gt;<a name="line.80"></a>
-<FONT color="green">081</FONT>     * &lt;/tr&gt;<a name="line.81"></a>
-<FONT color="green">082</FONT>     * &lt;tr&gt;<a name="line.82"></a>
-<FONT color="green">083</FONT>     * &lt;td&gt;{@code listenerClass}&lt;/td&gt;<a name="line.83"></a>
-<FONT color="green">084</FONT>     * &lt;td align="center"&gt;No&lt;/td&gt;<a name="line.84"></a>
-<FONT color="green">085</FONT>     * &lt;td&gt;<a name="line.85"></a>
-<FONT color="green">086</FONT>     *  Specify the name of a custom class extending {@link SpringVaadinSession} and having the same constructor arguments.<a name="line.86"></a>
-<FONT color="green">087</FONT>     *  If omitted, {@link SpringVaadinSession} is used.<a name="line.87"></a>
-<FONT color="green">088</FONT>     * &lt;/td&gt;<a name="line.88"></a>
-<FONT color="green">089</FONT>     * &lt;/tr&gt;<a name="line.89"></a>
-<FONT color="green">090</FONT>     * &lt;/table&gt;<a name="line.90"></a>
-<FONT color="green">091</FONT>     * &lt;/div&gt;<a name="line.91"></a>
-<FONT color="green">092</FONT>     * &lt;/p&gt;<a name="line.92"></a>
-<FONT color="green">093</FONT>     *<a name="line.93"></a>
-<FONT color="green">094</FONT>     * @see SpringVaadinSession<a name="line.94"></a>
-<FONT color="green">095</FONT>     * @see VaadinConfigurable<a name="line.95"></a>
-<FONT color="green">096</FONT>     * @see VaadinApplication<a name="line.96"></a>
-<FONT color="green">097</FONT>     */<a name="line.97"></a>
-<FONT color="green">098</FONT>    @SuppressWarnings("serial")<a name="line.98"></a>
-<FONT color="green">099</FONT>    public class SpringVaadinServlet extends VaadinServlet {<a name="line.99"></a>
-<FONT color="green">100</FONT>    <a name="line.100"></a>
-<FONT color="green">101</FONT>        /**<a name="line.101"></a>
-<FONT color="green">102</FONT>         * Servlet initialization parameter (&lt;code&gt;{@value #CONFIG_LOCATION_PARAMETER}&lt;/code&gt;) used to specify<a name="line.102"></a>
-<FONT color="green">103</FONT>         * the location(s) of the Spring application context XML file(s). Multiple XML files may be separated by whitespace.<a name="line.103"></a>
-<FONT color="green">104</FONT>         * This parameter is optional.<a name="line.104"></a>
-<FONT color="green">105</FONT>         */<a name="line.105"></a>
-<FONT color="green">106</FONT>        public static final String CONFIG_LOCATION_PARAMETER = "configLocation";<a name="line.106"></a>
-<FONT color="green">107</FONT>    <a name="line.107"></a>
-<FONT color="green">108</FONT>        /**<a name="line.108"></a>
-<FONT color="green">109</FONT>         * Servlet initialization parameter (&lt;code&gt;{@value #LISTENER_CLASS_PARAMETER}&lt;/code&gt;) used to specify<a name="line.109"></a>
-<FONT color="green">110</FONT>         * the name of an custom subclass of {@link SpringVaadinSession}.<a name="line.110"></a>
-<FONT color="green">111</FONT>         * This parameter is optional.<a name="line.111"></a>
-<FONT color="green">112</FONT>         */<a name="line.112"></a>
-<FONT color="green">113</FONT>        public static final String LISTENER_CLASS_PARAMETER = "listenerClass";<a name="line.113"></a>
-<FONT color="green">114</FONT>    <a name="line.114"></a>
-<FONT color="green">115</FONT>        /**<a name="line.115"></a>
-<FONT color="green">116</FONT>         * Servlet initialization parameter (&lt;code&gt;{@value #APPLICATION_NAME_PARAMETER}&lt;/code&gt;) used to specify<a name="line.116"></a>
-<FONT color="green">117</FONT>         * the name the application.<a name="line.117"></a>
-<FONT color="green">118</FONT>         * This parameter is optional.<a name="line.118"></a>
-<FONT color="green">119</FONT>         */<a name="line.119"></a>
-<FONT color="green">120</FONT>        public static final String APPLICATION_NAME_PARAMETER = "applicationName";<a name="line.120"></a>
-<FONT color="green">121</FONT>    <a name="line.121"></a>
-<FONT color="green">122</FONT>        private String servletName;<a name="line.122"></a>
-<FONT color="green">123</FONT>    <a name="line.123"></a>
-<FONT color="green">124</FONT>        @Override<a name="line.124"></a>
-<FONT color="green">125</FONT>        public void init(ServletConfig config) throws ServletException {<a name="line.125"></a>
-<FONT color="green">126</FONT>            this.servletName = config.getServletName();<a name="line.126"></a>
-<FONT color="green">127</FONT>            if (this.servletName == null)<a name="line.127"></a>
-<FONT color="green">128</FONT>                throw new IllegalArgumentException("null servlet name");<a name="line.128"></a>
-<FONT color="green">129</FONT>            super.init(config);<a name="line.129"></a>
-<FONT color="green">130</FONT>        }<a name="line.130"></a>
-<FONT color="green">131</FONT>    <a name="line.131"></a>
-<FONT color="green">132</FONT>        @Override<a name="line.132"></a>
-<FONT color="green">133</FONT>        protected void servletInitialized() throws ServletException {<a name="line.133"></a>
-<FONT color="green">134</FONT>    <a name="line.134"></a>
-<FONT color="green">135</FONT>            // Sanity check<a name="line.135"></a>
-<FONT color="green">136</FONT>            if (this.servletName == null)<a name="line.136"></a>
-<FONT color="green">137</FONT>                throw new IllegalArgumentException("servlet not initialized");<a name="line.137"></a>
-<FONT color="green">138</FONT>    <a name="line.138"></a>
-<FONT color="green">139</FONT>            // Defer to superclass<a name="line.139"></a>
-<FONT color="green">140</FONT>            super.servletInitialized();<a name="line.140"></a>
-<FONT color="green">141</FONT>    <a name="line.141"></a>
-<FONT color="green">142</FONT>            // Get params<a name="line.142"></a>
-<FONT color="green">143</FONT>            final VaadinServletService servletService = this.getService();<a name="line.143"></a>
-<FONT color="green">144</FONT>            final Properties params = servletService.getDeploymentConfiguration().getInitParameters();<a name="line.144"></a>
-<FONT color="green">145</FONT>            final String contextLocation = params.getProperty(CONFIG_LOCATION_PARAMETER);<a name="line.145"></a>
-<FONT color="green">146</FONT>            final String listenerClassName = params.getProperty(LISTENER_CLASS_PARAMETER);<a name="line.146"></a>
-<FONT color="green">147</FONT>            String applicationName = params.getProperty(APPLICATION_NAME_PARAMETER);<a name="line.147"></a>
-<FONT color="green">148</FONT>            if (applicationName == null)<a name="line.148"></a>
-<FONT color="green">149</FONT>                applicationName = this.servletName;<a name="line.149"></a>
-<FONT color="green">150</FONT>    <a name="line.150"></a>
-<FONT color="green">151</FONT>            // Detect listener class to use<a name="line.151"></a>
-<FONT color="green">152</FONT>            Class&lt;? extends SpringVaadinSession&gt; listenerClass = SpringVaadinSession.class;<a name="line.152"></a>
-<FONT color="green">153</FONT>            if (listenerClassName != null) {<a name="line.153"></a>
-<FONT color="green">154</FONT>                try {<a name="line.154"></a>
-<FONT color="green">155</FONT>                    listenerClass = Class.forName(listenerClassName, false, Thread.currentThread().getContextClassLoader())<a name="line.155"></a>
-<FONT color="green">156</FONT>                      .asSubclass(SpringVaadinSession.class);<a name="line.156"></a>
-<FONT color="green">157</FONT>                } catch (RuntimeException e) {<a name="line.157"></a>
-<FONT color="green">158</FONT>                    throw e;<a name="line.158"></a>
-<FONT color="green">159</FONT>                } catch (Exception e) {<a name="line.159"></a>
-<FONT color="green">160</FONT>                    throw new ServletException("error finding class " + listenerClassName, e);<a name="line.160"></a>
-<FONT color="green">161</FONT>                }<a name="line.161"></a>
-<FONT color="green">162</FONT>            }<a name="line.162"></a>
-<FONT color="green">163</FONT>    <a name="line.163"></a>
-<FONT color="green">164</FONT>            // Create session listener<a name="line.164"></a>
-<FONT color="green">165</FONT>            SpringVaadinSession sessionListener;<a name="line.165"></a>
-<FONT color="green">166</FONT>            try {<a name="line.166"></a>
-<FONT color="green">167</FONT>                sessionListener = listenerClass.getConstructor(String.class, String.class)<a name="line.167"></a>
-<FONT color="green">168</FONT>                  .newInstance(applicationName, contextLocation);<a name="line.168"></a>
-<FONT color="green">169</FONT>            } catch (RuntimeException e) {<a name="line.169"></a>
-<FONT color="green">170</FONT>                throw e;<a name="line.170"></a>
-<FONT color="green">171</FONT>            } catch (Exception e) {<a name="line.171"></a>
-<FONT color="green">172</FONT>                throw new ServletException("error instantiating " + listenerClass, e);<a name="line.172"></a>
-<FONT color="green">173</FONT>            }<a name="line.173"></a>
-<FONT color="green">174</FONT>    <a name="line.174"></a>
-<FONT color="green">175</FONT>            // Register session listener<a name="line.175"></a>
-<FONT color="green">176</FONT>            servletService.addSessionInitListener(sessionListener);<a name="line.176"></a>
-<FONT color="green">177</FONT>            servletService.addSessionDestroyListener(sessionListener);<a name="line.177"></a>
-<FONT color="green">178</FONT>        }<a name="line.178"></a>
-<FONT color="green">179</FONT>    }<a name="line.179"></a>
-<FONT color="green">180</FONT>    <a name="line.180"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.vaadin7;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import com.vaadin.server.VaadinServlet;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import com.vaadin.server.VaadinServletService;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.Properties;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import javax.servlet.ServletConfig;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import javax.servlet.ServletException;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * A {@link VaadinServlet} that associates and manages a Spring<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * {@link org.springframework.web.context.ConfigurableWebApplicationContext} with each<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * {@link com.vaadin.server.VaadinSession} (aka, "Vaadin application" in the old terminology).<a name="line.21"></a>
+<span class="sourceLineNo">022</span> *<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * &lt;p&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * The {@code vaadinContextConfigLocation} servlet parameter may be used to specify the Spring XML config<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * file location(s). For example:<a name="line.25"></a>
+<span class="sourceLineNo">026</span> *<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * &lt;blockquote&gt;&lt;pre&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &amp;lt;servlet&amp;gt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *     &amp;lt;servlet-name&amp;gt;My Vaadin App&amp;lt;/servlet-name&amp;gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *     &amp;lt;servlet-class&amp;gt;org.dellroad.stuff.vaadin7.SpringVaadinServlet&amp;lt;/servlet-class&amp;gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *     &amp;lt;init-param&amp;gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *         &amp;lt;param-name&amp;gt;UI&amp;lt;/param-name&amp;gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *         &amp;lt;param-value&amp;gt;com.example.MyApplicationUI&amp;lt;/param-value&amp;gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *     &amp;lt;/init-param&amp;gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *     &amp;lt;init-param&amp;gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *         &amp;lt;param-name&amp;gt;configLocation&amp;lt;/param-name&amp;gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *         &amp;lt;param-value&amp;gt;classpath:com/example/MyApplicationContext.xml&amp;lt;/param-value&amp;gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *     &amp;lt;/init-param&amp;gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &amp;lt;/servlet&amp;gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;/p&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;p&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * The only real function of this servlet is to create and register a {@link SpringVaadinSession} as a listener on the<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * {@link com.vaadin.server.VaadinService} associated with this servlet. The {@link SpringVaadinSession} in turn detects<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * the creation and destruction of Vaadin application instances (represented by {@link com.vaadin.server.VaadinSession}<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * instances) and does the work of managing the associated Spring application contexts.<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;/p&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * &lt;p&gt;<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * Use of this servlet in place of the standard Vaadin servlet is required for the {@link VaadinConfigurable @VaadinConfigurable}<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * annotation to work.<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * &lt;/p&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * &lt;p&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * Supported URL parameters:<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * &lt;div style="margin-left: 20px;"&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * &lt;table border="1" cellpadding="3" cellspacing="0"&gt;<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * &lt;tr bgcolor="#ccffcc"&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span> *  &lt;th align="left"&gt;Parameter Name&lt;/th&gt;<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *  &lt;th align="left"&gt;Required?&lt;/th&gt;<a name="line.61"></a>
+<span class="sourceLineNo">062</span> *  &lt;th align="left"&gt;Description&lt;/th&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * &lt;/tr&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * &lt;tr&gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * &lt;td&gt;{@code applicationName}&lt;/td&gt;<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * &lt;td align="center"&gt;No&lt;/td&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * &lt;td&gt;<a name="line.67"></a>
+<span class="sourceLineNo">068</span> *  Vaadin application name. Used for logging purposes and as the name of the XML application context file<a name="line.68"></a>
+<span class="sourceLineNo">069</span> *  when {@code configLocation} is not specified. If this parameter is not specified, the<a name="line.69"></a>
+<span class="sourceLineNo">070</span> *  name of the servlet is used.<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * &lt;/td&gt;<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * &lt;/tr&gt;<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * &lt;tr&gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * &lt;td&gt;{@code configLocation}&lt;/td&gt;<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * &lt;td align="center"&gt;No&lt;/td&gt;<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * &lt;td&gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *  Location of Spring application context XML file(s). Multiple locations are separated by whitespace.<a name="line.77"></a>
+<span class="sourceLineNo">078</span> *  If omitted, {@code /WEB-INF/ServletName.xml} is used, where {@code ServletName} is the name of the Vaadin<a name="line.78"></a>
+<span class="sourceLineNo">079</span> *  application (see {@code applicationName}).<a name="line.79"></a>
+<span class="sourceLineNo">080</span> * &lt;/td&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span> * &lt;/tr&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span> * &lt;tr&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span> * &lt;td&gt;{@code listenerClass}&lt;/td&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span> * &lt;td align="center"&gt;No&lt;/td&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span> * &lt;td&gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span> *  Specify the name of a custom class extending {@link SpringVaadinSession} and having the same constructor arguments.<a name="line.86"></a>
+<span class="sourceLineNo">087</span> *  If omitted, {@link SpringVaadinSession} is used.<a name="line.87"></a>
+<span class="sourceLineNo">088</span> * &lt;/td&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * &lt;/tr&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span> * &lt;/table&gt;<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * &lt;/div&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span> * &lt;/p&gt;<a name="line.92"></a>
+<span class="sourceLineNo">093</span> *<a name="line.93"></a>
+<span class="sourceLineNo">094</span> * @see SpringVaadinSession<a name="line.94"></a>
+<span class="sourceLineNo">095</span> * @see VaadinConfigurable<a name="line.95"></a>
+<span class="sourceLineNo">096</span> * @see VaadinApplication<a name="line.96"></a>
+<span class="sourceLineNo">097</span> */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>@SuppressWarnings("serial")<a name="line.98"></a>
+<span class="sourceLineNo">099</span>public class SpringVaadinServlet extends VaadinServlet {<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    /**<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * Servlet initialization parameter (&lt;code&gt;{@value #CONFIG_LOCATION_PARAMETER}&lt;/code&gt;) used to specify<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * the location(s) of the Spring application context XML file(s). Multiple XML files may be separated by whitespace.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * This parameter is optional.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    public static final String CONFIG_LOCATION_PARAMETER = "configLocation";<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * Servlet initialization parameter (&lt;code&gt;{@value #LISTENER_CLASS_PARAMETER}&lt;/code&gt;) used to specify<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * the name of an custom subclass of {@link SpringVaadinSession}.<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * This parameter is optional.<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     */<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    public static final String LISTENER_CLASS_PARAMETER = "listenerClass";<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>    /**<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * Servlet initialization parameter (&lt;code&gt;{@value #APPLICATION_NAME_PARAMETER}&lt;/code&gt;) used to specify<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * the name the application.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * This parameter is optional.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     */<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    public static final String APPLICATION_NAME_PARAMETER = "applicationName";<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>    private String servletName;<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>    @Override<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    public void init(ServletConfig config) throws ServletException {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        this.servletName = config.getServletName();<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        if (this.servletName == null)<a name="line.127"></a>
+<span class="sourceLineNo">128</span>            throw new IllegalArgumentException("null servlet name");<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        super.init(config);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    }<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>    @Override<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    protected void servletInitialized() throws ServletException {<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>        // Sanity check<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        if (this.servletName == null)<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            throw new IllegalArgumentException("servlet not initialized");<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>        // Defer to superclass<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        super.servletInitialized();<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>        // Get params<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        final VaadinServletService servletService = this.getService();<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        final Properties params = servletService.getDeploymentConfiguration().getInitParameters();<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        final String contextLocation = params.getProperty(CONFIG_LOCATION_PARAMETER);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        final String listenerClassName = params.getProperty(LISTENER_CLASS_PARAMETER);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        String applicationName = params.getProperty(APPLICATION_NAME_PARAMETER);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        if (applicationName == null)<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            applicationName = this.servletName;<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>        // Detect listener class to use<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        Class&lt;? extends SpringVaadinSession&gt; listenerClass = SpringVaadinSession.class;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        if (listenerClassName != null) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            try {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                listenerClass = Class.forName(listenerClassName, false, Thread.currentThread().getContextClassLoader())<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                  .asSubclass(SpringVaadinSession.class);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            } catch (RuntimeException e) {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>                throw e;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            } catch (Exception e) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                throw new ServletException("error finding class " + listenerClassName, e);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            }<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        }<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>        // Create session listener<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        SpringVaadinSession sessionListener;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        try {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            sessionListener = listenerClass.getConstructor(String.class, String.class)<a name="line.167"></a>
+<span class="sourceLineNo">168</span>              .newInstance(applicationName, contextLocation);<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        } catch (RuntimeException e) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            throw e;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        } catch (Exception e) {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>            throw new ServletException("error instantiating " + listenerClass, e);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        }<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>        // Register session listener<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        servletService.addSessionInitListener(sessionListener);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        servletService.addSessionDestroyListener(sessionListener);<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    }<a name="line.178"></a>
+<span class="sourceLineNo">179</span>}<a name="line.179"></a>
+<span class="sourceLineNo">180</span><a name="line.180"></a>
 
 
 
@@ -241,6 +246,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>

@@ -1,151 +1,156 @@
-<HTML>
-<BODY BGCOLOR="white">
-<PRE>
-<FONT color="green">001</FONT>    <a name="line.1"></a>
-<FONT color="green">002</FONT>    /*<a name="line.2"></a>
-<FONT color="green">003</FONT>     * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<FONT color="green">004</FONT>     *<a name="line.4"></a>
-<FONT color="green">005</FONT>     * $Id$<a name="line.5"></a>
-<FONT color="green">006</FONT>     */<a name="line.6"></a>
-<FONT color="green">007</FONT>    <a name="line.7"></a>
-<FONT color="green">008</FONT>    package org.dellroad.stuff.schema;<a name="line.8"></a>
-<FONT color="green">009</FONT>    <a name="line.9"></a>
-<FONT color="green">010</FONT>    import java.sql.Connection;<a name="line.10"></a>
-<FONT color="green">011</FONT>    import java.sql.SQLException;<a name="line.11"></a>
-<FONT color="green">012</FONT>    import java.util.ArrayList;<a name="line.12"></a>
-<FONT color="green">013</FONT>    import java.util.List;<a name="line.13"></a>
-<FONT color="green">014</FONT>    import java.util.regex.Pattern;<a name="line.14"></a>
-<FONT color="green">015</FONT>    <a name="line.15"></a>
-<FONT color="green">016</FONT>    /**<a name="line.16"></a>
-<FONT color="green">017</FONT>     * Holds and executes a configured SQL script, possibly containing multiple statements.<a name="line.17"></a>
-<FONT color="green">018</FONT>     *<a name="line.18"></a>
-<FONT color="green">019</FONT>     * &lt;p&gt;<a name="line.19"></a>
-<FONT color="green">020</FONT>     * If the script contains multiple SQL statements, individual statements will be executed individually, in order, by<a name="line.20"></a>
-<FONT color="green">021</FONT>     * {@link #apply apply()}; however, this requires proper configuration of the {@linkplain #setSplitPattern split pattern}.<a name="line.21"></a>
-<FONT color="green">022</FONT>     *<a name="line.22"></a>
-<FONT color="green">023</FONT>     * &lt;p&gt;<a name="line.23"></a>
-<FONT color="green">024</FONT>     * When using Spring, beans of this type can be created succintly using the &lt;code&gt;&amp;lt;dellroad-stuff:sql&amp;gt;&lt;/code&gt; custom<a name="line.24"></a>
-<FONT color="green">025</FONT>     * XML element. The {@linkplain #setSplitPattern split pattern} may be configured via the {@code split-pattern} attribute,<a name="line.25"></a>
-<FONT color="green">026</FONT>     * and the SQL script is specified either directly via inline text or using the {@code resource} attribute. In the latter case,<a name="line.26"></a>
-<FONT color="green">027</FONT>     * the character encoding can specified via the {@code charset} attribute (default is {@code "UTF-8"}).<a name="line.27"></a>
-<FONT color="green">028</FONT>     *<a name="line.28"></a>
-<FONT color="green">029</FONT>     * &lt;p&gt;<a name="line.29"></a>
-<FONT color="green">030</FONT>     * For example:<a name="line.30"></a>
-<FONT color="green">031</FONT>     * &lt;blockquote&gt;&lt;pre&gt;<a name="line.31"></a>
-<FONT color="green">032</FONT>     *  &amp;lt;beans xmlns="http://www.springframework.org/schema/beans"<a name="line.32"></a>
-<FONT color="green">033</FONT>     *    &lt;b&gt;xmlns:dellroad-stuff="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"&lt;/b&gt;<a name="line.33"></a>
-<FONT color="green">034</FONT>     *    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"<a name="line.34"></a>
-<FONT color="green">035</FONT>     *    xsi:schemaLocation="<a name="line.35"></a>
-<FONT color="green">036</FONT>     *      http://www.springframework.org/schema/beans<a name="line.36"></a>
-<FONT color="green">037</FONT>     *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd<a name="line.37"></a>
-<FONT color="green">038</FONT>     *      &lt;b&gt;http://dellroad-stuff.googlecode.com/schema/dellroad-stuff<a name="line.38"></a>
-<FONT color="green">039</FONT>     *        http://dellroad-stuff.googlecode.com/svn/wiki/schemas/dellroad-stuff-1.0.xsd&lt;/b&gt;"&amp;gt;<a name="line.39"></a>
-<FONT color="green">040</FONT>     *<a name="line.40"></a>
-<FONT color="green">041</FONT>     *      &amp;lt;!-- SQL action that clears the audit log --&amp;gt;<a name="line.41"></a>
-<FONT color="green">042</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql&amp;gt;DELETE * FROM AUDIT_LOG&amp;lt;/dellroad-stuff:sql&amp;gt;&lt;/b&gt;<a name="line.42"></a>
-<FONT color="green">043</FONT>     *<a name="line.43"></a>
-<FONT color="green">044</FONT>     *      &amp;lt;!-- A more complicated, externally referenced, SQL script --&amp;gt;<a name="line.44"></a>
-<FONT color="green">045</FONT>     *      &lt;b&gt;&amp;lt;dellroad-stuff:sql resource="classpath:reset.sql" split-pattern=";\n"/&amp;gt;&lt;/b&gt;<a name="line.45"></a>
-<FONT color="green">046</FONT>     *<a name="line.46"></a>
-<FONT color="green">047</FONT>     *      &amp;lt;!-- other beans... --&amp;gt;<a name="line.47"></a>
-<FONT color="green">048</FONT>     *<a name="line.48"></a>
-<FONT color="green">049</FONT>     *  &amp;lt;/beans&amp;gt;<a name="line.49"></a>
-<FONT color="green">050</FONT>     * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.50"></a>
-<FONT color="green">051</FONT>     */<a name="line.51"></a>
-<FONT color="green">052</FONT>    public class SQLCommandList implements DatabaseAction&lt;Connection&gt; {<a name="line.52"></a>
-<FONT color="green">053</FONT>    <a name="line.53"></a>
-<FONT color="green">054</FONT>        /**<a name="line.54"></a>
-<FONT color="green">055</FONT>         * The default split pattern: &lt;code&gt;{@value}&lt;/code&gt;.<a name="line.55"></a>
-<FONT color="green">056</FONT>         */<a name="line.56"></a>
-<FONT color="green">057</FONT>        public static final String DEFAULT_SPLIT_PATTERN = ";[ \\t\\r]*\\n\\s*";<a name="line.57"></a>
-<FONT color="green">058</FONT>    <a name="line.58"></a>
-<FONT color="green">059</FONT>        private String sqlScript;<a name="line.59"></a>
-<FONT color="green">060</FONT>        private String splitPattern = DEFAULT_SPLIT_PATTERN;<a name="line.60"></a>
-<FONT color="green">061</FONT>    <a name="line.61"></a>
-<FONT color="green">062</FONT>        public SQLCommandList() {<a name="line.62"></a>
-<FONT color="green">063</FONT>        }<a name="line.63"></a>
-<FONT color="green">064</FONT>    <a name="line.64"></a>
-<FONT color="green">065</FONT>        public SQLCommandList(String sqlScript) {<a name="line.65"></a>
-<FONT color="green">066</FONT>            this.setSQLScript(sqlScript);<a name="line.66"></a>
-<FONT color="green">067</FONT>        }<a name="line.67"></a>
-<FONT color="green">068</FONT>    <a name="line.68"></a>
-<FONT color="green">069</FONT>        /**<a name="line.69"></a>
-<FONT color="green">070</FONT>         * Configure the SQL script. This is a required property.<a name="line.70"></a>
-<FONT color="green">071</FONT>         *<a name="line.71"></a>
-<FONT color="green">072</FONT>         * &lt;p&gt;<a name="line.72"></a>
-<FONT color="green">073</FONT>         * For scripts in external resources, consider {@link org.dellroad.stuff.spring.ResourceReaderFactoryBean}<a name="line.73"></a>
-<FONT color="green">074</FONT>         * or use the &lt;code&gt;&amp;lt;dellroad-stuff:sql&amp;gt;&lt;/code&gt; element.<a name="line.74"></a>
-<FONT color="green">075</FONT>         *<a name="line.75"></a>
-<FONT color="green">076</FONT>         * @param sqlScript script containing one or more SQL statements; if more than one statement is present,<a name="line.76"></a>
-<FONT color="green">077</FONT>         *  a {@link #setSplitPattern split pattern} must also be configured<a name="line.77"></a>
-<FONT color="green">078</FONT>         * @see #setSplitPattern setSplitPattern()<a name="line.78"></a>
-<FONT color="green">079</FONT>         */<a name="line.79"></a>
-<FONT color="green">080</FONT>        public void setSQLScript(String sqlScript) {<a name="line.80"></a>
-<FONT color="green">081</FONT>            this.sqlScript = sqlScript;<a name="line.81"></a>
-<FONT color="green">082</FONT>        }<a name="line.82"></a>
-<FONT color="green">083</FONT>    <a name="line.83"></a>
-<FONT color="green">084</FONT>        /**<a name="line.84"></a>
-<FONT color="green">085</FONT>         * Set the &lt;i&gt;split pattern&lt;/i&gt; used to split apart a script containing multiple SQL statements into individual statements.<a name="line.85"></a>
-<FONT color="green">086</FONT>         *<a name="line.86"></a>
-<FONT color="green">087</FONT>         * &lt;p&gt;<a name="line.87"></a>
-<FONT color="green">088</FONT>         * The default value for this property is &lt;code&gt;";[ \t\r]*\n\s*"&lt;/code&gt;, which should handle cases where<a name="line.88"></a>
-<FONT color="green">089</FONT>         * SQL statements are terminated by semi-colons and each SQL statement starts on a new line.<a name="line.89"></a>
-<FONT color="green">090</FONT>         *<a name="line.90"></a>
-<FONT color="green">091</FONT>         * &lt;p&gt;<a name="line.91"></a>
-<FONT color="green">092</FONT>         * If this is set to {@code null}, or the script does not contain any instances of the regular expression,<a name="line.92"></a>
-<FONT color="green">093</FONT>         * the script is assumed to contain a single SQL statement. SQL statements are whitespace-trimmed and any<a name="line.93"></a>
-<FONT color="green">094</FONT>         * "statements" that consist entirely of whitespace are ignored.<a name="line.94"></a>
-<FONT color="green">095</FONT>         *<a name="line.95"></a>
-<FONT color="green">096</FONT>         * @throws java.util.regex.PatternSyntaxException if the pattern is not a valid Java regular expression<a name="line.96"></a>
-<FONT color="green">097</FONT>         */<a name="line.97"></a>
-<FONT color="green">098</FONT>        public void setSplitPattern(String splitPattern) {<a name="line.98"></a>
-<FONT color="green">099</FONT>            if (splitPattern != null)<a name="line.99"></a>
-<FONT color="green">100</FONT>                Pattern.compile(splitPattern);<a name="line.100"></a>
-<FONT color="green">101</FONT>            this.splitPattern = splitPattern;<a name="line.101"></a>
-<FONT color="green">102</FONT>        }<a name="line.102"></a>
-<FONT color="green">103</FONT>    <a name="line.103"></a>
-<FONT color="green">104</FONT>        /**<a name="line.104"></a>
-<FONT color="green">105</FONT>         * Applies each individual SQL command in the script. Commands are separated<a name="line.105"></a>
-<FONT color="green">106</FONT>         * using the {@link #setSplitPattern split pattern}.<a name="line.106"></a>
-<FONT color="green">107</FONT>         */<a name="line.107"></a>
-<FONT color="green">108</FONT>        @Override<a name="line.108"></a>
-<FONT color="green">109</FONT>        public void apply(Connection c) throws SQLException {<a name="line.109"></a>
-<FONT color="green">110</FONT>            for (SQLCommand sqlCommand : this.split())<a name="line.110"></a>
-<FONT color="green">111</FONT>                sqlCommand.apply(c);<a name="line.111"></a>
-<FONT color="green">112</FONT>        }<a name="line.112"></a>
-<FONT color="green">113</FONT>    <a name="line.113"></a>
-<FONT color="green">114</FONT>        /**<a name="line.114"></a>
-<FONT color="green">115</FONT>         * Split the SQL script into individual statements and return them as {@link DatabaseAction}s.<a name="line.115"></a>
-<FONT color="green">116</FONT>         */<a name="line.116"></a>
-<FONT color="green">117</FONT>        public List&lt;SQLCommand&gt; split() {<a name="line.117"></a>
-<FONT color="green">118</FONT>            ArrayList&lt;SQLCommand&gt; list = new ArrayList&lt;SQLCommand&gt;();<a name="line.118"></a>
-<FONT color="green">119</FONT>            for (String sql : this.splitSQL())<a name="line.119"></a>
-<FONT color="green">120</FONT>                list.add(new SQLCommand(sql));<a name="line.120"></a>
-<FONT color="green">121</FONT>            return list;<a name="line.121"></a>
-<FONT color="green">122</FONT>        }<a name="line.122"></a>
-<FONT color="green">123</FONT>    <a name="line.123"></a>
-<FONT color="green">124</FONT>        /**<a name="line.124"></a>
-<FONT color="green">125</FONT>         * Split the {@linkplain #setSQLScript configured SQL script} into individual SQL statements<a name="line.125"></a>
-<FONT color="green">126</FONT>         * using the configured {@linkplain #setSplitPattern split pattern}.<a name="line.126"></a>
-<FONT color="green">127</FONT>         *<a name="line.127"></a>
-<FONT color="green">128</FONT>         * @return an array of individual SQL statements<a name="line.128"></a>
-<FONT color="green">129</FONT>         * @throws IllegalArgumentException if no SQL script is configured<a name="line.129"></a>
-<FONT color="green">130</FONT>         */<a name="line.130"></a>
-<FONT color="green">131</FONT>        public String[] splitSQL() {<a name="line.131"></a>
-<FONT color="green">132</FONT>            if (this.sqlScript == null)<a name="line.132"></a>
-<FONT color="green">133</FONT>                throw new IllegalArgumentException("no SQL script configured");<a name="line.133"></a>
-<FONT color="green">134</FONT>            String[] sqls = this.splitPattern != null ? this.sqlScript.split(this.splitPattern) : new String[] { this.sqlScript };<a name="line.134"></a>
-<FONT color="green">135</FONT>            ArrayList&lt;String&gt; list = new ArrayList&lt;String&gt;(sqls.length);<a name="line.135"></a>
-<FONT color="green">136</FONT>            for (String sql : sqls) {<a name="line.136"></a>
-<FONT color="green">137</FONT>                sql = sql.trim();<a name="line.137"></a>
-<FONT color="green">138</FONT>                if (sql.length() == 0)<a name="line.138"></a>
-<FONT color="green">139</FONT>                    continue;<a name="line.139"></a>
-<FONT color="green">140</FONT>                list.add(sql);<a name="line.140"></a>
-<FONT color="green">141</FONT>            }<a name="line.141"></a>
-<FONT color="green">142</FONT>            return list.toArray(new String[list.size()]);<a name="line.142"></a>
-<FONT color="green">143</FONT>        }<a name="line.143"></a>
-<FONT color="green">144</FONT>    }<a name="line.144"></a>
-<FONT color="green">145</FONT>    <a name="line.145"></a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.schema;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.sql.Connection;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.sql.SQLException;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.ArrayList;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.List;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.util.regex.Pattern;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>/**<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * Holds and executes a configured SQL script, possibly containing multiple statements.<a name="line.17"></a>
+<span class="sourceLineNo">018</span> *<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * &lt;p&gt;<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * If the script contains multiple SQL statements, individual statements will be executed individually, in order, by<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * {@link #apply apply()}; however, this requires proper configuration of the {@linkplain #setSplitPattern split pattern}.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> *<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * &lt;p&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * When using Spring, beans of this type can be created succintly using the &lt;code&gt;&amp;lt;dellroad-stuff:sql&amp;gt;&lt;/code&gt; custom<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * XML element. The {@linkplain #setSplitPattern split pattern} may be configured via the {@code split-pattern} attribute,<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * and the SQL script is specified either directly via inline text or using the {@code resource} attribute. In the latter case,<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * the character encoding can specified via the {@code charset} attribute (default is {@code "UTF-8"}).<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * For example:<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * &lt;blockquote&gt;&lt;pre&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *  &amp;lt;beans xmlns="http://www.springframework.org/schema/beans"<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *    &lt;b&gt;xmlns:dellroad-stuff="http://dellroad-stuff.googlecode.com/schema/dellroad-stuff"&lt;/b&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *    xsi:schemaLocation="<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *      http://www.springframework.org/schema/beans<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *      &lt;b&gt;http://dellroad-stuff.googlecode.com/schema/dellroad-stuff<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *        http://dellroad-stuff.googlecode.com/svn/wiki/schemas/dellroad-stuff-1.0.xsd&lt;/b&gt;"&amp;gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *      &amp;lt;!-- SQL action that clears the audit log --&amp;gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *      &lt;b&gt;&amp;lt;dellroad-stuff:sql&amp;gt;DELETE * FROM AUDIT_LOG&amp;lt;/dellroad-stuff:sql&amp;gt;&lt;/b&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *      &amp;lt;!-- A more complicated, externally referenced, SQL script --&amp;gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *      &lt;b&gt;&amp;lt;dellroad-stuff:sql resource="classpath:reset.sql" split-pattern=";\n"/&amp;gt;&lt;/b&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *      &amp;lt;!-- other beans... --&amp;gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *  &amp;lt;/beans&amp;gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.50"></a>
+<span class="sourceLineNo">051</span> */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>public class SQLCommandList implements DatabaseAction&lt;Connection&gt; {<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * The default split pattern: &lt;code&gt;{@value}&lt;/code&gt;.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    public static final String DEFAULT_SPLIT_PATTERN = ";[ \\t\\r]*\\n\\s*";<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    private String sqlScript;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    private String splitPattern = DEFAULT_SPLIT_PATTERN;<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>    public SQLCommandList() {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>    public SQLCommandList(String sqlScript) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        this.setSQLScript(sqlScript);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    /**<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * Configure the SQL script. This is a required property.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     *<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * &lt;p&gt;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * For scripts in external resources, consider {@link org.dellroad.stuff.spring.ResourceReaderFactoryBean}<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * or use the &lt;code&gt;&amp;lt;dellroad-stuff:sql&amp;gt;&lt;/code&gt; element.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     *<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * @param sqlScript script containing one or more SQL statements; if more than one statement is present,<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     *  a {@link #setSplitPattern split pattern} must also be configured<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @see #setSplitPattern setSplitPattern()<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    public void setSQLScript(String sqlScript) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        this.sqlScript = sqlScript;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>    /**<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * Set the &lt;i&gt;split pattern&lt;/i&gt; used to split apart a script containing multiple SQL statements into individual statements.<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     *<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * &lt;p&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * The default value for this property is &lt;code&gt;";[ \t\r]*\n\s*"&lt;/code&gt;, which should handle cases where<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * SQL statements are terminated by semi-colons and each SQL statement starts on a new line.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     *<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * &lt;p&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * If this is set to {@code null}, or the script does not contain any instances of the regular expression,<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * the script is assumed to contain a single SQL statement. SQL statements are whitespace-trimmed and any<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * "statements" that consist entirely of whitespace are ignored.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     *<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @throws java.util.regex.PatternSyntaxException if the pattern is not a valid Java regular expression<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    public void setSplitPattern(String splitPattern) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        if (splitPattern != null)<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            Pattern.compile(splitPattern);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        this.splitPattern = splitPattern;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    /**<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * Applies each individual SQL command in the script. Commands are separated<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * using the {@link #setSplitPattern split pattern}.<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    @Override<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    public void apply(Connection c) throws SQLException {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        for (SQLCommand sqlCommand : this.split())<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            sqlCommand.apply(c);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>    /**<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * Split the SQL script into individual statements and return them as {@link DatabaseAction}s.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     */<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    public List&lt;SQLCommand&gt; split() {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        ArrayList&lt;SQLCommand&gt; list = new ArrayList&lt;SQLCommand&gt;();<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        for (String sql : this.splitSQL())<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            list.add(new SQLCommand(sql));<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        return list;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>    /**<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * Split the {@linkplain #setSQLScript configured SQL script} into individual SQL statements<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * using the configured {@linkplain #setSplitPattern split pattern}.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * @return an array of individual SQL statements<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @throws IllegalArgumentException if no SQL script is configured<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     */<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    public String[] splitSQL() {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        if (this.sqlScript == null)<a name="line.132"></a>
+<span class="sourceLineNo">133</span>            throw new IllegalArgumentException("no SQL script configured");<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        String[] sqls = this.splitPattern != null ? this.sqlScript.split(this.splitPattern) : new String[] { this.sqlScript };<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        ArrayList&lt;String&gt; list = new ArrayList&lt;String&gt;(sqls.length);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        for (String sql : sqls) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            sql = sql.trim();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            if (sql.length() == 0)<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                continue;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            list.add(sql);<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        }<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        return list.toArray(new String[list.size()]);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    }<a name="line.143"></a>
+<span class="sourceLineNo">144</span>}<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
 
 
 
@@ -206,6 +211,7 @@
 
 
 
-</PRE>
-</BODY>
-</HTML>
+</pre>
+</div>
+</body>
+</html>
