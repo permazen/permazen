@@ -35,7 +35,7 @@ public class ExceptionLoggingFilter extends OncePerRequestFilter {
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
         try {
-           filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
         } catch (IOException e) {
             if (this.shouldLogException(e))
                 this.logException(e);
