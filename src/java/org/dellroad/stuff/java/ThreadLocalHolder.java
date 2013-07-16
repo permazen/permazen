@@ -86,7 +86,7 @@ public class ThreadLocalHolder<T> {
      *
      * <p>
      * If there is already a thread local variable set for the current thread (i.e., we are already executing within
-     * an invocation of <code>ThreadLocalHolder.invoke()</code>, then if {@code value} is the exact same Java object
+     * an invocation of <code>ThreadLocalHolder.invoke()</code>), then if {@code value} is the exact same Java object
      * (using object equality, not <code>equals()</code>), execution proceeds normally, otherwise an exception is thrown.
      *
      * @param value value for the thread local variable
@@ -124,7 +124,7 @@ public class ThreadLocalHolder<T> {
      *
      * <p>
      * If there is already a thread local variable set for the current thread (i.e., we are already executing within
-     * an invocation of <code>ThreadLocalHolder.invoke()</code>, then if {@code value} is the exact same Java object
+     * an invocation of <code>ThreadLocalHolder.invoke()</code>), then if {@code value} is the exact same Java object
      * (using object equality, not <code>equals()</code>), execution proceeds normally, otherwise an exception is thrown.
      *
      * @param value value for the thread local variable
