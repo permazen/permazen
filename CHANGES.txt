@@ -1,4 +1,8 @@
 
+Version Next
+
+    - Added RetryTransactionProvider implemented by RetryTransactionAspect
+
 Version 1.0.688 Released June 28, 2013
 
     - Added ThreadParkingLot.getParkedThreads()

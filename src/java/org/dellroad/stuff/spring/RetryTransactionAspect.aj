@@ -31,7 +31,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  *
  * @see RetryTransaction
  */
-public aspect RetryTransactionAspect implements InitializingBean {
+public aspect RetryTransactionAspect implements RetryTransactionProvider, InitializingBean {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final ThreadLocalHolder<Integer> attemptHolder = new ThreadLocalHolder<Integer>();
@@ -48,39 +48,55 @@ public aspect RetryTransactionAspect implements InitializingBean {
     // Tells us what is a "transient" exception; must be explicitly configured
     private PersistenceExceptionTranslator persistenceExceptionTranslator;
 
-    /**
-     * Configure the exception translator for this aspect.
-     */
+// Property accessors and RetryTransactionProvider implementation
+
+    @Override
+    public PersistenceExceptionTranslator getPersistenceExceptionTranslator() {
+        return this.persistenceExceptionTranslator;
+    }
     public void setPersistenceExceptionTranslator(PersistenceExceptionTranslator persistenceExceptionTranslator) {
         this.persistenceExceptionTranslator = persistenceExceptionTranslator;
     }
 
-    /**
-     * Configure the aspect-wide default for {@link RetryTransaction#maxRetries}.
-     */
+    @Override
+    public int getMaxRetriesDefault() {
+        return this.maxRetriesDefault;
+    }
     public void setMaxRetriesDefault(int maxRetriesDefault) {
         this.maxRetriesDefault = maxRetriesDefault;
     }
 
-    /**
-     * Configure the aspect-wide default for {@link RetryTransaction#initialDelay}.
-     */
-    public void setInitialDelayDefault(int initialDelayDefault) {
+    @Override
+    public long getInitialDelayDefault() {
+        return this.initialDelayDefault;
+    }
+    public void setInitialDelayDefault(long initialDelayDefault) {
         this.initialDelayDefault = initialDelayDefault;
     }
 
-    /**
-     * Configure the aspect-wide default for {@link RetryTransaction#maximumDelay}.
-     */
-    public void setMaximumDelayDefault(int maximumDelayDefault) {
+    @Override
+    public long getMaximumDelayDefault() {
+        return this.maximumDelayDefault;
+    }
+    public void setMaximumDelayDefault(long maximumDelayDefault) {
         this.maximumDelayDefault = maximumDelayDefault;
     }
+
+    @Override
+    public int getAttemptNumber() {
+        final Integer attempt = this.attemptHolder.get();
+        return attempt != null ? attempt : 0;
+    }
+
+// InitializingBean
 
     @Override
     public void afterPropertiesSet() throws Exception {
         if (this.persistenceExceptionTranslator == null)
             throw new IllegalArgumentException("no PersistenceExceptionTranslator configured");
     }
+
+// Aspect
 
     // Ensure that this aspect is woven outside of the AnnotationTransactionAspect
     declare precedence : RetryTransactionAspect, org.springframework.transaction.aspectj.*;
@@ -199,15 +215,20 @@ public aspect RetryTransactionAspect implements InitializingBean {
         throw transientException;
     }
 
+// Static methods
+
     /**
      * Get the current transaction attempt number.
      *
      * @return transaction attempt number, or zero if this aspect is not active in the current thread
+     * @deprecated Use {@link RetryTransactionProvider#getAttemptNumber} instead
      */
     public static int getAttempt() {
         final Integer attempt = RetryTransactionAspect.aspectOf().attemptHolder.get();
         return attempt != null ? attempt : 0;
     }
+
+// Helper methods
 
     /**
      * Calculate how long to sleep.

@@ -85,17 +85,22 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <p>
- * Transactional code can determine the transaction attempt number using the aspect's static method
- * {@code RetryTransactionAspect.getAttempt()}. This method returns the current attempt number (1, 2, 3...),
- * or zero if the current thread is not executing within activated retry logic:
+ * Transactional code can determine the transaction attempt number using the {@link RetryTransactionProvider} interface
+ * implemented by the aspect. {@link RetryTransactionProvider#getAttemptNumber} method returns the current attempt number
+ * (1, 2, 3...), or zero if the current thread is not executing within activated retry logic:
  *  <blockquote><pre>
- *      import org.dellroad.stuff.spring.RetryTransactionAspect;
+ *      import org.dellroad.stuff.spring.RetryTransactionProvider;
  *      ...
+ *
+ *      &#64;Autowired
+ *      private RetryTransactionProvider retryTransactionProvider;
+ *      ...
+ *
  *      &#64;RetryTransaction
  *      &#64;Transactional
  *      public void doSomething() {
  *          ...
- *          final int attempt = RetryTransactionAspect.getAttempt();
+ *          final int attempt = this.retryTransactionProvider.getAttempt();
  *          ...
  *      }
  *   </pre></blockquote>
