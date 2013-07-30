@@ -2,6 +2,7 @@
 Version Next
 
     - Added RetryTransactionProvider implemented by RetryTransactionAspect
+    - Fixed bug in AbstractUnsizedContainer
 
 Version 1.0.688 Released June 28, 2013
 
