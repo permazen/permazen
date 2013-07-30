@@ -194,6 +194,10 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
                 // Increase size estimate (maybe)
                 this.size = Math.max(this.size, largerSize);
             }
+        } else {                                            // we are somewhere in the middle and size is known
+
+            // Check if the size has grown
+            this.size = Math.max(this.size, offset + querySize);
         }
 
         // Return QueryList
