@@ -1,6 +1,7 @@
 
 Version Next
 
+    - Update VaadinUtil.invoke{,Later} to use VaadinSession.access{Synchronously,}
     - Added RetryTransactionProvider implemented by RetryTransactionAspect
     - Fixed bug in AbstractUnsizedContainer
 

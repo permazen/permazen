@@ -200,6 +200,7 @@ public class VaadinApplication {
      * <p>
      * This is a convenience method that in turn invokes {@link VaadinUtil#invoke VaadinUtil.invoke()} using the
      * {@link VaadinSession} associated with this instance.
+     * </p>
      *
      * @param action action to perform
      * @throws IllegalArgumentException if {@code action} is null
@@ -215,6 +216,7 @@ public class VaadinApplication {
      * <p>
      * This is a convenience method that in turn invokes {@link VaadinUtil#invokeLater VaadinUtil.invokeLater()} using the
      * {@link VaadinSession} associated with this instance.
+     * </p>
      *
      * @param action action to perform
      * @throws IllegalArgumentException if {@code action} is null

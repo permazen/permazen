@@ -13,7 +13,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinSession;
 
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.Future;
 
 /**
  * Miscellaneous utility methods.
@@ -91,9 +91,14 @@ public final class VaadinUtil {
      * Peform some action while holding the given {@link VaadinSession}'s lock.
      *
      * <p>
-     * All back-end threads that interact with Vaadin components must use this method (or equivalent)
-     * to avoid race conditions. Since session locks are re-entrant, it will not cause problems if this
-     * method is also used by a "front-end" (i.e., Vaadin HTTP request) thread.
+     * This method now just invokes {@link VaadinSession#accessSynchronously}, a method which didn't exist in earlier
+     * versions of Vaadin.
+     * </p>
+     *
+     * <p>
+     * All back-end threads that interact with Vaadin components must use this method (or {@link #invokeLater invokeLater()})
+     * to avoid race conditions. Since session locks are re-entrant, it will not cause problems if this method is also
+     * used by a "front-end" (i.e., Vaadin HTTP request) thread.
      * </p>
      *
      * <p>
@@ -117,28 +122,32 @@ public final class VaadinUtil {
             throw new IllegalArgumentException("null session");
         if (action == null)
             throw new IllegalArgumentException("null action");
-        session.access(action);
+        session.accessSynchronously(action);
     }
 
     /**
-     * Peform some action while holding the given {@link VaadinSession}'s lock asynchronously in a different thread.
+     * Peform some action while holding the given {@link VaadinSession}'s lock asynchronously, possibly in a different thread.
      *
      * <p>
-     * This method works like {@link #invoke} but the given {@code action} will take place asynchronously,
-     * in particular, after the current thread has unlocked the {@code session} if it is locked. In any case,
-     * this method always returns immediately.
+     * This method now just invokes {@link VaadinSession#access}, a method which didn't exist in earlier versions of Vaadin.
      * </p>
      *
      * <p>
      * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinSession} is available
      * via {@link VaadinSession#getCurrent}; consider also using {@link VaadinApplication#invokeLater} instead of this method.
+     * </p>
      *
+     * @return a corresponding {@link Future}
      * @throws IllegalArgumentException if either parameter is null
      * @see #invoke
      * @see VaadinApplication#invokeLater
      */
-    public static void invokeLater(VaadinSession session, Runnable action) {
-        new Thread(new InvokeRunnable(session, action)).start();            // until #11481 is fixed, have to create a new thread
+    public static Future<Void> invokeLater(VaadinSession session, Runnable action) {
+        if (session == null)
+            throw new IllegalArgumentException("null session");
+        if (action == null)
+            throw new IllegalArgumentException("null action");
+        return session.access(action);
     }
 
     /**
@@ -207,39 +216,6 @@ public final class VaadinUtil {
         @Override
         public int hashCode() {
             return this.session.hashCode() ^ this.listener.hashCode();
-        }
-    }
-
-// InvokeRunnable - used by invokeLater()
-
-    private static final class InvokeRunnable implements Runnable {
-
-        private final VaadinSession session;
-        private final Runnable action;
-
-        InvokeRunnable(VaadinSession session, Runnable action) {
-            if (session == null)
-                throw new IllegalArgumentException("null session");
-            if (action == null)
-                throw new IllegalArgumentException("null action");
-            this.session = session;
-            this.action = action;
-        }
-
-        @Override
-        public void run() {
-            try {
-                VaadinUtil.invoke(this.session, this.action);
-            } catch (ThreadDeath t) {
-                throw t;
-            } catch (Throwable e) {
-                LoggerFactory.getLogger(this.action.getClass()).error("exception thrown by invokeLater() action " + this.action, e);
-            }
-        }
-
-        @Override
-        public String toString() {
-            return this.action.toString();
         }
     }
 }
