@@ -196,10 +196,9 @@ public aspect RetryTransactionAspect implements RetryTransactionProvider, Initia
                 // Handle case that Spring has already wrapped and hidden the real exception without recognizing it
                 DataAccessException translatedException = null;
                 if (e instanceof UncategorizedDataAccessException) {
-                    final Throwable cause = ((UncategorizedDataAccessException)e).getCause();
-                    if (cause instanceof RuntimeException) {
-                        translatedException = this.persistenceExceptionTranslator.translateExceptionIfPossible(
-                          (RuntimeException)cause);
+                    for (Throwable t = e.getCause(); translatedException == null && t != null; t = t.getCause()) {
+                        if (t instanceof RuntimeException)
+                            translatedException = this.persistenceExceptionTranslator.translateExceptionIfPossible((RuntimeException)t);
                     }
                 }
 
