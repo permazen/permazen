@@ -7,7 +7,6 @@
 
 package org.dellroad.stuff.java;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -89,18 +88,33 @@ public class ProcessRunner {
     }
 
     /**
+     * Get the {@link Process} associated with this instance.
+     */
+    public Process getProcess() {
+        return this.process;
+    }
+
+    /**
      * Send the process its standard input, read its standard output and standard error,
      * and wait for it to exit.
      *
+     * <p>
+     * If the current thread is interrupted, the standard input, output, and error connections to
+     * the process are closed and an {@link InterruptedException} is thrown.
+     * </p>
+     *
      * @return exit value
      * @throws IllegalStateException if this method has already been invoked
+     * @throws InterruptedException if the current thread is interrupted while waiting for the process to finish
      */
-    public synchronized int run() throws InterruptedException {
+    public int run() throws InterruptedException {
 
-        // Check state
-        if (this.state != 0)
-            throw new IllegalStateException("process has already been run");
-        this.state = 1;
+        // Update state
+        synchronized (this) {
+            if (this.state != 0)
+                throw new IllegalStateException("process has already been run");
+            this.state = 1;
+        }
 
         // Create stdin thread
         final IOThread<OutputStream> stdin = new IOThread<OutputStream>("stdin",
@@ -113,12 +127,26 @@ public class ProcessRunner {
         };
 
         // Create stdout thread
-        final InputThread stdout = new InputThread("stdout",
-          new BufferedInputStream(this.process.getInputStream()), this.stdoutBuffer);
+        final IOThread<InputStream> stdout = new IOThread<InputStream>("stdout", this.process.getInputStream()) {
+            @Override
+            protected void runIO() throws IOException {
+                final byte[] buf = new byte[1000];
+                int r;
+                while ((r = this.stream.read(buf)) != -1)
+                    ProcessRunner.this.handleStandardOutput(buf, 0, r);
+            }
+        };
 
         // Create stderr thread
-        final InputThread stderr = new InputThread("stderr",
-          new BufferedInputStream(this.process.getErrorStream()), this.stderrBuffer);
+        final IOThread<InputStream> stderr = new IOThread<InputStream>("stderr", this.process.getErrorStream()) {
+            @Override
+            protected void runIO() throws IOException {
+                final byte[] buf = new byte[1000];
+                int r;
+                while ((r = this.stream.read(buf)) != -1)
+                    ProcessRunner.this.handleStandardError(buf, 0, r);
+            }
+        };
 
         // Start threads
         stdin.start();
@@ -132,7 +160,9 @@ public class ProcessRunner {
         } finally {
 
             // Update state
-            this.state = 2;
+            synchronized (this) {
+                this.state = 2;
+            }
 
             // In case of exception prior to process exit, close the sockets to wake up the threads
             if (exitValue == null) {
@@ -149,6 +179,48 @@ public class ProcessRunner {
 
         // Done
         return exitValue;
+    }
+
+    /**
+     * Handle data received from the standard output of the process.
+     *
+     * <p>
+     * The implementation in {@link ProcessRunner} adds the data to an in-memory buffer, which is made
+     * available when the process completes via {@link #getStandardOutput}. Subclasses may override if necessary,
+     * e.g., to send/mirror the data elsewhere, or prevent this data from being buffered at all.
+     * </p>
+     *
+     * <p>
+     * This method will be invoked by a separate thread from the one that invoked {@link #run}.
+     * </p>
+     *
+     * @param buf data buffer
+     * @param off offset of the first data byte
+     * @param len length of the data
+     */
+    protected void handleStandardOutput(byte[] buf, int off, int len) {
+        this.stdoutBuffer.write(buf, off, len);
+    }
+
+    /**
+     * Handle data received from the error output of the process.
+     *
+     * <p>
+     * The implementation in {@link ProcessRunner} adds the data to an in-memory buffer, which is made
+     * available when the process completes via {@link #getStandardError}. Subclasses may override if necessary,
+     * e.g., to send/mirror the data elsewhere, or prevent this data from being buffered at all.
+     * </p>
+     *
+     * <p>
+     * This method will be invoked by a separate thread from the one that invoked {@link #run}.
+     * </p>
+     *
+     * @param buf data buffer
+     * @param off offset of the first data byte
+     * @param len length of the data in {@code buf}
+     */
+    protected void handleStandardError(byte[] buf, int off, int len) {
+        this.stderrBuffer.write(buf, off, len);
     }
 
     /**
@@ -213,23 +285,5 @@ public class ProcessRunner {
 
         protected abstract void runIO() throws IOException;
     };
-
-    private class InputThread extends IOThread<InputStream> {
-
-        private final ByteArrayOutputStream buffer;
-
-        public InputThread(String name, InputStream stream, ByteArrayOutputStream buffer) {
-            super(name, stream);
-            this.buffer = buffer;
-        }
-
-        @Override
-        protected void runIO() throws IOException {
-            final byte[] buf = new byte[1000];
-            int r;
-            while ((r = this.stream.read(buf)) != -1)
-                this.buffer.write(buf, 0, r);
-        }
-    }
 }
 
