@@ -4,7 +4,7 @@ Version Next
     - Add subclass hooks for stdout and stderr in ProcessRunner
     - Update VaadinUtil.invoke{,Later} to use VaadinSession.access{Synchronously,}
     - Added RetryTransactionProvider implemented by RetryTransactionAspect
-    - Handle doubly-nested vendor exceptions in RetryTransactionAspect
+    - Add workaround for SPR-10815 to HibernateIsolationJpaDialect
     - Fixed bug in AbstractUnsizedContainer
 
 Version 1.0.688 Released June 28, 2013

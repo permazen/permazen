@@ -14,12 +14,15 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.UncategorizedDataAccessException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.transaction.TransactionDefinition;
 
 /**
- * Hibernate JPA adapter that adds supports for setting a non-default transaction isolation level.
+ * Hibernate JPA adapter that adds supports for setting a non-default transaction isolation level
+ * and adds a workaround for <a href="https://jira.springsource.org/browse/SPR-10815">SPR-10815</a>.
  *
  * <p>
  * The JPA specification, which is database technology agnostic, does not define a way to set SQL database isolation levels.
@@ -28,6 +31,7 @@ import org.springframework.transaction.TransactionDefinition;
  *
  * @see <a href="https://jira.springsource.org/browse/SPR-3812">SPR-3812</a>
  * @see <a href="http://stackoverflow.com/questions/5234240/hibernatespringjpaisolation-does-not-work">Question on stackoverflow.com</a>
+ * @see <a href="https://jira.springsource.org/browse/SPR-10815">SPR-10815</a>
  */
 @SuppressWarnings("serial")
 public class HibernateIsolationJpaDialect extends HibernateJpaDialect {
@@ -86,6 +90,27 @@ public class HibernateIsolationJpaDialect extends HibernateJpaDialect {
                 this.log.trace("restoring isolation level to " + wrapper.getIsolation() + " on " + connection);
             DataSourceUtils.resetConnectionAfterTransaction(connection, wrapper.getIsolation());
         }
+    }
+
+    /**
+     * Adds fix for SPR-10815.
+     *
+     * @see <a href="https://jira.springsource.org/browse/SPR-10815">SPR-10815</a>
+     */
+    @Override
+    public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
+
+        // Handle case that Spring has already wrapped and hidden the real exception without recognizing it
+        for (Throwable t = ex; t != null; t = t.getCause()) {
+            if (t instanceof RuntimeException) {
+                final DataAccessException e = super.translateExceptionIfPossible((RuntimeException)t);
+                if (e != null && !(e instanceof UncategorizedDataAccessException))
+                    return e;
+            }
+        }
+
+        // Give up
+        return super.translateExceptionIfPossible(ex);
     }
 
     /**

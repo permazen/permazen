@@ -18,7 +18,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.TransientDataAccessException;
-import org.springframework.dao.UncategorizedDataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
@@ -193,28 +192,15 @@ public aspect RetryTransactionAspect implements RetryTransactionProvider, Initia
                 return result[0];
             } catch (RuntimeException e) {
 
-                // Handle case that Spring has already wrapped and hidden the real exception without recognizing it
-                DataAccessException translatedException = null;
-                if (e instanceof UncategorizedDataAccessException) {
-                    for (Throwable t = e.getCause(); translatedException == null && t != null; t = t.getCause()) {
-                        if (t instanceof RuntimeException)
-                            translatedException = this.persistenceExceptionTranslator.translateExceptionIfPossible((RuntimeException)t);
-                    }
-                }
-
-                // Translate the exception, if not already translated above
-                if (translatedException == null) {
-                    translatedException = e instanceof DataAccessException ?
-                      (DataAccessException)e : this.persistenceExceptionTranslator.translateExceptionIfPossible(e);
-                }
-
-                // Log result
+                // Translate the exception
+                final DataAccessException translatedException = e instanceof DataAccessException ?
+                  (DataAccessException)e : this.persistenceExceptionTranslator.translateExceptionIfPossible(e);
                 if (this.log.isDebugEnabled()) {
                     this.log.debug("exception from @Transactional method {} on attempt #{}: {} (translates to {})",
                       method, attempt, e, translatedException != null ? translatedException.getClass().getSimpleName() : null);
                 }
 
-                // If it's not a transient exception, re-throw the original exception
+                // If it's not a transient exception, re-throw it
                 if (!(translatedException instanceof TransientDataAccessException))
                     throw e;
 
