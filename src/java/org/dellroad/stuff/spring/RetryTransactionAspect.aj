@@ -18,6 +18,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.TransientDataAccessException;
+import org.springframework.dao.UncategorizedDataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
@@ -192,9 +193,15 @@ public aspect RetryTransactionAspect implements RetryTransactionProvider, Initia
                 return result[0];
             } catch (RuntimeException e) {
 
-                // Translate the exception
-                final DataAccessException translatedException = e instanceof DataAccessException ?
-                  (DataAccessException)e : this.persistenceExceptionTranslator.translateExceptionIfPossible(e);
+                // Translate the exception, if not already translated into something recognizable
+                DataAccessException translatedException;
+                if (e instanceof UncategorizedDataAccessException && e.getCause() instanceof RuntimeException) {
+                    translatedException = this.persistenceExceptionTranslator
+                      .translateExceptionIfPossible((RuntimeException)e.getCause());
+                } else if (e instanceof DataAccessException)
+                    translatedException = (DataAccessException)e;               // exception is already translated
+                else
+                    translatedException = this.persistenceExceptionTranslator.translateExceptionIfPossible(e);
                 if (this.log.isDebugEnabled()) {
                     this.log.debug("exception from @Transactional method {} on attempt #{}: {} (translates to {})",
                       method, attempt, e, translatedException != null ? translatedException.getClass().getSimpleName() : null);
