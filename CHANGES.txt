@@ -1,5 +1,5 @@
 
-Version Next
+Version 1.0.704 Released August 28, 2013
 
     - Add GraphClonable and GraphCloneRegistry
     - Add subclass hooks for stdout and stderr in ProcessRunner
