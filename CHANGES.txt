@@ -1,7 +1,7 @@
 
 Version Next
 
-    - Add GraphClonable and GraphCloner
+    - Add GraphClonable and GraphCloneRegistry
     - Add subclass hooks for stdout and stderr in ProcessRunner
     - Update VaadinUtil.invoke{,Later} to use VaadinSession.access{Synchronously,}
     - Added RetryTransactionProvider implemented by RetryTransactionAspect
