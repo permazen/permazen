@@ -169,14 +169,32 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
         final List<? extends T> window = this.queryWindow(offset, this.windowSize);
         final int querySize = window.size();
 
-        // Update size estimate
-        if (querySize <= 0) {                               // the underlying data has shrunk on us
-            this.sizeIsKnown = false;
-            this.size = this.getSmallerEstimate(offset);
-        } else if (querySize < this.windowSize) {           // we overlapped the end; now we know the exact size
+        // Handle the case where we got an empty window - so the underlying data must have shrunk
+        if (querySize <= 0) {
+
+            // If our starting offset was zero, then we know the size must be zero
+            if (offset == 0) {
+                this.sizeIsKnown = true;
+                this.size = 0;
+            } else {
+
+                // Guess at what the smaller size is and return a QueryList that will throw an InvalidQueryListException,
+                // thereby trigging another probe with a smaller offset. This cycle will repeat until the size is found.
+                this.sizeIsKnown = false;
+                this.size = this.getSmallerEstimate(offset);
+                return new AlwaysInvalidQueryList<T>(this.size);
+            }
+        }
+
+        // Handle the case where we overlapped the end; now we know the exact size
+        if (querySize < this.windowSize) {                  // we overlapped the end; now we know the exact size
             this.size = offset + querySize;
             this.sizeIsKnown = true;
-        } else if (!this.sizeIsKnown) {                     // we are somewhere in the middle and size is not yet known
+            return new WindowQueryList<T>(offset, window, this.size);
+        }
+
+        // Handle the case where we are somewhere in the middle
+        if (!this.sizeIsKnown) {
 
             // Get lower bound on size estimate
             final long lowerBound = offset + querySize;
@@ -196,11 +214,11 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
             }
         } else {                                            // we are somewhere in the middle and size is known
 
-            // Check if the size has grown
+            // Detect if the size has grown
             this.size = Math.max(this.size, offset + querySize);
         }
 
-        // Return QueryList
+        // Return QueryList based on the window of data we found
         return new WindowQueryList<T>(offset, window, this.size);
     }
 
@@ -221,7 +239,7 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
     /**
      * Handle the case where the underlying data's size has suddenly shrunk, so we need to estimate the new size.
      * All we know is that the actual new size is {@code upperBound} or less.
-     * This method should guess at the new value.
+     * This method should guess at the new value and, when called repeatedly, should converge rapidly to zero.
      *
      * <p>
      * Note: this situation will not occur if the underlying data's size never decreases.

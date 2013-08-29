@@ -1,4 +1,8 @@
 
+Version Next
+
+    - Fixed bug in AbstractUnsizedContainer
+
 Version 1.0.704 Released August 28, 2013
 
     - Add GraphClonable and GraphCloneRegistry

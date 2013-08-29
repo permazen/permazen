@@ -212,7 +212,8 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     protected T getJavaObject(int index) {
         Exception exception;
         long currentSize;
-        for (boolean first = true; true; first = false) {
+        int attempt = 1;
+        while (true) {
             currentSize = this.ensureList(index);
             if (index < 0 || index >= currentSize)
                 return null;
@@ -220,7 +221,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
                 return this.queryList.get(index);
             } catch (InvalidQueryListException e) {
                 this.invalidate();
-                if (!first) {
+                if (attempt == 100) {           // avoid infinite loops
                     exception = e;
                     break;
                 }
@@ -228,11 +229,12 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
                 exception = e;
                 break;
             }
+            attempt++;
         }
 
         // The QueryList is behaving badly
         throw new RuntimeException("query(" + index + ") returned a QueryList with size() = "
-          + currentSize + " but QueryList.get(" + index + ") failed", exception);
+          + currentSize + " but QueryList.get(" + index + ") failed (attempt #" + attempt + ")", exception);
     }
 
     /**
@@ -266,7 +268,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      *
      * <p>
      * Note: to avoid re-entrancy problems, this method should not send out any notifications itself;
-     * instead, it may schedule notifications to be delivered later (perhaps in a different thread).
+     * instead, it may schedule notifications to be delivered later, e.g., via {@link VaadinUtil#invokeLater}.
      * </p>
      *
      * <p>
