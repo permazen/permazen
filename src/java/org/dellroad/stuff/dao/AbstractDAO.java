@@ -17,9 +17,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
+import org.dellroad.stuff.spring.AbstractBean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -29,9 +27,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * @param <T> persistent instance type
  * @see org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor
  */
-public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
-
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+public abstract class AbstractDAO<T> extends AbstractBean implements DAO<T> {
 
     /**
      * Persistent instance type.
@@ -76,7 +72,8 @@ public abstract class AbstractDAO<T> implements DAO<T>, InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() {
+    public void afterPropertiesSet() throws Exception {
+        super.afterPropertiesSet();
         if (this.getEntityManager() == null)
             throw new IllegalArgumentException("no entityManager configured");
     }

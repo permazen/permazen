@@ -7,11 +7,9 @@
 
 package org.dellroad.stuff.pobj;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dellroad.stuff.spring.AbstractBean;
+
 import org.springframework.beans.factory.BeanNameAware;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Support superclass for Spring beans that are configured by a {@link PersistentObject} root object, or some portion thereof.
@@ -34,10 +32,8 @@ import org.springframework.beans.factory.InitializingBean;
  * @param <ROOT> type of the configuration object root
  * @param <T> type of the sub-graph of ROOT that this bean is configured by
  */
-public abstract class AbstractConfiguredBean<ROOT, T> implements BeanNameAware,
-  InitializingBean, DisposableBean, PersistentObjectListener<ROOT> {
-
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+public abstract class AbstractConfiguredBean<ROOT, T> extends AbstractBean
+  implements BeanNameAware, PersistentObjectListener<ROOT> {
 
     private PersistentObject<ROOT> persistentObject;
     private String beanName;
@@ -83,6 +79,7 @@ public abstract class AbstractConfiguredBean<ROOT, T> implements BeanNameAware,
      */
     @Override
     public synchronized void afterPropertiesSet() throws Exception {
+        super.afterPropertiesSet();
 
         // Check config
         if (this.persistentObject == null)
@@ -109,11 +106,12 @@ public abstract class AbstractConfiguredBean<ROOT, T> implements BeanNameAware,
      * Stop this instance. Does nothing if already stopped.
      */
     @Override
-    public synchronized void destroy() {
+    public synchronized void destroy() throws Exception {
         this.running = false;
         this.configured = false;
         this.persistentObject.removeListener(this);
         this.stop();
+        super.destroy();
     }
 
     /**

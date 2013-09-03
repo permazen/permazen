@@ -13,16 +13,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.dellroad.stuff.spring.AbstractBean;
 
 /**
  * Spring bean that listens for connections on a TCP socket and spawns a child thread to handle each new connection.
  * Subclasses must implement {@link #getSocketHandler}. Only the {@link #getPort port} property is required to be set.
  */
-public abstract class SocketAcceptor implements InitializingBean, DisposableBean {
+public abstract class SocketAcceptor extends AbstractBean {
 
     /**
      * Default maximum incoming connection queue length ({@value}).
@@ -32,8 +29,6 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
     public static final int DEFAULT_BACKLOG = 50;
 
     private static final long NOTIFICATION_INTERVAL = 5 * 1000 * 1000 * 1000L;      // 5 seconds
-
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final HashSet<SocketInfo> connections = new HashSet<SocketInfo>();
     private InetAddress address;
@@ -49,6 +44,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
      */
     @Override
     public void afterPropertiesSet() throws Exception {
+        super.afterPropertiesSet();
         if (this.port == 0)
             throw new IllegalArgumentException("TCP port not set");
         if (this.port < 1 || this.port > 65535)
@@ -64,6 +60,7 @@ public abstract class SocketAcceptor implements InitializingBean, DisposableBean
     @Override
     public void destroy() throws Exception {
         this.stop();
+        super.destroy();
     }
 
     /**

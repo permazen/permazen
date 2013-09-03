@@ -2,6 +2,7 @@
 Version Next
 
     - Fixed bug in AbstractUnsizedContainer
+    - Added AbstractBean
 
 Version 1.0.704 Released August 28, 2013
 

@@ -12,8 +12,6 @@ import java.util.Random;
 
 import org.aspectj.lang.reflect.MethodSignature;
 import org.dellroad.stuff.java.ThreadLocalHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.DataAccessException;
@@ -32,9 +30,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  *
  * @see RetryTransaction
  */
-public aspect RetryTransactionAspect implements RetryTransactionProvider, InitializingBean {
+public aspect RetryTransactionAspect extends AbstractBean implements RetryTransactionProvider {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final ThreadLocalHolder<Integer> attemptHolder = new ThreadLocalHolder<Integer>();
     private final Random random = new Random();
 
@@ -93,6 +90,7 @@ public aspect RetryTransactionAspect implements RetryTransactionProvider, Initia
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        super.afterPropertiesSet();
         if (this.persistenceExceptionTranslator == null)
             throw new IllegalArgumentException("no PersistenceExceptionTranslator configured");
     }
