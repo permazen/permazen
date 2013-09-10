@@ -55,10 +55,10 @@ package org.dellroad.stuff.java;
  *      public void createGraphClone(GraphCloneRegistry registry) throws CloneNotSupportedException {
  *
  *          // Create clone and register it with the registry
- *          final Person clone = (Person)super.clone();
- *          registry.setGraphClone(clone);                      // the registry knows who we are
+ *          final Person clone = (Person)super.clone();         // this copies all of the simple fields
+ *          registry.setGraphClone(clone);                      // let the registry know who our clone is
  *
- *          // Deep copy any regular fields not already handled by super.clone()
+ *          // Deep copy any non-GraphCloneable fields not already handled by super.clone()
  *          clone.nicknames = new ArrayList&lt;String&gt;(this.nicknames);
  *
  *          // Now copy GraphCloneable fields using registry.getGraphClone()
@@ -72,7 +72,7 @@ package org.dellroad.stuff.java;
  * </p>
  *
  * <p>
- * To graph clone the object graph rooted at {@code root}, you would do this:
+ * To graph clone any object graph rooted at {@code root}, you would do this:
  *  <pre>
  *      new GraphCloneRegistry().getGraphClone(root);
  *  </pre>
@@ -89,9 +89,12 @@ public interface GraphCloneable {
      * This method should perform a normal "deep copy" operation, but with the following changes:
      * <ul>
      *  <li>
-     *      The new clone must be {@linkplain GraphCloneRegistry#setGraphClone registered} with the given
-     *      {@link GraphCloneRegistry} prior to {@linkplain GraphCloneRegistry#getGraphClone recursing}
-     *      on any {@link GraphCloneable} fields.
+     *      The new clone must be {@linkplain GraphCloneRegistry#setGraphClone registered} with the provided
+     *      {@link GraphCloneRegistry} before this method returns.
+     *  </li>
+     *  <li>
+     *      The {@linkplain GraphCloneRegistry#setGraphClone registration} in the previous step must occur
+     *      prior to {@linkplain GraphCloneRegistry#getGraphClone recursing} on any {@link GraphCloneable} fields.
      *  </li>
      *  <li>
      *      All {@link GraphCloneable} fields must be copied via {@link GraphCloneRegistry#getGraphClone}.
@@ -101,9 +104,10 @@ public interface GraphCloneable {
      *
      * <p>
      * The most efficient implementation of this method often involves declaring the class to implement {@link Cloneable}
-     * and starting with an invocation of {@link Object#clone super.clone()}. For that reason, this method is declared
-     * to throw {@link CloneNotSupportedException} as a coding convenience; if a {@link CloneNotSupportedException} is
-     * actually thrown, it will trigger a {@link RuntimeException}.
+     * and starting with an invocation of {@link Object#clone super.clone()} (the class need not actually override
+     * {@link Object#clone}). For that reason, this method is declared to throw {@link CloneNotSupportedException}
+     * as a coding convenience; if a {@link CloneNotSupportedException} is actually thrown, it will trigger a
+     * {@link RuntimeException}.
      * </p>
      *
      * <p>

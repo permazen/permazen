@@ -32,7 +32,7 @@ public class GraphCloneRegistry {
      * <p>
      * If the {@code value} has already been cloned and registered with this instance, it is returned.
      * Otherwise, a new clone of {@code value} is created and registered with this instance by invoking
-     * {@link GraphCloneable#createGraphClone value.createGraphClone()}, and returned.
+     * {@link GraphCloneable#createGraphClone value.createGraphClone()}, and then returned.
      * </p>
      *
      * <p>
@@ -91,8 +91,7 @@ public class GraphCloneRegistry {
      *
      * <p>
      * The "object currently being cloned" is the {@link GraphCloneable} object associated with the top-most invocation
-     * of {@link GraphCloneable#createGraphClone GraphCloneable.createGraphClone()} by {@link #getGraphClone getGraphClone()}
-     * on the Java execution stack.
+     * of {@link GraphCloneable#createGraphClone GraphCloneable.createGraphClone()} on the Java execution stack.
      * </p>
      *
      * <p>
