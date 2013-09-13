@@ -284,7 +284,8 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
         final VaadinSession session = event.getSession();
         final ConfigurableWebApplicationContext context = SpringVaadinSession.getApplicationContext(session);
         if (context == null) {
-            this.log.error(this.getClass().getSimpleName() + ".sessionDestroy() invoked but no application context found");
+            this.log.info(this.getClass().getSimpleName() + ".sessionDestroy() invoked but no application context found"
+              + " for Vaadin application [" + SpringVaadinSession.this.getApplicationName() + "]");
             return;
         }
         session.setAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY, null);
