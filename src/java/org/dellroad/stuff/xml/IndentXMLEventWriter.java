@@ -21,8 +21,12 @@ import javax.xml.stream.events.XMLEvent;
  */
 public class IndentXMLEventWriter implements XMLEventWriter {
 
+    /**
+     * The configured event factory for this instance.
+     */
+    protected final XMLEventFactory factory;
+
     private final XMLEventWriter writer;
-    private final XMLEventFactory factory;
     private final int indent;
 
     private int lastEvent = -1;
