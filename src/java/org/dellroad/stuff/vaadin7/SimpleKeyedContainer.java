@@ -78,6 +78,11 @@ public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer
      * <p>
      * This method uses an internal hash map for efficiency, and assumes that two underlying container objects that
      * are {@linkplain Object#equals equal} will have the same {@linkplain #getKeyFor key}.
+     * </p>
+     *
+     * <p>
+     * This method is not used by this class but is defined as a convenience for subclasses.
+     * </p>
      *
      * @param obj underlying container object
      * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container
@@ -100,6 +105,11 @@ public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer
      *
      * <p>
      * This method uses an internal hash map for efficiency.
+     * </p>
+     *
+     * <p>
+     * This method is not used by this class but is defined as a convenience for subclasses.
+     * </p>
      *
      * @param obj underlying container object
      * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container

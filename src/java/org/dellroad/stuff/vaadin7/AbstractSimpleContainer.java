@@ -173,6 +173,11 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * <p>
      * The implementation in {@link AbstractSimpleContainer} requires a linear search of the container.
      * Some subclasses may provide a more efficient implementation.
+     * </p>
+     *
+     * <p>
+     * This method is not used by this class but is defined as a convenience for subclasses.
+     * </p>
      *
      * <p>
      * Note: items that are filtered out will not be found.
@@ -200,6 +205,11 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * <p>
      * The implementation in {@link AbstractSimpleContainer} requires a linear search of the container.
      * Some subclasses may provide a more efficient implementation.
+     * </p>
+     *
+     * <p>
+     * This method is not used by this class but is defined as a convenience for subclasses.
+     * </p>
      *
      * <p>
      * Note: items that are filtered out will not be found.
