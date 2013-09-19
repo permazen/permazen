@@ -63,6 +63,7 @@
             <classpath refid="javac.classpath"/>
             <compilerarg line="-proc:none"/>
             <include name="**/*.java"/>
+            <exclude name="org/dellroad/stuff/pobj/vaadin/**/*.java"/>
             <exclude name="org/dellroad/stuff/vaadin7/**/*.java"/>
         </dellroad:javac-default>
         <property name="javac-vaadin6.completed" value="true"/>
@@ -74,6 +75,7 @@
         <dellroad:javac-default sourcepath="" srcdir="src/java" destdir="build/classes">
             <classpath refid="javac-vaadin7.classpath"/>
             <compilerarg line="-proc:none"/>
+            <include name="org/dellroad/stuff/pobj/vaadin/**/*.java"/>
             <include name="org/dellroad/stuff/vaadin7/**/*.java"/>
         </dellroad:javac-default>
         <property name="javac-vaadin7.completed" value="true"/>
