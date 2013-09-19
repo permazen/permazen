@@ -47,7 +47,7 @@ public class SelfKeyedContainer<T> extends SimpleKeyedContainer<T, T> {
     }
 
     /**
-     * Primary constructor.
+     * Constructor.
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -56,6 +56,25 @@ public class SelfKeyedContainer<T> extends SimpleKeyedContainer<T, T> {
      */
     public SelfKeyedContainer(PropertyExtractor<? super T> propertyExtractor, Collection<? extends PropertyDef<?>> propertyDefs) {
         super(propertyExtractor, propertyDefs);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * Properties will be determined by the {@link ProvidesProperty @ProvidesProperty}-annotated fields and
+     * methods in the given class.
+     * </p>
+     *
+     * @param type class to introspect for {@link ProvidesProperty @ProvidesProperty}-annotated fields and methods
+     * @throws IllegalArgumentException if {@code type} is null
+     * @throws IllegalArgumentException if an annotated method with no {@linkplain ProvidesProperty#value property name specified}
+     *  has a name which cannot be interpreted as a bean property "getter" method
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty @ProvidesProperty}-annotated
+     *  fields or methods with the same {@linkplain ProvidesProperty#value property name}
+     */
+    protected SelfKeyedContainer(Class<? super T> type) {
+        super(type);
     }
 
     /**

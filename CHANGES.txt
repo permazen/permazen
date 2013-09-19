@@ -1,6 +1,8 @@
 
 Version Next
 
+    - Added @ProvidesProperty annotation and container constructor support
+    - Added new method Primitive.getDefaultValue()
     - Fixed bug in AbstractUnsizedContainer
     - Added AbstractBean
 

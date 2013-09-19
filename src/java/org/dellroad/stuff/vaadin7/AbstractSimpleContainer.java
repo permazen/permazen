@@ -60,7 +60,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * and how to extract them.
      */
     protected AbstractSimpleContainer() {
-        this(null);
+        this((PropertyExtractor<? super T>)null);
     }
 
     /**
@@ -79,7 +79,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     }
 
     /**
-     * Primary constructor.
+     * Constructor.
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -91,6 +91,30 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         this.setItemSorter(new SimpleItemSorter());
         this.setPropertyExtractor(propertyExtractor);
         this.setProperties(propertyDefs);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * Properties will be determined by the {@link ProvidesProperty @ProvidesProperty}-annotated fields and
+     * methods in the given class.
+     * </p>
+     *
+     * @param type class to introspect for {@link ProvidesProperty @ProvidesProperty}-annotated fields and methods
+     * @throws IllegalArgumentException if {@code type} is null
+     * @throws IllegalArgumentException if an annotated method with no {@linkplain ProvidesProperty#value property name specified}
+     *  has a name which cannot be interpreted as a bean property "getter" method
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty @ProvidesProperty}-annotated
+     *  fields or methods with the same {@linkplain ProvidesProperty#value property name}
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected AbstractSimpleContainer(Class<? super T> type) {
+        // Why the JLS forces this stupid cast:
+        //  http://stackoverflow.com/questions/4902723/why-cant-a-java-type-parameter-have-a-lower-bound
+        final PropertyReader<? super T> propertyReader = (PropertyReader<? super T>)new PropertyReader(type);
+        this.setPropertyExtractor(propertyReader.getPropertyExtractor());
+        this.setProperties(propertyReader.getPropertyDefs());
     }
 
 // Public methods

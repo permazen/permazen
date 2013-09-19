@@ -92,7 +92,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * </p>
      */
     protected AbstractQueryContainer() {
-        this(null);
+        this((PropertyExtractor<T>)null);
     }
 
     /**
@@ -112,7 +112,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     }
 
     /**
-     * Primary constructor.
+     * Constructor.
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -123,6 +123,30 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
       Collection<? extends PropertyDef<?>> propertyDefs) {
         this.setPropertyExtractor(propertyExtractor);
         this.setProperties(propertyDefs);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * Properties will be determined by the {@link ProvidesProperty @ProvidesProperty}-annotated fields and
+     * methods in the given class.
+     * </p>
+     *
+     * @param type class to introspect for {@link ProvidesProperty @ProvidesProperty}-annotated fields and methods
+     * @throws IllegalArgumentException if {@code type} is null
+     * @throws IllegalArgumentException if an annotated method with no {@linkplain ProvidesProperty#value property name specified}
+     *  has a name which cannot be interpreted as a bean property "getter" method
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty @ProvidesProperty}-annotated
+     *  fields or methods with the same {@linkplain ProvidesProperty#value property name}
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected AbstractQueryContainer(Class<? super T> type) {
+        // Why the JLS forces this stupid cast:
+        //  http://stackoverflow.com/questions/4902723/why-cant-a-java-type-parameter-have-a-lower-bound
+        final PropertyReader<? super T> propertyReader = (PropertyReader<? super T>)new PropertyReader(type);
+        this.setPropertyExtractor(propertyReader.getPropertyExtractor());
+        this.setProperties(propertyReader.getPropertyDefs());
     }
 
 // Public methods
@@ -180,7 +204,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      *
      * <p>
      * The particular position in the list we are interested in is given as a hint by the {@code hint} parameter.
-     * That is, an invocation of <code>{@link QueryList#get}(hint)</code> is likely immediately after this method
+     * That is, an invocation of {@link QueryList#get}{@code (hint)} is likely immediately after this method
      * returns and if so it must complete without throwing an exception, unless {@code hint} is out of range.
      * </p>
      *
@@ -188,7 +212,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * The {@code hint} can be used to implement a highly scalable query list containing external objects
      * (such as from a database) where only a small "window" of objects is actually kept in memory at any one time.
      * Of course, implementations are also free to ignore {@code hint}. However, the returned {@link QueryList}
-     * must at least tolerate one invocation of <code>{@link QueryList#get get}(hint)</code> without throwing an exception
+     * must at least tolerate one invocation of {@link QueryList#get get}{@code (hint)} without throwing an exception
      * when {@code hint} is less that the {@link QueryList#size size()} of the returned {@link QueryList}.
      * </p>
      *

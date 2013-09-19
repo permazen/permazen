@@ -202,6 +202,7 @@
         <jar destfile="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar">
             <fileset dir="build/classes">
                 <include name="org/dellroad/stuff/java/ErrorAction*"/>
+                <include name="org/dellroad/stuff/java/Primitive*"/>
                 <include name="org/dellroad/stuff/spring/AbstractConfigurableAspect*"/>
                 <include name="org/dellroad/stuff/spring/DelayedAction*"/>
                 <include name="org/dellroad/stuff/vaadin/**/*"/>
