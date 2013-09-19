@@ -300,9 +300,9 @@ public class PropertyDef<T> {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof PropertyDef))
+        if (obj == null || obj.getClass() != this.getClass())
             return false;
-        PropertyDef<?> that = (PropertyDef<?>)obj;
+        final PropertyDef<?> that = (PropertyDef<?>)obj;
         return this.name.equals(that.name)
           && this.type == that.type
           && (this.defaultValue != null ? this.defaultValue.equals(that.defaultValue) : that.defaultValue == null);
