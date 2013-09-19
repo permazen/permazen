@@ -21,43 +21,83 @@ import java.util.HashMap;
 public enum Primitive {
 
     BOOLEAN(Boolean.TYPE, Boolean.class, 'Z') {
+        @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseBoolean();
         }
+        @Override
+        public Object getDefaultValue() {
+            return false;
+        }
     },
     BYTE(Byte.TYPE, Byte.class, 'B') {
+        @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseByte();
         }
+        @Override
+        public Object getDefaultValue() {
+            return (byte)0;
+        }
     },
     CHARACTER(Character.TYPE, Character.class, 'C') {
+        @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseCharacter();
         }
+        @Override
+        public Object getDefaultValue() {
+            return (char)0;
+        }
     },
     SHORT(Short.TYPE, Short.class, 'S') {
+        @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseShort();
         }
+        @Override
+        public Object getDefaultValue() {
+            return (short)0;
+        }
     },
     INTEGER(Integer.TYPE, Integer.class, 'I') {
+        @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseInteger();
         }
+        @Override
+        public Object getDefaultValue() {
+            return 0;
+        }
     },
     FLOAT(Float.TYPE, Float.class, 'F') {
+        @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseFloat();
         }
+        @Override
+        public Object getDefaultValue() {
+            return (float)0;
+        }
     },
     LONG(Long.TYPE, Long.class, 'J') {
+        @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseLong();
         }
+        @Override
+        public Object getDefaultValue() {
+            return (long)0;
+        }
     },
     DOUBLE(Double.TYPE, Double.class, 'D') {
+        @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseDouble();
+        }
+        @Override
+        public Object getDefaultValue() {
+            return (double)0;
         }
     };
 
@@ -81,6 +121,8 @@ public enum Primitive {
     }
 
     public abstract <R> R visit(PrimitiveSwitch<R> pswitch);
+
+    public abstract Object getDefaultValue();
 
     /**
      * Get the short name for this primitive type, e.g., "int".
