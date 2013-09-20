@@ -32,7 +32,7 @@ import org.dellroad.stuff.vaadin7.AbstractSimpleContainer;
  * </p>
  *
  * @param <T> type of the persistent object
- * @param <K> the type of the Java objects that back each {@link Item} in the container
+ * @param <K> the type of the Java objects that back each {@link com.vaadin.data.Item} in the container
  */
 @SuppressWarnings("serial")
 public class PersistentObjectContainerLoader<T, K> {
@@ -46,7 +46,7 @@ public class PersistentObjectContainerLoader<T, K> {
      * Constructor.
      *
      * @param container container to populate
-     * @param generator object that generates the Java objects that back the {@link Item}s in the container
+     * @param generator object that generates the Java objects that back the {@link com.vaadin.data.Item}s in the container
      * @throws IllegalArgumentException if {@code container} is null
      * @throws IllegalArgumentException if {@code generator} is null
      */
@@ -143,7 +143,7 @@ public class PersistentObjectContainerLoader<T, K> {
      * objects from a {@link PersistentObject} root.
      *
      * @param <T> type of the persistent object
-     * @param <K> the type of the Java objects that back each {@link Item} in the {@link AbstractSimpleContainer}
+     * @param <K> the type of the Java objects that back each {@link com.vaadin.data.Item} in the {@link AbstractSimpleContainer}
      */
     public interface Generator<T, K> {
 
