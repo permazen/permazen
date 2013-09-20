@@ -13,21 +13,27 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.dellroad.stuff.java.Primitive;
 
 /**
- * Generates a {@link PropertyExtractor} and a list of {@link PropertyDef}s from a class having
- * {@link ProvidesProperty &#64;ProvidesProperty}-annotated methods.
+ * Builds a {@link PropertyExtractor} and a list of {@link PropertyDef}s from a class having
+ * {@link ProvidesProperty &#64;ProvidesProperty}-annotated methods by introspecting the class
+ * and its superclasses and superinterfaces.
+ *
+ * <p>
+ * See {@link ProvidesProperty &#64;ProvidesProperty} for further details.
+ * </p>
  *
  * @param <T> Java class to be introspected
+ * @see ProvidesProperty &#64;ProvidesProperty
  */
 public class PropertyReader<T> {
 
-    private final ArrayList<PropertyInfo<?>> propertyList;
+    private final ArrayList<PropertyInfo<?>> propertyList = new ArrayList<PropertyInfo<?>>();
 
     /**
      * Constructor.
@@ -46,14 +52,39 @@ public class PropertyReader<T> {
             throw new IllegalArgumentException("null type");
 
         // Introspect fields and methods
-        final TreeMap<String, PropertyInfo<?>> propertyMap = new TreeMap<String, PropertyInfo<?>>();
-        this.findProperties(propertyMap, type);
+        this.findProperties(type);
 
-        // Build property list (sorted by name)
-        this.propertyList = new ArrayList<PropertyInfo<?>>(propertyMap.values());
+        // Sort by name - note, sort is stable so subclass methods will appear prior to method(s) they override
+        Collections.sort(this.propertyList);
+
+        // Check for duplicate names, but allow method overrides to declare the same property
+        PropertyInfo<?> previousInfo = null;
+        for (Iterator<PropertyInfo<?>> i = this.propertyList.iterator(); i.hasNext(); ) {
+            final PropertyInfo<?> propertyInfo = i.next();
+
+            // Check for duplicate name
+            if (previousInfo != null && propertyInfo.getName().equals(previousInfo.getName())) {
+
+                // Allow method overrides to declare the same property name
+                final AccessibleObject previousMember = previousInfo.getMember();
+                final AccessibleObject propertyMember = propertyInfo.getMember();
+                if (previousMember instanceof Method && propertyMember instanceof Method) {
+                    i.remove();
+                    continue;
+                }
+
+                // Otherwise, there is a duplicate property name
+                throw new IllegalArgumentException("duplicate property name `" + propertyInfo.getName()
+                  + "' (on " + previousMember + " and " + propertyMember + ")");
+            }
+            previousInfo = propertyInfo;
+        }
+
+        // Trim array
+        this.propertyList.trimToSize();
     }
 
-    private void findProperties(Map<String, PropertyInfo<?>> propertyMap, Class<?> klass) {
+    private void findProperties(Class<?> klass) {
 
         // Stop at null
         if (klass == null)
@@ -63,7 +94,7 @@ public class PropertyReader<T> {
         for (Field field : klass.getDeclaredFields()) {
             final ProvidesProperty annotation = field.getAnnotation(ProvidesProperty.class);
             if (annotation != null)
-                this.addPropertyInfo(propertyMap, field, annotation.value(), field.getType());
+                this.addPropertyInfo(field, annotation.value(), field.getType());
         }
 
         // Search methods
@@ -72,18 +103,18 @@ public class PropertyReader<T> {
                 continue;
             final ProvidesProperty annotation = method.getAnnotation(ProvidesProperty.class);
             if (annotation != null)
-                this.addPropertyInfo(propertyMap, method, annotation.value(), method.getReturnType());
+                this.addPropertyInfo(method, annotation.value(), method.getReturnType());
         }
 
         // Recurse on interfaces
         for (Class<?> iface : klass.getInterfaces())
-            this.findProperties(propertyMap, iface);
+            this.findProperties(iface);
 
         // Recurse on superclass
-        this.findProperties(propertyMap, klass.getSuperclass());
+        this.findProperties(klass.getSuperclass());
     }
 
-    private void addPropertyInfo(Map<String, PropertyInfo<?>> propertyMap, AccessibleObject member, String name, Class<?> type) {
+    private void addPropertyInfo(AccessibleObject member, String name, Class<?> type) {
 
         // Sanity check type
         if (type == void.class)
@@ -112,23 +143,8 @@ public class PropertyReader<T> {
             }
         }
 
-        // Create new property info
-        final PropertyInfo<?> propertyInfo = this.createPropertyInfo(member, name, type, defaultValue);
-
-        // Name already used? OK if it's just an overridden member
-        final PropertyInfo<?> otherPropertyInfo = propertyMap.get(name);
-        if (otherPropertyInfo != null) {
-
-            // For overridden methods, the subclass method takes precedence
-            if (otherPropertyInfo.getMemberName().equals(propertyInfo.getMemberName()))
-                return;
-
-            // Otherwise, there is a duplicate property name
-            throw new IllegalArgumentException("duplicate property name `" + name + "' on " + member);
-        }
-
-        // Add new property definition
-        propertyMap.put(name, propertyInfo);
+        // Add new property to list
+        this.propertyList.add(this.createPropertyInfo(member, name, type, defaultValue));
     }
 
     // This method exists solely to bind the generic type
@@ -169,7 +185,7 @@ public class PropertyReader<T> {
         return result;
     }
 
-    private class PropertyInfo<V> {
+    private class PropertyInfo<V> implements Comparable<PropertyInfo<?>> {
 
         private final AccessibleObject member;
         private final PropertyDef<V> propertyDef;
@@ -184,8 +200,12 @@ public class PropertyReader<T> {
             }
         }
 
-        String getMemberName() {
-            return this.member instanceof Field ? ((Field)this.member).getName() : ((Method)this.member).getName();
+        String getName() {
+            return this.propertyDef.getName();
+        }
+
+        AccessibleObject getMember() {
+            return this.member;
         }
 
         PropertyDef<V> getPropertyDef() {
@@ -210,6 +230,11 @@ public class PropertyReader<T> {
                     throw new RuntimeException(e);
                 }
             }
+        }
+
+        @Override
+        public int compareTo(PropertyInfo<?> that) {
+            return this.getName().compareTo(that.getName());
         }
     }
 }

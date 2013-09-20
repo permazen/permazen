@@ -28,8 +28,9 @@ import java.util.Set;
  * {@link Item} in the container is backed by a Java object.
  *
  * <p>
- * The exposed properties are defined via {@link PropertyDef}s, and a {@link PropertyExtractor} is used to
- * actually extract the property values from each underlying object.
+ * This {@link Container}'s {@link Property}s are defined via {@link PropertyDef}s, and a {@link PropertyExtractor}
+ * is used to actually extract the property values from each underlying object (alternately, subclasses can override
+ * {@link #getPropertyValue getPropertyValue()}).
  * </p>
  *
  * <p>
@@ -44,7 +45,7 @@ import java.util.Set;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryContainer<I, String, SimpleItem<T>>
-  implements Container.Filterable, Container.SimpleFilterable, Container.Sortable {
+  implements PropertyExtractor<T>, Container.Filterable, Container.SimpleFilterable, Container.Sortable {
 
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
     private PropertyExtractor<? super T> propertyExtractor;
@@ -58,6 +59,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * After using this constructor, subsequent invocations of {@link #setPropertyExtractor setPropertyExtractor()}
      * and {@link #setProperties setProperties()} are required to define the properties of this container
      * and how to extract them.
+     * </p>
      */
     protected AbstractSimpleContainer() {
         this((PropertyExtractor<? super T>)null);
@@ -69,6 +71,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * <p>
      * After using this constructor, a subsequent invocation of {@link #setProperties setProperties()} is required
      * to define the properties of this container.
+     * </p>
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -76,6 +79,21 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      */
     protected AbstractSimpleContainer(PropertyExtractor<? super T> propertyExtractor) {
         this(propertyExtractor, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * After using this constructor, a subsequent invocation of {@link #setPropertyExtractor setPropertyExtractor()} is required
+     * to define how to extract the properties of this container; alternately, subclasses can override
+     * {@link #getPropertyValue getPropertyValue()}.
+     * </p>
+     *
+     * @param propertyDefs container property definitions; null is treated like the empty set
+     */
+    protected AbstractSimpleContainer(Collection<? extends PropertyDef<?>> propertyDefs) {
+        this(null, propertyDefs);
     }
 
     /**
@@ -97,22 +115,24 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * Constructor.
      *
      * <p>
-     * Properties will be determined by the {@link ProvidesProperty @ProvidesProperty}-annotated fields and
+     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and
      * methods in the given class.
      * </p>
      *
-     * @param type class to introspect for {@link ProvidesProperty @ProvidesProperty}-annotated fields and methods
+     * @param type class to introspect for {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and methods
      * @throws IllegalArgumentException if {@code type} is null
      * @throws IllegalArgumentException if an annotated method with no {@linkplain ProvidesProperty#value property name specified}
      *  has a name which cannot be interpreted as a bean property "getter" method
-     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty @ProvidesProperty}-annotated
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}-annotated
      *  fields or methods with the same {@linkplain ProvidesProperty#value property name}
+     * @see PropertyReader
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected AbstractSimpleContainer(Class<? super T> type) {
         // Why the JLS forces this stupid cast:
         //  http://stackoverflow.com/questions/4902723/why-cant-a-java-type-parameter-have-a-lower-bound
         final PropertyReader<? super T> propertyReader = (PropertyReader<? super T>)new PropertyReader(type);
+        this.setItemSorter(new SimpleItemSorter());
         this.setPropertyExtractor(propertyReader.getPropertyExtractor());
         this.setProperties(propertyReader.getPropertyDefs());
     }
@@ -135,6 +155,26 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      */
     public void setPropertyExtractor(PropertyExtractor<? super T> propertyExtractor) {
         this.propertyExtractor = propertyExtractor;
+    }
+
+    /**
+     * Read the value of the property defined by {@code propertyDef} from the given object.
+     *
+     * <p>
+     * The implementation in {@link AbstractSimpleContainer} just delegates to the {@linkplain #setPropertyExtractor configured}
+     * {@link PropertyExtractor}; subclasses may override to customize property extraction.
+     * </p>
+     *
+     * @param obj Java object
+     * @param propertyDef definition of which property to read
+     * @throws NullPointerException if either parameter is null
+     * @throws IllegalStateException if no {@link PropertyExtractor} is configured for this container
+     */
+    @Override
+    public <V> V getPropertyValue(T obj, PropertyDef<V> propertyDef) {
+        if (this.propertyExtractor == null)
+            throw new IllegalStateException("no PropertyExtractor is configured for this container");
+        return this.propertyExtractor.getPropertyValue(obj, propertyDef);
     }
 
     /**
@@ -188,7 +228,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         for (T obj : contents) {
             if (obj == null)
                 throw new IllegalArgumentException("null item in contents at index " + index);
-            SimpleItem<T> item = new SimpleItem<T>(obj, this.propertyMap, this.propertyExtractor);
+            SimpleItem<T> item = new SimpleItem<T>(obj, this.propertyMap, this);
             this.internalAddItemAtEnd(this.generateItemId(obj), item, false);
             index++;
         }
@@ -300,7 +340,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         T obj = this.getJavaObject(itemId);
         if (obj == null)
             return null;
-        return new SimpleItem<T>(obj, this.propertyMap, this.propertyExtractor);
+        return new SimpleItem<T>(obj, this.propertyMap, this);
     }
 
 // Subclass methods

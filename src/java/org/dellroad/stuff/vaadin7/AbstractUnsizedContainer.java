@@ -90,6 +90,25 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
     /**
      * Convenience constructor. Equivalent to:
      *  <blockquote>
+     *      {@link #AbstractUnsizedContainer(int, PropertyExtractor)
+     *          AbstractUnsizedContainer}{@code (}{@link #DEFAULT_WINDOW_SIZE}{@code , propertyDefs)}
+     *  </blockquote>
+     *
+     * <p>
+     * After using this constructor, a subsequent invocation of {@link #setPropertyExtractor setPropertyExtractor()}
+     * is required to define how to extract the properties of this container; alternately, subclasses can override
+     * {@link #getPropertyValue getPropertyValue()}.
+     * </p>
+     *
+     * @param propertyDefs container property definitions; null is treated like the empty set
+     */
+    protected AbstractUnsizedContainer(Collection<? extends PropertyDef<?>> propertyDefs) {
+        this(DEFAULT_WINDOW_SIZE, propertyDefs);
+    }
+
+    /**
+     * Convenience constructor. Equivalent to:
+     *  <blockquote>
      *      {@link #AbstractUnsizedContainer(int, PropertyExtractor, Collection) AbstractUnsizedContainer}{@code (}{@link
      *          #DEFAULT_WINDOW_SIZE}{@code , propertyExtractor, propertyDefs)}
      *  </blockquote>
@@ -141,6 +160,23 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
     /**
      * Constructor.
      *
+     * <p>
+     * After using this constructor, a subsequent invocation of {@link #setPropertyExtractor setPropertyExtractor()}
+     * is required to define how to extract the properties of this container; alternately, subclasses can override
+     * {@link #getPropertyValue getPropertyValue()}.
+     * </p>
+     *
+     * @param windowSize size of the query window
+     * @param propertyDefs container property definitions; null is treated like the empty set
+     * @throws IllegalArgumentException if {@code windowSize} is less than 1
+     */
+    protected AbstractUnsizedContainer(int windowSize, Collection<? extends PropertyDef<?>> propertyDefs) {
+        this(windowSize, null, propertyDefs);
+    }
+
+    /**
+     * Constructor.
+     *
      * @param windowSize size of the query window (how big of a chunk we query at one time)
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -150,11 +186,10 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
      */
     protected AbstractUnsizedContainer(int windowSize, PropertyExtractor<? super T> propertyExtractor,
       Collection<? extends PropertyDef<?>> propertyDefs) {
+        super(propertyExtractor, propertyDefs);
         if (windowSize < 1)
             throw new IllegalArgumentException("windowSize = " + windowSize);
         this.windowSize = windowSize;
-        this.setPropertyExtractor(propertyExtractor);
-        this.setProperties(propertyDefs);
     }
 
     /**
@@ -164,12 +199,13 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
      *          AbstractUnsizedContainer}{@code (}{@link #DEFAULT_WINDOW_SIZE}{@code , type)}
      *  </blockquote>
      *
-     * @param type class to introspect for {@link ProvidesProperty @ProvidesProperty}-annotated fields and methods
+     * @param type class to introspect for {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and methods
      * @throws IllegalArgumentException if {@code type} is null
      * @throws IllegalArgumentException if an annotated method with no {@linkplain ProvidesProperty#value property name specified}
      *  has a name which cannot be interpreted as a bean property "getter" method
-     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty @ProvidesProperty}-annotated
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}-annotated
      *  fields or methods with the same {@linkplain ProvidesProperty#value property name}
+     * @see PropertyReader
      */
     protected AbstractUnsizedContainer(Class<? super T> type) {
         this(DEFAULT_WINDOW_SIZE, type);
@@ -179,18 +215,19 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
      * Constructor.
      *
      * <p>
-     * Properties will be determined by the {@link ProvidesProperty @ProvidesProperty}-annotated fields and
+     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and
      * methods in the given class.
      * </p>
      *
      * @param windowSize size of the query window
-     * @param type class to introspect for {@link ProvidesProperty @ProvidesProperty}-annotated fields and methods
+     * @param type class to introspect for {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and methods
      * @throws IllegalArgumentException if {@code windowSize} is less than 1
      * @throws IllegalArgumentException if {@code type} is null
      * @throws IllegalArgumentException if an annotated method with no {@linkplain ProvidesProperty#value property name specified}
      *  has a name which cannot be interpreted as a bean property "getter" method
-     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty @ProvidesProperty}-annotated
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}-annotated
      *  fields or methods with the same {@linkplain ProvidesProperty#value property name}
+     * @see PropertyReader
      */
     protected AbstractUnsizedContainer(int windowSize, Class<? super T> type) {
         super(type);
