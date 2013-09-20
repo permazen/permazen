@@ -9,8 +9,6 @@ package org.dellroad.stuff.pobj.vaadin;
 
 import com.vaadin.server.VaadinSession;
 
-import java.util.Collections;
-
 import org.dellroad.stuff.pobj.PersistentObject;
 import org.dellroad.stuff.vaadin7.AbstractSimpleContainer;
 
@@ -100,20 +98,16 @@ public class PersistentObjectContainerLoader<T, K> {
     /**
      * Shutdown this container. This unregisters the container from the {@link PersistentObject} it was previously
      * {@linkplain #connect connected} to. This method may be invoked from any thread and is idempotent.
-     * The associated container is reloaded with an empty data set.
+     * The associated container is not notified about any change.
      *
      * @throws IllegalStateException if there is no {@link VaadinSession} associated with the current thread
      */
     public synchronized void disconnect() {
         this.assertSession();
-        boolean needEmpty = false;
         if (this.listener != null) {
             this.listener.unregister();
             this.listener = null;
-            needEmpty = true;
         }
-        if (needEmpty)
-            this.container.load(Collections.<K>emptyList());
     }
 
     /**
