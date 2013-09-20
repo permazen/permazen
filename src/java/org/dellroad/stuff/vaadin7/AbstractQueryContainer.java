@@ -27,7 +27,9 @@ import java.util.Set;
  * <p>
  * This {@link Container}'s {@link Property}s are defined via {@link PropertyDef}s, and a {@link PropertyExtractor}
  * is used to actually extract the property values from each underlying object (alternately, subclasses can override
- * {@link #getPropertyValue getPropertyValue()}).
+ * {@link #getPropertyValue getPropertyValue()}). However, the easist way to configure the container {@link Property}s
+ * is to pass a {@link ProvidesProperty &#64;ProvidesProperty}-annotated Java class to the {@link #AbstractQueryContainer(Class)}
+ * constructor.
  * </p>
  *
  * <p>
