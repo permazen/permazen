@@ -155,6 +155,19 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     }
 
     /**
+     * Add or replace a configured property of this container.
+     *
+     * @param propertyDef new container property definitions
+     * @throws IllegalArgumentException if {@code propertyDef} is null
+     */
+    public void setProperty(PropertyDef<?> propertyDef) {
+        if (propertyDef == null)
+            throw new IllegalArgumentException("null propertyDef");
+        this.propertyMap.put(propertyDef.getName(), propertyDef);
+        this.fireContainerPropertySetChange();
+    }
+
+    /**
      * Change this container's contents.
      *
      * @param contents new container contents
