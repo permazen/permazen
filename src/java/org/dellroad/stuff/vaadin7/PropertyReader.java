@@ -27,7 +27,7 @@ import org.dellroad.stuff.java.Primitive;
  */
 public class PropertyReader<T> {
 
-    private final ArrayList<PropertyInfo<?>> propertyList = new ArrayList<PropertyInfo<?>>();
+    private final ArrayList<PropertyInfo<?>> propertyList;
 
     /**
      * Constructor.
@@ -47,22 +47,40 @@ public class PropertyReader<T> {
 
         // Introspect fields and methods
         final TreeMap<String, PropertyInfo<?>> propertyMap = new TreeMap<String, PropertyInfo<?>>();
-        for (Class<? super T> klass = type; klass != null; klass = klass.getSuperclass()) {
-            for (Field field : klass.getDeclaredFields()) {
-                final ProvidesProperty annotation = field.getAnnotation(ProvidesProperty.class);
-                if (annotation != null)
-                    this.addPropertyInfo(propertyMap, field, annotation.value(), field.getType());
-            }
-            for (Method method : klass.getDeclaredMethods()) {
-                if (method.getReturnType() == void.class || method.getParameterTypes().length > 0)
-                    continue;
-                final ProvidesProperty annotation = method.getAnnotation(ProvidesProperty.class);
-                if (annotation != null) {
-                    this.addPropertyInfo(propertyMap, method, annotation.value(), method.getReturnType());
-                }
-            }
+        this.findProperties(propertyMap, type);
+
+        // Build property list (sorted by name)
+        this.propertyList = new ArrayList<PropertyInfo<?>>(propertyMap.values());
+    }
+
+    private void findProperties(Map<String, PropertyInfo<?>> propertyMap, Class<?> klass) {
+
+        // Stop at null
+        if (klass == null)
+            return;
+
+        // Search fields
+        for (Field field : klass.getDeclaredFields()) {
+            final ProvidesProperty annotation = field.getAnnotation(ProvidesProperty.class);
+            if (annotation != null)
+                this.addPropertyInfo(propertyMap, field, annotation.value(), field.getType());
         }
-        this.propertyList.addAll(propertyMap.values());
+
+        // Search methods
+        for (Method method : klass.getDeclaredMethods()) {
+            if (method.getReturnType() == void.class || method.getParameterTypes().length > 0)
+                continue;
+            final ProvidesProperty annotation = method.getAnnotation(ProvidesProperty.class);
+            if (annotation != null)
+                this.addPropertyInfo(propertyMap, method, annotation.value(), method.getReturnType());
+        }
+
+        // Recurse on interfaces
+        for (Class<?> iface : klass.getInterfaces())
+            this.findProperties(propertyMap, iface);
+
+        // Recurse on superclass
+        this.findProperties(propertyMap, klass.getSuperclass());
     }
 
     private void addPropertyInfo(Map<String, PropertyInfo<?>> propertyMap, AccessibleObject member, String name, Class<?> type) {
@@ -97,7 +115,7 @@ public class PropertyReader<T> {
         // Create new property info
         final PropertyInfo<?> propertyInfo = this.createPropertyInfo(member, name, type, defaultValue);
 
-        // Name already used?
+        // Name already used? OK if it's just an overridden member
         final PropertyInfo<?> otherPropertyInfo = propertyMap.get(name);
         if (otherPropertyInfo != null) {
 
