@@ -10,6 +10,8 @@ package org.dellroad.stuff.string;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,9 +72,9 @@ public final class DateEncoder {
      * @param format date format string
      */
     public static SimpleDateFormat getDateFormat(String format) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         dateFormat.setLenient(false);
+        dateFormat.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT"), Locale.US));
         return dateFormat;
     }
 }
