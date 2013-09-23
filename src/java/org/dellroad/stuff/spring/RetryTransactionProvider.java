@@ -10,7 +10,7 @@ package org.dellroad.stuff.spring;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 
 /**
- * Interface implemented by the {@link RetryTransactionAspect}, which implements the {@link RetryTransaction} functionality.
+ * Interface implemented by the {@code RetryTransactionAspect}, which implements the {@link RetryTransaction} functionality.
  *
  * @see RetryTransaction
  */
