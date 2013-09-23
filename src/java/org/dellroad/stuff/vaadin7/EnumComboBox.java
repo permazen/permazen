@@ -84,7 +84,7 @@ public class EnumComboBox extends ComboBox {
      * @param allowNull true to allow a null selection, false otherwise
      */
     public <T extends Enum<T>> EnumComboBox(Class<T> enumClass, String displayPropertyName, boolean allowNull) {
-        this.setContainerDataSource(new EnumContainer<T>(enumClass));
+        this(new EnumContainer<T>(enumClass), displayPropertyName, allowNull);
     }
 
     /**
