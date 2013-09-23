@@ -32,6 +32,8 @@ public class ProcessRunner {
     private final ByteArrayOutputStream stderrBuffer = new ByteArrayOutputStream();
 
     private int state;
+    private boolean discardStandardOutput;
+    private boolean discardStandardError;
 
     /**
      * No-input constructor.
@@ -92,6 +94,32 @@ public class ProcessRunner {
      */
     public Process getProcess() {
         return this.process;
+    }
+
+    /**
+     * Set whether to standard output should be discarded. Default is false.
+     * If configured to discard, then {@link #getStandardOutput} will throw {@link IllegalStateException}.
+     *
+     * @param discardStandardOutput true to discard standard output, otherwise false
+     * @throws IllegalStateException if {@link #run} has already been invoked
+     */
+    public synchronized void setDiscardStandardOutput(boolean discardStandardOutput) {
+        if (this.state != 0)
+            throw new IllegalStateException("run() has already been invoked");
+        this.discardStandardOutput = discardStandardOutput;
+    }
+
+    /**
+     * Set whether to standard error should be discarded. Default is false.
+     * If configured to discard, then {@link #getStandardError} will throw {@link IllegalStateException}.
+     *
+     * @param discardStandardError true to discard standard error, otherwise false
+     * @throws IllegalStateException if {@link #run} has already been invoked
+     */
+    public synchronized void setDiscardStandardError(boolean discardStandardError) {
+        if (this.state != 0)
+            throw new IllegalStateException("run() has already been invoked");
+        this.discardStandardError = discardStandardError;
     }
 
     /**
@@ -185,9 +213,9 @@ public class ProcessRunner {
      * Handle data received from the standard output of the process.
      *
      * <p>
-     * The implementation in {@link ProcessRunner} adds the data to an in-memory buffer, which is made
-     * available when the process completes via {@link #getStandardOutput}. Subclasses may override if necessary,
-     * e.g., to send/mirror the data elsewhere, or prevent this data from being buffered at all.
+     * The implementation in {@link ProcessRunner} simply discards the data if this instance is configured to do so,
+     * otherwise it adds the data to an in-memory buffer, which is made available when the process completes via
+     * {@link #getStandardOutput}. Subclasses may override if necessary, e.g., to send/mirror the data elsewhere.
      * </p>
      *
      * <p>
@@ -199,6 +227,8 @@ public class ProcessRunner {
      * @param len length of the data
      */
     protected void handleStandardOutput(byte[] buf, int off, int len) {
+        if (this.discardStandardOutput)
+            return;
         this.stdoutBuffer.write(buf, off, len);
     }
 
@@ -206,9 +236,9 @@ public class ProcessRunner {
      * Handle data received from the error output of the process.
      *
      * <p>
-     * The implementation in {@link ProcessRunner} adds the data to an in-memory buffer, which is made
-     * available when the process completes via {@link #getStandardError}. Subclasses may override if necessary,
-     * e.g., to send/mirror the data elsewhere, or prevent this data from being buffered at all.
+     * The implementation in {@link ProcessRunner} simply discards the data if this instance is configured to do so,
+     * otherwise it adds the data to an in-memory buffer, which is made available when the process completes via
+     * {@link #getStandardError}. Subclasses may override if necessary, e.g., to send/mirror the data elsewhere.
      * </p>
      *
      * <p>
@@ -220,6 +250,8 @@ public class ProcessRunner {
      * @param len length of the data in {@code buf}
      */
     protected void handleStandardError(byte[] buf, int off, int len) {
+        if (this.discardStandardError)
+            return;
         this.stderrBuffer.write(buf, off, len);
     }
 
@@ -227,12 +259,16 @@ public class ProcessRunner {
      * Get the standard output of the process.
      *
      * @throws IllegalStateException if {@link #run} has not been invoked yet or is still executing
+     * @throws IllegalStateException if this instance was configured to
+     *  {@linkplain #setDiscardStandardOutput discard standard output}
      */
     public synchronized byte[] getStandardOutput() {
 
         // Check state
         if (this.state != 2)
             throw new IllegalStateException("run() has not been invoked yet");
+        if (this.discardStandardOutput)
+            throw new IllegalStateException("this instance was configured to discard stdout");
 
         // Return buffer
         return this.stdoutBuffer.toByteArray();
@@ -242,12 +278,16 @@ public class ProcessRunner {
      * Get the standard error of the process.
      *
      * @throws IllegalStateException if {@link #run} has not been invoked yet or is still executing
+     * @throws IllegalStateException if this instance was configured to
+     *  {@linkplain #setDiscardStandardError discard standard error}
      */
     public synchronized byte[] getStandardError() {
 
         // Check state
         if (this.state != 2)
             throw new IllegalStateException("run() has not been invoked yet");
+        if (this.discardStandardError)
+            throw new IllegalStateException("this instance was configured to discard stderr");
 
         // Return buffer
         return this.stderrBuffer.toByteArray();
