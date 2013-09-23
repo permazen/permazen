@@ -3,6 +3,7 @@ Version Next
 
     - Added "vaadin" sub-package of org.dellroad.stuff.pobj
     - Added @ProvidesProperty annotation and container constructor support
+    - Added EnumContainer, EnumComboBox, and EnumUtil
     - Added new method Primitive.getDefaultValue()
     - Fixed bug in AbstractUnsizedContainer
     - Added AbstractBean
