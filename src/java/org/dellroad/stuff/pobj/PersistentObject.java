@@ -39,34 +39,41 @@ import org.slf4j.LoggerFactory;
  * <h3>Overview</h3>
  *
  * <p>
- * Instances model a fully validated, in-memory "database" represented by a root Java object and the graph of other objects
- * that it references. The object graph is backed by a persistent XML file, which is read at initialization time and
- * re-written after each change.
+ * A {@link PersistentObject} instance manages an in-memory database with ACID semantics and strict validation that is
+ * represented by a regular Java object graph (i.e., a root Java object and all of the other objects that it (indirectly)
+ * references). The object graph can be (de)serialized to/from XML, and this XML representation is used for persistence
+ * in the file system. The backing XML file is read in at initialization time and updated after each change.
  * </p>
  *
  * <p>
- * Changes are applied "wholesale" to the entire object graph, and are serialized and atomic. In other words, the
- * entire object graph is read from, and written to, this class by value. As a result, it is not possible to change
- * only a portion of the "database". The entire object graph is read and written as one thing. Similarly, the
- * persistent XML file is updated by writing out a new, temporary copy and renaming the copy onto the original,
- * using {@link File#renameTo File.renameTo()} for atomicity (on systems that support it, e.g., UNIX variants),
- * so that from a filesystem perspective, it won't be possible to open an inconsistent or partially written XML file.
+ * All changes required copying the entire object graph, and are atomic and strictly serialized. In other words, the
+ * entire object graph is read and written by value. On the filesystem, the persistent XML file
+ * is updated by writing out a new, temporary copy and renaming the copy onto the original, using {@link File#renameTo
+ * File.renameTo()} so that changes are also atomic from a filesystem perspective, i.e., it's not possible to open an
+ * invalid or partial XML file (assuming filesystem renames are atomic, e.g., all UNIX variants). This class also
+ * supports information flowing in the other direction, where we pick up "out of band" updates to the XML file (see below).
  * </p>
  *
  * <p>
  * This class is most appropriate for use with information that must be carefully controlled and validated,
  * but that doesn't change frequently. Configuration information for an application stored in a {@code config.xml}
- * file is a typical use case; then beans whose behavior is determined by the configured information can subclass
+ * file is a typical use case; beans whose behavior is determined by the configured information can subclass
  * {@link AbstractConfiguredBean} and have their lifecycles managed automatically.
+ * </p>
+ *
+ * <p>
+ * Because each change involves copying of the entire graph, an efficient graph copy operation is desirable.
+ * The {@linkplain AbstractDelegate#copy default method} is to serialize and then deserialize the object graph
+ * to/from XML in memory. See {@link org.dellroad.stuff.java.GraphCloneable} for a much more efficient approach.
  * </p>
  *
  * <h3>Validation</h3>
  *
  * <p>
- * Validation is peformed in Java (not in XML via XSD) and defined by the provided delegate. This class guarantees
- * that only a valid root Java object can be set, read or written. An invalid XML file on disk will generate an error
- * (or be ignored; see "Empty Starts" below); setting an invalid Java root object via {@link #setRoot setRoot()}
- * with throw an exception.
+ * Validation is peformed in Java (not in XML) and defined by the provided {@link PersistentObjectDelegate}. This delegate
+ * guarantees that only a valid root Java object can be read or written. Setting an invalid Java root object via
+ * {@link #setRoot setRoot()} with throw an exception; reading an invalid XML file on disk will generate
+ * an error (or be ignored; see "Empty Starts" below).
  * </p>
  *
  * <h3>Update Details</h3>
@@ -86,7 +93,19 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * Instances can be configured to automatically preserve one or more backup copies of the persistent file on systems that
+ * To implement a truly atomic read-modify-write operation without the possibility of locking failure, simply
+ * synchronize on this instance, e.g.:
+ *  <blockquote><pre>
+ *  synchronized (pobj) {
+ *      MyRoot root = pboj.getRoot();
+ *      root.setFoobar("new value");    // or whatever else we want to modify
+ *      pobj.setRoot(root);
+ *  }
+ *  </pre></blockquote>
+ * </p>
+ *
+ * <p>
+ * Instances can also be configured to automatically preserve one or more backup copies of the persistent file on systems that
  * support hard links (requires <a href="https://github.com/twall/jna">JNA</a>; see {@link FileStreamRepository}).
  * Set the {@link #getNumBackups numBackups} property to enable.
  * </p>
@@ -98,17 +117,17 @@ import org.slf4j.LoggerFactory;
  * directly to the XML persistent file by some other process. This can be handy in cases where the other process (perhaps hand
  * edits) is updating the persistent file and you want to have the running Java process pick up the changes just as if
  * {@link PersistentObject#setRoot setRoot()} had been invoked. In particular, instances will detect the appearance
- * of a new persistent file after an instance has started without one. In all cases, persistent objects must properly validate.
- * To avoid reading a partial file the external process should write the file atomically by creating a temporary file and
- * renaming it; however, this race window is small and in any case the problem is self-correcting because a partially
- * written XML file will not validate, and so it will be ignored and retried after another {@linkplain #getCheckInterval
- * check interval} milliseconds has passed.
+ * of a newly appearing persistent file after has starting without one (see "empty starts" below). In all cases, persistent
+ * objects must properly validate. To avoid reading a partial file the external process should write the file atomically by
+ * creating a temporary file and renaming it; however, this race window is small and in any case the problem is self-correcting
+ * because a partially written XML file will not validate, and so it will be ignored and retried after another
+ * {@linkplain #getCheckInterval check interval} milliseconds has passed.
  * </p>
  *
  * <p>
  * A special case of this is effected when {@link PersistentObject#setRoot setRoot()} is never explicitly invoked
- * by the application. Then some other process must be responsible for all database updates, and this class automatically
- * picks them up, validates them, and send out notifications.
+ * by the application. Then some other process must be responsible for all database updates via XML file, and this class
+ * will automatically pick them up, validate them, and send out notifications to listeners.
  * </p>
  *
  * <h3>Empty Starts and Stops</h3>
@@ -129,16 +148,22 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Similarly, "empty stops" are allowed when the {@link #isAllowEmptyStop allowEmptyStop} property is set to {@code true}
- * (by default it is {@code false}). An "empty stop" occurs when a null value is passed to {@link #setRoot setRoot()}.
- * Subsequent invocations of {@link #getRoot} will return {@code null}; however, the persistent file is <b>not</b>
+ * (by default it is {@code false}). An "empty stop" occurs when a null value is passed to {@link #setRoot setRoot()}
+ * (note, an invalid XML file appearing on disk does not cause an empty start).
+ * Subsequent invocations of {@link #getRoot} will return {@code null}. The persistent file is <b>not</b>
  * modified when null is passed to {@link #setRoot}. When empty stops are disallowed, then invoking
  * {@link #setRoot} with a {@code null} object will result in an {@link IllegalArgumentException}.
  * </p>
  *
  * <p>
  * Allowing empty starts and/or stops essentially creates an "unconfigured" state represented by a null root object.
- * When empty starts and empty stops are both disallowed, there is no "unconfigured" state: {@link #getRoot} can be
- * relied upon to always return a non-null, validated root object.
+ * When empty starts and empty stops are both disallowed, there is no "unconfigured" state: once started, {@link #getRoot}
+ * can be relied upon to always return a non-null, validated root object.
+ * </p>
+ *
+ * <p>
+ * See {@link AbstractConfiguredBean} for a useful superclass that automatically handles starting and stopping
+ * based on the state of an associated {@link PersistentObject}.
  * </p>
  *
  * <h3>Shared Roots</h3>
@@ -167,7 +192,7 @@ import org.slf4j.LoggerFactory;
  * way to apply and manage schema updates using XSLT transforms.
  * </p>
  *
- * @param <T> type of the root persistent object
+ * @param <T> type of the root object
  * @see PersistentObjectDelegate
  * @see PersistentObjectSchemaUpdater
  * @see AbstractConfiguredBean
@@ -534,7 +559,6 @@ public class PersistentObject<T> {
         this.root = null;
         this.sharedRoot = null;
         this.writebackRoot = null;
-        this.version = 0;
         this.timestamp = 0;
         this.started = false;
     }

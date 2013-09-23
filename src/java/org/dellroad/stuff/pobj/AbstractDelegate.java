@@ -39,7 +39,9 @@ public abstract class AbstractDelegate<T> implements PersistentObjectDelegate<T>
      * <p>
      * The implementation in {@link AbstractDelegate} does this by {@linkplain #serialize serializing}
      * and then {@linkplain #deserialize deserializing} the object graph.
-     * Subclasses are encouraged to provide a more efficient implementation.
+     * Subclasses are encouraged to provide a more efficient implementation, for example, by implementing
+     * {@link org.dellroad.stuff.java.GraphCloneable}.
+     * </p>
      *
      * @throws IllegalArgumentException if {@code original} is null
      * @throws PersistentObjectException if an error occurs
