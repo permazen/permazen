@@ -17,7 +17,7 @@ import java.util.Arrays;
 import org.dellroad.stuff.TestSupport;
 import org.testng.annotations.Test;
 
-public class NullModemTest extends TestSupport implements NullModemOutputStream.ReadCallback, NullModemInputStream.WriteCallback {
+public class NullModemTest extends TestSupport implements ReadCallback, WriteCallback {
 
     private byte[] inputData;
     private byte[] outputData;

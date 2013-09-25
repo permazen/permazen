@@ -17,7 +17,7 @@ import java.util.Arrays;
 import org.dellroad.stuff.TestSupport;
 import org.testng.annotations.Test;
 
-public class StreamsTest extends TestSupport implements NullModemOutputStream.ReadCallback {
+public class StreamsTest extends TestSupport implements ReadCallback {
 
     private byte[] data;
 

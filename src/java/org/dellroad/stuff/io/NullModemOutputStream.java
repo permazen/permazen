@@ -9,16 +9,16 @@ package org.dellroad.stuff.io;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 /**
- * Presents an {@link java.io.OutputStream OutputStream} interface given a {@link ReadCallback} that can read from an
- * {@link InputStream}. A separate thread is created to perform the actual reading.
+ * Presents an {@link java.io.OutputStream} interface given a {@link ReadCallback} that can read from an
+ * {@link java.io.InputStream}. A separate thread is created to perform the actual reading.
  *
  * <p>
  * If data is written beyond what the reader is willing to consume, an {@link IOException} is thrown.
+ * </p>
  *
  * @since 1.0.82
  */
@@ -27,7 +27,13 @@ public class NullModemOutputStream extends FilterOutputStream {
     /**
      * Constructor.
      *
-     * @param reader    {@link InputStream} reader callback
+     * <p>
+     * The {@code reader}'s {@link ReadCallback#readFrom readFrom()} method will be invoked (once)
+     * asynchronously in a dedicated reader thread. The {@link java.io.InputStream} provided to it will
+     * relay the bytes that are written to this instance.
+     * </p>
+     *
+     * @param reader    {@link java.io.InputStream} reader callback
      * @param name      name for this instance; used to create the name of the background thread
      */
     public NullModemOutputStream(final ReadCallback reader, String name) {
@@ -76,24 +82,6 @@ public class NullModemOutputStream extends FilterOutputStream {
         } finally {
             super.finalize();
         }
-    }
-
-    /**
-     * Callback interface used by {@link NullModemOutputStream}.
-     */
-    public interface ReadCallback {
-
-        /**
-         * Read from the given input stream.
-         *
-         * <p>
-         * This method will be invoked (once) asynchronously in a dedicated reader thread.
-         * </p>
-         *
-         * @param input input providing the data written to the corresponding {@link NullModemOutputStream}
-         * @throws IOException if an I/O error occurs
-         */
-        void readFrom(InputStream input) throws IOException;
     }
 
     /**

@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.dellroad.stuff.TestSupport;
-import org.dellroad.stuff.io.NullModemInputStream.WriteCallback;
+import org.dellroad.stuff.io.WriteCallback;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

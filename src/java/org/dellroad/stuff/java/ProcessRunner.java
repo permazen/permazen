@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.dellroad.stuff.io.NullModemInputStream.WriteCallback;
+import org.dellroad.stuff.io.WriteCallback;
 
 /**
  * Handles external process I/O and async execution.

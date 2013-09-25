@@ -9,13 +9,12 @@ package org.dellroad.stuff.io;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 /**
- * Presents an {@link java.io.InputStream InputStream} interface given a {@link WriteCallback} that can write to an
- * {@link OutputStream}. A separate thread is created to perform the actual writing.
+ * Presents an {@link java.io.InputStream} interface given a {@link WriteCallback} that can write to an
+ * {@link java.io.OutputStream}. A separate thread is created to perform the actual writing.
  *
  * @since 1.0.74
  */
@@ -26,7 +25,13 @@ public class NullModemInputStream extends FilterInputStream {
     /**
      * Constructor.
      *
-     * @param writer    {@link OutputStream} writer callback
+     * <p>
+     * The {@code writer}'s {@link WriteCallback#writeTo writeTo()} method will be invoked (once)
+     * asynchronously in a dedicated writer thread. The {@link java.io.OutputStream} provided to it will
+     * relay the bytes that are then read from this instance.
+     * </p>
+     *
+     * @param writer    {@link java.io.OutputStream} writer callback
      * @param name      name for this instance; used to create the name of the background thread
      */
     public NullModemInputStream(final WriteCallback writer, String name) {
@@ -74,24 +79,6 @@ public class NullModemInputStream extends FilterInputStream {
         } finally {
             super.finalize();
         }
-    }
-
-    /**
-     * Callback interface used by {@link NullModemInputStream}.
-     */
-    public interface WriteCallback {
-
-        /**
-         * Write the output to the given output stream.
-         *
-         * <p>
-         * This method will be invoked (once) asynchronously in a dedicated writer thread.
-         * </p>
-         *
-         * @param output output that sends data to the corresponding {@link NullModemInputStream}
-         * @throws IOException if an I/O error occurs
-         */
-        void writeTo(OutputStream output) throws IOException;
     }
 
     /**
