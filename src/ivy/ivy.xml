@@ -29,6 +29,7 @@
         <dependency force="true" org="net.sourceforge.jibx" name="jibx" rev="1.2.3" conf="build->runtime-xpp3,extras;jibx-bind->bind"/>
         <dependency force="true" org="net.sourceforge.java-readline" name="java-readline" rev="0.8.0" conf="build->default"/>
         <dependency force="true" org="net.sourceforge.opencsv" name="opencsv" rev="2.2" conf="build->default"/>
+        <dependency force="true" org="org.apache.log4j" name="log4j" rev="1.2.17" conf="build->default"/>
         <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1.1" conf="build->api"/>
         <dependency force="true" org="org.jmock" name="jmock" rev="2.5.1" conf="build,test->core"/>
         <dependency force="true" org="org.hamcrest" name="hamcrest" rev="1.1" conf="build->default"/>

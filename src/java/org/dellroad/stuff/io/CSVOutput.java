@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.string;
+package org.dellroad.stuff.io;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+
+import org.dellroad.stuff.string.DateEncoder;
 
 /**
  * CSV file output stream that ensures values are matched to the correct columns.

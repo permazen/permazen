@@ -1,8 +1,10 @@
 
 Version Next
 
+    - Moved CSVOutput from "string" to "io" sub-package
     - Extracted *Callback interfaces out of NullModem*Stream classes
-      NOTE: backward-incompatible change.
+      NOTE: the above are backward-incompatible changes.
+    - Added ThreadLogger
     - Added "vaadin" sub-package of org.dellroad.stuff.pobj
     - Added @ProvidesProperty annotation and container constructor support
     - Added EnumContainer, EnumComboBox, and EnumUtil
