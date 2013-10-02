@@ -136,7 +136,7 @@ public abstract class AbstractSchemaUpdater<D, T> {
      *
      * @param database the database to initialize (if necessary) and update
      * @throws Exception if an update fails
-     * @throws IllegalStateException if this instance is not configured to {@linkplain #setIgnoreUnrecognizedUpdates ignore
+     * @throws UnrecognizedUpdateException if this instance is not configured to {@linkplain #setIgnoreUnrecognizedUpdates ignore
      * unrecognized updates} and an unrecognized update has already been applied
      * @throws IllegalArgumentException if two configured updates have the same name
      * @throws IllegalArgumentException if any configured update has a required predecessor which is not also a configured update
@@ -381,7 +381,7 @@ public abstract class AbstractSchemaUpdater<D, T> {
         unknownUpdateNames.removeAll(updateMap.keySet());
         if (!unknownUpdateNames.isEmpty()) {
             if (!this.isIgnoreUnrecognizedUpdates()) {
-                throw new IllegalStateException(unknownUpdateNames.size()
+                throw new UnrecognizedUpdateException(unknownUpdateNames.size()
                   + " unrecognized update(s) have already been applied: " + unknownUpdateNames);
             }
             this.log.info("ignoring " + unknownUpdateNames.size()
