@@ -29,6 +29,8 @@ import org.dellroad.stuff.spring.AbstractBean;
  * database's XML representation. As a result, all nodes can make simultaneous changes, updates are
  * communicated quickly, and in only a small corner case -- two conflicting changes to the same
  * data element applied at virtually same time -- must one node's change "win" and the other's "lose".
+ * No global communication or two-phase commit protocol is required, and recovery from arbitrary
+ * network problems is automatic.
  * </p>
  *
  * <p>
@@ -50,7 +52,7 @@ import org.dellroad.stuff.spring.AbstractBean;
  * as mentioned above, synchronization is performed automatically when the local {@link PersistentObject} database changes,
  * but for remote changes either some external notification process must trigger a call to {@link #synchronize},
  * or {@link #synchronize} must be invoked at regular intervals, or (for robustness in the face of transient
- * network problems) both.
+ * network issues) both.
  * </p>
  *
  * <p>
@@ -73,16 +75,26 @@ import org.dellroad.stuff.spring.AbstractBean;
  * </p>
  *
  * <p>
- * If necessary, a "winner" is chosen as follows:
+ * For attempts #2 and #3, the "winner" is chosen as follows:
  *  <ul>
- *  <li>If node A's commit was after node B's commit, then node A wins</li>
+ *  <li>If the commits have different timestamps, then the later commit wins</li>
  *  <li>If the two commits were simultaneous, then the commit with the lexicographically higher SHA-1 checksum wins</li>
+ *  <li>If the two commits have the same timestamp and SHA-1 checksum, then there won't be any conflicts :)</li>
  *  </ul>
  * </p>
  *
  * <p>
  * Because all nodes follow this same algorithm for merging, they will all end up with the same result
  * (note however that the {@link PersistentObject} object graph must serialize in a deterministic way for this to be true).
+ * </p>
+ *
+ * <p>
+ * Note that merge conflicts can only happen when two nodes make changes at virtually the same time (or, when
+ * separated by a network partition): i.e., a change on one node occurs within the window of time after a change
+ * is made on another node but before the first node is notified and synchronizes. Using a simple
+ * real-time notification process, this window can be kept small, especially relative to the frequent-read,
+ * infrequent-write access pattern that the {@link PersistentObject} class is designed for. When a conflict override
+ * does occur, subclasses can override {@link #handleConflictOverride handleConflictOverride()} to take appropriate action.
  * </p>
  *
  * <p>
