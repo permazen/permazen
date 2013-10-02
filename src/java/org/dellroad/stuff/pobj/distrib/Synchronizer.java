@@ -73,8 +73,16 @@ import org.dellroad.stuff.spring.AbstractBean;
  * </p>
  *
  * <p>
- * Because all nodes follow the same algorithm for merging, they will eventually agree on the same merged result
- * (note: the {@link PersistentObject} object graph must serialize in a deterministic way for this to be true).
+ * If necessary, a "winner" is chosen as follows:
+ *  <ul>
+ *  <li>If node A's commit was after node B's commit, then node A wins</li>
+ *  <li>If the two commits were simultaneous, then the commit with the lexicographically higher SHA-1 checksum wins</li>
+ *  </ul>
+ * </p>
+ *
+ * <p>
+ * Because all nodes follow this same algorithm for merging, they will all end up with the same result
+ * (note however that the {@link PersistentObject} object graph must serialize in a deterministic way for this to be true).
  * </p>
  *
  * <p>
