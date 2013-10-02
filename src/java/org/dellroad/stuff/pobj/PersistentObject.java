@@ -11,7 +11,9 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -1108,6 +1110,10 @@ public class PersistentObject<T> {
      */
     public static <T> T read(PersistentObjectDelegate<T> delegate, File file, boolean validate) {
 
+        // Sanity check
+        if (file == null)
+            throw new IllegalArgumentException("null file");
+
         // Open file
         BufferedInputStream input;
         try {
@@ -1128,6 +1134,32 @@ public class PersistentObject<T> {
                 // ignore
             }
         }
+    }
+
+    /**
+     * Read in a persistent object from the given {@link InputStream} using the given delegate.
+     *
+     * <p>
+     * This is a wrapper around {@link #read(PersistentObjectDelegate, Source, boolean)}.
+     * </p>
+     *
+     * @param delegate delegate supplying required operations
+     * @param input input to read from
+     * @param validate whether to also validate the root object
+     * @return deserialized root object, never null
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws PersistentObjectValidationException if {@code validate} is true and the deserialized root has validation errors
+     * @throws PersistentObjectException if an I/O error occurs
+     * @throws PersistentObjectException if an error occurs
+     */
+    public static <T> T read(PersistentObjectDelegate<T> delegate, InputStream input, boolean validate) {
+
+        // Sanity check
+        if (input == null)
+            throw new IllegalArgumentException("null input");
+
+        // Proceed
+        return PersistentObject.read(delegate, new StreamSource(new BufferedInputStream(input)), validate);
     }
 
     /**
@@ -1160,6 +1192,69 @@ public class PersistentObject<T> {
         } catch (IOException e) {
             throw new PersistentObjectException("error writing persistent file", e);
         }
+    }
+
+    /**
+     * Write a persistent object using the given delegate.
+     *
+     * <p>
+     * This is a wrapper around {@link #write(Object, PersistentObjectDelegate, Result)} that handles
+     * opening and closing the given {@link File}.
+     * </p>
+     *
+     * @param root root object to serialize
+     * @param delegate delegate supplying required operations
+     * @param file destination file
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws PersistentObjectException if an error occurs
+     */
+    public static <T> void write(T root, PersistentObjectDelegate<T> delegate, File file) {
+
+        // Sanity check
+        if (root == null)
+            throw new IllegalArgumentException("null root");
+        if (delegate == null)
+            throw new IllegalArgumentException("null delegate");
+        if (file == null)
+            throw new IllegalArgumentException("null file");
+
+        // Write to file
+        try {
+            final BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file));
+            final StreamResult result = new StreamResult(output);
+            result.setSystemId(file);
+            PersistentObject.write(root, delegate, result);
+            output.close();
+        } catch (IOException e) {
+            throw new PersistentObjectException("error writing persistent file", e);
+        }
+    }
+
+    /**
+     * Write a persistent object using the given delegate.
+     *
+     * <p>
+     * This is a wrapper around {@link #write(Object, PersistentObjectDelegate, Result)}.
+     * </p>
+     *
+     * @param root root object to serialize
+     * @param delegate delegate supplying required operations
+     * @param output XML destination
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws PersistentObjectException if an error occurs
+     */
+    public static <T> void write(T root, PersistentObjectDelegate<T> delegate, OutputStream output) {
+
+        // Sanity check
+        if (root == null)
+            throw new IllegalArgumentException("null root");
+        if (delegate == null)
+            throw new IllegalArgumentException("null delegate");
+        if (output == null)
+            throw new IllegalArgumentException("null output");
+
+        // Write
+        PersistentObject.write(root, delegate, new StreamResult(new BufferedOutputStream(output)));
     }
 
 // Snapshot class

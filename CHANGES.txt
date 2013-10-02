@@ -10,6 +10,8 @@ Version Next
     - Added EnumContainer, EnumComboBox, and EnumUtil
     - Added new method Primitive.getDefaultValue()
     - Fixed bug in AbstractUnsizedContainer
+    - Added new "pobj.distrib" package for multi-node synchronization
+    - Added PersistentObject read() and write() method variants
     - Added AbstractBean
 
 Version 1.0.704 Released August 28, 2013
