@@ -24,6 +24,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.dellroad.stuff.schema.AbstractSchemaUpdater;
+import org.dellroad.stuff.schema.UnrecognizedUpdateException;
 
 /**
  * A {@link PersistentObjectDelegate} that is also a {@link AbstractSchemaUpdater} that automatically
@@ -241,6 +242,8 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
             StreamSource updatedSource = new StreamSource(new StringReader(transaction.getData()));
             updatedSource.setSystemId(transaction.getSystemId());
             return this.delegate.deserialize(updatedSource);
+        } catch (UnrecognizedUpdateException e) {
+            throw new PersistentObjectException(e);
         } catch (RuntimeException e) {
             throw e;
         } catch (IOException e) {
