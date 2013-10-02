@@ -28,7 +28,7 @@ import org.dellroad.stuff.spring.AbstractBean;
  * efficient communication protocol and powerful merging algorithms to the {@link PersistentObject}
  * database's XML representation. As a result, all nodes can make simultaneous changes, updates are
  * communicated quickly, and in only a small corner case -- two conflicting changes to the same
- * data element applied at virtually same time -- must one node's change "win" and the other "lose".
+ * data element applied at virtually same time -- must one node's change "win" and the other's "lose".
  * </p>
  *
  * <p>
