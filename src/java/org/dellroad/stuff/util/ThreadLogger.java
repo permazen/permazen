@@ -48,7 +48,7 @@ public class ThreadLogger extends WriterAppender {
     private static final InheritableThreadLocal<WriterInfo> CURRENT_WRITER = new InheritableThreadLocal<WriterInfo>() {
         @Override
         protected WriterInfo childValue(WriterInfo writerInfo) {
-            return writerInfo.isInherit() ? writerInfo : null;
+            return writerInfo != null && writerInfo.isInherit() ? writerInfo : null;
         }
     };
 
