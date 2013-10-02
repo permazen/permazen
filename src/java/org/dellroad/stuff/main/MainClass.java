@@ -83,6 +83,7 @@ public abstract class MainClass {
                 try {
                     line = Readline.readline(prompt);
                 } catch (EOFException e) {
+                    System.out.println();
                     break;
                 }
 
