@@ -308,7 +308,7 @@ public class GitRepository extends AbstractBean {
         case 1:
             return false;
         default:
-            throw new GitException("git command " + diff.getArgs() + " in directory `" + GitRepository.this.dir
+            throw new GitException("command `" + diff + "' in directory `" + GitRepository.this.dir
               + "' failed with exit value " + exitValue);
         }
     }
@@ -576,7 +576,7 @@ public class GitRepository extends AbstractBean {
             try {
                 process = Runtime.getRuntime().exec(args.toArray(new String[args.size()]), null, GitRepository.this.dir);
             } catch (IOException e) {
-                this.log.debug("git command " + this.args + " in directory `" + GitRepository.this.dir + "' failed: ", e);
+                this.log.debug("command `" + this + "' in directory `" + GitRepository.this.dir + "' failed: ", e);
                 throw new GitException("error invoking git(1)", e);
             }
             this.runner = new ProcessRunner(process);
@@ -604,7 +604,8 @@ public class GitRepository extends AbstractBean {
 
             // Check exit value
             if (exitValue != 0) {
-                final String msg = "git command " + this.args + " in directory `" + GitRepository.this.dir + "' failed";
+                final String msg = "command `" + this + "' in directory `" + GitRepository.this.dir
+                  + "' failed with exit value " + exitValue;
                 if (errorOk)
                     this.log.debug(msg);
                 else {
@@ -612,7 +613,7 @@ public class GitRepository extends AbstractBean {
                     throw new GitException(msg);
                 }
             } else {
-                this.log.debug("successfully executed git command " + this.args + " in directory `"
+                this.log.debug("successfully executed command `" + this + "' in directory `"
                   + GitRepository.this.dir + "'" + buf);
             }
 
@@ -655,6 +656,17 @@ public class GitRepository extends AbstractBean {
             if (this.runner == null)
                 throw new IllegalStateException("command has not yet executed");
             return new String(this.runner.getStandardError(), Charset.forName("UTF-8"));
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder buf = new StringBuilder();
+            for (String arg : this.args) {
+                if (buf.length() > 0)
+                    buf.append(' ');
+                buf.append(arg);
+            }
+            return buf.toString();
         }
     }
 }
