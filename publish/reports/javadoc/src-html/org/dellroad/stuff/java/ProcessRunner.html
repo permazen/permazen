@@ -22,7 +22,7 @@
 <span class="sourceLineNo">014</span>import java.io.InputStream;<a name="line.14"></a>
 <span class="sourceLineNo">015</span>import java.io.OutputStream;<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.dellroad.stuff.io.NullModemInputStream.WriteCallback;<a name="line.17"></a>
+<span class="sourceLineNo">017</span>import org.dellroad.stuff.io.WriteCallback;<a name="line.17"></a>
 <span class="sourceLineNo">018</span><a name="line.18"></a>
 <span class="sourceLineNo">019</span>/**<a name="line.19"></a>
 <span class="sourceLineNo">020</span> * Handles external process I/O and async execution.<a name="line.20"></a>
@@ -40,261 +40,301 @@
 <span class="sourceLineNo">032</span>    private final ByteArrayOutputStream stderrBuffer = new ByteArrayOutputStream();<a name="line.32"></a>
 <span class="sourceLineNo">033</span><a name="line.33"></a>
 <span class="sourceLineNo">034</span>    private int state;<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    /**<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     * No-input constructor.<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     *<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     * &lt;p&gt;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     * Use this constructor when the process requires no input on {@code stdin}.<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * &lt;/p&gt;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     *<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     * @param process a newly-created process<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * @throws IllegalArgumentException if {@code process} is null<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    public ProcessRunner(Process process) {<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        this(process, (WriteCallback)null);<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    }<a name="line.48"></a>
-<span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>    /**<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     * Fixed input constructor.<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     *<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * &lt;p&gt;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * Use this constructor when the process input can be expressed as a {@code byte[]} array.<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * &lt;/p&gt;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     *<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @param process newly-created process<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @param input process input<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * @throws IllegalArgumentException if {@code process} is null<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * @throws IllegalArgumentException if {@code input} is null<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    public ProcessRunner(Process process, final byte[] input) {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        this(process, new WriteCallback() {<a name="line.63"></a>
-<span class="sourceLineNo">064</span>            @Override<a name="line.64"></a>
-<span class="sourceLineNo">065</span>            public void writeTo(OutputStream output) throws IOException {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>                output.write(input);<a name="line.66"></a>
-<span class="sourceLineNo">067</span>            }<a name="line.67"></a>
-<span class="sourceLineNo">068</span>        });<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    }<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>    /**<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     * Dynamic input constructor.<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     *<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     * &lt;p&gt;<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * Use this constructor when the process input is computed in an online manner.<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * &lt;/p&gt;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     *<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * @param process newly-created process<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     * @param inputWriter object capable of writing input to the process, which will be invoked<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     *  from a separate thread, or null if the process does not get any input<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * @throws IllegalArgumentException if {@code process} is null<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     */<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    public ProcessRunner(Process process, WriteCallback inputWriter) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        if (process == null)<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            throw new IllegalArgumentException("null process");<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        this.process = process;<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        this.inputWriter = inputWriter;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>    /**<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     * Get the {@link Process} associated with this instance.<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     */<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    public Process getProcess() {<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        return this.process;<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
-<span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>    /**<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * Send the process its standard input, read its standard output and standard error,<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * and wait for it to exit.<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     *<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * &lt;p&gt;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * If the current thread is interrupted, the standard input, output, and error connections to<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * the process are closed and an {@link InterruptedException} is thrown.<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * &lt;/p&gt;<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     *<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * @return exit value<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * @throws IllegalStateException if this method has already been invoked<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * @throws InterruptedException if the current thread is interrupted while waiting for the process to finish<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    public int run() throws InterruptedException {<a name="line.110"></a>
+<span class="sourceLineNo">035</span>    private boolean discardStandardOutput;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    private boolean discardStandardError;<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    /**<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * No-input constructor.<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     *<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * &lt;p&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * Use this constructor when the process requires no input on {@code stdin}.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * &lt;/p&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     *<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * @param process a newly-created process<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * @throws IllegalArgumentException if {@code process} is null<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    public ProcessRunner(Process process) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        this(process, (WriteCallback)null);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    }<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    /**<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * Fixed input constructor.<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     *<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * &lt;p&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * Use this constructor when the process input can be expressed as a {@code byte[]} array.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * &lt;/p&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     *<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @param process newly-created process<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * @param input process input<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * @throws IllegalArgumentException if {@code process} is null<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * @throws IllegalArgumentException if {@code input} is null<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     */<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    public ProcessRunner(Process process, final byte[] input) {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        this(process, new WriteCallback() {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            @Override<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            public void writeTo(OutputStream output) throws IOException {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                output.write(input);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            }<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        });<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    /**<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * Dynamic input constructor.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     *<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * &lt;p&gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * Use this constructor when the process input is computed in an online manner.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * &lt;/p&gt;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @param process newly-created process<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * @param inputWriter object capable of writing input to the process, which will be invoked<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     *  from a separate thread, or null if the process does not get any input<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * @throws IllegalArgumentException if {@code process} is null<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    public ProcessRunner(Process process, WriteCallback inputWriter) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        if (process == null)<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            throw new IllegalArgumentException("null process");<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        this.process = process;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        this.inputWriter = inputWriter;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>    /**<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * Get the {@link Process} associated with this instance.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    public Process getProcess() {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        return this.process;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    /**<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * Set whether to standard output should be discarded. Default is false.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * If configured to discard, then {@link #getStandardOutput} will throw {@link IllegalStateException}.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     *<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * @param discardStandardOutput true to discard standard output, otherwise false<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @throws IllegalStateException if {@link #run} has already been invoked<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    public synchronized void setDiscardStandardOutput(boolean discardStandardOutput) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        if (this.state != 0)<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            throw new IllegalStateException("run() has already been invoked");<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        this.discardStandardOutput = discardStandardOutput;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
 <span class="sourceLineNo">111</span><a name="line.111"></a>
-<span class="sourceLineNo">112</span>        // Update state<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        synchronized (this) {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>            if (this.state != 0)<a name="line.114"></a>
-<span class="sourceLineNo">115</span>                throw new IllegalStateException("process has already been run");<a name="line.115"></a>
-<span class="sourceLineNo">116</span>            this.state = 1;<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        }<a name="line.117"></a>
-<span class="sourceLineNo">118</span><a name="line.118"></a>
-<span class="sourceLineNo">119</span>        // Create stdin thread<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        final IOThread&lt;OutputStream&gt; stdin = new IOThread&lt;OutputStream&gt;("stdin",<a name="line.120"></a>
-<span class="sourceLineNo">121</span>          new BufferedOutputStream(this.process.getOutputStream())) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            @Override<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            protected void runIO() throws IOException {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>                if (ProcessRunner.this.inputWriter != null)<a name="line.124"></a>
-<span class="sourceLineNo">125</span>                    ProcessRunner.this.inputWriter.writeTo(this.stream);<a name="line.125"></a>
-<span class="sourceLineNo">126</span>            }<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        };<a name="line.127"></a>
-<span class="sourceLineNo">128</span><a name="line.128"></a>
-<span class="sourceLineNo">129</span>        // Create stdout thread<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        final IOThread&lt;InputStream&gt; stdout = new IOThread&lt;InputStream&gt;("stdout", this.process.getInputStream()) {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>            @Override<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            protected void runIO() throws IOException {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>                final byte[] buf = new byte[1000];<a name="line.133"></a>
-<span class="sourceLineNo">134</span>                int r;<a name="line.134"></a>
-<span class="sourceLineNo">135</span>                while ((r = this.stream.read(buf)) != -1)<a name="line.135"></a>
-<span class="sourceLineNo">136</span>                    ProcessRunner.this.handleStandardOutput(buf, 0, r);<a name="line.136"></a>
-<span class="sourceLineNo">137</span>            }<a name="line.137"></a>
-<span class="sourceLineNo">138</span>        };<a name="line.138"></a>
+<span class="sourceLineNo">112</span>    /**<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * Set whether to standard error should be discarded. Default is false.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * If configured to discard, then {@link #getStandardError} will throw {@link IllegalStateException}.<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     *<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * @param discardStandardError true to discard standard error, otherwise false<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @throws IllegalStateException if {@link #run} has already been invoked<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     */<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    public synchronized void setDiscardStandardError(boolean discardStandardError) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        if (this.state != 0)<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            throw new IllegalStateException("run() has already been invoked");<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        this.discardStandardError = discardStandardError;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * Send the process its standard input, read its standard output and standard error,<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * and wait for it to exit.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * &lt;p&gt;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * If the current thread is interrupted, the standard input, output, and error connections to<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * the process are closed and an {@link InterruptedException} is thrown.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * &lt;/p&gt;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * @return exit value<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * @throws IllegalStateException if this method has already been invoked<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * @throws InterruptedException if the current thread is interrupted while waiting for the process to finish<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     */<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    public int run() throws InterruptedException {<a name="line.138"></a>
 <span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>        // Create stderr thread<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        final IOThread&lt;InputStream&gt; stderr = new IOThread&lt;InputStream&gt;("stderr", this.process.getErrorStream()) {<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            @Override<a name="line.142"></a>
-<span class="sourceLineNo">143</span>            protected void runIO() throws IOException {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>                final byte[] buf = new byte[1000];<a name="line.144"></a>
-<span class="sourceLineNo">145</span>                int r;<a name="line.145"></a>
-<span class="sourceLineNo">146</span>                while ((r = this.stream.read(buf)) != -1)<a name="line.146"></a>
-<span class="sourceLineNo">147</span>                    ProcessRunner.this.handleStandardError(buf, 0, r);<a name="line.147"></a>
-<span class="sourceLineNo">148</span>            }<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        };<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>        // Start threads<a name="line.151"></a>
-<span class="sourceLineNo">152</span>        stdin.start();<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        stdout.start();<a name="line.153"></a>
-<span class="sourceLineNo">154</span>        stderr.start();<a name="line.154"></a>
-<span class="sourceLineNo">155</span><a name="line.155"></a>
-<span class="sourceLineNo">156</span>        // Wait for process to exit<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        Integer exitValue = null;<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        try {<a name="line.158"></a>
-<span class="sourceLineNo">159</span>            exitValue = this.process.waitFor();<a name="line.159"></a>
-<span class="sourceLineNo">160</span>        } finally {<a name="line.160"></a>
-<span class="sourceLineNo">161</span><a name="line.161"></a>
-<span class="sourceLineNo">162</span>            // Update state<a name="line.162"></a>
-<span class="sourceLineNo">163</span>            synchronized (this) {<a name="line.163"></a>
-<span class="sourceLineNo">164</span>                this.state = 2;<a name="line.164"></a>
+<span class="sourceLineNo">140</span>        // Update state<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        synchronized (this) {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            if (this.state != 0)<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                throw new IllegalStateException("process has already been run");<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            this.state = 1;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        }<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>        // Create stdin thread<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        final IOThread&lt;OutputStream&gt; stdin = new IOThread&lt;OutputStream&gt;("stdin",<a name="line.148"></a>
+<span class="sourceLineNo">149</span>          new BufferedOutputStream(this.process.getOutputStream())) {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            @Override<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            protected void runIO() throws IOException {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                if (ProcessRunner.this.inputWriter != null)<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                    ProcessRunner.this.inputWriter.writeTo(this.stream);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            }<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        };<a name="line.155"></a>
+<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">157</span>        // Create stdout thread<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        final IOThread&lt;InputStream&gt; stdout = new IOThread&lt;InputStream&gt;("stdout", this.process.getInputStream()) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            @Override<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            protected void runIO() throws IOException {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                final byte[] buf = new byte[1000];<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                int r;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                while ((r = this.stream.read(buf)) != -1)<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                    ProcessRunner.this.handleStandardOutput(buf, 0, r);<a name="line.164"></a>
 <span class="sourceLineNo">165</span>            }<a name="line.165"></a>
-<span class="sourceLineNo">166</span><a name="line.166"></a>
-<span class="sourceLineNo">167</span>            // In case of exception prior to process exit, close the sockets to wake up the threads<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            if (exitValue == null) {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>                stdin.close();<a name="line.169"></a>
-<span class="sourceLineNo">170</span>                stdout.close();<a name="line.170"></a>
-<span class="sourceLineNo">171</span>                stderr.close();<a name="line.171"></a>
-<span class="sourceLineNo">172</span>            }<a name="line.172"></a>
-<span class="sourceLineNo">173</span><a name="line.173"></a>
-<span class="sourceLineNo">174</span>            // Wait for threads to finish<a name="line.174"></a>
-<span class="sourceLineNo">175</span>            stdin.join();<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            stdout.join();<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            stderr.join();<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        }<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>        // Done<a name="line.180"></a>
-<span class="sourceLineNo">181</span>        return exitValue;<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
+<span class="sourceLineNo">166</span>        };<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>        // Create stderr thread<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        final IOThread&lt;InputStream&gt; stderr = new IOThread&lt;InputStream&gt;("stderr", this.process.getErrorStream()) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            @Override<a name="line.170"></a>
+<span class="sourceLineNo">171</span>            protected void runIO() throws IOException {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                final byte[] buf = new byte[1000];<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                int r;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                while ((r = this.stream.read(buf)) != -1)<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                    ProcessRunner.this.handleStandardError(buf, 0, r);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>            }<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        };<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>        // Start threads<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        stdin.start();<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        stdout.start();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        stderr.start();<a name="line.182"></a>
 <span class="sourceLineNo">183</span><a name="line.183"></a>
-<span class="sourceLineNo">184</span>    /**<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     * Handle data received from the standard output of the process.<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     *<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     * &lt;p&gt;<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     * The implementation in {@link ProcessRunner} adds the data to an in-memory buffer, which is made<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     * available when the process completes via {@link #getStandardOutput}. Subclasses may override if necessary,<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     * e.g., to send/mirror the data elsewhere, or prevent this data from being buffered at all.<a name="line.190"></a>
-<span class="sourceLineNo">191</span>     * &lt;/p&gt;<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     *<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     * &lt;p&gt;<a name="line.193"></a>
-<span class="sourceLineNo">194</span>     * This method will be invoked by a separate thread from the one that invoked {@link #run}.<a name="line.194"></a>
-<span class="sourceLineNo">195</span>     * &lt;/p&gt;<a name="line.195"></a>
-<span class="sourceLineNo">196</span>     *<a name="line.196"></a>
-<span class="sourceLineNo">197</span>     * @param buf data buffer<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     * @param off offset of the first data byte<a name="line.198"></a>
-<span class="sourceLineNo">199</span>     * @param len length of the data<a name="line.199"></a>
-<span class="sourceLineNo">200</span>     */<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    protected void handleStandardOutput(byte[] buf, int off, int len) {<a name="line.201"></a>
-<span class="sourceLineNo">202</span>        this.stdoutBuffer.write(buf, off, len);<a name="line.202"></a>
-<span class="sourceLineNo">203</span>    }<a name="line.203"></a>
-<span class="sourceLineNo">204</span><a name="line.204"></a>
-<span class="sourceLineNo">205</span>    /**<a name="line.205"></a>
-<span class="sourceLineNo">206</span>     * Handle data received from the error output of the process.<a name="line.206"></a>
-<span class="sourceLineNo">207</span>     *<a name="line.207"></a>
-<span class="sourceLineNo">208</span>     * &lt;p&gt;<a name="line.208"></a>
-<span class="sourceLineNo">209</span>     * The implementation in {@link ProcessRunner} adds the data to an in-memory buffer, which is made<a name="line.209"></a>
-<span class="sourceLineNo">210</span>     * available when the process completes via {@link #getStandardError}. Subclasses may override if necessary,<a name="line.210"></a>
-<span class="sourceLineNo">211</span>     * e.g., to send/mirror the data elsewhere, or prevent this data from being buffered at all.<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     * &lt;/p&gt;<a name="line.212"></a>
-<span class="sourceLineNo">213</span>     *<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     * &lt;p&gt;<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     * This method will be invoked by a separate thread from the one that invoked {@link #run}.<a name="line.215"></a>
-<span class="sourceLineNo">216</span>     * &lt;/p&gt;<a name="line.216"></a>
-<span class="sourceLineNo">217</span>     *<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     * @param buf data buffer<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     * @param off offset of the first data byte<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     * @param len length of the data in {@code buf}<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     */<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    protected void handleStandardError(byte[] buf, int off, int len) {<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        this.stderrBuffer.write(buf, off, len);<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
-<span class="sourceLineNo">225</span><a name="line.225"></a>
-<span class="sourceLineNo">226</span>    /**<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     * Get the standard output of the process.<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     *<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     * @throws IllegalStateException if {@link #run} has not been invoked yet or is still executing<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     */<a name="line.230"></a>
-<span class="sourceLineNo">231</span>    public synchronized byte[] getStandardOutput() {<a name="line.231"></a>
-<span class="sourceLineNo">232</span><a name="line.232"></a>
-<span class="sourceLineNo">233</span>        // Check state<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        if (this.state != 2)<a name="line.234"></a>
-<span class="sourceLineNo">235</span>            throw new IllegalStateException("run() has not been invoked yet");<a name="line.235"></a>
-<span class="sourceLineNo">236</span><a name="line.236"></a>
-<span class="sourceLineNo">237</span>        // Return buffer<a name="line.237"></a>
-<span class="sourceLineNo">238</span>        return this.stdoutBuffer.toByteArray();<a name="line.238"></a>
-<span class="sourceLineNo">239</span>    }<a name="line.239"></a>
-<span class="sourceLineNo">240</span><a name="line.240"></a>
-<span class="sourceLineNo">241</span>    /**<a name="line.241"></a>
-<span class="sourceLineNo">242</span>     * Get the standard error of the process.<a name="line.242"></a>
+<span class="sourceLineNo">184</span>        // Wait for process to exit<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        Integer exitValue = null;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        try {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            exitValue = this.process.waitFor();<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        } finally {<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>            // Update state<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            synchronized (this) {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                this.state = 2;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            }<a name="line.193"></a>
+<span class="sourceLineNo">194</span><a name="line.194"></a>
+<span class="sourceLineNo">195</span>            // In case of exception prior to process exit, close the sockets to wake up the threads<a name="line.195"></a>
+<span class="sourceLineNo">196</span>            if (exitValue == null) {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                stdin.close();<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                stdout.close();<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                stderr.close();<a name="line.199"></a>
+<span class="sourceLineNo">200</span>            }<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>            // Wait for threads to finish<a name="line.202"></a>
+<span class="sourceLineNo">203</span>            stdin.join();<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            stdout.join();<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            stderr.join();<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        }<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>        // Done<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        return exitValue;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    }<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>    /**<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     * Handle data received from the standard output of the process.<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     *<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * &lt;p&gt;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     * The implementation in {@link ProcessRunner} simply discards the data if this instance is configured to do so,<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     * otherwise it adds the data to an in-memory buffer, which is made available when the process completes via<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * {@link #getStandardOutput}. Subclasses may override if necessary, e.g., to send/mirror the data elsewhere.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * &lt;/p&gt;<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     *<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * &lt;p&gt;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * This method will be invoked by a separate thread from the one that invoked {@link #run}.<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * &lt;/p&gt;<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     *<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * @param buf data buffer<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * @param off offset of the first data byte<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * @param len length of the data<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     */<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    protected void handleStandardOutput(byte[] buf, int off, int len) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        if (this.discardStandardOutput)<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            return;<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        this.stdoutBuffer.write(buf, off, len);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    }<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>    /**<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * Handle data received from the error output of the process.<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     *<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * &lt;p&gt;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * The implementation in {@link ProcessRunner} simply discards the data if this instance is configured to do so,<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * otherwise it adds the data to an in-memory buffer, which is made available when the process completes via<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * {@link #getStandardError}. Subclasses may override if necessary, e.g., to send/mirror the data elsewhere.<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * &lt;/p&gt;<a name="line.242"></a>
 <span class="sourceLineNo">243</span>     *<a name="line.243"></a>
-<span class="sourceLineNo">244</span>     * @throws IllegalStateException if {@link #run} has not been invoked yet or is still executing<a name="line.244"></a>
-<span class="sourceLineNo">245</span>     */<a name="line.245"></a>
-<span class="sourceLineNo">246</span>    public synchronized byte[] getStandardError() {<a name="line.246"></a>
-<span class="sourceLineNo">247</span><a name="line.247"></a>
-<span class="sourceLineNo">248</span>        // Check state<a name="line.248"></a>
-<span class="sourceLineNo">249</span>        if (this.state != 2)<a name="line.249"></a>
-<span class="sourceLineNo">250</span>            throw new IllegalStateException("run() has not been invoked yet");<a name="line.250"></a>
-<span class="sourceLineNo">251</span><a name="line.251"></a>
-<span class="sourceLineNo">252</span>        // Return buffer<a name="line.252"></a>
-<span class="sourceLineNo">253</span>        return this.stderrBuffer.toByteArray();<a name="line.253"></a>
-<span class="sourceLineNo">254</span>    }<a name="line.254"></a>
-<span class="sourceLineNo">255</span><a name="line.255"></a>
-<span class="sourceLineNo">256</span>// Thread classes<a name="line.256"></a>
+<span class="sourceLineNo">244</span>     * &lt;p&gt;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * This method will be invoked by a separate thread from the one that invoked {@link #run}.<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * &lt;/p&gt;<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     *<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * @param buf data buffer<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     * @param off offset of the first data byte<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     * @param len length of the data in {@code buf}<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     */<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    protected void handleStandardError(byte[] buf, int off, int len) {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        if (this.discardStandardError)<a name="line.253"></a>
+<span class="sourceLineNo">254</span>            return;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        this.stderrBuffer.write(buf, off, len);<a name="line.255"></a>
+<span class="sourceLineNo">256</span>    }<a name="line.256"></a>
 <span class="sourceLineNo">257</span><a name="line.257"></a>
-<span class="sourceLineNo">258</span>    private abstract class IOThread&lt;T extends Closeable&gt; extends Thread {<a name="line.258"></a>
-<span class="sourceLineNo">259</span><a name="line.259"></a>
-<span class="sourceLineNo">260</span>        protected final T stream;<a name="line.260"></a>
-<span class="sourceLineNo">261</span><a name="line.261"></a>
-<span class="sourceLineNo">262</span>        public IOThread(String name, T stream) {<a name="line.262"></a>
-<span class="sourceLineNo">263</span>            super(name + " for " + ProcessRunner.this.process);<a name="line.263"></a>
-<span class="sourceLineNo">264</span>            this.stream = stream;<a name="line.264"></a>
-<span class="sourceLineNo">265</span>        }<a name="line.265"></a>
+<span class="sourceLineNo">258</span>    /**<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * Get the standard output of the process.<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     *<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * @throws IllegalStateException if {@link #run} has not been invoked yet or is still executing<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * @throws IllegalStateException if this instance was configured to<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     *  {@linkplain #setDiscardStandardOutput discard standard output}<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     */<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    public synchronized byte[] getStandardOutput() {<a name="line.265"></a>
 <span class="sourceLineNo">266</span><a name="line.266"></a>
-<span class="sourceLineNo">267</span>        @Override<a name="line.267"></a>
-<span class="sourceLineNo">268</span>        public final void run() {<a name="line.268"></a>
-<span class="sourceLineNo">269</span>            try {<a name="line.269"></a>
-<span class="sourceLineNo">270</span>                this.runIO();<a name="line.270"></a>
-<span class="sourceLineNo">271</span>            } catch (IOException e) {<a name="line.271"></a>
-<span class="sourceLineNo">272</span>                // ignore<a name="line.272"></a>
-<span class="sourceLineNo">273</span>            } finally {<a name="line.273"></a>
-<span class="sourceLineNo">274</span>                this.close();<a name="line.274"></a>
-<span class="sourceLineNo">275</span>            }<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        }<a name="line.276"></a>
-<span class="sourceLineNo">277</span><a name="line.277"></a>
-<span class="sourceLineNo">278</span>        protected void close() {<a name="line.278"></a>
-<span class="sourceLineNo">279</span>            try {<a name="line.279"></a>
-<span class="sourceLineNo">280</span>                this.stream.close();<a name="line.280"></a>
-<span class="sourceLineNo">281</span>            } catch (IOException e) {<a name="line.281"></a>
-<span class="sourceLineNo">282</span>                // ignore<a name="line.282"></a>
-<span class="sourceLineNo">283</span>            }<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        }<a name="line.284"></a>
+<span class="sourceLineNo">267</span>        // Check state<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        if (this.state != 2)<a name="line.268"></a>
+<span class="sourceLineNo">269</span>            throw new IllegalStateException("run() has not been invoked yet");<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        if (this.discardStandardOutput)<a name="line.270"></a>
+<span class="sourceLineNo">271</span>            throw new IllegalStateException("this instance was configured to discard stdout");<a name="line.271"></a>
+<span class="sourceLineNo">272</span><a name="line.272"></a>
+<span class="sourceLineNo">273</span>        // Return buffer<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        return this.stdoutBuffer.toByteArray();<a name="line.274"></a>
+<span class="sourceLineNo">275</span>    }<a name="line.275"></a>
+<span class="sourceLineNo">276</span><a name="line.276"></a>
+<span class="sourceLineNo">277</span>    /**<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * Get the standard error of the process.<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     *<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * @throws IllegalStateException if {@link #run} has not been invoked yet or is still executing<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * @throws IllegalStateException if this instance was configured to<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     *  {@linkplain #setDiscardStandardError discard standard error}<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     */<a name="line.283"></a>
+<span class="sourceLineNo">284</span>    public synchronized byte[] getStandardError() {<a name="line.284"></a>
 <span class="sourceLineNo">285</span><a name="line.285"></a>
-<span class="sourceLineNo">286</span>        protected abstract void runIO() throws IOException;<a name="line.286"></a>
-<span class="sourceLineNo">287</span>    };<a name="line.287"></a>
-<span class="sourceLineNo">288</span>}<a name="line.288"></a>
-<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">286</span>        // Check state<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        if (this.state != 2)<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            throw new IllegalStateException("run() has not been invoked yet");<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        if (this.discardStandardError)<a name="line.289"></a>
+<span class="sourceLineNo">290</span>            throw new IllegalStateException("this instance was configured to discard stderr");<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>        // Return buffer<a name="line.292"></a>
+<span class="sourceLineNo">293</span>        return this.stderrBuffer.toByteArray();<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    }<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>// Thread classes<a name="line.296"></a>
+<span class="sourceLineNo">297</span><a name="line.297"></a>
+<span class="sourceLineNo">298</span>    private abstract class IOThread&lt;T extends Closeable&gt; extends Thread {<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>        protected final T stream;<a name="line.300"></a>
+<span class="sourceLineNo">301</span><a name="line.301"></a>
+<span class="sourceLineNo">302</span>        public IOThread(String name, T stream) {<a name="line.302"></a>
+<span class="sourceLineNo">303</span>            super(name + " for " + ProcessRunner.this.process);<a name="line.303"></a>
+<span class="sourceLineNo">304</span>            this.stream = stream;<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        }<a name="line.305"></a>
+<span class="sourceLineNo">306</span><a name="line.306"></a>
+<span class="sourceLineNo">307</span>        @Override<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        public final void run() {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>            try {<a name="line.309"></a>
+<span class="sourceLineNo">310</span>                this.runIO();<a name="line.310"></a>
+<span class="sourceLineNo">311</span>            } catch (IOException e) {<a name="line.311"></a>
+<span class="sourceLineNo">312</span>                // ignore<a name="line.312"></a>
+<span class="sourceLineNo">313</span>            } finally {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>                this.close();<a name="line.314"></a>
+<span class="sourceLineNo">315</span>            }<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        }<a name="line.316"></a>
+<span class="sourceLineNo">317</span><a name="line.317"></a>
+<span class="sourceLineNo">318</span>        protected void close() {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>            try {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>                this.stream.close();<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            } catch (IOException e) {<a name="line.321"></a>
+<span class="sourceLineNo">322</span>                // ignore<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            }<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        }<a name="line.324"></a>
+<span class="sourceLineNo">325</span><a name="line.325"></a>
+<span class="sourceLineNo">326</span>        protected abstract void runIO() throws IOException;<a name="line.326"></a>
+<span class="sourceLineNo">327</span>    };<a name="line.327"></a>
+<span class="sourceLineNo">328</span>}<a name="line.328"></a>
+<span class="sourceLineNo">329</span><a name="line.329"></a>
 
 
 

@@ -1,0 +1,646 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2012 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.pobj.distrib;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.io.File;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.ArrayList;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.Date;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.List;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.dellroad.stuff.pobj.PersistentObject;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.dellroad.stuff.pobj.PersistentObjectEvent;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.dellroad.stuff.pobj.PersistentObjectException;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.dellroad.stuff.pobj.PersistentObjectListener;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.dellroad.stuff.pobj.PersistentObjectVersionException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.dellroad.stuff.spring.AbstractBean;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * Synchronizes a {@link PersistentObject} database across multiple nodes using {@code git(1)}.<a name="line.23"></a>
+<span class="sourceLineNo">024</span> *<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;p&gt;<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * This class provides a simple and lightweight way to build a "master-master" multi-node database<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * based on {@link PersistentObject} object graphs. The basic idea is to apply {@code git(1)}'s<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * efficient communication protocol and powerful merging algorithms to the {@link PersistentObject}<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * database's XML representation. As a result, all nodes can make simultaneous changes, updates are<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * communicated quickly, and in only a small corner case -- two conflicting changes to the same<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * data element applied at virtually same time -- must one node's change "win" and the other's "lose".<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * No global communication or two-phase commit protocol is required, and recovery from arbitrary<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * network problems is automatic.<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;/p&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;p&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * This class works by registering as a {@linkplain PersistentObjectListener listener} on a {@link PersistentObject}<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * and also managing a private {@code git(1)} repository which is configured to track zero or more remotes.<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * Each time a change occurs to the {@link PersistentObject} database, an updated XML copy of the database<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * is committed to the {@code git(1)} repository, and then &lt;i&gt;synchronization&lt;/i&gt; is performed: all remotes are fetched<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * and their corresponding {@code git(1)} branches merged into the local {@code git(1)} branch (this process<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * is performed by {@link #synchronize}). During synchronization, several merge strategies are tried until an XML file<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * is produced that {@linkplain org.dellroad.stuff.pobj.PersistentObjectDelegate#validate validates}.<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * If synchronization results in a non-trivial merge (i.e., any changes), the local {@link PersistentObject} is updated<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * with the result and therefore made aware of the other nodes' changes. In this way, all nodes have their<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * {@link PersistentObject} databases automatically synchronized and merged as they evolve.<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;/p&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * The user of this class must separately initialize each node's {@code git(1)} repository, configure the<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * {@linkplain #setRemotes remotes}, and determine when to {@link #synchronize} remote changes:<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * as mentioned above, synchronization is performed automatically when the local {@link PersistentObject} database changes,<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * but for remote changes either some external notification process must trigger a call to {@link #synchronize},<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * or {@link #synchronize} must be invoked at regular intervals, or (for robustness in the face of transient<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * network issues) both.<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * &lt;/p&gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * &lt;p&gt;<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * Merges are attempted using the following strategies (in this order) until there are no merge conflicts<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * and a {@linkplain org.dellroad.stuff.pobj.PersistentObjectDelegate#validate valid} XML file is achieved:<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *  &lt;ul&gt;<a name="line.61"></a>
+<span class="sourceLineNo">062</span> *  &lt;li&gt;Recursive merge using the patience algorithm&lt;/li&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *  &lt;li&gt;Same as previous, but resolving all conflicts one way or the other&lt;/li&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *  &lt;li&gt;Simply choosing one file or the other&lt;/li&gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *  &lt;/ul&gt;<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * &lt;/p&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span> *<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * &lt;p&gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * If conflicts occur in attempt #1, but attempt #2 or #3 succeeds and the other node is the "winner", then<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * {@link #handleConflictOverride handleConflictOverride()} is invoked to notify the local node that some of<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * its recent changes have been overridden; if all three attempts fail, then<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * {@link #handleImpossibleMerge handleImpossibleMerge()} is invoked and we stay with whatever version we are on;<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * this latter case can only occur when another node is running a different version of the software<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * (with different validation criteria).<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * &lt;/p&gt;<a name="line.75"></a>
+<span class="sourceLineNo">076</span> *<a name="line.76"></a>
+<span class="sourceLineNo">077</span> * &lt;p&gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * For attempts #2 and #3, the "winner" is chosen as follows:<a name="line.78"></a>
+<span class="sourceLineNo">079</span> *  &lt;ul&gt;<a name="line.79"></a>
+<span class="sourceLineNo">080</span> *  &lt;li&gt;If the commits have different timestamps, then the later commit wins&lt;/li&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span> *  &lt;li&gt;If the two commits were simultaneous, then the commit with the lexicographically higher SHA-1 checksum wins&lt;/li&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span> *  &lt;li&gt;If the two commits have the same timestamp and SHA-1 checksum, then there won't be any conflicts :)&lt;/li&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span> *  &lt;/ul&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span> * &lt;/p&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span> *<a name="line.85"></a>
+<span class="sourceLineNo">086</span> * &lt;p&gt;<a name="line.86"></a>
+<span class="sourceLineNo">087</span> * Because all nodes follow this same algorithm for merging, they will all end up with the same result<a name="line.87"></a>
+<span class="sourceLineNo">088</span> * (note however that the {@link PersistentObject} object graph must serialize in a deterministic way for this to be true).<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * &lt;/p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span> *<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * &lt;p&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span> * Note that merge conflicts can only happen when two nodes make changes at virtually the same time (or, when<a name="line.92"></a>
+<span class="sourceLineNo">093</span> * separated by a network partition): i.e., a change on one node occurs within the window of time after a change<a name="line.93"></a>
+<span class="sourceLineNo">094</span> * is made on another node but before the first node is notified and synchronizes. Using a simple<a name="line.94"></a>
+<span class="sourceLineNo">095</span> * real-time notification process, this window can be kept small, especially relative to the frequent-read,<a name="line.95"></a>
+<span class="sourceLineNo">096</span> * infrequent-write access pattern that the {@link PersistentObject} class is designed for. When a conflict override<a name="line.96"></a>
+<span class="sourceLineNo">097</span> * does occur, subclasses can override {@link #handleConflictOverride handleConflictOverride()} to take appropriate action.<a name="line.97"></a>
+<span class="sourceLineNo">098</span> * &lt;/p&gt;<a name="line.98"></a>
+<span class="sourceLineNo">099</span> *<a name="line.99"></a>
+<span class="sourceLineNo">100</span> * &lt;p&gt;<a name="line.100"></a>
+<span class="sourceLineNo">101</span> * Instances of this class are thread safe.<a name="line.101"></a>
+<span class="sourceLineNo">102</span> * &lt;/p&gt;<a name="line.102"></a>
+<span class="sourceLineNo">103</span> *<a name="line.103"></a>
+<span class="sourceLineNo">104</span> * @param &lt;T&gt; type of the root object<a name="line.104"></a>
+<span class="sourceLineNo">105</span> */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>public class Synchronizer&lt;T&gt; extends AbstractBean implements PersistentObjectListener&lt;T&gt; {<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * Default value for the XML file that is stored in the {@code git(1)} repository ({@value #DEFAULT_FILENAME}).<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    public static final String DEFAULT_FILENAME = "root.xml";<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>    /**<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * Default value for the {@code git(1)} {@linkplain #setBranch branch} name ({@value #DEFAULT_BRANCH}).<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     */<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    public static final String DEFAULT_BRANCH = "master";<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>    // Configuration info<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    private PersistentObject&lt;T&gt; persistentObject;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    private GitRepository git;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    private String filename = DEFAULT_FILENAME;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    private String branch = DEFAULT_BRANCH;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    private List&lt;String&gt; remotes;<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * Configure the {@link PersistentObject} that this instance will interact with.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * &lt;p&gt;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * Required property.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * &lt;/p&gt;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     */<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    public void setPersistentObject(PersistentObject&lt;T&gt; persistentObject) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        this.persistentObject = persistentObject;<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * Configure the {@code git(1)} repository location. The repository, branches, and remotes must already exist.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     *<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * &lt;p&gt;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * Note that multiple instances of this class can share the same {@link GitRepository} as long as they<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * are configured with different {@linkplain #setBranch branches} and/or {@linkplain #setFilename filenames}.<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * &lt;/p&gt;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     *<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * &lt;p&gt;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * Required property.<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * &lt;/p&gt;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     *<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     * @param git {@code git(1)} repository<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     */<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    public void setGitRepository(GitRepository git) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        this.git = git;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>    /**<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * Configure the name of the XML file in the {@code git(1)} repository.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     *<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * &lt;p&gt;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     * Default value is {@value #DEFAULT_FILENAME}.<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * &lt;/p&gt;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     *<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * @param filename XML file name<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     */<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    public void setFilename(String filename) {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        this.filename = filename;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>    /**<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * Configure name of the {@code git(1)} branches we will manage.<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     *<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * &lt;p&gt;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * The same branch name is used for all nodes in the cluster, local and remote, so<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * this name identifes both the local branch representing this node's root and each<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * remote's branch that we track and merge from.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * &lt;/p&gt;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     *<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * &lt;p&gt;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * Value must match {@link GitRepository#BRANCH_NAME_PATTERN}.<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * &lt;/p&gt;<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     *<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * &lt;p&gt;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     * Default value is {@value #DEFAULT_BRANCH}.<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     * &lt;/p&gt;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     *<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     * @param branch branch name<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     */<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    public void setBranch(String branch) {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        this.branch = branch;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    }<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>    /**<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * Configure the names of the {@code git(1)} remotes we will synchronize with.<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * Note: these are {@code git(1)} remote names, not {@code git(1)} branch names; the same<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * {@linkplain #setBranch branch} is used for all nodes in the cluster, local and remote.<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * &lt;/p&gt;<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     *<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     * &lt;p&gt;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * Each value must match {@link GitRepository#REMOTE_NAME_PATTERN}.<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * &lt;/p&gt;<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     *<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * &lt;p&gt;<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * Required property.<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * &lt;/p&gt;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     */<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    public void setRemotes(List&lt;String&gt; remotes) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        this.remotes = remotes;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    }<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>    @Override<a name="line.208"></a>
+<span class="sourceLineNo">209</span>    public void afterPropertiesSet() throws Exception {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        super.afterPropertiesSet();<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>        // Sanity check<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        if (this.persistentObject == null)<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            throw new Exception("no PersistentObject configured");<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        if (this.git == null)<a name="line.215"></a>
+<span class="sourceLineNo">216</span>            throw new Exception("no GitRepository configured");<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        if (this.filename == null)<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            throw new Exception("no filename configured");<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        if (this.branch == null)<a name="line.219"></a>
+<span class="sourceLineNo">220</span>            throw new Exception("no branch name configured");<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        if (!GitRepository.BRANCH_NAME_PATTERN.matcher(this.branch).matches())<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            throw new Exception("illegal branch name `" + this.branch + "'");<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        if (this.remotes == null)<a name="line.223"></a>
+<span class="sourceLineNo">224</span>            throw new Exception("no remotes configured");<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        for (String remote : this.remotes) {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>            if (remote == null || !GitRepository.REMOTE_NAME_PATTERN.matcher(remote).matches())<a name="line.226"></a>
+<span class="sourceLineNo">227</span>                throw new Exception("illegal remote name `" + remote + "'");<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        }<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>        // Listen for POBJ changes<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        this.persistentObject.addListener(this);<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>        // Do the first update<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        final PersistentObject&lt;T&gt;.Snapshot snapshot = this.persistentObject.getSharedRootSnapshot();<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        this.applyLocalUpdate(snapshot, "Initial update after startup (version " + snapshot.getVersion() + ")");<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    }<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>    @Override<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    public void destroy() throws Exception {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        this.persistentObject.removeListener(this);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        this.git = null;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        super.destroy();<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    }<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>    @Override<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    public void handleEvent(PersistentObjectEvent&lt;T&gt; event) {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        this.applyLocalUpdate(this.persistentObject.new Snapshot(event.getNewRoot(), event.getVersion()),<a name="line.247"></a>
+<span class="sourceLineNo">248</span>          "Update after local change (version " + event.getVersion() + ")");<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    }<a name="line.249"></a>
+<span class="sourceLineNo">250</span><a name="line.250"></a>
+<span class="sourceLineNo">251</span>    /**<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * Given a (possibly) updated local root, {@linkplain #commit commit} it to our local branch,<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * {@link #synchronize} with our peers if it represented a change, and apply the newly merged<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     * root (if any) back to the associated {@link PersistentObject}.<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     *<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * &lt;p&gt;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     * This method is invoked at {@linkplain #afterPropertiesSet startup} and after {@linkplain #handleEvent notification}<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * of each local change.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * &lt;p&gt;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     *<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * &lt;p&gt;<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * This method does nothing if the root is null.<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * &lt;/p&gt;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     *<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * @param snapshot snapshot containing new root (possibly null) and its version<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * @param commitMessage message for the commit<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     */<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    protected synchronized void applyLocalUpdate(PersistentObject&lt;T&gt;.Snapshot snapshot, String commitMessage) {<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>        // Get root; ignore if null<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        final T root = snapshot.getRoot();<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        if (root == null)<a name="line.272"></a>
+<span class="sourceLineNo">273</span>            return;<a name="line.273"></a>
+<span class="sourceLineNo">274</span><a name="line.274"></a>
+<span class="sourceLineNo">275</span>        // Commit new root<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        this.log.debug("committing new local root to branch `" + this.branch + "' (version " + snapshot.getVersion() + ")");<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        String commit;<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        try {<a name="line.278"></a>
+<span class="sourceLineNo">279</span>            commit = this.commit(root, commitMessage);<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        } catch (Exception e) {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>            this.log.error("error committing local root to branch `" + this.branch + "'", e);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>            return;<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        }<a name="line.283"></a>
+<span class="sourceLineNo">284</span><a name="line.284"></a>
+<span class="sourceLineNo">285</span>        // If nothing changed, nothing else to do<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        if (commit == null) {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>            this.log.debug("commit of version " + snapshot.getVersion() + " resulted in no change on branch `" + this.branch + "'");<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            return;<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        }<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        this.log.info("committed root version " + snapshot.getVersion() + " as " + commit + " on branch `" + this.branch + "'");<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>        // Synchronize it; if no merge required or merge was trivial, we're done<a name="line.292"></a>
+<span class="sourceLineNo">293</span>        if (!this.synchronize())<a name="line.293"></a>
+<span class="sourceLineNo">294</span>            return;<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>        // Read in the new, merged object graph<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        final ArrayList&lt;T&gt; rootList = new ArrayList&lt;T&gt;(1);<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        String mergeCommit;<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        try {<a name="line.299"></a>
+<span class="sourceLineNo">300</span>            mergeCommit = this.git.access(this.branch, new GitRepository.Accessor() {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>                @Override<a name="line.301"></a>
+<span class="sourceLineNo">302</span>                public void accessWorkingCopy(File dir) {<a name="line.302"></a>
+<span class="sourceLineNo">303</span>                    rootList.add(Synchronizer.this.readXMLFile(dir, false));<a name="line.303"></a>
+<span class="sourceLineNo">304</span>                }<a name="line.304"></a>
+<span class="sourceLineNo">305</span>            });<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        } catch (PersistentObjectException e) {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>            this.log.error("error reading newly merged root; the local persistent object will not be updated", e);<a name="line.307"></a>
+<span class="sourceLineNo">308</span>            return;<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        }<a name="line.309"></a>
+<span class="sourceLineNo">310</span><a name="line.310"></a>
+<span class="sourceLineNo">311</span>        // Apply changes to local persistent object; but if the local version has changed, do nothing;<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        // we will do another merge when we get the next notification for the newer root.<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        try {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>            this.log.debug("applying merge commit " + mergeCommit + " to local persistent object");<a name="line.314"></a>
+<span class="sourceLineNo">315</span>            final long version = this.persistentObject.setRoot(rootList.get(0), snapshot.getVersion());<a name="line.315"></a>
+<span class="sourceLineNo">316</span>            this.log.info("successfully applied commit " + mergeCommit + " to local persistent object as version " + version);<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        } catch (PersistentObjectVersionException e) {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>            this.log.debug("merged root is out of date (version " + e.getExpectedVersion() + " &lt; " + e.getActualVersion()<a name="line.318"></a>
+<span class="sourceLineNo">319</span>              + "); will wait for next notification");<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        } catch (PersistentObjectException e) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            this.log.error("error applying newly merged root; the local persistent object will not be updated", e);<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        }<a name="line.322"></a>
+<span class="sourceLineNo">323</span>    }<a name="line.323"></a>
+<span class="sourceLineNo">324</span><a name="line.324"></a>
+<span class="sourceLineNo">325</span>    /**<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * Read the persistent object root value that is currently committed to our local branch.<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     * This method can be used after a positive result from {@link #synchronize} to access the<a name="line.327"></a>
+<span class="sourceLineNo">328</span>     * updated root.<a name="line.328"></a>
+<span class="sourceLineNo">329</span>     *<a name="line.329"></a>
+<span class="sourceLineNo">330</span>     * @return committed root<a name="line.330"></a>
+<span class="sourceLineNo">331</span>     * @throws PersistentObjectException if the committed root cannot be read<a name="line.331"></a>
+<span class="sourceLineNo">332</span>     */<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    public T getCommittedRoot() {<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        final ArrayList&lt;T&gt; rootList = new ArrayList&lt;T&gt;(1);<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        this.git.access(this.branch, new GitRepository.Accessor() {<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            @Override<a name="line.336"></a>
+<span class="sourceLineNo">337</span>            public void accessWorkingCopy(File dir) {<a name="line.337"></a>
+<span class="sourceLineNo">338</span>                rootList.add(Synchronizer.this.readXMLFile(dir, false));<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            }<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        });<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        return rootList.get(0);<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    }<a name="line.342"></a>
+<span class="sourceLineNo">343</span><a name="line.343"></a>
+<span class="sourceLineNo">344</span>    /**<a name="line.344"></a>
+<span class="sourceLineNo">345</span>     * Commit the given root to our {@code git(1)} repository.<a name="line.345"></a>
+<span class="sourceLineNo">346</span>     *<a name="line.346"></a>
+<span class="sourceLineNo">347</span>     * &lt;p&gt;<a name="line.347"></a>
+<span class="sourceLineNo">348</span>     * If the local branch does not already exist, it will be created.<a name="line.348"></a>
+<span class="sourceLineNo">349</span>     * &lt;/p&gt;<a name="line.349"></a>
+<span class="sourceLineNo">350</span>     *<a name="line.350"></a>
+<span class="sourceLineNo">351</span>     * @param root persistent object root<a name="line.351"></a>
+<span class="sourceLineNo">352</span>     * @param commitMessage message for the commit<a name="line.352"></a>
+<span class="sourceLineNo">353</span>     * @return new commit ID if commit occurred, or null if {@code root} was identical to the already-committed head of our branch<a name="line.353"></a>
+<span class="sourceLineNo">354</span>     * @throws IllegalArgumentException if {@code root} is null<a name="line.354"></a>
+<span class="sourceLineNo">355</span>     * @throws IllegalArgumentException if {@code commitMessage} is null<a name="line.355"></a>
+<span class="sourceLineNo">356</span>     */<a name="line.356"></a>
+<span class="sourceLineNo">357</span>    protected synchronized String commit(final T root, String commitMessage) {<a name="line.357"></a>
+<span class="sourceLineNo">358</span><a name="line.358"></a>
+<span class="sourceLineNo">359</span>        // Sanity check<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        if (root == null)<a name="line.360"></a>
+<span class="sourceLineNo">361</span>            throw new IllegalArgumentException("null root");<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        if (commitMessage == null)<a name="line.362"></a>
+<span class="sourceLineNo">363</span>            throw new IllegalArgumentException("null commitMessage");<a name="line.363"></a>
+<span class="sourceLineNo">364</span><a name="line.364"></a>
+<span class="sourceLineNo">365</span>        // Ensure branch exists<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        this.git.ensureBranch(this.branch, "Empty commit as the basis for branch `" + this.branch + "'");<a name="line.366"></a>
+<span class="sourceLineNo">367</span><a name="line.367"></a>
+<span class="sourceLineNo">368</span>        // Get previous commit ID<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        final String previousCommit = this.git.followReference("refs/heads/" + this.branch);<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>        // Commit it<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        this.log.debug("committing root to local branch `" + this.branch + "'");<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        final String newCommit = this.git.commit(this.branch, new GitRepository.Accessor() {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>            @Override<a name="line.374"></a>
+<span class="sourceLineNo">375</span>            public void accessWorkingCopy(File dir) {<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                PersistentObject.write(root, Synchronizer.this.persistentObject.getDelegate(),<a name="line.376"></a>
+<span class="sourceLineNo">377</span>                  Synchronizer.this.getXMLFile(dir));<a name="line.377"></a>
+<span class="sourceLineNo">378</span>            }<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        }, commitMessage);<a name="line.379"></a>
+<span class="sourceLineNo">380</span><a name="line.380"></a>
+<span class="sourceLineNo">381</span>        // Report results<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        return !newCommit.equals(previousCommit) ? newCommit : null;<a name="line.382"></a>
+<span class="sourceLineNo">383</span>    }<a name="line.383"></a>
+<span class="sourceLineNo">384</span><a name="line.384"></a>
+<span class="sourceLineNo">385</span>    /**<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * Synchronize what we have previously committed with our peers' latest information.<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     *<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     * &lt;p&gt;<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     * This method fetches the configured remotes and then merges them into our local branch,<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     * ensuring that the merge always yeilds a root that validates.<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     * &lt;/p&gt;<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     *<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     * &lt;p&gt;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     * If the local branch does not already exist, it will be created.<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     * &lt;/p&gt;<a name="line.395"></a>
+<span class="sourceLineNo">396</span>     *<a name="line.396"></a>
+<span class="sourceLineNo">397</span>     * &lt;p&gt;<a name="line.397"></a>
+<span class="sourceLineNo">398</span>     * This method does not affect the {@link PersistentObject} associated with this instance;<a name="line.398"></a>
+<span class="sourceLineNo">399</span>     * the caller is responsible for doing that if necessary (i.e., true is returned).<a name="line.399"></a>
+<span class="sourceLineNo">400</span>     * &lt;/p&gt;<a name="line.400"></a>
+<span class="sourceLineNo">401</span>     *<a name="line.401"></a>
+<span class="sourceLineNo">402</span>     * @return true if a non-trivial merge ocurred, false if we were already up-to-date<a name="line.402"></a>
+<span class="sourceLineNo">403</span>     */<a name="line.403"></a>
+<span class="sourceLineNo">404</span>    public synchronized boolean synchronize() {<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>        // Fetch the latest from our remotes<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        this.log.debug("beginning synchronization with remotes: " + this.remotes);<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        this.git.fetch(this.remotes);<a name="line.408"></a>
+<span class="sourceLineNo">409</span><a name="line.409"></a>
+<span class="sourceLineNo">410</span>        // Ensure local branch exists<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        this.git.ensureBranch(this.branch, "Empty commit as the basis for branch `" + this.branch + "'");<a name="line.411"></a>
+<span class="sourceLineNo">412</span><a name="line.412"></a>
+<span class="sourceLineNo">413</span>        // Merge our branch with each remote's branch<a name="line.413"></a>
+<span class="sourceLineNo">414</span>        boolean merged = false;<a name="line.414"></a>
+<span class="sourceLineNo">415</span>    remoteLoop:<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        for (String remote : this.remotes) {<a name="line.416"></a>
+<span class="sourceLineNo">417</span><a name="line.417"></a>
+<span class="sourceLineNo">418</span>            // Get remote commit ID and date<a name="line.418"></a>
+<span class="sourceLineNo">419</span>            final String remoteRef = "refs/remotes/" + remote + "/" + this.branch;<a name="line.419"></a>
+<span class="sourceLineNo">420</span>            if (!this.git.getRepoFile(remoteRef).exists()) {<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                this.log.debug("remote `" + remote + "' branch `" + this.branch + "' does not exist yet, skipping this remote");<a name="line.421"></a>
+<span class="sourceLineNo">422</span>                continue;<a name="line.422"></a>
+<span class="sourceLineNo">423</span>            }<a name="line.423"></a>
+<span class="sourceLineNo">424</span>            final String remoteCommit = this.git.followReference(remoteRef);<a name="line.424"></a>
+<span class="sourceLineNo">425</span>            final Date remoteAuthorDate = this.git.getAuthorDate(remoteRef);<a name="line.425"></a>
+<span class="sourceLineNo">426</span><a name="line.426"></a>
+<span class="sourceLineNo">427</span>            // Get local commit ID and date<a name="line.427"></a>
+<span class="sourceLineNo">428</span>            final String localRef = "refs/heads/" + this.branch;<a name="line.428"></a>
+<span class="sourceLineNo">429</span>            final String localCommit = this.git.followReference(localRef);<a name="line.429"></a>
+<span class="sourceLineNo">430</span>            final Date localAuthorDate = this.git.getAuthorDate(localRef);<a name="line.430"></a>
+<span class="sourceLineNo">431</span><a name="line.431"></a>
+<span class="sourceLineNo">432</span>            // Compare trees for equality<a name="line.432"></a>
+<span class="sourceLineNo">433</span>            if (this.git.equalTrees(localCommit, remoteCommit)) {<a name="line.433"></a>
+<span class="sourceLineNo">434</span>                this.log.debug("remote `" + remote + "' commit " + remoteCommit + " matches our branch `"<a name="line.434"></a>
+<span class="sourceLineNo">435</span>                  + this.branch + "' commit " + localCommit + ", skipping this remote");<a name="line.435"></a>
+<span class="sourceLineNo">436</span>                continue;<a name="line.436"></a>
+<span class="sourceLineNo">437</span>            }<a name="line.437"></a>
+<span class="sourceLineNo">438</span><a name="line.438"></a>
+<span class="sourceLineNo">439</span>            // Logit<a name="line.439"></a>
+<span class="sourceLineNo">440</span>            this.log.info("merging remote `" + remote + "' commit " + remoteCommit + " with local commit " + localCommit);<a name="line.440"></a>
+<span class="sourceLineNo">441</span><a name="line.441"></a>
+<span class="sourceLineNo">442</span>            // Determine who is the winner in case of conflicts<a name="line.442"></a>
+<span class="sourceLineNo">443</span>            boolean iWin = localCommit != null<a name="line.443"></a>
+<span class="sourceLineNo">444</span>              &amp;&amp; (localAuthorDate.compareTo(remoteAuthorDate) &gt; 0<a name="line.444"></a>
+<span class="sourceLineNo">445</span>                || (localAuthorDate.compareTo(remoteAuthorDate) == 0 &amp;&amp; localCommit.compareTo(remoteCommit) &gt; 0));<a name="line.445"></a>
+<span class="sourceLineNo">446</span><a name="line.446"></a>
+<span class="sourceLineNo">447</span>            // Build merge strategy list<a name="line.447"></a>
+<span class="sourceLineNo">448</span>            final MergeStrategy[] strategyList = new MergeStrategy[] {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>              MergeStrategy.RECURSIVE_PATIENCE,<a name="line.449"></a>
+<span class="sourceLineNo">450</span>              iWin ? MergeStrategy.RECURSIVE_PATIENCE_OURS : MergeStrategy.RECURSIVE_PATIENCE_THEIRS,<a name="line.450"></a>
+<span class="sourceLineNo">451</span>              iWin ? MergeStrategy.RECURSIVE_OURS : MergeStrategy.RECURSIVE_THEIRS<a name="line.451"></a>
+<span class="sourceLineNo">452</span>            };<a name="line.452"></a>
+<span class="sourceLineNo">453</span><a name="line.453"></a>
+<span class="sourceLineNo">454</span>            // Attempt merges using successively less "mergey" strategies<a name="line.454"></a>
+<span class="sourceLineNo">455</span>            for (MergeStrategy strategy : strategyList) {<a name="line.455"></a>
+<span class="sourceLineNo">456</span><a name="line.456"></a>
+<span class="sourceLineNo">457</span>                // Attempt merge<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                this.log.debug("attempting merge of remote `" + remote + "' commit " + remoteCommit<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                  + " with local commit " + localCommit + " using strategy " + strategy);<a name="line.459"></a>
+<span class="sourceLineNo">460</span>                String commit;<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                try {<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                    commit = this.git.merge(this.branch, remoteCommit, strategy, new GitRepository.Accessor() {<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                        @Override<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                        public void accessWorkingCopy(File dir) {<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                            Synchronizer.this.log.debug("validating merged file `" + Synchronizer.this.getXMLFile(dir) + "'");<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                            Synchronizer.this.readXMLFile(dir, true);<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                        }<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                    }, "Merged remote `" + remote + "' commit " + remoteCommit + " using strategy " + strategy);<a name="line.468"></a>
+<span class="sourceLineNo">469</span>                } catch (GitMergeConflictException e) {<a name="line.469"></a>
+<span class="sourceLineNo">470</span>                    this.log.debug("merge using strategy " + strategy + " failed with conflict(s)");<a name="line.470"></a>
+<span class="sourceLineNo">471</span>                    continue;<a name="line.471"></a>
+<span class="sourceLineNo">472</span>                } catch (PersistentObjectException e) {<a name="line.472"></a>
+<span class="sourceLineNo">473</span>                    this.log.debug("merge using strategy " + strategy + " did not validate: " + e);<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                    continue;<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                }<a name="line.475"></a>
+<span class="sourceLineNo">476</span><a name="line.476"></a>
+<span class="sourceLineNo">477</span>                // We have a winner<a name="line.477"></a>
+<span class="sourceLineNo">478</span>                if (commit.equals(localCommit)) {<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                    this.log.debug("merge of remote `" + remote + "' commit " + remoteCommit + " with local commit "<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                      + localCommit + " using strategy " + strategy + " resulted in no change to our version");<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                } else {<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                    this.log.debug("successfully merged remote `" + remote + "' commit " + remoteCommit + " with local commit "<a name="line.482"></a>
+<span class="sourceLineNo">483</span>                      + localCommit + " using strategy " + strategy + " resulting in commit " + commit);<a name="line.483"></a>
+<span class="sourceLineNo">484</span>                    merged = true;<a name="line.484"></a>
+<span class="sourceLineNo">485</span>                }<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span>                // Log a warning if some of our local changes got overridden by remote<a name="line.487"></a>
+<span class="sourceLineNo">488</span>                switch (strategy) {<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                case RECURSIVE_PATIENCE_THEIRS:<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                case RECURSIVE_THEIRS:<a name="line.490"></a>
+<span class="sourceLineNo">491</span>                    this.handleConflictOverride(remote, localCommit, remoteCommit, strategy);<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                    break;<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                default:<a name="line.493"></a>
+<span class="sourceLineNo">494</span>                    break;<a name="line.494"></a>
+<span class="sourceLineNo">495</span>                }<a name="line.495"></a>
+<span class="sourceLineNo">496</span><a name="line.496"></a>
+<span class="sourceLineNo">497</span>                // Done with this remote<a name="line.497"></a>
+<span class="sourceLineNo">498</span>                continue remoteLoop;<a name="line.498"></a>
+<span class="sourceLineNo">499</span>            }<a name="line.499"></a>
+<span class="sourceLineNo">500</span><a name="line.500"></a>
+<span class="sourceLineNo">501</span>            // Nothing worked - so we must be running different versions of the application<a name="line.501"></a>
+<span class="sourceLineNo">502</span>            this.handleImpossibleMerge(remote, localCommit, remoteCommit);<a name="line.502"></a>
+<span class="sourceLineNo">503</span>        }<a name="line.503"></a>
+<span class="sourceLineNo">504</span><a name="line.504"></a>
+<span class="sourceLineNo">505</span>        // Done<a name="line.505"></a>
+<span class="sourceLineNo">506</span>        this.log.debug("completed synchronization with remotes " + this.remotes<a name="line.506"></a>
+<span class="sourceLineNo">507</span>          + " (" + (merged ? "a" : "no") + " merge was required)");<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        return merged;<a name="line.508"></a>
+<span class="sourceLineNo">509</span>    }<a name="line.509"></a>
+<span class="sourceLineNo">510</span><a name="line.510"></a>
+<span class="sourceLineNo">511</span>    /**<a name="line.511"></a>
+<span class="sourceLineNo">512</span>     * Handle a situation where some of our local changes were overridden due to merge conflicts, but<a name="line.512"></a>
+<span class="sourceLineNo">513</span>     * in the end we were able to produce a valid root.<a name="line.513"></a>
+<span class="sourceLineNo">514</span>     *<a name="line.514"></a>
+<span class="sourceLineNo">515</span>     * &lt;p&gt;<a name="line.515"></a>
+<span class="sourceLineNo">516</span>     * The implementation in {@link Synchronizer} just logs a warning message.<a name="line.516"></a>
+<span class="sourceLineNo">517</span>     * &lt;/p&gt;<a name="line.517"></a>
+<span class="sourceLineNo">518</span>     *<a name="line.518"></a>
+<span class="sourceLineNo">519</span>     * @param remote name of the remote that overrode us<a name="line.519"></a>
+<span class="sourceLineNo">520</span>     * @param localCommit our commit in the merge<a name="line.520"></a>
+<span class="sourceLineNo">521</span>     * @param remoteCommit remote's commit in the merge<a name="line.521"></a>
+<span class="sourceLineNo">522</span>     * @param strategy the strategy that was used to resolve the conflict<a name="line.522"></a>
+<span class="sourceLineNo">523</span>     */<a name="line.523"></a>
+<span class="sourceLineNo">524</span>    protected void handleConflictOverride(String remote, String localCommit, String remoteCommit, MergeStrategy strategy) {<a name="line.524"></a>
+<span class="sourceLineNo">525</span>        this.log.warn("some changes in local commit " + localCommit + " have been overridden by changes from remote `"<a name="line.525"></a>
+<span class="sourceLineNo">526</span>          + remote + "' commit " + remoteCommit + " using merge strategy " + strategy);<a name="line.526"></a>
+<span class="sourceLineNo">527</span>    }<a name="line.527"></a>
+<span class="sourceLineNo">528</span><a name="line.528"></a>
+<span class="sourceLineNo">529</span>    /**<a name="line.529"></a>
+<span class="sourceLineNo">530</span>     * Handle a situation where all of the merge strategies failed to produce a valid root object.<a name="line.530"></a>
+<span class="sourceLineNo">531</span>     * This can only happen when a remote node has different validation criteria than we do, for example,<a name="line.531"></a>
+<span class="sourceLineNo">532</span>     * it is running a different version of the application.<a name="line.532"></a>
+<span class="sourceLineNo">533</span>     *<a name="line.533"></a>
+<span class="sourceLineNo">534</span>     * &lt;p&gt;<a name="line.534"></a>
+<span class="sourceLineNo">535</span>     * The implementation in {@link Synchronizer} just logs a warning message.<a name="line.535"></a>
+<span class="sourceLineNo">536</span>     * &lt;/p&gt;<a name="line.536"></a>
+<span class="sourceLineNo">537</span>     *<a name="line.537"></a>
+<span class="sourceLineNo">538</span>     * @param remote name of the remote that we are conflicting with<a name="line.538"></a>
+<span class="sourceLineNo">539</span>     * @param localCommit our commit in the merge<a name="line.539"></a>
+<span class="sourceLineNo">540</span>     * @param remoteCommit remote's commit in the merge<a name="line.540"></a>
+<span class="sourceLineNo">541</span>     */<a name="line.541"></a>
+<span class="sourceLineNo">542</span>    protected void handleImpossibleMerge(String remote, String localCommit, String remoteCommit) {<a name="line.542"></a>
+<span class="sourceLineNo">543</span>        this.log.error("unable to merge local commit " + localCommit + " with remote `" + remote + "' commit "<a name="line.543"></a>
+<span class="sourceLineNo">544</span>          + remoteCommit + "; are we running different application versions?");<a name="line.544"></a>
+<span class="sourceLineNo">545</span>    }<a name="line.545"></a>
+<span class="sourceLineNo">546</span><a name="line.546"></a>
+<span class="sourceLineNo">547</span>    /**<a name="line.547"></a>
+<span class="sourceLineNo">548</span>     * Get the XML file.<a name="line.548"></a>
+<span class="sourceLineNo">549</span>     *<a name="line.549"></a>
+<span class="sourceLineNo">550</span>     * &lt;p&gt;<a name="line.550"></a>
+<span class="sourceLineNo">551</span>     * To avoid race conditions, the file should only be accessed from within a {@link GitRepository.Accessor} callback.<a name="line.551"></a>
+<span class="sourceLineNo">552</span>     * &lt;/p&gt;<a name="line.552"></a>
+<span class="sourceLineNo">553</span>     *<a name="line.553"></a>
+<span class="sourceLineNo">554</span>     * @param dir {@code git(1)} working directory root<a name="line.554"></a>
+<span class="sourceLineNo">555</span>     */<a name="line.555"></a>
+<span class="sourceLineNo">556</span>    protected File getXMLFile(File dir) {<a name="line.556"></a>
+<span class="sourceLineNo">557</span>        return new File(dir, this.filename);<a name="line.557"></a>
+<span class="sourceLineNo">558</span>    }<a name="line.558"></a>
+<span class="sourceLineNo">559</span><a name="line.559"></a>
+<span class="sourceLineNo">560</span>    /**<a name="line.560"></a>
+<span class="sourceLineNo">561</span>     * Read and (optionally) validate the XML file.<a name="line.561"></a>
+<span class="sourceLineNo">562</span>     *<a name="line.562"></a>
+<span class="sourceLineNo">563</span>     * &lt;p&gt;<a name="line.563"></a>
+<span class="sourceLineNo">564</span>     * To avoid race conditions, this method should only be invoked from within a {@link GitRepository.Accessor} callback.<a name="line.564"></a>
+<span class="sourceLineNo">565</span>     * &lt;/p&gt;<a name="line.565"></a>
+<span class="sourceLineNo">566</span>     *<a name="line.566"></a>
+<span class="sourceLineNo">567</span>     * @param dir {@code git(1)} working directory root<a name="line.567"></a>
+<span class="sourceLineNo">568</span>     * @param validate whether to also validate the file<a name="line.568"></a>
+<span class="sourceLineNo">569</span>     */<a name="line.569"></a>
+<span class="sourceLineNo">570</span>    protected T readXMLFile(File dir, boolean validate) {<a name="line.570"></a>
+<span class="sourceLineNo">571</span>        return PersistentObject.read(this.persistentObject.getDelegate(), this.getXMLFile(dir), validate);<a name="line.571"></a>
+<span class="sourceLineNo">572</span>    }<a name="line.572"></a>
+<span class="sourceLineNo">573</span>}<a name="line.573"></a>
+<span class="sourceLineNo">574</span><a name="line.574"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -292,35 +292,36 @@
 <span class="sourceLineNo">284</span>        final VaadinSession session = event.getSession();<a name="line.284"></a>
 <span class="sourceLineNo">285</span>        final ConfigurableWebApplicationContext context = SpringVaadinSession.getApplicationContext(session);<a name="line.285"></a>
 <span class="sourceLineNo">286</span>        if (context == null) {<a name="line.286"></a>
-<span class="sourceLineNo">287</span>            this.log.error(this.getClass().getSimpleName() + ".sessionDestroy() invoked but no application context found");<a name="line.287"></a>
-<span class="sourceLineNo">288</span>            return;<a name="line.288"></a>
-<span class="sourceLineNo">289</span>        }<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        session.setAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY, null);<a name="line.290"></a>
-<span class="sourceLineNo">291</span>        VaadinUtil.invoke(session, new Runnable() {<a name="line.291"></a>
-<span class="sourceLineNo">292</span>            @Override<a name="line.292"></a>
-<span class="sourceLineNo">293</span>            public void run() {<a name="line.293"></a>
-<span class="sourceLineNo">294</span>                SpringVaadinSession.this.log.info("closing Vaadin application ["<a name="line.294"></a>
-<span class="sourceLineNo">295</span>                  + SpringVaadinSession.this.getApplicationName() + "] application context: " + context);<a name="line.295"></a>
-<span class="sourceLineNo">296</span>                context.close();<a name="line.296"></a>
-<span class="sourceLineNo">297</span>            }<a name="line.297"></a>
-<span class="sourceLineNo">298</span>        });<a name="line.298"></a>
-<span class="sourceLineNo">299</span>    }<a name="line.299"></a>
-<span class="sourceLineNo">300</span><a name="line.300"></a>
-<span class="sourceLineNo">301</span>// Serialization<a name="line.301"></a>
-<span class="sourceLineNo">302</span><a name="line.302"></a>
-<span class="sourceLineNo">303</span>    private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {<a name="line.303"></a>
-<span class="sourceLineNo">304</span>        input.defaultReadObject();<a name="line.304"></a>
-<span class="sourceLineNo">305</span>        final VaadinSession session = VaadinUtil.getCurrentSession();<a name="line.305"></a>
-<span class="sourceLineNo">306</span>        final VaadinRequest request = VaadinUtil.getCurrentRequest();<a name="line.306"></a>
-<span class="sourceLineNo">307</span>        VaadinUtil.invoke(session, new Runnable() {<a name="line.307"></a>
-<span class="sourceLineNo">308</span>            @Override<a name="line.308"></a>
-<span class="sourceLineNo">309</span>            public void run() {<a name="line.309"></a>
-<span class="sourceLineNo">310</span>                SpringVaadinSession.this.loadContext(session, request);<a name="line.310"></a>
-<span class="sourceLineNo">311</span>            }<a name="line.311"></a>
-<span class="sourceLineNo">312</span>        });<a name="line.312"></a>
-<span class="sourceLineNo">313</span>    }<a name="line.313"></a>
-<span class="sourceLineNo">314</span>}<a name="line.314"></a>
-<span class="sourceLineNo">315</span><a name="line.315"></a>
+<span class="sourceLineNo">287</span>            this.log.info(this.getClass().getSimpleName() + ".sessionDestroy() invoked but no application context found"<a name="line.287"></a>
+<span class="sourceLineNo">288</span>              + " for Vaadin application [" + SpringVaadinSession.this.getApplicationName() + "]");<a name="line.288"></a>
+<span class="sourceLineNo">289</span>            return;<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        }<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        session.setAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY, null);<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        VaadinUtil.invoke(session, new Runnable() {<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            @Override<a name="line.293"></a>
+<span class="sourceLineNo">294</span>            public void run() {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>                SpringVaadinSession.this.log.info("closing Vaadin application ["<a name="line.295"></a>
+<span class="sourceLineNo">296</span>                  + SpringVaadinSession.this.getApplicationName() + "] application context: " + context);<a name="line.296"></a>
+<span class="sourceLineNo">297</span>                context.close();<a name="line.297"></a>
+<span class="sourceLineNo">298</span>            }<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        });<a name="line.299"></a>
+<span class="sourceLineNo">300</span>    }<a name="line.300"></a>
+<span class="sourceLineNo">301</span><a name="line.301"></a>
+<span class="sourceLineNo">302</span>// Serialization<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>    private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        input.defaultReadObject();<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        final VaadinSession session = VaadinUtil.getCurrentSession();<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        final VaadinRequest request = VaadinUtil.getCurrentRequest();<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        VaadinUtil.invoke(session, new Runnable() {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>            @Override<a name="line.309"></a>
+<span class="sourceLineNo">310</span>            public void run() {<a name="line.310"></a>
+<span class="sourceLineNo">311</span>                SpringVaadinSession.this.loadContext(session, request);<a name="line.311"></a>
+<span class="sourceLineNo">312</span>            }<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        });<a name="line.313"></a>
+<span class="sourceLineNo">314</span>    }<a name="line.314"></a>
+<span class="sourceLineNo">315</span>}<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
 
 
 

@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.dellroad.stuff.util;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.io.IOException;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.io.Writer;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.apache.log4j.WriterAppender;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>/**<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * A Log4J appender that can be configured on a per-thread basis to direct the log messages<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * to an arbitrary {@link Writer} destination.<a name="line.17"></a>
+<span class="sourceLineNo">018</span> *<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * &lt;p&gt;<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * Normally this appender does nothing. However, if a thread invokes {@link #setLogDestination setLogDestination()}<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * with a non-null {@link Writer}, then any messages logged by &lt;i&gt;that particular thread&lt;/i&gt; will go to that {@link Writer}.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * This allows individual threads to copy and/or redirect their own log messages as they see fit.<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * &lt;/p&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> *<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;p&gt;<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * Configure this appender just as you would any other. For example:<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *  &lt;blockquote&gt;&lt;pre&gt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *  &amp;lt;!-- Per-thread logger --&amp;gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *  &amp;lt;appender name="threadlog" class="org.dellroad.stuff.util.ThreadLogger"&amp;gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *      &amp;lt;param name="Threshold" value="debug"/&amp;gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *      &amp;lt;layout class="org.apache.log4j.PatternLayout"&amp;gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *          &amp;lt;param name="ConversionPattern" value="%d{ISO8601} %p: %m%n"/&amp;gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *      &amp;lt;/layout&amp;gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *  &amp;lt;/appender&amp;gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *  ...<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *  &amp;lt;root&amp;gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *      ...<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *      &amp;lt;appender-ref ref="threadlog"&amp;gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *  &amp;lt;/root&amp;gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *  &lt;/pre&gt;&lt;/blockquote&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * &lt;/p&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>public class ThreadLogger extends WriterAppender {<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private static final InheritableThreadLocal&lt;WriterInfo&gt; CURRENT_WRITER = new InheritableThreadLocal&lt;WriterInfo&gt;() {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        @Override<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        protected WriterInfo childValue(WriterInfo writerInfo) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>            return writerInfo != null &amp;&amp; writerInfo.isInherit() ? writerInfo : null;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        }<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    };<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    public ThreadLogger() {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        this.setWriter(new ThreadWriter());<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    /**<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * Configure the logging output destination for the current thread.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * Optionally also applies to all of the current thread's descendant threads.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @param writer current thread logging destination, or null for none<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * @param inherit whether {@code writer} (if not null) should be inherited by descendant threads<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    public static void setLogDestination(Writer writer, boolean inherit) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        CURRENT_WRITER.set(writer != null ? new WriterInfo(writer, inherit) : null);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * Configure the logging output destination for the current thread and all its descendant threads.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * This is a convenience method, equivalent to<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * {@link #setLogDestination(Writer, boolean) setLogDestination}{@code (writer, true)}.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     *<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * @param writer current thread logging destination, or null for none<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    public static void setLogDestination(Writer writer) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        ThreadLogger.setLogDestination(writer, true);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * Get the currently configured logging output destination for the current thread.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     *<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * @return current thread logging destination, or null if there is none<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    public static Writer getLogDestination() {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        final WriterInfo writerInfo = CURRENT_WRITER.get();<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        return writerInfo != null ? writerInfo.getWriter() : null;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>    @Override<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    protected boolean checkEntryConditions() {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        return CURRENT_WRITER.get() != null &amp;&amp; super.checkEntryConditions();<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>    // Per-thread info<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    private static class WriterInfo {<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>        private final Writer writer;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        private final boolean inherit;<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>        WriterInfo(Writer writer, boolean inherit) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            this.writer = writer;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            this.inherit = inherit;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>        public Writer getWriter() {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            return this.writer;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>        public boolean isInherit() {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            return this.inherit;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        }<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>    // Wrapper writer<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    private static class ThreadWriter extends Writer {<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>        @Override<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        public void write(char[] buf, int off, int len) throws IOException {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            final WriterInfo writerInfo = CURRENT_WRITER.get();<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            if (writerInfo != null)<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                writerInfo.getWriter().write(buf, off, len);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>        @Override<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        public void close() throws IOException {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>            final WriterInfo writerInfo = CURRENT_WRITER.get();<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            if (writerInfo != null)<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                writerInfo.getWriter().close();<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>        @Override<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        public void flush() throws IOException {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>            final WriterInfo writerInfo = CURRENT_WRITER.get();<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            if (writerInfo != null)<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                writerInfo.getWriter().flush();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    }<a name="line.139"></a>
+<span class="sourceLineNo">140</span>}<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

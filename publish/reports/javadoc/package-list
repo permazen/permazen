@@ -7,6 +7,8 @@ org.dellroad.stuff.jibx
 org.dellroad.stuff.main
 org.dellroad.stuff.net
 org.dellroad.stuff.pobj
+org.dellroad.stuff.pobj.distrib
+org.dellroad.stuff.pobj.vaadin
 org.dellroad.stuff.schema
 org.dellroad.stuff.servlet
 org.dellroad.stuff.spring
