@@ -41,7 +41,7 @@ public class EnumComboBox extends ComboBox {
      * <p>
      * Equivalent to:
      *  <blockquote><code>
-     *  EnumComboBox(new EnumContainer(type), EnumContainer.TO_STRING_PROPERTY.getName(), allowNull);
+     *  EnumComboBox(new EnumContainer(type), EnumContainer.TO_STRING_PROPERTY, allowNull);
      *  </code></blockquote>
      * </p>
      *
@@ -49,7 +49,7 @@ public class EnumComboBox extends ComboBox {
      * @param allowNull true to allow a null selection, false otherwise
      */
     public <T extends Enum<T>> EnumComboBox(Class<T> enumClass, boolean allowNull) {
-        this(enumClass, EnumContainer.TO_STRING_PROPERTY.getName(), allowNull);
+        this(enumClass, EnumContainer.TO_STRING_PROPERTY, allowNull);
     }
 
     /**
