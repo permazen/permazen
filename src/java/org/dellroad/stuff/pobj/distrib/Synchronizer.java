@@ -84,6 +84,10 @@ import org.dellroad.stuff.spring.AbstractBean;
  * </p>
  *
  * <p>
+ * Subclasses may {@linkplain #chooseConflictWinner override how the winner is chosen}.
+ * </p>
+ *
+ * <p>
  * Because all nodes follow this same algorithm for merging, they will all end up with the same result
  * (note however that the {@link PersistentObject} object graph must serialize in a deterministic way for this to be true).
  * </p>
@@ -115,12 +119,30 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
      */
     public static final String DEFAULT_BRANCH = "master";
 
-    // Configuration info
-    private PersistentObject<T> persistentObject;
-    private GitRepository git;
-    private String filename = DEFAULT_FILENAME;
-    private String branch = DEFAULT_BRANCH;
-    private List<String> remotes;
+    /**
+     * The associated {@link PersistentObject}.
+     */
+    protected PersistentObject<T> persistentObject;
+
+    /**
+     * Our associated {@code git(1)} repository.
+     */
+    protected GitRepository git;
+
+    /**
+     * The name of our XML file in the {@code git(1)} repository.
+     */
+    protected String filename = DEFAULT_FILENAME;
+
+    /**
+     * The name for the {@code git(1)} branches we manage.
+     */
+    protected String branch = DEFAULT_BRANCH;
+
+    /**
+     * The names of the {@code git(1)} remotes we should synchronize with.
+     */
+    protected List<String> remotes;
 
     /**
      * Configure the {@link PersistentObject} that this instance will interact with.
@@ -138,7 +160,7 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
      *
      * <p>
      * Note that multiple instances of this class can share the same {@link GitRepository} as long as they
-     * are configured with different {@linkplain #setBranch branches} and/or {@linkplain #setFilename filenames}.
+     * are configured with different {@linkplain #setBranch branches}.
      * </p>
      *
      * <p>
@@ -422,12 +444,10 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
                 continue;
             }
             final String remoteCommit = this.git.followReference(remoteRef);
-            final Date remoteAuthorDate = this.git.getAuthorDate(remoteRef);
 
             // Get local commit ID and date
             final String localRef = "refs/heads/" + this.branch;
             final String localCommit = this.git.followReference(localRef);
-            final Date localAuthorDate = this.git.getAuthorDate(localRef);
 
             // Compare trees for equality
             if (this.git.equalTrees(localCommit, remoteCommit)) {
@@ -440,9 +460,7 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
             this.log.info("merging remote `" + remote + "' commit " + remoteCommit + " with local commit " + localCommit);
 
             // Determine who is the winner in case of conflicts
-            boolean iWin = localCommit != null
-              && (localAuthorDate.compareTo(remoteAuthorDate) > 0
-                || (localAuthorDate.compareTo(remoteAuthorDate) == 0 && localCommit.compareTo(remoteCommit) > 0));
+            boolean iWin = localCommit != null && this.chooseConflictWinner(localCommit, remoteCommit);
 
             // Build merge strategy list
             final MergeStrategy[] strategyList = new MergeStrategy[] {
@@ -506,6 +524,30 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
         this.log.debug("completed synchronization with remotes " + this.remotes
           + " (" + (merged ? "a" : "no") + " merge was required)");
         return merged;
+    }
+
+    /**
+     * Choose which commit should "win" in case there is a conflict between two commits.
+     *
+     * <p>
+     * It is imperative that this method <b>only</b> depend on information associated with the given commits.
+     * In particular, it must not depend on which node it is running on. This ensures that all nodes come
+     * to the same conclusion and therefore produce the same outcome when merging.
+     * </p>
+     *
+     * <p>
+     * The implementation in {@link Synchronizer} chooses the commit with the later timestamp, or if both commits
+     * have the same timestamp, then the commit with the lexicographically higher SHA-1 checksum.
+     * </p>
+     *
+     * @param commit1 first commit ID
+     * @param commit2 second commit ID
+     * @return true if {@code commit1} should win, false if {@code commit2} should win
+     */
+    protected boolean chooseConflictWinner(String commit1, String commit2) {
+        final Date date1 = this.git.getAuthorDate(commit1);
+        final Date date2 = this.git.getAuthorDate(commit2);
+        return date1.compareTo(date2) > 0 || (date1.compareTo(date2) == 0 && commit1.compareTo(commit2) > 0);
     }
 
     /**
