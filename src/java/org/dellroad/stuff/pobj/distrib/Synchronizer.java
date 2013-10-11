@@ -409,7 +409,8 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
      *
      * <p>
      * This method fetches the configured remotes and then merges them into our local branch,
-     * ensuring that the merge always yeilds a root that validates.
+     * ensuring that the merge always yeilds a root that validates. If the fetch fails for
+     * one or more remotes, an error is logged and synchronization proceeds anyway.
      * </p>
      *
      * <p>
@@ -427,7 +428,11 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
 
         // Fetch the latest from our remotes
         this.log.debug("beginning synchronization with remotes: " + this.remotes);
-        this.git.fetch(this.remotes);
+        try {
+            this.git.fetch(this.remotes);
+        } catch (GitException e) {
+            this.log.info("pre-synchronize git fetch failed on one or more remotes; proceeding anyway");
+        }
 
         // Ensure local branch exists
         this.git.ensureBranch(this.branch, "Empty commit as the basis for branch `" + this.branch + "'");
