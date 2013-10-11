@@ -1,5 +1,5 @@
 
-Version Next
+Version 1.0.744 Released October 11, 2013
 
     - Moved CSVOutput from "string" to "io" sub-package
     - Extracted *Callback interfaces out of NullModem*Stream classes
