@@ -203,6 +203,8 @@
         <delete file="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar"/>
         <jar destfile="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar">
             <fileset dir="build/classes">
+                <include name="org/dellroad/stuff/io/NullModemInputStream*"/>
+                <include name="org/dellroad/stuff/io/WriteCallback*"/>
                 <include name="org/dellroad/stuff/java/EnumUtil*"/>
                 <include name="org/dellroad/stuff/java/ErrorAction*"/>
                 <include name="org/dellroad/stuff/java/Primitive*"/>
