@@ -108,8 +108,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Instances can also be configured to automatically preserve one or more backup copies of the persistent file on systems that
- * support hard links (requires <a href="https://github.com/twall/jna">JNA</a>; see {@link FileStreamRepository}).
- * Set the {@link #getNumBackups numBackups} property to enable.
+ * support hard links (see {@link FileStreamRepository}). Set the {@link #getNumBackups numBackups} property to enable.
  * </p>
  *
  * <h3>"Out-of-band" Writes</h3>
