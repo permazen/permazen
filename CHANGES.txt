@@ -1,3 +1,6 @@
+Version Next
+
+    - Added PersistentObjectTransactionManager and @PersistentObjectTransactional
 
 Version 1.0.744 Released October 11, 2013
 
