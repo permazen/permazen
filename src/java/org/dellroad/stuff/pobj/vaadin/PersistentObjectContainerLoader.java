@@ -25,8 +25,9 @@ import org.dellroad.stuff.vaadin7.AbstractSimpleContainer;
  * <b>Note:</b> Instances of this class start out in a non-listening state. You must invoke {@link #connect connect()}
  * to start listening to the {@link PersistentObject} and (re)load the container contents.
  * You should invoke {@link #disconnect} whenever the container is no longer used to avoid a memory leak.
- * Typically, {@link #connect connect()} and {@link #disconnect} are invoked from the {@link com.vaadin.ui.Component#attach}
- * and {@link com.vaadin.ui.Component#detach} methods (respectively) of the GUI widget that is using the container.
+ * Typically, {@link #connect connect()} and {@link #disconnect} are invoked from the
+ * {@link com.vaadin.ui.Component#attach attach()} and {@link com.vaadin.ui.Component#detach detach()} methods (respectively)
+ * of the GUI widget that is using the container.
  * </p>
  *
  * @param <T> type of the persistent object
