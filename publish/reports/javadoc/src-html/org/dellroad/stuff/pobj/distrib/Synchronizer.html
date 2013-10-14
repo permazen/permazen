@@ -417,211 +417,216 @@
 <span class="sourceLineNo">409</span>     *<a name="line.409"></a>
 <span class="sourceLineNo">410</span>     * &lt;p&gt;<a name="line.410"></a>
 <span class="sourceLineNo">411</span>     * This method fetches the configured remotes and then merges them into our local branch,<a name="line.411"></a>
-<span class="sourceLineNo">412</span>     * ensuring that the merge always yeilds a root that validates.<a name="line.412"></a>
-<span class="sourceLineNo">413</span>     * &lt;/p&gt;<a name="line.413"></a>
-<span class="sourceLineNo">414</span>     *<a name="line.414"></a>
-<span class="sourceLineNo">415</span>     * &lt;p&gt;<a name="line.415"></a>
-<span class="sourceLineNo">416</span>     * If the local branch does not already exist, it will be created.<a name="line.416"></a>
-<span class="sourceLineNo">417</span>     * &lt;/p&gt;<a name="line.417"></a>
-<span class="sourceLineNo">418</span>     *<a name="line.418"></a>
-<span class="sourceLineNo">419</span>     * &lt;p&gt;<a name="line.419"></a>
-<span class="sourceLineNo">420</span>     * This method does not affect the {@link PersistentObject} associated with this instance;<a name="line.420"></a>
-<span class="sourceLineNo">421</span>     * the caller is responsible for doing that if necessary (i.e., true is returned).<a name="line.421"></a>
-<span class="sourceLineNo">422</span>     * &lt;/p&gt;<a name="line.422"></a>
-<span class="sourceLineNo">423</span>     *<a name="line.423"></a>
-<span class="sourceLineNo">424</span>     * @return true if a non-trivial merge ocurred, false if we were already up-to-date<a name="line.424"></a>
-<span class="sourceLineNo">425</span>     */<a name="line.425"></a>
-<span class="sourceLineNo">426</span>    public synchronized boolean synchronize() {<a name="line.426"></a>
-<span class="sourceLineNo">427</span><a name="line.427"></a>
-<span class="sourceLineNo">428</span>        // Fetch the latest from our remotes<a name="line.428"></a>
-<span class="sourceLineNo">429</span>        this.log.debug("beginning synchronization with remotes: " + this.remotes);<a name="line.429"></a>
-<span class="sourceLineNo">430</span>        this.git.fetch(this.remotes);<a name="line.430"></a>
-<span class="sourceLineNo">431</span><a name="line.431"></a>
-<span class="sourceLineNo">432</span>        // Ensure local branch exists<a name="line.432"></a>
-<span class="sourceLineNo">433</span>        this.git.ensureBranch(this.branch, "Empty commit as the basis for branch `" + this.branch + "'");<a name="line.433"></a>
-<span class="sourceLineNo">434</span><a name="line.434"></a>
-<span class="sourceLineNo">435</span>        // Merge our branch with each remote's branch<a name="line.435"></a>
-<span class="sourceLineNo">436</span>        boolean merged = false;<a name="line.436"></a>
-<span class="sourceLineNo">437</span>    remoteLoop:<a name="line.437"></a>
-<span class="sourceLineNo">438</span>        for (String remote : this.remotes) {<a name="line.438"></a>
+<span class="sourceLineNo">412</span>     * ensuring that the merge always yeilds a root that validates. If the fetch fails for<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     * one or more remotes, an error is logged and synchronization proceeds anyway.<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     * &lt;/p&gt;<a name="line.414"></a>
+<span class="sourceLineNo">415</span>     *<a name="line.415"></a>
+<span class="sourceLineNo">416</span>     * &lt;p&gt;<a name="line.416"></a>
+<span class="sourceLineNo">417</span>     * If the local branch does not already exist, it will be created.<a name="line.417"></a>
+<span class="sourceLineNo">418</span>     * &lt;/p&gt;<a name="line.418"></a>
+<span class="sourceLineNo">419</span>     *<a name="line.419"></a>
+<span class="sourceLineNo">420</span>     * &lt;p&gt;<a name="line.420"></a>
+<span class="sourceLineNo">421</span>     * This method does not affect the {@link PersistentObject} associated with this instance;<a name="line.421"></a>
+<span class="sourceLineNo">422</span>     * the caller is responsible for doing that if necessary (i.e., true is returned).<a name="line.422"></a>
+<span class="sourceLineNo">423</span>     * &lt;/p&gt;<a name="line.423"></a>
+<span class="sourceLineNo">424</span>     *<a name="line.424"></a>
+<span class="sourceLineNo">425</span>     * @return true if a non-trivial merge ocurred, false if we were already up-to-date<a name="line.425"></a>
+<span class="sourceLineNo">426</span>     */<a name="line.426"></a>
+<span class="sourceLineNo">427</span>    public synchronized boolean synchronize() {<a name="line.427"></a>
+<span class="sourceLineNo">428</span><a name="line.428"></a>
+<span class="sourceLineNo">429</span>        // Fetch the latest from our remotes<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        this.log.debug("beginning synchronization with remotes: " + this.remotes);<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        try {<a name="line.431"></a>
+<span class="sourceLineNo">432</span>            this.git.fetch(this.remotes);<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        } catch (GitException e) {<a name="line.433"></a>
+<span class="sourceLineNo">434</span>            this.log.info("pre-synchronize git fetch failed on one or more remotes; proceeding anyway");<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        }<a name="line.435"></a>
+<span class="sourceLineNo">436</span><a name="line.436"></a>
+<span class="sourceLineNo">437</span>        // Ensure local branch exists<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        this.git.ensureBranch(this.branch, "Empty commit as the basis for branch `" + this.branch + "'");<a name="line.438"></a>
 <span class="sourceLineNo">439</span><a name="line.439"></a>
-<span class="sourceLineNo">440</span>            // Get remote commit ID and date<a name="line.440"></a>
-<span class="sourceLineNo">441</span>            final String remoteRef = "refs/remotes/" + remote + "/" + this.branch;<a name="line.441"></a>
-<span class="sourceLineNo">442</span>            if (!this.git.getRepoFile(remoteRef).exists()) {<a name="line.442"></a>
-<span class="sourceLineNo">443</span>                this.log.debug("remote `" + remote + "' branch `" + this.branch + "' does not exist yet, skipping this remote");<a name="line.443"></a>
-<span class="sourceLineNo">444</span>                continue;<a name="line.444"></a>
-<span class="sourceLineNo">445</span>            }<a name="line.445"></a>
-<span class="sourceLineNo">446</span>            final String remoteCommit = this.git.followReference(remoteRef);<a name="line.446"></a>
-<span class="sourceLineNo">447</span><a name="line.447"></a>
-<span class="sourceLineNo">448</span>            // Get local commit ID and date<a name="line.448"></a>
-<span class="sourceLineNo">449</span>            final String localRef = "refs/heads/" + this.branch;<a name="line.449"></a>
-<span class="sourceLineNo">450</span>            final String localCommit = this.git.followReference(localRef);<a name="line.450"></a>
-<span class="sourceLineNo">451</span><a name="line.451"></a>
-<span class="sourceLineNo">452</span>            // Compare trees for equality<a name="line.452"></a>
-<span class="sourceLineNo">453</span>            if (this.git.equalTrees(localCommit, remoteCommit)) {<a name="line.453"></a>
-<span class="sourceLineNo">454</span>                this.log.debug("remote `" + remote + "' commit " + remoteCommit + " matches our branch `"<a name="line.454"></a>
-<span class="sourceLineNo">455</span>                  + this.branch + "' commit " + localCommit + ", skipping this remote");<a name="line.455"></a>
-<span class="sourceLineNo">456</span>                continue;<a name="line.456"></a>
-<span class="sourceLineNo">457</span>            }<a name="line.457"></a>
-<span class="sourceLineNo">458</span><a name="line.458"></a>
-<span class="sourceLineNo">459</span>            // Logit<a name="line.459"></a>
-<span class="sourceLineNo">460</span>            this.log.info("merging remote `" + remote + "' commit " + remoteCommit + " with local commit " + localCommit);<a name="line.460"></a>
-<span class="sourceLineNo">461</span><a name="line.461"></a>
-<span class="sourceLineNo">462</span>            // Determine who is the winner in case of conflicts<a name="line.462"></a>
-<span class="sourceLineNo">463</span>            boolean iWin = localCommit != null &amp;&amp; this.chooseConflictWinner(localCommit, remoteCommit);<a name="line.463"></a>
-<span class="sourceLineNo">464</span><a name="line.464"></a>
-<span class="sourceLineNo">465</span>            // Build merge strategy list<a name="line.465"></a>
-<span class="sourceLineNo">466</span>            final MergeStrategy[] strategyList = new MergeStrategy[] {<a name="line.466"></a>
-<span class="sourceLineNo">467</span>              MergeStrategy.RECURSIVE_PATIENCE,<a name="line.467"></a>
-<span class="sourceLineNo">468</span>              iWin ? MergeStrategy.RECURSIVE_PATIENCE_OURS : MergeStrategy.RECURSIVE_PATIENCE_THEIRS,<a name="line.468"></a>
-<span class="sourceLineNo">469</span>              iWin ? MergeStrategy.RECURSIVE_OURS : MergeStrategy.RECURSIVE_THEIRS<a name="line.469"></a>
-<span class="sourceLineNo">470</span>            };<a name="line.470"></a>
-<span class="sourceLineNo">471</span><a name="line.471"></a>
-<span class="sourceLineNo">472</span>            // Attempt merges using successively less "mergey" strategies<a name="line.472"></a>
-<span class="sourceLineNo">473</span>            for (MergeStrategy strategy : strategyList) {<a name="line.473"></a>
-<span class="sourceLineNo">474</span><a name="line.474"></a>
-<span class="sourceLineNo">475</span>                // Attempt merge<a name="line.475"></a>
-<span class="sourceLineNo">476</span>                this.log.debug("attempting merge of remote `" + remote + "' commit " + remoteCommit<a name="line.476"></a>
-<span class="sourceLineNo">477</span>                  + " with local commit " + localCommit + " using strategy " + strategy);<a name="line.477"></a>
-<span class="sourceLineNo">478</span>                String commit;<a name="line.478"></a>
-<span class="sourceLineNo">479</span>                try {<a name="line.479"></a>
-<span class="sourceLineNo">480</span>                    commit = this.git.merge(this.branch, remoteCommit, strategy, new GitRepository.Accessor() {<a name="line.480"></a>
-<span class="sourceLineNo">481</span>                        @Override<a name="line.481"></a>
-<span class="sourceLineNo">482</span>                        public void accessWorkingCopy(File dir) {<a name="line.482"></a>
-<span class="sourceLineNo">483</span>                            Synchronizer.this.log.debug("validating merged file `" + Synchronizer.this.getXMLFile(dir) + "'");<a name="line.483"></a>
-<span class="sourceLineNo">484</span>                            Synchronizer.this.readXMLFile(dir, true);<a name="line.484"></a>
-<span class="sourceLineNo">485</span>                        }<a name="line.485"></a>
-<span class="sourceLineNo">486</span>                    }, "Merged remote `" + remote + "' commit " + remoteCommit + " using strategy " + strategy);<a name="line.486"></a>
-<span class="sourceLineNo">487</span>                } catch (GitMergeConflictException e) {<a name="line.487"></a>
-<span class="sourceLineNo">488</span>                    this.log.debug("merge using strategy " + strategy + " failed with conflict(s)");<a name="line.488"></a>
-<span class="sourceLineNo">489</span>                    continue;<a name="line.489"></a>
-<span class="sourceLineNo">490</span>                } catch (PersistentObjectException e) {<a name="line.490"></a>
-<span class="sourceLineNo">491</span>                    this.log.debug("merge using strategy " + strategy + " did not validate: " + e);<a name="line.491"></a>
-<span class="sourceLineNo">492</span>                    continue;<a name="line.492"></a>
-<span class="sourceLineNo">493</span>                }<a name="line.493"></a>
-<span class="sourceLineNo">494</span><a name="line.494"></a>
-<span class="sourceLineNo">495</span>                // We have a winner<a name="line.495"></a>
-<span class="sourceLineNo">496</span>                if (commit.equals(localCommit)) {<a name="line.496"></a>
-<span class="sourceLineNo">497</span>                    this.log.debug("merge of remote `" + remote + "' commit " + remoteCommit + " with local commit "<a name="line.497"></a>
-<span class="sourceLineNo">498</span>                      + localCommit + " using strategy " + strategy + " resulted in no change to our version");<a name="line.498"></a>
-<span class="sourceLineNo">499</span>                } else {<a name="line.499"></a>
-<span class="sourceLineNo">500</span>                    this.log.debug("successfully merged remote `" + remote + "' commit " + remoteCommit + " with local commit "<a name="line.500"></a>
-<span class="sourceLineNo">501</span>                      + localCommit + " using strategy " + strategy + " resulting in commit " + commit);<a name="line.501"></a>
-<span class="sourceLineNo">502</span>                    merged = true;<a name="line.502"></a>
-<span class="sourceLineNo">503</span>                }<a name="line.503"></a>
-<span class="sourceLineNo">504</span><a name="line.504"></a>
-<span class="sourceLineNo">505</span>                // Log a warning if some of our local changes got overridden by remote<a name="line.505"></a>
-<span class="sourceLineNo">506</span>                switch (strategy) {<a name="line.506"></a>
-<span class="sourceLineNo">507</span>                case RECURSIVE_PATIENCE_THEIRS:<a name="line.507"></a>
-<span class="sourceLineNo">508</span>                case RECURSIVE_THEIRS:<a name="line.508"></a>
-<span class="sourceLineNo">509</span>                    this.handleConflictOverride(remote, localCommit, remoteCommit, strategy);<a name="line.509"></a>
-<span class="sourceLineNo">510</span>                    break;<a name="line.510"></a>
-<span class="sourceLineNo">511</span>                default:<a name="line.511"></a>
-<span class="sourceLineNo">512</span>                    break;<a name="line.512"></a>
-<span class="sourceLineNo">513</span>                }<a name="line.513"></a>
-<span class="sourceLineNo">514</span><a name="line.514"></a>
-<span class="sourceLineNo">515</span>                // Done with this remote<a name="line.515"></a>
-<span class="sourceLineNo">516</span>                continue remoteLoop;<a name="line.516"></a>
-<span class="sourceLineNo">517</span>            }<a name="line.517"></a>
-<span class="sourceLineNo">518</span><a name="line.518"></a>
-<span class="sourceLineNo">519</span>            // Nothing worked - so we must be running different versions of the application<a name="line.519"></a>
-<span class="sourceLineNo">520</span>            this.handleImpossibleMerge(remote, localCommit, remoteCommit);<a name="line.520"></a>
-<span class="sourceLineNo">521</span>        }<a name="line.521"></a>
-<span class="sourceLineNo">522</span><a name="line.522"></a>
-<span class="sourceLineNo">523</span>        // Done<a name="line.523"></a>
-<span class="sourceLineNo">524</span>        this.log.debug("completed synchronization with remotes " + this.remotes<a name="line.524"></a>
-<span class="sourceLineNo">525</span>          + " (" + (merged ? "a" : "no") + " merge was required)");<a name="line.525"></a>
-<span class="sourceLineNo">526</span>        return merged;<a name="line.526"></a>
-<span class="sourceLineNo">527</span>    }<a name="line.527"></a>
-<span class="sourceLineNo">528</span><a name="line.528"></a>
-<span class="sourceLineNo">529</span>    /**<a name="line.529"></a>
-<span class="sourceLineNo">530</span>     * Choose which commit should "win" in case there is a conflict between two commits.<a name="line.530"></a>
-<span class="sourceLineNo">531</span>     *<a name="line.531"></a>
-<span class="sourceLineNo">532</span>     * &lt;p&gt;<a name="line.532"></a>
-<span class="sourceLineNo">533</span>     * It is imperative that this method &lt;b&gt;only&lt;/b&gt; depend on information associated with the given commits.<a name="line.533"></a>
-<span class="sourceLineNo">534</span>     * In particular, it must not depend on which node it is running on. This ensures that all nodes come<a name="line.534"></a>
-<span class="sourceLineNo">535</span>     * to the same conclusion and therefore produce the same outcome when merging.<a name="line.535"></a>
-<span class="sourceLineNo">536</span>     * &lt;/p&gt;<a name="line.536"></a>
-<span class="sourceLineNo">537</span>     *<a name="line.537"></a>
-<span class="sourceLineNo">538</span>     * &lt;p&gt;<a name="line.538"></a>
-<span class="sourceLineNo">539</span>     * The implementation in {@link Synchronizer} chooses the commit with the later timestamp, or if both commits<a name="line.539"></a>
-<span class="sourceLineNo">540</span>     * have the same timestamp, then the commit with the lexicographically higher SHA-1 checksum.<a name="line.540"></a>
+<span class="sourceLineNo">440</span>        // Merge our branch with each remote's branch<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        boolean merged = false;<a name="line.441"></a>
+<span class="sourceLineNo">442</span>    remoteLoop:<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        for (String remote : this.remotes) {<a name="line.443"></a>
+<span class="sourceLineNo">444</span><a name="line.444"></a>
+<span class="sourceLineNo">445</span>            // Get remote commit ID and date<a name="line.445"></a>
+<span class="sourceLineNo">446</span>            final String remoteRef = "refs/remotes/" + remote + "/" + this.branch;<a name="line.446"></a>
+<span class="sourceLineNo">447</span>            if (!this.git.getRepoFile(remoteRef).exists()) {<a name="line.447"></a>
+<span class="sourceLineNo">448</span>                this.log.debug("remote `" + remote + "' branch `" + this.branch + "' does not exist yet, skipping this remote");<a name="line.448"></a>
+<span class="sourceLineNo">449</span>                continue;<a name="line.449"></a>
+<span class="sourceLineNo">450</span>            }<a name="line.450"></a>
+<span class="sourceLineNo">451</span>            final String remoteCommit = this.git.followReference(remoteRef);<a name="line.451"></a>
+<span class="sourceLineNo">452</span><a name="line.452"></a>
+<span class="sourceLineNo">453</span>            // Get local commit ID and date<a name="line.453"></a>
+<span class="sourceLineNo">454</span>            final String localRef = "refs/heads/" + this.branch;<a name="line.454"></a>
+<span class="sourceLineNo">455</span>            final String localCommit = this.git.followReference(localRef);<a name="line.455"></a>
+<span class="sourceLineNo">456</span><a name="line.456"></a>
+<span class="sourceLineNo">457</span>            // Compare trees for equality<a name="line.457"></a>
+<span class="sourceLineNo">458</span>            if (this.git.equalTrees(localCommit, remoteCommit)) {<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                this.log.debug("remote `" + remote + "' commit " + remoteCommit + " matches our branch `"<a name="line.459"></a>
+<span class="sourceLineNo">460</span>                  + this.branch + "' commit " + localCommit + ", skipping this remote");<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                continue;<a name="line.461"></a>
+<span class="sourceLineNo">462</span>            }<a name="line.462"></a>
+<span class="sourceLineNo">463</span><a name="line.463"></a>
+<span class="sourceLineNo">464</span>            // Logit<a name="line.464"></a>
+<span class="sourceLineNo">465</span>            this.log.info("merging remote `" + remote + "' commit " + remoteCommit + " with local commit " + localCommit);<a name="line.465"></a>
+<span class="sourceLineNo">466</span><a name="line.466"></a>
+<span class="sourceLineNo">467</span>            // Determine who is the winner in case of conflicts<a name="line.467"></a>
+<span class="sourceLineNo">468</span>            boolean iWin = localCommit != null &amp;&amp; this.chooseConflictWinner(localCommit, remoteCommit);<a name="line.468"></a>
+<span class="sourceLineNo">469</span><a name="line.469"></a>
+<span class="sourceLineNo">470</span>            // Build merge strategy list<a name="line.470"></a>
+<span class="sourceLineNo">471</span>            final MergeStrategy[] strategyList = new MergeStrategy[] {<a name="line.471"></a>
+<span class="sourceLineNo">472</span>              MergeStrategy.RECURSIVE_PATIENCE,<a name="line.472"></a>
+<span class="sourceLineNo">473</span>              iWin ? MergeStrategy.RECURSIVE_PATIENCE_OURS : MergeStrategy.RECURSIVE_PATIENCE_THEIRS,<a name="line.473"></a>
+<span class="sourceLineNo">474</span>              iWin ? MergeStrategy.RECURSIVE_OURS : MergeStrategy.RECURSIVE_THEIRS<a name="line.474"></a>
+<span class="sourceLineNo">475</span>            };<a name="line.475"></a>
+<span class="sourceLineNo">476</span><a name="line.476"></a>
+<span class="sourceLineNo">477</span>            // Attempt merges using successively less "mergey" strategies<a name="line.477"></a>
+<span class="sourceLineNo">478</span>            for (MergeStrategy strategy : strategyList) {<a name="line.478"></a>
+<span class="sourceLineNo">479</span><a name="line.479"></a>
+<span class="sourceLineNo">480</span>                // Attempt merge<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                this.log.debug("attempting merge of remote `" + remote + "' commit " + remoteCommit<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                  + " with local commit " + localCommit + " using strategy " + strategy);<a name="line.482"></a>
+<span class="sourceLineNo">483</span>                String commit;<a name="line.483"></a>
+<span class="sourceLineNo">484</span>                try {<a name="line.484"></a>
+<span class="sourceLineNo">485</span>                    commit = this.git.merge(this.branch, remoteCommit, strategy, new GitRepository.Accessor() {<a name="line.485"></a>
+<span class="sourceLineNo">486</span>                        @Override<a name="line.486"></a>
+<span class="sourceLineNo">487</span>                        public void accessWorkingCopy(File dir) {<a name="line.487"></a>
+<span class="sourceLineNo">488</span>                            Synchronizer.this.log.debug("validating merged file `" + Synchronizer.this.getXMLFile(dir) + "'");<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                            Synchronizer.this.readXMLFile(dir, true);<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                        }<a name="line.490"></a>
+<span class="sourceLineNo">491</span>                    }, "Merged remote `" + remote + "' commit " + remoteCommit + " using strategy " + strategy);<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                } catch (GitMergeConflictException e) {<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                    this.log.debug("merge using strategy " + strategy + " failed with conflict(s)");<a name="line.493"></a>
+<span class="sourceLineNo">494</span>                    continue;<a name="line.494"></a>
+<span class="sourceLineNo">495</span>                } catch (PersistentObjectException e) {<a name="line.495"></a>
+<span class="sourceLineNo">496</span>                    this.log.debug("merge using strategy " + strategy + " did not validate: " + e);<a name="line.496"></a>
+<span class="sourceLineNo">497</span>                    continue;<a name="line.497"></a>
+<span class="sourceLineNo">498</span>                }<a name="line.498"></a>
+<span class="sourceLineNo">499</span><a name="line.499"></a>
+<span class="sourceLineNo">500</span>                // We have a winner<a name="line.500"></a>
+<span class="sourceLineNo">501</span>                if (commit.equals(localCommit)) {<a name="line.501"></a>
+<span class="sourceLineNo">502</span>                    this.log.debug("merge of remote `" + remote + "' commit " + remoteCommit + " with local commit "<a name="line.502"></a>
+<span class="sourceLineNo">503</span>                      + localCommit + " using strategy " + strategy + " resulted in no change to our version");<a name="line.503"></a>
+<span class="sourceLineNo">504</span>                } else {<a name="line.504"></a>
+<span class="sourceLineNo">505</span>                    this.log.debug("successfully merged remote `" + remote + "' commit " + remoteCommit + " with local commit "<a name="line.505"></a>
+<span class="sourceLineNo">506</span>                      + localCommit + " using strategy " + strategy + " resulting in commit " + commit);<a name="line.506"></a>
+<span class="sourceLineNo">507</span>                    merged = true;<a name="line.507"></a>
+<span class="sourceLineNo">508</span>                }<a name="line.508"></a>
+<span class="sourceLineNo">509</span><a name="line.509"></a>
+<span class="sourceLineNo">510</span>                // Log a warning if some of our local changes got overridden by remote<a name="line.510"></a>
+<span class="sourceLineNo">511</span>                switch (strategy) {<a name="line.511"></a>
+<span class="sourceLineNo">512</span>                case RECURSIVE_PATIENCE_THEIRS:<a name="line.512"></a>
+<span class="sourceLineNo">513</span>                case RECURSIVE_THEIRS:<a name="line.513"></a>
+<span class="sourceLineNo">514</span>                    this.handleConflictOverride(remote, localCommit, remoteCommit, strategy);<a name="line.514"></a>
+<span class="sourceLineNo">515</span>                    break;<a name="line.515"></a>
+<span class="sourceLineNo">516</span>                default:<a name="line.516"></a>
+<span class="sourceLineNo">517</span>                    break;<a name="line.517"></a>
+<span class="sourceLineNo">518</span>                }<a name="line.518"></a>
+<span class="sourceLineNo">519</span><a name="line.519"></a>
+<span class="sourceLineNo">520</span>                // Done with this remote<a name="line.520"></a>
+<span class="sourceLineNo">521</span>                continue remoteLoop;<a name="line.521"></a>
+<span class="sourceLineNo">522</span>            }<a name="line.522"></a>
+<span class="sourceLineNo">523</span><a name="line.523"></a>
+<span class="sourceLineNo">524</span>            // Nothing worked - so we must be running different versions of the application<a name="line.524"></a>
+<span class="sourceLineNo">525</span>            this.handleImpossibleMerge(remote, localCommit, remoteCommit);<a name="line.525"></a>
+<span class="sourceLineNo">526</span>        }<a name="line.526"></a>
+<span class="sourceLineNo">527</span><a name="line.527"></a>
+<span class="sourceLineNo">528</span>        // Done<a name="line.528"></a>
+<span class="sourceLineNo">529</span>        this.log.debug("completed synchronization with remotes " + this.remotes<a name="line.529"></a>
+<span class="sourceLineNo">530</span>          + " (" + (merged ? "a" : "no") + " merge was required)");<a name="line.530"></a>
+<span class="sourceLineNo">531</span>        return merged;<a name="line.531"></a>
+<span class="sourceLineNo">532</span>    }<a name="line.532"></a>
+<span class="sourceLineNo">533</span><a name="line.533"></a>
+<span class="sourceLineNo">534</span>    /**<a name="line.534"></a>
+<span class="sourceLineNo">535</span>     * Choose which commit should "win" in case there is a conflict between two commits.<a name="line.535"></a>
+<span class="sourceLineNo">536</span>     *<a name="line.536"></a>
+<span class="sourceLineNo">537</span>     * &lt;p&gt;<a name="line.537"></a>
+<span class="sourceLineNo">538</span>     * It is imperative that this method &lt;b&gt;only&lt;/b&gt; depend on information associated with the given commits.<a name="line.538"></a>
+<span class="sourceLineNo">539</span>     * In particular, it must not depend on which node it is running on. This ensures that all nodes come<a name="line.539"></a>
+<span class="sourceLineNo">540</span>     * to the same conclusion and therefore produce the same outcome when merging.<a name="line.540"></a>
 <span class="sourceLineNo">541</span>     * &lt;/p&gt;<a name="line.541"></a>
 <span class="sourceLineNo">542</span>     *<a name="line.542"></a>
-<span class="sourceLineNo">543</span>     * @param commit1 first commit ID<a name="line.543"></a>
-<span class="sourceLineNo">544</span>     * @param commit2 second commit ID<a name="line.544"></a>
-<span class="sourceLineNo">545</span>     * @return true if {@code commit1} should win, false if {@code commit2} should win<a name="line.545"></a>
-<span class="sourceLineNo">546</span>     */<a name="line.546"></a>
-<span class="sourceLineNo">547</span>    protected boolean chooseConflictWinner(String commit1, String commit2) {<a name="line.547"></a>
-<span class="sourceLineNo">548</span>        final Date date1 = this.git.getAuthorDate(commit1);<a name="line.548"></a>
-<span class="sourceLineNo">549</span>        final Date date2 = this.git.getAuthorDate(commit2);<a name="line.549"></a>
-<span class="sourceLineNo">550</span>        return date1.compareTo(date2) &gt; 0 || (date1.compareTo(date2) == 0 &amp;&amp; commit1.compareTo(commit2) &gt; 0);<a name="line.550"></a>
-<span class="sourceLineNo">551</span>    }<a name="line.551"></a>
-<span class="sourceLineNo">552</span><a name="line.552"></a>
-<span class="sourceLineNo">553</span>    /**<a name="line.553"></a>
-<span class="sourceLineNo">554</span>     * Handle a situation where some of our local changes were overridden due to merge conflicts, but<a name="line.554"></a>
-<span class="sourceLineNo">555</span>     * in the end we were able to produce a valid root.<a name="line.555"></a>
-<span class="sourceLineNo">556</span>     *<a name="line.556"></a>
-<span class="sourceLineNo">557</span>     * &lt;p&gt;<a name="line.557"></a>
-<span class="sourceLineNo">558</span>     * The implementation in {@link Synchronizer} just logs a warning message.<a name="line.558"></a>
-<span class="sourceLineNo">559</span>     * &lt;/p&gt;<a name="line.559"></a>
-<span class="sourceLineNo">560</span>     *<a name="line.560"></a>
-<span class="sourceLineNo">561</span>     * @param remote name of the remote that overrode us<a name="line.561"></a>
-<span class="sourceLineNo">562</span>     * @param localCommit our commit in the merge<a name="line.562"></a>
-<span class="sourceLineNo">563</span>     * @param remoteCommit remote's commit in the merge<a name="line.563"></a>
-<span class="sourceLineNo">564</span>     * @param strategy the strategy that was used to resolve the conflict<a name="line.564"></a>
-<span class="sourceLineNo">565</span>     */<a name="line.565"></a>
-<span class="sourceLineNo">566</span>    protected void handleConflictOverride(String remote, String localCommit, String remoteCommit, MergeStrategy strategy) {<a name="line.566"></a>
-<span class="sourceLineNo">567</span>        this.log.warn("some changes in local commit " + localCommit + " have been overridden by changes from remote `"<a name="line.567"></a>
-<span class="sourceLineNo">568</span>          + remote + "' commit " + remoteCommit + " using merge strategy " + strategy);<a name="line.568"></a>
-<span class="sourceLineNo">569</span>    }<a name="line.569"></a>
-<span class="sourceLineNo">570</span><a name="line.570"></a>
-<span class="sourceLineNo">571</span>    /**<a name="line.571"></a>
-<span class="sourceLineNo">572</span>     * Handle a situation where all of the merge strategies failed to produce a valid root object.<a name="line.572"></a>
-<span class="sourceLineNo">573</span>     * This can only happen when a remote node has different validation criteria than we do, for example,<a name="line.573"></a>
-<span class="sourceLineNo">574</span>     * it is running a different version of the application.<a name="line.574"></a>
-<span class="sourceLineNo">575</span>     *<a name="line.575"></a>
-<span class="sourceLineNo">576</span>     * &lt;p&gt;<a name="line.576"></a>
-<span class="sourceLineNo">577</span>     * The implementation in {@link Synchronizer} just logs a warning message.<a name="line.577"></a>
-<span class="sourceLineNo">578</span>     * &lt;/p&gt;<a name="line.578"></a>
-<span class="sourceLineNo">579</span>     *<a name="line.579"></a>
-<span class="sourceLineNo">580</span>     * @param remote name of the remote that we are conflicting with<a name="line.580"></a>
-<span class="sourceLineNo">581</span>     * @param localCommit our commit in the merge<a name="line.581"></a>
-<span class="sourceLineNo">582</span>     * @param remoteCommit remote's commit in the merge<a name="line.582"></a>
-<span class="sourceLineNo">583</span>     */<a name="line.583"></a>
-<span class="sourceLineNo">584</span>    protected void handleImpossibleMerge(String remote, String localCommit, String remoteCommit) {<a name="line.584"></a>
-<span class="sourceLineNo">585</span>        this.log.error("unable to merge local commit " + localCommit + " with remote `" + remote + "' commit "<a name="line.585"></a>
-<span class="sourceLineNo">586</span>          + remoteCommit + "; are we running different application versions?");<a name="line.586"></a>
-<span class="sourceLineNo">587</span>    }<a name="line.587"></a>
-<span class="sourceLineNo">588</span><a name="line.588"></a>
-<span class="sourceLineNo">589</span>    /**<a name="line.589"></a>
-<span class="sourceLineNo">590</span>     * Get the XML file.<a name="line.590"></a>
-<span class="sourceLineNo">591</span>     *<a name="line.591"></a>
-<span class="sourceLineNo">592</span>     * &lt;p&gt;<a name="line.592"></a>
-<span class="sourceLineNo">593</span>     * To avoid race conditions, the file should only be accessed from within a {@link GitRepository.Accessor} callback.<a name="line.593"></a>
-<span class="sourceLineNo">594</span>     * &lt;/p&gt;<a name="line.594"></a>
-<span class="sourceLineNo">595</span>     *<a name="line.595"></a>
-<span class="sourceLineNo">596</span>     * @param dir {@code git(1)} working directory root<a name="line.596"></a>
-<span class="sourceLineNo">597</span>     */<a name="line.597"></a>
-<span class="sourceLineNo">598</span>    protected File getXMLFile(File dir) {<a name="line.598"></a>
-<span class="sourceLineNo">599</span>        return new File(dir, this.filename);<a name="line.599"></a>
-<span class="sourceLineNo">600</span>    }<a name="line.600"></a>
-<span class="sourceLineNo">601</span><a name="line.601"></a>
-<span class="sourceLineNo">602</span>    /**<a name="line.602"></a>
-<span class="sourceLineNo">603</span>     * Read and (optionally) validate the XML file.<a name="line.603"></a>
-<span class="sourceLineNo">604</span>     *<a name="line.604"></a>
-<span class="sourceLineNo">605</span>     * &lt;p&gt;<a name="line.605"></a>
-<span class="sourceLineNo">606</span>     * To avoid race conditions, this method should only be invoked from within a {@link GitRepository.Accessor} callback.<a name="line.606"></a>
-<span class="sourceLineNo">607</span>     * &lt;/p&gt;<a name="line.607"></a>
-<span class="sourceLineNo">608</span>     *<a name="line.608"></a>
-<span class="sourceLineNo">609</span>     * @param dir {@code git(1)} working directory root<a name="line.609"></a>
-<span class="sourceLineNo">610</span>     * @param validate whether to also validate the file<a name="line.610"></a>
-<span class="sourceLineNo">611</span>     */<a name="line.611"></a>
-<span class="sourceLineNo">612</span>    protected T readXMLFile(File dir, boolean validate) {<a name="line.612"></a>
-<span class="sourceLineNo">613</span>        return PersistentObject.read(this.persistentObject.getDelegate(), this.getXMLFile(dir), validate);<a name="line.613"></a>
-<span class="sourceLineNo">614</span>    }<a name="line.614"></a>
-<span class="sourceLineNo">615</span>}<a name="line.615"></a>
-<span class="sourceLineNo">616</span><a name="line.616"></a>
+<span class="sourceLineNo">543</span>     * &lt;p&gt;<a name="line.543"></a>
+<span class="sourceLineNo">544</span>     * The implementation in {@link Synchronizer} chooses the commit with the later timestamp, or if both commits<a name="line.544"></a>
+<span class="sourceLineNo">545</span>     * have the same timestamp, then the commit with the lexicographically higher SHA-1 checksum.<a name="line.545"></a>
+<span class="sourceLineNo">546</span>     * &lt;/p&gt;<a name="line.546"></a>
+<span class="sourceLineNo">547</span>     *<a name="line.547"></a>
+<span class="sourceLineNo">548</span>     * @param commit1 first commit ID<a name="line.548"></a>
+<span class="sourceLineNo">549</span>     * @param commit2 second commit ID<a name="line.549"></a>
+<span class="sourceLineNo">550</span>     * @return true if {@code commit1} should win, false if {@code commit2} should win<a name="line.550"></a>
+<span class="sourceLineNo">551</span>     */<a name="line.551"></a>
+<span class="sourceLineNo">552</span>    protected boolean chooseConflictWinner(String commit1, String commit2) {<a name="line.552"></a>
+<span class="sourceLineNo">553</span>        final Date date1 = this.git.getAuthorDate(commit1);<a name="line.553"></a>
+<span class="sourceLineNo">554</span>        final Date date2 = this.git.getAuthorDate(commit2);<a name="line.554"></a>
+<span class="sourceLineNo">555</span>        return date1.compareTo(date2) &gt; 0 || (date1.compareTo(date2) == 0 &amp;&amp; commit1.compareTo(commit2) &gt; 0);<a name="line.555"></a>
+<span class="sourceLineNo">556</span>    }<a name="line.556"></a>
+<span class="sourceLineNo">557</span><a name="line.557"></a>
+<span class="sourceLineNo">558</span>    /**<a name="line.558"></a>
+<span class="sourceLineNo">559</span>     * Handle a situation where some of our local changes were overridden due to merge conflicts, but<a name="line.559"></a>
+<span class="sourceLineNo">560</span>     * in the end we were able to produce a valid root.<a name="line.560"></a>
+<span class="sourceLineNo">561</span>     *<a name="line.561"></a>
+<span class="sourceLineNo">562</span>     * &lt;p&gt;<a name="line.562"></a>
+<span class="sourceLineNo">563</span>     * The implementation in {@link Synchronizer} just logs a warning message.<a name="line.563"></a>
+<span class="sourceLineNo">564</span>     * &lt;/p&gt;<a name="line.564"></a>
+<span class="sourceLineNo">565</span>     *<a name="line.565"></a>
+<span class="sourceLineNo">566</span>     * @param remote name of the remote that overrode us<a name="line.566"></a>
+<span class="sourceLineNo">567</span>     * @param localCommit our commit in the merge<a name="line.567"></a>
+<span class="sourceLineNo">568</span>     * @param remoteCommit remote's commit in the merge<a name="line.568"></a>
+<span class="sourceLineNo">569</span>     * @param strategy the strategy that was used to resolve the conflict<a name="line.569"></a>
+<span class="sourceLineNo">570</span>     */<a name="line.570"></a>
+<span class="sourceLineNo">571</span>    protected void handleConflictOverride(String remote, String localCommit, String remoteCommit, MergeStrategy strategy) {<a name="line.571"></a>
+<span class="sourceLineNo">572</span>        this.log.warn("some changes in local commit " + localCommit + " have been overridden by changes from remote `"<a name="line.572"></a>
+<span class="sourceLineNo">573</span>          + remote + "' commit " + remoteCommit + " using merge strategy " + strategy);<a name="line.573"></a>
+<span class="sourceLineNo">574</span>    }<a name="line.574"></a>
+<span class="sourceLineNo">575</span><a name="line.575"></a>
+<span class="sourceLineNo">576</span>    /**<a name="line.576"></a>
+<span class="sourceLineNo">577</span>     * Handle a situation where all of the merge strategies failed to produce a valid root object.<a name="line.577"></a>
+<span class="sourceLineNo">578</span>     * This can only happen when a remote node has different validation criteria than we do, for example,<a name="line.578"></a>
+<span class="sourceLineNo">579</span>     * it is running a different version of the application.<a name="line.579"></a>
+<span class="sourceLineNo">580</span>     *<a name="line.580"></a>
+<span class="sourceLineNo">581</span>     * &lt;p&gt;<a name="line.581"></a>
+<span class="sourceLineNo">582</span>     * The implementation in {@link Synchronizer} just logs a warning message.<a name="line.582"></a>
+<span class="sourceLineNo">583</span>     * &lt;/p&gt;<a name="line.583"></a>
+<span class="sourceLineNo">584</span>     *<a name="line.584"></a>
+<span class="sourceLineNo">585</span>     * @param remote name of the remote that we are conflicting with<a name="line.585"></a>
+<span class="sourceLineNo">586</span>     * @param localCommit our commit in the merge<a name="line.586"></a>
+<span class="sourceLineNo">587</span>     * @param remoteCommit remote's commit in the merge<a name="line.587"></a>
+<span class="sourceLineNo">588</span>     */<a name="line.588"></a>
+<span class="sourceLineNo">589</span>    protected void handleImpossibleMerge(String remote, String localCommit, String remoteCommit) {<a name="line.589"></a>
+<span class="sourceLineNo">590</span>        this.log.error("unable to merge local commit " + localCommit + " with remote `" + remote + "' commit "<a name="line.590"></a>
+<span class="sourceLineNo">591</span>          + remoteCommit + "; are we running different application versions?");<a name="line.591"></a>
+<span class="sourceLineNo">592</span>    }<a name="line.592"></a>
+<span class="sourceLineNo">593</span><a name="line.593"></a>
+<span class="sourceLineNo">594</span>    /**<a name="line.594"></a>
+<span class="sourceLineNo">595</span>     * Get the XML file.<a name="line.595"></a>
+<span class="sourceLineNo">596</span>     *<a name="line.596"></a>
+<span class="sourceLineNo">597</span>     * &lt;p&gt;<a name="line.597"></a>
+<span class="sourceLineNo">598</span>     * To avoid race conditions, the file should only be accessed from within a {@link GitRepository.Accessor} callback.<a name="line.598"></a>
+<span class="sourceLineNo">599</span>     * &lt;/p&gt;<a name="line.599"></a>
+<span class="sourceLineNo">600</span>     *<a name="line.600"></a>
+<span class="sourceLineNo">601</span>     * @param dir {@code git(1)} working directory root<a name="line.601"></a>
+<span class="sourceLineNo">602</span>     */<a name="line.602"></a>
+<span class="sourceLineNo">603</span>    protected File getXMLFile(File dir) {<a name="line.603"></a>
+<span class="sourceLineNo">604</span>        return new File(dir, this.filename);<a name="line.604"></a>
+<span class="sourceLineNo">605</span>    }<a name="line.605"></a>
+<span class="sourceLineNo">606</span><a name="line.606"></a>
+<span class="sourceLineNo">607</span>    /**<a name="line.607"></a>
+<span class="sourceLineNo">608</span>     * Read and (optionally) validate the XML file.<a name="line.608"></a>
+<span class="sourceLineNo">609</span>     *<a name="line.609"></a>
+<span class="sourceLineNo">610</span>     * &lt;p&gt;<a name="line.610"></a>
+<span class="sourceLineNo">611</span>     * To avoid race conditions, this method should only be invoked from within a {@link GitRepository.Accessor} callback.<a name="line.611"></a>
+<span class="sourceLineNo">612</span>     * &lt;/p&gt;<a name="line.612"></a>
+<span class="sourceLineNo">613</span>     *<a name="line.613"></a>
+<span class="sourceLineNo">614</span>     * @param dir {@code git(1)} working directory root<a name="line.614"></a>
+<span class="sourceLineNo">615</span>     * @param validate whether to also validate the file<a name="line.615"></a>
+<span class="sourceLineNo">616</span>     */<a name="line.616"></a>
+<span class="sourceLineNo">617</span>    protected T readXMLFile(File dir, boolean validate) {<a name="line.617"></a>
+<span class="sourceLineNo">618</span>        return PersistentObject.read(this.persistentObject.getDelegate(), this.getXMLFile(dir), validate);<a name="line.618"></a>
+<span class="sourceLineNo">619</span>    }<a name="line.619"></a>
+<span class="sourceLineNo">620</span>}<a name="line.620"></a>
+<span class="sourceLineNo">621</span><a name="line.621"></a>
 
 
 
