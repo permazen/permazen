@@ -14,14 +14,17 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Supports hard-linking of files on UNIX systems.
+ * Supports hard-linking of files.
  *
  * <p>
- * This class requires the <a href="https://github.com/twall/jna">JNA</a> library.
+ * On Java &gt;= 1.7, this class uses {@link java.nio.file.Files#createLink}.
+ * On Java &lt; 1.7, this class requires the <a href="https://github.com/twall/jna">JNA</a> library
+ * and only works on UNIX systems.
+ * </p>
  */
 public final class HardLink {
 
-    private static final LibC LIBC = (LibC)Native.loadLibrary("c", LibC.class);
+    private static LibC libc;
 
     private HardLink() {
     }
@@ -34,8 +37,24 @@ public final class HardLink {
      * @throws IOException if the operation fails
      */
     public static void link(File src, File dest) throws IOException {
-        if (LIBC.link(src.toString(), dest.toString()) != 0)
-            throw new IOException(LIBC.strerror(Native.getLastError()));
+
+        // Try JDK 1.7 Files.createLink() first
+        try {
+            Class.forName("java.nio.files.Files").getMethod("createLink").invoke(null, dest, src);
+            return;
+        } catch (Exception e) {
+            // ignore
+        }
+
+        // Fall-back to JNA
+        if (HardLink.getLibC().link(src.toString(), dest.toString()) != 0)
+            throw new IOException(HardLink.getLibC().strerror(Native.getLastError()));
+    }
+
+    private static LibC getLibC() {
+        if (HardLink.libc == null)
+            HardLink.libc = (LibC)Native.loadLibrary("c", LibC.class);
+        return HardLink.libc;
     }
 
     /**
