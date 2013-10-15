@@ -40,7 +40,9 @@ public final class HardLink {
 
         // Try JDK 1.7 Files.createLink() first
         try {
-            Class.forName("java.nio.files.Files").getMethod("createLink").invoke(null, dest, src);
+            final Class<?> path = Class.forName("java.nio.file.Path");
+            Class.forName("java.nio.file.Files").getMethod("createLink", path, path).invoke(null,
+              dest.getClass().getMethod("toPath").invoke(dest), src.getClass().getMethod("toPath").invoke(src));
             return;
         } catch (Exception e) {
             // ignore
