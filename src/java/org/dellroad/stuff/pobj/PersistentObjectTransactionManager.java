@@ -158,12 +158,13 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
      *
      * <p>
      * The implementation in {@link PersistentObjectTransactionManager} invokes {@link #setName}, so that instances'
-     * names are automatically inherited from their Spring bean names.
+     * names are automatically inherited from their Spring bean names, unless the name is already set to something else.
      * </p>
      */
     @Override
     public void setBeanName(String beanName) {
-        this.setName(beanName);
+        if (this.getName() == null)
+            this.setName(beanName);
     }
 
     @Override
