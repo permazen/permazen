@@ -468,7 +468,9 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
                 }
             }
         } catch (ExecutionException e) {
-            throw PersistentObjectTransactionManager.<RuntimeException>maskException(e.getCause()); // re-throw original exception
+            final Throwable cause = e.getCause();
+            this.prependCurrentStackTrace(cause);
+            throw PersistentObjectTransactionManager.<RuntimeException>maskException(cause);        // re-throw original exception
         } catch (CancellationException e) {
             throw new RuntimeException("transaction method execution was canceled", e);             // should never happen
         } finally {
@@ -549,6 +551,19 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
     @SuppressWarnings("unchecked")
     static <T extends Throwable> T maskException(Throwable t) throws T {
         throw (T)t;
+    }
+
+    // Prepend stack frames from the current thread onto exception trace
+    private void prependCurrentStackTrace(Throwable t) {
+        final StackTraceElement[] innerFrames = t.getStackTrace();
+        final StackTraceElement[] outerFrames = new Throwable().getStackTrace();
+        final StackTraceElement[] frames = new StackTraceElement[innerFrames.length + outerFrames.length];
+        System.arraycopy(innerFrames, 0, frames, 0, innerFrames.length);
+        frames[innerFrames.length] = new StackTraceElement(this.getClass().getName(),
+          "<placeholder>", "Synchronous PersistentObjectTransactionManager Transaction", -1);
+        for (int i = 1; i < outerFrames.length; i++)
+            frames[innerFrames.length + i] = outerFrames[i];
+        t.setStackTrace(frames);
     }
 
 // Worker thread
