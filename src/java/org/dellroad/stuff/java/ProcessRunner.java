@@ -128,7 +128,8 @@ public class ProcessRunner {
      *
      * <p>
      * If the current thread is interrupted, the standard input, output, and error connections to
-     * the process are closed and an {@link InterruptedException} is thrown.
+     * the process are closed and an {@link InterruptedException} is thrown. However, the process
+     * itself is not explicitly killed; you can override {@link #handleInterruption} in order to do that.
      * </p>
      *
      * @return exit value
@@ -185,6 +186,9 @@ public class ProcessRunner {
         Integer exitValue = null;
         try {
             exitValue = this.process.waitFor();
+        } catch (InterruptedException e) {
+            this.handleInterruption();
+            throw e;
         } finally {
 
             // Update state
@@ -207,6 +211,17 @@ public class ProcessRunner {
 
         // Done
         return exitValue;
+    }
+
+    /**
+     * Handle notification that the thread invoking {@link #run} has been interrupted.
+     *
+     * <p>
+     * The implementation in {@link ProcessRunner} does nothing. Subclasses that want to
+     * {@link kill the process} may do so here.
+     * </p>
+     */
+    protected void handleInterruption() {
     }
 
     /**

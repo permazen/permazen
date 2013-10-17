@@ -1,6 +1,7 @@
 Version Next
 
     - Added PersistentObjectTransactionManager and @PersistentObjectTransactional
+    - Added ProcessRunner.handleInterruption()
 
 Version 1.0.744 Released October 11, 2013
 
