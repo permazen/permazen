@@ -100,6 +100,7 @@ public aspect PersistentObjectTransactionalAspect extends AbstractBean {
         }
 
         // Create callback
+        final Throwable stackTrace = async ? new Throwable() : null;
         final Callable<Object> callback = new Callable<Object>() {
             @Override
             public Object call() throws Exception {
@@ -107,6 +108,7 @@ public aspect PersistentObjectTransactionalAspect extends AbstractBean {
                     return proceed();
                 } catch (Exception e) {
                     if (async) {
+                        manager.prependStackFrames(e, stackTrace, "Asynchronous PersistentObjectTransactionManager Transaction", 0);
                         PersistentObjectTransactionalAspect.this.log.error(
                           "error during asynchronous @PersistentObjectTransactional transaction: " + e, e);
                     }
@@ -127,7 +129,7 @@ public aspect PersistentObjectTransactionalAspect extends AbstractBean {
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
-                throw PersistentObjectTransactionManager.<RuntimeException>maskException(e);        // re-throw checked exception
+                throw manager.<RuntimeException>maskException(e);                           // re-throw checked exception
             }
         }
     }
