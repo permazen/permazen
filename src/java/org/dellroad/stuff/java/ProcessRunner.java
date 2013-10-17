@@ -218,7 +218,7 @@ public class ProcessRunner {
      *
      * <p>
      * The implementation in {@link ProcessRunner} does nothing. Subclasses that want to
-     * {@link kill the process} may do so here.
+     * {@linkplain Process#destroy kill the process} may do so here.
      * </p>
      */
     protected void handleInterruption() {
