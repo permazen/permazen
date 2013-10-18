@@ -21,8 +21,6 @@ import org.dellroad.stuff.spring.AbstractBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -141,8 +139,6 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
 
     private final ThreadLocalHolder<TxInfo> currentRoot = new ThreadLocalHolder<TxInfo>();
 
-    @Autowired
-    @Qualifier("dataPersistentObject")
     private PersistentObject<T> persistentObject;
 
     private String name = "default";
@@ -152,6 +148,17 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
     private volatile WorkerThread workerThread;
 
 // Lifecycle
+
+    /**
+     * Configure the {@link PersistentObject} database that this instance manages transactions for.
+     *
+     * <p>
+     * Required property.
+     * </p>
+     */
+    public void setPersistentObject(PersistentObject<T> persistentObject) {
+        this.persistentObject = persistentObject;
+    }
 
     /**
      * Set the name of this instance.
@@ -171,9 +178,11 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
 
-        // Check name
+        // Check required properties
+        if (this.persistentObject == null)
+            throw new IllegalStateException("no PersistentObject configured");
         if (this.name == null)
-            throw new IllegalStateException("no bean name configured");
+            throw new IllegalStateException("no name configured");
 
         // Initialize queue
         this.queue = new LinkedBlockingQueue<FutureTask<?>>(this.getQueueCapacity());
