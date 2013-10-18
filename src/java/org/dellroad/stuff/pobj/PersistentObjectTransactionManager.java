@@ -564,7 +564,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
         final StackTraceElement[] outerFrames = p.getStackTrace();
         final StackTraceElement[] frames = new StackTraceElement[innerFrames.length + 1 + Math.max(outerFrames.length - skip, 0)];
         System.arraycopy(innerFrames, 0, frames, 0, innerFrames.length);
-        frames[innerFrames.length] = new StackTraceElement(this.getClass().getName(), "<placeholder>", description, -1);
+        frames[innerFrames.length] = new StackTraceElement(this.getClass().getName(), "<" + this.name + ">", description, -1);
         for (int i = 0; i < outerFrames.length - skip; i++)
             frames[innerFrames.length + 1 + i] = outerFrames[i + skip];
         t.setStackTrace(frames);
