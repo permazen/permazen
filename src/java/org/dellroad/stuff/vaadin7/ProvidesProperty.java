@@ -30,6 +30,65 @@ import java.lang.annotation.Target;
  * The {@link com.vaadin.data.Container} classes in this package that are configured with a {@link PropertyExtractor}
  * and a list of {@link PropertyDef}s all have a constructor variant taking a {@link ProvidesProperty
  * &#64;ProvidesProperty}-annotated Java class, which allows the container properties to be auto-detected via introspection.
+ * For example:
+ * <blockquote><pre>
+ * // Container backing object class
+ * public class User {
+ *
+ *     public static final String USERNAME_PROPERTY = "username";
+ *     public static final String REAL_NAME_PROPERTY = "realName";
+ *
+ *     private String username;
+ *     private String realName;
+ *
+ *     public String getUsername() {
+ *         return this.username;
+ *     }
+ *     public void setUsername(String username) {
+ *         this.username = username;
+ *     }
+ *
+ *     &#64;ProvidesProperty(REAL_NAME_PROPERTY)
+ *     public String getRealName() {
+ *         return this.realName;
+ *     }
+ *     public void setRealName(String realName) {
+ *         this.realName = realName;
+ *     }
+ *
+ *     &#64;ProvidesProperty(USERNAME_PROPERTY)
+ *     public Label usernameProperty() {
+ *         return new Label("&lt;code&gt;" + StringUtil.escapeHtml(this.username) + "&lt;/code&gt;", ContentMode.HTML);
+ *     }
+ * }
+ *
+ * // User container class
+ * public class UserContainer extends SimpleKeyedContainer&lt;String, User&gt; {
+ *
+ *     public UserContainer() {
+ *         super(User.class);
+ *     }
+ *
+ *     &#64;Override
+ *     public String getKeyFor(User user) {
+ *         return user.getUsername();
+ *     }
+ * }
+ *
+ * // Create container holding all users
+ * UserContainer container = new UserContainer();
+ * container.load(this.getAllUsers());
+ *
+ * // Build table showing users
+ * Table table = new Table();
+ * table.setColumnHeader(User.USERNAME_PROPERTY, "User");
+ * table.setColumnHeader(User.REAL_NAME_PROPERTY, "Name");
+ * table.setVisibleColumns(User.USERNAME_PROPERTY, User.REAL_NAME_PROPERTY);
+ *
+ * // Select user "jsmith" in the table
+ * table.setValue("jsmith");
+ * ...
+ * </pre></blockquote>
  * </p>
  *
  * <p>
