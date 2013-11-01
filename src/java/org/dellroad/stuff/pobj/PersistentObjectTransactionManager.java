@@ -21,7 +21,6 @@ import org.dellroad.stuff.spring.AbstractBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
-import org.springframework.stereotype.Component;
 
 /**
  * "Disruptor" style transaction manager for {@link PersistentObject} databases.
@@ -29,22 +28,25 @@ import org.springframework.stereotype.Component;
  * <h3>Overview</h3>
  *
  * <p>
- * Instances of this class maintain a dedicated thread for performing transactions on a specific {@link PersistentObject}
- * database. The {@link #performTransaction performTransaction()} and {@link #scheduleTransaction scheduleTransaction()}
- * methods schedule synchronous and asynchronous transactions (respectively) to be executed by this thread.
+ * Instances of this class manage transactions on a {@link PersistentObject} database and support the
+ * {@link PersistentObjectTransactional &#64;PersistentObjectTransactional} annotation and related AOP aspect.
+ * All transactions are serialized, atomic, and isolated. Because they are serialized, failures due to
+ * optimistic locking are not possible. Instances operate in one of two modes: in normal mode, transactions
+ * are executed on the current thread; in "Disruptor" mode, transactions are executed on a dedicated transaction thread.
+ * In either case, {@link #performTransaction performTransaction()} performs a synchronous transaction. In Disruptor mode
+ * {@link #scheduleTransaction scheduleTransaction()} can be also used, to schedule an asynchronous transaction.
  * </p>
  *
  * <p>
- * By performing all transactions on the same thread, the {@link PersistentObject} root object is stays in the cache
- * of a single CPU core, improving performance ("Disruptor" style). The single threading also guarantees transaction
- * serialization, atomicity, and isolation. The capacity of the queue that holds upcoming transactions can be configured
- * via {@link #setQueueCapacity setQueueCapacity()} (default {@link Integer#MAX_VALUE}). When the queue is full,
- * scheduling a new transaction blocks until space is available.
+ * In Disruptor mode, by performing all transactions on the same thread, all writes to the {@link PersistentObject} root
+ * object stay in the cache of a single CPU core, improving performance.  The capacity of the queue that holds upcoming
+ * transactions can be configured via {@link #setQueueCapacity setQueueCapacity()} (default {@link Integer#MAX_VALUE}).
+ * When the queue is full, scheduling a new transaction blocks until space is available.
  * </p>
  *
  * <p>
  * Within a transaction, {@link #getRoot} is used to access that transaction's {@link PersistentObject} root object.
- * The returned object graph is private to that thread's transaction (except in shared mode; see below).
+ * The returned object graph is private to that thread's transaction (except in read-only shared mode; see below).
  * </p>
  *
  * <h3>Transaction Types</h3>
@@ -53,17 +55,18 @@ import org.springframework.stereotype.Component;
  * Transactions may be read-only or read-write. Read-only transactions may optionally be configured to access a
  * {@linkplain PersistentObject#getSharedRoot shared root}, in which case all read-only transactions share the same
  * object graph (so no per-transation copies are required), but these transactions must also be careful not to modify
- * the object graph returned by {@link #getRoot}. For read-write transactions, any modifications to the
+ * the object graph returned by {@link #getRoot}. In non-shared read-only transactions, changes are permitted but
+ * discarded at the end of the transaction. For read-write transactions, any modifications to the
  * object graph returned by {@link #getRoot} will be persisted when the transaction completes (assuming it validates).
  * In either case, references to the object graph returned by {@link #getRoot} may be returned to callers outside of the
  * transaction, who may then safely access them with the assurance that they won't be modified by another thread (although in the
  * {@linkplain PersistentObject#getSharedRoot shared root} case, modifications must still be avoided). Of course, once
- * the transaction ends the transaction's object graph is no longer guaranteed to be up-to-date.
+ * the transaction ends, the transaction's object graph is also no longer guaranteed to be up-to-date.
  * </p>
  *
  * <p>
- * Normally all changes to the associated {@link PersistentObject} database are being handled via this class: if not, and
- * another thread updates the {@link PersistentObject} while a transaction is being handled,
+ * Normally all changes to the associated {@link PersistentObject} database are being handled via this class: if not,
+ * and another thread updates the {@link PersistentObject} while a transaction is being handled,
  * a {@link PersistentObjectVersionException} can result (the transaction may then be retried if desired).
  * </p>
  *
@@ -81,8 +84,8 @@ import org.springframework.stereotype.Component;
  * <p>
  * A thread executing within one {@link PersistentObjectTransactionManager}'s transaction may safely invoke
  * {@link #performTransaction performTransaction()} on another {@link PersistentObjectTransactionManager}; however,
- * the first transaction will block while the second executes, and callers must be careful to always nest these
- * transactions in the same order to avoid possible deadlock.
+ * the first transaction will block while the second executes, and therefore callers must be careful to always nest
+ * these transactions in a consistent ordering to avoid possible deadlock.
  * </p>
  *
  * <p>
@@ -91,7 +94,7 @@ import org.springframework.stereotype.Component;
  * {@linkplain #setBeanName bean name} when instances are declared in a Spring bean factory). Within an open transaction,
  * the associated {@link PersistentObjectTransactionManager} can be accessed by name via {@link #getCurrent(String)}.
  * As a convenience, in the common case of there only being one open transaction in the current thread, the
- * {@link #getCurrent()} variant works; dealing with names is not necessary when there is only one instance in play.
+ * {@link #getCurrent()} variant works; dealing with names is not necessary when there is only one instance.
  * </p>
  *
  * <h3>Annotation Usage</h3>
@@ -102,6 +105,7 @@ import org.springframework.stereotype.Component;
  * and then use {@link #getCurrent()} within the transaction to access the {@link PersistentObjectTransactionManager} and
  * the associated transaction root object. For example:
  * <pre>
+ *  // Login a user. This method operates on the database atomically.
  *  <b>&#64;PersistentObjectTransactional</b>
  *  public User loginUser(String username) throws LoginException {
  *      final MyDatabase database = <b>PersistentObjectTransactionManager.&lt;MyDatabase&gt;getCurrent().getRoot()</b>;
@@ -115,6 +119,12 @@ import org.springframework.stereotype.Component;
  *      }
  *      throw new LoginException("user not found");
  *  }
+ *
+ *  // Grab a read-only database snapshot.
+ *  <b>&#64;PersistentObjectTransactional(readOnly = true, shared = true)</b>
+ *  public MyDatabase getMyDatabase() {
+ *      return <b>PersistentObjectTransactionManager.&lt;MyDatabase&gt;getCurrent().getRoot()</b>;
+ *  }
  * </pre>
  * Don't forget to configure the {@link PersistentObjectTransactional &#64;PersistentObjectTransactional} AOP aspect
  * via Spring as described in {@link PersistentObjectTransactional &#64;PersistentObjectTransactional}.
@@ -122,12 +132,12 @@ import org.springframework.stereotype.Component;
  *
  * @param <T> root object type
  * @see PersistentObjectTransactional &#64;PersistentObjectTransactional
+ * @see <a href="http://lmax-exchange.github.io/disruptor/">LMAX Disruptor: High Performance Inter-Thread Messaging Library</a>
  */
-@Component
 public class PersistentObjectTransactionManager<T> extends AbstractBean implements BeanNameAware {
 
     /**
-     * Default transaction queue capacity ({@link Integer#MAX_VALUE}).
+     * Default transaction queue capacity ({@link Integer#MAX_VALUE}) when in Disruptor mode.
      */
     public static final int DEFAULT_QUEUE_CAPACITY = Integer.MAX_VALUE;
 
@@ -142,23 +152,15 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
     private PersistentObject<T> persistentObject;
 
     private String name = "default";
-
     private int queueCapacity = DEFAULT_QUEUE_CAPACITY;
+
+    private boolean disruptorMode;
+    private boolean started;
+
     private volatile LinkedBlockingQueue<FutureTask<?>> queue;
     private volatile WorkerThread workerThread;
 
 // Lifecycle
-
-    /**
-     * Configure the {@link PersistentObject} database that this instance manages transactions for.
-     *
-     * <p>
-     * Required property.
-     * </p>
-     */
-    public void setPersistentObject(PersistentObject<T> persistentObject) {
-        this.persistentObject = persistentObject;
-    }
 
     /**
      * Set the name of this instance.
@@ -174,46 +176,101 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
             this.setName(beanName);
     }
 
+    /**
+     * Start this instance.
+     *
+     * @throws IllegalStateException if instance has already been started.
+     */
     @Override
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
+        synchronized (this) {
 
-        // Check required properties
-        if (this.persistentObject == null)
-            throw new IllegalStateException("no PersistentObject configured");
-        if (this.name == null)
-            throw new IllegalStateException("no name configured");
+            // Sanity check
+            if (this.started)
+                throw new IllegalStateException("already started");
 
-        // Initialize queue
-        this.queue = new LinkedBlockingQueue<FutureTask<?>>(this.getQueueCapacity());
+            // Check required properties
+            if (this.persistentObject == null)
+                throw new IllegalStateException("no PersistentObject configured");
+            if (this.name == null)
+                throw new IllegalStateException("no name configured");
 
-        // Start worker thread
-        if (this.workerThread != null)
-            throw new IllegalStateException("instance is already started");
-        this.workerThread = new WorkerThread();
-        this.workerThread.start();
+            // Check mode
+            if (this.disruptorMode) {
+
+                // Initialize queue
+                this.queue = new LinkedBlockingQueue<FutureTask<?>>(this.getQueueCapacity());
+
+                // Start worker thread
+                this.workerThread = new WorkerThread();
+                this.workerThread.start();
+            }
+
+            // Done
+            this.started = true;
+        }
     }
 
+    /**
+     * Stop this instance.
+     *
+     * @throws IllegalStateException if instance has not yet been {@linkplain #afterPropertiesSet started}.
+     */
     @Override
     public void destroy() throws Exception {
+        synchronized (this) {
 
-        // Stop worker thread
-        if (this.workerThread == null)
-            throw new IllegalStateException("instance is already shutdown");
-        this.queue.add(TERMINATE_TASK);
+            // Sanity check
+            if (!this.started)
+                throw new IllegalStateException("not started");
 
-        // Wait for worker thread to finish
-        this.workerThread.join();
-        this.workerThread = null;
+            // Stop worker thread
+            if (this.queue != null)
+                this.queue.add(TERMINATE_TASK);
 
-        // Reset queue
-        this.queue = null;
+            // Wait for worker thread to finish
+            if (this.workerThread != null) {
+                this.workerThread.join();
+                this.workerThread = null;
+            }
 
-        // Done
+            // Reset queue
+            this.queue = null;
+
+            // Done
+            this.started = false;
+        }
         super.destroy();
     }
 
 // Public API
+
+    /**
+     * Configure the {@link PersistentObject} database that this instance manages transactions for.
+     *
+     * <p>
+     * Required property.
+     * </p>
+     */
+    public void setPersistentObject(PersistentObject<T> persistentObject) {
+        this.persistentObject = persistentObject;
+    }
+
+    /**
+     * Configure whether to enabled "Disruptor" mode where transactions are all executed on a single, dedicated thread.
+     *
+     * <p>
+     * Default false.
+     * </p>
+     *
+     * @throws IllegalStateException if instance has already been {@linkplain #afterPropertiesSet started}.
+     */
+    public synchronized void setDisruptorMode(boolean disruptorMode) {
+        if (this.started && disruptorMode != this.disruptorMode)
+            throw new IllegalStateException("can't change disruptorMode while running");
+        this.disruptorMode = disruptorMode;
+    }
 
     /**
      * Get the configured name of this instance. Default is {@code "default"}.
@@ -230,14 +287,14 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
     }
 
     /**
-     * Get the configured capacity of the transaction queue. Default is {@link Integer#MAX_VALUE}.
+     * Get the configured capacity of the transaction queue for Disruptor mode. Default is {@link Integer#MAX_VALUE}.
      */
     public int getQueueCapacity() {
         return this.queueCapacity;
     }
 
     /**
-     * Set the capacity of the transaction queue.
+     * Set the capacity of the transaction queue. Only relevant for Disruptor mode.
      *
      * @throws IllegalArgumentException if {@code queueCapacity} is zero or less
      */
@@ -249,6 +306,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
 
     /**
      * Schedule a transaction. The transaction will execute asynchronously.
+     * This method is only valid in Disruptor mode.
      *
      * @param action action to perform within the transaction
      * @param readOnly true for a read-only transaction
@@ -258,6 +316,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
      * @throws IllegalArgumentException if {@code action} is null
      * @throws IllegalStateException if this instance is not yet {@linkplain #afterPropertiesSet started}
      *  or has been {@linkplain #destroy} shut down
+     * @throws IllegalStateException if this instance is not in Disruptor mode
      */
     public <V> Future<V> scheduleTransaction(Callable<V> action, boolean readOnly, boolean shared) {
         return this.scheduleTransaction(new FutureTask<V>(this.getTask(action, readOnly, shared)));
@@ -265,6 +324,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
 
     /**
      * Schedule a transaction. The transaction will execute asynchronously.
+     * This method is only valid in Disruptor mode.
      *
      * @param action action to perform within the transaction
      * @param readOnly true for a read-only transaction
@@ -274,13 +334,19 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
      * @throws IllegalArgumentException if {@code action} is null
      * @throws IllegalStateException if this instance is not yet {@linkplain #afterPropertiesSet started}
      *  or has been {@linkplain #destroy} shut down
+     * @throws IllegalStateException if this instance is not in Disruptor mode
      */
     public Future<Void> scheduleTransaction(Runnable action, boolean readOnly, boolean shared) {
         return this.scheduleTransaction(new FutureTask<Void>(this.getTask(action, readOnly, shared)));
     }
 
     /**
-     * Schedule a transaction, wait for it to complete, and return the result.
+     * Perform a transaction synchronously.
+     *
+     * <p>
+     * In normal mode, the transaction executes in the current thread.
+     * In Disruptor mode, schedule a transaction, wait for it to complete, and return the result.
+     * <p>
      *
      * <p>
      * If the current thread is already executing within a transaction associated with this instance, then
@@ -306,13 +372,21 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
      * @throws Exception if thrown by {@code action}
      */
     public <V> V performTransaction(Callable<V> action, boolean readOnly, boolean shared) throws Exception {
-        if (this.isReentrant(readOnly, shared))
+        if (this.checkReentrant(readOnly, shared))
             return action.call();
-        return this.performTransaction(this.scheduleTransaction(action, readOnly, shared));
+        if (!this.disruptorMode)
+            return this.getTask(action, readOnly, shared).call();
+        else
+            return this.performTransaction(this.scheduleTransaction(action, readOnly, shared));
     }
 
     /**
-     * Schedule a transaction and wait for it to complete.
+     * Perform a transaction synchronously.
+     *
+     * <p>
+     * In normal mode, the transaction executes in the current thread.
+     * In Disruptor mode, schedule a transaction, wait for it to complete, and return the result.
+     * <p>
      *
      * @param action action to perform within the transaction
      * @param readOnly true for a read-only transaction
@@ -330,11 +404,14 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
      * @throws PersistentObjectException if {@code readOnly} is false and some other error occurs
      */
     public void performTransaction(Runnable action, boolean readOnly, boolean shared) {
-        if (this.isReentrant(readOnly, shared)) {
+        if (this.checkReentrant(readOnly, shared)) {
             action.run();
             return;
         }
-        this.performTransaction(this.scheduleTransaction(action, readOnly, shared));
+        if (!this.disruptorMode)
+            this.getTask(action, readOnly, shared);
+        else
+            this.performTransaction(this.scheduleTransaction(action, readOnly, shared));
     }
 
     /**
@@ -428,7 +505,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
 
 // Internal methods
 
-    private boolean isReentrant(boolean readOnly, boolean shared) {
+    private boolean checkReentrant(boolean readOnly, boolean shared) {
 
         // Are we already within a transaction?
         final TxInfo txInfo = this.currentRoot.get();
@@ -454,13 +531,13 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
         // Sanity check
         if (task == null)
             throw new IllegalArgumentException("null task");
+        if (!this.started)
+            throw new IllegalStateException("instance not started");
+        if (this.queue == null)
+            throw new IllegalStateException("instance is not running in Disruptor mode");
 
         // Enqueue transaction
-        try {
-            this.queue.add(task);
-        } catch (NullPointerException e) {
-            throw new IllegalStateException("instance not started or has been shutdown");
-        }
+        this.queue.add(task);
 
         // Done
         return task;

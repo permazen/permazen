@@ -16,12 +16,14 @@ import java.lang.annotation.Target;
 
 /**
  * Declares that annotated methods should execute within {@link PersistentObjectTransactionManager} transactions.
+ * During the execution, the method has private, atomic access to the associated database.
  *
  * <p>
- * When the associated AOP aspect is applied, annotated methods are executed on the {@link PersistentObjectTransactionManager}
- * transaction thread, and the thread that invoked the method will block until the transaction completes (unless
- * specified as {@link #async}). Return values and thrown exceptions are delivered back to the calling thread as
- * they normally would be.
+ * When the associated AOP aspect is applied, annotated methods are executed within a {@link PersistentObjectTransactionManager}
+ * transaction. In normal mode, the transaction simply executes in the current thread. In "Disruptor" mode, the
+ * annotated method executes on the dedicated transaction thread, and the thread that invoked the method will block
+ * until the transaction completes (unless specified as {@link #async}); return values and thrown exceptions are
+ * delivered back to the calling thread as they normally would be.
  * </p>
  *
  * <p>
@@ -40,8 +42,8 @@ import java.lang.annotation.Target;
  *  &lt;bean class="org.dellroad.stuff.pobj.PersistentObjectTransactionalAspect" factory-method="aspectOf"&gt;
  *      &lt;property name="persistentObjectTransactionManagers"&gt;
  *          &lt;util:list&gt;
- *              &lt;bean ref="myManagerBean1"/&gt;
- *              &lt;bean ref="myManagerBean2"/&gt;
+ *              &lt;bean ref="fooManager"/&gt;
+ *              &lt;bean ref="barManager"/&gt;
  *          &lt;/util:list&gt;
  *      &lt;/property&gt;
  *  &lt;/bean&gt;
@@ -50,13 +52,20 @@ import java.lang.annotation.Target;
  * the aspect uses is determined by the {@link #managerName} annotation property, which must equal the
  * {@linkplain PersistentObjectTransactionManager#getName name} of the desired {@link PersistentObjectTransactionManager}, e.g.:
  * <pre>
-
- *  &#64;PersistentObjectTransactional(managerName = "myManagerBean1")
+ *
+ *  &#64;PersistentObjectTransactional(managerName = "fooManager")
  *  public void doSomething() {
+ *      final Foo database = PersistentObjectTransactionManager.&lt;Foo&gt;getCurrent().getRoot();
  *      ...
  *  }
  * </pre>
  * </p>
+ *
+ * <p>
+ * To apply the AOP aspect associated with this annotation, the annoated method's class must be woven (either at build
+ * time or runtime) using the <a href="http://www.eclipse.org/aspectj/doc/released/faq.php#compiler">AspectJ compiler</a>
+ * with the {@code PersistentObjectTransactionalAspect} aspect (included in the <code>dellroad-stuff</code> JAR file).
+ * <p>
  *
  * @see PersistentObjectTransactionManager
  */
@@ -91,10 +100,10 @@ public @interface PersistentObjectTransactional {
     boolean shared() default false;
 
     /**
-     * Whether the transaction should execute asynchronously.
+     * Whether the transaction should execute asynchronously when in "Disruptor" mode.
      *
      * <p>
-     * Although transactions always are executed by the dedicated {@link PersistentObjectTransactionManager} transaction thread,
+     * Although all transactions are executed by the dedicated {@link PersistentObjectTransactionManager} transaction thread,
      * by default {@link PersistentObjectTransactional @PersistentObjectTransactional}-annotated methods will block until the
      * transaction completes, allowing the return value from the transaction to be passed back to the caller.
      * </p>
@@ -103,6 +112,11 @@ public @interface PersistentObjectTransactional {
      * Setting {@link #async} to true forces the method to return immediately, so that the transaction runs asynchronously.
      * Such methods must return {@code void}. If an exception is thrown by an asynchronous transaction, it will be logged
      * as an error and then discarded.
+     * </p>
+     *
+     * <p>
+     * Setting this property to true is only valid when the associated {@link PersistentObjectTransactionManager}
+     * is operating in "Disruptor" mode. Otherwise, an {@link IllegalStateException} is thrown by the annotated method.
      * </p>
      */
     boolean async() default false;
