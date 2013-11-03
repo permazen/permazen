@@ -427,8 +427,16 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 
     @Override
     public Collection<?> getSortableContainerPropertyIds() {
-        ArrayList<String> propertyIds = new ArrayList<String>(this.propertyMap.size());
+        final ArrayList<String> propertyIds = new ArrayList<String>(this.propertyMap.size());
         for (Map.Entry<String, PropertyDef<?>> entry : this.propertyMap.entrySet()) {
+            if (this.propertyExtractor instanceof SortingPropertyExtractor) {
+                final SortingPropertyExtractor<? super T> sortingPropertyExtractor
+                  = (SortingPropertyExtractor<? super T>)this.propertyExtractor;
+                if (sortingPropertyExtractor.canSort(entry.getValue())) {
+                    propertyIds.add(entry.getKey());
+                    continue;
+                }
+            }
             if (entry.getValue().isSortable())
                 propertyIds.add(entry.getKey());
         }
@@ -438,18 +446,39 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 // ItemSorter class
 
     /**
-     * {@link ItemSorter} implementation used by {@link SimpleContainer}.
+     * {@link ItemSorter} implementation used by {@link AbstractSimpleContainer}.
      */
     private class SimpleItemSorter extends DefaultItemSorter {
 
         @Override
         @SuppressWarnings("unchecked")
         protected int compareProperty(Object propertyId, boolean ascending, Item item1, Item item2) {
-            PropertyDef<?> propertyDef = AbstractSimpleContainer.this.propertyMap.get(propertyId);
-            if (propertyDef == null || !propertyDef.isSortable())
+
+            // Get property definition
+            final PropertyDef<?> propertyDef = AbstractSimpleContainer.this.propertyMap.get(propertyId);
+            if (propertyDef == null)
                 return super.compareProperty(propertyId, ascending, item1, item2);
-            int diff = this.sort(propertyDef, item1, item2);
-            return ascending ? diff : -diff;
+
+            // Ask SortingPropertyExtractor if we have one
+            if (AbstractSimpleContainer.this.propertyExtractor instanceof SortingPropertyExtractor) {
+                final SortingPropertyExtractor<? super T> sortingPropertyExtractor
+                  = (SortingPropertyExtractor<? super T>)AbstractSimpleContainer.this.propertyExtractor;
+                if (sortingPropertyExtractor.canSort(propertyDef)) {
+                    final T obj1 = ((SimpleItem<T>)item1).getObject();
+                    final T obj2 = ((SimpleItem<T>)item2).getObject();
+                    final int diff = sortingPropertyExtractor.sort(propertyDef, obj1, obj2);
+                    return ascending ? diff : -diff;
+                }
+            }
+
+            // Ask property definition
+            if (propertyDef.isSortable()) {
+                final int diff = this.sort(propertyDef, item1, item2);
+                return ascending ? diff : -diff;
+            }
+
+            // Defer to superclass
+            return super.compareProperty(propertyId, ascending, item1, item2);
         }
 
         // This method exists only to allow the generic parameter <V> to be bound
