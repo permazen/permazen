@@ -14,22 +14,22 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates a Java field or method that provides a read-only Vaadin {@link com.vaadin.data.Property} value.
+ * Annotates a Java method that provides a read-only Vaadin {@link com.vaadin.data.Property} value.
  *
  * <p>
  * This annotation indicates that a read-only Vaadin {@link com.vaadin.data.Property} having the {@linkplain #value specified name}
- * and type derived from the annotated field or zero-argument method is accessible by reading that field or method.
+ * and type derived from the method's return value is accessible by reading that method.
+ * Annotated methods must have zero parameters.
  * </p>
  *
  * <p>
- * Classes with {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and methods can be used to automatically
- * generate a {@link PropertyExtractor} and a list of {@link PropertyDef}s by using a {@link PropertyReader}.
+ * {@link ProvidesProperty &#64;ProvidesProperty} and {@link ProvidesPropertySort &#64;ProvidesPropertySort} method annotations
+ * can be used to automatically generate a list of {@link PropertyDef}s and a {@link PropertyExtractor} using a
+ * {@link ProvidesPropertyScanner}. This happens automatically when using the appropriate constructors of the various
+ * {@link com.vaadin.data.Container} classes in this package.
  * </p>
  *
  * <p>
- * The {@link com.vaadin.data.Container} classes in this package that are configured with a {@link PropertyExtractor}
- * and a list of {@link PropertyDef}s all have a constructor variant taking a {@link ProvidesProperty
- * &#64;ProvidesProperty}-annotated Java class, which allows the container properties to be auto-detected via introspection.
  * For example:
  * <blockquote><pre>
  * // Container backing object class
@@ -48,7 +48,7 @@ import java.lang.annotation.Target;
  *         this.username = username;
  *     }
  *
- *     &#64;ProvidesProperty(REAL_NAME_PROPERTY)
+ *     <b>&#64;ProvidesProperty</b>            // property "realName" is implied by method name
  *     public String getRealName() {
  *         return this.realName;
  *     }
@@ -56,8 +56,8 @@ import java.lang.annotation.Target;
  *         this.realName = realName;
  *     }
  *
- *     &#64;ProvidesProperty(USERNAME_PROPERTY)
- *     public Label usernameProperty() {
+ *     <b>&#64;ProvidesProperty(USERNAME_PROPERTY)</b>
+ *     private Label usernameProperty() {
  *         return new Label("&lt;code&gt;" + StringUtil.escapeHtml(this.username) + "&lt;/code&gt;", ContentMode.HTML);
  *     }
  * }
@@ -66,7 +66,7 @@ import java.lang.annotation.Target;
  * public class UserContainer extends SimpleKeyedContainer&lt;String, User&gt; {
  *
  *     public UserContainer() {
- *         super(User.class);
+ *         super(<b>User.class</b>);
  *     }
  *
  *     &#64;Override
@@ -77,7 +77,7 @@ import java.lang.annotation.Target;
  *
  * // Create container holding all users
  * UserContainer container = new UserContainer();
- * container.load(this.getAllUsers());
+ * container.load(this.userDAO.getAllUsers());
  *
  * // Build table showing users
  * Table table = new Table();
@@ -96,16 +96,19 @@ import java.lang.annotation.Target;
  *  <ul>
  *  <li>Only non-void methods taking zero parameters are supported; {@link ProvidesProperty &#64;ProvidesProperty}
  *      annotations on other methods are ignored</li>
+ *  <li>Protected, package private, and private methods are supported.</li>
  *  <li>{@link ProvidesProperty &#64;ProvidesProperty} annotations on interface methods are supported</li>
  *  <li>If a method and the superclass or superinterface method it overrides are both annotated with
- *      {@link ProvidesProperty &#64;ProvidesProperty}, but the annotations declare different properties
- *      (i.e., they have different {@linkplain #value names}), then two properties will be defined with the same value</li>
- *  <li>After introspection, all property names must be unique, with the exception that a method may redundantly
- *      declare the same property (i.e., having the same {@linkplain #value name}) as any method it overrides.</li>
+ *      {@link ProvidesProperty &#64;ProvidesProperty}, then the overridding method's annotation takes precedence.
  *  </ul>
  * </p>
  *
- * @see PropertyReader
+ * <p>
+ * To control how properties are sorted (e.g., in tables), see {@link ProvidesPropertySort &#64;ProvidesPropertySort}.
+ * </p>
+ *
+ * @see ProvidesPropertyScanner
+ * @see ProvidesPropertySort
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.FIELD })
@@ -113,8 +116,8 @@ import java.lang.annotation.Target;
 public @interface ProvidesProperty {
 
     /**
-     * Get the name of the Vaadin property. If this is left unset (empty string), then the name of the
-     * annotated field, or the bean property name of the annotated "getter" method is used.
+     * Get the name of the Vaadin property. If this is left unset (empty string), then the
+     * bean property name of the annotated bean property "getter" method is used.
      */
     String value() default "";
 }

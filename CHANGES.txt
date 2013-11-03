@@ -3,7 +3,7 @@ Version Next
     - Added PersistentObjectTransactionManager and @PersistentObjectTransactional
     - Added ProcessRunner.handleInterruption()
     - Added SortingPropertyExtractor.
-    - Added FieldBuilder.
+    - Added @ProvidesProperty{,Sort} and FieldBuilder.
 
 Version 1.0.744 Released October 11, 2013
 

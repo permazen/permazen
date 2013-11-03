@@ -117,23 +117,27 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * Constructor.
      *
      * <p>
-     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and
-     * methods in the given class.
+     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty} and
+     * {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods in the given class.
      * </p>
      *
-     * @param type class to introspect for {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and methods
+     * @param type class to introspect for annotated methods
      * @throws IllegalArgumentException if {@code type} is null
-     * @throws IllegalArgumentException if an annotated method with no {@linkplain ProvidesProperty#value property name specified}
-     *  has a name which cannot be interpreted as a bean property "getter" method
-     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}-annotated
-     *  fields or methods with the same {@linkplain ProvidesProperty#value property name}
-     * @see PropertyReader
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}
+     *  or {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods for the same property
+     * @throws IllegalArgumentException if a {@link ProvidesProperty &#64;ProvidesProperty}-annotated method with no
+     *  {@linkplain ProvidesProperty#value property name specified} has a name which cannot be interpreted as a bean
+     *  property "getter" method
+     * @see ProvidesProperty
+     * @see ProvidesPropertySort
+     * @see ProvidesPropertyScanner
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected AbstractSimpleContainer(Class<? super T> type) {
         // Why the JLS forces this stupid cast:
         //  http://stackoverflow.com/questions/4902723/why-cant-a-java-type-parameter-have-a-lower-bound
-        final PropertyReader<? super T> propertyReader = (PropertyReader<? super T>)new PropertyReader(type);
+        final ProvidesPropertyScanner<? super T> propertyReader
+          = (ProvidesPropertyScanner<? super T>)new ProvidesPropertyScanner(type);
         this.setItemSorter(new SimpleItemSorter());
         this.setPropertyExtractor(propertyReader.getPropertyExtractor());
         this.setProperties(propertyReader.getPropertyDefs());

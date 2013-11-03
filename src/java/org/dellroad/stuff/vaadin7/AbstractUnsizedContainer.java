@@ -201,11 +201,14 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
      *
      * @param type class to introspect for {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and methods
      * @throws IllegalArgumentException if {@code type} is null
-     * @throws IllegalArgumentException if an annotated method with no {@linkplain ProvidesProperty#value property name specified}
-     *  has a name which cannot be interpreted as a bean property "getter" method
-     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}-annotated
-     *  fields or methods with the same {@linkplain ProvidesProperty#value property name}
-     * @see PropertyReader
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}
+     *  or {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods for the same property
+     * @throws IllegalArgumentException if a {@link ProvidesProperty &#64;ProvidesProperty}-annotated method with no
+     *  {@linkplain ProvidesProperty#value property name specified} has a name which cannot be interpreted as a bean
+     *  property "getter" method
+     * @see ProvidesProperty
+     * @see ProvidesPropertySort
+     * @see ProvidesPropertyScanner
      */
     protected AbstractUnsizedContainer(Class<? super T> type) {
         this(DEFAULT_WINDOW_SIZE, type);
@@ -215,19 +218,21 @@ public abstract class AbstractUnsizedContainer<T> extends AbstractQueryContainer
      * Constructor.
      *
      * <p>
-     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and
-     * methods in the given class.
+     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty} and
+     * {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods in the given class.
      * </p>
      *
      * @param windowSize size of the query window
-     * @param type class to introspect for {@link ProvidesProperty &#64;ProvidesProperty}-annotated fields and methods
-     * @throws IllegalArgumentException if {@code windowSize} is less than 1
+     * @param type class to introspect for annotated methods
      * @throws IllegalArgumentException if {@code type} is null
-     * @throws IllegalArgumentException if an annotated method with no {@linkplain ProvidesProperty#value property name specified}
-     *  has a name which cannot be interpreted as a bean property "getter" method
-     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}-annotated
-     *  fields or methods with the same {@linkplain ProvidesProperty#value property name}
-     * @see PropertyReader
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}
+     *  or {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods for the same property
+     * @throws IllegalArgumentException if a {@link ProvidesProperty &#64;ProvidesProperty}-annotated method with no
+     *  {@linkplain ProvidesProperty#value property name specified} has a name which cannot be interpreted as a bean
+     *  property "getter" method
+     * @see ProvidesProperty
+     * @see ProvidesPropertySort
+     * @see ProvidesPropertyScanner
      */
     protected AbstractUnsizedContainer(int windowSize, Class<? super T> type) {
         super(type);
