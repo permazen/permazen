@@ -58,6 +58,8 @@ public class ProvidesPropertyScanner<T> {
         for (MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo methodInfo : providesPropertyMethods) {
             final String propertyName = this.getPropertyName(methodInfo);
             final MethodAnnotationScanner<T, ?>.MethodInfo previous = providesPropertyNameMap.put(propertyName, methodInfo);
+
+            // Check for name conflict
             if (previous != null) {
                 throw new IllegalArgumentException("duplicate @" + ProvidesProperty.class.getSimpleName()
                   + " declaration for property `" + propertyName + "' on method " + previous.getMethod()
@@ -71,12 +73,20 @@ public class ProvidesPropertyScanner<T> {
         for (MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo methodInfo : providesPropertySortMethods) {
             final String propertyName = this.getSortPropertyName(methodInfo);
             final MethodAnnotationScanner<T, ?>.MethodInfo previous = providesPropertySortNameMap.put(propertyName, methodInfo);
+
+            // Check for name conflict
             if (previous != null) {
                 throw new IllegalArgumentException("duplicate @" + ProvidesPropertySort.class.getSimpleName()
                   + " declaration for property `" + propertyName + "' on method " + previous.getMethod()
                   + " and " + methodInfo.getMethod());
             }
-            final Class<?> methodType = methodInfo.getMethod().getReturnType();
+
+            // Get method type; if primitive, get wrapper type
+            Class<?> methodType = methodInfo.getMethod().getReturnType();
+            if (methodType.isPrimitive())
+                methodType = Primitive.get(methodType).getWrapperType();
+
+            // Verify type is Comparable
             if (!Comparable.class.isAssignableFrom(methodType)) {
                 throw new IllegalArgumentException("invalid @" + ProvidesPropertySort.class.getSimpleName()
                   + " declaration for property `" + propertyName + "': method " + methodInfo.getMethod()
