@@ -16,6 +16,7 @@ import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.ListSelect;
@@ -109,6 +110,7 @@ import java.util.TimeZone;
  *
  * @see AbstractSelect
  * @see AbstractTextField
+ * @see CheckBox
  * @see ComboBox
  * @see DateField
  * @see ListSelect
@@ -484,6 +486,8 @@ public class FieldBuilder {
             return new AbstractFieldApplier((FieldBuilder.AbstractField)annotation);
         if (annotation instanceof FieldBuilder.AbstractSelect)
             return new AbstractSelectApplier((FieldBuilder.AbstractSelect)annotation);
+        if (annotation instanceof FieldBuilder.CheckBox)
+            return new CheckBoxApplier((FieldBuilder.CheckBox)annotation);
         if (annotation instanceof FieldBuilder.ComboBox)
             return new ComboBoxApplier((FieldBuilder.ComboBox)annotation);
         if (annotation instanceof FieldBuilder.ListSelect)
@@ -611,6 +615,25 @@ public class FieldBuilder {
             field.setMultiSelect(this.annotation.multiSelect());
             field.setNewItemsAllowed(this.annotation.newItemsAllowed());
             field.setNullSelectionAllowed(this.annotation.nullSelectionAllowed());
+        }
+    }
+
+    /**
+     * Applies properties from a {@link FieldBuilder.CheckBox} annotation to a {@link com.vaadin.ui.CheckBox}.
+     */
+    private static class CheckBoxApplier extends AnnotationApplier<FieldBuilder.CheckBox, com.vaadin.ui.CheckBox> {
+
+        public CheckBoxApplier(FieldBuilder.CheckBox annotation) {
+            super(annotation, com.vaadin.ui.CheckBox.class);
+        }
+
+        @Override
+        public Class<? extends com.vaadin.ui.CheckBox> getActualFieldType() {
+            return this.annotation.type();
+        }
+
+        @Override
+        public void applyTo(com.vaadin.ui.CheckBox field) {
         }
     }
 
@@ -1027,6 +1050,23 @@ public class FieldBuilder {
          * @see com.vaadin.ui.AbstractSelect#setNullSelectionAllowed
          */
         boolean nullSelectionAllowed() default true;
+    }
+
+    /**
+     * Specifies how a Java property should be edited in Vaadin using an {@link com.vaadin.ui.CheckBox}.
+     *
+     * @see FieldBuilder.AbstractField
+     * @see FieldBuilder
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
+    @Documented
+    public @interface CheckBox {
+
+        /**
+         * Get the {@link com.vaadin.ui.CheckBox} type that will edit the property. Type must have a no-arg constructor.
+         */
+        Class<? extends com.vaadin.ui.CheckBox> type() default com.vaadin.ui.CheckBox.class;
     }
 
     /**
