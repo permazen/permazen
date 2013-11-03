@@ -70,6 +70,10 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/IdGenerator.java">
 </file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/MethodAnnotationScanner.java">
+<error line="163" column="59" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="164" column="65" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/Predicate.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/Primitive.java">
@@ -457,7 +461,7 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/package-info.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/AbstractQueryContainer.java">
-<error line="294" column="32" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="298" column="32" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.java">
 </file>
@@ -479,11 +483,12 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/PropertyExtractor.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/PropertyReader.java">
-<error line="137" column="63" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="138" column="69" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-</file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/ProvidesProperty.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/ProvidesPropertyScanner.java">
+<error line="112" column="34" severity="info" message="Anonymous inner class length is 41 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/ProvidesPropertySort.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/QueryList.java">
 </file>
@@ -498,6 +503,8 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SimpleProperty.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SimpleQueryList.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SortingPropertyExtractor.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SpringVaadinServlet.java">
 </file>
