@@ -148,6 +148,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
     private static final AtomicInteger THREAD_COUNTER = new AtomicInteger();
 
     private final ThreadLocalHolder<TxInfo> currentRoot = new ThreadLocalHolder<TxInfo>();
+    private final Object nonDisruptorLock = new Object();
 
     private PersistentObject<T> persistentObject;
 
@@ -319,7 +320,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
      * @throws IllegalStateException if this instance is not in Disruptor mode
      */
     public <V> Future<V> scheduleTransaction(Callable<V> action, boolean readOnly, boolean shared) {
-        return this.scheduleTransaction(new FutureTask<V>(this.getTask(action, readOnly, shared)));
+        return this.scheduleTransactionTask(new FutureTask<V>(this.getTask(action, readOnly, shared)));
     }
 
     /**
@@ -337,7 +338,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
      * @throws IllegalStateException if this instance is not in Disruptor mode
      */
     public Future<Void> scheduleTransaction(Runnable action, boolean readOnly, boolean shared) {
-        return this.scheduleTransaction(new FutureTask<Void>(this.getTask(action, readOnly, shared)));
+        return this.scheduleTransactionTask(new FutureTask<Void>(this.getTask(action, readOnly, shared)));
     }
 
     /**
@@ -372,12 +373,21 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
      * @throws Exception if thrown by {@code action}
      */
     public <V> V performTransaction(Callable<V> action, boolean readOnly, boolean shared) throws Exception {
+
+        // Check if reentrant
         if (this.checkReentrant(readOnly, shared))
             return action.call();
-        if (!this.disruptorMode)
-            return this.getTask(action, readOnly, shared).call();
-        else
-            return this.performTransaction(this.scheduleTransaction(action, readOnly, shared));
+
+        // Handle non-disruptor mode
+        if (!this.disruptorMode) {
+            final Callable<V> task = this.getTask(action, readOnly, shared);
+            synchronized (this.nonDisruptorLock) {
+                return task.call();
+            }
+        }
+
+        // Handle disruptor mode
+        return this.waitFormScheduledTransaction(this.scheduleTransaction(action, readOnly, shared));
     }
 
     /**
@@ -404,14 +414,31 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
      * @throws PersistentObjectException if {@code readOnly} is false and some other error occurs
      */
     public void performTransaction(Runnable action, boolean readOnly, boolean shared) {
+
+        // Check if reentrant
         if (this.checkReentrant(readOnly, shared)) {
             action.run();
             return;
         }
-        if (!this.disruptorMode)
-            this.getTask(action, readOnly, shared);
-        else
-            this.performTransaction(this.scheduleTransaction(action, readOnly, shared));
+
+        // Handle non-disruptor mode
+        if (!this.disruptorMode) {
+            final Callable<Void> task = this.getTask(action, readOnly, shared);
+            try {
+                synchronized (this.nonDisruptorLock) {
+                    task.call();
+                }
+            } catch (Error e) {
+                throw e;
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw this.<RuntimeException>maskException(e);      // should never happen
+            }
+        }
+
+        // Handle disruptor mode
+        this.waitFormScheduledTransaction(this.scheduleTransaction(action, readOnly, shared));
     }
 
     /**
@@ -526,7 +553,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
         return true;
     }
 
-    private <V> FutureTask<V> scheduleTransaction(FutureTask<V> task) {
+    private <V> FutureTask<V> scheduleTransactionTask(FutureTask<V> task) {
 
         // Sanity check
         if (task == null)
@@ -543,7 +570,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractBean implemen
         return task;
     }
 
-    private <V> V performTransaction(Future<V> future) {
+    private <V> V waitFormScheduledTransaction(Future<V> future) {
         boolean interrupted = false;
         try {
             while (true) {
