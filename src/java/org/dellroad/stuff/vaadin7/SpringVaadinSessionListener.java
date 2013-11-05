@@ -107,7 +107,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * @see com.vaadin.server.VaadinSession
  */
 @SuppressWarnings("serial")
-public class SpringVaadinSession implements SessionInitListener, SessionDestroyListener {
+public class SpringVaadinSessionListener implements SessionInitListener, SessionDestroyListener {
 
     /**
      * The {@link VaadinSession} attribute key under which the Spring {@link ConfigurableWebApplicationContext}
@@ -131,7 +131,7 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
      *  {@code /WEB-INF/ServletName.xml}, where {@code ServletName} is the value of {@code applicationName}
      * @throws IllegalArgumentException if {@code applicationName} is null
      */
-    public SpringVaadinSession(String applicationName, String configLocation) {
+    public SpringVaadinSessionListener(String applicationName, String configLocation) {
         if (applicationName == null)
             throw new IllegalArgumentException("null applicationName");
         this.applicationName = applicationName;
@@ -172,7 +172,7 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
         VaadinSession session = VaadinUtil.getCurrentSession();
 
         // Get the associated application context
-        ConfigurableWebApplicationContext context = SpringVaadinSession.getApplicationContext(session);
+        ConfigurableWebApplicationContext context = SpringVaadinSessionListener.getApplicationContext(session);
         if (context == null) {
             throw new IllegalStateException("there is no Spring application context associated with the current"
               + " VaadinSession; are you using SpringVaadinServlet instead of VaadinServlet?");
@@ -191,7 +191,7 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
      */
     public static void configureBean(Object bean) {
         final BeanConfigurerSupport beanConfigurerSupport = new BeanConfigurerSupport();
-        beanConfigurerSupport.setBeanFactory(SpringVaadinSession.getApplicationContext().getBeanFactory());
+        beanConfigurerSupport.setBeanFactory(SpringVaadinSessionListener.getApplicationContext().getBeanFactory());
         beanConfigurerSupport.afterPropertiesSet();
         beanConfigurerSupport.configureBean(bean);
         beanConfigurerSupport.destroy();
@@ -204,7 +204,7 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
         VaadinUtil.invoke(event.getSession(), new Runnable() {
             @Override
             public void run() {
-                SpringVaadinSession.this.loadContext(event.getSession(), event.getRequest());
+                SpringVaadinSessionListener.this.loadContext(event.getSession(), event.getRequest());
             }
         });
     }
@@ -228,7 +228,7 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
         VaadinUtil.assertSession(session);
         if (request == null)
             throw new IllegalStateException("null request");
-        if (SpringVaadinSession.getApplicationContext(session) != null)
+        if (SpringVaadinSessionListener.getApplicationContext(session) != null)
             throw new IllegalStateException("context already loaded");
 
         // Logging
@@ -282,18 +282,18 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
     @Override
     public void sessionDestroy(SessionDestroyEvent event) {
         final VaadinSession session = event.getSession();
-        final ConfigurableWebApplicationContext context = SpringVaadinSession.getApplicationContext(session);
+        final ConfigurableWebApplicationContext context = SpringVaadinSessionListener.getApplicationContext(session);
         if (context == null) {
             this.log.info(this.getClass().getSimpleName() + ".sessionDestroy() invoked but no application context found"
-              + " for Vaadin application [" + SpringVaadinSession.this.getApplicationName() + "]");
+              + " for Vaadin application [" + SpringVaadinSessionListener.this.getApplicationName() + "]");
             return;
         }
         session.setAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY, null);
         VaadinUtil.invoke(session, new Runnable() {
             @Override
             public void run() {
-                SpringVaadinSession.this.log.info("closing Vaadin application ["
-                  + SpringVaadinSession.this.getApplicationName() + "] application context: " + context);
+                SpringVaadinSessionListener.this.log.info("closing Vaadin application ["
+                  + SpringVaadinSessionListener.this.getApplicationName() + "] application context: " + context);
                 context.close();
             }
         });
@@ -308,7 +308,7 @@ public class SpringVaadinSession implements SessionInitListener, SessionDestroyL
         VaadinUtil.invoke(session, new Runnable() {
             @Override
             public void run() {
-                SpringVaadinSession.this.loadContext(session, request);
+                SpringVaadinSessionListener.this.loadContext(session, request);
             }
         });
     }

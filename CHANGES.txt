@@ -1,5 +1,7 @@
 Version Next
 
+    - Renamed SpringVaadinSession -> SpringVaadinSessionListener
+      NOTE: the above are backward-incompatible changes.
     - Added PersistentObjectTransactionManager and @PersistentObjectTransactional
     - Added ProcessRunner.handleInterruption()
     - Added SortingPropertyExtractor.

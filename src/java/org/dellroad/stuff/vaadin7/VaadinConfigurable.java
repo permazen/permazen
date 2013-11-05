@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  * <p>
  * Analogous to Spring's {@link org.springframework.beans.factory.annotation.Configurable @Configurable} annotation,
  * but causes beans to be autowired into the Spring application context associated with the current
- * {@link com.vaadin.server.VaadinSession} (aka "Vaadin application") by {@link SpringVaadinSession} instead of
+ * {@link com.vaadin.server.VaadinSession} (aka "Vaadin application") by {@link SpringVaadinSessionListener} instead of
  * the Spring application context associated with the servlet context.
  * </p>
  *
@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowire;
  *
  * @see org.dellroad.stuff.vaadin7
  * @see SpringVaadinServlet
- * @see SpringVaadinSession
+ * @see SpringVaadinSessionListener
  * @see <a href="https://github.com/archiecobbs/dellroad-stuff-vaadin-spring-demo3/tree/vaadin7">Example Code on GitHub</a>
  */
 @Retention(RetentionPolicy.RUNTIME)

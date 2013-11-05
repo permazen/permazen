@@ -41,8 +41,8 @@ import javax.servlet.ServletException;
  * </p>
  *
  * <p>
- * The only real function of this servlet is to create and register a {@link SpringVaadinSession} as a listener on the
- * {@link com.vaadin.server.VaadinService} associated with this servlet. The {@link SpringVaadinSession} in turn detects
+ * The only real function of this servlet is to create and register a {@link SpringVaadinSessionListener} as a listener on the
+ * {@link com.vaadin.server.VaadinService} associated with this servlet. The {@link SpringVaadinSessionListener} in turn detects
  * the creation and destruction of Vaadin application instances (represented by {@link com.vaadin.server.VaadinSession}
  * instances) and does the work of managing the associated Spring application contexts.
  * </p>
@@ -83,15 +83,15 @@ import javax.servlet.ServletException;
  * <td>{@code listenerClass}</td>
  * <td align="center">No</td>
  * <td>
- *  Specify the name of a custom class extending {@link SpringVaadinSession} and having the same constructor arguments.
- *  If omitted, {@link SpringVaadinSession} is used.
+ *  Specify the name of a custom class extending {@link SpringVaadinSessionListener} and having the same constructor arguments.
+ *  If omitted, {@link SpringVaadinSessionListener} is used.
  * </td>
  * </tr>
  * </table>
  * </div>
  * </p>
  *
- * @see SpringVaadinSession
+ * @see SpringVaadinSessionListener
  * @see VaadinConfigurable
  * @see VaadinApplication
  */
@@ -107,7 +107,7 @@ public class SpringVaadinServlet extends VaadinServlet {
 
     /**
      * Servlet initialization parameter (<code>{@value #LISTENER_CLASS_PARAMETER}</code>) used to specify
-     * the name of an custom subclass of {@link SpringVaadinSession}.
+     * the name of an custom subclass of {@link SpringVaadinSessionListener}.
      * This parameter is optional.
      */
     public static final String LISTENER_CLASS_PARAMETER = "listenerClass";
@@ -149,11 +149,11 @@ public class SpringVaadinServlet extends VaadinServlet {
             applicationName = this.servletName;
 
         // Detect listener class to use
-        Class<? extends SpringVaadinSession> listenerClass = SpringVaadinSession.class;
+        Class<? extends SpringVaadinSessionListener> listenerClass = SpringVaadinSessionListener.class;
         if (listenerClassName != null) {
             try {
                 listenerClass = Class.forName(listenerClassName, false, Thread.currentThread().getContextClassLoader())
-                  .asSubclass(SpringVaadinSession.class);
+                  .asSubclass(SpringVaadinSessionListener.class);
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
@@ -162,7 +162,7 @@ public class SpringVaadinServlet extends VaadinServlet {
         }
 
         // Create session listener
-        SpringVaadinSession sessionListener;
+        SpringVaadinSessionListener sessionListener;
         try {
             sessionListener = listenerClass.getConstructor(String.class, String.class)
               .newInstance(applicationName, contextLocation);

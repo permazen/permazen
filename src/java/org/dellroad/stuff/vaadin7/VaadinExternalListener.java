@@ -45,7 +45,7 @@ import com.vaadin.server.VaadinSession;
  * @see VaadinUtil#invoke
  * @see VaadinApplicationScope
  * @see VaadinApplicationListener
- * @see SpringVaadinSession
+ * @see SpringVaadinSessionListener
  */
 public abstract class VaadinExternalListener<S> {
 

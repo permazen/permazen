@@ -23,7 +23,7 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 /**
  * Aspect that autowires classes marked with the {@link VaadinConfigurable @VaadinConfigurable} annotation to a
- * {@link SpringVaadinSession} application context.
+ * {@link SpringVaadinSessionListener} application context.
  *
  * <p>
  * This aspect does the same thing that Spring's {@code AnnotationBeanConfigurerAspect} aspect does,
@@ -47,7 +47,7 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
  *
  * @see VaadinApplication
  * @see VaadinConfigurable
- * @see SpringVaadinSession
+ * @see SpringVaadinSessionListener
  * @see SpringVaadinServlet
  * @see VaadinUtil#getCurrentSession
  * @see VaadinSession#getCurrent
@@ -122,7 +122,7 @@ public aspect VaadinConfigurableAspect extends AbstractConfigurableAspect {
         // Get application context
         ConfigurableWebApplicationContext context;
         try {
-            context = SpringVaadinSession.getApplicationContext();
+            context = SpringVaadinSessionListener.getApplicationContext();
         } catch (IllegalStateException e) {
             throw new BeanInitializationException("can't get application context for autowiring @VaadinConfigurable bean", e);
         }

@@ -27,7 +27,7 @@ import org.springframework.context.event.SmartApplicationListener;
  * @see VaadinExternalListener
  * @see VaadinUtil#invoke
  * @see VaadinApplicationScope
- * @see SpringVaadinSession
+ * @see SpringVaadinSessionListener
  */
 public abstract class VaadinApplicationListener<E extends ApplicationEvent>
   extends VaadinExternalListener<ApplicationEventMulticaster> implements SmartApplicationListener {
