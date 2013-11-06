@@ -116,6 +116,29 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
     }
 
     /**
+     * Reload this container.
+     *
+     * <p>
+     * This method can be invoked from any thread. It creates a new thread to do the actual
+     * reloading to avoid potential deadlocks.
+     * </p>
+     */
+    public void reload() {
+        new Thread("VaadinSessionContainer.reload()") {
+            @Override
+            public void run() {
+                try {
+                    VaadinSessionContainer.this.update();
+                } catch (ThreadDeath t) {
+                    throw t;
+                } catch (Throwable t) {
+                    VaadinSessionContainer.this.log.error("error updating container " + this, t);
+                }
+            }
+        }.start();
+    }
+
+    /**
      * Update this container after a {@link VaadinSession} has been added or removed.
      * This must <b>not</b> be invoked while any {@link VaadinSession} is locked.
      */
@@ -167,32 +190,17 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
       implements SessionInitListener, SessionDestroyListener {
 
         public SessionEventListener() {
-            super(VaadinSession.getCurrent().getService());
+            super(VaadinUtil.getCurrentSession().getService());
         }
 
         @Override
         public void sessionInit(SessionInitEvent event) {
-            this.update();
+            VaadinSessionContainer.this.reload();
         }
 
         @Override
         public void sessionDestroy(SessionDestroyEvent event) {
-            this.update();
-        }
-
-        private void update() {
-            new Thread("VaadinSessionContainerUpdate") {
-                @Override
-                public void run() {
-                    try {
-                        VaadinSessionContainer.this.update();
-                    } catch (ThreadDeath t) {
-                        throw t;
-                    } catch (Throwable t) {
-                        VaadinSessionContainer.this.log.error("error updating container " + this, t);
-                    }
-                }
-            }.start();
+            VaadinSessionContainer.this.reload();
         }
 
         @Override
