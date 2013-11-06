@@ -12,8 +12,6 @@ import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.SessionInitEvent;
 import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.VaadinService;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.server.VaadinServletService;
 import com.vaadin.server.VaadinSession;
 
 import java.util.ArrayList;
@@ -82,7 +80,7 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
     protected VaadinSessionContainer(Class<T> type) {
         super(type);
         this.session = VaadinUtil.getCurrentSession();
-        this.getSpringVaadinServlet();
+        SpringVaadinServlet.getServlet(this.session);
     }
 
     /**
@@ -97,7 +95,7 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
       Collection<? extends PropertyDef<?>> propertyDefs) {
         super(propertyExtractor, propertyDefs);
         this.session = VaadinUtil.getCurrentSession();
-        this.getSpringVaadinServlet();
+        SpringVaadinServlet.getServlet(this.session);
     }
 
     @Override
@@ -111,6 +109,7 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
      */
     public void connect() {
         this.listener.register();
+        this.reload();
     }
 
     /**
@@ -155,7 +154,7 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
 
         // Create a VaadinSessionInfo object for each session, but doing so while that session is locked
         final ArrayList<T> sessionInfoList = new ArrayList<T>();
-        for (VaadinSession otherSession : this.getSpringVaadinServlet().getSessions()) {
+        for (VaadinSession otherSession : SpringVaadinServlet.getServlet(this.session).getSessions()) {
             otherSession.accessSynchronously(new Runnable() {
                 @Override
                 public void run() {
@@ -171,16 +170,6 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
                 VaadinSessionContainer.this.load(sessionInfoList);
             }
         });
-    }
-
-    protected SpringVaadinServlet getSpringVaadinServlet() {
-        final VaadinService service = this.session.getService();
-        if (!(service instanceof VaadinServletService))
-            throw new IllegalStateException("there is no SpringVaadinServlet associated with this VaadinSession");
-        final VaadinServlet servlet = ((VaadinServletService)service).getServlet();
-        if (!(servlet instanceof SpringVaadinServlet))
-            throw new IllegalStateException("there is no SpringVaadinServlet associated with this VaadinSession");
-        return (SpringVaadinServlet)servlet;
     }
 
     /**

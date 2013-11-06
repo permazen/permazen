@@ -271,22 +271,20 @@ public class SpringVaadinServlet extends VaadinServlet {
     }
 
     /**
-     * Get the {@link SpringVaadinServlet} that is associated with the {@link VaadinSession}
-     * that is associated with the current thread.
+     * Get the {@link SpringVaadinServlet} that is associated with the given {@link VaadinSession}.
      *
-     * @throws IllegalStateException if there is no {@link VaadinServlet} associated with the current thread
-     * @throws IllegalStateException if the {@link VaadinServlet} associated with the current thread is not a
+     * @throws IllegalStateException if the {@link VaadinServlet} associated with {@code session} is not a
      *  {@link SpringVaadinServlet}
      */
-    public static SpringVaadinServlet getCurrent() {
-        final VaadinServlet vaadinServlet = VaadinServlet.getCurrent();
-        if (vaadinServlet == null) {
-            throw new IllegalStateException("there is no VaadinServlet associated with the current thread;"
-              + " are we executing within a Vaadin HTTP request?");
-        }
-        if (!(vaadinServlet instanceof SpringVaadinServlet))
-            throw new IllegalStateException("the VaadinServlet associated with the current thread is not a SpringVaadinServlet");
-        return (SpringVaadinServlet)vaadinServlet;
+    public static SpringVaadinServlet getServlet(VaadinSession session) {
+        if (session == null)
+            throw new IllegalArgumentException("null session");
+        if (!(session.getService() instanceof VaadinServletService))
+            throw new IllegalStateException("the VaadinService associated with the session is not a VaadinServletService instance");
+        final VaadinServletService service = (VaadinServletService)session.getService();
+        if (!(service.getServlet() instanceof SpringVaadinServlet))
+            throw new IllegalStateException("the VaadinServlet associated with the session is not a SpringVaadinServlet instance");
+        return (SpringVaadinServlet)service.getServlet();
     }
 }
 
