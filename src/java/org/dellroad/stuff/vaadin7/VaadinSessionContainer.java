@@ -48,9 +48,14 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extends SimpleKeyedContainer<VaadinSession, T> {
 
+    /**
+     * The {@link VaadinSession} that this container instance is associated with.
+     * Determined by whatever {@link VaadinSession} is associated with the current thread at construction time.
+     */
+    protected final VaadinSession session;
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final SessionEventListener listener = new SessionEventListener();
-    private final VaadinSession session;
 
     /**
      * Constructor.
