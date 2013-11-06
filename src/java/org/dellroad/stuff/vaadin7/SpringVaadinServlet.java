@@ -7,10 +7,17 @@
 
 package org.dellroad.stuff.vaadin7;
 
+import com.vaadin.server.DeploymentConfiguration;
+import com.vaadin.server.ServiceException;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinServletService;
+import com.vaadin.server.VaadinSession;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.WeakHashMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -87,6 +94,25 @@ import javax.servlet.ServletException;
  *  If omitted, {@link SpringVaadinSessionListener} is used.
  * </td>
  * </tr>
+ * <tr>
+ * <td>{@code sessionTracking}</td>
+ * <td align="center">No</td>
+ * <td>
+ *  Boolean value that configures whether the {@link SpringVaadinSessionListener} should track Vaadin sessions; default
+ *  {@code false}. If set to {@code true}, then {@link #getSessions} can be used to access all active sessions.
+ *  Session tracking should not be used unless sessions are normally kept in memory; e.g., don't use session tracking
+ *  when sessions are being serialized and persisted. See also {@link VaadinSessionContainer}.
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>{@code maxSessions}</td>
+ * <td align="center">No</td>
+ * <td>
+ *  Configures a limit on the number of simultaneous Vaadin sessions that may exist at one time. Going over this
+ *  limit will result in a {@link com.vaadin.server.ServiceException} being thrown. A zero or negative number
+ *  means there is no limit (this is the default). Ignored unless {@value #SESSION_TRACKING_PARAMETER} is set to {@code true}.
+ * </td>
+ * </tr>
  * </table>
  * </div>
  * </p>
@@ -118,6 +144,23 @@ public class SpringVaadinServlet extends VaadinServlet {
      * This parameter is optional.
      */
     public static final String APPLICATION_NAME_PARAMETER = "applicationName";
+
+    /**
+     * Servlet initialization parameter (<code>{@value #SESSION_TRACKING_PARAMETER}</code>) that enables
+     * tracking of all Vaadin session.
+     * This parameter is optional, and defaults to <code>false</code>.
+     */
+    public static final String SESSION_TRACKING_PARAMETER = "sessionTracking";
+
+    /**
+     * Servlet initialization parameter (<code>{@value #MAX_SESSIONS_PARAMETER}</code>) that configures the
+     * maximum number of simultaneous Vaadin sessions. Requires {@link #SESSION_TRACKING_PARAMETER} to be set to {@code true}.
+     * This parameter is optional, and defaults to zero, which means no limit.
+     */
+    public static final String MAX_SESSIONS_PARAMETER = "maxSessions";
+
+    // We use weak references to avoid leaks caused by exceptions in SessionInitListeners; see http://dev.vaadin.com/ticket/12915
+    private final WeakHashMap<VaadinSession, Void> liveSessions = new WeakHashMap<VaadinSession, Void>();
 
     private String servletName;
 
@@ -175,6 +218,75 @@ public class SpringVaadinServlet extends VaadinServlet {
         // Register session listener
         servletService.addSessionInitListener(sessionListener);
         servletService.addSessionDestroyListener(sessionListener);
+    }
+
+    @Override
+    protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) throws ServiceException {
+
+        // Get session tracking parameters
+        final Properties params = deploymentConfiguration.getInitParameters();
+        final boolean sessionTracking = Boolean.valueOf(params.getProperty(SESSION_TRACKING_PARAMETER));
+        int maxSessionsParam = 0;
+        try {
+            maxSessionsParam = Integer.parseInt(params.getProperty(MAX_SESSIONS_PARAMETER));
+        } catch (Exception e) {
+            // ignore
+        }
+        final int maxSessions = maxSessionsParam;
+
+        // If not tracking sessions, do the normal thing
+        if (!sessionTracking)
+            return super.createServletService(deploymentConfiguration);
+
+        // Return a VaadinServletService that tracks sessions
+        final VaadinServletService service = new VaadinServletService(this, deploymentConfiguration) {
+
+            @Override
+            protected VaadinSession createVaadinSession(VaadinRequest request) throws ServiceException {
+                if (maxSessions > 0 && SpringVaadinServlet.this.liveSessions.size() >= maxSessions)
+                    throw new ServiceException("The maximum number of active sessions has been reached");
+                final VaadinSession session = super.createVaadinSession(request);
+                SpringVaadinServlet.this.liveSessions.put(session, null);
+                return session;
+            }
+
+            @Override
+            public void fireSessionDestroy(VaadinSession session) {
+                SpringVaadinServlet.this.liveSessions.remove(session);
+                super.fireSessionDestroy(session);
+            }
+        };
+        service.init();
+        return service;
+    }
+
+    /**
+     * Get all live {@link VaadinSession}s associated with this instance.
+     *
+     * @return live tracked sessions, or an empty collection if session tracking is not enabled
+     * @see VaadinSessionContainer
+     */
+    public synchronized List<VaadinSession> getSessions() {
+        return new ArrayList<VaadinSession>(this.liveSessions.keySet());
+    }
+
+    /**
+     * Get the {@link SpringVaadinServlet} that is associated with the {@link VaadinSession}
+     * that is associated with the current thread.
+     *
+     * @throws IllegalStateException if there is no {@link VaadinServlet} associated with the current thread
+     * @throws IllegalStateException if the {@link VaadinServlet} associated with the current thread is not a
+     *  {@link SpringVaadinServlet}
+     */
+    public static SpringVaadinServlet getCurrent() {
+        final VaadinServlet vaadinServlet = VaadinServlet.getCurrent();
+        if (vaadinServlet == null) {
+            throw new IllegalStateException("there is no VaadinServlet associated with the current thread;"
+              + " are we executing within a Vaadin HTTP request?");
+        }
+        if (!(vaadinServlet instanceof SpringVaadinServlet))
+            throw new IllegalStateException("the VaadinServlet associated with the current thread is not a SpringVaadinServlet");
+        return (SpringVaadinServlet)vaadinServlet;
     }
 }
 

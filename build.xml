@@ -275,7 +275,10 @@
     <target name="checkstyle" description="Run checkstyle report"
       depends="javac.classpath, unittest.classpath, checkstyle.classpath"
       unless="checkstyle.completed">
-        <dellroad:checkstyle maxWarnings="5" maxErrors="1"/>
+        <!-- Work around problem caused by Vaadin6 vs. Vaadin7 classpath -->
+        <mkdir dir="build/checkstyle"/>
+        <xslt style="checkstyle-fix.xsl" in="src/build/checkstyle/checkstyle.xml" out="build/checkstyle/config.xml" force="true"/>
+        <dellroad:checkstyle config="build/checkstyle/config.xml" maxWarnings="0" maxErrors="0"/>
         <property name="checkstyle.completed" value="true"/>
     </target>
 
