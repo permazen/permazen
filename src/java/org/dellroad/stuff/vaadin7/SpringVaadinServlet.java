@@ -48,7 +48,7 @@ import javax.servlet.ServletException;
  * </p>
  *
  * <p>
- * The only real function of this servlet is to create and register a {@link SpringVaadinSessionListener} as a listener on the
+ * The main function of this servlet is to create and register a {@link SpringVaadinSessionListener} as a listener on the
  * {@link com.vaadin.server.VaadinService} associated with this servlet. The {@link SpringVaadinSessionListener} in turn detects
  * the creation and destruction of Vaadin application instances (represented by {@link com.vaadin.server.VaadinSession}
  * instances) and does the work of managing the associated Spring application contexts.
