@@ -7,6 +7,7 @@
 
 package org.dellroad.stuff.vaadin7;
 
+import com.vaadin.server.ServiceException;
 import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.SessionInitEvent;
@@ -110,10 +111,9 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 public class SpringVaadinSessionListener implements SessionInitListener, SessionDestroyListener {
 
     /**
-     * The {@link VaadinSession} attribute key under which the Spring {@link ConfigurableWebApplicationContext}
-     * is stored.
+     * The {@link VaadinSession} attribute key under which the Spring {@link ConfigurableWebApplicationContext} is stored.
      */
-    public static final String APPLICATION_CONTEXT_ATTRIBUTE_KEY = "springServiceSessionApplicationContext";
+    public static final String APPLICATION_CONTEXT_ATTRIBUTE_KEY = "springVaadinSessionListenerApplicationContext";
 
     private static final AtomicLong UNIQUE_INDEX = new AtomicLong();
 
@@ -200,7 +200,7 @@ public class SpringVaadinSessionListener implements SessionInitListener, Session
 // SessionInitListener
 
     @Override
-    public void sessionInit(final SessionInitEvent event) {
+    public void sessionInit(final SessionInitEvent event) throws ServiceException {
         VaadinUtil.invoke(event.getSession(), new Runnable() {
             @Override
             public void run() {
