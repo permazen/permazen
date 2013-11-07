@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dellroad.stuff.java.MethodAnnotationScanner;
 import org.dellroad.stuff.java.Primitive;
@@ -121,8 +122,9 @@ public class ProvidesPropertyScanner<T> {
         }
 
         // Build PropertyDef list
-        for (MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo methodInfo : providesPropertyMethods) {
-            final String propertyName = this.getPropertyName(methodInfo);
+        for (Map.Entry<String, MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo> e : providesPropertyNameMap.entrySet()) {
+            final String propertyName = e.getKey();
+            final MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo methodInfo = e.getValue();
 
             // Get property type
             Class<?> propertyType = methodInfo.getMethod().getReturnType();
