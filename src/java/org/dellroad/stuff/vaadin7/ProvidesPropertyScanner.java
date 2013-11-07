@@ -7,8 +7,10 @@
 
 package org.dellroad.stuff.vaadin7;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -57,13 +59,25 @@ public class ProvidesPropertyScanner<T> {
           = new HashMap<String, MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo>();
         for (MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo methodInfo : providesPropertyMethods) {
             final String propertyName = this.getPropertyName(methodInfo);
-            final MethodAnnotationScanner<T, ?>.MethodInfo previous = providesPropertyNameMap.put(propertyName, methodInfo);
 
             // Check for name conflict
-            if (previous != null) {
+            final MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo previousInfo = providesPropertyNameMap.get(propertyName);
+            if (previousInfo == null) {
+                providesPropertyNameMap.put(propertyName, methodInfo);
+                continue;
+            }
+
+            // If there is a name conflict, the sub-type method declaration wins
+            switch (this.compareDeclaringClass(previousInfo.getMethod(), methodInfo.getMethod())) {
+            case 0:
                 throw new IllegalArgumentException("duplicate @" + ProvidesProperty.class.getSimpleName()
-                  + " declaration for property `" + propertyName + "' on method " + previous.getMethod()
-                  + " and " + methodInfo.getMethod());
+                  + " declaration for property `" + propertyName + "' on method " + previousInfo.getMethod()
+                  + " and " + methodInfo.getMethod() + " declared in the same class");
+            case 1:
+                providesPropertyNameMap.put(propertyName, methodInfo);
+                break;
+            default:
+                break;
             }
         }
 
@@ -72,25 +86,37 @@ public class ProvidesPropertyScanner<T> {
           = new HashMap<String, MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo>();
         for (MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo methodInfo : providesPropertySortMethods) {
             final String propertyName = this.getSortPropertyName(methodInfo);
-            final MethodAnnotationScanner<T, ?>.MethodInfo previous = providesPropertySortNameMap.put(propertyName, methodInfo);
 
-            // Check for name conflict
-            if (previous != null) {
-                throw new IllegalArgumentException("duplicate @" + ProvidesPropertySort.class.getSimpleName()
-                  + " declaration for property `" + propertyName + "' on method " + previous.getMethod()
-                  + " and " + methodInfo.getMethod());
-            }
-
-            // Get method type; if primitive, get wrapper type
+            // Verify the method's return type (or wrapper type if primitive) implements Comparable or Comparator
             Class<?> methodType = methodInfo.getMethod().getReturnType();
             if (methodType.isPrimitive())
                 methodType = Primitive.get(methodType).getWrapperType();
-
-            // Verify type is Comparable
-            if (!Comparable.class.isAssignableFrom(methodType)) {
+            if (!Comparable.class.isAssignableFrom(methodType) && !Comparator.class.isAssignableFrom(methodType)) {
                 throw new IllegalArgumentException("invalid @" + ProvidesPropertySort.class.getSimpleName()
                   + " declaration for property `" + propertyName + "': method " + methodInfo.getMethod()
-                  + " return type " + methodType.getName() + " is not an instance of " + Comparable.class.getName());
+                  + " return type " + methodType.getName() + " implements neither " + Comparable.class.getName()
+                  + " nor " + Comparator.class.getName());
+            }
+
+            // Check for name conflict
+            final MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo previousInfo
+              = providesPropertySortNameMap.get(propertyName);
+            if (previousInfo == null) {
+                providesPropertySortNameMap.put(propertyName, methodInfo);
+                continue;
+            }
+
+            // If there is a name conflict, the sub-type method declaration wins
+            switch (this.compareDeclaringClass(previousInfo.getMethod(), methodInfo.getMethod())) {
+            case 0:
+                throw new IllegalArgumentException("duplicate @" + ProvidesPropertySort.class.getSimpleName()
+                  + " declaration for property `" + propertyName + "' on method " + previousInfo.getMethod()
+                  + " and " + methodInfo.getMethod() + " declared in the same class");
+            case 1:
+                providesPropertySortNameMap.put(propertyName, methodInfo);
+                break;
+            default:
+                break;
             }
         }
 
@@ -144,20 +170,8 @@ public class ProvidesPropertyScanner<T> {
             public int sort(PropertyDef<?> propertyDef, T obj1, T obj2) {
                 if (!(propertyDef instanceof AnnotationPropertyDef))
                     throw new UnsupportedOperationException("unknown property " + propertyDef);
-                final AnnotationPropertyDef<?> annotationPropertyDef = (AnnotationPropertyDef)propertyDef;
-                final MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo sortMethodInfo
-                  = annotationPropertyDef.getSortMethodInfo();
-                if (sortMethodInfo == null)
-                    throw new UnsupportedOperationException("can't sort property " + propertyDef);
-                final Comparable<Object> value1 = (Comparable<Object>)annotationPropertyDef.getSortMethodInfo().readValue(obj1);
-                final Comparable<Object> value2 = (Comparable<Object>)annotationPropertyDef.getSortMethodInfo().readValue(obj2);
-                if (value1 == null && value2 != null)
-                    return -1;
-                if (value1 != null && value2 == null)
-                    return 1;
-                if (value1 == null && value2 == null)
-                    return 0;
-                return value1.compareTo(value2);
+                final AnnotationPropertyDef<?> annotationPropertyDef = (AnnotationPropertyDef<?>)propertyDef;
+                return annotationPropertyDef.getComparator().compare(obj1, obj2);
             }
         };
     }
@@ -206,10 +220,25 @@ public class ProvidesPropertyScanner<T> {
           propertyType.cast(defaultValue), methodInfo, sortMethodInfo);
     }
 
+    // Compare two methods to determine which one has the declaring class that is a sub-type of the other's
+    private int compareDeclaringClass(Method method1, Method method2) {
+        final Class<?> class1 = method1.getDeclaringClass();
+        final Class<?> class2 = method2.getDeclaringClass();
+        if (class1 == class2)
+            return 0;
+        if (class1.isAssignableFrom(class2))
+            return 1;
+        if (class2.isAssignableFrom(class1))
+            return -1;
+        throw new RuntimeException("internal error: incomparable classes " + class1.getName() + " and " + class2.getName());
+    }
+
     private class AnnotationPropertyDef<V> extends PropertyDef<V> {
 
         private final MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo methodInfo;
         private final MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo sortMethodInfo;
+
+        private Comparator<T> comparator;
 
         AnnotationPropertyDef(String name, Class<V> type, V defaultValue,
           MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo methodInfo,
@@ -226,6 +255,52 @@ public class ProvidesPropertyScanner<T> {
         public MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo getSortMethodInfo() {
             return this.sortMethodInfo;
         }
-    };
+
+        public Comparator<T> getComparator() {
+
+            // Sanity check
+            if (this.sortMethodInfo == null)
+                throw new UnsupportedOperationException("can't sort property " + this);
+
+            // Already created?
+            if (this.comparator != null)
+                return this.comparator;
+
+            // Handle Comparator case
+            if (Comparator.class.isAssignableFrom(this.sortMethodInfo.getMethod().getReturnType())) {
+                this.comparator = new Comparator<T>() {
+
+                    private Comparator<T> comparator;
+
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public int compare(T obj1, T obj2) {
+                        if (this.comparator == null)
+                            this.comparator = (Comparator<T>)AnnotationPropertyDef.this.sortMethodInfo.readValue(obj1);
+                        return this.comparator.compare(obj1, obj2);
+                    }
+                };
+                return this.comparator;
+            }
+
+            // Handle Comparable case
+            this.comparator = new Comparator<T>() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public int compare(T obj1, T obj2) {
+                    final Comparable<Object> value1 = (Comparable<Object>)AnnotationPropertyDef.this.sortMethodInfo.readValue(obj1);
+                    final Comparable<Object> value2 = (Comparable<Object>)AnnotationPropertyDef.this.sortMethodInfo.readValue(obj2);
+                    if (value1 == null && value2 != null)
+                        return -1;
+                    if (value1 != null && value2 == null)
+                        return 1;
+                    if (value1 == null && value2 == null)
+                        return 0;
+                    return value1.compareTo(value2);
+                }
+            };
+            return this.comparator;
+        }
+    }
 }
 

@@ -14,19 +14,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates a Java method that provides a read-only Vaadin {@link com.vaadin.data.Property} value.
- *
- * <p>
- * This annotation indicates that a read-only Vaadin {@link com.vaadin.data.Property} having the {@linkplain #value specified name}
- * and type derived from the method's return value is accessible by reading that method.
- * Annotated methods must have zero parameters.
- * </p>
+ * Declares that a Java method provides a read-only Vaadin {@link com.vaadin.data.Property} value in a Java class
+ * whose instances back the items in a {@link com.vaadin.data.Container}.
  *
  * <p>
  * {@link ProvidesProperty &#64;ProvidesProperty} and {@link ProvidesPropertySort &#64;ProvidesPropertySort} method annotations
  * can be used to automatically generate a list of {@link PropertyDef}s and a {@link PropertyExtractor} using a
  * {@link ProvidesPropertyScanner}. This happens automatically when using the appropriate constructors of the various
  * {@link com.vaadin.data.Container} classes in this package.
+ * </p>
+ *
+ * <p>
+ * This annotation indicates that a read-only Vaadin {@link com.vaadin.data.Property} having the {@linkplain #value specified name}
+ * and type derived from the method's return value is accessible by reading that method.
+ * Annotated methods must have zero parameters.
  * </p>
  *
  * <p>
@@ -48,7 +49,7 @@ import java.lang.annotation.Target;
  *         this.username = username;
  *     }
  *
- *     <b>&#64;ProvidesProperty</b>            // property "realName" is implied by method name
+ *     <b>&#64;ProvidesProperty</b>                     // property name "realName" is implied by method name
  *     public String getRealName() {
  *         return this.realName;
  *     }
@@ -56,7 +57,7 @@ import java.lang.annotation.Target;
  *         this.realName = realName;
  *     }
  *
- *     <b>&#64;ProvidesProperty(USERNAME_PROPERTY)</b>
+ *     <b>&#64;ProvidesProperty(USERNAME_PROPERTY)</b>  // display usernames in fixed-width font
  *     private Label usernameProperty() {
  *         return new Label("&lt;code&gt;" + StringUtil.escapeHtml(this.username) + "&lt;/code&gt;", ContentMode.HTML);
  *     }
@@ -100,6 +101,10 @@ import java.lang.annotation.Target;
  *  <li>{@link ProvidesProperty &#64;ProvidesProperty} annotations on interface methods are supported</li>
  *  <li>If a method and the superclass or superinterface method it overrides are both annotated with
  *      {@link ProvidesProperty &#64;ProvidesProperty}, then the overridding method's annotation takes precedence.
+ *  <li>If two methods with different names are annotated with {@link ProvidesProperty &#64;ProvidesProperty} for the same
+ *      {@linkplain #value property name}, then the declaration in the class which is a sub-type of the other
+ *      wins (if the two methods are delcared in the same class, an exception is thrown). This allows subclasses
+ *      to "override" which method supplies a given property.</li>
  *  </ul>
  * </p>
  *
@@ -107,8 +112,8 @@ import java.lang.annotation.Target;
  * To control how properties are sorted (e.g., in tables), see {@link ProvidesPropertySort &#64;ProvidesPropertySort}.
  * </p>
  *
- * @see ProvidesPropertyScanner
  * @see ProvidesPropertySort
+ * @see ProvidesPropertyScanner
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.FIELD })

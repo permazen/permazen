@@ -14,16 +14,30 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates Java methods that provide a {@link java.util.Comparable} value used to determine property sort ordering.
- * When the value returned by a {@link ProvidesProperty &#64;ProvidesProperty}-annotated method is not
- * {@link java.util.Comparable} or does not naturally sort as desired, a value that does can be provided
- * by an associated {@link ProvidesPropertySort &#64;ProvidesPropertySort}-annotated method.
+ * Declares that a Java method provides either a {@link Comparable} value or a {@link java.util.Comparator} that
+ * should be used to determine property sort ordering in a Java class whose instances back the items in a
+ * {@link com.vaadin.data.Container}.
  *
  * <p>
  * {@link ProvidesProperty &#64;ProvidesProperty} and {@link ProvidesPropertySort &#64;ProvidesPropertySort} method annotations
  * can be used to automatically generate a list of {@link PropertyDef}s and a {@link PropertyExtractor} using a
  * {@link ProvidesPropertyScanner}. This happens automatically when using the appropriate constructors of the various
  * {@link com.vaadin.data.Container} classes in this package.
+ * </p>
+ *
+ * <p>
+ * This annotation is used in conjunction with the {@link ProvidesProperty &#64;ProvidesProperty}
+ * annotation when the value returned by the {@link ProvidesProperty &#64;ProvidesProperty}-annotated method is not
+ * {@link Comparable} or does not naturally sort as desired. By declaring a
+ * {@link ProvidesPropertySort &#64;ProvidesPropertySort}-annotated method for a property, any arbitrary sorting
+ * function can be supplied.
+ * </p>
+ *
+ * <p>
+ * If the annotated method returns a {@link java.util.Comparator}, then the return value will be used to sort property values;
+ * otherwise, the annotated method must return a sub-type of {@link Comparable}, in which case the returned value determines how
+ * that instance's property value sorts (with {@code null} values sorting first). If the method returns neither a
+ * {@link java.util.Comparator} nor a {@link Comparable}, an exception is thrown during scanning.
  * </p>
  *
  * <p>
@@ -42,7 +56,7 @@ import java.lang.annotation.Target;
  *
  *     private Date birthday;
  *
- *     <b>&#64;ProvidesPropertySort</b>            // property "birthday" is implied by method name
+ *     <b>&#64;ProvidesPropertySort</b>             // property name "birthday" is implied by method name
  *     public Date getBirthday() {
  *         return this.birthday;
  *     }
@@ -50,7 +64,7 @@ import java.lang.annotation.Target;
  *         this.birthday = birthday;
  *     }
  *
- *     <b>&#64;ProvidesProperty("birthday")</b>
+ *     <b>&#64;ProvidesProperty("birthday")</b>     // the actual property value is returned here
  *     private Label birthdayProperty() {
  *         return new Label(new SimpleDateFormat("MM/dd/yyyy").format(this.birthday));
  *     }
@@ -58,8 +72,27 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <p>
- * Note that it doesn't make sense to add {@link ProvidesPropertySort &#64;ProvidesPropertySort} to a method already annotated
- * with {@link ProvidesProperty &#64;ProvidesProperty}, because that just specifies what is already the default behavior.
+ * Alternately, have the {@link ProvidesPropertySort &#64;ProvidesPropertySort}-annotated method return
+ * a {@link java.util.Comparator}, for example, if you wanted to sort {@code null} values last instead of first:
+ * <blockquote><pre>
+ *     <b>&#64;ProvidesPropertySort("birthday")</b>
+ *     private static Comparator&lt;User&gt; birthdayComparator() {
+ *         return new Comparator&lt;User&gt;(User user1, User user2) {
+ *              final Date date1 = user1.getBirthday();
+ *              final Date date2 = user2.getBirthday();
+ *              if (date1 == null &amp;&amp; date2 != null)
+ *                  return 1;
+ *              if (date1 != null &amp;&amp; date2 == null)
+ *                  return -1;
+ *              if (date1 == null &amp;&amp; date2 == null)
+ *                  return 0;
+ *              return date1.compareTo(date2);
+ *         };
+ *     }
+ * </pre></blockquote>
+ * Note that the returned {@link java.util.Comparator} compares <i>backing instances</i>, not property values,
+ * and that methods returning {@link java.util.Comparator} may be declared {@code static}. The returned
+ * {@link java.util.Comparator} may be cached by the implementation.
  * </p>
  *
  * <p>
@@ -71,12 +104,16 @@ import java.lang.annotation.Target;
  *  <li>{@link ProvidesPropertySort &#64;ProvidesPropertySort} annotations on interface methods are supported</li>
  *  <li>If a method and the superclass or superinterface method it overrides are both annotated with
  *      {@link ProvidesPropertySort &#64;ProvidesPropertySort}, then the overridding method's annotation takes precedence.
+ *  <li>If two methods with different names are annotated with {@link ProvidesPropertySort &#64;ProvidesPropertySort} for the same
+ *      {@linkplain #value property name}, then the declaration in the class which is a sub-type of the other
+ *      wins (if the two methods are delcared in the same class, an exception is thrown). This allows subclasses
+ *      to "override" which method supplies the sort value for a given property.</li>
  *  </ul>
  * </p>
  *
  *
- * @see ProvidesPropertyScanner
  * @see ProvidesProperty
+ * @see ProvidesPropertyScanner
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.FIELD })
