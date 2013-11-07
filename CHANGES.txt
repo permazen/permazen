@@ -4,6 +4,7 @@ Version Next
       NOTE: the above are backward-incompatible changes.
     - Add new servlet init params "sessionTracking" and "maxSessions"
     - Added VaadinSessionContainer
+    - Added MergedResultSet
     - Added PersistentObjectTransactionManager and @PersistentObjectTransactional
     - Added ProcessRunner.handleInterruption()
     - Added SortingPropertyExtractor.
