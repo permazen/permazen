@@ -113,6 +113,7 @@ import java.util.TimeZone;
  * @see CheckBox
  * @see ComboBox
  * @see DateField
+ * @see EnumComboBox
  * @see ListSelect
  * @see PasswordField
  * @see TextArea
@@ -478,6 +479,7 @@ public class FieldBuilder {
 
     /**
      * Get the {@link AnnotationApplier} that applies the given annotation.
+     * Subclasses can add support for additioanl annotation types by overriding this method.
      *
      * @return corresponding {@link AnnotationApplier}, or null if annotation is unknown
      */
@@ -490,6 +492,8 @@ public class FieldBuilder {
             return new CheckBoxApplier((FieldBuilder.CheckBox)annotation);
         if (annotation instanceof FieldBuilder.ComboBox)
             return new ComboBoxApplier((FieldBuilder.ComboBox)annotation);
+        if (annotation instanceof FieldBuilder.EnumComboBox)
+            return new EnumComboBoxApplier((FieldBuilder.EnumComboBox)annotation);
         if (annotation instanceof FieldBuilder.ListSelect)
             return new ListSelectApplier((FieldBuilder.ListSelect)annotation);
         if (annotation instanceof FieldBuilder.DateField)
@@ -660,6 +664,29 @@ public class FieldBuilder {
             field.setScrollToSelectedItem(this.annotation.scrollToSelectedItem());
             field.setTextInputAllowed(this.annotation.textInputAllowed());
             field.setFilteringMode(this.annotation.filteringMode());
+        }
+    }
+
+    /**
+     * Applies properties from a {@link FieldBuilder.EnumComboBox} annotation to a {@link org.dellroad.stuff.vaadin7.EnumComboBox}.
+     */
+    private static class EnumComboBoxApplier
+      extends AnnotationApplier<FieldBuilder.EnumComboBox, org.dellroad.stuff.vaadin7.EnumComboBox> {
+
+        public EnumComboBoxApplier(FieldBuilder.EnumComboBox annotation) {
+            super(annotation, org.dellroad.stuff.vaadin7.EnumComboBox.class);
+        }
+
+        @Override
+        public Class<? extends org.dellroad.stuff.vaadin7.EnumComboBox> getActualFieldType() {
+            return this.annotation.type();
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void applyTo(org.dellroad.stuff.vaadin7.EnumComboBox field) {
+            if (this.annotation.enumClass() != Enum.class)
+                field.setEnumDataSource(this.annotation.enumClass());
         }
     }
 
@@ -1120,6 +1147,38 @@ public class FieldBuilder {
          * @see com.vaadin.ui.ComboBox#setFilteringMode
          */
         FilteringMode filteringMode() default FilteringMode.STARTSWITH;
+    }
+
+    /**
+     * Specifies how a Java property should be edited in Vaadin using an {@link org.dellroad.stuff.vaadin7.EnumComboBox}.
+     *
+     * @see FieldBuilder.AbstractField
+     * @see FieldBuilder.AbstractSelect
+     * @see FieldBuilder.ComboBox
+     * @see FieldBuilder
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
+    @Documented
+    public @interface EnumComboBox {
+
+        /**
+         * Get the {@link org.dellroad.stuff.vaadin7.EnumComboBox} type that will edit the property.
+         * Type must have a no-arg constructor.
+         *
+         * <p>
+         * Although this property has a default value, it must be overridden in this annotation.
+         * </p>
+         */
+        Class<? extends org.dellroad.stuff.vaadin7.EnumComboBox> type() default org.dellroad.stuff.vaadin7.EnumComboBox.class;
+
+        /**
+         * Get the {@link Enum} type to choose from.
+         *
+         * @see org.dellroad.stuff.vaadin7.EnumComboBox#setEnumDataSource
+         */
+        @SuppressWarnings("rawtypes")
+        Class<? extends Enum> enumClass() default Enum.class;
     }
 
     /**
