@@ -157,7 +157,7 @@ public class MergedResultSet implements ResultSet {
         final boolean[] sortOrders2 = sortOrders;
         this.comparator = sortColumns.length == 0 ? null : new Comparator<ResultSet>() {
             @Override
-            @SuppressWarnings({ "unchecked" })
+            @SuppressWarnings("unchecked")
             public int compare(ResultSet rs1, ResultSet rs2) {
                 for (int i = 0; i < sortColumns.length; i++) {
                     Object value1;
