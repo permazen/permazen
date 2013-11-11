@@ -16,8 +16,6 @@ import com.vaadin.server.VaadinSession;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @param <T> the type of the Java objects that back each {@link com.vaadin.data.Item} in the container
  */
 @SuppressWarnings("serial")
-public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extends SimpleKeyedContainer<VaadinSession, T> {
+public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extends SelfKeyedContainer<T> {
 
     /**
      * The {@link VaadinSession} that this container instance is associated with.
@@ -105,11 +103,6 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
         super(propertyExtractor, propertyDefs);
         this.session = VaadinUtil.getCurrentSession();
         SpringVaadinServlet.getServlet(this.session);
-    }
-
-    @Override
-    protected VaadinSession getKeyFor(T info) {
-        return info.getVaadinSession();
     }
 
     /**
@@ -199,23 +192,21 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
             throw new IllegalStateException("inside locked VaadinSession");
 
         // Snapshot the set of sessions in this container while holding the lock to this container's session
-        final HashMap<VaadinSession, T> sessionMap = new HashMap<VaadinSession, T>();
+        final ArrayList<T> sessionInfoList = new ArrayList<T>();
         VaadinSessionContainer.this.session.accessSynchronously(new Runnable() {
             @Override
             public void run() {
-                for (VaadinSession otherSession : VaadinSessionContainer.this.getItemIds())
-                    sessionMap.put(otherSession, VaadinSessionContainer.this.getJavaObject(session));
+                sessionInfoList.addAll(VaadinSessionContainer.this.getItemIds());
             }
         });
 
         // Update each session's information while holding that session's lock
-        for (Map.Entry<VaadinSession, T> entry : sessionMap.entrySet()) {
-            final VaadinSession otherSession = entry.getKey();
-            final T sessionInfo = entry.getValue();
-            otherSession.accessSynchronously(new Runnable() {
+        for (T sessionInfo : sessionInfoList) {
+            final T sessionInfo2 = sessionInfo;
+            sessionInfo.getVaadinSession().accessSynchronously(new Runnable() {
                 @Override
                 public void run() {
-                    sessionInfo.updateInformation();
+                    sessionInfo2.updateInformation();
                 }
             });
         }
@@ -224,7 +215,7 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
         VaadinSessionContainer.this.session.accessSynchronously(new Runnable() {
             @Override
             public void run() {
-                for (T sessionInfo : sessionMap.values())
+                for (T sessionInfo : sessionInfoList)
                     sessionInfo.makeUpdatesVisible();
             }
         });
