@@ -16,13 +16,21 @@ import com.vaadin.server.VaadinSession;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Container containing active {@link VaadinSession}s. This class is useful when you need to display
- * sessions in your GUI, for example, a table showing all logged-in users.
+ * Container containing active {@link VaadinSession}s.
+ *
+ * <p>
+ * This class is useful when you need to display sessions in your GUI, for example, a table showing all logged-in users.
+ * Due to the fact that each {@link VaadinSession} has its own lock, building such a container without race conditions
+ * and deadlocks is somewhat tricky. This class performs the locking required during updates and provides thread-safe
+ * {@link #update} and {@link #reload} methods. Information about active {@link VaadinSession}s comes from the session
+ * tracking feature of the {@link SpringVaadinServlet}.
  *
  * <p>
  * By subclassing this class and {@link VaadinSessionInfo}, additional session-related properties,
@@ -33,7 +41,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Note the following:
  * <ul>
- *  <li>The {@link SpringVaadinServlet} must be used and configured with init parameter
+ *  <li>This class only works with configurations where Vaadin sessions are stored in memory,
+ *      and the {@link SpringVaadinServlet} must be used and configured with init parameter
  *      {@link SpringVaadinServlet#SESSION_TRACKING_PARAMETER} set to {@code true}.</li>
  *  <li>The {@link #connect} and {@link #disconnect} methods must be invoked before and after (respectively)
  *      this container is used; typically these would be invoked in the {@link com.vaadin.ui.Component#attach}
@@ -104,8 +113,7 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
     }
 
     /**
-     * Start tracking live sessions.
-     *
+     * Connect this container and start tracking sessions.
      */
     public void connect() {
         this.listener.register();
@@ -113,18 +121,18 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
     }
 
     /**
-     * Stop tracking live sessions.
+     * Disconnect this container and stop tracking sessions.
      */
     public void disconnect() {
         this.listener.unregister();
     }
 
     /**
-     * Reload this container.
+     * Asynchronously reload this container.
      *
      * <p>
      * This method can be invoked from any thread. It creates a new thread to do the actual
-     * reloading to avoid potential deadlocks.
+     * reloading via {@link #doReload} to avoid potential deadlocks.
      * </p>
      */
     public void reload() {
@@ -132,7 +140,30 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
             @Override
             public void run() {
                 try {
-                    VaadinSessionContainer.this.update();
+                    VaadinSessionContainer.this.doReload();
+                } catch (ThreadDeath t) {
+                    throw t;
+                } catch (Throwable t) {
+                    VaadinSessionContainer.this.log.error("error reloading container " + this, t);
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * Asynchronously update this container's items.
+     *
+     * <p>
+     * This method can be invoked from any thread. It creates a new thread to do the actual
+     * updating via {@link #doUpdate} to avoid potential deadlocks.
+     * </p>
+     */
+    public void update() {
+        new Thread("VaadinSessionContainer.update()") {
+            @Override
+            public void run() {
+                try {
+                    VaadinSessionContainer.this.doUpdate();
                 } catch (ThreadDeath t) {
                     throw t;
                 } catch (Throwable t) {
@@ -143,10 +174,73 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
     }
 
     /**
-     * Update this container after a {@link VaadinSession} has been added or removed.
-     * This must <b>not</b> be invoked while any {@link VaadinSession} is locked.
+     * Update each {@link VaadinSessionInfo} instance in this container.
+     * Using this method is more efficient than reloading the entire container.
+     *
+     * <p>
+     * This method handles the complicated locking required to avoid deadlocks: first, for each {@link VaadinSessionInfo},
+     * {@link VaadinSessionInfo#updateInformation} is invoked while the {@link VaadinSession}
+     * corresponding to <i>that {@link VaadinSessionInfo} instance</i> is locked, so that information from that session
+     * can be safely gathered; then, {@link VaadinSessionInfo#makeUpdatesVisible} is invoked while the {@link VaadinSession}
+     * associated with <i>this container</i> is locked, so item properties can be safely updated, etc.
+     * </p>
+     *
+     * <p>
+     * This method must <b>not</b> be invoked while any {@link VaadinSession} is locked.
+     * For example, it may be invoked by a regular timer (only while this container is {@linkplain #connect connected}).
+     * </p>
+     *
+     * @throws IllegalStateException if there is a locked {@link VaadinSession} associated with the current thread
      */
-    protected void update() {
+    protected void doUpdate() {
+
+        // Sanity check
+        if (VaadinSession.getCurrent() != null && VaadinSession.getCurrent().hasLock())
+            throw new IllegalStateException("inside locked VaadinSession");
+
+        // Snapshot the set of sessions in this container while holding the lock to this container's session
+        final HashMap<VaadinSession, T> sessionMap = new HashMap<VaadinSession, T>();
+        VaadinSessionContainer.this.session.accessSynchronously(new Runnable() {
+            @Override
+            public void run() {
+                for (VaadinSession otherSession : VaadinSessionContainer.this.getItemIds())
+                    sessionMap.put(otherSession, VaadinSessionContainer.this.getJavaObject(session));
+            }
+        });
+
+        // Update each session's information while holding that session's lock
+        for (Map.Entry<VaadinSession, T> entry : sessionMap.entrySet()) {
+            final VaadinSession otherSession = entry.getKey();
+            final T sessionInfo = entry.getValue();
+            otherSession.accessSynchronously(new Runnable() {
+                @Override
+                public void run() {
+                    sessionInfo.updateInformation();
+                }
+            });
+        }
+
+        // Now update this container with the newly gathered information while again holding the lock to this container's session
+        VaadinSessionContainer.this.session.accessSynchronously(new Runnable() {
+            @Override
+            public void run() {
+                for (T sessionInfo : sessionMap.values())
+                    sessionInfo.makeUpdatesVisible();
+            }
+        });
+    }
+
+    /**
+     * Reload this container. Reloads this container with {@link VaadinSessionInfo} instances for each {@link VaadinSession}
+     * (created via {@link #createVaadinSessionInfo}), and then invokes {@link #doUpdate}.
+     *
+     * <p>
+     * This method must <b>not</b> be invoked while any {@link VaadinSession} is locked.
+     * </p>
+     *
+     * @throws IllegalStateException if there is a locked {@link VaadinSession} associated with the current thread
+     */
+    protected void doReload() {
 
         // Sanity check
         if (VaadinSession.getCurrent() != null && VaadinSession.getCurrent().hasLock())
@@ -170,6 +264,9 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
                 VaadinSessionContainer.this.load(sessionInfoList);
             }
         });
+
+        // Update this container
+        this.doUpdate();
     }
 
     /**
