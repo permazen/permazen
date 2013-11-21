@@ -53,7 +53,7 @@ import java.util.TimeZone;
  * about how to edit a Java model class to stay contained within that class.
  *
  * <p>
- * This class supports two types of annotations: first,the {@link ProvidesField} annotation annotates a method that knows
+ * This class supports two types of annotations: first, the {@link ProvidesField} annotation annotates a method that knows
  * how to build an {@link AbstractField} suitable for editing the bean property specified by
  * its {@link ProvidesField#value value()}. So {@link ProvidesField} is analgous to {@link ProvidesProperty}, except that
  * it defines an editing field rather than a container property.
@@ -61,8 +61,8 @@ import java.util.TimeZone;
  *
  * <p>
  * The {@link FieldBuilder.AbstractField} hierarchy annotations are the other type of annotation. These annotations annotate
- * a Java bean property getter method and specify how to configure an {@link AbstractField} to edit the bean property
- * corresponding to the getter method.
+ * a Java bean property getter method and specify how to configure an {@link AbstractField} subclass instance to edit
+ * the bean property corresponding to the getter method.
  * {@link FieldBuilder.AbstractField} is the top level annotation in a hierarchy of annotations that correspond to the
  * {@link AbstractField} class hierarchy. {@link FieldBuilder.AbstractField} corresponds to {@link AbstractField},
  * and its properties configure corresponding {@link AbstractField} properties.
@@ -75,8 +75,8 @@ import java.util.TimeZone;
  * A simple example shows how these annotations are used:
  * <blockquote><pre>
  * // Use a 10x40 TextArea to edit the "description" property
- * <b>&#64;FieldBuilder.TextArea(columns = 40, rows = 10)</b>
  * <b>&#64;FieldBuilder.AbstractField(caption = "Description:")</b>
+ * <b>&#64;FieldBuilder.TextArea(columns = 40, rows = 10)</b>
  * public String getDescription() {
  *     return this.description;
  * }
