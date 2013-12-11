@@ -23,76 +23,115 @@
 <span class="sourceLineNo">015</span> *<a name="line.15"></a>
 <span class="sourceLineNo">016</span> * &lt;p&gt;<a name="line.16"></a>
 <span class="sourceLineNo">017</span> * Use {@link #load} to (re)load the container.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> *<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * @param &lt;T&gt; the type of the Java objects that back each {@link com.vaadin.data.Item} in the container<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * @see AbstractSimpleContainer<a name="line.20"></a>
-<span class="sourceLineNo">021</span> */<a name="line.21"></a>
-<span class="sourceLineNo">022</span>@SuppressWarnings("serial")<a name="line.22"></a>
-<span class="sourceLineNo">023</span>public class SimpleContainer&lt;T&gt; extends AbstractSimpleContainer&lt;Integer, T&gt; {<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>    private ArrayList&lt;T&gt; items = new ArrayList&lt;T&gt;(0);<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>    /**<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * Constructor.<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     *<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     * &lt;p&gt;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * After using this constructor, subsequent invocations of {@link #setPropertyExtractor setPropertyExtractor()}<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * and {@link #setProperties setProperties()} are required to define the properties of this container<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     * and how to extract them.<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     */<a name="line.34"></a>
-<span class="sourceLineNo">035</span>    public SimpleContainer() {<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>    /**<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     * Constructor.<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     *<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * &lt;p&gt;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * After using this constructor, a subsequent invocation of {@link #setProperties setProperties()} is required<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     * to define the properties of this container.<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     *<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     * @param propertyExtractor used to extract properties from the underlying Java objects;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     *  may be null but then container is not usable until one is configured via<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     * {@link #setPropertyExtractor setPropertyExtractor()}<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     */<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    public SimpleContainer(PropertyExtractor&lt;? super T&gt; propertyExtractor) {<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        super(propertyExtractor);<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * Primary constructor.<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * @param propertyExtractor used to extract properties from the underlying Java objects;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     *  may be null but then container is not usable until one is configured via<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * {@link #setPropertyExtractor setPropertyExtractor()}<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * @param propertyDefs container property definitions; null is treated like the empty set<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    public SimpleContainer(PropertyExtractor&lt;? super T&gt; propertyExtractor, Collection&lt;? extends PropertyDef&lt;?&gt;&gt; propertyDefs) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        super(propertyExtractor, propertyDefs);<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>    @Override<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    public T getJavaObject(Object itemId) {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        if (!(itemId instanceof Integer))<a name="line.67"></a>
-<span class="sourceLineNo">068</span>            return null;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        int index = ((Integer)itemId).intValue();<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        if (index &lt; 0 || index &gt;= this.items.size())<a name="line.70"></a>
-<span class="sourceLineNo">071</span>            return null;<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        return this.items.get(index);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    @Override<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    protected void resetItemIds() {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        this.items = new ArrayList&lt;T&gt;();<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    @Override<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    protected Integer generateItemId(T obj) {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        int itemId = this.items.size();<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        this.items.add(obj);<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        return itemId;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
-<span class="sourceLineNo">086</span>}<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">018</span> * &lt;/p&gt;<a name="line.18"></a>
+<span class="sourceLineNo">019</span> *<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * @param &lt;T&gt; the type of the Java objects that back each {@link com.vaadin.data.Item} in the container<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * @see AbstractSimpleContainer<a name="line.21"></a>
+<span class="sourceLineNo">022</span> */<a name="line.22"></a>
+<span class="sourceLineNo">023</span>@SuppressWarnings("serial")<a name="line.23"></a>
+<span class="sourceLineNo">024</span>public class SimpleContainer&lt;T&gt; extends AbstractSimpleContainer&lt;Integer, T&gt; {<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>    private ArrayList&lt;T&gt; items = new ArrayList&lt;T&gt;(0);<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>    /**<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * Constructor.<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     *<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * &lt;p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * After using this constructor, subsequent invocations of {@link #setPropertyExtractor setPropertyExtractor()}<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * and {@link #setProperties setProperties()} are required to define the properties of this container<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * and how to extract them.<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    public SimpleContainer() {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    }<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    /**<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * Constructor.<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     *<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * &lt;p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * After using this constructor, a subsequent invocation of {@link #setProperties setProperties()} is required<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * to define the properties of this container.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     *<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * @param propertyExtractor used to extract properties from the underlying Java objects;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     *  may be null but then container is not usable until one is configured via<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * {@link #setPropertyExtractor setPropertyExtractor()}<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    public SimpleContainer(PropertyExtractor&lt;? super T&gt; propertyExtractor) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        this(propertyExtractor, null);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * Constructor.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     *<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * &lt;p&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * After using this constructor, a subsequent invocation of {@link #setPropertyExtractor setPropertyExtractor()} is required<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * to define how to extract the properties of this container; alternately, subclasses can override<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * {@link #getPropertyValue getPropertyValue()}.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * &lt;/p&gt;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @param propertyDefs container property definitions; null is treated like the empty set<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    protected SimpleContainer(Collection&lt;? extends PropertyDef&lt;?&gt;&gt; propertyDefs) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        this(null, propertyDefs);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    /**<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * Constructor.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     *<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * @param propertyExtractor used to extract properties from the underlying Java objects;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     *  may be null but then container is not usable until one is configured via<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * {@link #setPropertyExtractor setPropertyExtractor()}<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * @param propertyDefs container property definitions; null is treated like the empty set<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    public SimpleContainer(PropertyExtractor&lt;? super T&gt; propertyExtractor, Collection&lt;? extends PropertyDef&lt;?&gt;&gt; propertyDefs) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        super(propertyExtractor, propertyDefs);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * Constructor.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     *<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * &lt;p&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * Properties will be determined by the {@link ProvidesProperty &amp;#64;ProvidesProperty} and<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * {@link ProvidesPropertySort &amp;#64;ProvidesPropertySort} annotated methods in the given class.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * &lt;/p&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     *<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @param type class to introspect for annotated methods<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * @throws IllegalArgumentException if {@code type} is null<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &amp;#64;ProvidesProperty}<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     *  or {@link ProvidesPropertySort &amp;#64;ProvidesPropertySort} annotated methods for the same property<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @throws IllegalArgumentException if a {@link ProvidesProperty &amp;#64;ProvidesProperty}-annotated method with no<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     *  {@linkplain ProvidesProperty#value property name specified} has a name which cannot be interpreted as a bean<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     *  property "getter" method<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @see ProvidesProperty<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * @see ProvidesPropertySort<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @see ProvidesPropertyScanner<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     */<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    protected SimpleContainer(Class&lt;? super T&gt; type) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        super(type);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    @Override<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    public T getJavaObject(Object itemId) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        if (!(itemId instanceof Integer))<a name="line.106"></a>
+<span class="sourceLineNo">107</span>            return null;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        int index = ((Integer)itemId).intValue();<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        if (index &lt; 0 || index &gt;= this.items.size())<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            return null;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        return this.items.get(index);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>    @Override<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    protected void resetItemIds() {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        this.items = new ArrayList&lt;T&gt;();<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    @Override<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    protected Integer generateItemId(T obj) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        int itemId = this.items.size();<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        this.items.add(obj);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        return itemId;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>}<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
 
 
 

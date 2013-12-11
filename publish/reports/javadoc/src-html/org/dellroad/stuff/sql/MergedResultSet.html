@@ -165,7 +165,7 @@
 <span class="sourceLineNo">157</span>        final boolean[] sortOrders2 = sortOrders;<a name="line.157"></a>
 <span class="sourceLineNo">158</span>        this.comparator = sortColumns.length == 0 ? null : new Comparator&lt;ResultSet&gt;() {<a name="line.158"></a>
 <span class="sourceLineNo">159</span>            @Override<a name="line.159"></a>
-<span class="sourceLineNo">160</span>            @SuppressWarnings({ "unchecked" })<a name="line.160"></a>
+<span class="sourceLineNo">160</span>            @SuppressWarnings("unchecked")<a name="line.160"></a>
 <span class="sourceLineNo">161</span>            public int compare(ResultSet rs1, ResultSet rs2) {<a name="line.161"></a>
 <span class="sourceLineNo">162</span>                for (int i = 0; i &lt; sortColumns.length; i++) {<a name="line.162"></a>
 <span class="sourceLineNo">163</span>                    Object value1;<a name="line.163"></a>
