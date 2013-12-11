@@ -32,7 +32,7 @@ public class UniqueValidator extends AbstractValidator<Unique, Object> {
         try {
             this.uniquifier = (Uniquifier<Object>)uniquifierClass.newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("can't create an instance of " + uniquifierClass + ": " + e.getMessage());
+            throw new RuntimeException("can't create an instance of " + uniquifierClass + ": " + e.getMessage(), e);
         }
     }
 
