@@ -16,6 +16,7 @@ import java.util.HashMap;
  *
  * <p>
  * Restriction: instances can never contain two objects whose keys are equal (in the sense of {@link Object#equals}).
+ * </p>
  *
  * @param <I> the item ID type
  * @param <T> the type of the Java objects that back each {@link com.vaadin.data.Item} in the container
@@ -49,11 +50,26 @@ public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer
      * {@link #setPropertyExtractor setPropertyExtractor()}
      */
     public SimpleKeyedContainer(PropertyExtractor<? super T> propertyExtractor) {
-        super(propertyExtractor);
+        this(propertyExtractor, null);
     }
 
     /**
-     * Primary constructor.
+     * Constructor.
+     *
+     * <p>
+     * After using this constructor, a subsequent invocation of {@link #setPropertyExtractor setPropertyExtractor()} is required
+     * to define how to extract the properties of this container; alternately, subclasses can override
+     * {@link #getPropertyValue getPropertyValue()}.
+     * </p>
+     *
+     * @param propertyDefs container property definitions; null is treated like the empty set
+     */
+    protected SimpleKeyedContainer(Collection<? extends PropertyDef<?>> propertyDefs) {
+        this(null, propertyDefs);
+    }
+
+    /**
+     * Constructor.
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -62,6 +78,29 @@ public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer
      */
     public SimpleKeyedContainer(PropertyExtractor<? super T> propertyExtractor, Collection<? extends PropertyDef<?>> propertyDefs) {
         super(propertyExtractor, propertyDefs);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty} and
+     * {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods in the given class.
+     * </p>
+     *
+     * @param type class to introspect for annotated methods
+     * @throws IllegalArgumentException if {@code type} is null
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}
+     *  or {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods for the same property
+     * @throws IllegalArgumentException if a {@link ProvidesProperty &#64;ProvidesProperty}-annotated method with no
+     *  {@linkplain ProvidesProperty#value property name specified} has a name which cannot be interpreted as a bean
+     *  property "getter" method
+     * @see ProvidesProperty
+     * @see ProvidesPropertySort
+     * @see ProvidesPropertyScanner
+     */
+    protected SimpleKeyedContainer(Class<? super T> type) {
+        super(type);
     }
 
     @Override
@@ -78,6 +117,11 @@ public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer
      * <p>
      * This method uses an internal hash map for efficiency, and assumes that two underlying container objects that
      * are {@linkplain Object#equals equal} will have the same {@linkplain #getKeyFor key}.
+     * </p>
+     *
+     * <p>
+     * This method is not used by this class but is defined as a convenience for subclasses.
+     * </p>
      *
      * @param obj underlying container object
      * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container
@@ -100,6 +144,11 @@ public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer
      *
      * <p>
      * This method uses an internal hash map for efficiency.
+     * </p>
+     *
+     * <p>
+     * This method is not used by this class but is defined as a convenience for subclasses.
+     * </p>
      *
      * @param obj underlying container object
      * @return item ID corresponding to {@code object}, or null if {@code object} is not found in this container

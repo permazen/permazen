@@ -15,6 +15,7 @@ import java.util.Collection;
  *
  * <p>
  * Use {@link #load} to (re)load the container.
+ * </p>
  *
  * @param <T> the type of the Java objects that back each {@link com.vaadin.data.Item} in the container
  * @see AbstractSimpleContainer
@@ -47,11 +48,26 @@ public class SimpleContainer<T> extends AbstractSimpleContainer<Integer, T> {
      * {@link #setPropertyExtractor setPropertyExtractor()}
      */
     public SimpleContainer(PropertyExtractor<? super T> propertyExtractor) {
-        super(propertyExtractor);
+        this(propertyExtractor, null);
     }
 
     /**
-     * Primary constructor.
+     * Constructor.
+     *
+     * <p>
+     * After using this constructor, a subsequent invocation of {@link #setPropertyExtractor setPropertyExtractor()} is required
+     * to define how to extract the properties of this container; alternately, subclasses can override
+     * {@link #getPropertyValue getPropertyValue()}.
+     * </p>
+     *
+     * @param propertyDefs container property definitions; null is treated like the empty set
+     */
+    protected SimpleContainer(Collection<? extends PropertyDef<?>> propertyDefs) {
+        this(null, propertyDefs);
+    }
+
+    /**
+     * Constructor.
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -60,6 +76,29 @@ public class SimpleContainer<T> extends AbstractSimpleContainer<Integer, T> {
      */
     public SimpleContainer(PropertyExtractor<? super T> propertyExtractor, Collection<? extends PropertyDef<?>> propertyDefs) {
         super(propertyExtractor, propertyDefs);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty} and
+     * {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods in the given class.
+     * </p>
+     *
+     * @param type class to introspect for annotated methods
+     * @throws IllegalArgumentException if {@code type} is null
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}
+     *  or {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods for the same property
+     * @throws IllegalArgumentException if a {@link ProvidesProperty &#64;ProvidesProperty}-annotated method with no
+     *  {@linkplain ProvidesProperty#value property name specified} has a name which cannot be interpreted as a bean
+     *  property "getter" method
+     * @see ProvidesProperty
+     * @see ProvidesPropertySort
+     * @see ProvidesPropertyScanner
+     */
+    protected SimpleContainer(Class<? super T> type) {
+        super(type);
     }
 
     @Override

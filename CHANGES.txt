@@ -9,6 +9,7 @@ Version Next
     - Added ProcessRunner.handleInterruption()
     - Added SortingPropertyExtractor.
     - Added @ProvidesProperty{,Sort} and FieldBuilder.
+    - Back-port some new classes from vaadin7 -> vaadin
 
 Version 1.0.744 Released October 11, 2013
 

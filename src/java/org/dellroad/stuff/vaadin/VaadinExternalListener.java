@@ -27,7 +27,8 @@ package org.dellroad.stuff.vaadin;
  * </p>
  *
  * <p>
- * Subclass listener methods should use {@link #handleEvent handleEvent()} to handle events.
+ * <b>Important:</b> subclass listener methods must use {@link #handleEvent handleEvent()} when handling events.
+ * This will ensure proper locking to avoid race conditions.
  * </p>
  *
  * <p>

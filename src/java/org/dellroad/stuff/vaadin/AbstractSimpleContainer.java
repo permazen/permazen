@@ -28,8 +28,11 @@ import java.util.Set;
  * {@link Item} in the container is backed by a Java object.
  *
  * <p>
- * The exposed properties are defined via {@link PropertyDef}s, and a {@link PropertyExtractor} is used to
- * actually extract the property values from each underlying object.
+ * This {@link Container}'s {@link Property}s are defined via {@link PropertyDef}s, and a {@link PropertyExtractor}
+ * is used to actually extract the property values from each underlying object (alternately, subclasses can override
+ * {@link #getPropertyValue getPropertyValue()}). However, the easist way to configure the container {@link Property}s
+ * is to pass a {@link ProvidesProperty &#64;ProvidesProperty}-annotated Java class to the {@link #AbstractSimpleContainer(Class)}
+ * constructor.
  * </p>
  *
  * <p>
@@ -44,7 +47,7 @@ import java.util.Set;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryContainer<I, String, SimpleItem<T>>
-  implements Container.Filterable, Container.SimpleFilterable, Container.Sortable {
+  implements PropertyExtractor<T>, Container.Filterable, Container.SimpleFilterable, Container.Sortable {
 
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
     private PropertyExtractor<? super T> propertyExtractor;
@@ -58,9 +61,10 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * After using this constructor, subsequent invocations of {@link #setPropertyExtractor setPropertyExtractor()}
      * and {@link #setProperties setProperties()} are required to define the properties of this container
      * and how to extract them.
+     * </p>
      */
     protected AbstractSimpleContainer() {
-        this(null);
+        this((PropertyExtractor<? super T>)null);
     }
 
     /**
@@ -69,6 +73,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * <p>
      * After using this constructor, a subsequent invocation of {@link #setProperties setProperties()} is required
      * to define the properties of this container.
+     * </p>
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -79,7 +84,22 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     }
 
     /**
-     * Primary constructor.
+     * Constructor.
+     *
+     * <p>
+     * After using this constructor, a subsequent invocation of {@link #setPropertyExtractor setPropertyExtractor()} is required
+     * to define how to extract the properties of this container; alternately, subclasses can override
+     * {@link #getPropertyValue getPropertyValue()}.
+     * </p>
+     *
+     * @param propertyDefs container property definitions; null is treated like the empty set
+     */
+    protected AbstractSimpleContainer(Collection<? extends PropertyDef<?>> propertyDefs) {
+        this(null, propertyDefs);
+    }
+
+    /**
+     * Constructor.
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -91,6 +111,36 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         this.setItemSorter(new SimpleItemSorter());
         this.setPropertyExtractor(propertyExtractor);
         this.setProperties(propertyDefs);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty} and
+     * {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods in the given class.
+     * </p>
+     *
+     * @param type class to introspect for annotated methods
+     * @throws IllegalArgumentException if {@code type} is null
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}
+     *  or {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods for the same property
+     * @throws IllegalArgumentException if a {@link ProvidesProperty &#64;ProvidesProperty}-annotated method with no
+     *  {@linkplain ProvidesProperty#value property name specified} has a name which cannot be interpreted as a bean
+     *  property "getter" method
+     * @see ProvidesProperty
+     * @see ProvidesPropertySort
+     * @see ProvidesPropertyScanner
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected AbstractSimpleContainer(Class<? super T> type) {
+        // Why the JLS forces this stupid cast:
+        //  http://stackoverflow.com/questions/4902723/why-cant-a-java-type-parameter-have-a-lower-bound
+        final ProvidesPropertyScanner<? super T> propertyReader
+          = (ProvidesPropertyScanner<? super T>)new ProvidesPropertyScanner(type);
+        this.setItemSorter(new SimpleItemSorter());
+        this.setPropertyExtractor(propertyReader.getPropertyExtractor());
+        this.setProperties(propertyReader.getPropertyDefs());
     }
 
 // Public methods
@@ -114,6 +164,26 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     }
 
     /**
+     * Read the value of the property defined by {@code propertyDef} from the given object.
+     *
+     * <p>
+     * The implementation in {@link AbstractSimpleContainer} just delegates to the {@linkplain #setPropertyExtractor configured}
+     * {@link PropertyExtractor}; subclasses may override to customize property extraction.
+     * </p>
+     *
+     * @param obj Java object
+     * @param propertyDef definition of which property to read
+     * @throws NullPointerException if either parameter is null
+     * @throws IllegalStateException if no {@link PropertyExtractor} is configured for this container
+     */
+    @Override
+    public <V> V getPropertyValue(T obj, PropertyDef<V> propertyDef) {
+        if (this.propertyExtractor == null)
+            throw new IllegalStateException("no PropertyExtractor is configured for this container");
+        return this.propertyExtractor.getPropertyValue(obj, propertyDef);
+    }
+
+    /**
      * Change the configured properties of this container.
      *
      * @param propertyDefs container property definitions; null is treated like the empty set
@@ -127,6 +197,19 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
             if (this.propertyMap.put(propertyDef.getName(), propertyDef) != null)
                 throw new IllegalArgumentException("duplicate property name `" + propertyDef.getName() + "'");
         }
+        this.fireContainerPropertySetChange();
+    }
+
+    /**
+     * Add or replace a configured property of this container.
+     *
+     * @param propertyDef new container property definitions
+     * @throws IllegalArgumentException if {@code propertyDef} is null
+     */
+    public void setProperty(PropertyDef<?> propertyDef) {
+        if (propertyDef == null)
+            throw new IllegalArgumentException("null propertyDef");
+        this.propertyMap.put(propertyDef.getName(), propertyDef);
         this.fireContainerPropertySetChange();
     }
 
@@ -151,7 +234,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         for (T obj : contents) {
             if (obj == null)
                 throw new IllegalArgumentException("null item in contents at index " + index);
-            SimpleItem<T> item = new SimpleItem<T>(obj, this.propertyMap, this.propertyExtractor);
+            SimpleItem<T> item = new SimpleItem<T>(obj, this.propertyMap, this);
             this.internalAddItemAtEnd(this.generateItemId(obj), item, false);
             index++;
         }
@@ -173,6 +256,11 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * <p>
      * The implementation in {@link AbstractSimpleContainer} requires a linear search of the container.
      * Some subclasses may provide a more efficient implementation.
+     * </p>
+     *
+     * <p>
+     * This method is not used by this class but is defined as a convenience for subclasses.
+     * </p>
      *
      * <p>
      * Note: items that are filtered out will not be found.
@@ -200,6 +288,11 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * <p>
      * The implementation in {@link AbstractSimpleContainer} requires a linear search of the container.
      * Some subclasses may provide a more efficient implementation.
+     * </p>
+     *
+     * <p>
+     * This method is not used by this class but is defined as a convenience for subclasses.
+     * </p>
      *
      * <p>
      * Note: items that are filtered out will not be found.
@@ -253,7 +346,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         T obj = this.getJavaObject(itemId);
         if (obj == null)
             return null;
-        return new SimpleItem<T>(obj, this.propertyMap, this.propertyExtractor);
+        return new SimpleItem<T>(obj, this.propertyMap, this);
     }
 
 // Subclass methods
@@ -333,8 +426,16 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 
     @Override
     public Collection<?> getSortableContainerPropertyIds() {
-        ArrayList<String> propertyIds = new ArrayList<String>(this.propertyMap.size());
+        final ArrayList<String> propertyIds = new ArrayList<String>(this.propertyMap.size());
         for (Map.Entry<String, PropertyDef<?>> entry : this.propertyMap.entrySet()) {
+            if (this.propertyExtractor instanceof SortingPropertyExtractor) {
+                final SortingPropertyExtractor<? super T> sortingPropertyExtractor
+                  = (SortingPropertyExtractor<? super T>)this.propertyExtractor;
+                if (sortingPropertyExtractor.canSort(entry.getValue())) {
+                    propertyIds.add(entry.getKey());
+                    continue;
+                }
+            }
             if (entry.getValue().isSortable())
                 propertyIds.add(entry.getKey());
         }
@@ -344,18 +445,39 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 // ItemSorter class
 
     /**
-     * {@link ItemSorter} implementation used by {@link SimpleContainer}.
+     * {@link ItemSorter} implementation used by {@link AbstractSimpleContainer}.
      */
     private class SimpleItemSorter extends DefaultItemSorter {
 
         @Override
         @SuppressWarnings("unchecked")
         protected int compareProperty(Object propertyId, boolean ascending, Item item1, Item item2) {
-            PropertyDef<?> propertyDef = AbstractSimpleContainer.this.propertyMap.get(propertyId);
-            if (propertyDef == null || !propertyDef.isSortable())
+
+            // Get property definition
+            final PropertyDef<?> propertyDef = AbstractSimpleContainer.this.propertyMap.get(propertyId);
+            if (propertyDef == null)
                 return super.compareProperty(propertyId, ascending, item1, item2);
-            int diff = this.sort(propertyDef, item1, item2);
-            return ascending ? diff : -diff;
+
+            // Ask SortingPropertyExtractor if we have one
+            if (AbstractSimpleContainer.this.propertyExtractor instanceof SortingPropertyExtractor) {
+                final SortingPropertyExtractor<? super T> sortingPropertyExtractor
+                  = (SortingPropertyExtractor<? super T>)AbstractSimpleContainer.this.propertyExtractor;
+                if (sortingPropertyExtractor.canSort(propertyDef)) {
+                    final T obj1 = ((SimpleItem<T>)item1).getObject();
+                    final T obj2 = ((SimpleItem<T>)item2).getObject();
+                    final int diff = sortingPropertyExtractor.sort(propertyDef, obj1, obj2);
+                    return ascending ? diff : -diff;
+                }
+            }
+
+            // Ask property definition
+            if (propertyDef.isSortable()) {
+                final int diff = this.sort(propertyDef, item1, item2);
+                return ascending ? diff : -diff;
+            }
+
+            // Defer to superclass
+            return super.compareProperty(propertyId, ascending, item1, item2);
         }
 
         // This method exists only to allow the generic parameter <V> to be bound

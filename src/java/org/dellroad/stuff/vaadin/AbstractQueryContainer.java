@@ -16,21 +16,32 @@ import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Support superclass for read-only {@link Container} implementations where each {@link Item} in the container
  * is backed by a Java object, and the Java objects are generated via {@linkplain #query a query} that returns
- * a {@link QueryList} containing only some portion of the total list of backing objects at any one time. The
- * container's item ID's are simply the indexes of the corresponding objects in this list. The {@link QueryList}
- * interface is designed for scalability; at minimum, it is required to provide only the size of the total list
- * (which may only be an estimate) and one list item at a specified index.
+ * a {@link QueryList} containing only some portion of the total list of backing objects at any one time.
  *
  * <p>
- * This class will invoke {@link #query} as needed to (re)generate the query list. The query list is then cached.
+ * This {@link Container}'s {@link Property}s are defined via {@link PropertyDef}s, and a {@link PropertyExtractor}
+ * is used to actually extract the property values from each underlying object (alternately, subclasses can override
+ * {@link #getPropertyValue getPropertyValue()}). However, the easist way to configure the container {@link Property}s
+ * is to pass a {@link ProvidesProperty &#64;ProvidesProperty}-annotated Java class to the {@link #AbstractQueryContainer(Class)}
+ * constructor.
+ * </p>
+ *
+ * <p>
+ * This {@link Container}'s item ID's are simply the indexes of the corresponding objects in the overall list. The {@link QueryList}
+ * interface is designed for scalability; at minimum, it is required to provide only the size of the total list
+ * (which may only be an estimate) and one backing object at a specified index.
+ *
+ * <p>
+ * This class will invoke {@link #query} as needed to (re)generate the {@link QueryList}; the {@link QueryList} is then cached.
  * However, if any invocation of {@link QueryList#get} throws an {@link InvalidQueryListException}, then the cached
  * list is discarded and {@link #query} is invoked again to regenerate it. In this way, the {@link QueryList} is
- * allowed to decide on demand when it is invalid or incapable of providing a specific list member. For example,
+ * allowed to decide, on demand, when it is invalid or incapable of providing a specific list member. For example,
  * when using JPA, a list may be considered invalid if the current EntityManager session has changed.
  * </p>
  *
@@ -67,10 +78,11 @@ import java.util.Set;
  * @see QueryList
  * @see SimpleQueryList
  * @see WindowQueryList
+ * @see AbstractUnsizedContainer
  */
 @SuppressWarnings("serial")
-public abstract class AbstractQueryContainer<T> extends AbstractContainer implements Container.Ordered, Container.Indexed,
-  Container.PropertySetChangeNotifier, Container.ItemSetChangeNotifier {
+public abstract class AbstractQueryContainer<T> extends AbstractContainer implements PropertyExtractor<T>,
+  Container.Ordered, Container.Indexed, Container.PropertySetChangeNotifier, Container.ItemSetChangeNotifier {
 
     private QueryList<? extends T> queryList;
     private long totalSize = -1;
@@ -87,9 +99,10 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * After using this constructor, subsequent invocations of {@link #setPropertyExtractor setPropertyExtractor()}
      * and {@link #setProperties setProperties()} are required to define the properties of this container
      * and how to extract them.
+     * </p>
      */
     protected AbstractQueryContainer() {
-        this(null);
+        this((PropertyExtractor<T>)null);
     }
 
     /**
@@ -98,6 +111,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * <p>
      * After using this constructor, a subsequent invocation of {@link #setProperties setProperties()} is required
      * to define the properties of this container.
+     * </p>
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -108,7 +122,22 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     }
 
     /**
-     * Primary constructor.
+     * Constructor.
+     *
+     * <p>
+     * After using this constructor, a subsequent invocation of {@link #setPropertyExtractor setPropertyExtractor()}
+     * is required to define how to extract the properties of this container; alternately, subclasses can override
+     * {@link #getPropertyValue getPropertyValue()}.
+     * </p>
+     *
+     * @param propertyDefs container property definitions; null is treated like the empty set
+     */
+    protected AbstractQueryContainer(Collection<? extends PropertyDef<?>> propertyDefs) {
+        this(null, propertyDefs);
+    }
+
+    /**
+     * Constructor.
      *
      * @param propertyExtractor used to extract properties from the underlying Java objects;
      *  may be null but then container is not usable until one is configured via
@@ -119,6 +148,35 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
       Collection<? extends PropertyDef<?>> propertyDefs) {
         this.setPropertyExtractor(propertyExtractor);
         this.setProperties(propertyDefs);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * Properties will be determined by the {@link ProvidesProperty &#64;ProvidesProperty} and
+     * {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods in the given class.
+     * </p>
+     *
+     * @param type class to introspect for annotated methods
+     * @throws IllegalArgumentException if {@code type} is null
+     * @throws IllegalArgumentException if {@code type} has two {@link ProvidesProperty &#64;ProvidesProperty}
+     *  or {@link ProvidesPropertySort &#64;ProvidesPropertySort} annotated methods for the same property
+     * @throws IllegalArgumentException if a {@link ProvidesProperty &#64;ProvidesProperty}-annotated method with no
+     *  {@linkplain ProvidesProperty#value property name specified} has a name which cannot be interpreted as a bean
+     *  property "getter" method
+     * @see ProvidesProperty
+     * @see ProvidesPropertySort
+     * @see ProvidesPropertyScanner
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected AbstractQueryContainer(Class<? super T> type) {
+        // Why the JLS forces this stupid cast:
+        //  http://stackoverflow.com/questions/4902723/why-cant-a-java-type-parameter-have-a-lower-bound
+        final ProvidesPropertyScanner<? super T> propertyReader
+          = (ProvidesPropertyScanner<? super T>)new ProvidesPropertyScanner(type);
+        this.setPropertyExtractor(propertyReader.getPropertyExtractor());
+        this.setProperties(propertyReader.getPropertyDefs());
     }
 
 // Public methods
@@ -139,6 +197,26 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      */
     public void setPropertyExtractor(PropertyExtractor<? super T> propertyExtractor) {
         this.propertyExtractor = propertyExtractor;
+    }
+
+    /**
+     * Read the value of the property defined by {@code propertyDef} from the given object.
+     *
+     * <p>
+     * The implementation in {@link AbstractQueryContainer} just delegates to the {@linkplain #setPropertyExtractor configured}
+     * {@link PropertyExtractor}; subclasses may override to customize property extraction.
+     * </p>
+     *
+     * @param obj Java object
+     * @param propertyDef definition of which property to read
+     * @throws NullPointerException if either parameter is null
+     * @throws IllegalStateException if no {@link PropertyExtractor} is configured for this container
+     */
+    @Override
+    public <V> V getPropertyValue(T obj, PropertyDef<V> propertyDef) {
+        if (this.propertyExtractor == null)
+            throw new IllegalStateException("no PropertyExtractor is configured for this container");
+        return this.propertyExtractor.getPropertyValue(obj, propertyDef);
     }
 
     /**
@@ -175,8 +253,8 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * Perform a query to (re)generate the list of Java objects backing this container.
      *
      * <p>
-     * The particular position in the list we are interested in is given as a hint by the {@code index} parameter.
-     * That is, an invocation of <code>{@link QueryList#get}(hint)</code> is likely immediately after this method
+     * The particular position in the list we are interested in is given as a hint by the {@code hint} parameter.
+     * That is, an invocation of {@link QueryList#get}{@code (hint)} is likely immediately after this method
      * returns and if so it must complete without throwing an exception, unless {@code hint} is out of range.
      * </p>
      *
@@ -184,7 +262,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * The {@code hint} can be used to implement a highly scalable query list containing external objects
      * (such as from a database) where only a small "window" of objects is actually kept in memory at any one time.
      * Of course, implementations are also free to ignore {@code hint}. However, the returned {@link QueryList}
-     * must at least tolerate one invocation of <code>{@link QueryList#get get}(hint)</code> without throwing an exception
+     * must at least tolerate one invocation of {@link QueryList#get get}{@code (hint)} without throwing an exception
      * when {@code hint} is less that the {@link QueryList#size size()} of the returned {@link QueryList}.
      * </p>
      *
@@ -208,7 +286,8 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     protected T getJavaObject(int index) {
         Exception exception;
         long currentSize;
-        for (boolean first = true; true; first = false) {
+        int attempt = 1;
+        while (true) {
             currentSize = this.ensureList(index);
             if (index < 0 || index >= currentSize)
                 return null;
@@ -216,7 +295,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
                 return this.queryList.get(index);
             } catch (InvalidQueryListException e) {
                 this.invalidate();
-                if (!first) {
+                if (attempt == 100) {           // avoid infinite loops
                     exception = e;
                     break;
                 }
@@ -224,11 +303,12 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
                 exception = e;
                 break;
             }
+            attempt++;
         }
 
         // The QueryList is behaving badly
         throw new RuntimeException("query(" + index + ") returned a QueryList with size() = "
-          + currentSize + " but QueryList.get(" + index + ") failed", exception);
+          + currentSize + " but QueryList.get(" + index + ") failed (attempt #" + attempt + ")", exception);
     }
 
     /**
@@ -262,7 +342,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      *
      * <p>
      * Note: to avoid re-entrancy problems, this method should not send out any notifications itself;
-     * instead, it may schedule notifications to be delivered later (perhaps in a different thread).
+     * instead, it should schedule notifications to be delivered later.
      * </p>
      *
      * <p>
@@ -283,7 +363,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         T obj = this.getJavaObject(index);
         if (obj == null)
             return null;
-        return new SimpleItem<T>(obj, this.propertyMap, this.propertyExtractor);
+        return new SimpleItem<T>(obj, this.propertyMap, this);
     }
 
     @Override
@@ -395,6 +475,18 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         if (index >= size)
             throw new IndexOutOfBoundsException("index=" + index + " but size=" + size);
         return index;
+    }
+
+    //@Override in Vaadin 7
+    public List<Integer> getItemIds(int startIndex, int numberOfItems) {
+        if (numberOfItems < 0)
+            throw new IllegalArgumentException("numberOfItems < 0");
+        final long size = this.ensureList(startIndex);
+        if (startIndex < 0 || startIndex > size)
+            throw new IndexOutOfBoundsException("startIndex=" + startIndex + " but size=" + size);
+        if (startIndex + numberOfItems > size)
+            numberOfItems = (int)(size - startIndex);
+        return new IntList(startIndex, numberOfItems);
     }
 
     @Override

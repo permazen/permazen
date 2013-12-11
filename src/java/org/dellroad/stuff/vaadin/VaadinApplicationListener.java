@@ -40,6 +40,7 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
      * </blockquote>
      *
      * @param multicaster the application event multicaster on which this listener will register
+     * @param eventType type of events this instance should receive (others will be ignored)
      * @throws IllegalArgumentException if {@code eventType} is null
      * @throws IllegalStateException if there is no {@link ContextApplication} associated with the current thread
      */
