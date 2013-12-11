@@ -1,21 +1,21 @@
 Version Next
 
     - Renamed SpringVaadinSession -> SpringVaadinSessionListener
-      NOTE: the above are backward-incompatible changes.
+      NOTE: the above are backward-incompatible changes
     - Add new servlet init params "sessionTracking" and "maxSessions"
     - Added VaadinSessionContainer
     - Added MergedResultSet
     - Added PersistentObjectTransactionManager and @PersistentObjectTransactional
     - Added ProcessRunner.handleInterruption()
-    - Added SortingPropertyExtractor.
-    - Added @ProvidesProperty{,Sort} and FieldBuilder.
+    - Added SortingPropertyExtractor
+    - Added @ProvidesProperty{,Sort} and FieldBuilder
     - Back-port some new classes from vaadin7 -> vaadin
 
 Version 1.0.744 Released October 11, 2013
 
     - Moved CSVOutput from "string" to "io" sub-package
     - Extracted *Callback interfaces out of NullModem*Stream classes
-      NOTE: the above are backward-incompatible changes.
+      NOTE: the above are backward-incompatible changes
     - Added ThreadLogger
     - Added "vaadin" sub-package of org.dellroad.stuff.pobj
     - Added @ProvidesProperty annotation and container constructor support
@@ -89,7 +89,7 @@ Version 1.0.548 Released October 19, 2012
     - Added trace and debug level logging to ThreadLocalContext
     - Fixed bug in AnnotatedXMLEventWriter when namespaces used
     - Changed AbstractQueryContainer to make it more easily scalable
-      NOTE: backward-incompatible change.
+      NOTE: backward-incompatible change
 
 Version 1.0.507 Released August 28, 2012
 
@@ -103,14 +103,14 @@ Version 1.0.497 Released August 24, 2012
     - Vaadin7: Call Application.setCurrent() in ContextApplication.invoke()
     - Added PersistentObject.getRootSnapshot(); return new version from setRoot()
     - Reworked PersistentObjectSchemaUpdater to avoid bugs with empty starts
-      NOTE: backward-incompatible change.
+      NOTE: backward-incompatible change
     - Fixed filtering bug in AbstractSimpleContainer and flaw in SimpleContainer
     - Allow SpringXSLUpdateTransformConfigurer to configure the TransformerFactory
     - Added IdGenerator.checkId() allowing to read but not assign an object's ID
     - Disallow forward references in ParseUtil.serializeReference (as documented)
     - Removed non-Vaadin aspects from aop.xml in the Vaadin add-on JAR (issue #12)
     - Added VaadinExternalListener, changed VaadinApplicationListener to use it
-      NOTE: backward-incompatible change.
+      NOTE: backward-incompatible change
     - Added @ThreadConfigurable and @ThreadTransactional Spring annotations
     - Added XMLResultSetWriter
 
@@ -126,7 +126,7 @@ Version 1.0.420 Released June 9, 2012
 
     - Added Vaadin 7 versions of Vaadin classes that require change
     - Changed IdGenerator to re-use the same instance on re-entrant invocation;
-      NOTE: backward-incompatible change.
+      NOTE: backward-incompatible change
     - Added new Container classes, PropertyExtractor, and sorting to PropertyDef
     - Added VaadinApplicationListener.addAsListenerTo()
     - Added AtomicUpdateFileOutputStream and {,File}StreamRepository
@@ -205,7 +205,7 @@ Version 1.0.189 Released Dec 16, 2011
     - Added @VaadinConfigurable and re-targeted VaadinConfigurableAspect to
       apply to @VaadinConfigurable beans instead of @Configurable beans; this
       avoids a conflict when doing load-time weaving when spring-aspects.jar
-      is also on the classpath. NOTE: backward-incompatible change.
+      is also on the classpath. NOTE: backward-incompatible change
 
 Version 1.0.173 Released Oct 28, 2011
 
