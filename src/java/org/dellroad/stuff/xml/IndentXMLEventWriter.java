@@ -9,7 +9,6 @@ package org.dellroad.stuff.xml;
 
 import java.util.Arrays;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -19,14 +18,13 @@ import javax.xml.stream.events.XMLEvent;
 /**
  * Wrapper for an underlying {@link XMLEventWriter} that automatically adds indentation to the event stream.
  */
-public class IndentXMLEventWriter implements XMLEventWriter {
+public class IndentXMLEventWriter extends EventWriterDelegate {
 
     /**
      * The configured event factory for this instance.
      */
     protected final XMLEventFactory factory;
 
-    private final XMLEventWriter writer;
     private final int indent;
 
     private int lastEvent = -1;
@@ -41,11 +39,9 @@ public class IndentXMLEventWriter implements XMLEventWriter {
      * @throws IllegalArgumentException if {@code writer} or {@code factory} is null
      */
     public IndentXMLEventWriter(XMLEventWriter writer, XMLEventFactory factory, int indent) {
-        if (writer == null)
-            throw new IllegalArgumentException("null writer");
+        super(writer);
         if (factory == null)
             throw new IllegalArgumentException("null factory");
-        this.writer = writer;
         this.factory = factory;
         this.indent = indent;
     }
@@ -95,48 +91,13 @@ public class IndentXMLEventWriter implements XMLEventWriter {
             break;
         }
         this.lastEvent = event.getEventType();
-        this.writer.add(event);
-    }
-
-    @Override
-    public void flush() throws XMLStreamException {
-        this.writer.flush();
-    }
-
-    @Override
-    public void close() throws XMLStreamException {
-        this.writer.close();
+        super.add(event);
     }
 
     @Override
     public void add(XMLEventReader reader) throws XMLStreamException {
         while (reader.hasNext())
             this.add(reader.nextEvent());
-    }
-
-    @Override
-    public String getPrefix(String uri) throws XMLStreamException {
-        return this.writer.getPrefix(uri);
-    }
-
-    @Override
-    public void setPrefix(String prefix, String uri) throws XMLStreamException {
-        this.writer.setPrefix(prefix, uri);
-    }
-
-    @Override
-    public void setDefaultNamespace(String uri) throws XMLStreamException {
-        this.writer.setDefaultNamespace(uri);
-    }
-
-    @Override
-    public void setNamespaceContext(NamespaceContext context) throws XMLStreamException {
-        this.writer.setNamespaceContext(context);
-    }
-
-    @Override
-    public NamespaceContext getNamespaceContext() {
-        return this.writer.getNamespaceContext();
     }
 
     /**
@@ -148,7 +109,7 @@ public class IndentXMLEventWriter implements XMLEventWriter {
         char[] buf = new char[1 + depth * this.indent];
         Arrays.fill(buf, ' ');
         buf[0] = '\n';
-        this.writer.add(this.factory.createIgnorableSpace(new String(buf)));
+        super.add(this.factory.createIgnorableSpace(new String(buf)));
     }
 }
 
