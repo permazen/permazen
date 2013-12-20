@@ -10,17 +10,18 @@ package org.dellroad.stuff.xml;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Comment;
-import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.EventReaderDelegate;
 
 /**
  * {@link XMLEventReader} that reads and removes an initial annotation element from an XML document.
  * The annotation element, if present, must be the first element inside the top-level document element.
- * When the annotation element is encountered, {@link #readAnnotationElement readAnnotationElement()} will be invoked.
+ * {@link #readAnnotationElement readAnnotationElement()} must be provided by the subclass to determine
+ * whether the first non-top element is the expected annotation element, and read it if so.
  *
  * <p>
  * This class can be used in combination with {@link AnnotatedXMLEventWriter} to transparently annotate XML documents.
+ * </p>
  *
  * @see AnnotatedXMLEventWriter
  */
@@ -83,50 +84,34 @@ public abstract class AnnotatedXMLEventReader extends EventReaderDelegate {
     }
 
     /**
-     * Determine if the given event represents the start of the annotation element.
-     */
-    protected abstract boolean isAnnotationElement(StartElement event);
-
-    /**
-     * Read the annotation element.
+     * Determine if the next event from the given {@link XMLEventReader} is the annotation element, and if so, read it.
      *
      * <p>
-     * When this method is invoked, {@code event} represents the {@link StartElement} event for the annotation element
-     * (i.e., {@link #isAnnotationElement isAnnotationElement(event)} has returned true); it is also the next event in the
-     * pipeline, i.e., the next event returned by {@link #nextEvent}.
+     * This method should invoke {@link #peek reader.peek()} to determine if the next event is the annotation
+     * {@link javax.xml.stream.events.StartElement}; if not, this method should not read any events and immediately
+     * return false. Otherwise, it should read the annotation {@link javax.xml.stream.events.StartElement} and all
+     * subsequent events up <i>through</i> the matching {@link javax.xml.stream.events.EndElement}.
+     * </p>
      *
-     * <p>
-     * The last event consumed by this method should be the {@link javax.xml.stream.events.EndElement} event for the
-     * annotation element, and the event returned by {@link #peek} should be the next event after the
-     * {@link javax.xml.stream.events.EndElement}.
-     *
-     * @param event the {@link StartElement} event for the annotation element
+     * @param reader source from which the rest of the annotation element is to be read
+     * @return false if the annotation element is not seen, true if seen and fully read
      */
-    protected abstract void readAnnotationElement(StartElement event) throws XMLStreamException;
+    protected abstract boolean readAnnotationElement(XMLEventReader reader) throws XMLStreamException;
 
     /**
-     * Skip whitespace.
+     * Skip whitespace and (optionally) comments.
+     * Upon return, the next event (as returned by {@link #peek reader.peek()}) is guaranteed not to
+     * be whitespace (or comments).
      *
-     * @param event the next event, as returned by {@link #peek}
+     * @param reader source from which whitespace and comments should be read and discarded
      * @param comments whether to also skip comments
-     * @return the next event, as returned by {@link #peek}, after skipping any leading whitespace (and, optionally, comments)
      */
-    protected XMLEvent skipWhiteSpace(XMLEvent event, boolean comments) throws XMLStreamException {
-        while (event.isCharacters() && event.asCharacters().isWhiteSpace() || (comments && event instanceof Comment)) {
-            super.nextEvent();
-            event = super.peek();
+    protected static void skipWhiteSpace(XMLEventReader reader, boolean comments) throws XMLStreamException {
+        XMLEvent event = reader.peek();
+        while ((event.isCharacters() && event.asCharacters().isWhiteSpace()) || (comments && event instanceof Comment)) {
+            reader.nextEvent();
+            event = reader.peek();
         }
-        return event;
-    }
-
-    /**
-     * Advance one event in the event stream.
-     *
-     * @return the next event, as returned by {@link #peek}, after the advance
-     */
-    protected XMLEvent advance() throws XMLStreamException {
-        super.nextEvent();
-        return super.peek();
     }
 
     /**
@@ -155,14 +140,14 @@ public abstract class AnnotatedXMLEventReader extends EventReaderDelegate {
 
         // Anything else means we either we have found the annotation element or it is not there
         this.state++;
-        if (!event.isStartElement() || !this.isAnnotationElement(event.asStartElement()))
+        if (!event.isStartElement())
+            return event;
+        if (!this.readAnnotationElement(this.getParent()))
             return event;
 
-        // It is there, so read it
-        this.readAnnotationElement(event.asStartElement());
-
         // Skip whitespace after annotation element
-        return this.skipWhiteSpace(super.peek(), false);
+        AnnotatedXMLEventReader.skipWhiteSpace(this.getParent(), false);
+        return super.peek();
     }
 }
 

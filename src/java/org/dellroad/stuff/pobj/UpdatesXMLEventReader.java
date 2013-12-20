@@ -12,7 +12,6 @@ import java.util.List;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.dellroad.stuff.xml.AnnotatedXMLEventReader;
@@ -38,41 +37,39 @@ public class UpdatesXMLEventReader extends AnnotatedXMLEventReader {
     }
 
     @Override
-    protected boolean isAnnotationElement(StartElement event) {
-        return event.getName().equals(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME);
-    }
+    protected boolean readAnnotationElement(XMLEventReader reader) throws XMLStreamException {
 
-    @Override
-    protected void readAnnotationElement(StartElement startElement) throws XMLStreamException {
+        // Check element name
+        XMLEvent event = reader.peek();
+        if (!event.isStartElement() || !event.asStartElement().getName().equals(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME))
+            return false;
+        reader.nextEvent();
+
+        // Read updates
         this.updates = new ArrayList<String>();
         while (true) {
 
-            // Skip to next event
-            XMLEvent event = this.advance();
-
             // Skip whitespace and comments
-            event = this.skipWhiteSpace(event, true);
+            AnnotatedXMLEventReader.skipWhiteSpace(reader, true);
 
             // Done with updates?
-            if (event.isEndElement()) {
-                this.advance();
-                return;
-            }
+            if ((event = reader.nextEvent()).isEndElement())
+                return true;
 
-            // Get <update> start element event
+            // Read <update>
             if (!event.isStartElement()
               || !event.asStartElement().getName().equals(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME)) {
                 throw new XMLStreamException("XML parse error: expected " + PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME
                   + " but got " + this.describe(event), event.getLocation());
             }
 
-            // Get update name
-            StringBuilder buf = new StringBuilder();
-            for (event = this.advance(); event.isCharacters(); event = this.advance())
+            // Read update name
+            final StringBuilder buf = new StringBuilder();
+            for (event = reader.nextEvent(); event.isCharacters(); event = reader.nextEvent())
                 buf.append(event.asCharacters().getData());
             this.updates.add(buf.toString());
 
-            // Get <update> end element event
+            // Read </update>
             if (!event.isEndElement()) {
                 throw new XMLStreamException("XML parse error: expected " + PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME
                   + " closing tag but got " + this.describe(event), event.getLocation());

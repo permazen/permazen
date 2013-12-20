@@ -57,7 +57,7 @@ public abstract class AnnotatedXMLEventWriter extends EventWriterDelegate {
                 break;
             }
             this.state++;
-            this.addAnnotationElement();
+            this.addAnnotationElement(this.getParent());
             if (this.trailingSpace.length() > 0)
                 super.add(this.xmlEventFactory.createCharacters(this.trailingSpace.toString()));
             super.add(event);
@@ -91,7 +91,10 @@ public abstract class AnnotatedXMLEventWriter extends EventWriterDelegate {
      * <p>
      * This method should {@link #add add()} the {@link javax.xml.stream.events.StartElement} for the annotation element, followed
      * by any nested content, and then lastly the {@link javax.xml.stream.events.EndElement} for the annotation element.
+     * </p>
+     *
+     * @param writer output to which the annotation element should be written
      */
-    protected abstract void addAnnotationElement() throws XMLStreamException;
+    protected abstract void addAnnotationElement(XMLEventWriter writer) throws XMLStreamException;
 }
 

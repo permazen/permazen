@@ -1,5 +1,7 @@
 Version Next
 
+    - Improve AnnotatedXMLEvent{Reader,Writer} subclass API
+      NOTE: the above are backward-incompatible changes
     - Added StreamWriterDelegate and EventWriterDelegate
 
 Version 1.0.794 Released December 11, 2013

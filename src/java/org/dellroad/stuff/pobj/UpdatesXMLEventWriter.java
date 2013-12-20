@@ -38,22 +38,22 @@ public class UpdatesXMLEventWriter extends AnnotatedXMLEventWriter {
     }
 
     @Override
-    protected void addAnnotationElement() throws XMLStreamException {
-        this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null, null));
-        this.add(this.xmlEventFactory.createAttribute(PersistentObjectSchemaUpdater.XMLNS_ATTRIBUTE_NAME,
+    protected void addAnnotationElement(XMLEventWriter writer) throws XMLStreamException {
+        writer.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null, null));
+        writer.add(this.xmlEventFactory.createAttribute(PersistentObjectSchemaUpdater.XMLNS_ATTRIBUTE_NAME,
           PersistentObjectSchemaUpdater.NAMESPACE_URI));
         final String space = this.getTrailingSpace();
         final String space2 = space.length() > 0 ? space + "    " : "";
         if (!this.updates.isEmpty()) {
             for (String updateName : this.updates) {
-                this.add(this.xmlEventFactory.createCharacters(space2));
-                this.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null, null));
-                this.add(this.xmlEventFactory.createCharacters(updateName));
-                this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null));
+                writer.add(this.xmlEventFactory.createCharacters(space2));
+                writer.add(this.xmlEventFactory.createStartElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null, null));
+                writer.add(this.xmlEventFactory.createCharacters(updateName));
+                writer.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATE_ELEMENT_NAME, null));
             }
-            this.add(this.xmlEventFactory.createCharacters(space));
+            writer.add(this.xmlEventFactory.createCharacters(space));
         }
-        this.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null));
+        writer.add(this.xmlEventFactory.createEndElement(PersistentObjectSchemaUpdater.UPDATES_ELEMENT_NAME, null));
     }
 }
 
