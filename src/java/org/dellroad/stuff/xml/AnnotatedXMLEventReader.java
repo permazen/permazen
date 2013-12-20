@@ -18,6 +18,7 @@ import javax.xml.stream.util.EventReaderDelegate;
  * The annotation element, if present, must be the first element inside the top-level document element.
  * {@link #readAnnotationElement readAnnotationElement()} must be provided by the subclass to determine
  * whether the first non-top element is the expected annotation element, and read it if so.
+ * Whoever reads from this {@link AnnotatedXMLEventReader} instance class will not see the annotation element.
  *
  * <p>
  * This class can be used in combination with {@link AnnotatedXMLEventWriter} to transparently annotate XML documents.
@@ -36,18 +37,10 @@ public abstract class AnnotatedXMLEventReader extends EventReaderDelegate {
     /**
      * Constructor.
      *
-     * <p>
-     * The given parameter should expect to read the XML document without the annotation element.
-     *
-     * @param inner nested reader
+     * @param parent parent reader
      */
-    public AnnotatedXMLEventReader(XMLEventReader inner) {
-        super(inner);
-    }
-
-    @Override
-    public void setParent(XMLEventReader reader) {
-        throw new UnsupportedOperationException();
+    public AnnotatedXMLEventReader(XMLEventReader parent) {
+        super(parent);
     }
 
     @Override
