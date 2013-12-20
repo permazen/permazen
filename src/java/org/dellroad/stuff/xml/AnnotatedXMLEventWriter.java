@@ -7,7 +7,6 @@
 
 package org.dellroad.stuff.xml;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -23,12 +22,11 @@ import javax.xml.stream.events.XMLEvent;
  *
  * @see AnnotatedXMLEventReader
  */
-public abstract class AnnotatedXMLEventWriter implements XMLEventWriter {
+public abstract class AnnotatedXMLEventWriter extends EventWriterDelegate {
 
     protected final XMLEventFactory xmlEventFactory = XMLEventFactory.newFactory();
 
     private final StringBuilder trailingSpace = new StringBuilder();
-    private final XMLEventWriter inner;
 
     // State:
     //  0 = before document element
@@ -37,9 +35,7 @@ public abstract class AnnotatedXMLEventWriter implements XMLEventWriter {
     private byte state;
 
     public AnnotatedXMLEventWriter(XMLEventWriter inner) {
-        if (inner == null)
-            throw new IllegalArgumentException("null inner");
-        this.inner = inner;
+        super(inner);
     }
 
     @Override
@@ -48,26 +44,26 @@ public abstract class AnnotatedXMLEventWriter implements XMLEventWriter {
         case 0:
             if (event.isStartElement())
                 this.state++;
-            this.inner.add(event);
+            super.add(event);
             break;
         case 1:
             if (event.isNamespace() || event.isAttribute()) {
-                this.inner.add(event);
+                super.add(event);
                 break;
             }
             if (event.isCharacters() && event.asCharacters().isWhiteSpace()) {
                 this.trailingSpace.append(event.asCharacters().getData());
-                this.inner.add(event);
+                super.add(event);
                 break;
             }
             this.state++;
             this.addAnnotationElement();
             if (this.trailingSpace.length() > 0)
-                this.inner.add(this.xmlEventFactory.createCharacters(this.trailingSpace.toString()));
-            this.inner.add(event);
+                super.add(this.xmlEventFactory.createCharacters(this.trailingSpace.toString()));
+            super.add(event);
             break;
         case 2:
-            this.inner.add(event);
+            super.add(event);
             break;
         default:
             throw new RuntimeException("internal error");
@@ -80,41 +76,6 @@ public abstract class AnnotatedXMLEventWriter implements XMLEventWriter {
             throw new XMLStreamException("null reader");
         while (reader.hasNext())
             this.add(reader.nextEvent());
-    }
-
-    @Override
-    public void flush() throws XMLStreamException {
-        this.inner.flush();
-    }
-
-    @Override
-    public void close() throws XMLStreamException {
-        this.inner.close();
-    }
-
-    @Override
-    public String getPrefix(String uri) throws XMLStreamException {
-        return this.inner.getPrefix(uri);
-    }
-
-    @Override
-    public void setPrefix(String prefix, String uri) throws XMLStreamException {
-        this.inner.setPrefix(prefix, uri);
-    }
-
-    @Override
-    public void setDefaultNamespace(String uri) throws XMLStreamException {
-        this.inner.setDefaultNamespace(uri);
-    }
-
-    @Override
-    public void setNamespaceContext(NamespaceContext context) throws XMLStreamException {
-        this.inner.setNamespaceContext(context);
-    }
-
-    @Override
-    public NamespaceContext getNamespaceContext() {
-        return this.inner.getNamespaceContext();
     }
 
     /**
