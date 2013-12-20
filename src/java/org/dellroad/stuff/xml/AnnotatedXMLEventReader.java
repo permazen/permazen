@@ -28,7 +28,7 @@ public abstract class AnnotatedXMLEventReader extends EventReaderDelegate {
 
     // State:
     //  0 = before document element
-    //  1 = after document element but before ananotation element (if any)
+    //  1 = after document element but before annotation element (if any)
     //  2 = after annotation element (if any)
     private byte state;
 
