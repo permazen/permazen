@@ -264,6 +264,13 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
         super.destroy();
     }
 
+    /**
+     * Handle notification of a change to the local root.
+     *
+     * <p>
+     * The implementation in {@link Synchronizer} delegates to {@link #applyLocalUpdate}.
+     * </p>
+     */
     @Override
     public void handleEvent(PersistentObjectEvent<T> event) {
         this.applyLocalUpdate(this.persistentObject.new Snapshot(event.getNewRoot(), event.getVersion()),
