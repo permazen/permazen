@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Comment;
 import javax.xml.stream.events.XMLEvent;
 
 import org.dellroad.stuff.xml.AnnotatedXMLEventReader;
@@ -49,11 +50,17 @@ public class UpdatesXMLEventReader extends AnnotatedXMLEventReader {
         this.updates = new ArrayList<String>();
         while (true) {
 
-            // Skip whitespace and comments
-            AnnotatedXMLEventReader.skipWhiteSpace(reader, true);
+            // Get next event
+            event = reader.nextEvent();
+
+            // Ignore leading whitespace, comments, and PI's
+            while ((event.isCharacters() && event.asCharacters().isWhiteSpace())
+              || event instanceof Comment
+              || event.isProcessingInstruction())
+                event = reader.nextEvent();
 
             // Done with updates?
-            if ((event = reader.nextEvent()).isEndElement())
+            if (event.isEndElement())
                 return true;
 
             // Read <update>

@@ -19,6 +19,7 @@ import javax.xml.stream.events.XMLEvent;
  *
  * <p>
  * This class can be used in combination with {@link AnnotatedXMLEventReader} to transparently annotate XML documents.
+ * </p>
  *
  * @see AnnotatedXMLEventReader
  */

@@ -81,31 +81,15 @@ public abstract class AnnotatedXMLEventReader extends EventReaderDelegate {
      *
      * <p>
      * This method should invoke {@link #peek reader.peek()} to determine if the next event is the annotation
-     * {@link javax.xml.stream.events.StartElement}; if not, this method should not read any events and immediately
+     * {@link javax.xml.stream.events.StartElement}; if it's not, this method should not read any events and immediately
      * return false. Otherwise, it should read the annotation {@link javax.xml.stream.events.StartElement} and all
-     * subsequent events up <i>through</i> the matching {@link javax.xml.stream.events.EndElement}.
+     * subsequent events up <i>through</i> the matching {@link javax.xml.stream.events.EndElement} and return true.
      * </p>
      *
      * @param reader source from which the rest of the annotation element is to be read
      * @return false if the annotation element is not seen, true if seen and fully read
      */
     protected abstract boolean readAnnotationElement(XMLEventReader reader) throws XMLStreamException;
-
-    /**
-     * Skip whitespace and (optionally) comments.
-     * Upon return, the next event (as returned by {@link #peek reader.peek()}) is guaranteed not to
-     * be whitespace (or comments).
-     *
-     * @param reader source from which whitespace and comments should be read and discarded
-     * @param comments whether to also skip comments
-     */
-    protected static void skipWhiteSpace(XMLEventReader reader, boolean comments) throws XMLStreamException {
-        XMLEvent event = reader.peek();
-        while ((event.isCharacters() && event.asCharacters().isWhiteSpace()) || (comments && event instanceof Comment)) {
-            reader.nextEvent();
-            event = reader.peek();
-        }
-    }
 
     /**
      * Scan for the annotation. We only allow whitespace and comments between the first {@link StartElement} and the
@@ -124,23 +108,28 @@ public abstract class AnnotatedXMLEventReader extends EventReaderDelegate {
      */
     private XMLEvent checkAnnotation(XMLEvent event) throws XMLStreamException {
 
-        // Skip over leading whitespace and comments
+        // Sanity check
         assert this.state == 1;
-        if (event.isCharacters() && event.asCharacters().isWhiteSpace())
-            return event;
-        if (event instanceof Comment)
+
+        // Ignore leading whitespace, comments, and PI's
+        if (this.isWhiteSpace(event) || event instanceof Comment || event.isProcessingInstruction())
             return event;
 
         // Anything else means we either we have found the annotation element or it is not there
         this.state++;
-        if (!event.isStartElement())
-            return event;
-        if (!this.readAnnotationElement(this.getParent()))
+        if (!event.isStartElement() || !this.readAnnotationElement(this.getParent()))
             return event;
 
         // Skip whitespace after annotation element
-        AnnotatedXMLEventReader.skipWhiteSpace(this.getParent(), false);
-        return super.peek();
+        for (event = super.peek(); this.isWhiteSpace(event); event = super.peek())
+            super.nextEvent();
+
+        // Done
+        return event;
+    }
+
+    private boolean isWhiteSpace(XMLEvent event) {
+        return event.isCharacters() && event.asCharacters().isWhiteSpace();
     }
 }
 
