@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foo bar="123" jan="This is a test"><parameter name="haha" value="true"/><parameter name="lola" value=""/><fumble name="football"><ski-package><package name="mountain"/><package name="valley"/></ski-package></fumble><funny-chars>Hit the piñata</funny-chars><![CDATA[an <element> has angle brackets & stuff]]><airfare>
+ok <why/> not
+</airfare><bubble/><bubble><trubble/><trubble/><trubble/></bubble><bubble/>
+<!-- last word comment -->
+</foo>

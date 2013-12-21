@@ -7,10 +7,12 @@
 
 package org.dellroad.stuff;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Random;
 import java.util.Set;
 
@@ -77,26 +79,47 @@ public abstract class TestSupport {
     }
 
     /**
+     * Read some file in as a UTF-8 encoded string.
+     */
+    protected String readResource(File file) {
+        try {
+            return this.readResource(file.toURI().toURL());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("can't URL'ify file: " + file);
+        }
+    }
+
+    /**
      * Read some classpath resource in as a UTF-8 encoded string.
      */
     protected String readResource(String path) {
-        InputStream in = getClass().getResourceAsStream(path);
-        if (in == null)
+        final URL url = getClass().getResource(path);
+        if (url == null)
             throw new RuntimeException("can't find resource `" + path + "'");
+        return this.readResource(url);
+    }
+
+    /**
+     * Read some URL resource in as a UTF-8 encoded string.
+     */
+    protected String readResource(URL url) {
+        InputStreamReader reader = null;
         try {
-            StringWriter writer = new StringWriter();
-            InputStreamReader reader = new InputStreamReader(in, "UTF-8");
+            reader = new InputStreamReader(url.openStream(), "UTF-8");
+            final StringWriter writer = new StringWriter();
             char[] buf = new char[1024];
             for (int r; (r = reader.read(buf)) != -1; )
                 writer.write(buf, 0, r);
             return writer.toString();
         } catch (IOException e) {
-            throw new RuntimeException("error reading resource `" + path + "'", e);
+            throw new RuntimeException("error reading from " + url, e);
         } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-                // ignore
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    // ignore
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- $Id$ -->
-<suite name="Unit Test Suite" verbose="1">
+<suite name="Unit Test Suite" verbose="2">
 
     <parameter name="deleteTempDirs" value="true"/>
     <parameter name="randomSeed" value=""/>
@@ -16,6 +16,7 @@
             <package name="org.dellroad.stuff.schema"/>
             <package name="org.dellroad.stuff.string"/>
             <package name="org.dellroad.stuff.validation"/>
+            <package name="org.dellroad.stuff.xml"/>
         </packages>
     </test>
 </suite>
