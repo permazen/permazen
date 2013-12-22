@@ -106,53 +106,73 @@ public class EmptyTagXMLStreamWriter extends StreamWriterDelegate {
 
     @Override
     public void writeAttribute(final String localName, final String value) throws XMLStreamException {
-        this.pendingList.add(new PendingAction() {
-            @Override
-            public void apply() throws XMLStreamException {
-                EmptyTagXMLStreamWriter.super.writeAttribute(localName, value);
-            }
-        });
+        if (this.pendingList.isEmpty())
+            super.writeAttribute(localName, value);
+        else {
+            this.pendingList.add(new PendingAction() {
+                @Override
+                public void apply() throws XMLStreamException {
+                    EmptyTagXMLStreamWriter.super.writeAttribute(localName, value);
+                }
+            });
+        }
     }
 
     @Override
     public void writeAttribute(final String prefix, final String namespaceURI, final String localName, final String value)
       throws XMLStreamException {
-        this.pendingList.add(new PendingAction() {
-            @Override
-            public void apply() throws XMLStreamException {
-                EmptyTagXMLStreamWriter.super.writeAttribute(prefix, namespaceURI, localName, value);
-            }
-        });
+        if (this.pendingList.isEmpty())
+            super.writeAttribute(prefix, namespaceURI, localName, value);
+        else {
+            this.pendingList.add(new PendingAction() {
+                @Override
+                public void apply() throws XMLStreamException {
+                    EmptyTagXMLStreamWriter.super.writeAttribute(prefix, namespaceURI, localName, value);
+                }
+            });
+        }
     }
 
     @Override
     public void writeAttribute(final String namespaceURI, final String localName, final String value) throws XMLStreamException {
-        this.pendingList.add(new PendingAction() {
-            @Override
-            public void apply() throws XMLStreamException {
-                EmptyTagXMLStreamWriter.super.writeAttribute(namespaceURI, localName, value);
-            }
-        });
+        if (this.pendingList.isEmpty())
+            super.writeAttribute(namespaceURI, localName, value);
+        else {
+            this.pendingList.add(new PendingAction() {
+                @Override
+                public void apply() throws XMLStreamException {
+                    EmptyTagXMLStreamWriter.super.writeAttribute(namespaceURI, localName, value);
+                }
+            });
+        }
     }
 
     @Override
     public void writeNamespace(final String prefix, final String namespaceURI) throws XMLStreamException {
-        this.pendingList.add(new PendingAction() {
-            @Override
-            public void apply() throws XMLStreamException {
-                EmptyTagXMLStreamWriter.super.writeNamespace(prefix, namespaceURI);
-            }
-        });
+        if (this.pendingList.isEmpty())
+            super.writeNamespace(prefix, namespaceURI);
+        else {
+            this.pendingList.add(new PendingAction() {
+                @Override
+                public void apply() throws XMLStreamException {
+                    EmptyTagXMLStreamWriter.super.writeNamespace(prefix, namespaceURI);
+                }
+            });
+        }
     }
 
     @Override
     public void writeDefaultNamespace(final String namespaceURI) throws XMLStreamException {
-        this.pendingList.add(new PendingAction() {
-            @Override
-            public void apply() throws XMLStreamException {
-                EmptyTagXMLStreamWriter.super.writeDefaultNamespace(namespaceURI);
-            }
-        });
+        if (this.pendingList.isEmpty())
+            super.writeDefaultNamespace(namespaceURI);
+        else {
+            this.pendingList.add(new PendingAction() {
+                @Override
+                public void apply() throws XMLStreamException {
+                    EmptyTagXMLStreamWriter.super.writeDefaultNamespace(namespaceURI);
+                }
+            });
+        }
     }
 
     @Override
