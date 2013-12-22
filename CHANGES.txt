@@ -4,6 +4,7 @@ Version Next
       NOTE: the above are backward-incompatible changes
     - Added StreamWriterDelegate and EventWriterDelegate
     - Added IndentXMLStreamWriter and EmptyTagXMLStreamWriter
+    - Added AnnotatedXMLStreamReader and AnnotatedXMLStreamWriter
 
 Version 1.0.794 Released December 11, 2013
 

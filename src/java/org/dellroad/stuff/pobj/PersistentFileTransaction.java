@@ -8,21 +8,20 @@
 package org.dellroad.stuff.pobj;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stax.StAXSource;
+
+import org.w3c.dom.Document;
 
 /**
  * Represents an open "transaction" on a {@link PersistentObject}'s persistent file.
@@ -32,14 +31,11 @@ import javax.xml.transform.stream.StreamSource;
  */
 public class PersistentFileTransaction {
 
-    private static final int BUFFER_SIZE = 16 * 1024 - 32;
-
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
-    private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
     private final ArrayList<String> updates = new ArrayList<String>();
     private final String systemId;
 
-    private String current;
+    private Document current;
 
     /**
      * Constructor.
@@ -57,7 +53,7 @@ public class PersistentFileTransaction {
     /**
      * Get the current XML data. Does not include the XML update list.
      */
-    public String getData() {
+    public Document getData() {
         return this.current;
     }
 
@@ -88,46 +84,39 @@ public class PersistentFileTransaction {
         if (this.current == null)
             throw new PersistentObjectException("no data to transform");
 
-        // Debug
-        //System.out.println("************************** BEFORE TRANSFORM");
-        //System.out.println(this.current);
-
         // Set up source and result
-        StreamSource source = new StreamSource(new StringReader(this.current));
-        source.setSystemId(this.systemId);
-        StringWriter buffer = new StringWriter(BUFFER_SIZE);
-        StreamResult result = new StreamResult(buffer);
+        final DOMSource source = new DOMSource(this.current, this.systemId);
+        final DOMResult result = new DOMResult();
         result.setSystemId(this.systemId);
 
         // Apply transform
         transformer.transform(source, result);
 
         // Save result as the new current value
-        this.current = buffer.toString();
-
-        // Debug
-        //System.out.println("************************** AFTER TRANSFORM");
-        //System.out.println(this.current);
+        this.current = (Document)result.getNode();
     }
 
-    private void read(Source source) throws IOException, XMLStreamException {
+    private void read(Source input) throws IOException, XMLStreamException {
 
-        // Read in XML, extracting and removing the updates list in the process
-        StringWriter buffer = new StringWriter(BUFFER_SIZE);
-        XMLEventWriter eventWriter = this.xmlOutputFactory.createXMLEventWriter(buffer);
-        XMLEventReader eventReader = this.xmlInputFactory.createXMLEventReader(source);
-        UpdatesXMLEventReader updatesReader = new UpdatesXMLEventReader(eventReader);
-        eventWriter.add(updatesReader);
-        eventWriter.close();
-        eventReader.close();
+        // Read in XML into memory, extracting and removing the updates list in the process
+        final UpdatesXMLStreamReader reader = new UpdatesXMLStreamReader(this.xmlInputFactory.createXMLStreamReader(input));
+        final StAXSource source = new StAXSource(reader);
+        final DOMResult result = new DOMResult();
+        result.setSystemId(this.systemId);
+        try {
+            TransformerFactory.newInstance().newTransformer().transform(source, result);
+        } catch (TransformerException e) {
+            throw new XMLStreamException("error reading XML input from " + this.systemId, e);
+        }
+        reader.close();
 
         // Was the update list found?
-        List<String> updateNames = updatesReader.getUpdates();
+        final List<String> updateNames = reader.getUpdates();
         if (updateNames == null)
             throw new PersistentObjectException("XML file does not contain an updates list");
 
         // Save current content (without updates) and updates list
-        this.current = buffer.toString();
+        this.current = (Document)result.getNode();
         this.updates.clear();
         this.updates.addAll(updateNames);
     }

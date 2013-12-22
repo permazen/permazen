@@ -16,11 +16,15 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stax.StAXResult;
+import javax.xml.transform.stax.StAXSource;
 
 import org.dellroad.stuff.TestSupport;
 import org.jibx.extras.DocumentComparator;
@@ -30,7 +34,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
-public class UpdatesXMLEventTest extends TestSupport {
+public class UpdatesXMLStreamTest extends TestSupport {
 
     private final XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
     private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
@@ -73,7 +77,7 @@ public class UpdatesXMLEventTest extends TestSupport {
     }
 
     private List<String> copy(File file1, boolean readUpdates, File file2, String[] updates)
-      throws IOException, XMLStreamException {
+      throws IOException, XMLStreamException, TransformerException {
         FileInputStream input = new FileInputStream(file1);
         try {
             return this.copy(input, readUpdates, file2, updates);
@@ -83,18 +87,20 @@ public class UpdatesXMLEventTest extends TestSupport {
     }
 
     private List<String> copy(InputStream input, boolean readUpdates, File file, String[] updates)
-      throws IOException, XMLStreamException {
+      throws IOException, XMLStreamException, TransformerException {
         FileOutputStream output = new FileOutputStream(file);
-        XMLEventReader reader = this.xmlInputFactory.createXMLEventReader(input);
+        XMLStreamReader reader = this.xmlInputFactory.createXMLStreamReader(input);
         if (readUpdates)
-            reader = new UpdatesXMLEventReader(reader);
-        XMLEventWriter writer = this.xmlOutputFactory.createXMLEventWriter(output, "UTF-8");
+            reader = new UpdatesXMLStreamReader(reader);
+        XMLStreamWriter writer = this.xmlOutputFactory.createXMLStreamWriter(output, "UTF-8");
         if (updates != null)
-            writer = new UpdatesXMLEventWriter(writer, Arrays.asList(updates));
-        writer.add(reader);
+            writer = new UpdatesXMLStreamWriter(writer, Arrays.asList(updates));
+        TransformerFactory.newInstance().newTransformer().transform(
+          new StAXSource(reader), new StAXResult(writer));
+        reader.close();
         writer.close();
         output.close();
-        return readUpdates ? ((UpdatesXMLEventReader)reader).getUpdates() : null;
+        return readUpdates ? ((UpdatesXMLStreamReader)reader).getUpdates() : null;
     }
 
     @DataProvider(name = "files")

@@ -8,20 +8,19 @@
 package org.dellroad.stuff.pobj;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import org.dellroad.stuff.schema.AbstractSchemaUpdater;
 import org.dellroad.stuff.schema.UnrecognizedUpdateException;
@@ -188,15 +187,15 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
         try {
 
             // Get update names
-            List<String> updateNameList = this.updateNames != null ? this.updateNames : this.getAllUpdateNames();
+            final List<String> updateNameList = this.updateNames != null ? this.updateNames : this.getAllUpdateNames();
 
             // Wrap result with a writer that adds the update list
-            XMLEventWriter eventWriter;
+            XMLStreamWriter writer;
             if (result instanceof StreamResult && ((StreamResult)result).getOutputStream() != null)
-                eventWriter = this.xmlOutputFactory.createXMLEventWriter(((StreamResult)result).getOutputStream(), "UTF-8");
+                writer = this.xmlOutputFactory.createXMLStreamWriter(((StreamResult)result).getOutputStream(), "UTF-8");
             else
-                eventWriter = this.xmlOutputFactory.createXMLEventWriter(result);
-            UpdatesXMLEventWriter updatesWriter = new UpdatesXMLEventWriter(eventWriter, updateNameList);
+                writer = this.xmlOutputFactory.createXMLStreamWriter(result);
+            final UpdatesXMLStreamWriter updatesWriter = new UpdatesXMLStreamWriter(writer, updateNameList);
 
             // Serialize using the provided delegate
             this.delegate.serialize(obj, new StAXResult(updatesWriter));
@@ -239,9 +238,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
                 throw new PersistentObjectException("internal inconsistency: unapplied updates remain: " + unappliedUpdates);
 
             // Deserialize the now up-to-date XML structure using the provided delegate
-            StreamSource updatedSource = new StreamSource(new StringReader(transaction.getData()));
-            updatedSource.setSystemId(transaction.getSystemId());
-            return this.delegate.deserialize(updatedSource);
+            return this.delegate.deserialize(new DOMSource(transaction.getData(), transaction.getSystemId()));
         } catch (UnrecognizedUpdateException e) {
             throw new PersistentObjectException(e);
         } catch (RuntimeException e) {
