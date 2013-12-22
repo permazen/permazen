@@ -29,7 +29,7 @@ public class EmptyTagXMLStreamWriterTest extends TestSupport {
     private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
 
     @Test(dataProvider = "files")
-    public void test(String inputResource, String expectedResource) throws Exception {
+    public void testEmptyTag(String inputResource, String expectedResource) throws Exception {
         final File actualFile = File.createTempFile("test1.", "xml");
         final String input = this.readResource(inputResource);
         this.consolidateTags(input, actualFile);
@@ -53,6 +53,7 @@ public class EmptyTagXMLStreamWriterTest extends TestSupport {
     public Object[][] generateFiles() {
         return new Object[][] {
             new Object[] { "input1.xml", "output1a.xml" },
+            new Object[] { "input4.xml", "output4.xml" },
         };
     }
 }

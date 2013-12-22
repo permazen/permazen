@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><Foobar>
+    <pobj:updates xmlns:pobj="http://dellroad-stuff.googlecode.com/ns/persistentObject">
+        <pobj:update>removeOrigin</pobj:update>
+        <pobj:update>addServerName</pobj:update>
+    </pobj:updates>
+    <ActiveRevision>
+        <uuid>a28a8b3c-f692-4987-afcb-eb082705a5e9</uuid>
+        <selfref xmlns="http://foobar.com/" uuid="a28a8b3c-f692-4987-afcb-eb082705a5e9"/>
+        <name>Active Configuration</name>
+        <serverName>freebie</serverName>
+        <username>archie</username>
+        <comment>Debug/Test Config</comment>
+        <timestamp>2013-08-23T20:49:42.818Z</timestamp>
+        <sealed>false</sealed>
+        <foo bar="true"> </foo>
+        <foo bar="false"/>
+    </ActiveRevision>
+</Foobar>

@@ -7,9 +7,7 @@
             <package name="valley"></package>
         </ski-package>
     </fumble>
-    <funny-chars>Hit the piñata</funny-chars>
-    <![CDATA[an <element> has angle brackets & stuff]]>
-    <airfare>
+    <funny-chars>Hit the piñata</funny-chars><![CDATA[an <element> has angle brackets & stuff]]><airfare>
 ok <why></why> not
 </airfare>
     <bubble></bubble>

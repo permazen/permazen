@@ -29,7 +29,7 @@ public class IndentXMLStreamWriterTest extends TestSupport {
     private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
 
     @Test(dataProvider = "files")
-    public void test(String inputResource, String expectedResource) throws Exception {
+    public void testIndent(String inputResource, String expectedResource) throws Exception {
         final File actualFile = File.createTempFile("test1.", "xml");
         final String input = this.readResource(inputResource);
         this.indent(input, actualFile);
