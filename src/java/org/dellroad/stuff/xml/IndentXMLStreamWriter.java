@@ -88,31 +88,31 @@ public class IndentXMLStreamWriter extends StreamWriterDelegate {
 
     @Override
     public void writeComment(String data) throws XMLStreamException {
-        this.handleOpen(true);
+        this.lastEvent = -1;
         super.writeComment(data);
     }
 
     @Override
     public void writeProcessingInstruction(String target) throws XMLStreamException {
-        this.handleOpen(true);
+        this.lastEvent = -1;
         super.writeProcessingInstruction(target);
     }
 
     @Override
     public void writeProcessingInstruction(String target, String data) throws XMLStreamException {
-        this.handleOpen(true);
+        this.lastEvent = -1;
         super.writeProcessingInstruction(target, data);
     }
 
     @Override
     public void writeCData(String data) throws XMLStreamException {
-        this.handleOpen(true);
+        this.lastEvent = -1;
         super.writeCData(data);
     }
 
     @Override
     public void writeDTD(String dtd) throws XMLStreamException {
-        this.handleOpen(true);
+        this.lastEvent = -1;
         super.writeDTD(dtd);
     }
 
