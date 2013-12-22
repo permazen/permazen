@@ -26,7 +26,6 @@ public class IndentXMLStreamWriter extends StreamWriterDelegate {
     private final String newline = System.getProperty("line.separator", "\\n");
     private final int indent;
 
-    private boolean first = true;
     private int lastEvent = -1;
     private int depth;
 
@@ -154,10 +153,6 @@ public class IndentXMLStreamWriter extends StreamWriterDelegate {
     }
 
     private void handleOpen(boolean selfClosing) throws XMLStreamException {
-        if (this.first) {
-            this.first = false;
-            super.writeCharacters(this.newline);
-        }
         if (this.lastEvent == XMLStreamConstants.START_ELEMENT || this.lastEvent == XMLStreamConstants.END_ELEMENT)
             this.indent(this.depth);
         if (selfClosing)
