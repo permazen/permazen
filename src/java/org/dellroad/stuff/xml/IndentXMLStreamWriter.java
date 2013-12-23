@@ -14,124 +14,222 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * Wrapper for an underlying {@link XMLStreamWriter} that automatically adds indentation to the event stream.
- * It also sets add either/both of {@link #DEFAULT_ENCODING} and {@link #DEFAULT_VERSION} to the initial XML
- * declaration if they are missing.
+ * Wrapper for an underlying {@link XMLStreamWriter} that "pretty-prints" the XML by replacing the whitespace between XML tags
+ * so that the result is properly indented.
+ *
+ * <p>
+ * This class will also fixup a missing/incomplete initial XML declaration.
+ * </p>
  */
 public class IndentXMLStreamWriter extends StreamWriterDelegate {
 
-    private static final String DEFAULT_ENCODING = "UTF-8";
-    private static final String DEFAULT_VERSION = "1.0";
+    /**
+     * Initial value for the {@linkplain #setDefaultVersion default XML version}.
+     */
+    public static final String DEFAULT_VERSION = "1.0";
+
+    /**
+     * Initial value for the {@linkplain #setDefaultEncoding default character encoding}.
+     */
+    public static final String DEFAULT_ENCODING = "UTF-8";
+
+    /**
+     * Default number of spaces corresponding to one indent level.
+     */
+    public static final int DEFAULT_INDENT = 4;
 
     private final String newline = System.getProperty("line.separator", "\\n");
+    private final StringBuilder whitespaceBuffer = new StringBuilder();
     private final int indent;
 
+    private boolean addMissingXmlDeclaration = true;
+    private boolean indentAfterXmlDeclaration = true;
+    private String defaultVersion = DEFAULT_VERSION;
+    private String defaultEncoding = DEFAULT_ENCODING;
+
+    private boolean started;
+    private boolean newlineAfter;
     private int lastEvent = -1;
     private int depth;
 
     /**
-     * Constructor.
+     * Default constructor. Sets the indent to {@link #DEFAULT_INDENT}.
+     * The parent must be configured via {@link #setParent setParent()}.
+     */
+    public IndentXMLStreamWriter() {
+        this.indent = DEFAULT_INDENT;
+    }
+
+    /**
+     * Convenience constructor. Equivalent to:
+     * <blockquote>
+     *  {@link #IndentXMLStreamWriter(XMLStreamWriter, int) IndentXMLStreamWriter}{@code (writer, }{@link #DEFAULT_INDENT}{@code )};
+     * </blockquote>
      *
      * @param writer underlying writer
-     * @param indent indent amount, or negative to not add any whitespace
+     */
+    public IndentXMLStreamWriter(XMLStreamWriter writer) {
+        this(writer, DEFAULT_INDENT);
+    }
+
+    /**
+     * Primary constructor.
+     *
+     * @param writer underlying writer
+     * @param indent number of spaces corresponding to one indent level, or negative for no inter-tag whitespace at all
      */
     public IndentXMLStreamWriter(XMLStreamWriter writer, int indent) {
         super(writer);
         this.indent = indent;
     }
 
+    /**
+     * Set whether to add an XML declaration, if missing.
+     *
+     * <p>
+     * Default is true.
+     * </p>
+     */
+    public void setAddMissingXmlDeclaration(boolean addMissingXmlDeclaration) {
+        this.addMissingXmlDeclaration = addMissingXmlDeclaration;
+    }
+
+    /**
+     * Set whether to "indent" (actually, just output a newline) after the XML declaration if necessary.
+     * In some cases, such as transforming into a DOM, this behavior must be disabled to avoid hierarchy
+     * exceptions due to characters not being allowed before the document element.
+     *
+     * <p>
+     * Default is true.
+     * </p>
+     */
+    public void setIndentAfterXmlDeclaration(boolean indentAfterXmlDeclaration) {
+        this.indentAfterXmlDeclaration = indentAfterXmlDeclaration;
+    }
+
+    /**
+     * Set the version for the XML declaration in case it's not already specified.
+     *
+     * <p>
+     * Default is {@link #DEFAULT_VERSION} ({@value #DEFAULT_VERSION}).
+     * </p>
+     *
+     * @param defaultVersion XML version
+     */
+    public void setDefaultVersion(String defaultVersion) {
+        this.defaultVersion = defaultVersion;
+    }
+
+    /**
+     * Set the character encoding for the XML declaration in case it's not already specified.
+     *
+     * <p>
+     * Default is {@link #DEFAULT_ENCODING} ({@value #DEFAULT_ENCODING}).
+     * </p>
+     *
+     * @param defaultEncoding character encoding name
+     */
+    public void setDefaultEncoding(String defaultEncoding) {
+        this.defaultEncoding = defaultEncoding;
+    }
+
+    @Override
+    public void writeStartDocument(String encoding, String version) throws XMLStreamException {
+        this.started = true;
+        this.handleOther(XMLStreamConstants.START_DOCUMENT);
+        super.writeStartDocument(encoding, version);
+    }
+
     @Override
     public void writeStartDocument(String version) throws XMLStreamException {
-        this.writeStartDocument(DEFAULT_ENCODING, version);
+        this.writeStartDocument(this.defaultEncoding, version);
     }
 
     @Override
     public void writeStartDocument() throws XMLStreamException {
-        this.writeStartDocument(DEFAULT_ENCODING, DEFAULT_VERSION);
+        this.writeStartDocument(this.defaultEncoding, this.defaultVersion);
     }
 
     @Override
     public void writeStartElement(String localName) throws XMLStreamException {
-        this.handleOpen(false);
+        this.handleStartElement(false);
         super.writeStartElement(localName);
     }
 
     @Override
     public void writeStartElement(String namespaceURI, String localName) throws XMLStreamException {
-        this.handleOpen(false);
+        this.handleStartElement(false);
         super.writeStartElement(namespaceURI, localName);
     }
 
     @Override
     public void writeStartElement(String prefix, String namespaceURI, String localName) throws XMLStreamException {
-        this.handleOpen(false);
+        this.handleStartElement(false);
         super.writeStartElement(prefix, namespaceURI, localName);
     }
 
     @Override
     public void writeEmptyElement(String namespaceURI, String localName) throws XMLStreamException {
-        this.handleOpen(true);
+        this.handleStartElement(true);
         super.writeEmptyElement(namespaceURI, localName);
     }
 
     @Override
     public void writeEmptyElement(String prefix, String namespaceURI, String localName) throws XMLStreamException {
-        this.handleOpen(true);
+        this.handleStartElement(true);
         super.writeEmptyElement(prefix, namespaceURI, localName);
     }
 
     @Override
     public void writeEmptyElement(String localName) throws XMLStreamException {
-        this.handleOpen(true);
+        this.handleStartElement(true);
         super.writeEmptyElement(localName);
     }
 
     @Override
     public void writeComment(String data) throws XMLStreamException {
-        this.lastEvent = -1;
+        this.handleOther(XMLStreamConstants.COMMENT);
         super.writeComment(data);
     }
 
     @Override
     public void writeProcessingInstruction(String target) throws XMLStreamException {
-        this.lastEvent = -1;
+        this.handleOther(XMLStreamConstants.PROCESSING_INSTRUCTION);
         super.writeProcessingInstruction(target);
     }
 
     @Override
     public void writeProcessingInstruction(String target, String data) throws XMLStreamException {
-        this.lastEvent = -1;
+        this.handleOther(XMLStreamConstants.PROCESSING_INSTRUCTION);
         super.writeProcessingInstruction(target, data);
     }
 
     @Override
     public void writeCData(String data) throws XMLStreamException {
-        this.lastEvent = -1;
+        this.handleOther(XMLStreamConstants.CDATA);
         super.writeCData(data);
     }
 
     @Override
     public void writeDTD(String dtd) throws XMLStreamException {
-        this.lastEvent = -1;
+        this.handleOther(XMLStreamConstants.DTD);
         super.writeDTD(dtd);
     }
 
     @Override
     public void writeEntityRef(String name) throws XMLStreamException {
-        this.lastEvent = -1;
+        this.handleOther(XMLStreamConstants.ENTITY_REFERENCE);
         super.writeEntityRef(name);
     }
 
     @Override
     public void writeCharacters(String text) throws XMLStreamException {
-        this.lastEvent = -1;
-        super.writeCharacters(text);
+        this.handleCharacters(text);
     }
 
     @Override
     public void writeCharacters(char[] text, int start, int len) throws XMLStreamException {
-        this.lastEvent = -1;
-        super.writeCharacters(text, start, len);
+        this.writeCharacters(new String(text, start, len));
     }
 
     @Override
@@ -145,33 +243,62 @@ public class IndentXMLStreamWriter extends StreamWriterDelegate {
 
     @Override
     public void writeEndElement() throws XMLStreamException {
-        this.depth = Math.max(this.depth - 1, 0);
+        this.depth--;
         if (this.lastEvent == XMLStreamConstants.END_ELEMENT)
-            this.indent(this.depth);
-        this.lastEvent = XMLStreamConstants.END_ELEMENT;
+            this.indent();
+        this.handleOther(XMLStreamConstants.END_ELEMENT);
         super.writeEndElement();
     }
 
-    private void handleOpen(boolean selfClosing) throws XMLStreamException {
-        if (this.lastEvent == XMLStreamConstants.START_ELEMENT || this.lastEvent == XMLStreamConstants.END_ELEMENT)
-            this.indent(this.depth);
-        if (selfClosing)
-            this.lastEvent = XMLStreamConstants.END_ELEMENT;
-        else {
-            this.lastEvent = XMLStreamConstants.START_ELEMENT;
+    private void handleStartElement(boolean selfClosing) throws XMLStreamException {
+        this.writeStartDocumentIfNecessary();
+        if (this.lastEvent == XMLStreamConstants.START_ELEMENT || this.lastEvent == XMLStreamConstants.END_ELEMENT
+          || (this.indentAfterXmlDeclaration && this.lastEvent == XMLStreamConstants.START_DOCUMENT))
+            this.indent();
+        this.handleOther(selfClosing ? XMLStreamConstants.END_ELEMENT : XMLStreamConstants.START_ELEMENT);
+        if (!selfClosing)
             this.depth++;
+    }
+
+    private void handleCharacters(String text) throws XMLStreamException {
+        this.writeStartDocumentIfNecessary();
+        if ((this.lastEvent == XMLStreamConstants.START_ELEMENT || this.lastEvent == XMLStreamConstants.END_ELEMENT)
+          && text.trim().length() == 0)
+            this.whitespaceBuffer.append(text);
+        else {
+            this.handleOther(XMLStreamConstants.CHARACTERS);
+            super.writeCharacters(text);
+        }
+    }
+
+    private void handleOther(int eventType) throws XMLStreamException {
+        this.writeStartDocumentIfNecessary();
+        if (this.whitespaceBuffer.length() > 0) {
+            super.writeCharacters(this.whitespaceBuffer.toString());
+            this.whitespaceBuffer.setLength(0);
+        }
+        this.lastEvent = eventType;
+    }
+
+    private void writeStartDocumentIfNecessary() throws XMLStreamException {
+        if (!this.started) {
+            this.started = true;
+            if (this.addMissingXmlDeclaration)
+                this.writeStartDocument();
         }
     }
 
     /**
-     * Emit a newline followed by indentation to the given depth.
+     * Replace existing content of whitespaceBuffer with a newline followed by indentation to the current depth.
      */
-    protected void indent(int depth) throws XMLStreamException {
+    private void indent() {
+        this.whitespaceBuffer.setLength(0);
         if (this.indent < 0)
             return;
-        char[] buf = new char[depth * this.indent];
+        final char[] buf = new char[Math.max(this.depth, 0) * this.indent];
         Arrays.fill(buf, ' ');
-        super.writeCharacters(this.newline + new String(buf));
+        this.whitespaceBuffer.append(this.newline);
+        this.whitespaceBuffer.append(buf);
     }
 }
 

@@ -23,12 +23,19 @@ public class EmptyTagXMLStreamWriter extends StreamWriterDelegate {
     private int depth;
 
     /**
+     * Default constructor.
+     * The parent must be configured via {@link #setParent setParent()}.
+     */
+    public EmptyTagXMLStreamWriter() {
+    }
+
+    /**
      * Constructor.
      *
-     * @param writer underlying writer
+     * @param parent parent writer
      */
-    public EmptyTagXMLStreamWriter(XMLStreamWriter writer) {
-        super(writer);
+    public EmptyTagXMLStreamWriter(XMLStreamWriter parent) {
+        super(parent);
     }
 
     @Override
@@ -246,6 +253,12 @@ public class EmptyTagXMLStreamWriter extends StreamWriterDelegate {
             return;
         }
         super.writeEndElement();
+    }
+
+    @Override
+    public void close() throws XMLStreamException {
+        this.flushPendingList();
+        super.close();
     }
 
     private void flushPendingList() throws XMLStreamException {

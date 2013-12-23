@@ -54,6 +54,7 @@ public class EmptyTagXMLStreamWriterTest extends TestSupport {
         return new Object[][] {
             new Object[] { "input1.xml", "output1a.xml" },
             new Object[] { "input4.xml", "output4.xml" },
+            new Object[] { "input5.xml", "output5.xml" },
         };
     }
 }
