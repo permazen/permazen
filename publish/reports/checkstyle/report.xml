@@ -211,9 +211,6 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/NotConfiguredException.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentFileTransaction.java">
-<error line="35" column="44" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="35" column="49" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="35" column="56" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObject.java">
 </file>
@@ -245,9 +242,9 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/SpringXSLUpdateTransformConfigurer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/UpdatesXMLEventReader.java">
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/UpdatesXMLStreamReader.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/UpdatesXMLEventWriter.java">
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/UpdatesXMLStreamWriter.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/GitException.java">
 </file>
@@ -262,7 +259,7 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/MergeStrategy.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/Synchronizer.java">
-<error line="427" column="5" severity="info" message="Executable statement count is 35 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="434" column="5" severity="info" message="Executable statement count is 35 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/package-info.java">
 </file>
@@ -609,9 +606,21 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/AnnotatedXMLEventWriter.java">
 </file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/AnnotatedXMLStreamReader.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/AnnotatedXMLStreamWriter.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/EmptyTagXMLStreamWriter.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/EventWriterDelegate.java">
+</file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/IndentXMLEventWriter.java">
 </file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/IndentXMLStreamWriter.java">
+</file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/StackXMLEventReader.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/StreamWriterDelegate.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/TransformErrorListener.java">
 </file>
@@ -628,7 +637,7 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/package-info.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/TestSupport.java">
-<error line="89" column="35" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="110" column="35" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/graph/TopologicalSorterTest.java">
 <error line="113" column="18" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -738,7 +747,7 @@
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/pobj/RootObject.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/pobj/UpdatesXMLEventTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/pobj/UpdatesXMLStreamTest.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/pobj/package-info.java">
 </file>
@@ -808,5 +817,11 @@
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/validation/SelfValidatingTest.java">
 </file>
 <file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/validation/package-info.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/xml/EmptyTagXMLStreamWriterTest.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/xml/IndentXMLStreamWriterTest.java">
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/xml/package-info.java">
 </file>
 </checkstyle>
