@@ -15,8 +15,8 @@ import javax.persistence.criteria.CriteriaQuery;
 /**
  * Specialization of {@link QueryCallback} for {@link CriteriaQuery} queries.
  *
- * @param <T> persistent instance type
- * @param <R> query return type
+ * @param <T> query result type, i.e., what the {@link CriteriaQuery} returns zero or more of
+ * @param <R> query Java return type, usually either {@code R} or {@code List<R>}
  */
 public abstract class CriteriaCallback<T, R> extends TypedQueryCallback<T, R> {
 
@@ -33,8 +33,8 @@ public abstract class CriteriaCallback<T, R> extends TypedQueryCallback<T, R> {
      */
     @Override
     protected TypedQuery<T> buildQuery(EntityManager entityManager) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(this.type);
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(this.type);
         this.configureQuery(criteriaQuery, criteriaBuilder);
         return entityManager.createQuery(criteriaQuery);
     }
