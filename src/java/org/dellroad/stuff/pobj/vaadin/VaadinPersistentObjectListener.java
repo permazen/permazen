@@ -37,7 +37,8 @@ public abstract class VaadinPersistentObjectListener<T> extends VaadinExternalLi
 
     /**
      * Handle an update of the {@link PersistentObject} root object.
-     * The current thread will already have the Vaadin session locked.
+     * The current thread will already have the Vaadin session locked, so it
+     * <i>should not invoke {@link #handleEvent handleEvent()}</i> to handle the event.
      *
      * <p>
      * The caller should not modify {@code oldRoot} or {@code newRoot}.
