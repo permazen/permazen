@@ -289,15 +289,34 @@ public class IndentXMLStreamWriter extends StreamWriterDelegate {
     }
 
     /**
-     * Replace existing content of whitespaceBuffer with a newline followed by indentation to the current depth.
+     * Replace existing content of whitespaceBuffer with newline(s) followed by indentation to the current depth.
      */
     private void indent() {
-        this.whitespaceBuffer.setLength(0);
-        if (this.indent < 0)
+
+        // Are we doing any indenting?
+        if (this.indent < 0) {
+            this.whitespaceBuffer.setLength(0);
             return;
-        final char[] buf = new char[Math.max(this.depth, 0) * this.indent];
-        Arrays.fill(buf, ' ');
-        this.whitespaceBuffer.append(this.newline);
+        }
+
+        // Count how many initial newlines there were in the original stream
+        int newlines = 0;
+        for (int i = 0; i < this.whitespaceBuffer.length(); i++) {
+            if (this.whitespaceBuffer.charAt(i) == '\n'
+              || (this.whitespaceBuffer.charAt(i++) == '\r'
+               && i < this.whitespaceBuffer.length() && this.whitespaceBuffer.charAt(i) == '\n')) {
+                newlines++;
+                continue;
+            }
+            break;
+        }
+        this.whitespaceBuffer.setLength(0);
+
+        // Add back that many newline(s) (at least one) followed by indent
+        newlines = Math.max(newlines, 1);
+        final char[] buf = new char[newlines + Math.max(this.depth, 0) * this.indent];
+        Arrays.fill(buf, 0, newlines, '\n');
+        Arrays.fill(buf, newlines, buf.length, ' ');
         this.whitespaceBuffer.append(buf);
     }
 }

@@ -64,6 +64,7 @@ public class IndentXMLStreamWriterTest extends TestSupport {
             new Object[] { "input6.xml", "output6.xml",     false,  true,   true    },
             new Object[] { "input6.xml", "output6a.xml",    true,   true,   true    },
             new Object[] { "input6.xml", "output6b.xml",    false,  true,   false   },
+            new Object[] { "input7.xml", "output7.xml",     false,  true,   true    },
         };
     }
 }
