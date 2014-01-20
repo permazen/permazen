@@ -135,6 +135,8 @@ public class IndentXMLStreamWriter extends StreamWriterDelegate {
 
     @Override
     public void writeStartDocument(String encoding, String version) throws XMLStreamException {
+        if (this.started)
+            return;
         this.started = true;
         this.handleOther(XMLStreamConstants.START_DOCUMENT);
         super.writeStartDocument(encoding, version);
@@ -281,11 +283,8 @@ public class IndentXMLStreamWriter extends StreamWriterDelegate {
     }
 
     private void writeStartDocumentIfNecessary() throws XMLStreamException {
-        if (!this.started) {
-            this.started = true;
-            if (this.addMissingXmlDeclaration)
-                this.writeStartDocument();
-        }
+        if (!this.started && this.addMissingXmlDeclaration)
+            this.writeStartDocument();
     }
 
     /**
