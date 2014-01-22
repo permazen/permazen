@@ -15,9 +15,9 @@
 <span class="sourceLineNo">007</span><a name="line.7"></a>
 <span class="sourceLineNo">008</span>package org.dellroad.stuff.java;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.lang.reflect.InvocationTargetException;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.lang.reflect.Method;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.HashMap;<a name="line.12"></a>
+<span class="sourceLineNo">010</span>import java.lang.reflect.Method;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.HashMap;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.regex.Pattern;<a name="line.12"></a>
 <span class="sourceLineNo">013</span><a name="line.13"></a>
 <span class="sourceLineNo">014</span>/**<a name="line.14"></a>
 <span class="sourceLineNo">015</span> * Simple utility enumeration for working Java {@link Class} instances representing primitive types.<a name="line.15"></a>
@@ -28,7 +28,7 @@
 <span class="sourceLineNo">020</span> */<a name="line.20"></a>
 <span class="sourceLineNo">021</span>public enum Primitive {<a name="line.21"></a>
 <span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>    BOOLEAN(Boolean.TYPE, Boolean.class, 'Z') {<a name="line.23"></a>
+<span class="sourceLineNo">023</span>    BOOLEAN(Boolean.TYPE, Boolean.class, 'Z', "true|false") {<a name="line.23"></a>
 <span class="sourceLineNo">024</span>        @Override<a name="line.24"></a>
 <span class="sourceLineNo">025</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.25"></a>
 <span class="sourceLineNo">026</span>            return pswitch.caseBoolean();<a name="line.26"></a>
@@ -38,7 +38,7 @@
 <span class="sourceLineNo">030</span>            return false;<a name="line.30"></a>
 <span class="sourceLineNo">031</span>        }<a name="line.31"></a>
 <span class="sourceLineNo">032</span>    },<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    BYTE(Byte.TYPE, Byte.class, 'B') {<a name="line.33"></a>
+<span class="sourceLineNo">033</span>    BYTE(Byte.TYPE, Byte.class, 'B', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,2}))|(0+[0-7]{0,3})|([1-9][0-9]{0,2}))") {<a name="line.33"></a>
 <span class="sourceLineNo">034</span>        @Override<a name="line.34"></a>
 <span class="sourceLineNo">035</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.35"></a>
 <span class="sourceLineNo">036</span>            return pswitch.caseByte();<a name="line.36"></a>
@@ -48,7 +48,7 @@
 <span class="sourceLineNo">040</span>            return (byte)0;<a name="line.40"></a>
 <span class="sourceLineNo">041</span>        }<a name="line.41"></a>
 <span class="sourceLineNo">042</span>    },<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    CHARACTER(Character.TYPE, Character.class, 'C') {<a name="line.43"></a>
+<span class="sourceLineNo">043</span>    CHARACTER(Character.TYPE, Character.class, 'C', "(?s).") {<a name="line.43"></a>
 <span class="sourceLineNo">044</span>        @Override<a name="line.44"></a>
 <span class="sourceLineNo">045</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.45"></a>
 <span class="sourceLineNo">046</span>            return pswitch.caseCharacter();<a name="line.46"></a>
@@ -58,7 +58,7 @@
 <span class="sourceLineNo">050</span>            return (char)0;<a name="line.50"></a>
 <span class="sourceLineNo">051</span>        }<a name="line.51"></a>
 <span class="sourceLineNo">052</span>    },<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    SHORT(Short.TYPE, Short.class, 'S') {<a name="line.53"></a>
+<span class="sourceLineNo">053</span>    SHORT(Short.TYPE, Short.class, 'S', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,4}))|(0+[0-7]{0,6})|([1-9][0-9]{0,4}))") {<a name="line.53"></a>
 <span class="sourceLineNo">054</span>        @Override<a name="line.54"></a>
 <span class="sourceLineNo">055</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.55"></a>
 <span class="sourceLineNo">056</span>            return pswitch.caseShort();<a name="line.56"></a>
@@ -68,170 +68,224 @@
 <span class="sourceLineNo">060</span>            return (short)0;<a name="line.60"></a>
 <span class="sourceLineNo">061</span>        }<a name="line.61"></a>
 <span class="sourceLineNo">062</span>    },<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    INTEGER(Integer.TYPE, Integer.class, 'I') {<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        @Override<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>            return pswitch.caseInteger();<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        }<a name="line.67"></a>
-<span class="sourceLineNo">068</span>        @Override<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        public Object getDefaultValue() {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>            return 0;<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        }<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    },<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    FLOAT(Float.TYPE, Float.class, 'F') {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>        @Override<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            return pswitch.caseFloat();<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        }<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        @Override<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        public Object getDefaultValue() {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            return (float)0;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        }<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    },<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    LONG(Long.TYPE, Long.class, 'J') {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        @Override<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            return pswitch.caseLong();<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        }<a name="line.87"></a>
-<span class="sourceLineNo">088</span>        @Override<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        public Object getDefaultValue() {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>            return (long)0;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    },<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    DOUBLE(Double.TYPE, Double.class, 'D') {<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        @Override<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>            return pswitch.caseDouble();<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        }<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        @Override<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        public Object getDefaultValue() {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>            return (double)0;<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        }<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    };<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>    private static final HashMap&lt;Class&lt;?&gt;, Primitive&gt; CLASS_MAP = new HashMap&lt;Class&lt;?&gt;, Primitive&gt;();<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>    static {<a name="line.106"></a>
-<span class="sourceLineNo">107</span>        for (Primitive prim : values()) {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>            CLASS_MAP.put(prim.primType, prim);<a name="line.108"></a>
-<span class="sourceLineNo">109</span>            CLASS_MAP.put(prim.wrapType, prim);<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        }<a name="line.110"></a>
-<span class="sourceLineNo">111</span>    }<a name="line.111"></a>
-<span class="sourceLineNo">112</span><a name="line.112"></a>
-<span class="sourceLineNo">113</span>    private final Class&lt;?&gt; primType;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    private final Class&lt;?&gt; wrapType;<a name="line.114"></a>
-<span class="sourceLineNo">115</span>    private final char letter;<a name="line.115"></a>
-<span class="sourceLineNo">116</span><a name="line.116"></a>
-<span class="sourceLineNo">117</span>    Primitive(Class&lt;?&gt; primType, Class&lt;?&gt; wrapType, char letter) {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        this.primType = primType;<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        this.wrapType = wrapType;<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        this.letter = letter;<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
-<span class="sourceLineNo">122</span><a name="line.122"></a>
-<span class="sourceLineNo">123</span>    public abstract &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch);<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>    public abstract Object getDefaultValue();<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>    /**<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     * Get the short name for this primitive type, e.g., "int".<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     */<a name="line.129"></a>
-<span class="sourceLineNo">130</span>    public String getName() {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        return this.primType.getName();<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    }<a name="line.132"></a>
-<span class="sourceLineNo">133</span><a name="line.133"></a>
-<span class="sourceLineNo">134</span>    /**<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     * Get the long name for this primitive type, e.g., "Integer".<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     */<a name="line.136"></a>
-<span class="sourceLineNo">137</span>    public String getLongName() {<a name="line.137"></a>
-<span class="sourceLineNo">138</span>        return this.wrapType.getSimpleName();<a name="line.138"></a>
-<span class="sourceLineNo">139</span>    }<a name="line.139"></a>
-<span class="sourceLineNo">140</span><a name="line.140"></a>
-<span class="sourceLineNo">141</span>    /**<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     * Get the single character descriptor for this primitive type, e.g., "I".<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     */<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    public char getLetter() {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        return this.letter;<a name="line.145"></a>
-<span class="sourceLineNo">146</span>    }<a name="line.146"></a>
-<span class="sourceLineNo">147</span><a name="line.147"></a>
-<span class="sourceLineNo">148</span>    /**<a name="line.148"></a>
-<span class="sourceLineNo">149</span>     * Get the {@link Class} object representing this primitive type, e.g., {@code Integer.TYPE}.<a name="line.149"></a>
-<span class="sourceLineNo">150</span>     */<a name="line.150"></a>
-<span class="sourceLineNo">151</span>    public Class&lt;?&gt; getType() {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>        return this.primType;<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    }<a name="line.153"></a>
-<span class="sourceLineNo">154</span><a name="line.154"></a>
-<span class="sourceLineNo">155</span>    /**<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     * Get the wrapper {@link Class} object for this primitive type, e.g., {@code Integer.class}.<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     */<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    public Class&lt;?&gt; getWrapperType() {<a name="line.158"></a>
-<span class="sourceLineNo">159</span>        return this.wrapType;<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
-<span class="sourceLineNo">161</span><a name="line.161"></a>
-<span class="sourceLineNo">162</span>    /**<a name="line.162"></a>
-<span class="sourceLineNo">163</span>     * Get the wrapper class' "unwrap" method for this primitive type, e.g., {@code Integer.intValue()}.<a name="line.163"></a>
-<span class="sourceLineNo">164</span>     */<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    public Method getUnwrapMethod() {<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        try {<a name="line.166"></a>
-<span class="sourceLineNo">167</span>            return this.wrapType.getMethod(getName() + "Value");<a name="line.167"></a>
-<span class="sourceLineNo">168</span>        } catch (NoSuchMethodException e) {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>            throw new RuntimeException(e);<a name="line.169"></a>
-<span class="sourceLineNo">170</span>        }<a name="line.170"></a>
-<span class="sourceLineNo">171</span>    }<a name="line.171"></a>
-<span class="sourceLineNo">172</span><a name="line.172"></a>
-<span class="sourceLineNo">173</span>    /**<a name="line.173"></a>
-<span class="sourceLineNo">174</span>     * Parse a string value using the type's {@code valueOf} method.<a name="line.174"></a>
-<span class="sourceLineNo">175</span>     *<a name="line.175"></a>
-<span class="sourceLineNo">176</span>     * @param string string representation of a value<a name="line.176"></a>
-<span class="sourceLineNo">177</span>     * @throws IllegalArgumentException if {@code string} cannot be parsed<a name="line.177"></a>
-<span class="sourceLineNo">178</span>     * @throws IllegalArgumentException if {@code string} is null<a name="line.178"></a>
-<span class="sourceLineNo">179</span>     */<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    public Object parseValue(String string) {<a name="line.180"></a>
-<span class="sourceLineNo">181</span><a name="line.181"></a>
-<span class="sourceLineNo">182</span>        // Handle null<a name="line.182"></a>
-<span class="sourceLineNo">183</span>        if (string == null)<a name="line.183"></a>
-<span class="sourceLineNo">184</span>            throw new IllegalArgumentException("null string");<a name="line.184"></a>
-<span class="sourceLineNo">185</span><a name="line.185"></a>
-<span class="sourceLineNo">186</span>        // Special case: Character doesn't have a valueOf(String) method<a name="line.186"></a>
-<span class="sourceLineNo">187</span>        if (this == CHARACTER) {<a name="line.187"></a>
-<span class="sourceLineNo">188</span>            if (string.length() != 1)<a name="line.188"></a>
-<span class="sourceLineNo">189</span>                throw new IllegalArgumentException("not a character: \"" + string + "\"");<a name="line.189"></a>
-<span class="sourceLineNo">190</span>            return Character.valueOf(string.charAt(0));<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        }<a name="line.191"></a>
-<span class="sourceLineNo">192</span><a name="line.192"></a>
-<span class="sourceLineNo">193</span>        // Find this wrapper class' valueOf() method<a name="line.193"></a>
-<span class="sourceLineNo">194</span>        Method method;<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        try {<a name="line.195"></a>
-<span class="sourceLineNo">196</span>            method = this.wrapType.getMethod("valueOf", String.class);<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        } catch (NoSuchMethodException e) {<a name="line.197"></a>
-<span class="sourceLineNo">198</span>            throw new RuntimeException("unexpected exception", e);<a name="line.198"></a>
-<span class="sourceLineNo">199</span>        }<a name="line.199"></a>
-<span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>        // Use it to parse the value<a name="line.201"></a>
-<span class="sourceLineNo">202</span>        try {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>            return method.invoke(null, string);<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        } catch (IllegalAccessException e) {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            throw new RuntimeException("unexpected exception", e);<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        } catch (IllegalArgumentException e) {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>            throw new RuntimeException("unexpected exception", e);<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        } catch (InvocationTargetException e) {<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            Throwable nested = e.getTargetException();<a name="line.209"></a>
-<span class="sourceLineNo">210</span>            if (nested instanceof IllegalArgumentException)<a name="line.210"></a>
-<span class="sourceLineNo">211</span>                throw (IllegalArgumentException)nested;<a name="line.211"></a>
-<span class="sourceLineNo">212</span>            throw new RuntimeException("unexpected exception", nested);<a name="line.212"></a>
-<span class="sourceLineNo">213</span>        }<a name="line.213"></a>
-<span class="sourceLineNo">214</span>    }<a name="line.214"></a>
-<span class="sourceLineNo">215</span><a name="line.215"></a>
-<span class="sourceLineNo">216</span>    /**<a name="line.216"></a>
-<span class="sourceLineNo">217</span>     * Get the value corresponding to the given Java primitive or primitive wrapper type.<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     *<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     * @return the {@link Primitive} corresponding to {@code c}, or {@code null}<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     *         if {@code c} is not a primitive or primitive wrapper type<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     */<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    public static Primitive get(Class&lt;?&gt; c) {<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        return CLASS_MAP.get(c);<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
-<span class="sourceLineNo">225</span>}<a name="line.225"></a>
-<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">063</span>    INTEGER(Integer.TYPE, Integer.class, 'I', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,8}))|(0+[0-7]{0,11})|([1-9][0-9]{0,9}))") {<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>        @Override<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            return pswitch.caseInteger();<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        }<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        @Override<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        public Object getDefaultValue() {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            return 0;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        }<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    },<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    FLOAT(Float.TYPE, Float.class, 'F', DoubleFormat.REGEX) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        @Override<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>            return pswitch.caseFloat();<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        }<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        @Override<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        public Object getDefaultValue() {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>            return (float)0;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        }<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    },<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    LONG(Long.TYPE, Long.class, 'J', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,16}))|(0+[0-7]{0,22})|([1-9][0-9]{0,18}))") {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        @Override<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            return pswitch.caseLong();<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        }<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        @Override<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        public Object getDefaultValue() {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            return (long)0;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        }<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    },<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    DOUBLE(Double.TYPE, Double.class, 'D', DoubleFormat.REGEX) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        @Override<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        public &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            return pswitch.caseDouble();<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        }<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        @Override<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        public Object getDefaultValue() {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            return (double)0;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        }<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    };<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>    private static final HashMap&lt;Class&lt;?&gt;, Primitive&gt; CLASS_MAP = new HashMap&lt;Class&lt;?&gt;, Primitive&gt;();<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>    static {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        for (Primitive prim : values()) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            CLASS_MAP.put(prim.primType, prim);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            CLASS_MAP.put(prim.wrapType, prim);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>    private final Class&lt;?&gt; primType;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    private final Class&lt;?&gt; wrapType;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    private final char letter;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    private final Pattern parsePattern;<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    Primitive(Class&lt;?&gt; primType, Class&lt;?&gt; wrapType, char letter, String parsePattern) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        this.primType = primType;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        this.wrapType = wrapType;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        this.letter = letter;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        this.parsePattern = Pattern.compile(parsePattern);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>    public abstract &lt;R&gt; R visit(PrimitiveSwitch&lt;R&gt; pswitch);<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>    public abstract Object getDefaultValue();<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>    /**<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * Get the short name for this primitive type, e.g., "int".<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     */<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    public String getName() {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        return this.primType.getName();<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    }<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>    /**<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * Get the long name for this primitive type, e.g., "Integer".<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     */<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    public String getLongName() {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        return this.wrapType.getSimpleName();<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    }<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>    /**<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * Get the single character descriptor for this primitive type, e.g., "I".<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     */<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    public char getLetter() {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        return this.letter;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    }<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * Get the {@link Class} object representing this primitive type, e.g., {@code Integer.TYPE}.<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    public Class&lt;?&gt; getType() {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        return this.primType;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>    /**<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * Get the wrapper {@link Class} object for this primitive type, e.g., {@code Integer.class}.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     */<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    public Class&lt;?&gt; getWrapperType() {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        return this.wrapType;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    }<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>    /**<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * Get a regular expression that matches all allowed inputs to {@link #parseValue parseValue()}.<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * The returned pattern may also accept some values that {@link #parseValue parseValue()} rejects,<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * such as {@code 32768} for a {@code short}.<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     */<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    public Pattern getParsePattern() {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        return this.parsePattern;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>    /**<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * Get the wrapper class' "unwrap" method for this primitive type, e.g., {@code Integer.intValue()}.<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     */<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    public Method getUnwrapMethod() {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        try {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            return this.wrapType.getMethod(getName() + "Value");<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        } catch (NoSuchMethodException e) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            throw new RuntimeException(e);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        }<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    }<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>    /**<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * Parse a string-encoded value of this instance.<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * This method is guaranteed to accept all possible return values from the primitive's {@link #toString},<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * and possibly other reasonable inputs (e.g., hex and octal values for integral types).<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     *<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * @param string string representation of a value<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * @throws IllegalArgumentException if {@code string} is null<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * @throws IllegalArgumentException if {@code string} does not match the {@linkplain #getParsePattern parse pattern}<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     */<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    public Object parseValue(String string) {<a name="line.194"></a>
+<span class="sourceLineNo">195</span><a name="line.195"></a>
+<span class="sourceLineNo">196</span>        // Handle null<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        if (string == null)<a name="line.197"></a>
+<span class="sourceLineNo">198</span>            throw new IllegalArgumentException("null string");<a name="line.198"></a>
+<span class="sourceLineNo">199</span><a name="line.199"></a>
+<span class="sourceLineNo">200</span>        // Parse value<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        switch (this) {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        case BOOLEAN:<a name="line.202"></a>
+<span class="sourceLineNo">203</span>            return Boolean.parseBoolean(string);<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        case BYTE:<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            return Byte.decode(string);<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        case CHARACTER:<a name="line.206"></a>
+<span class="sourceLineNo">207</span>            if (string.length() != 1)<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                throw new IllegalArgumentException("string has length " + string.length() + " != 1");<a name="line.208"></a>
+<span class="sourceLineNo">209</span>            return Character.valueOf(string.charAt(0));<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        case SHORT:<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            return Short.decode(string);<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        case INTEGER:<a name="line.212"></a>
+<span class="sourceLineNo">213</span>            return Integer.decode(string);<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        case FLOAT:<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            return Float.parseFloat(string);<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        case LONG:<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            return Long.decode(string);<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        case DOUBLE:<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            return Double.parseDouble(string);<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        default:<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            throw new RuntimeException();<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        }<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    }<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>    /**<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * Get the value corresponding to the given Java primitive or primitive wrapper type.<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     *<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * @return the {@link Primitive} corresponding to {@code c}, or {@code null}<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     *         if {@code c} is not a primitive or primitive wrapper type<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     */<a name="line.230"></a>
+<span class="sourceLineNo">231</span>    public static Primitive get(Class&lt;?&gt; c) {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        return CLASS_MAP.get(c);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    }<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>    // This is put into an inner class to avoid initialization ordering problems<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    private static final class DoubleFormat {<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>        private static final String DIGITS = "(\\p{Digit}+)";<a name="line.238"></a>
+<span class="sourceLineNo">239</span><a name="line.239"></a>
+<span class="sourceLineNo">240</span>        private static final String HEX_DIGITS = "(\\p{XDigit}+)";<a name="line.240"></a>
+<span class="sourceLineNo">241</span><a name="line.241"></a>
+<span class="sourceLineNo">242</span>        // an exponent is 'e' or 'E' followed by an optionally<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        // signed decimal integer.<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        private static final String EXPONENT = "[eE][+-]?" + DIGITS;<a name="line.244"></a>
+<span class="sourceLineNo">245</span><a name="line.245"></a>
+<span class="sourceLineNo">246</span>        private static final String REGEX =<a name="line.246"></a>
+<span class="sourceLineNo">247</span>          "[+-]?("              // Optional sign character<a name="line.247"></a>
+<span class="sourceLineNo">248</span>          + "NaN|"              // "NaN" string<a name="line.248"></a>
+<span class="sourceLineNo">249</span>          + "Infinity|"         // "Infinity" string<a name="line.249"></a>
+<span class="sourceLineNo">250</span><a name="line.250"></a>
+<span class="sourceLineNo">251</span>          // A decimal floating-point string representing a finite positive<a name="line.251"></a>
+<span class="sourceLineNo">252</span>          // number without a leading sign has at most five basic pieces:<a name="line.252"></a>
+<span class="sourceLineNo">253</span>          // Digits . Digits ExponentPart FloatTypeSuffix<a name="line.253"></a>
+<span class="sourceLineNo">254</span>          //<a name="line.254"></a>
+<span class="sourceLineNo">255</span>          // Since this method allows integer-only strings as input<a name="line.255"></a>
+<span class="sourceLineNo">256</span>          // in addition to strings of floating-point literals, the<a name="line.256"></a>
+<span class="sourceLineNo">257</span>          // two sub-patterns below are simplifications of the grammar<a name="line.257"></a>
+<span class="sourceLineNo">258</span>          // productions from the Java Language Specification, 2nd<a name="line.258"></a>
+<span class="sourceLineNo">259</span>          // edition, section 3.10.2.<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span>          // Digits ._opt Digits_opt ExponentPart_opt FloatTypeSuffix_opt<a name="line.261"></a>
+<span class="sourceLineNo">262</span>          + "(((" + DIGITS + "(\\.)?(" + DIGITS + "?)(" + EXPONENT + ")?)|"<a name="line.262"></a>
+<span class="sourceLineNo">263</span><a name="line.263"></a>
+<span class="sourceLineNo">264</span>          // . Digits ExponentPart_opt FloatTypeSuffix_opt<a name="line.264"></a>
+<span class="sourceLineNo">265</span>          + "(\\.(" + DIGITS + ")(" + EXPONENT + ")?)|"<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>          // Hexadecimal strings<a name="line.267"></a>
+<span class="sourceLineNo">268</span>          + "(("<a name="line.268"></a>
+<span class="sourceLineNo">269</span>            // 0[xX] HexDigits ._opt BinaryExponent FloatTypeSuffix_opt<a name="line.269"></a>
+<span class="sourceLineNo">270</span>            + "(0[xX]" + HEX_DIGITS + "(\\.)?)|"<a name="line.270"></a>
+<span class="sourceLineNo">271</span><a name="line.271"></a>
+<span class="sourceLineNo">272</span>            // 0[xX] HexDigits_opt . HexDigits BinaryExponent FloatTypeSuffix_opt<a name="line.272"></a>
+<span class="sourceLineNo">273</span>            + "(0[xX]" + HEX_DIGITS + "?(\\.)" + HEX_DIGITS + ")"<a name="line.273"></a>
+<span class="sourceLineNo">274</span>             + ")[pP][+-]?" + DIGITS + "))" + "[fFdD]?))";<a name="line.274"></a>
+<span class="sourceLineNo">275</span><a name="line.275"></a>
+<span class="sourceLineNo">276</span>        private DoubleFormat() {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        }<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    }<a name="line.278"></a>
+<span class="sourceLineNo">279</span>}<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
 
 
 

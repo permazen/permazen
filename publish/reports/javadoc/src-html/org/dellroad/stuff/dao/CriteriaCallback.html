@@ -23,8 +23,8 @@
 <span class="sourceLineNo">015</span>/**<a name="line.15"></a>
 <span class="sourceLineNo">016</span> * Specialization of {@link QueryCallback} for {@link CriteriaQuery} queries.<a name="line.16"></a>
 <span class="sourceLineNo">017</span> *<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * @param &lt;T&gt; persistent instance type<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * @param &lt;R&gt; query return type<a name="line.19"></a>
+<span class="sourceLineNo">018</span> * @param &lt;T&gt; query result type, i.e., what the {@link CriteriaQuery} returns zero or more of<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * @param &lt;R&gt; query Java return type, usually either {@code R} or {@code List&lt;R&gt;}<a name="line.19"></a>
 <span class="sourceLineNo">020</span> */<a name="line.20"></a>
 <span class="sourceLineNo">021</span>public abstract class CriteriaCallback&lt;T, R&gt; extends TypedQueryCallback&lt;T, R&gt; {<a name="line.21"></a>
 <span class="sourceLineNo">022</span><a name="line.22"></a>
@@ -41,8 +41,8 @@
 <span class="sourceLineNo">033</span>     */<a name="line.33"></a>
 <span class="sourceLineNo">034</span>    @Override<a name="line.34"></a>
 <span class="sourceLineNo">035</span>    protected TypedQuery&lt;T&gt; buildQuery(EntityManager entityManager) {<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();<a name="line.36"></a>
-<span class="sourceLineNo">037</span>        CriteriaQuery&lt;T&gt; criteriaQuery = criteriaBuilder.createQuery(this.type);<a name="line.37"></a>
+<span class="sourceLineNo">036</span>        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        final CriteriaQuery&lt;T&gt; criteriaQuery = criteriaBuilder.createQuery(this.type);<a name="line.37"></a>
 <span class="sourceLineNo">038</span>        this.configureQuery(criteriaQuery, criteriaBuilder);<a name="line.38"></a>
 <span class="sourceLineNo">039</span>        return entityManager.createQuery(criteriaQuery);<a name="line.39"></a>
 <span class="sourceLineNo">040</span>    }<a name="line.40"></a>

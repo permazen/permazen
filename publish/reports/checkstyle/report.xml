@@ -1,117 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <checkstyle version="5.4">
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/Version.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/Version.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/dao/AbstractDAO.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/dao/AbstractDAO.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/dao/CriteriaCallback.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/dao/CriteriaCallback.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/dao/DAO.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/dao/DAO.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/dao/QueryCallback.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/dao/QueryCallback.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/dao/TypedQueryCallback.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/dao/TypedQueryCallback.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/dao/UpdateCallback.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/dao/UpdateCallback.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/dao/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/dao/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/graph/TopologicalSorter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/graph/TopologicalSorter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/graph/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/graph/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/AsyncInputStream.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/AsyncInputStream.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/AsyncOutputStream.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/AsyncOutputStream.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/AtomicUpdateFileOutputStream.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/AtomicUpdateFileOutputStream.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/BufferOverflowException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/BufferOverflowException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/CSVOutput.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/CSVOutput.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/FileStreamRepository.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/FileStreamRepository.java">
 <error line="169" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/HardLink.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/HardLink.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/IdleTimeoutException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/IdleTimeoutException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/IdleTimeoutInputStream.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/IdleTimeoutInputStream.java">
 <error line="42" column="45" severity="info" message="&apos;500&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/InputStreamReader.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/InputStreamReader.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/NullModemInputStream.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/NullModemInputStream.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/NullModemOutputStream.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/NullModemOutputStream.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/OutputStreamWriter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/OutputStreamWriter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/RandomEscape.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/RandomEscape.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/ReadCallback.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/ReadCallback.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/StreamRepository.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/StreamRepository.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/WriteCallback.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/WriteCallback.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/io/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/io/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/CheckedExceptionWrapper.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/CheckedExceptionWrapper.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/EnumUtil.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/EnumUtil.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/ErrorAction.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/ErrorAction.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/GraphCloneRegistry.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/GraphCloneRegistry.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/GraphCloneable.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/GraphCloneable.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/IdGenerator.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/IdGenerator.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/MethodAnnotationScanner.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/MethodAnnotationScanner.java">
 <error line="163" column="59" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="164" column="65" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/Predicate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/Predicate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/Primitive.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/Primitive.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/PrimitiveSwitch.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/PrimitiveSwitch.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/PrimitiveSwitchAdapter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/PrimitiveSwitchAdapter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/ProcessRunner.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/ProcessRunner.java">
 <error line="162" column="45" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="173" column="45" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/ThreadLocalHolder.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/ThreadLocalHolder.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/ThreadParkingLot.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/ThreadParkingLot.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/TimedWait.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/TimedWait.java">
 <error line="17" column="55" severity="info" message="&apos;0x7fffffffffffffffL&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="17" column="77" severity="info" message="&apos;1000000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="66" column="52" severity="info" message="&apos;500000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="66" column="63" severity="info" message="&apos;1000000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/java/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/java/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/IdMapper.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/IdMapper.java">
 <error line="279" column="55" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/IdMappingMarshaller.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/IdMappingMarshaller.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/JiBXUtil.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/JiBXUtil.java">
 <error line="259" column="50" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/ListableHashSet.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/ListableHashSet.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/MapEntry.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/MapEntry.java">
 <error line="147" column="16" severity="info" message="Anonymous inner class length is 26 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/ParseUtil.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/ParseUtil.java">
 <error line="185" column="18" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="185" column="23" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="185" column="28" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -153,23 +153,23 @@
 <error line="276" column="21" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="296" column="49" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/SpringParseUtil.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/SpringParseUtil.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/XMLDocumentInputStream.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/XMLDocumentInputStream.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/XMLDocumentOutputStream.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/XMLDocumentOutputStream.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/jibx/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/jibx/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/main/ContextMainClass.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/main/ContextMainClass.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/main/MainClass.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/main/MainClass.java">
 <error line="53" column="57" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="169" column="26" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/main/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/main/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/net/IPv4Util.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/net/IPv4Util.java">
 <error line="32" column="32" severity="info" message="&apos;24&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="33" column="32" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="34" column="32" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -190,182 +190,182 @@
 <error line="179" column="26" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="195" column="27" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/net/SocketAcceptor.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/net/SocketAcceptor.java">
 <error line="141" column="5" severity="info" message="Executable statement count is 40 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/net/SocketHandler.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/net/SocketHandler.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/net/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/net/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/AbstractConfiguredBean.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/AbstractConfiguredBean.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/AbstractDelegate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/AbstractDelegate.java">
 <error line="32" column="44" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="32" column="49" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="32" column="56" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/FilterDelegate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/FilterDelegate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/NotConfiguredException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/NotConfiguredException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentFileTransaction.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentFileTransaction.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObject.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObject.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectDelegate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObjectDelegate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectEvent.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObjectEvent.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObjectException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectListener.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObjectListener.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectSchemaUpdater.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObjectSchemaUpdater.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectTransactionManager.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObjectTransactionManager.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectTransactional.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObjectTransactional.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectValidationException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObjectValidationException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/PersistentObjectVersionException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/PersistentObjectVersionException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/SpringDelegate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/SpringDelegate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/SpringPersistentObjectSchemaUpdate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/SpringPersistentObjectSchemaUpdate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/SpringPersistentObjectSchemaUpdater.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/SpringPersistentObjectSchemaUpdater.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/SpringXSLPersistentObjectSchemaUpdate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/SpringXSLPersistentObjectSchemaUpdate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/SpringXSLUpdateTransformConfigurer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/SpringXSLUpdateTransformConfigurer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/UpdatesXMLStreamReader.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/UpdatesXMLStreamReader.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/UpdatesXMLStreamWriter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/UpdatesXMLStreamWriter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/GitException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/distrib/GitException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/GitMergeConflictException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/distrib/GitMergeConflictException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/GitRepository.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/distrib/GitRepository.java">
 <error line="144" column="120" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="144" column="126" severity="info" message="&apos;1000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="412" column="29" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="589" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/MergeStrategy.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/distrib/MergeStrategy.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/Synchronizer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/distrib/Synchronizer.java">
 <error line="434" column="5" severity="info" message="Executable statement count is 35 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/distrib/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/distrib/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/vaadin/PersistentObjectContainerLoader.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/vaadin/PersistentObjectContainerLoader.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/vaadin/VaadinPersistentObjectListener.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/vaadin/VaadinPersistentObjectListener.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/pobj/vaadin/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/pobj/vaadin/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/AbstractSchemaUpdate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/AbstractSchemaUpdate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/AbstractSchemaUpdater.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/AbstractSchemaUpdater.java">
 <error line="336" column="5" severity="info" message="Executable statement count is 33 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/AbstractSpringSchemaUpdate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/AbstractSpringSchemaUpdate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/AbstractUpdatingDataSource.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/AbstractUpdatingDataSource.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/DatabaseAction.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/DatabaseAction.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SQLCommand.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/SQLCommand.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SQLCommandList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/SQLCommandList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SQLSchemaUpdater.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/SQLSchemaUpdater.java">
 <error line="307" column="23" severity="info" message="Anonymous inner class length is 25 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SchemaUpdate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/SchemaUpdate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SchemaUpdateEdgeLister.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/SchemaUpdateEdgeLister.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SchemaUpdatingDataSource.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/SchemaUpdatingDataSource.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SpringSQLSchemaUpdate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/SpringSQLSchemaUpdate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/SpringSQLSchemaUpdater.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/SpringSQLSchemaUpdater.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/UnrecognizedUpdateException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/UnrecognizedUpdateException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/UpdatingDataSource.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/UpdatingDataSource.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/schema/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/schema/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/servlet/BigFatLock.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/servlet/BigFatLock.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/servlet/BigFatLockHeldAdvice.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/servlet/BigFatLockHeldAdvice.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/servlet/BigFatLockNotHeldException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/servlet/BigFatLockNotHeldException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/servlet/ContextCleanupListener.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/servlet/ContextCleanupListener.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/servlet/ExceptionLoggingFilter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/servlet/ExceptionLoggingFilter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/servlet/OpenTransactionInViewFilter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/servlet/OpenTransactionInViewFilter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/servlet/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/servlet/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/AbstractBean.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/AbstractBean.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/AbstractBeanDefinitionParser.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/AbstractBeanDefinitionParser.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ApplicationContextBean.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/ApplicationContextBean.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/BeanNameComparator.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/BeanNameComparator.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/DelayedAction.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/DelayedAction.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/DellRoadStuffNamespaceHandler.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/DellRoadStuffNamespaceHandler.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/HibernateIsolationJpaDialect.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/HibernateIsolationJpaDialect.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ResourceReaderFactoryBean.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/ResourceReaderFactoryBean.java">
 <error line="58" column="35" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/RetryTransaction.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/RetryTransaction.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/RetryTransactionProvider.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/RetryTransactionProvider.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/SQLBeanDefinitionParser.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/SQLBeanDefinitionParser.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/SQLUpdateBeanDefinitionParser.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/SQLUpdateBeanDefinitionParser.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadConfigurable.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/ThreadConfigurable.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadConfigurableBeanWiringInfoResolver.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/ThreadConfigurableBeanWiringInfoResolver.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadConfigurableObject.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/ThreadConfigurableObject.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadLocalContext.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/ThreadLocalContext.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadTransactional.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/ThreadTransactional.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadTransactionalAdapter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/ThreadTransactionalAdapter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/ThreadTransactionalAnnotationParser.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/ThreadTransactionalAnnotationParser.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/spring/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/spring/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/sql/MergedResultSet.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/sql/MergedResultSet.java">
 <error line="158" column="60" severity="info" message="Anonymous inner class length is 26 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/sql/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/sql/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/ByteArrayEncoder.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/string/ByteArrayEncoder.java">
 <error line="58" column="54" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="58" column="57" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="59" column="57" severity="info" message="&apos;0xf&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -373,19 +373,17 @@
 <error line="92" column="46" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="96" column="54" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/DateEncoder.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/string/DateEncoder.java">
 <error line="44" column="43" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/DoubleFormat.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/string/NamedArgumentFormatter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/NamedArgumentFormatter.java">
-</file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/ParseContext.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/string/ParseContext.java">
 <error line="226" column="63" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/SimpleObjectParser.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/string/SimpleObjectParser.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/StringEncoder.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/string/StringEncoder.java">
 <error line="43" column="64" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="90" column="30" severity="info" message="&apos;12&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="90" column="55" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -396,235 +394,235 @@
 <error line="166" column="49" severity="info" message="&apos;0xf&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="167" column="35" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/VersionComparator.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/string/VersionComparator.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/VersionPartComparator.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/string/VersionPartComparator.java">
 <error line="27" column="75" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="28" column="75" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/string/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/string/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/util/LinkedList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/util/LinkedList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/util/ThreadLogger.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/util/ThreadLogger.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/util/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/util/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/AbstractQueryContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/AbstractQueryContainer.java">
 <error line="298" column="32" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/AbstractSimpleContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/AbstractSimpleContainer.java">
 <error line="331" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/AbstractUnsizedContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/AbstractUnsizedContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/AlwaysInvalidQueryList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/AlwaysInvalidQueryList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/ContextApplication.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/ContextApplication.java">
 <error line="144" column="29" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/EnumComboBox.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/EnumComboBox.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/EnumContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/EnumContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/InvalidQueryListException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/InvalidQueryListException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/PropertyDef.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/PropertyDef.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/PropertyExtractor.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/PropertyExtractor.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/ProvidesProperty.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/ProvidesProperty.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/ProvidesPropertyScanner.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/ProvidesPropertyScanner.java">
 <error line="46" column="5" severity="info" message="Executable statement count is 32 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 <error line="150" column="34" severity="info" message="Anonymous inner class length is 29 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/ProvidesPropertySort.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/ProvidesPropertySort.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/QueryList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/QueryList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/SelfKeyedContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/SelfKeyedContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/SimpleContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/SimpleContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/SimpleItem.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/SimpleItem.java">
 <error line="94" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/SimpleKeyedContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/SimpleKeyedContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/SimpleProperty.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/SimpleProperty.java">
 <error line="26" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/SimpleQueryList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/SimpleQueryList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/SortingPropertyExtractor.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/SortingPropertyExtractor.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/SpringContextApplication.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinApplicationListener.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/VaadinApplicationListener.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinApplicationScope.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/VaadinApplicationScope.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinConfigurable.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/VaadinConfigurable.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinConfigurableBeanWiringInfoResolver.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/VaadinConfigurableBeanWiringInfoResolver.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinConfigurableObject.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/VaadinConfigurableObject.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinDelayedAction.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/VaadinDelayedAction.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinExternalListener.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/VaadinExternalListener.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/VaadinUtil.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/VaadinUtil.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/WindowQueryList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/WindowQueryList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/WritableResource.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/WritableResource.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/AbstractQueryContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/AbstractQueryContainer.java">
 <error line="298" column="32" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/AbstractUnsizedContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/AbstractUnsizedContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/AlwaysInvalidQueryList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/AlwaysInvalidQueryList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/ConvertedProperty.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/ConvertedProperty.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/EnumComboBox.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/EnumComboBox.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/EnumContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/EnumContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/FieldBuilder.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/FieldBuilder.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/InvalidQueryListException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/InvalidQueryListException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/PropertyDef.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/PropertyDef.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/PropertyExtractor.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/PropertyExtractor.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/ProvidesProperty.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/ProvidesProperty.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/ProvidesPropertyScanner.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/ProvidesPropertyScanner.java">
 <error line="46" column="5" severity="info" message="Executable statement count is 32 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 <error line="150" column="34" severity="info" message="Anonymous inner class length is 29 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/ProvidesPropertySort.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/ProvidesPropertySort.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/QueryList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/QueryList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SelfKeyedContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/SelfKeyedContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SimpleContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/SimpleContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SimpleItem.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/SimpleItem.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SimpleKeyedContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/SimpleKeyedContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SimpleProperty.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/SimpleProperty.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SimpleQueryList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/SimpleQueryList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SortingPropertyExtractor.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/SortingPropertyExtractor.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SpringVaadinServlet.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/SpringVaadinServlet.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/SpringVaadinSessionListener.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/SpringVaadinSessionListener.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinApplication.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinApplication.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinApplicationListener.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinApplicationListener.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinApplicationScope.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinApplicationScope.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinConfigurable.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinConfigurable.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinConfigurableBeanWiringInfoResolver.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinConfigurableBeanWiringInfoResolver.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinConfigurableObject.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinConfigurableObject.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinDelayedAction.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinDelayedAction.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinExternalListener.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinExternalListener.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinSessionContainer.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinSessionContainer.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinSessionInfo.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinSessionInfo.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/VaadinUtil.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/VaadinUtil.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/WindowQueryList.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/WindowQueryList.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/WritableResource.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/WritableResource.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/vaadin7/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/vaadin7/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/AbstractValidator.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/AbstractValidator.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/DefaultUniquifier.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/DefaultUniquifier.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/EmailAddress.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/EmailAddress.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/HostOrIP.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/HostOrIP.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/Hostname.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/Hostname.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/Pattern.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/Pattern.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/PatternValidator.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/PatternValidator.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/SelfValidates.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/SelfValidates.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/SelfValidating.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/SelfValidating.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/SelfValidatingValidator.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/SelfValidatingValidator.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/SelfValidationException.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/SelfValidationException.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/Sorted.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/Sorted.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/SortedValidator.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/SortedValidator.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/Unique.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/Unique.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/UniqueValidator.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/UniqueValidator.java">
 <error line="76" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/Uniquifier.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/Uniquifier.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/ValidationContext.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/ValidationContext.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/ValidationUtil.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/ValidationUtil.java">
 <error line="43" column="67" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/validation/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/validation/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/AnnotatedXMLEventReader.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/AnnotatedXMLEventReader.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/AnnotatedXMLEventWriter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/AnnotatedXMLEventWriter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/AnnotatedXMLStreamReader.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/AnnotatedXMLStreamReader.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/AnnotatedXMLStreamWriter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/AnnotatedXMLStreamWriter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/EmptyTagXMLStreamWriter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/EmptyTagXMLStreamWriter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/EventWriterDelegate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/EventWriterDelegate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/IndentXMLEventWriter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/IndentXMLEventWriter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/IndentXMLStreamWriter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/IndentXMLStreamWriter.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/StackXMLEventReader.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/StackXMLEventReader.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/StreamWriterDelegate.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/StreamWriterDelegate.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/TransformErrorListener.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/TransformErrorListener.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/XMLResultSetWriter.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/XMLResultSetWriter.java">
 <error line="187" column="5" severity="info" message="Executable statement count is 36 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 <error line="258" column="5" severity="info" message="Executable statement count is 36 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 <error line="283" column="35" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -634,44 +632,44 @@
 <error line="385" column="50" severity="info" message="&apos;0xf&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="385" column="55" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/java/org/dellroad/stuff/xml/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/java/org/dellroad/stuff/xml/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/TestSupport.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/TestSupport.java">
 <error line="110" column="35" severity="info" message="&apos;1024&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/graph/TopologicalSorterTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/graph/TopologicalSorterTest.java">
 <error line="113" column="18" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="138" column="38" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/graph/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/graph/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/io/AsyncInputStreamTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/io/AsyncInputStreamTest.java">
 <error line="27" column="29" severity="info" message="&apos;5000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="27" column="69" severity="info" message="&apos;20000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="28" column="25" severity="info" message="&apos;10000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="28" column="66" severity="info" message="&apos;20000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/io/HardLinkTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/io/HardLinkTest.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/io/NullModemTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/io/NullModemTest.java">
 <error line="31" column="52" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="64" column="55" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/io/StreamsTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/io/StreamsTest.java">
 <error line="28" column="56" severity="info" message="&apos;7&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="30" column="82" severity="info" message="&apos;10000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="80" column="32" severity="info" message="&apos;7&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/io/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/io/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/java/GraphClonableTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/java/GraphClonableTest.java">
 <error line="44" column="30" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="112" column="23" severity="info" message="&apos;46&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="117" column="23" severity="info" message="&apos;43&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="122" column="22" severity="info" message="&apos;41&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="125" column="20" severity="info" message="&apos;42&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/java/IdGeneratorTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/java/IdGeneratorTest.java">
 <error line="15" column="5" severity="info" message="Executable statement count is 38 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 <error line="29" column="23" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="44" column="30" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -689,21 +687,31 @@
 <error line="68" column="36" severity="info" message="&apos;123&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="69" column="36" severity="info" message="&apos;123&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/java/ProcessRunnerTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/java/PrimitiveTest.java">
+<error line="39" column="74" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="45" column="84" severity="info" message="&apos;5000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="51" column="76" severity="info" message="&apos;5000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="57" column="80" severity="info" message="&apos;20000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="63" column="76" severity="info" message="&apos;20000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="70" column="74" severity="info" message="&apos;20000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="76" column="78" severity="info" message="&apos;20000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="83" column="40" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/java/ProcessRunnerTest.java">
 <error line="31" column="78" severity="info" message="&apos;26&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/java/ThreadLocalHolderTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/java/ThreadLocalHolderTest.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/java/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/java/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/jibx/Company.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/jibx/Company.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/jibx/Employee.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/jibx/Employee.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/jibx/IdMapperTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/jibx/IdMapperTest.java">
 <error line="17" column="49" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/jibx/ParseUtilTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/jibx/ParseUtilTest.java">
 <error line="40" column="25" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="40" column="30" severity="info" message="&apos;60&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="40" column="35" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -738,29 +746,29 @@
 <error line="54" column="25" severity="info" message="&apos;1001&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="55" column="23" severity="info" message="&apos;15552000000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/jibx/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/jibx/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/pobj/PersistentObjectTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/pobj/PersistentObjectTest.java">
 <error line="37" column="77" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/pobj/RootObject.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/pobj/RootObject.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/pobj/UpdatesXMLStreamTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/pobj/UpdatesXMLStreamTest.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/pobj/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/pobj/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/schema/SchemaUpdateTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/schema/SchemaUpdateTest.java">
 <error line="59" column="79" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/schema/TestDatabaseAction.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/schema/TestDatabaseAction.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/schema/TestSchemaUpdater.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/schema/TestSchemaUpdater.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/schema/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/schema/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/string/ByteArrayEncoderTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/string/ByteArrayEncoderTest.java">
 <error line="42" column="64" severity="info" message="&apos;0x12&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="43" column="64" severity="info" message="&apos;0xab&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="44" column="64" severity="info" message="&apos;0xab&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -769,7 +777,7 @@
 <error line="46" column="64" severity="info" message="&apos;0xac&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="46" column="76" severity="info" message="&apos;0xdc&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/string/SimpleObjectParserTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/string/SimpleObjectParserTest.java">
 <error line="64" column="43" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="65" column="36" severity="info" message="&apos;132&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="72" column="43" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -778,7 +786,7 @@
 <error line="104" column="36" severity="info" message="&apos;132&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="111" column="36" severity="info" message="&apos;132&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/string/StringEncoderTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/string/StringEncoderTest.java">
 <error line="65" column="22" severity="info" message="&apos;0x0008&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="65" column="36" severity="info" message="&apos;0x0009&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="65" column="50" severity="info" message="&apos;0x000a&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
@@ -810,18 +818,18 @@
 <error line="149" column="79" severity="info" message="&apos;13&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="150" column="61" severity="info" message="&apos;35&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/string/VersionComparatorTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/string/VersionComparatorTest.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/string/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/string/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/validation/SelfValidatingTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/validation/SelfValidatingTest.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/validation/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/validation/package-info.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/xml/EmptyTagXMLStreamWriterTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/xml/EmptyTagXMLStreamWriterTest.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/xml/IndentXMLStreamWriterTest.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/xml/IndentXMLStreamWriterTest.java">
 </file>
-<file name="/Users/archie/proj/dellroad-stuff/trunk/src/test/org/dellroad/stuff/xml/package-info.java">
+<file name="/Users/archie/proj/dellroad-stuff/javadoc/src/test/org/dellroad/stuff/xml/package-info.java">
 </file>
 </checkstyle>
