@@ -263,7 +263,7 @@
 <span class="sourceLineNo">255</span>        if (property.getPropertyType() == String.class)<a name="line.255"></a>
 <span class="sourceLineNo">256</span>            value = substring;<a name="line.256"></a>
 <span class="sourceLineNo">257</span>        else {<a name="line.257"></a>
-<span class="sourceLineNo">258</span>            Primitive prim = Primitive.get(property.getPropertyType());<a name="line.258"></a>
+<span class="sourceLineNo">258</span>            Primitive&lt;?&gt; prim = Primitive.get(property.getPropertyType());<a name="line.258"></a>
 <span class="sourceLineNo">259</span>            if (prim == null) {<a name="line.259"></a>
 <span class="sourceLineNo">260</span>                throw new IllegalArgumentException(<a name="line.260"></a>
 <span class="sourceLineNo">261</span>                  "property `" + property.getName() + "' of " + this.targetClass + " is not a primitive or String");<a name="line.261"></a>

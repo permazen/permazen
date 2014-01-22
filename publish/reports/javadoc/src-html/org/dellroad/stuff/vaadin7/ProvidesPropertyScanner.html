@@ -140,7 +140,7 @@
 <span class="sourceLineNo">132</span>            // Get property default value<a name="line.132"></a>
 <span class="sourceLineNo">133</span>            Object defaultValue = null;<a name="line.133"></a>
 <span class="sourceLineNo">134</span>            if (propertyType.isPrimitive()) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>                final Primitive primitiveType = Primitive.get(propertyType);<a name="line.135"></a>
+<span class="sourceLineNo">135</span>                final Primitive&lt;?&gt; primitiveType = Primitive.get(propertyType);<a name="line.135"></a>
 <span class="sourceLineNo">136</span>                defaultValue = primitiveType.getDefaultValue();<a name="line.136"></a>
 <span class="sourceLineNo">137</span>                propertyType = primitiveType.getWrapperType();<a name="line.137"></a>
 <span class="sourceLineNo">138</span>            }<a name="line.138"></a>
