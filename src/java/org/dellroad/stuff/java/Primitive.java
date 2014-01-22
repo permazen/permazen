@@ -27,7 +27,7 @@ public abstract class Primitive<T> {
     /**
      * Void type. String values must equal {@code "null"}.
      */
-    public static final Primitive<Void> VOID = new Primitive<Void>(void.class, Void.class, 'V', "null") {
+    public static final Primitive<Void> VOID = new Primitive<Void>(Void.TYPE, Void.class, 'V', "null") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseVoid();
@@ -47,7 +47,7 @@ public abstract class Primitive<T> {
     /**
      * Boolean type. String values must equal {@code "true"} or {@code "false"}.
      */
-    public static final Primitive<Boolean> BOOLEAN = new Primitive<Boolean>(boolean.class, Boolean.class, 'Z', "true|false") {
+    public static final Primitive<Boolean> BOOLEAN = new Primitive<Boolean>(Boolean.TYPE, Boolean.class, 'Z', "true|false") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseBoolean();
@@ -65,7 +65,7 @@ public abstract class Primitive<T> {
     /**
      * Byte type. String values are parsed using {@link Byte#decode Byte.decode()}.
      */
-    public static final Primitive<Byte> BYTE = new Primitive<Byte>(byte.class, Byte.class, 'B',
+    public static final Primitive<Byte> BYTE = new Primitive<Byte>(Byte.TYPE, Byte.class, 'B',
       "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,2}))|(0+[0-7]{0,3})|([1-9][0-9]{0,2}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
@@ -84,7 +84,7 @@ public abstract class Primitive<T> {
     /**
      * Character type. String values must be exactly one character long.
      */
-    public static final Primitive<Character> CHARACTER = new Primitive<Character>(char.class, Character.class, 'C', "(?s).") {
+    public static final Primitive<Character> CHARACTER = new Primitive<Character>(Character.TYPE, Character.class, 'C', "(?s).") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseCharacter();
@@ -104,7 +104,7 @@ public abstract class Primitive<T> {
     /**
      * Short type. String values are parsed using {@link Short#decode Short.decode()}.
      */
-    public static final Primitive<Short> SHORT = new Primitive<Short>(short.class, Short.class, 'S',
+    public static final Primitive<Short> SHORT = new Primitive<Short>(Short.TYPE, Short.class, 'S',
       "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,4}))|(0+[0-7]{0,6})|([1-9][0-9]{0,4}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
@@ -123,7 +123,7 @@ public abstract class Primitive<T> {
     /**
      * Integer type. String values are parsed using {@link Integer#decode Integer.decode()}.
      */
-    public static final Primitive<Integer> INTEGER = new Primitive<Integer>(int.class, Integer.class, 'I',
+    public static final Primitive<Integer> INTEGER = new Primitive<Integer>(Integer.TYPE, Integer.class, 'I',
       "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,8}))|(0+[0-7]{0,11})|([1-9][0-9]{0,9}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
@@ -142,7 +142,7 @@ public abstract class Primitive<T> {
     /**
      * Float type. String values are parsed using {@link Float#parseFloat Float.parseFloat()}.
      */
-    public static final Primitive<Float> FLOAT = new Primitive<Float>(float.class, Float.class, 'F', DoubleFormat.REGEX) {
+    public static final Primitive<Float> FLOAT = new Primitive<Float>(Float.TYPE, Float.class, 'F', DoubleFormat.REGEX) {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseFloat();
@@ -160,7 +160,7 @@ public abstract class Primitive<T> {
     /**
      * Long type. String values are parsed using {@link Long#decode Long.decode()}.
      */
-    public static final Primitive<Long> LONG = new Primitive<Long>(long.class, Long.class, 'J',
+    public static final Primitive<Long> LONG = new Primitive<Long>(Long.TYPE, Long.class, 'J',
       "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,16}))|(0+[0-7]{0,22})|([1-9][0-9]{0,18}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
@@ -179,7 +179,7 @@ public abstract class Primitive<T> {
     /**
      * Double type. String values are parsed using {@link Double#parseDouble Double.parseDouble()}.
      */
-    public static final Primitive<Double> DOUBLE = new Primitive<Double>(double.class, Double.class, 'D', DoubleFormat.REGEX) {
+    public static final Primitive<Double> DOUBLE = new Primitive<Double>(Double.TYPE, Double.class, 'D', DoubleFormat.REGEX) {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseDouble();
@@ -196,12 +196,12 @@ public abstract class Primitive<T> {
 
     private static HashMap<Class<?>, Primitive<?>> classMap;
 
-    private final Class<?> primType;
+    private final Class<T> primType;
     private final Class<T> wrapType;
     private final char letter;
     private final Pattern parsePattern;
 
-    Primitive(Class<?> primType, Class<T> wrapType, char letter, String parsePattern) {
+    Primitive(Class<T> primType, Class<T> wrapType, char letter, String parsePattern) {
         this.primType = primType;
         this.wrapType = wrapType;
         this.letter = letter;
@@ -244,7 +244,7 @@ public abstract class Primitive<T> {
     /**
      * Get the {@link Class} object representing this primitive type, e.g., {@code Integer.TYPE}.
      */
-    public Class<?> getType() {
+    public Class<T> getType() {
         return this.primType;
     }
 
