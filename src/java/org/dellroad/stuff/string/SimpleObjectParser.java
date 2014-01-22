@@ -255,7 +255,7 @@ public class SimpleObjectParser<T> {
         if (property.getPropertyType() == String.class)
             value = substring;
         else {
-            Primitive prim = Primitive.get(property.getPropertyType());
+            Primitive<?> prim = Primitive.get(property.getPropertyType());
             if (prim == null) {
                 throw new IllegalArgumentException(
                   "property `" + property.getName() + "' of " + this.targetClass + " is not a primitive or String");

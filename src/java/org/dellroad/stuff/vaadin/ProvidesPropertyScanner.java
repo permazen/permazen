@@ -132,7 +132,7 @@ public class ProvidesPropertyScanner<T> {
             // Get property default value
             Object defaultValue = null;
             if (propertyType.isPrimitive()) {
-                final Primitive primitiveType = Primitive.get(propertyType);
+                final Primitive<?> primitiveType = Primitive.get(propertyType);
                 defaultValue = primitiveType.getDefaultValue();
                 propertyType = primitiveType.getWrapperType();
             }

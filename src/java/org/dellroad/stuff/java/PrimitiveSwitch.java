@@ -14,6 +14,8 @@ package org.dellroad.stuff.java;
  */
 public interface PrimitiveSwitch<R> {
 
+    R caseVoid();
+
     R caseBoolean();
 
     R caseByte();

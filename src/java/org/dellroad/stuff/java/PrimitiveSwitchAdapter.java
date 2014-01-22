@@ -16,6 +16,15 @@ package org.dellroad.stuff.java;
 public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
 
     /**
+     * Handle the {@link Primitive#VOID} case.
+     * The implementation in {@link PrimitiveSwitchAdapter} delegates to {@link #caseDefault}.
+     */
+    @Override
+    public R caseVoid() {
+        return caseDefault();
+    }
+
+    /**
      * Handle the {@link Primitive#BOOLEAN} case.
      * The implementation in {@link PrimitiveSwitchAdapter} delegates to {@link #caseDefault}.
      */

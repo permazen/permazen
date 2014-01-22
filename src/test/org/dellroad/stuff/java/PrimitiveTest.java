@@ -9,6 +9,7 @@ package org.dellroad.stuff.java;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -21,10 +22,10 @@ import org.testng.annotations.Test;
 public class PrimitiveTest extends TestSupport {
 
     @Test(dataProvider = "data")
-    public void testPrimitive(Primitive primitive, Iterator<?> i) throws Exception {
+    public <T> void testPrimitive(Primitive<T> primitive, Iterator<T> i) throws Exception {
         while (i.hasNext()) {
-            final Object value = i.next();
-            final String string = value.toString();
+            final T value = i.next();
+            final String string = "" + value;
             Assert.assertTrue(primitive.getParsePattern().matcher(string).matches(),
               primitive + " parse pattern " + primitive.getParsePattern() + " does not match \"" + string + "\"");
             Assert.assertEquals(primitive.parseValue(string), value,
@@ -35,6 +36,7 @@ public class PrimitiveTest extends TestSupport {
     @DataProvider(name = "data")
     public Object[][] getData() {
         final ArrayList<Object[]> list = new ArrayList<Object[]>();
+        list.add(new Object[] { Primitive.VOID, Collections.<Void>singleton(null).iterator() });
         list.add(new Object[] { Primitive.BOOLEAN, Arrays.<Boolean>asList(true, false).iterator() });
         list.add(new Object[] { Primitive.BYTE, new RandomIterator<Byte>(200, Byte.MIN_VALUE, Byte.MAX_VALUE) {
             @Override

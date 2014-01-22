@@ -9,123 +9,215 @@ package org.dellroad.stuff.java;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Simple utility enumeration for working Java {@link Class} instances representing primitive types.
+ * Simple utility enumeration for working Java {@link Class} instances representing primitive types (including {@code void}).
  *
  * <p>
- * Instances of this class represent one of the eight Java primitive types.
+ * Instances of this class represent the eight Java primitive types plus {@code void}.
  * <p/>
+ *
+ * @param <T> Primitive wrapper type
  */
-public enum Primitive {
+public abstract class Primitive<T> {
 
-    BOOLEAN(Boolean.TYPE, Boolean.class, 'Z', "true|false") {
+    /**
+     * Void type. String values must equal {@code "null"}.
+     */
+    public static final Primitive<Void> VOID = new Primitive<Void>(void.class, Void.class, 'V', "null") {
+        @Override
+        public <R> R visit(PrimitiveSwitch<R> pswitch) {
+            return pswitch.caseVoid();
+        }
+        @Override
+        public Void getDefaultValue() {
+            return null;
+        }
+        @Override
+        protected Void doParseValue(String string) {
+            if (!string.equals("null"))
+                throw new IllegalArgumentException("void values must be `null'");
+            return null;
+        }
+    };
+
+    /**
+     * Boolean type. String values must equal {@code "true"} or {@code "false"}.
+     */
+    public static final Primitive<Boolean> BOOLEAN = new Primitive<Boolean>(boolean.class, Boolean.class, 'Z', "true|false") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseBoolean();
         }
         @Override
-        public Object getDefaultValue() {
+        public Boolean getDefaultValue() {
             return false;
         }
-    },
-    BYTE(Byte.TYPE, Byte.class, 'B', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,2}))|(0+[0-7]{0,3})|([1-9][0-9]{0,2}))") {
+        @Override
+        protected Boolean doParseValue(String string) {
+            return Boolean.parseBoolean(string);
+        }
+    };
+
+    /**
+     * Byte type. String values are parsed using {@link Byte#decode Byte.decode()}.
+     */
+    public static final Primitive<Byte> BYTE = new Primitive<Byte>(byte.class, Byte.class, 'B',
+      "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,2}))|(0+[0-7]{0,3})|([1-9][0-9]{0,2}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseByte();
         }
         @Override
-        public Object getDefaultValue() {
+        public Byte getDefaultValue() {
             return (byte)0;
         }
-    },
-    CHARACTER(Character.TYPE, Character.class, 'C', "(?s).") {
+        @Override
+        protected Byte doParseValue(String string) {
+            return Byte.decode(string);
+        }
+    };
+
+    /**
+     * Character type. String values must be exactly one character long.
+     */
+    public static final Primitive<Character> CHARACTER = new Primitive<Character>(char.class, Character.class, 'C', "(?s).") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseCharacter();
         }
         @Override
-        public Object getDefaultValue() {
+        public Character getDefaultValue() {
             return (char)0;
         }
-    },
-    SHORT(Short.TYPE, Short.class, 'S', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,4}))|(0+[0-7]{0,6})|([1-9][0-9]{0,4}))") {
+        @Override
+        protected Character doParseValue(String string) {
+            if (string.length() != 1)
+                throw new IllegalArgumentException("string has length " + string.length() + " != 1");
+            return Character.valueOf(string.charAt(0));
+        }
+    };
+
+    /**
+     * Short type. String values are parsed using {@link Short#decode Short.decode()}.
+     */
+    public static final Primitive<Short> SHORT = new Primitive<Short>(short.class, Short.class, 'S',
+      "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,4}))|(0+[0-7]{0,6})|([1-9][0-9]{0,4}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseShort();
         }
         @Override
-        public Object getDefaultValue() {
+        public Short getDefaultValue() {
             return (short)0;
         }
-    },
-    INTEGER(Integer.TYPE, Integer.class, 'I', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,8}))|(0+[0-7]{0,11})|([1-9][0-9]{0,9}))") {
+        @Override
+        protected Short doParseValue(String string) {
+            return Short.decode(string);
+        }
+    };
 
+    /**
+     * Integer type. String values are parsed using {@link Integer#decode Integer.decode()}.
+     */
+    public static final Primitive<Integer> INTEGER = new Primitive<Integer>(int.class, Integer.class, 'I',
+      "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,8}))|(0+[0-7]{0,11})|([1-9][0-9]{0,9}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseInteger();
         }
         @Override
-        public Object getDefaultValue() {
+        public Integer getDefaultValue() {
             return 0;
         }
-    },
-    FLOAT(Float.TYPE, Float.class, 'F', DoubleFormat.REGEX) {
+        @Override
+        protected Integer doParseValue(String string) {
+            return Integer.decode(string);
+        }
+    };
+
+    /**
+     * Float type. String values are parsed using {@link Float#parseFloat Float.parseFloat()}.
+     */
+    public static final Primitive<Float> FLOAT = new Primitive<Float>(float.class, Float.class, 'F', DoubleFormat.REGEX) {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseFloat();
         }
         @Override
-        public Object getDefaultValue() {
-            return (float)0;
+        public Float getDefaultValue() {
+            return 0.0f;
         }
-    },
-    LONG(Long.TYPE, Long.class, 'J', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,16}))|(0+[0-7]{0,22})|([1-9][0-9]{0,18}))") {
+        @Override
+        protected Float doParseValue(String string) {
+            return Float.parseFloat(string);
+        }
+    };
+
+    /**
+     * Long type. String values are parsed using {@link Long#decode Long.decode()}.
+     */
+    public static final Primitive<Long> LONG = new Primitive<Long>(long.class, Long.class, 'J',
+      "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,16}))|(0+[0-7]{0,22})|([1-9][0-9]{0,18}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseLong();
         }
         @Override
-        public Object getDefaultValue() {
-            return (long)0;
+        public Long getDefaultValue() {
+            return 0L;
         }
-    },
-    DOUBLE(Double.TYPE, Double.class, 'D', DoubleFormat.REGEX) {
+        @Override
+        protected Long doParseValue(String string) {
+            return Long.decode(string);
+        }
+    };
+
+    /**
+     * Double type. String values are parsed using {@link Double#parseDouble Double.parseDouble()}.
+     */
+    public static final Primitive<Double> DOUBLE = new Primitive<Double>(double.class, Double.class, 'D', DoubleFormat.REGEX) {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseDouble();
         }
         @Override
-        public Object getDefaultValue() {
-            return (double)0;
+        public Double getDefaultValue() {
+            return 0.0;
+        }
+        @Override
+        protected Double doParseValue(String string) {
+            return Double.parseDouble(string);
         }
     };
 
-    private static final HashMap<Class<?>, Primitive> CLASS_MAP = new HashMap<Class<?>, Primitive>();
-
-    static {
-        for (Primitive prim : values()) {
-            CLASS_MAP.put(prim.primType, prim);
-            CLASS_MAP.put(prim.wrapType, prim);
-        }
-    }
+    private static HashMap<Class<?>, Primitive<?>> classMap;
 
     private final Class<?> primType;
-    private final Class<?> wrapType;
+    private final Class<T> wrapType;
     private final char letter;
     private final Pattern parsePattern;
 
-    Primitive(Class<?> primType, Class<?> wrapType, char letter, String parsePattern) {
+    Primitive(Class<?> primType, Class<T> wrapType, char letter, String parsePattern) {
         this.primType = primType;
         this.wrapType = wrapType;
         this.letter = letter;
         this.parsePattern = Pattern.compile(parsePattern);
+        if (Primitive.classMap == null)
+            Primitive.classMap = new HashMap<Class<?>, Primitive<?>>();
+        Primitive.classMap.put(primType, this);
+        Primitive.classMap.put(wrapType, this);
     }
 
     public abstract <R> R visit(PrimitiveSwitch<R> pswitch);
 
-    public abstract Object getDefaultValue();
+    /**
+     * Get this primitive's default value.
+     */
+    public abstract T getDefaultValue();
 
     /**
      * Get the short name for this primitive type, e.g., "int".
@@ -136,6 +228,7 @@ public enum Primitive {
 
     /**
      * Get the long name for this primitive type, e.g., "Integer".
+     * Also the simple name of the wrapper type.
      */
     public String getLongName() {
         return this.wrapType.getSimpleName();
@@ -158,7 +251,7 @@ public enum Primitive {
     /**
      * Get the wrapper {@link Class} object for this primitive type, e.g., {@code Integer.class}.
      */
-    public Class<?> getWrapperType() {
+    public Class<T> getWrapperType() {
         return this.wrapType;
     }
 
@@ -191,35 +284,21 @@ public enum Primitive {
      * @throws IllegalArgumentException if {@code string} is null
      * @throws IllegalArgumentException if {@code string} does not match the {@linkplain #getParsePattern parse pattern}
      */
-    public Object parseValue(String string) {
-
-        // Handle null
+    public T parseValue(String string) {
         if (string == null)
             throw new IllegalArgumentException("null string");
+        return this.doParseValue(string);
+    }
 
-        // Parse value
-        switch (this) {
-        case BOOLEAN:
-            return Boolean.parseBoolean(string);
-        case BYTE:
-            return Byte.decode(string);
-        case CHARACTER:
-            if (string.length() != 1)
-                throw new IllegalArgumentException("string has length " + string.length() + " != 1");
-            return Character.valueOf(string.charAt(0));
-        case SHORT:
-            return Short.decode(string);
-        case INTEGER:
-            return Integer.decode(string);
-        case FLOAT:
-            return Float.parseFloat(string);
-        case LONG:
-            return Long.decode(string);
-        case DOUBLE:
-            return Double.parseDouble(string);
-        default:
-            throw new RuntimeException();
-        }
+    abstract T doParseValue(String string);
+
+    /**
+     * Get all instances of this class.
+     *
+     * @return a modifiable set containing all instances; modifications have no effect on this class
+     */
+    public static Set<Primitive<?>> values() {
+        return new HashSet<Primitive<?>>(Primitive.classMap.values());
     }
 
     /**
@@ -228,8 +307,8 @@ public enum Primitive {
      * @return the {@link Primitive} corresponding to {@code c}, or {@code null}
      *         if {@code c} is not a primitive or primitive wrapper type
      */
-    public static Primitive get(Class<?> c) {
-        return CLASS_MAP.get(c);
+    public static Primitive<?> get(Class<?> c) {
+        return Primitive.classMap.get(c);
     }
 
     // This is put into an inner class to avoid initialization ordering problems
