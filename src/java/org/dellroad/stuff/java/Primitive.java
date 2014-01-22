@@ -7,9 +7,9 @@
 
 package org.dellroad.stuff.java;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  * Simple utility enumeration for working Java {@link Class} instances representing primitive types.
@@ -20,7 +20,7 @@ import java.util.HashMap;
  */
 public enum Primitive {
 
-    BOOLEAN(Boolean.TYPE, Boolean.class, 'Z') {
+    BOOLEAN(Boolean.TYPE, Boolean.class, 'Z', "true|false") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseBoolean();
@@ -30,7 +30,7 @@ public enum Primitive {
             return false;
         }
     },
-    BYTE(Byte.TYPE, Byte.class, 'B') {
+    BYTE(Byte.TYPE, Byte.class, 'B', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,2}))|(0+[0-7]{0,3})|([1-9][0-9]{0,2}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseByte();
@@ -40,7 +40,7 @@ public enum Primitive {
             return (byte)0;
         }
     },
-    CHARACTER(Character.TYPE, Character.class, 'C') {
+    CHARACTER(Character.TYPE, Character.class, 'C', ".") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseCharacter();
@@ -50,7 +50,7 @@ public enum Primitive {
             return (char)0;
         }
     },
-    SHORT(Short.TYPE, Short.class, 'S') {
+    SHORT(Short.TYPE, Short.class, 'S', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,4}))|(0+[0-7]{0,6})|([1-9][0-9]{0,4}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseShort();
@@ -60,7 +60,8 @@ public enum Primitive {
             return (short)0;
         }
     },
-    INTEGER(Integer.TYPE, Integer.class, 'I') {
+    INTEGER(Integer.TYPE, Integer.class, 'I', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,8}))|(0+[0-7]{0,11})|([1-9][0-9]{0,9}))") {
+
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseInteger();
@@ -70,7 +71,7 @@ public enum Primitive {
             return 0;
         }
     },
-    FLOAT(Float.TYPE, Float.class, 'F') {
+    FLOAT(Float.TYPE, Float.class, 'F', DoubleFormat.REGEX) {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseFloat();
@@ -80,7 +81,7 @@ public enum Primitive {
             return (float)0;
         }
     },
-    LONG(Long.TYPE, Long.class, 'J') {
+    LONG(Long.TYPE, Long.class, 'J', "(?i)(\\+|-)?(((0x|#)0*([A-F0-9]{1,16}))|(0+[0-7]{0,22})|([1-9][0-9]{0,18}))") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseLong();
@@ -90,7 +91,7 @@ public enum Primitive {
             return (long)0;
         }
     },
-    DOUBLE(Double.TYPE, Double.class, 'D') {
+    DOUBLE(Double.TYPE, Double.class, 'D', DoubleFormat.REGEX) {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseDouble();
@@ -113,11 +114,13 @@ public enum Primitive {
     private final Class<?> primType;
     private final Class<?> wrapType;
     private final char letter;
+    private final Pattern parsePattern;
 
-    Primitive(Class<?> primType, Class<?> wrapType, char letter) {
+    Primitive(Class<?> primType, Class<?> wrapType, char letter, String parsePattern) {
         this.primType = primType;
         this.wrapType = wrapType;
         this.letter = letter;
+        this.parsePattern = Pattern.compile(parsePattern);
     }
 
     public abstract <R> R visit(PrimitiveSwitch<R> pswitch);
@@ -160,6 +163,15 @@ public enum Primitive {
     }
 
     /**
+     * Get a regular expression that matches all allowed inputs to {@link #parseValue parseValue()}.
+     * The returned pattern may also accept some values that {@link #parseValue parseValue()} rejects,
+     * such as {@code 32768} for a {@code short}.
+     */
+    public Pattern getParsePattern() {
+        return this.parsePattern;
+    }
+
+    /**
      * Get the wrapper class' "unwrap" method for this primitive type, e.g., {@code Integer.intValue()}.
      */
     public Method getUnwrapMethod() {
@@ -171,11 +183,13 @@ public enum Primitive {
     }
 
     /**
-     * Parse a string value using the type's {@code valueOf} method.
+     * Parse a string-encoded value of this instance.
+     * This method is guaranteed to accept all possible return values from the primitive's {@link #toString},
+     * and possibly other reasonable inputs (e.g., hex and octal values for integral types).
      *
      * @param string string representation of a value
-     * @throws IllegalArgumentException if {@code string} cannot be parsed
      * @throws IllegalArgumentException if {@code string} is null
+     * @throws IllegalArgumentException if {@code string} does not match the {@linkplain #getParsePattern parse pattern}
      */
     public Object parseValue(String string) {
 
@@ -183,33 +197,28 @@ public enum Primitive {
         if (string == null)
             throw new IllegalArgumentException("null string");
 
-        // Special case: Character doesn't have a valueOf(String) method
-        if (this == CHARACTER) {
+        // Parse value
+        switch (this) {
+        case BOOLEAN:
+            return Boolean.parseBoolean(string);
+        case BYTE:
+            return Byte.decode(string);
+        case CHARACTER:
             if (string.length() != 1)
-                throw new IllegalArgumentException("not a character: \"" + string + "\"");
+                throw new IllegalArgumentException("string has length " + string.length() + " != 1");
             return Character.valueOf(string.charAt(0));
-        }
-
-        // Find this wrapper class' valueOf() method
-        Method method;
-        try {
-            method = this.wrapType.getMethod("valueOf", String.class);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("unexpected exception", e);
-        }
-
-        // Use it to parse the value
-        try {
-            return method.invoke(null, string);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("unexpected exception", e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("unexpected exception", e);
-        } catch (InvocationTargetException e) {
-            Throwable nested = e.getTargetException();
-            if (nested instanceof IllegalArgumentException)
-                throw (IllegalArgumentException)nested;
-            throw new RuntimeException("unexpected exception", nested);
+        case SHORT:
+            return Short.decode(string);
+        case INTEGER:
+            return Integer.decode(string);
+        case FLOAT:
+            return Float.parseFloat(string);
+        case LONG:
+            return Long.decode(string);
+        case DOUBLE:
+            return Double.parseDouble(string);
+        default:
+            throw new RuntimeException();
         }
     }
 
@@ -221,6 +230,51 @@ public enum Primitive {
      */
     public static Primitive get(Class<?> c) {
         return CLASS_MAP.get(c);
+    }
+
+    // This is put into an inner class to avoid initialization ordering problems
+    private static final class DoubleFormat {
+
+        private static final String DIGITS = "(\\p{Digit}+)";
+
+        private static final String HEX_DIGITS = "(\\p{XDigit}+)";
+
+        // an exponent is 'e' or 'E' followed by an optionally
+        // signed decimal integer.
+        private static final String EXPONENT = "[eE][+-]?" + DIGITS;
+
+        private static final String REGEX =
+          "[+-]?("              // Optional sign character
+          + "NaN|"              // "NaN" string
+          + "Infinity|"         // "Infinity" string
+
+          // A decimal floating-point string representing a finite positive
+          // number without a leading sign has at most five basic pieces:
+          // Digits . Digits ExponentPart FloatTypeSuffix
+          //
+          // Since this method allows integer-only strings as input
+          // in addition to strings of floating-point literals, the
+          // two sub-patterns below are simplifications of the grammar
+          // productions from the Java Language Specification, 2nd
+          // edition, section 3.10.2.
+
+          // Digits ._opt Digits_opt ExponentPart_opt FloatTypeSuffix_opt
+          + "(((" + DIGITS + "(\\.)?(" + DIGITS + "?)(" + EXPONENT + ")?)|"
+
+          // . Digits ExponentPart_opt FloatTypeSuffix_opt
+          + "(\\.(" + DIGITS + ")(" + EXPONENT + ")?)|"
+
+          // Hexadecimal strings
+          + "(("
+            // 0[xX] HexDigits ._opt BinaryExponent FloatTypeSuffix_opt
+            + "(0[xX]" + HEX_DIGITS + "(\\.)?)|"
+
+            // 0[xX] HexDigits_opt . HexDigits BinaryExponent FloatTypeSuffix_opt
+            + "(0[xX]" + HEX_DIGITS + "?(\\.)" + HEX_DIGITS + ")"
+             + ")[pP][+-]?" + DIGITS + "))" + "[fFdD]?))";
+
+        private DoubleFormat() {
+        }
     }
 }
 

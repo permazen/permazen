@@ -1,5 +1,7 @@
 Version Next
 
+    - Added method Primitive.parsePattern()
+    - DoubleFormat removed; use Primitive.DOUBLE instead
     - Improve AnnotatedXMLEvent{Reader,Writer} subclass API
       NOTE: the above are backward-incompatible changes
     - Added StreamWriterDelegate and EventWriterDelegate
