@@ -40,7 +40,7 @@ public enum Primitive {
             return (byte)0;
         }
     },
-    CHARACTER(Character.TYPE, Character.class, 'C', ".") {
+    CHARACTER(Character.TYPE, Character.class, 'C', "(?s).") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseCharacter();
