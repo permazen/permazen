@@ -39,7 +39,7 @@ public abstract class Primitive<T> implements Comparator<T> {
         }
         @Override
         public int compare(Void value1, Void value2) {
-            return 0;
+            throw new NullPointerException();
         }
         @Override
         protected Void doParseValue(String string) {
