@@ -1,6 +1,6 @@
 Version Next
 
-    - Added method Primitive.parsePattern() and Primitive.VOID
+    - Added Primitive.parsePattern() Primitive.compare(), and Primitive.VOID
     - Add generic type to Primitive (no longer extend Enum)
     - DoubleFormat removed; use Primitive.DOUBLE instead
     - Improve AnnotatedXMLEvent{Reader,Writer} subclass API

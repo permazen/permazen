@@ -8,6 +8,7 @@
 package org.dellroad.stuff.java;
 
 import java.lang.reflect.Method;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +23,7 @@ import java.util.regex.Pattern;
  *
  * @param <T> Primitive wrapper type
  */
-public abstract class Primitive<T> {
+public abstract class Primitive<T> implements Comparator<T> {
 
     /**
      * Void type. String values must equal {@code "null"}.
@@ -35,6 +36,10 @@ public abstract class Primitive<T> {
         @Override
         public Void getDefaultValue() {
             return null;
+        }
+        @Override
+        public int compare(Void value1, Void value2) {
+            return 0;
         }
         @Override
         protected Void doParseValue(String string) {
@@ -57,6 +62,10 @@ public abstract class Primitive<T> {
             return false;
         }
         @Override
+        public int compare(Boolean value1, Boolean value2) {
+            return Boolean.compare(value1, value2);
+        }
+        @Override
         protected Boolean doParseValue(String string) {
             return Boolean.parseBoolean(string);
         }
@@ -76,6 +85,10 @@ public abstract class Primitive<T> {
             return (byte)0;
         }
         @Override
+        public int compare(Byte value1, Byte value2) {
+            return Byte.compare(value1, value2);
+        }
+        @Override
         protected Byte doParseValue(String string) {
             return Byte.decode(string);
         }
@@ -92,6 +105,10 @@ public abstract class Primitive<T> {
         @Override
         public Character getDefaultValue() {
             return (char)0;
+        }
+        @Override
+        public int compare(Character value1, Character value2) {
+            return Character.compare(value1, value2);
         }
         @Override
         protected Character doParseValue(String string) {
@@ -115,6 +132,10 @@ public abstract class Primitive<T> {
             return (short)0;
         }
         @Override
+        public int compare(Short value1, Short value2) {
+            return Short.compare(value1, value2);
+        }
+        @Override
         protected Short doParseValue(String string) {
             return Short.decode(string);
         }
@@ -134,6 +155,10 @@ public abstract class Primitive<T> {
             return 0;
         }
         @Override
+        public int compare(Integer value1, Integer value2) {
+            return Integer.compare(value1, value2);
+        }
+        @Override
         protected Integer doParseValue(String string) {
             return Integer.decode(string);
         }
@@ -150,6 +175,10 @@ public abstract class Primitive<T> {
         @Override
         public Float getDefaultValue() {
             return 0.0f;
+        }
+        @Override
+        public int compare(Float value1, Float value2) {
+            return Float.compare(value1, value2);
         }
         @Override
         protected Float doParseValue(String string) {
@@ -171,6 +200,10 @@ public abstract class Primitive<T> {
             return 0L;
         }
         @Override
+        public int compare(Long value1, Long value2) {
+            return Long.compare(value1, value2);
+        }
+        @Override
         protected Long doParseValue(String string) {
             return Long.decode(string);
         }
@@ -187,6 +220,10 @@ public abstract class Primitive<T> {
         @Override
         public Double getDefaultValue() {
             return 0.0;
+        }
+        @Override
+        public int compare(Double value1, Double value2) {
+            return Double.compare(value1, value2);
         }
         @Override
         protected Double doParseValue(String string) {
@@ -274,6 +311,14 @@ public abstract class Primitive<T> {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Compare two primitive values.
+     *
+     * @throws NullPointerException if either value is null
+     */
+    @Override
+    public abstract int compare(T value1, T value2);
 
     /**
      * Parse a string-encoded value of this instance.
