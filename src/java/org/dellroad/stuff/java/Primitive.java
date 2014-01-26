@@ -26,16 +26,16 @@ import java.util.regex.Pattern;
 public abstract class Primitive<T> implements Comparator<T> {
 
     /**
-     * Void type. String values must equal {@code "null"}.
+     * Void type. The {@link #getDefaultValue}, {@link #compare}, and {@link #
      */
-    public static final Primitive<Void> VOID = new Primitive<Void>(Void.TYPE, Void.class, 'V', "null") {
+    public static final Primitive<Void> VOID = new Primitive<Void>(Void.TYPE, Void.class, 'V', "") {
         @Override
         public <R> R visit(PrimitiveSwitch<R> pswitch) {
             return pswitch.caseVoid();
         }
         @Override
         public Void getDefaultValue() {
-            return null;
+            throw new UnsupportedOperationException();
         }
         @Override
         public int compare(Void value1, Void value2) {
@@ -43,9 +43,7 @@ public abstract class Primitive<T> implements Comparator<T> {
         }
         @Override
         protected Void doParseValue(String string) {
-            if (!string.equals("null"))
-                throw new IllegalArgumentException("void values must be `null'");
-            return null;
+            throw new IllegalArgumentException();
         }
     };
 
@@ -242,7 +240,7 @@ public abstract class Primitive<T> implements Comparator<T> {
         this.primType = primType;
         this.wrapType = wrapType;
         this.letter = letter;
-        this.parsePattern = Pattern.compile(parsePattern);
+        this.parsePattern = parsePattern != null ? Pattern.compile(parsePattern) : null;
         if (Primitive.classMap == null)
             Primitive.classMap = new HashMap<Class<?>, Primitive<?>>();
         Primitive.classMap.put(primType, this);
@@ -298,6 +296,8 @@ public abstract class Primitive<T> implements Comparator<T> {
      * such as {@code 32768} for a {@code short}.
      */
     public Pattern getParsePattern() {
+        if (this.parsePattern == null)
+            throw new UnsupportedOperationException();
         return this.parsePattern;
     }
 
