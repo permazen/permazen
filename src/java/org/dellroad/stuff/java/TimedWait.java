@@ -25,7 +25,9 @@ public final class TimedWait {
      *
      * <p>
      * This method assumes that {@code obj} will be notified whent the predicate becomes true and that the current thread
-     * is already synchronized on {@code obj}.
+     * is already synchronized on {@code obj}. It also guarantees that upon return, {@code obj} will have remained
+     * continuously locked since the most recent invocation of {@link Predicate#test predicate.test()}, so that any
+     * derived state computed therein will still be valid.
      * </p>
      *
      * <p>
