@@ -712,12 +712,16 @@
                     if [ '@{force}' = 'true' ]; then
                         FORCE_FLAG='--force';
                     fi;
-                    echo 'Installing RPMs on the local machine:';
+                    SUSEVER='@{susever}';
+                    if [ -z &quot;$${SUSEVER}&quot; ]; then
+                        SUSEVER=`sed -rn 's/^VERSION[[:space:]]*=[[:space:]]*(.+)[[:space:]]*$/\1/gp' /etc/SuSE-release`;
+                    fi;
+                    echo &quot;Installing RPMs on the local machine (openSUSE $${SUSEVER}):&quot;;
                     cd dist/RPMS;
                     (
                         set +e;
                         find * -type f -name '@{pattern}' -print | grep -vE '^.*\.suse[0-9.]+\..*$$';
-                        find * -type f -name '@{pattern}' -print | grep -E '^.*\.suse@{susever}\..*$$';
+                        find * -type f -name '@{pattern}' -print | grep -E '^.*\.suse'&quot;$${SUSEVER}&quot;'\..*$$';
                     ) | xargs -rt sudo rpm -Uvh $${FORCE_FLAG};
                 "/>
             </exec>
