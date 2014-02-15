@@ -15,6 +15,20 @@ import java.util.regex.Pattern;
  */
 public final class StringEncoder {
 
+    /**
+     * A regular expression that matches exactly the set of valid {@link #encode encode()}'d strings.
+     */
+    public static final Pattern ENCODE_PATTERN
+      = Pattern.compile("([\\t\\r\\n\\x20-\\x5b\\x5d-\\ud7ff]|[\\ue000-\\ufffd]"
+        + "|\\\\([\\\\bftrn]|u[\\p{XDigit}]{4}))*");
+
+    /**
+     * A regular expression that matches exactly the set of valid {@link #enquote enquote()}'d strings.
+     */
+    public static final Pattern ENQUOTE_PATTERN
+      = Pattern.compile("\"([\\t\\r\\n\\x20\\x21\\x23-\\x5b\\x5d-\\ud7ff]|[\\ue000-\\ufffd]"
+        + "|\\\\([\\\\bftrn\"]|u[\\p{XDigit}]{4}))*\"");
+
     private static final char[] HEXDIGITS = "0123456789abcdef".toCharArray();
 
     private StringEncoder() {
@@ -47,35 +61,35 @@ public final class StringEncoder {
 
             // Handle special escapes
             switch (ch) {
-                case '\\':
-                    buf.append('\\').append('\\');
+            case '\\':
+                buf.append('\\').append('\\');
+                continue;
+            case '\b':
+                buf.append('\\').append('b');
+                continue;
+            case '\f':
+                buf.append('\\').append('f');
+                continue;
+            case '\t':
+                if (escapeTABNLCR) {
+                    buf.append('\\').append('t');
                     continue;
-                case '\b':
-                    buf.append('\\').append('b');
+                }
+                break;
+            case '\n':
+                if (escapeTABNLCR) {
+                    buf.append('\\').append('n');
                     continue;
-                case '\f':
-                    buf.append('\\').append('f');
+                }
+                break;
+            case '\r':
+                if (escapeTABNLCR) {
+                    buf.append('\\').append('r');
                     continue;
-                case '\t':
-                    if (escapeTABNLCR) {
-                        buf.append('\\').append('t');
-                        continue;
-                    }
-                    break;
-                case '\n':
-                    if (escapeTABNLCR) {
-                        buf.append('\\').append('n');
-                        continue;
-                    }
-                    break;
-                case '\r':
-                    if (escapeTABNLCR) {
-                        buf.append('\\').append('r');
-                        continue;
-                    }
-                    break;
-                default:
-                    break;
+                }
+                break;
+            default:
+                break;
             }
 
             // If character is an otherwise valid XML character, pass it through unchanged
@@ -116,6 +130,8 @@ public final class StringEncoder {
 
             // Handle unescaped characters
             if (ch != '\\') {
+                if (!isValidXMLChar(ch))
+                    throw new IllegalArgumentException(String.format("illegal character 0x%04x in encoded string", ch));
                 buf.append(ch);
                 continue;
             }
@@ -127,26 +143,26 @@ public final class StringEncoder {
 
             // Check for special escapes
             switch (ch) {
-                case '\\':
-                    buf.append('\\');
-                    continue;
-                case 'b':
-                    buf.append('\b');
-                    continue;
-                case 't':
-                    buf.append('\t');
-                    continue;
-                case 'n':
-                    buf.append('\n');
-                    continue;
-                case 'f':
-                    buf.append('\f');
-                    continue;
-                case 'r':
-                    buf.append('\r');
-                    continue;
-                default:
-                    break;
+            case '\\':
+                buf.append('\\');
+                continue;
+            case 'b':
+                buf.append('\b');
+                continue;
+            case 't':
+                buf.append('\t');
+                continue;
+            case 'n':
+                buf.append('\n');
+                continue;
+            case 'f':
+                buf.append('\f');
+                continue;
+            case 'r':
+                buf.append('\r');
+                continue;
+            default:
+                break;
             }
 
             // Must be unicode escape
@@ -154,11 +170,11 @@ public final class StringEncoder {
                 throw new IllegalArgumentException("illegal escape sequence '\\" + ch + "' in encoded string");
 
             // Decode hex value
+            if (i + 4 >= limit)
+                throw new IllegalArgumentException("illegal truncated '\\u' escape sequence in encoded string");
             int value = 0;
             for (int j = 0; j < 4; j++) {
-                if (++i >= limit)
-                    throw new IllegalArgumentException("illegal truncated '\\u' escape sequence in encoded string");
-                int nibble = Character.digit(text.charAt(i), 16);
+                int nibble = Character.digit(text.charAt(++i), 16);
                 if (nibble == -1) {
                     throw new IllegalArgumentException(
                       "illegal escape sequence '" + text.substring(i - j - 2, i - j + 4) + "' in encoded string");
@@ -207,10 +223,10 @@ public final class StringEncoder {
      */
     public static String dequote(String quotedString) {
         int len = quotedString.length();
-        if (len == 0 || quotedString.charAt(0) != '"' || quotedString.charAt(len - 1) != '"')
+        if (len < 2 || quotedString.charAt(0) != '"' || quotedString.charAt(len - 1) != '"')
             throw new IllegalArgumentException("invalid quoted string: not surrounded by quote characters");
         quotedString = quotedString.substring(1, len - 1);
-        if (quotedString.matches("^(\"|.*[^\\\\]\").*$"))
+        if (quotedString.matches("(?s)^(\"|.*[^\\\\]\").*$"))
             throw new IllegalArgumentException("invalid quoted string: unescaped nested quote character");
         quotedString = quotedString.replaceAll(Pattern.quote("\\\""), Matcher.quoteReplacement("\""));
         return decode(quotedString);

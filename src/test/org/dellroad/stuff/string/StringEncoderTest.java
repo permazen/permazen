@@ -8,10 +8,9 @@
 package org.dellroad.stuff.string;
 
 import org.dellroad.stuff.TestSupport;
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 public class StringEncoderTest extends TestSupport {
 
@@ -28,15 +27,18 @@ public class StringEncoderTest extends TestSupport {
         // Encode original and compare with expected
         if (original != null) {
             String encoding = StringEncoder.encode(original, tabcrlf);
-            assertEquals(encoding, expectedEncoding);
+            Assert.assertTrue(StringEncoder.ENCODE_PATTERN.matcher(encoding).matches());
+            Assert.assertEquals(encoding, expectedEncoding);
         }
 
         // Decode back and compare with original
         String decoding;
         try {
             decoding = StringEncoder.decode(expectedEncoding);
-            assertEquals(decoding, original);
+            Assert.assertEquals(decoding, original);
+            Assert.assertTrue(StringEncoder.ENCODE_PATTERN.matcher(expectedEncoding).matches());
         } catch (IllegalArgumentException e) {
+            Assert.assertFalse(StringEncoder.ENCODE_PATTERN.matcher(expectedEncoding).matches());
             if (original != null)
                 throw e;
         }
@@ -94,17 +96,67 @@ public class StringEncoderTest extends TestSupport {
         // Encode original and compare with expected
         if (original != null) {
             String enquoted = StringEncoder.enquote(original);
-            assertEquals(enquoted, expectedEnquoting);
+            Assert.assertTrue(StringEncoder.ENQUOTE_PATTERN.matcher(enquoted).matches());
+            Assert.assertEquals(enquoted, expectedEnquoting);
         }
 
         // Decode back and compare with original
         String dequoted;
         try {
             dequoted = StringEncoder.dequote(expectedEnquoting);
-            assertEquals(dequoted, original);
+            Assert.assertTrue(StringEncoder.ENQUOTE_PATTERN.matcher(expectedEnquoting).matches());
+            Assert.assertEquals(dequoted, original);
         } catch (IllegalArgumentException e) {
+            Assert.assertFalse(StringEncoder.ENQUOTE_PATTERN.matcher(expectedEnquoting).matches());
             if (original != null)
                 throw e;
+        }
+    }
+
+    @Test
+    public void testRandom() {
+        for (int i = 0; i < 10000; i++) {
+            final int len = this.random.nextInt(50) + 1;
+            final char[] array = new char[len];
+            for (int j = 0; j < len; j++)
+                array[j] = (char)(this.random.nextInt(0x100) << 16 | this.random.nextInt(0x100));
+            final String s1 = new String(array);
+
+            // Check encoding
+            final String encoded = StringEncoder.encode(s1, this.random.nextBoolean());
+            Assert.assertTrue(StringEncoder.ENCODE_PATTERN.matcher(encoded).matches(),
+              "encoding doesn't match pattern: " + encoded);
+            final String s2 = StringEncoder.decode(encoded);
+            Assert.assertEquals(s2, s1, "failed with encoding " + encoded);
+            final int modpos1 = this.random.nextInt(encoded.length());
+            final String encoded2 = encoded.substring(0, modpos1)
+              + String.valueOf((char)this.random.nextInt(0x80)) + encoded.substring(modpos1 + 1);
+            try {
+                StringEncoder.decode(encoded2);
+                Assert.assertTrue(StringEncoder.ENCODE_PATTERN.matcher(encoded2).matches(),
+                  "encoding doesn't match pattern: " + encoded2);
+            } catch (IllegalArgumentException e) {
+                Assert.assertFalse(StringEncoder.ENCODE_PATTERN.matcher(encoded2).matches(),
+                  "encoding matches pattern: " + encoded2);
+            }
+
+            // Check enquoting
+            final String enquoted = StringEncoder.enquote(s1);
+            Assert.assertTrue(StringEncoder.ENQUOTE_PATTERN.matcher(enquoted).matches(),
+              "enquoting doesn't match pattern: " + enquoted);
+            final String s3 = StringEncoder.dequote(enquoted);
+            Assert.assertEquals(s3, s1, "failed with enquoting " + enquoted);
+            final int modpos2 = this.random.nextInt(enquoted.length());
+            final String enquoted2 = enquoted.substring(0, modpos2)
+              + String.valueOf((char)this.random.nextInt(0x80)) + enquoted.substring(modpos2 + 1);
+            try {
+                StringEncoder.dequote(enquoted2);
+                Assert.assertTrue(StringEncoder.ENQUOTE_PATTERN.matcher(enquoted2).matches(),
+                  "enquoting doesn't match pattern: " + enquoted2);
+            } catch (IllegalArgumentException e) {
+                Assert.assertFalse(StringEncoder.ENQUOTE_PATTERN.matcher(enquoted2).matches(),
+                  "enquoting matches pattern: " + enquoted2);
+            }
         }
     }
 
@@ -132,7 +184,7 @@ public class StringEncoderTest extends TestSupport {
         // Get length
         try {
             int enquotedLength = StringEncoder.enquotedLength(quoted);
-            assertEquals(enquotedLength, expectedLength);
+            Assert.assertEquals(enquotedLength, expectedLength);
         } catch (IllegalArgumentException e) {
             if (expectedLength != -1)
                 throw e;
