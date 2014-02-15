@@ -294,6 +294,7 @@
         <copy todir="build/test/META-INF">
             <fileset dir="src/java/org/dellroad/stuff/spring" includes="spring.*"/>
         </copy>
+        <copy file="src/xml/log4j-build.xml" tofile="build/test/log4j.xml"/>
         <dellroad:unit-tests/>
         <property name="tests.completed" value="true"/>
     </target>
