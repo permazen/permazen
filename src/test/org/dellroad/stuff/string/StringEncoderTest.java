@@ -119,7 +119,7 @@ public class StringEncoderTest extends TestSupport {
             final int len = this.random.nextInt(50) + 1;
             final char[] array = new char[len];
             for (int j = 0; j < len; j++)
-                array[j] = (char)(this.random.nextInt(0x100) << 16 | this.random.nextInt(0x100));
+                array[j] = (char)((this.random.nextInt(0x100) << 16) | this.random.nextInt(0x100));
             final String s1 = new String(array);
 
             // Check encoding
