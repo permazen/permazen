@@ -400,5 +400,10 @@ public abstract class Primitive<T> implements Comparator<T> {
         private DoubleFormat() {
         }
     }
+
+    @Override
+    public String toString() {
+        return this.wrapType.getSimpleName().toUpperCase();
+    }
 }
 
