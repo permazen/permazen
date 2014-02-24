@@ -1087,7 +1087,7 @@
 
     <!-- Find Cobertura -->
     <target name="cobertura.classpath" unless="cobertura.classpath.resolved">
-        <dellroad:ivymodpath pathid="cobertura.classpath" rev="[1.9.4,2.0[" org="net.sourceforge.cobertura" mod="cobertura"/>
+        <dellroad:ivymodpath pathid="cobertura.classpath" rev="2+" org="net.sourceforge.cobertura" mod="cobertura"/>
         <property name="cobertura.classpath.resolved" value="true"/>
     </target>
 
