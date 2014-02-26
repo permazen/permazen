@@ -761,6 +761,9 @@
                     <include name="**/*.class"/>
                     <excludes/>
                 </fileset>
+                <auxClasspath>
+                    <path refid="javac.classpath"/>
+                </auxClasspath>
             </cobertura:cobertura-instrument>
 
             <!-- Run tests -->
