@@ -679,7 +679,7 @@
                     cd dist/RPMS;
                     (
                         set +e;
-                        find * -type f -name '@{pattern}' -print | grep -vE '^.*\.${_rpmdist.osname.@{osname}}[0-9.]+\..*$$';
+                        find * -type f -name '@{pattern}' -print | grep -vE '^.*\.${_rpmdist.osname.@{osname}}[0-9][0-9.]*\..*$$';
                         find * -type f -name '@{pattern}' -print | grep -E '^.*\.${_rpmdist.osver.@{osname}@{osrel}}\..*$$';
                     ) | (
                         if [ -z '@{repohost}' -o '@{repohost}' = `hostname` ]; then
@@ -737,7 +737,8 @@
 
     <!-- RPM install (to local machine) -->
     <macrodef uri="urn:org.dellroad.ant" name="rpminstall">
-        <attribute name="osver" default="" description="Repository O/S version (default current)"/>
+        <attribute name="osname" default="" description="Repository O/S name (default current)"/>
+        <attribute name="osrel" default="" description="Repository O/S release (default current)"/>
         <attribute name="susever" default="" description="Repository openSuSE version (OBSOLETE - do not use)"/>
         <attribute name="force" default="false" description="Whether to force installation (rpm --force)"/>
         <attribute name="pattern" default="*.rpm" description="Filename glob pattern"/>
@@ -759,22 +760,25 @@
                         FORCE_FLAG='--force';
                     fi;
                     . /etc/os-release;
-                    if [ -n '@{osver}' ]; then
-                        OSVER='@{osver}';
+                    if [ -n '@{osname}' ]; then
+                        OSNAME='@{osname}';
                     else
-                        OSVER=&quot;$${ID}$${VERSION_ID}&quot;;
+                        OSNAME=&quot;$${ID}&quot;;
                     fi;
-                    OSNAME=`echo &quot;$${OSVER}&quot; | sed 's/[0-9].*$//'`
-                    OSREL=`echo &quot;$${OSVER}&quot; | sed 's/^[^0-9]+//'`
-                    if [ &quot;$${ID}&quot; != &quot;$${OSNAME}&quot; ]; then
-                        echo &quot;Not installing $${OSNAME}} RPMs on the $${ID}} local machine&quot;;
+                    if [ -n '@{osrel}' ]; then
+                        OSREL='@{osrel}';
+                    else
+                        OSREL=&quot;$${VERSION_ID}&quot;;
+                    fi;
+                    if [ &quot;$${ID}&quot; != &quot;$${OSNAME}&quot; -o &quot;$${VERSION_ID}&quot; != &quot;$${OSREL}&quot; ]; then
+                        echo &quot;Warning: not installing $${OSNAME}$${OSREL} RPMs on the $${ID}$${VERSION_ID} local machine&quot;;
                     else
                         echo &quot;Installing RPMs on the local machine ($${OSVER}):&quot;;
                         cd dist/RPMS;
                         (
                             set +e;
-                            find * -type f -name '@{pattern}' -print | grep -vE '^.*\.'&quot;$${OSNAME}&quot;'[0-9.]+\..*$$';
-                            find * -type f -name '@{pattern}' -print | grep -E '^.*\.'&quot;$${OSVER}&quot;'\..*$$';
+                            find * -type f -name '@{pattern}' -print | grep -vE '^.*\.'&quot;$${OSNAME}&quot;'[0-9][0-9.]*\..*$$';
+                            find * -type f -name '@{pattern}' -print | grep -E '^.*\.'&quot;$${OSNAME}$${OSREL}&quot;'\..*$$';
                         ) | xargs -rt sudo rpm -Uvh $${FORCE_FLAG};
                     fi;
                 "/>
