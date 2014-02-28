@@ -263,32 +263,44 @@
         </sequential>
     </macrodef>
 
-    <!-- SuSE version -->
-    <macrodef uri="urn:org.dellroad.ant" name="suseversion">
+    <!-- OS name and release -->
+    <macrodef uri="urn:org.dellroad.ant" name="osname">
         <attribute name="property" description="Name of property to set"/>
         <sequential>
             <exec outputproperty="@{property}" executable="/bin/bash" logError="true" failonerror="true">
                 <arg value="-c"/>
-                <arg value="SREL=`head -1 /etc/SuSE-release`;
-                case &quot;$${SREL}&quot; in
-                    SUSE\ LINUX\ Enterprise\ Server\ 9\ \(*)
-                        echo -n sles9;
-                        ;;
-                    SUSE\ LINUX\ 10\.0\ \(*)
-                        echo -n suse10.0;
-                        ;;
-                    SUSE\ LINUX\ 10\.1\ \(*)
-                        echo -n suse10.1;
-                        ;;
-                    openSUSE\ [0-9][0-9]\.[0-9]\ \(*)
-                        LABEL=`echo &quot;$${SREL}&quot; | sed ${sed.extended.flag} 's|^openSUSE ([0-9]+\.[0-9]+) \(.*$$|\1|g'`;
-                        echo -n &quot;$${LABEL}&quot;;
-                        ;;
-                    *)
-                        echo -n unknown;
-                        ;;
-                esac"/>
+                <arg value="
+                    if ! [ -r /etc/os-release ]; then
+                        echo 'Error: /etc/os-release is not readable; setting $${@{property}} to unknown' 1&gt;&amp;2;
+                        echo 'unknown';
+                    fi;
+                    . /etc/os-release;
+                    echo &quot;$${ID}&quot;;
+                "/>
             </exec>
+        </sequential>
+    </macrodef>
+    <macrodef uri="urn:org.dellroad.ant" name="osrelease">
+        <attribute name="property" description="Name of property to set"/>
+        <sequential>
+            <exec outputproperty="@{property}" executable="/bin/bash" logError="true" failonerror="true">
+                <arg value="-c"/>
+                <arg value="
+                    if ! [ -r /etc/os-release ]; then
+                        echo 'Error: /etc/os-release is not readable; setting $${@{property}} to 0.0' 1&gt;&amp;2;
+                        echo '0.0';
+                    fi;
+                    . /etc/os-release;
+                    echo &quot;$${VERSION_ID}&quot;;
+                "/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- SuSE version (OBSOLETE - do not use) -->
+    <macrodef uri="urn:org.dellroad.ant" name="suseversion">
+        <sequential>
+            <fail message="&lt;dellroad:suseversion&gt; has been replaced by &lt;dellroad:osname&gt; and &lt;dellroad:osrelease&gt;"/>
         </sequential>
     </macrodef>
 
@@ -580,7 +592,9 @@
     <macrodef uri="urn:org.dellroad.ant" name="rpmdist">
         <attribute name="repohost" default="" description="Hostname of server where repository lives"/>
         <attribute name="repodir" default="/opt/repo/devel" description="Base RPM repository directory"/>
-        <attribute name="susever" default="" description="Repository openSuSE version (default current)"/>
+        <attribute name="osname" default="" description="Repository O/S name (default current)"/>
+        <attribute name="osrel" default="" description="Repository O/S release (default current)"/>
+        <attribute name="susever" default="" description="Repository openSuSE version (OBSOLETE - do not use)"/>
         <attribute name="purge" default="false" description="Whether to remove all other revisions from repository"/>
         <attribute name="pattern" default="*.rpm" description="Filename glob pattern"/>
         <sequential>
@@ -588,22 +602,45 @@
             <!-- Refuse to publish uncommitted code -->
             <dellroad:verifyclean/>
 
-            <!-- Get SuSE version -->
-            <antcontrib:if>
-                <equals arg1="@{susever}" arg2=""/>
-                <antcontrib:then>
-                    <dellroad:suseversion property="_rpmdist.@{susever}"/>
-                </antcontrib:then>
-                <antcontrib:else>
-                    <property name="_rpmdist.@{susever}" value="@{susever}"/>
-                </antcontrib:else>
-            </antcontrib:if>
+            <!-- Check for obsolete usage -->
+            <fail message="ERROR: susever attribute has been replaced by by osname and osrel">
+                <condition>
+                    <length string="@{susever}" when="greater" length="0"/>
+                </condition>
+            </fail>
+
+            <!-- Get repository O/S name and version -->
+            <exec outputproperty="_rpmdist.osname.@{osname}" executable="/bin/sh" logError="true" failonerror="true">
+                <arg value="-c"/>
+                <arg value="
+                    if [ -n '@{osname}' ]; then
+                        echo '@{osname}';
+                    else
+                        . /etc/os-release;
+                        echo &quot;$${ID}&quot;;
+                    fi;
+                "/>
+            </exec>
+            <exec outputproperty="_rpmdist.osrel.@{osrel}" executable="/bin/sh" logError="true" failonerror="true">
+                <arg value="-c"/>
+                <arg value="
+                    if [ -n '@{osrel}' ]; then
+                        echo '@{osrel}';
+                    else
+                        . /etc/os-release;
+                        echo &quot;$${VERSION_ID}&quot;;
+                    fi;
+                "/>
+            </exec>
+
+            <!-- Combine O/S name and release -->
+            <property name="_rpmdist.osver.@{osname}@{osrel}" value="${_rpmdist.osname.@{osname}}${_rpmdist.osrel.@{osrel}}"/>
 
             <!-- Optionally remove older versions -->
             <antcontrib:if>
                 <equals arg1="@{purge}" arg2="true"/>
                 <antcontrib:then>
-                    <echo message="Note: removing old RPM(s) in @{repodir}/${_rpmdist.@{susever}}:"/>
+                    <echo message="Note: removing old RPM(s) in @{repodir}/${_rpmdist.osver.@{osname}@{osrel}}:"/>
                     <exec executable="/bin/bash" logError="true" failonerror="true">
                         <arg value="-c"/>
                         <arg value="
@@ -613,14 +650,14 @@
                                 NAME=`rpm -qp --queryformat='%{name}\n' &quot;$${FILE}&quot;`;
                                 (
                                     if [ -z '@{repohost}' -o '@{repohost}' = `hostname` ]; then
-                                        find '@{repodir}/${_rpmdist.@{susever}}'
+                                        find '@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}'
                                             -type f -name &quot;$${NAME}-*.rpm&quot; -print0
                                           | xargs -n 1 -0 -I@ sh -c
                                             'test `rpm -qp --queryformat=&quot;%{name}&quot; &quot;@&quot;`
                                               = &quot;'&quot;$${NAME}&quot;'&quot; &amp;&amp; echo &quot;@&quot;'
                                           | xargs -n 1 -r -I@ sh -c 'echo @; rm @';
                                     else
-                                        ssh '@{repohost}' find \''@{repodir}/${_rpmdist.@{susever}}'\'
+                                        ssh '@{repohost}' find \''@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}'\'
                                             -type f -name \&quot;&quot;$${NAME}-*.rpm&quot;\&quot; -print0
                                           \| xargs -n 1 -0 -I@ sh -c
                                             \''test `rpm -qp --queryformat=&quot;%{name}&quot; &quot;@&quot;`
@@ -642,20 +679,20 @@
                     cd dist/RPMS;
                     (
                         set +e;
-                        find * -type f -name '@{pattern}' -print | grep -vE '^.*\.suse[0-9.]+\..*$$';
-                        find * -type f -name '@{pattern}' -print | grep -E '^.*\.suse@{susever}\..*$$';
+                        find * -type f -name '@{pattern}' -print | grep -vE '^.*\.${_rpmdist.osname.@{osname}}[0-9.]+\..*$$';
+                        find * -type f -name '@{pattern}' -print | grep -E '^.*\.${_rpmdist.osver.@{osname}@{osrel}}\..*$$';
                     ) | (
                         if [ -z '@{repohost}' -o '@{repohost}' = `hostname` ]; then
-                            echo 'Publishing RPMs to @{repodir}/${_rpmdist.@{susever}}:';
+                            echo 'Publishing RPMs to @{repodir}/${_rpmdist.osver.@{osname}@{osrel}}:';
                             umask 002;
-                            cpio --quiet -pmudvl '@{repodir}/${_rpmdist.@{susever}}' 2&gt;&amp;1
+                            cpio --quiet -pmudvl '@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}' 2&gt;&amp;1
                               | grep -vE '^cpio: .* linked to'
-                              | sed ${sed.extended.flag} 's|@{repodir}/${_rpmdist.@{susever}}/[^/]+/|    |g'
+                              | sed ${sed.extended.flag} 's|@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}/[^/]+/|    |g'
                               | sort;
                         else
-                            echo 'Publishing RPMs to @{repodir}/${_rpmdist.@{susever}} on @{repohost}:';
+                            echo 'Publishing RPMs to @{repodir}/${_rpmdist.osver.@{osname}@{osrel}} on @{repohost}:';
                             cpio -o -H crc --quiet
-                              | ( ssh '@{repohost}' cd \''@{repodir}/${_rpmdist.@{susever}}'\'
+                              | ( ssh '@{repohost}' cd \''@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}'\'
                                 \&amp;\&amp; umask 002 \&amp;\&amp; cpio --quiet -imudv '2&gt;&amp;1' )
                               | sed ${sed.extended.flag} 's|^[^/]+/|    |g'
                               | sort;
@@ -672,13 +709,13 @@
                     if [ -z '@{repohost}' -o '@{repohost}' = `hostname` ]; then
                         echo 'Regenerating repository meta-data...';
                         umask 002;
-                        createrepo -q -c '@{repodir}/${_rpmdist.@{susever}}/cache'
-                          --update '@{repodir}/${_rpmdist.@{susever}}';
+                        createrepo -q -c '@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}/cache'
+                          --update '@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}';
                     else
                         echo 'Regenerating repository meta-data on @{repohost}...';
                         ssh '@{repohost}' umask 002
-                          \&amp;\&amp; createrepo -q -c \''@{repodir}/${_rpmdist.@{susever}}/cache'\'
-                          --update \''@{repodir}/${_rpmdist.@{susever}}'\';
+                          \&amp;\&amp; createrepo -q -c \''@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}/cache'\'
+                          --update \''@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}'\';
                     fi;
                 "/>
             </exec>
@@ -689,9 +726,9 @@
                 <arg value="
                     set -e;
                     if [ -z '@{repohost}' -o '@{repohost}' = `hostname` ]; then
-                        chmod g+w '@{repodir}/${_rpmdist.@{susever}}/repodata';
+                        chmod g+w '@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}/repodata';
                     else
-                        ssh '@{repohost}' chmod g+w \''@{repodir}/${_rpmdist.@{susever}}/repodata'\';
+                        ssh '@{repohost}' chmod g+w \''@{repodir}/${_rpmdist.osver.@{osname}@{osrel}}/repodata'\';
                     fi;
                 "/>
             </exec>
@@ -700,10 +737,19 @@
 
     <!-- RPM install (to local machine) -->
     <macrodef uri="urn:org.dellroad.ant" name="rpminstall">
-        <attribute name="susever" default="" description="Repository openSuSE version (default current)"/>
+        <attribute name="osver" default="" description="Repository O/S version (default current)"/>
+        <attribute name="susever" default="" description="Repository openSuSE version (OBSOLETE - do not use)"/>
         <attribute name="force" default="false" description="Whether to force installation (rpm --force)"/>
         <attribute name="pattern" default="*.rpm" description="Filename glob pattern"/>
         <sequential>
+
+            <!-- Check for obsolete usage -->
+            <fail message="ERROR: susever attribute has been replaced by by osname and osrel">
+                <condition>
+                    <length string="@{susever}" when="greater" length="0"/>
+                </condition>
+            </fail>
+
             <exec executable="/bin/bash" logError="true" failonerror="true">
                 <arg value="-c"/>
                 <arg value="
@@ -712,17 +758,25 @@
                     if [ '@{force}' = 'true' ]; then
                         FORCE_FLAG='--force';
                     fi;
-                    SUSEVER='@{susever}';
-                    if [ -z &quot;$${SUSEVER}&quot; ]; then
-                        SUSEVER=`sed -rn 's/^VERSION[[:space:]]*=[[:space:]]*(.+)[[:space:]]*$/\1/gp' /etc/SuSE-release`;
+                    . /etc/os-release;
+                    if [ -n '@{osver}' ]; then
+                        OSVER='@{osver}';
+                    else
+                        OSVER=&quot;$${ID}$${VERSION_ID}&quot;;
                     fi;
-                    echo &quot;Installing RPMs on the local machine (openSUSE $${SUSEVER}):&quot;;
-                    cd dist/RPMS;
-                    (
-                        set +e;
-                        find * -type f -name '@{pattern}' -print | grep -vE '^.*\.suse[0-9.]+\..*$$';
-                        find * -type f -name '@{pattern}' -print | grep -E '^.*\.suse'&quot;$${SUSEVER}&quot;'\..*$$';
-                    ) | xargs -rt sudo rpm -Uvh $${FORCE_FLAG};
+                    OSNAME=`echo &quot;$${OSVER}&quot; | sed 's/[0-9].*$//'`
+                    OSREL=`echo &quot;$${OSVER}&quot; | sed 's/^[^0-9]+//'`
+                    if [ &quot;$${ID}&quot; != &quot;$${OSNAME}&quot; ]; then
+                        echo &quot;Not installing $${OSNAME}} RPMs on the $${ID}} local machine&quot;;
+                    else
+                        echo &quot;Installing RPMs on the local machine ($${OSVER}):&quot;;
+                        cd dist/RPMS;
+                        (
+                            set +e;
+                            find * -type f -name '@{pattern}' -print | grep -vE '^.*\.'&quot;$${OSNAME}&quot;'[0-9.]+\..*$$';
+                            find * -type f -name '@{pattern}' -print | grep -E '^.*\.'&quot;$${OSVER}&quot;'\..*$$';
+                        ) | xargs -rt sudo rpm -Uvh $${FORCE_FLAG};
+                    fi;
                 "/>
             </exec>
         </sequential>
@@ -761,9 +815,6 @@
                     <include name="**/*.class"/>
                     <excludes/>
                 </fileset>
-                <auxClasspath>
-                    <path refid="javac.classpath"/>
-                </auxClasspath>
             </cobertura:cobertura-instrument>
 
             <!-- Run tests -->
@@ -1187,7 +1238,6 @@
 
     <target name="reports" depends="reports-project" unless="reports.completed">
         <dellroad:svnrevision property="svn_revision"/>
-        <dellroad:suseversion property="suse_version"/>
         <tstamp>
             <format property="current.time" pattern="EEEE dd MMM yyyy HH:mm:ss"/>
         </tstamp>
@@ -1196,7 +1246,6 @@
             <param name="basedir" expression="${basedir}"/>
             <param name="ant.project.name" expression="${ant.project.name}"/>
             <param name="svn.revision" expression="${svn_revision}"/>
-            <param name="suse.version" expression="${suse_version}"/>
             <param name="version" expression="${version}"/>
             <param name="timestamp" expression="${current.time}"/>
         </xslt>
