@@ -773,7 +773,7 @@
                     if [ &quot;$${ID}&quot; != &quot;$${OSNAME}&quot; -o &quot;$${VERSION_ID}&quot; != &quot;$${OSREL}&quot; ]; then
                         echo &quot;Warning: not installing $${OSNAME}$${OSREL} RPMs on the $${ID}$${VERSION_ID} local machine&quot;;
                     else
-                        echo &quot;Installing RPMs on the local machine ($${OSVER}):&quot;;
+                        echo &quot;Installing RPMs on the local machine ($${OSNAME}$${OSREL}):&quot;;
                         cd dist/RPMS;
                         (
                             set +e;
