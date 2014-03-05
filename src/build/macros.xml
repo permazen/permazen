@@ -21,7 +21,7 @@
 
     <!-- Project should override these as necessary -->
     <property name="javac.compiler.flags" value="-Xlint:all"/>
-    <property name="java.source.version" value="1.6"/>
+    <property name="java.source.version" value="1.7"/>
 
 <!--
         ************* DETERMINE BASE DIRECTORY ****************
@@ -1151,7 +1151,7 @@
 
     <!-- Find Checkstyle -->
     <target name="checkstyle.classpath" unless="checkstyle.classpath.resolved">
-        <dellroad:ivymodpath pathid="checkstyle.classpath" rev="5.4" org="com.puppycrawl" mod="checkstyle"/>
+        <dellroad:ivymodpath pathid="checkstyle.classpath" rev="5.7" org="com.puppycrawl" mod="checkstyle"/>
         <property name="checkstyle.classpath.resolved" value="true"/>
     </target>
 
