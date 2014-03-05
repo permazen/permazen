@@ -818,10 +818,10 @@
                 <fileset dir="${basedir}/build/classes">
                     <include name="**/*.class"/>
                     <excludes/>
-                    <auxClasspath>
-                        <addclasspath/>
-                    </auxClasspath>
                 </fileset>
+                <auxClasspath>
+                    <addclasspath/>
+                </auxClasspath>
             </cobertura:cobertura-instrument>
 
             <!-- Run tests -->
