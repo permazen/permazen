@@ -155,7 +155,7 @@ public class ProvidesPropertyScanner<T> {
                 if (!(propertyDef instanceof AnnotationPropertyDef))
                     throw new RuntimeException("unknown property " + propertyDef);
                 final AnnotationPropertyDef<V> annotationPropertyDef = (AnnotationPropertyDef<V>)propertyDef;
-                return propertyDef.getType().cast(annotationPropertyDef.getMethodInfo().readValue(obj));
+                return propertyDef.getType().cast(annotationPropertyDef.getMethodInfo().invoke(obj));
             }
 
             @Override
@@ -278,7 +278,7 @@ public class ProvidesPropertyScanner<T> {
                     @SuppressWarnings("unchecked")
                     public int compare(T obj1, T obj2) {
                         if (this.comparator == null)
-                            this.comparator = (Comparator<T>)AnnotationPropertyDef.this.sortMethodInfo.readValue(obj1);
+                            this.comparator = (Comparator<T>)AnnotationPropertyDef.this.sortMethodInfo.invoke(obj1);
                         return this.comparator.compare(obj1, obj2);
                     }
                 };
@@ -290,8 +290,8 @@ public class ProvidesPropertyScanner<T> {
                 @Override
                 @SuppressWarnings("unchecked")
                 public int compare(T obj1, T obj2) {
-                    final Comparable<Object> value1 = (Comparable<Object>)AnnotationPropertyDef.this.sortMethodInfo.readValue(obj1);
-                    final Comparable<Object> value2 = (Comparable<Object>)AnnotationPropertyDef.this.sortMethodInfo.readValue(obj2);
+                    final Comparable<Object> value1 = (Comparable<Object>)AnnotationPropertyDef.this.sortMethodInfo.invoke(obj1);
+                    final Comparable<Object> value2 = (Comparable<Object>)AnnotationPropertyDef.this.sortMethodInfo.invoke(obj2);
                     if (value1 == null && value2 != null)
                         return -1;
                     if (value1 != null && value2 == null)

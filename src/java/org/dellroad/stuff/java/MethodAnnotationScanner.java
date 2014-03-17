@@ -11,15 +11,17 @@ import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
  * Scans for annotated methods in a class hierarchy.
  * Both superclasses and superinterfaces are introspected, and overrides are automatically detected.
- * Only methods taking zero parameters and returning non-void are detected.
  *
  * @param <T> Java class to be introspected
  * @param <A> Java annotation type
@@ -58,23 +60,39 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
         final ArrayList<MethodInfo> list = new ArrayList<MethodInfo>();
         this.findMethodInfos(this.type, list);
 
-        // Sort them
-        Collections.sort(list);
-
         // Remove overridden methods
-        final LinkedHashMap<String, MethodInfo> map = new LinkedHashMap<String, MethodInfo>();
+        final LinkedHashMap<String, HashSet<MethodInfo>> map = new LinkedHashMap<String, HashSet<MethodInfo>>();
+    infoLoop:
         for (MethodInfo methodInfo : list) {
-            if (map.containsKey(methodInfo.getMethod().getName()))
+            final String name = methodInfo.getMethod().getName();
+            HashSet<MethodInfo> set = map.get(name);
+            if (set == null) {
+                set = new HashSet<MethodInfo>();
+                map.put(name, set);
+                set.add(methodInfo);
                 continue;
-            map.put(methodInfo.getMethod().getName(), methodInfo);
+            }
+            for (Iterator<MethodInfo> i = set.iterator(); i.hasNext(); ) {
+                final MethodInfo otherInfo = i.next();
+                if (MethodAnnotationScanner.overrides(methodInfo.getMethod(), otherInfo.getMethod())) {
+                    i.remove();
+                    continue;
+                }
+                if (MethodAnnotationScanner.overrides(otherInfo.getMethod(), methodInfo.getMethod()))
+                    continue infoLoop;
+            }
+            set.add(methodInfo);
         }
 
         // Return result
-        return new ArrayList<MethodInfo>(map.values());
+        final ArrayList<MethodInfo> result = new ArrayList<MethodInfo>();
+        for (HashSet<MethodInfo> set : map.values())
+            result.addAll(set);
+        return result;
     }
 
     /**
-     * Scan the given type and all its supertypes for annotated methods and add them to the list
+     * Scan the given type and all its supertypes for annotated methods and add them to the list.
      *
      * @param klass type to scan, possibly null
      * @param list list to append to
@@ -87,14 +105,12 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
 
         // Search methods
         for (Method method : klass.getDeclaredMethods()) {
-            if (method.getReturnType() == void.class || method.getParameterTypes().length > 0)
-                continue;
             final A annotation = method.getAnnotation(this.annotationType);
-            if (annotation != null) {
-                final MethodInfo methodInfo = this.createMethodInfo(method, annotation);
-                if (methodInfo != null)
-                    list.add(methodInfo);
-            }
+            if (annotation == null || !this.includeMethod(method, annotation))
+                continue;
+            final MethodInfo methodInfo = this.createMethodInfo(method, annotation);
+            if (methodInfo != null)
+                list.add(methodInfo);
         }
 
         // Recurse on interfaces
@@ -103,6 +119,58 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
 
         // Recurse on superclass
         this.findMethodInfos(klass.getSuperclass(), list);
+    }
+
+    /**
+     * Determine whether the annotated method should be included.
+     *
+     * <p>
+     * The implementation in {@link MethodAnnotationScanner} returns true if {@code method} takes zero parameters
+     * and returns anything other than void, otherwise false.
+     * </p>
+     *
+     * <p>
+     * Subclasses may apply different tests and optionally throw an exception if a method is improperly annotated.
+     * </p>
+     *
+     * @param method method to check
+     * @param annotation method's annotation
+     * @throws RuntimeException if method is erroneously annotated
+     * @return true to include method, false to ignore it
+     */
+    protected boolean includeMethod(Method method, A annotation) {
+        return method.getReturnType() != void.class && method.getParameterTypes().length == 0;
+    }
+
+    /**
+     * Determine if a method overrides another.
+     *
+     * @param override possible overriding method (i.e., subclass method)
+     * @param original possible overriding method (i.e., superclass method)
+     * @return true if {@code override} overrides {@code original}, otherwise false;
+     *  if both are the same method, false is returned
+     */
+    public static boolean overrides(Method override, Method original) {
+
+        // Check class hierarchy
+        if (!original.getDeclaringClass().isAssignableFrom(override.getDeclaringClass())
+          || original.getDeclaringClass() == override.getDeclaringClass())
+            return false;
+
+        // Compare names
+        if (!original.getName().equals(override.getName()))
+            return false;
+
+        // Check staticness
+        if ((original.getModifiers() & Modifier.STATIC) != 0 || (override.getModifiers() & Modifier.STATIC) != 0)
+            return false;
+
+        // Compare (raw) parameter types
+        if (!Arrays.equals(original.getParameterTypes(), override.getParameterTypes()))
+            return false;
+
+        // Done
+        return true;
     }
 
     /**
@@ -122,7 +190,7 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
     /**
      * Holds information about an annotated method detected by a {@link MethodAnnotationScanner}.
      */
-    public class MethodInfo implements Comparable<MethodInfo> {
+    public class MethodInfo {
 
         private final Method method;
         private final A annotation;
@@ -168,34 +236,20 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
         }
 
         /**
-         * Invoke the method to read its value.
+         * Invoke the method and return the result. Any checked exception thrown is rethrown after being wrapped
+         * in a {@link RuntimeException}.
          *
          * @return result of invoking method
+         * @throws RuntimeException if invocation fails
          */
-        public Object readValue(T obj) {
+        public Object invoke(T obj, Object... params) {
             try {
-                return this.method.invoke(obj);
+                return this.method.invoke(obj, params);
             } catch (InvocationTargetException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
-        }
-
-        /**
-         * Sorts instances first by declaring class (subtypes before supertypes), then by method name.
-         */
-        @Override
-        public int compareTo(MethodInfo that) {
-            final Class<?> thisClass = this.method.getDeclaringClass();
-            final Class<?> thatClass = that.method.getDeclaringClass();
-            if (thisClass != thatClass) {
-                if (thatClass.isAssignableFrom(thisClass))
-                    return -1;
-                if (thisClass.isAssignableFrom(thatClass))
-                    return 1;
-            }
-            return this.method.getName().compareTo(that.method.getName());
         }
     }
 }
