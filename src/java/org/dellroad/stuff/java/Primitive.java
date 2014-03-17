@@ -26,7 +26,8 @@ import java.util.regex.Pattern;
 public abstract class Primitive<T> implements Comparator<T> {
 
     /**
-     * Void type. The {@link #getDefaultValue}, {@link #compare}, and {@link #
+     * Void type. The {@link #getDefaultValue}, {@link #compare compare()}, and {@link #parseValue parseValue()}
+     * methods always throw exceptions.
      */
     public static final Primitive<Void> VOID = new Primitive<Void>(Void.TYPE, Void.class, 'V', "") {
         @Override
