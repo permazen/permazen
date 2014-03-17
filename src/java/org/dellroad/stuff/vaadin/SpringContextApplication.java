@@ -263,9 +263,7 @@ public abstract class SpringContextApplication extends ContextApplication {
 
         // Find the application context associated with the servlet; it will be the parent
         String contextPath = ContextApplication.currentRequest().getContextPath() + "/";
-        com.vaadin.service.ApplicationContext applicationContext = SpringContextApplication.get().getContext();
-        ServletContext servletContext = ((com.vaadin.terminal.gwt.server.WebApplicationContext)applicationContext)
-          .getHttpSession().getServletContext();
+        ServletContext servletContext = ContextApplication.currentRequest().getSession().getServletContext();
         WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);
 
         // Create and configure a new application context for this Application instance
