@@ -1,5 +1,6 @@
 Version Next
 
+    - Update build target to Java 7
     - Added Primitive.parsePattern() Primitive.compare(), and Primitive.VOID
     - Add generic type to Primitive (no longer extend Enum)
     - DoubleFormat removed; use Primitive.DOUBLE instead
@@ -9,6 +10,8 @@ Version Next
     - Added IndentXMLStreamWriter and EmptyTagXMLStreamWriter
     - Added AnnotatedXMLStreamReader and AnnotatedXMLStreamWriter
     - Fixed a couple of obscure bugs in StringEncoder
+    - Generalize MethodAnnotationScanner to make it more useful
+    - Add Vaadin 6 portlet portability fix (issue #4)
 
 Version 1.0.794 Released December 11, 2013
 
