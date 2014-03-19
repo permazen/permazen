@@ -90,6 +90,8 @@ public class PrimitiveTest extends TestSupport {
         private final ArrayList<T> list;
         private int randomRemaining;
 
+        @SafeVarargs
+        @SuppressWarnings("varargs")
         RandomIterator(int totalRandom, T... values) {
             this.randomRemaining = totalRandom;
             this.list = new ArrayList<T>(Arrays.<T>asList(values));
