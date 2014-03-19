@@ -1,4 +1,4 @@
-Version Next
+Version 1.0.850 Released March 19, 2014
 
     - Update build target to Java 7
     - Added Primitive.parsePattern(), Primitive.compare(), and Primitive.VOID
