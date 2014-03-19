@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.dellroad.stuff.java.MethodAnnotationScanner;
 import org.dellroad.stuff.java.Primitive;
@@ -50,10 +51,10 @@ public class ProvidesPropertyScanner<T> {
             throw new IllegalArgumentException("null type");
 
         // Scan for @ProvidesProperty and @ProvidesPropertySort annotations
-        final List<MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo> providesPropertyMethods
-          = new MethodAnnotationScanner<T, ProvidesProperty>(type, ProvidesProperty.class).buildMethodInfoList();
-        final List<MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo> providesPropertySortMethods
-          = new MethodAnnotationScanner<T, ProvidesPropertySort>(type, ProvidesPropertySort.class).buildMethodInfoList();
+        final Set<MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo> providesPropertyMethods
+          = new MethodAnnotationScanner<T, ProvidesProperty>(type, ProvidesProperty.class).findAnnotatedMethods();
+        final Set<MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo> providesPropertySortMethods
+          = new MethodAnnotationScanner<T, ProvidesPropertySort>(type, ProvidesPropertySort.class).findAnnotatedMethods();
 
         // Check for duplicate @ProvidesProperty names
         final HashMap<String, MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo> providesPropertyNameMap

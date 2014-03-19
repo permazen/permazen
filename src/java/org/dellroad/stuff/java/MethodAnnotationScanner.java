@@ -12,18 +12,27 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.Set;
 
 /**
- * Scans for annotated methods in a class hierarchy.
- * Both superclasses and superinterfaces are introspected, and overrides are automatically detected.
+ * Scan a class hierarchy for annotated methods in an override-aware manner.
  *
- * @param <T> Java class to be introspected
+ * <p>
+ * Instances find all methods annotated with a specific annotation in a given Java class or any of its superclasses
+ * and superinterfaces, while also being override-aware, i.e., filtering out annotations on overridden supertype methods
+ * when the overriding method also has the annotation. This operation is performed by {@link #findAnnotatedMethods}.
+ * </p>
+ *
+ * <p>
+ * Subclasses may validate the annotations, and control which annotated methods to include and/or reject, by overriding
+ * {@link #includeMethod includeMethod()}.
+ * </p>
+ *
+ * @param <T> Java type to be introspected
  * @param <A> Java annotation type
  */
 public class MethodAnnotationScanner<T, A extends Annotation> {
@@ -50,43 +59,45 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
     }
 
     /**
-     * Build list of annotated methods, with overridden annotated methods omitted.
+     * Build set of annotated methods, with overridden annotated methods omitted.
      *
-     * @return list of annotated methods with any overridden annotated methods removed
+     * @return the set of all annotated methods, with overridden annotated methods removed
+     *  when the overriding method is also annotated
      */
-    public List<MethodInfo> buildMethodInfoList() {
+    public Set<MethodInfo> findAnnotatedMethods() {
 
         // Find all methods
-        final ArrayList<MethodInfo> list = new ArrayList<MethodInfo>();
-        this.findMethodInfos(this.type, list);
+        final HashSet<MethodInfo> set = new HashSet<MethodInfo>();
+        this.findMethodInfos(this.type, set);
 
-        // Remove overridden methods
-        final LinkedHashMap<String, HashSet<MethodInfo>> map = new LinkedHashMap<String, HashSet<MethodInfo>>();
+        // Remove overridden and duplicate methods
+        final LinkedHashMap<String, HashSet<MethodInfo>> nameSetMap = new LinkedHashMap<String, HashSet<MethodInfo>>();
     infoLoop:
-        for (MethodInfo methodInfo : list) {
+        for (MethodInfo methodInfo : set) {
             final String name = methodInfo.getMethod().getName();
-            HashSet<MethodInfo> set = map.get(name);
-            if (set == null) {
-                set = new HashSet<MethodInfo>();
-                map.put(name, set);
-                set.add(methodInfo);
+            final Method method = methodInfo.getMethod();
+            HashSet<MethodInfo> nameSet = nameSetMap.get(name);
+            if (nameSet == null) {
+                nameSet = new HashSet<MethodInfo>();
+                nameSetMap.put(name, nameSet);
+                nameSet.add(methodInfo);
                 continue;
             }
-            for (Iterator<MethodInfo> i = set.iterator(); i.hasNext(); ) {
-                final MethodInfo otherInfo = i.next();
-                if (MethodAnnotationScanner.overrides(methodInfo.getMethod(), otherInfo.getMethod())) {
+            for (Iterator<MethodInfo> i = nameSet.iterator(); i.hasNext(); ) {
+                final Method otherMethod = i.next().getMethod();
+                if (MethodAnnotationScanner.overrides(method, otherMethod)) {
                     i.remove();
                     continue;
                 }
-                if (MethodAnnotationScanner.overrides(otherInfo.getMethod(), methodInfo.getMethod()))
+                if (MethodAnnotationScanner.overrides(otherMethod, method))
                     continue infoLoop;
             }
-            set.add(methodInfo);
+            nameSet.add(methodInfo);
         }
 
         // Return result
-        final ArrayList<MethodInfo> result = new ArrayList<MethodInfo>();
-        for (HashSet<MethodInfo> set : map.values())
+        final HashSet<MethodInfo> result = new HashSet<MethodInfo>();
+        for (HashSet<MethodInfo> nameSet : nameSetMap.values())
             result.addAll(set);
         return result;
     }
@@ -95,9 +106,9 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
      * Scan the given type and all its supertypes for annotated methods and add them to the list.
      *
      * @param klass type to scan, possibly null
-     * @param list list to append to
+     * @param set set to add methods to
      */
-    protected void findMethodInfos(Class<?> klass, List<MethodInfo> list) {
+    protected void findMethodInfos(Class<?> klass, Set<MethodInfo> set) {
 
         // Stop at null
         if (klass == null)
@@ -110,15 +121,15 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
                 continue;
             final MethodInfo methodInfo = this.createMethodInfo(method, annotation);
             if (methodInfo != null)
-                list.add(methodInfo);
+                set.add(methodInfo);
         }
 
         // Recurse on interfaces
         for (Class<?> iface : klass.getInterfaces())
-            this.findMethodInfos(iface, list);
+            this.findMethodInfos(iface, set);
 
         // Recurse on superclass
-        this.findMethodInfos(klass.getSuperclass(), list);
+        this.findMethodInfos(klass.getSuperclass(), set);
     }
 
     /**
@@ -143,12 +154,12 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
     }
 
     /**
-     * Determine if a method overrides another.
+     * Determine if one method strictly overrides another.
      *
      * @param override possible overriding method (i.e., subclass method)
      * @param original possible overriding method (i.e., superclass method)
      * @return true if {@code override} overrides {@code original}, otherwise false;
-     *  if both are the same method, false is returned
+     *  if {@code override} equals {@code original}, false is returned
      */
     public static boolean overrides(Method override, Method original) {
 
@@ -189,6 +200,8 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
 
     /**
      * Holds information about an annotated method detected by a {@link MethodAnnotationScanner}.
+     *
+     * @see MethodAnnotationScanner#findAnnotatedMethods
      */
     public class MethodInfo {
 
@@ -196,6 +209,10 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
         private final A annotation;
 
         public MethodInfo(Method method, A annotation) {
+            if (method == null)
+                throw new IllegalArgumentException("null method");
+            if (annotation == null)
+                throw new IllegalArgumentException("null annotation");
             this.method = method;
             this.annotation = annotation;
             try {
@@ -250,6 +267,19 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null || obj.getClass() != this.getClass())
+                return false;
+            final MethodAnnotationScanner<?, ?>.MethodInfo that = (MethodAnnotationScanner<?, ?>.MethodInfo)obj;
+            return this.method.equals(that.method) && this.annotation.equals(that.annotation);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.method.hashCode() ^ this.annotation.hashCode();
         }
     }
 }
