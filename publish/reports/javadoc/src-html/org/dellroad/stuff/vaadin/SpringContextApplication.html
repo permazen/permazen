@@ -271,77 +271,75 @@
 <span class="sourceLineNo">263</span><a name="line.263"></a>
 <span class="sourceLineNo">264</span>        // Find the application context associated with the servlet; it will be the parent<a name="line.264"></a>
 <span class="sourceLineNo">265</span>        String contextPath = ContextApplication.currentRequest().getContextPath() + "/";<a name="line.265"></a>
-<span class="sourceLineNo">266</span>        com.vaadin.service.ApplicationContext applicationContext = SpringContextApplication.get().getContext();<a name="line.266"></a>
-<span class="sourceLineNo">267</span>        ServletContext servletContext = ((com.vaadin.terminal.gwt.server.WebApplicationContext)applicationContext)<a name="line.267"></a>
-<span class="sourceLineNo">268</span>          .getHttpSession().getServletContext();<a name="line.268"></a>
-<span class="sourceLineNo">269</span>        WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);<a name="line.269"></a>
-<span class="sourceLineNo">270</span><a name="line.270"></a>
-<span class="sourceLineNo">271</span>        // Create and configure a new application context for this Application instance<a name="line.271"></a>
-<span class="sourceLineNo">272</span>        this.context = new XmlWebApplicationContext();<a name="line.272"></a>
-<span class="sourceLineNo">273</span>        this.context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX<a name="line.273"></a>
-<span class="sourceLineNo">274</span>          + contextPath + this.getApplicationName() + "-" + UNIQUE_INDEX.incrementAndGet());<a name="line.274"></a>
-<span class="sourceLineNo">275</span>        if (parent != null)<a name="line.275"></a>
-<span class="sourceLineNo">276</span>            context.setParent(parent);<a name="line.276"></a>
-<span class="sourceLineNo">277</span>        if (servletContext != null)<a name="line.277"></a>
-<span class="sourceLineNo">278</span>            context.setServletContext(servletContext);<a name="line.278"></a>
-<span class="sourceLineNo">279</span>        //context.setServletConfig(??);<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        this.context.setNamespace(this.getApplicationName());<a name="line.280"></a>
-<span class="sourceLineNo">281</span><a name="line.281"></a>
-<span class="sourceLineNo">282</span>        // Set explicit config location(s) if set by parameter<a name="line.282"></a>
-<span class="sourceLineNo">283</span>        String configLocationValue = this.getProperty(VAADIN_CONTEXT_LOCATION_PARAMETER);<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        if (configLocationValue != null)<a name="line.284"></a>
-<span class="sourceLineNo">285</span>            this.context.setConfigLocation(configLocationValue);<a name="line.285"></a>
-<span class="sourceLineNo">286</span><a name="line.286"></a>
-<span class="sourceLineNo">287</span>        // Register listener so we can notify subclass on refresh events<a name="line.287"></a>
-<span class="sourceLineNo">288</span>        this.context.addApplicationListener(new SourceFilteringListener(this.context, new RefreshListener()));<a name="line.288"></a>
-<span class="sourceLineNo">289</span><a name="line.289"></a>
-<span class="sourceLineNo">290</span>        // Register this instance as an implicitly resolvable dependency<a name="line.290"></a>
-<span class="sourceLineNo">291</span>        this.context.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {<a name="line.291"></a>
-<span class="sourceLineNo">292</span>            @Override<a name="line.292"></a>
-<span class="sourceLineNo">293</span>            public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {<a name="line.293"></a>
-<span class="sourceLineNo">294</span>                beanFactory.registerResolvableDependency(Application.class, SpringContextApplication.this);<a name="line.294"></a>
-<span class="sourceLineNo">295</span>            }<a name="line.295"></a>
-<span class="sourceLineNo">296</span>        });<a name="line.296"></a>
-<span class="sourceLineNo">297</span><a name="line.297"></a>
-<span class="sourceLineNo">298</span>        // Invoke any subclass setup<a name="line.298"></a>
-<span class="sourceLineNo">299</span>        this.postProcessWebApplicationContext(context);<a name="line.299"></a>
-<span class="sourceLineNo">300</span><a name="line.300"></a>
-<span class="sourceLineNo">301</span>        // Refresh context<a name="line.301"></a>
-<span class="sourceLineNo">302</span>        this.context.refresh();<a name="line.302"></a>
-<span class="sourceLineNo">303</span><a name="line.303"></a>
-<span class="sourceLineNo">304</span>        // Get notified of application shutdown so we can shut down the context as well<a name="line.304"></a>
-<span class="sourceLineNo">305</span>        this.addListener(new ContextCloseListener());<a name="line.305"></a>
-<span class="sourceLineNo">306</span>    }<a name="line.306"></a>
+<span class="sourceLineNo">266</span>        ServletContext servletContext = ContextApplication.currentRequest().getSession().getServletContext();<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        WebApplicationContext parent = WebApplicationContextUtils.getWebApplicationContext(servletContext);<a name="line.267"></a>
+<span class="sourceLineNo">268</span><a name="line.268"></a>
+<span class="sourceLineNo">269</span>        // Create and configure a new application context for this Application instance<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        this.context = new XmlWebApplicationContext();<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        this.context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX<a name="line.271"></a>
+<span class="sourceLineNo">272</span>          + contextPath + this.getApplicationName() + "-" + UNIQUE_INDEX.incrementAndGet());<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        if (parent != null)<a name="line.273"></a>
+<span class="sourceLineNo">274</span>            context.setParent(parent);<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        if (servletContext != null)<a name="line.275"></a>
+<span class="sourceLineNo">276</span>            context.setServletContext(servletContext);<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        //context.setServletConfig(??);<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        this.context.setNamespace(this.getApplicationName());<a name="line.278"></a>
+<span class="sourceLineNo">279</span><a name="line.279"></a>
+<span class="sourceLineNo">280</span>        // Set explicit config location(s) if set by parameter<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        String configLocationValue = this.getProperty(VAADIN_CONTEXT_LOCATION_PARAMETER);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        if (configLocationValue != null)<a name="line.282"></a>
+<span class="sourceLineNo">283</span>            this.context.setConfigLocation(configLocationValue);<a name="line.283"></a>
+<span class="sourceLineNo">284</span><a name="line.284"></a>
+<span class="sourceLineNo">285</span>        // Register listener so we can notify subclass on refresh events<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        this.context.addApplicationListener(new SourceFilteringListener(this.context, new RefreshListener()));<a name="line.286"></a>
+<span class="sourceLineNo">287</span><a name="line.287"></a>
+<span class="sourceLineNo">288</span>        // Register this instance as an implicitly resolvable dependency<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        this.context.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>            @Override<a name="line.290"></a>
+<span class="sourceLineNo">291</span>            public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>                beanFactory.registerResolvableDependency(Application.class, SpringContextApplication.this);<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            }<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        });<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>        // Invoke any subclass setup<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        this.postProcessWebApplicationContext(context);<a name="line.297"></a>
+<span class="sourceLineNo">298</span><a name="line.298"></a>
+<span class="sourceLineNo">299</span>        // Refresh context<a name="line.299"></a>
+<span class="sourceLineNo">300</span>        this.context.refresh();<a name="line.300"></a>
+<span class="sourceLineNo">301</span><a name="line.301"></a>
+<span class="sourceLineNo">302</span>        // Get notified of application shutdown so we can shut down the context as well<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        this.addListener(new ContextCloseListener());<a name="line.303"></a>
+<span class="sourceLineNo">304</span>    }<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>// Serialization<a name="line.306"></a>
 <span class="sourceLineNo">307</span><a name="line.307"></a>
-<span class="sourceLineNo">308</span>// Serialization<a name="line.308"></a>
-<span class="sourceLineNo">309</span><a name="line.309"></a>
-<span class="sourceLineNo">310</span>    private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {<a name="line.310"></a>
-<span class="sourceLineNo">311</span>        input.defaultReadObject();<a name="line.311"></a>
-<span class="sourceLineNo">312</span>        this.loadContext();<a name="line.312"></a>
-<span class="sourceLineNo">313</span>    }<a name="line.313"></a>
+<span class="sourceLineNo">308</span>    private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        input.defaultReadObject();<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        this.loadContext();<a name="line.310"></a>
+<span class="sourceLineNo">311</span>    }<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>// Nested classes<a name="line.313"></a>
 <span class="sourceLineNo">314</span><a name="line.314"></a>
-<span class="sourceLineNo">315</span>// Nested classes<a name="line.315"></a>
-<span class="sourceLineNo">316</span><a name="line.316"></a>
-<span class="sourceLineNo">317</span>    // My refresh listener<a name="line.317"></a>
-<span class="sourceLineNo">318</span>    private class RefreshListener implements ApplicationListener&lt;ContextRefreshedEvent&gt;, Serializable {<a name="line.318"></a>
-<span class="sourceLineNo">319</span>        @Override<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        public void onApplicationEvent(ContextRefreshedEvent event) {<a name="line.320"></a>
-<span class="sourceLineNo">321</span>            SpringContextApplication.this.onRefresh(event.getApplicationContext());<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        }<a name="line.322"></a>
-<span class="sourceLineNo">323</span>    }<a name="line.323"></a>
-<span class="sourceLineNo">324</span><a name="line.324"></a>
-<span class="sourceLineNo">325</span>    // My close listener<a name="line.325"></a>
-<span class="sourceLineNo">326</span>    private class ContextCloseListener implements CloseListener, Serializable {<a name="line.326"></a>
-<span class="sourceLineNo">327</span>        @Override<a name="line.327"></a>
-<span class="sourceLineNo">328</span>        public void applicationClosed(CloseEvent closeEvent) {<a name="line.328"></a>
-<span class="sourceLineNo">329</span>            SpringContextApplication.this.log.info("closing application context associated with Vaadin application "<a name="line.329"></a>
-<span class="sourceLineNo">330</span>              + SpringContextApplication.this.getApplicationName());<a name="line.330"></a>
-<span class="sourceLineNo">331</span>            SpringContextApplication.this.context.close();<a name="line.331"></a>
-<span class="sourceLineNo">332</span>            SpringContextApplication.this.destroySpringApplication();<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        }<a name="line.333"></a>
-<span class="sourceLineNo">334</span>    }<a name="line.334"></a>
-<span class="sourceLineNo">335</span>}<a name="line.335"></a>
-<span class="sourceLineNo">336</span><a name="line.336"></a>
+<span class="sourceLineNo">315</span>    // My refresh listener<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    private class RefreshListener implements ApplicationListener&lt;ContextRefreshedEvent&gt;, Serializable {<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        @Override<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        public void onApplicationEvent(ContextRefreshedEvent event) {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>            SpringContextApplication.this.onRefresh(event.getApplicationContext());<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        }<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    }<a name="line.321"></a>
+<span class="sourceLineNo">322</span><a name="line.322"></a>
+<span class="sourceLineNo">323</span>    // My close listener<a name="line.323"></a>
+<span class="sourceLineNo">324</span>    private class ContextCloseListener implements CloseListener, Serializable {<a name="line.324"></a>
+<span class="sourceLineNo">325</span>        @Override<a name="line.325"></a>
+<span class="sourceLineNo">326</span>        public void applicationClosed(CloseEvent closeEvent) {<a name="line.326"></a>
+<span class="sourceLineNo">327</span>            SpringContextApplication.this.log.info("closing application context associated with Vaadin application "<a name="line.327"></a>
+<span class="sourceLineNo">328</span>              + SpringContextApplication.this.getApplicationName());<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            SpringContextApplication.this.context.close();<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            SpringContextApplication.this.destroySpringApplication();<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        }<a name="line.331"></a>
+<span class="sourceLineNo">332</span>    }<a name="line.332"></a>
+<span class="sourceLineNo">333</span>}<a name="line.333"></a>
+<span class="sourceLineNo">334</span><a name="line.334"></a>
 
 
 
