@@ -1,3 +1,7 @@
+Version Next
+
+    - Remove HardLink; obsoleted by Files.createLink()
+
 Version 1.0.850 Released March 19, 2014
 
     - Update build target to Java 7

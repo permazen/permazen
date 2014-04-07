@@ -11,6 +11,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * When backups are configured, the base file must be copied, not moved, to the first backup on update to avoid
- * a small window where the base file doesn't exist. This class uses {@linkplain HardLink hard links} to perform
+ * a small window where the base file doesn't exist. This class uses {@linkplain Files#createLink hard links} to perform
  * this "copy" efficiently. This behavior can be altered by overriding {@link #copy copy()} on systems not supporting
  * hard links.
  */
@@ -154,21 +157,32 @@ public class FileStreamRepository implements StreamRepository {
     }
 
     /**
-     * Copy (or hard link, if possible) a file.
+     * Copy, via hard link if possible, a file. If the two files are the same, nothing should be done.
      *
      * <p>
-     * The implementation in {@link FileStreamRepository} uses {@linkplain HardLink hard links}.
+     * The implementation in {@link FileStreamRepository} uses {@linkplain Files#createLink hard links}.
+     * Subclasses must override this method if the platform does not support hard links.
+     * </p>
      *
      * @param src source file
      * @param dst destination file
      * @throws IOException if unsuccessful
      */
     protected void copy(File src, File dst) throws IOException {
-        if (dst.exists())      // this happens when this.numBackups == 1
+        final Path srcPath = src.toPath();
+        final Path dstPath = dst.toPath();
+        try {
+            if (dst.exists() && Files.isSameFile(srcPath, dstPath))
+                return;
+        } catch (IOException e) {
+            // ignore
+        }
+        try {
+            Files.createLink(dstPath, srcPath);
+        } catch (FileAlreadyExistsException e) {
             dst.delete();
-        // TODO: check device and inode via stat(2) and don't do anything here if its the same file.
-        // This can happen if closing the temporary file throws an Exception, leaving file.1 === file
-        HardLink.link(src, dst);
+            Files.createLink(dstPath, srcPath);
+        }
     }
 
     /**
@@ -192,7 +206,7 @@ public class FileStreamRepository implements StreamRepository {
                 try {
                     this.copy(src, dst);
                 } catch (IOException e) {
-                    this.log.warn("failed to copy `" + src + "' to backup `" + dst + "'");
+                    this.log.warn("failed to copy `" + src + "' to backup `" + dst + "'", e);
                 }
             } else
                 src.renameTo(dst);      // OK if this fails, that means the backup file doesn't exist yet
