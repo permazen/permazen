@@ -234,7 +234,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         for (T obj : contents) {
             if (obj == null)
                 throw new IllegalArgumentException("null item in contents at index " + index);
-            SimpleItem<T> item = new SimpleItem<T>(obj, this.propertyMap, this);
+            final SimpleItem<T> item = this.createSimpleItem(obj, this.propertyMap, this);
             this.internalAddItemAtEnd(this.generateItemId(obj), item, false);
             index++;
         }
@@ -346,7 +346,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         T obj = this.getJavaObject(itemId);
         if (obj == null)
             return null;
-        return new SimpleItem<T>(obj, this.propertyMap, this);
+        return this.createSimpleItem(obj, this.propertyMap, this);
     }
 
 // Subclass methods
@@ -385,6 +385,24 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * The implementation in {@link AbstractSimpleContainer} does nothing.
      */
     protected void afterReload() {
+    }
+
+    /**
+     * Create a {@link SimpleItem} for the given backing Java object.
+     *
+     * <p>
+     * The implementation in {@link AbstractSimpleContainer} returns
+     * {@code new SimpleItem<T>(object, propertyMap, propertyExtractor)}.
+     * </p>
+     *
+     * @param object underlying Java object
+     * @param propertyMap mapping from property name to property definition
+     * @param propertyExtractor extracts the property value from {@code object}
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    protected SimpleItem<T> createSimpleItem(T object, Map<String, PropertyDef<?>> propertyMap,
+      PropertyExtractor<? super T> propertyExtractor) {
+        return new SimpleItem<T>(object, propertyMap, propertyExtractor);
     }
 
  // Container methods

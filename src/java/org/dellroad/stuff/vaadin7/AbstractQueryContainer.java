@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -353,6 +354,24 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     protected void handleSizeChange() {
     }
 
+    /**
+     * Create a {@link SimpleItem} for the given backing Java object.
+     *
+     * <p>
+     * The implementation in {@link AbstractQueryContainer} returns
+     * {@code new SimpleItem<T>(object, propertyMap, propertyExtractor)}.
+     * </p>
+     *
+     * @param object underlying Java object
+     * @param propertyMap mapping from property name to property definition
+     * @param propertyExtractor extracts the property value from {@code object}
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    protected SimpleItem<T> createSimpleItem(T object, Map<String, PropertyDef<?>> propertyMap,
+      PropertyExtractor<? super T> propertyExtractor) {
+        return new SimpleItem<T>(object, propertyMap, propertyExtractor);
+    }
+
 // Container
 
     @Override
@@ -363,7 +382,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         T obj = this.getJavaObject(index);
         if (obj == null)
             return null;
-        return new SimpleItem<T>(obj, this.propertyMap, this);
+        return this.createSimpleItem(obj, this.propertyMap, this);
     }
 
     @Override

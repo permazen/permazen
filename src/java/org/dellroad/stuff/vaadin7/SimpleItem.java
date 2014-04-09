@@ -76,10 +76,10 @@ public class SimpleItem<T> implements Item {
 
     @Override
     public SimpleProperty<T, ?> getItemProperty(Object id) {
-        PropertyDef<?> propertyDef = this.propertyMap.get(id);
+        final PropertyDef<?> propertyDef = this.propertyMap.get(id);
         if (propertyDef == null)
             return null;
-        return this.createSimpleProperty(propertyDef);
+        return this.createSimpleProperty(this.object, propertyDef, this.propertyExtractor);
     }
 
     @Override
@@ -104,9 +104,22 @@ public class SimpleItem<T> implements Item {
         throw new UnsupportedOperationException();
     }
 
-    // This method exists only to allow the generic parameter <V> to be bound
-    private <V> SimpleProperty<T, V> createSimpleProperty(PropertyDef<V> propertyDef) {
-        return new SimpleProperty<T, V>(this.object, propertyDef, this.propertyExtractor);
+    /**
+     * Create a {@link SimpleProperty} for the given property definition.
+     *
+     * <p>
+     * The implementation in {@link SimpleItem} returns
+     * {@code new SimpleProperty<T, V>(object, propertyDef, propertyExtractor)}.
+     * </p>
+     *
+     * @param object underlying Java object
+     * @param propertyDef property definition
+     * @param propertyExtractor extracts the property value from {@code object}
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    protected <V> SimpleProperty<T, V> createSimpleProperty(T object,
+      PropertyDef<V> propertyDef, PropertyExtractor<? super T> propertyExtractor) {
+        return new SimpleProperty<T, V>(object, propertyDef, propertyExtractor);
     }
 
     private static Map<String, PropertyDef<?>> buildPropertyMap(Collection<? extends PropertyDef<?>> propertyDefs) {
