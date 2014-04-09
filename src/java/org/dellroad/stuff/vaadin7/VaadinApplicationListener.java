@@ -72,14 +72,32 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
         return this.eventType;
     }
 
+    /**
+     * Register as a listener on the given event source.
+     *
+     * <p>
+     * The implementation in {@link VaadinApplicationListener} registers this instance as a listener on {@code multicaster}.
+     * </p>
+     *
+     * @param multicaster event multicaster; will be same as provided to the constructor
+     */
     @Override
-    protected void register(ApplicationEventMulticaster eventSource) {
-        this.getEventSource().addApplicationListener(this);
+    protected void register(ApplicationEventMulticaster multicaster) {
+        multicaster.addApplicationListener(this);
     }
 
+    /**
+     * Unregister as a listener on the given event source.
+     *
+     * <p>
+     * The implementation in {@link VaadinApplicationListener} unregisters this instance as a listener from {@code multicaster}.
+     * </p>
+     *
+     * @param multicaster event multicaster; will be same as provided to the constructor
+     */
     @Override
-    protected void unregister(ApplicationEventMulticaster eventSource) {
-        this.getEventSource().removeApplicationListener(this);
+    protected void unregister(ApplicationEventMulticaster multicaster) {
+        multicaster.removeApplicationListener(this);
     }
 
     @Override

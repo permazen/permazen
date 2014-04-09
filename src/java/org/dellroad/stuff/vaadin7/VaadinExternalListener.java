@@ -154,8 +154,9 @@ public abstract class VaadinExternalListener<S> {
      *
      * <p>
      * Subclass must implement this to perform the actual listener registration.
+     * </p>
      *
-     * @param eventSource event source, never null
+     * @param eventSource event source, never null; will be same as provided to the constructor
      */
     protected abstract void register(S eventSource);
 
@@ -164,8 +165,9 @@ public abstract class VaadinExternalListener<S> {
      *
      * <p>
      * Subclass must implement this to perform the actual listener registration.
+     * </p>
      *
-     * @param eventSource event source, never null
+     * @param eventSource event source, never null; will be same as provided to the constructor
      */
     protected abstract void unregister(S eventSource);
 
