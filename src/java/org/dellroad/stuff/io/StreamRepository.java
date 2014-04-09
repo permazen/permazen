@@ -42,8 +42,9 @@ public interface StreamRepository {
      * atomically updated with the newly written content.
      *
      * <p>
-     * If the returned stread throws an {@link IOException} at any time, including during {@link OutputStream#close close()},
-     * then no update to the underlying storage occurs.
+     * If the returned stream throws an {@link IOException} at any time, including during {@link OutputStream#close close()},
+     * or if {@link OutputStream#close close()} is never invoked, then no update to the underlying storage occurs.
+     * </p>
      *
      * @throws IOException if an error occurs
      */

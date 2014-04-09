@@ -1,6 +1,7 @@
 Version Next
 
     - Remove HardLink; obsoleted by Files.createLink()
+    - Minor bug fixes
 
 Version 1.0.850 Released March 19, 2014
 

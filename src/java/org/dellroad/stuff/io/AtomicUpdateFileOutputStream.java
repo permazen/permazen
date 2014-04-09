@@ -20,11 +20,13 @@ import java.io.IOException;
  * gets {@linkplain File#renameTo renamed} to the target file. This rename operation is atomic on most systems
  * (e.g., all UNIX variants). The result is that the target file always exists, and if opened at any time,
  * will contain either the previous content or the new content, but never a mix of the two.
+ * </p>
  *
  * <p>
  * An open instance can be thought of as representing an open transaction to rewrite the file.
  * The "transaction" is committed via {@link #close}, or may be aborted via {@link #cancel} (which
  * deletes the temporary file).
+ * </p>
  */
 public class AtomicUpdateFileOutputStream extends FileOutputStream {
 
