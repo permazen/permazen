@@ -243,16 +243,21 @@ public class SpringVaadinServlet extends VaadinServlet {
 
             @Override
             protected VaadinSession createVaadinSession(VaadinRequest request) throws ServiceException {
-                if (maxSessions > 0 && SpringVaadinServlet.this.liveSessions.size() >= maxSessions)
-                    throw new ServiceException("The maximum number of active sessions has been reached");
-                final VaadinSession session = super.createVaadinSession(request);
-                SpringVaadinServlet.this.liveSessions.put(session, null);
+                final VaadinSession session;
+                synchronized (SpringVaadinServlet.this.liveSessions) {
+                    if (maxSessions > 0 && SpringVaadinServlet.this.liveSessions.size() >= maxSessions)
+                        throw new ServiceException("The maximum number of active sessions has been reached");
+                    session = super.createVaadinSession(request);
+                    SpringVaadinServlet.this.liveSessions.put(session, null);
+                }
                 return session;
             }
 
             @Override
             public void fireSessionDestroy(VaadinSession session) {
-                SpringVaadinServlet.this.liveSessions.remove(session);
+                synchronized (SpringVaadinServlet.this.liveSessions) {
+                    SpringVaadinServlet.this.liveSessions.remove(session);
+                }
                 super.fireSessionDestroy(session);
             }
         };
@@ -266,8 +271,10 @@ public class SpringVaadinServlet extends VaadinServlet {
      * @return live tracked sessions, or an empty collection if session tracking is not enabled
      * @see VaadinSessionContainer
      */
-    public synchronized List<VaadinSession> getSessions() {
-        return new ArrayList<VaadinSession>(this.liveSessions.keySet());
+    public List<VaadinSession> getSessions() {
+        synchronized (this.liveSessions) {
+            return new ArrayList<VaadinSession>(this.liveSessions.keySet());
+        }
     }
 
     /**
