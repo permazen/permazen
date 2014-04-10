@@ -1,0 +1,3 @@
+# $Id: spring.handlers 358 2014-04-10 16:15:19Z archie $
+
+http\://jsimpledb.googlecode.com/schema/jsimpledb=org.jsimpledb.spring.JSimpleDBNamespaceHandler

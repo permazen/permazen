@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<binding>
+
+    <!-- Only allow 'true' or 'false' for boolean values -->
+    <format type="boolean" deserializer="org.dellroad.stuff.jibx.ParseUtil.deserializeBooleanStrictly"/>
+
+    <!-- Strings: escape any XML-invalid characters (JiBX does not do this) -->
+    <format type="java.lang.String"
+      serializer="org.dellroad.stuff.jibx.ParseUtil.serializeString"
+      deserializer="org.dellroad.stuff.jibx.ParseUtil.deserializeString"/>
+
+    <!-- Top level mapping for <Schema> -->
+    <include path="schemaModel.xml"/> 
+    <mapping name="Schema" class="org.jsimpledb.schema.SchemaModel">
+        <structure map-as="schemaModel"/>
+    </mapping>
+</binding>
+
