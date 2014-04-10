@@ -8,31 +8,31 @@
 package org.jsimpledb;
 
 /**
- * Returned by queries into the indexes assocated with {@link ListField}s.
+ * Returned by queries into the indexes assocated with list fields.
  *
- * @see Transaction#queryListFieldEntries
+ * @see org.jsimpledb.annotation.IndexQuery
+ *
+ * @param <T> Java type of the object containing the list field
  */
-public class ListIndexEntry {
+public class ListIndexEntry<T> {
 
-    final ObjId id;
+    final T jobj;
     final int index;
 
-    public ListIndexEntry(ObjId id, int index) {
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+    public ListIndexEntry(T obj, int index) {
+        if (!(obj instanceof JObject))
+            throw new IllegalArgumentException("obj is not a JObject: " + obj);
         if (index < 0)
             throw new IllegalArgumentException("index < 0");
-        this.id = id;
+        this.jobj = obj;
         this.index = index;
     }
 
     /**
-     * Get the object ID of the object whose {@link ListField} contains the indexed value.
-     *
-     * @return object ID, never null
+     * Get the object whose list field contains the indexed value.
      */
-    public ObjId getObjId() {
-        return this.id;
+    public T getObject() {
+        return this.jobj;
     }
 
     /**
@@ -48,7 +48,7 @@ public class ListIndexEntry {
 
     @Override
     public int hashCode() {
-        return this.id.hashCode() ^ this.index;
+        return ((JObject)this.jobj).getObjId().hashCode() ^ this.index;
     }
 
     @Override
@@ -57,8 +57,8 @@ public class ListIndexEntry {
             return true;
         if (obj == null || obj.getClass() != this.getClass())
             return false;
-        final ListIndexEntry that = (ListIndexEntry)obj;
-        return this.id.equals(that.id) && this.index == that.index;
+        final ListIndexEntry<?> that = (ListIndexEntry<?>)obj;
+        return ((JObject)this.jobj).getObjId().equals(((JObject)that.jobj).getObjId()) && this.index == that.index;
     }
 }
 

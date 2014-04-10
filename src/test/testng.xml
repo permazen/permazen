@@ -9,7 +9,7 @@
     <test name="Unit Tests">
         <packages>
             <package name="org.jsimpledb"/>
-            <package name="org.jsimpledb.jlayer"/>
+            <package name="org.jsimpledb.core"/>
             <package name="org.jsimpledb.kv.simple"/>
             <package name="org.jsimpledb.kv.util"/>
             <package name="org.jsimpledb.spring"/>

@@ -7,11 +7,11 @@
 
 package org.jsimpledb.spring;
 
-import org.jsimpledb.ReadOnlyTransactionException;
+import org.jsimpledb.JObject;
+import org.jsimpledb.JTransaction;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.jlayer.JObject;
-import org.jsimpledb.jlayer.JTransaction;
+import org.jsimpledb.core.ReadOnlyTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.Assert;
 import org.testng.annotations.Test;

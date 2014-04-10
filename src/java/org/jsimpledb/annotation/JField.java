@@ -13,7 +13,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jsimpledb.DeleteAction;
+import org.jsimpledb.core.DeleteAction;
 
 /**
  * Java annotation for simple fields, including reference fields that refer to other Java model object types.
@@ -34,8 +34,8 @@ import org.jsimpledb.DeleteAction;
  *
  * <p>
  * If the field is not a reference field, the property type, which can either be specified by {@link #name}
- * or inferred from the annotated method, must be supported by a some {@link org.jsimpledb.FieldType}
- * registered in the {@link org.jsimpledb.FieldTypeRegistry} (perhaps via {@link JFieldType &#64;JFieldType}).
+ * or inferred from the annotated method, must be supported by a some {@link org.jsimpledb.core.FieldType}
+ * registered in the {@link org.jsimpledb.core.FieldTypeRegistry} (perhaps via {@link JFieldType &#64;JFieldType}).
  * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -60,14 +60,14 @@ public @interface JField {
      * The type of this field.
      *
      * <p>
-     * If set, this must equal the name of a type registered in the {@link org.jsimpledb.FieldTypeRegistry}
-     * associated with the {@link org.jsimpledb.Database} instance, and the annotated method's return type
-     * must match the {@link org.jsimpledb.FieldType}'s {@linkplain org.jsimpledb.FieldType#getTypeToken supported Java type}.
+     * If set, this must equal the name of a type registered in the {@link org.jsimpledb.core.FieldTypeRegistry}
+     * associated with the {@link org.jsimpledb.core.Database} instance, and the annotated method's return type must match the
+     * {@link org.jsimpledb.core.FieldType}'s {@linkplain org.jsimpledb.core.FieldType#getTypeToken supported Java type}.
      *
      * <p>
      * If equal to the empty string (default value), then the Java type is inferred from the return type of the getter method
-     * and the {@link org.jsimpledb.FieldType} is found via
-     * {@link org.jsimpledb.FieldTypeRegistry#getFieldType(com.google.common.reflect.TypeToken)
+     * and the {@link org.jsimpledb.core.FieldType} is found via
+     * {@link org.jsimpledb.core.FieldTypeRegistry#getFieldType(com.google.common.reflect.TypeToken)
      * FieldTypeRegistry.getFieldType()}.
      * </p>
      *
@@ -112,7 +112,7 @@ public @interface JField {
 
     /**
      * For reference fields, configure the behavior when a referred-to object is
-     * {@linkplain org.jsimpledb.jlayer.JObject#delete deleted}.
+     * {@linkplain org.jsimpledb.JObject#delete deleted}.
      *
      * <p>
      * This field is ignored for non-reference fields.

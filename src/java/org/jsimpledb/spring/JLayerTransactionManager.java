@@ -9,11 +9,11 @@ package org.jsimpledb.spring;
 
 import java.util.List;
 
-import org.jsimpledb.DatabaseException;
-import org.jsimpledb.Transaction;
-import org.jsimpledb.jlayer.JLayer;
-import org.jsimpledb.jlayer.JTransaction;
-import org.jsimpledb.jlayer.ValidationMode;
+import org.jsimpledb.JLayer;
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.ValidationMode;
+import org.jsimpledb.core.DatabaseException;
+import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.springframework.beans.factory.InitializingBean;
@@ -359,7 +359,7 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
 
     /**
      * Adapter class that wraps a Spring {@link TransactionSynchronization} in the
-     * {@link org.jsimpledb.Transaction.Callback} interface.
+     * {@link org.jsimpledb.core.Transaction.Callback} interface.
      */
     public static class TransactionSynchronizationCallback implements Transaction.Callback {
 

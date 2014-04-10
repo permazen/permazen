@@ -65,9 +65,8 @@ import java.lang.annotation.Target;
  * For list and map fields, you may also query the index for additional information beyond just which objects contain
  * the queried value in the indexed field: in the case of a list, you can also get the
  * list index, and in the case of a map, you can also get the corresponding key or value. For these kinds of query, specify the
- * type {@code T} to be either {@link org.jsimpledb.jlayer.ListIndexEntry},
- * {@link org.jsimpledb.jlayer.MapKeyIndexEntry}, or
- * {@link org.jsimpledb.jlayer.MapValueIndexEntry} as appropriate. For example:
+ * type {@code T} to be either {@link org.jsimpledb.ListIndexEntry},
+ * {@link org.jsimpledb.MapKeyIndexEntry}, or {@link org.jsimpledb.MapValueIndexEntry} as appropriate. For example:
  * <pre>
  * public class Company {
  *
@@ -84,7 +83,7 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <p>
- * The annotation {@link #value} is a {@link org.jsimpledb.jlayer.ReferencePath} specifying the indexed
+ * The annotation {@link #value} is a {@link org.jsimpledb.ReferencePath} specifying the indexed
  * field to query. The path is assumed to start at the type containing the annotated method; however, a different
  * starting type may be specified via {@link #startType}.
  * </p>
@@ -104,27 +103,27 @@ public @interface IndexQuery {
      * Specifies the target field to watch for changes.
      *
      * <p>
-     * The value must be a {@linkplain org.jsimpledb.jlayer.ReferencePath reference path} with
+     * The value must be a {@linkplain org.jsimpledb.ReferencePath reference path} with
      * zero references, e.g., {@code "MyClass.myfield"} or {@code "MyClass.mymap.key"}. The path cannot end on a
      * complex field itself; it must end on some specific sub-field. So for example {@code "MyClass.mymap"} would be invalid.
      * <p>
      *
      * <p>
-     * See {@link org.jsimpledb.jlayer.ReferencePath} for information on the proper syntax for reference paths.
+     * See {@link org.jsimpledb.ReferencePath} for information on the proper syntax for reference paths.
      * </p>
      *
-     * @see org.jsimpledb.jlayer.ReferencePath
+     * @see org.jsimpledb.ReferencePath
      */
     String value();
 
     /**
-     * Specifies the starting type for the {@link org.jsimpledb.jlayer.ReferencePath} specified by {@code #value}.
+     * Specifies the starting type for the {@link org.jsimpledb.ReferencePath} specified by {@code #value}.
      *
      * <p>
      * If this property is left unset, then then class containing the annotated method is assumed.
      * </p>
      *
-     * @see org.jsimpledb.jlayer.ReferencePath
+     * @see org.jsimpledb.ReferencePath
      */
     Class<?> startType() default void.class;
 }

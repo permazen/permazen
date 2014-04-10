@@ -6,8 +6,6 @@
  */
 
 /**
- * Top level package for the <a href="http://jsimpledb.googlecode.com/">jSimpleDB</a> Java library.
- *
- * @see <a href="http://jsimpledb.googlecode.com/">The jSimpleDB Project</a>
+ * Java model layer for accessing a JSimpleDB {@link org.jsimpledb.core.Database} using normal Java objects.
  */
 package org.jsimpledb;

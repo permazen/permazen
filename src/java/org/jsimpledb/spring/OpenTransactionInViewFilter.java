@@ -14,9 +14,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jsimpledb.jlayer.JLayer;
-import org.jsimpledb.jlayer.JTransaction;
-import org.jsimpledb.jlayer.ValidationMode;
+import org.jsimpledb.JLayer;
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.ValidationMode;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAttribute;
 import org.springframework.web.context.WebApplicationContext;

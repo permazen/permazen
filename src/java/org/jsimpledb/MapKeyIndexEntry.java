@@ -8,18 +8,17 @@
 package org.jsimpledb;
 
 /**
- * Item returned by queries into the indexes assocated with {@link MapField} keys.
+ * Returned by queries into the indexes assocated with map field keys.
  *
- * @see Transaction#queryMapFieldKeyEntries
+ * @see org.jsimpledb.annotation.IndexQuery
+ *
+ * @param <T> Java type of the object containing the map field
  * @param <V> map field value type
  */
-public class MapKeyIndexEntry<V> extends MapIndexEntry<V> {
+public class MapKeyIndexEntry<T, V> extends MapIndexEntry<T, V> {
 
-    /**
-     * Constructor.
-     */
-    public MapKeyIndexEntry(ObjId id, V value) {
-        super(id, value);
+    MapKeyIndexEntry(T obj, V value) {
+        super(obj, value);
     }
 
     /**

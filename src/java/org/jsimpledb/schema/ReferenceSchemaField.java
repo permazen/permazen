@@ -9,8 +9,8 @@ package org.jsimpledb.schema;
 
 import javax.validation.constraints.NotNull;
 
-import org.jsimpledb.DeleteAction;
-import org.jsimpledb.ReferenceType;
+import org.jsimpledb.core.DeleteAction;
+import org.jsimpledb.core.ReferenceType;
 
 /**
  * A reference field in a {@link SchemaObject}.

@@ -13,7 +13,7 @@ import java.util.Map;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.jsimpledb.CollectionField;
+import org.jsimpledb.core.CollectionField;
 
 /**
  * A collection field in one version of a {@link SchemaObject}.
