@@ -14,7 +14,7 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * for the <code>jsimpledb</code> XML namespace.
  *
  * <p>
- * This class adds support for the <code>&lt;jsimpledb:jlayer-scan&gt;</code> XML tag.
+ * This class adds support for the <code>&lt;jsimpledb:scan-classpath&gt;</code> XML tag.
  * </p>
  *
  * @see org.jsimpledb.spring
@@ -23,7 +23,7 @@ public class JSimpleDBNamespaceHandler extends NamespaceHandlerSupport {
 
     @Override
     public void init() {
-        this.registerBeanDefinitionParser("jlayer-scan", new JLayerScanBeanDefinitionParser());
+        this.registerBeanDefinitionParser("scan-classpath", new ScanClassPathBeanDefinitionParser());
     }
 }
 

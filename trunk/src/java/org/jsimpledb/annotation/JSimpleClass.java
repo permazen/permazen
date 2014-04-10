@@ -14,7 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation for Java classes that are {@link org.jsimpledb.JLayer} object model types.
+ * Java annotation for Java classes that are {@link org.jsimpledb.JSimpleDB} object model types.
  *
  * <p>
  * Typically such classes are declared {@code abstract} and contain {@code abstract} Java bean getter methods

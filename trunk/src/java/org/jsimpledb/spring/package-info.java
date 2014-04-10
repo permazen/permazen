@@ -11,14 +11,14 @@
  * <p>
  * This package provides the following features to facilitate use with Spring:
  * <ul>
- *  <li>The {@code <jsimpledb:jlayer-scan>} XML tag, which works just like Spring's {@code <context:component-scan>}
+ *  <li>The {@code <jsimpledb:scan-classpath>} XML tag, which works just like Spring's {@code <context:component-scan>}
  *      to find {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} and
  *      {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType}-annotated classes.</li>
  *  <li>A Spring {@link org.springframework.transaction.PlatformTransactionManager PlatformTransactionManager} that integrates
  *      into Spring's transaction infrastructure and enables the
  *      {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation for
- *      {@link org.jsimpledb.JLayer} transactions.</li>
- *  <li>{@link org.jsimpledb.spring.OpenTransactionInViewFilter}, which allows {@link org.jsimpledb.JLayer}
+ *      {@link org.jsimpledb.JSimpleDB} transactions.</li>
+ *  <li>{@link org.jsimpledb.spring.OpenTransactionInViewFilter}, which allows {@link org.jsimpledb.JSimpleDB}
  *      transactions to span an entire web request.</li>
  * </ul>
  * </p>
@@ -41,19 +41,20 @@
  *     &lt;bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/&gt;
  *
  *     &lt;!-- Define the core Database layer on top of that --&gt;
- *     &lt;bean id="jdb" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvdb"/&gt;
+ *     &lt;bean id="database" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvdb"/&gt;
  *
- *     &lt;!-- Define the Java "JLayer" on top of the JSimpleDB database --&gt;
- *     &lt;bean id="jlayer" class="org.jsimpledb.JLayer" c:database-ref="jdb" c:version="1"&gt;
+ *     &lt;!-- Define the Java "JSimpleDB" on top of the core database --&gt;
+ *     &lt;bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1"&gt;
  *         &lt;constructor-arg&gt;
- *             &lt;<b>jsimpledb:jlayer-scan</b> base-package="com.example.myapp"&gt;
+ *             &lt;<b>jsimpledb:scan-classpath</b> base-package="com.example.myapp"&gt;
  *                 &lt;<b>jsimpledb:exclude-filter</b> type="regex" expression="com\.example\.myapp\.test\..*"/&gt;
- *             &lt;/<b>jsimpledb:jlayer-scan</b>&gt;
+ *             &lt;/<b>jsimpledb:scan-classpath</b>&gt;
  *         &lt;/constructor-arg&gt;
  *     &lt;/bean&gt;
  *
  *     &lt;!-- Create a transaction manager --&gt;
- *     <b>&lt;bean id="transactionManager" class="org.jsimpledb.spring.JLayerTransactionManager" p:jlayer-ref="jlayer"/&gt;</b>
+ *     <b>&lt;bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
+ *       p:JSimpleDB-ref="jsimpledb"/&gt;</b>
  *
  *     &lt;!-- Enable @Transactional annotations --&gt;
  *     <b>&lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;</b>

@@ -61,7 +61,7 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
             // Parse reference path
             final ReferencePath path;
             try {
-                path = new ReferencePath(IndexQueryScanner.this.jclass.jlayer, startType, annotation.value(), true);
+                path = new ReferencePath(IndexQueryScanner.this.jclass.jdb, startType, annotation.value(), true);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method) + e.getMessage(), e);
             }

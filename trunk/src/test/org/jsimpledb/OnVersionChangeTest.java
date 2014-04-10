@@ -35,8 +35,8 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 1
 
-        JLayer jlayer = new JLayer(db, 1, Arrays.<Class<?>>asList(Person1.class));
-        JTransaction tx = jlayer.createTransaction(true, ValidationMode.AUTOMATIC);
+        JSimpleDB jdb = new JSimpleDB(db, 1, Arrays.<Class<?>>asList(Person1.class));
+        JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
@@ -63,14 +63,14 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 2
 
-        jlayer = new JLayer(db, 2, Arrays.<Class<?>>asList(Person2.class));
-        tx = jlayer.createTransaction(true, ValidationMode.AUTOMATIC);
+        jdb = new JSimpleDB(db, 2, Arrays.<Class<?>>asList(Person2.class));
+        tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
-            final Person2 p1 = jlayer.getJObject(id1, Person2.class);
-            final Person2 p2 = jlayer.getJObject(id2, Person2.class);
-            final Person2 p3 = jlayer.getJObject(id3, Person2.class);
+            final Person2 p1 = jdb.getJObject(id1, Person2.class);
+            final Person2 p2 = jdb.getJObject(id2, Person2.class);
+            final Person2 p3 = jdb.getJObject(id3, Person2.class);
 
             Assert.assertEquals(p1.getLastName(), "Smith");
             Assert.assertEquals(p1.getFirstName(), "Joe");
@@ -95,14 +95,14 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 3
 
-        jlayer = new JLayer(db, 3, Arrays.<Class<?>>asList(Person3.class));
-        tx = jlayer.createTransaction(true, ValidationMode.AUTOMATIC);
+        jdb = new JSimpleDB(db, 3, Arrays.<Class<?>>asList(Person3.class));
+        tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
-            final Person3 p1 = jlayer.getJObject(id1, Person3.class);
-            final Person3 p2 = jlayer.getJObject(id2, Person3.class);
-            final Person3 p3 = jlayer.getJObject(id3, Person3.class);
+            final Person3 p1 = jdb.getJObject(id1, Person3.class);
+            final Person3 p2 = jdb.getJObject(id2, Person3.class);
+            final Person3 p3 = jdb.getJObject(id3, Person3.class);
 
             Assert.assertEquals(p1.getAge(), 10.0f);
             Assert.assertEquals(p2.getAge(), 20.0f);
@@ -116,14 +116,14 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 4
 
-        jlayer = new JLayer(db, 4, Arrays.<Class<?>>asList(Person4.class, Name.class));
-        tx = jlayer.createTransaction(true, ValidationMode.AUTOMATIC);
+        jdb = new JSimpleDB(db, 4, Arrays.<Class<?>>asList(Person4.class, Name.class));
+        tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
-            final Person4 p1 = jlayer.getJObject(id1, Person4.class);
-            final Person4 p2 = jlayer.getJObject(id2, Person4.class);
-            final Person4 p3 = jlayer.getJObject(id3, Person4.class);
+            final Person4 p1 = jdb.getJObject(id1, Person4.class);
+            final Person4 p2 = jdb.getJObject(id2, Person4.class);
+            final Person4 p3 = jdb.getJObject(id3, Person4.class);
 
             Assert.assertEquals(p1.getName().getLastName(), "Smith");
             Assert.assertEquals(p1.getName().getFirstName(), "Joe");

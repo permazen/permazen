@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Generates JLayer classes.
+ * Generates JSimpleDB model classes.
  *
  * <p>
  * The generated classes are subclasses of the the user-provided Java object classes (typically these are abstract classes).

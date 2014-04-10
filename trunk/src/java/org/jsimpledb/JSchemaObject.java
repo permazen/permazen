@@ -10,15 +10,15 @@ package org.jsimpledb;
 import org.jsimpledb.schema.AbstractSchemaItem;
 
 /**
- * Superclass for the {@link JClass} and {@link JField} classes which constitute a {@link JLayer}.
+ * Superclass for the {@link JClass} and {@link JField} classes which constitute a {@link JSimpleDB}.
  */
-public abstract class JLayerObject {
+public abstract class JSchemaObject {
 
     final String name;
     final int storageId;
     final String description;
 
-    JLayerObject(String name, int storageId, String description) {
+    JSchemaObject(String name, int storageId, String description) {
         if (storageId <= 0)
             throw new IllegalArgumentException("invalid storageId " + storageId);
         if (description == null)

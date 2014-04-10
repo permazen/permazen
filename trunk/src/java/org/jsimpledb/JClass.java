@@ -31,11 +31,11 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> the Java class
  */
-public class JClass<T> extends JLayerObject {
+public class JClass<T> extends JSchemaObject {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    final JLayer jlayer;
+    final JSimpleDB jdb;
     final TypeToken<T> typeToken;
     final TreeMap<Integer, JField> jfields = new TreeMap<>();
     final TreeMap<String, JField> jfieldsByName = new TreeMap<>();
@@ -53,20 +53,20 @@ public class JClass<T> extends JLayerObject {
     /**
      * Constructor.
      *
-     * @param jlayer the associated {@link JLayer}
+     * @param jdb the associated {@link JSimpleDB}
      * @param name the name of the object type
      * @param storageId object type storage ID
      * @param type object type Java model class
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    JClass(JLayer jlayer, String name, int storageId, TypeToken<T> typeToken) {
+    JClass(JSimpleDB jdb, String name, int storageId, TypeToken<T> typeToken) {
         super(name, storageId, "object type `" + name + "' (" + typeToken + ")");
-        if (jlayer == null)
-            throw new IllegalArgumentException("null jlayer");
+        if (jdb == null)
+            throw new IllegalArgumentException("null jdb");
         if (name == null)
             throw new IllegalArgumentException("null name");
-        this.jlayer = jlayer;
+        this.jdb = jdb;
         this.typeToken = typeToken;
     }
 
@@ -93,10 +93,10 @@ public class JClass<T> extends JLayerObject {
 // Public API
 
     /**
-     * Get the {@link JLayer} with which this instance is associated.
+     * Get the {@link JSimpleDB} with which this instance is associated.
      */
-    public JLayer getJLayer() {
-        return this.jlayer;
+    public JSimpleDB getJSimpleDB() {
+        return this.jdb;
     }
 
     /**
@@ -341,7 +341,7 @@ public class JClass<T> extends JLayerObject {
 
         // See if field type encompasses one or more JClass types and is therefore a reference type
         boolean isReferenceType = false;
-        for (JClass<?> jclass : this.jlayer.jclasses.values()) {
+        for (JClass<?> jclass : this.jdb.jclasses.values()) {
             if (fieldTypeToken.isAssignableFrom(jclass.typeToken)) {
                 isReferenceType = true;
                 break;
@@ -353,7 +353,7 @@ public class JClass<T> extends JLayerObject {
         if (typeName != null) {
 
             // Field type is explicitly specified by name
-            if ((nonReferenceType = this.jlayer.db.getFieldTypeRegistry().getFieldType(typeName)) == null)
+            if ((nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(typeName)) == null)
                 throw new IllegalArgumentException("invalid " + description + ": unknown simple field type `" + typeName + "'");
 
             // Verify field type matches what we expect
@@ -367,7 +367,7 @@ public class JClass<T> extends JLayerObject {
 
             // Try to find a field type supporting getter method return type
             try {
-                nonReferenceType = this.jlayer.db.getFieldTypeRegistry().getFieldType(fieldTypeToken);
+                nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(fieldTypeToken);
             } catch (IllegalArgumentException e) {
                 if (!isReferenceType) {
                     throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"

@@ -16,10 +16,10 @@
         ]]></xsd:documentation>
     </xsd:annotation>
 
-	<xsd:element name="jlayer-scan">
+	<xsd:element name="scan-classpath">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
-    Scans the classpath and builds a list of @JSimpleClass and @JSimpleFieldType-annotated classes.
+    Scans the classpath and builds a list of @JSimpleClass and @JFieldType-annotated classes.
     Works just like &lt;context:component-scan/&gt;.
 			]]></xsd:documentation>
 		</xsd:annotation>

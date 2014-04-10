@@ -19,16 +19,16 @@ import org.springframework.core.type.ClassMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.Assert;
 
-class JLayerClassScanner extends ClassPathScanningCandidateComponentProvider {
+class ScanClassPathClassScanner extends ClassPathScanningCandidateComponentProvider {
 
-    JLayerClassScanner(boolean useDefaultFilters, Environment environment) {
+    ScanClassPathClassScanner(boolean useDefaultFilters, Environment environment) {
         super(useDefaultFilters, environment);
     }
 
     /**
      * Find annotated classes.
      */
-    public ArrayList<String> scanForJSimpleDBClasses(String... basePackages) {
+    public ArrayList<String> scanForClasses(String... basePackages) {
         Assert.notEmpty(basePackages, "At least one base package must be specified");
         final ArrayList<String> nameList = new ArrayList<>();
         for (String basePackage : basePackages) {
@@ -39,7 +39,7 @@ class JLayerClassScanner extends ClassPathScanningCandidateComponentProvider {
     }
 
     /**
-     * Overridden to change the default filters. {@link JLayerClassScanner} wants to match
+     * Overridden to change the default filters. {@link JSimpleDBClassScanner} wants to match
      * {@link &#64;JSimpleClass} and {@link &#64;JFieldType} annotated classes.
      */
     @Override

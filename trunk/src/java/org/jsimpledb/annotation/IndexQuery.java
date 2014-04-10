@@ -14,7 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates JLayer model class methods that query an indexed field.
+ * Annotates JSimpleDB model class methods that query an indexed field.
  *
  * <p>
  * The annotated method must take zero parameters and return

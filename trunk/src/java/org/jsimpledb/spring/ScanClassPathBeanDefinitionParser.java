@@ -23,9 +23,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Parses <code>&lt;jsimpledb:jlayer-scan&gt;</code> tags.
+ * Parses <code>&lt;jsimpledb:scan-classpath&gt;</code> tags.
  */
-class JLayerScanBeanDefinitionParser extends ComponentScanBeanDefinitionParser {
+class ScanClassPathBeanDefinitionParser extends ComponentScanBeanDefinitionParser {
 
     private static final String BASE_PACKAGE_ATTRIBUTE = "base-package";
     private static final String RESOURCE_PATTERN_ATTRIBUTE = "resource-pattern";
@@ -39,8 +39,8 @@ class JLayerScanBeanDefinitionParser extends ComponentScanBeanDefinitionParser {
         // Scan for @JSimpleClass and @JSimpleFieldType-annotated classes
         final String[] basePackages = StringUtils.tokenizeToStringArray(element.getAttribute(BASE_PACKAGE_ATTRIBUTE),
           ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
-        final JLayerClassScanner scanner = this.createScanner(parserContext, element);
-        final ArrayList<String> classNames = scanner.scanForJSimpleDBClasses(basePackages);
+        final ScanClassPathClassScanner scanner = this.createScanner(parserContext, element);
+        final ArrayList<String> classNames = scanner.scanForClasses(basePackages);
 
         // Build <util:list> equivalent bean
         final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition();
@@ -55,13 +55,13 @@ class JLayerScanBeanDefinitionParser extends ComponentScanBeanDefinitionParser {
         return builder.getBeanDefinition();
     }
 
-    protected JLayerClassScanner createScanner(ParserContext parserContext, Element element) {
+    protected ScanClassPathClassScanner createScanner(ParserContext parserContext, Element element) {
         final XmlReaderContext readerContext = parserContext.getReaderContext();
         final Environment environment = parserContext.getDelegate().getEnvironment();
         boolean useDefaultFilters = true;
         if (element.hasAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE))
             useDefaultFilters = Boolean.valueOf(element.getAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE));
-        final JLayerClassScanner scanner = new JLayerClassScanner(useDefaultFilters, environment);
+        final ScanClassPathClassScanner scanner = new ScanClassPathClassScanner(useDefaultFilters, environment);
         scanner.setResourceLoader(readerContext.getResourceLoader());
         if (element.hasAttribute(RESOURCE_PATTERN_ATTRIBUTE))
             scanner.setResourcePattern(element.getAttribute(RESOURCE_PATTERN_ATTRIBUTE));
@@ -69,7 +69,7 @@ class JLayerScanBeanDefinitionParser extends ComponentScanBeanDefinitionParser {
         return scanner;
     }
 
-    protected void parseTypeFilters(Element element, JLayerClassScanner scanner,
+    protected void parseTypeFilters(Element element, ScanClassPathClassScanner scanner,
       XmlReaderContext readerContext, ParserContext parserContext) {
 
         // Parse exclude and include filter elements.
@@ -86,8 +86,8 @@ class JLayerScanBeanDefinitionParser extends ComponentScanBeanDefinitionParser {
                     scanner.addIncludeFilter(this.createTypeFilter(childElement, classLoader));
                 if (EXCLUDE_FILTER_ELEMENT.equals(localName))
                     scanner.addExcludeFilter(this.createTypeFilter(childElement, classLoader));
-            } catch (Exception ex) {
-                readerContext.error(ex.getMessage(), readerContext.extractSource(element), ex.getCause());
+            } catch (Exception e) {
+                readerContext.error(e.getMessage(), readerContext.extractSource(element), e.getCause());
             }
         }
     }

@@ -14,7 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates JLayer model class methods that are to be invoked whenever an object is newly created.
+ * Annotates JSimpleDB model class methods that are to be invoked whenever an object is newly created.
  *
  * <p>
  * Notifications are delivered in the same thread that deletes the object, immediately after the object is created.

@@ -10,7 +10,7 @@ package org.jsimpledb;
 import org.jsimpledb.core.ObjId;
 
 /**
- * Interface implemented by JLayer Java model objects.
+ * Interface implemented by {@link JSimpleDB} Java model objects.
  */
 public interface JObject {
 
