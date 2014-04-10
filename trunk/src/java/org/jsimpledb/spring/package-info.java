@@ -17,8 +17,8 @@
  *  <li>A Spring {@link org.springframework.transaction.PlatformTransactionManager PlatformTransactionManager} that integrates
  *      into Spring's transaction infrastructure and enables the
  *      {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation for
- *      {@link org.jsimpledb.jlayer.JLayer} transactions.</li>
- *  <li>{@link org.jsimpledb.spring.OpenTransactionInViewFilter}, which allows {@link org.jsimpledb.jlayer.JLayer}
+ *      {@link org.jsimpledb.JLayer} transactions.</li>
+ *  <li>{@link org.jsimpledb.spring.OpenTransactionInViewFilter}, which allows {@link org.jsimpledb.JLayer}
  *      transactions to span an entire web request.</li>
  * </ul>
  * </p>
@@ -41,10 +41,10 @@
  *     &lt;bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/&gt;
  *
  *     &lt;!-- Define the core Database layer on top of that --&gt;
- *     &lt;bean id="jdb" class="org.jsimpledb.JSimpleDB" p:KVDatabase-ref="kvdb"/&gt;
+ *     &lt;bean id="jdb" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvdb"/&gt;
  *
  *     &lt;!-- Define the Java "JLayer" on top of the JSimpleDB database --&gt;
- *     &lt;bean id="jlayer" class="org.jsimpledb.jlayer.JLayer" c:database-ref="jdb" c:version="1"&gt;
+ *     &lt;bean id="jlayer" class="org.jsimpledb.JLayer" c:database-ref="jdb" c:version="1"&gt;
  *         &lt;constructor-arg&gt;
  *             &lt;<b>jsimpledb:jlayer-scan</b> base-package="com.example.myapp"&gt;
  *                 &lt;<b>jsimpledb:exclude-filter</b> type="regex" expression="com\.example\.myapp\.test\..*"/&gt;

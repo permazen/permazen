@@ -10,34 +10,33 @@ package org.jsimpledb;
 /**
  * Support superclass for {@link MapField} key and value index entry classes.
  *
- * @param <T> un-indexed map sub-field type
+ * @param <T> Java type of the object containing the list field
+ * @param <V> the other map sub-field type
  */
-abstract class MapIndexEntry<T> {
+abstract class MapIndexEntry<T, V> {
 
-    final ObjId id;
-    final T other;
+    final T jobj;
+    final V other;
 
-    protected MapIndexEntry(ObjId id, T other) {
-        if (id == null)
-            throw new IllegalArgumentException("null id");
-        this.id = id;
+    public MapIndexEntry(T obj, V other) {
+        if (!(obj instanceof JObject))
+            throw new IllegalArgumentException("obj is not a JObject: " + obj);
+        this.jobj = obj;
         this.other = other;
     }
 
     /**
-     * Get the object ID of the object whose {@link MapField} contains the indexed value.
-     *
-     * @return object ID, never null
+     * Get the object whose map field contains the indexed value.
      */
-    public ObjId getObjId() {
-        return this.id;
+    public T getObject() {
+        return this.jobj;
     }
 
 // Object
 
     @Override
     public int hashCode() {
-        return this.id.hashCode() ^ (this.other != null ? this.other.hashCode() : 0);
+        return ((JObject)this.jobj).getObjId().hashCode() ^ (this.other != null ? this.other.hashCode() : 0);
     }
 
     @Override
@@ -46,8 +45,9 @@ abstract class MapIndexEntry<T> {
             return true;
         if (obj == null || obj.getClass() != this.getClass())
             return false;
-        final MapIndexEntry<?> that = (MapIndexEntry)obj;
-        return this.id.equals(that.id) && (this.other != null ? this.other.equals(that.other) : that.other == null);
+        final MapIndexEntry<?, ?> that = (MapIndexEntry<?, ?>)obj;
+        return ((JObject)this.jobj).getObjId().equals(((JObject)that.jobj).getObjId())
+          && (this.other != null ? this.other.equals(that.other) : that.other == null);
     }
 }
 

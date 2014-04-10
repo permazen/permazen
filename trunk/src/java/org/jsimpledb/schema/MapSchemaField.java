@@ -13,7 +13,7 @@ import java.util.Map;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.jsimpledb.MapField;
+import org.jsimpledb.core.MapField;
 
 /**
  * A map field in one version of a {@link SchemaObject}.

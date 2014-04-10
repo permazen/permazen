@@ -14,12 +14,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation for Java classes that are {@link org.jsimpledb.jlayer.JLayer} object model types.
+ * Java annotation for Java classes that are {@link org.jsimpledb.JLayer} object model types.
  *
  * <p>
  * Typically such classes are declared {@code abstract} and contain {@code abstract} Java bean getter methods
  * with {@link JField &#64;JField}, {@link JSetField &#64;JSetField}, etc. annotations that
- * define the fields of the object type. The generated subclass will implement {@link org.jsimpledb.jlayer.JObject},
+ * define the fields of the object type. The generated subclass will implement {@link org.jsimpledb.JObject},
  * so the annotated class may be declared that way. The annotated class must have a zero-parameter constructor.
  * </p>
  */

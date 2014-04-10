@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
  *  <ol>
  *  <li>{@code int oldVersion} - previous schema version; should be present only if {@link #oldVersion} is zero</li>
  *  <li>{@code int newVersion} - new schema version (always equal to
- *      {@link org.jsimpledb.Transaction}.{@link org.jsimpledb.Transaction#getSchemaVersion getSchemaVersion()});
+ *      {@link org.jsimpledb.core.Transaction}.{@link org.jsimpledb.core.Transaction#getSchemaVersion getSchemaVersion()});
  *      should be present only if {@link #newVersion} is zero</li>
  *  <li>{@code Map<Integer, Object> oldFieldValues} - contains all field values from the previous version of the object
  *      indexed by storage ID</li>

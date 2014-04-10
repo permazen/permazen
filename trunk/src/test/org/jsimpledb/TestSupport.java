@@ -40,6 +40,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
+import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.util.XMLSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,7 +198,7 @@ public abstract class TestSupport {
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
             final XMLStreamWriter writer = new IndentXMLStreamWriter(
               XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
-            new XMLSerializer(tx.kvt).write(writer, minKey, maxKey);
+            new XMLSerializer(tx.getKVTransaction()).write(writer, minKey, maxKey);
             this.log.info("{}\n{}", label, new String(buf.toByteArray(), Charset.forName("UTF-8")));
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);

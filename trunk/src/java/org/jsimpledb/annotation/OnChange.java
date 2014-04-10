@@ -17,16 +17,16 @@ import java.lang.annotation.Target;
  * Annotation for methods that are to be invoked whenever a targe field in some target object changes,
  * where the target object containing the changed field is found at the end of a path of references
  * starting from the object to be notified.
- * See {@link org.jsimpledb.jlayer.ReferencePath} for more information about reference paths.
+ * See {@link org.jsimpledb.ReferencePath} for more information about reference paths.
  *
  * <p><b>Method Parameter Types</b></p>
  *
  * <p>
  * In all cases the annotated method must return void and take a single parameter, which is a
- * sub-type of {@link org.jsimpledb.jlayer.change.FieldChange} suitable for the field being watched.
+ * sub-type of {@link org.jsimpledb.change.FieldChange} suitable for the field being watched.
  * The parameter type can be used to restrict which notifications are delivered. For example, an annotated method
- * taking a {@link org.jsimpledb.jlayer.change.SetFieldChange} will receive notifications about all changes to a set field,
- * while a method taking a {@link org.jsimpledb.jlayer.change.SetFieldAdd} will receive notification only when an element
+ * taking a {@link org.jsimpledb.change.SetFieldChange} will receive notifications about all changes to a set field,
+ * while a method taking a {@link org.jsimpledb.change.SetFieldAdd} will receive notification only when an element
  * is added to the set.
  * </p>
  *
@@ -68,12 +68,12 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <p>
- * See {@link org.jsimpledb.Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()}
+ * See {@link org.jsimpledb.core.Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()}
  * for further information on other special corner cases.
  * </p>
  *
- * @see org.jsimpledb.jlayer.ReferencePath
- * @see org.jsimpledb.jlayer.change
+ * @see org.jsimpledb.ReferencePath
+ * @see org.jsimpledb.change
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -82,21 +82,21 @@ public @interface OnChange {
 
     /**
      * Specifies the path to the target field to watch for changes.
-     * See {@link org.jsimpledb.jlayer.ReferencePath} for information on the proper syntax.
+     * See {@link org.jsimpledb.ReferencePath} for information on the proper syntax.
      *
-     * @see org.jsimpledb.jlayer.ReferencePath
+     * @see org.jsimpledb.ReferencePath
      */
     String value();
 
     /**
-     * Specifies the starting type for the {@link org.jsimpledb.jlayer.ReferencePath} specified by {@code #value}.
+     * Specifies the starting type for the {@link org.jsimpledb.ReferencePath} specified by {@code #value}.
      *
      * <p>
      * This property must be left unset for instance methods. For static methods, if this property is left unset,
      * then then class containing the annotated method is assumed.
      * </p>
      *
-     * @see org.jsimpledb.jlayer.ReferencePath
+     * @see org.jsimpledb.ReferencePath
      */
     Class<?> startType() default void.class;
 }
