@@ -22,7 +22,7 @@
 <span class="sourceLineNo">014</span>import javax.servlet.http.HttpServletRequest;<a name="line.14"></a>
 <span class="sourceLineNo">015</span>import javax.servlet.http.HttpServletResponse;<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.JLayer;<a name="line.17"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.JSimpleDB;<a name="line.17"></a>
 <span class="sourceLineNo">018</span>import org.jsimpledb.JTransaction;<a name="line.18"></a>
 <span class="sourceLineNo">019</span>import org.jsimpledb.ValidationMode;<a name="line.19"></a>
 <span class="sourceLineNo">020</span>import org.springframework.transaction.interceptor.DefaultTransactionAttribute;<a name="line.20"></a>
@@ -32,92 +32,92 @@
 <span class="sourceLineNo">024</span>import org.springframework.web.filter.OncePerRequestFilter;<a name="line.24"></a>
 <span class="sourceLineNo">025</span><a name="line.25"></a>
 <span class="sourceLineNo">026</span>/**<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * A servlet {@link javax.servlet.Filter} binds a {@link JLayer} {@link JTransaction} to the current thread<a name="line.27"></a>
+<span class="sourceLineNo">027</span> * A servlet {@link javax.servlet.Filter} binds a {@link JSimpleDB} {@link JTransaction} to the current thread<a name="line.27"></a>
 <span class="sourceLineNo">028</span> * for the entire processing of the request. Intended for the "Open Session in View" pattern, i.e. to allow<a name="line.28"></a>
 <span class="sourceLineNo">029</span> * for lazy loading in web views despite the original transactions already being completed.<a name="line.29"></a>
 <span class="sourceLineNo">030</span> *<a name="line.30"></a>
 <span class="sourceLineNo">031</span> * &lt;p&gt;<a name="line.31"></a>
 <span class="sourceLineNo">032</span> * This filter makes {@link JTransaction}s available via the current thread, which will be autodetected by<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * a {@link JLayerTransactionManager}.<a name="line.33"></a>
+<span class="sourceLineNo">033</span> * a {@link JSimpleDBTransactionManager}.<a name="line.33"></a>
 <span class="sourceLineNo">034</span> * &lt;/p&gt;<a name="line.34"></a>
 <span class="sourceLineNo">035</span> *<a name="line.35"></a>
 <span class="sourceLineNo">036</span> * &lt;p&gt;<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * Looks up the {@link JLayer} in Spring's root web application context. Supports a {@code "jlayerBeanName"}<a name="line.37"></a>
-<span class="sourceLineNo">038</span> * filter init-param in web.xml; the default bean name is {@code "jlayer"}. Also supports setting the following<a name="line.38"></a>
+<span class="sourceLineNo">037</span> * Looks up the {@link JSimpleDB} in Spring's root web application context. Supports a {@code "JSimpleDBBeanName"}<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * filter init-param in web.xml; the default bean name is {@code "jsimpledb"}. Also supports setting the following<a name="line.38"></a>
 <span class="sourceLineNo">039</span> * filter init-params:<a name="line.39"></a>
 <span class="sourceLineNo">040</span> * &lt;ul&gt;<a name="line.40"></a>
 <span class="sourceLineNo">041</span> *  &lt;li&gt;{@code "transactionAttributes"} - configures {@link TransactionAttribute}s; value should be<a name="line.41"></a>
 <span class="sourceLineNo">042</span> *      a string compatible with {@link org.springframework.transaction.interceptor.TransactionAttributeEditor}.&lt;/li&gt;<a name="line.42"></a>
 <span class="sourceLineNo">043</span> *  &lt;li&gt;{@code "allowNewSchema"} - whether creation of a new schema version in the database is allowed.<a name="line.43"></a>
-<span class="sourceLineNo">044</span> *      (see {@link JLayer#createTransaction JLayer.createTransaction()}). Default false.&lt;/li&gt;<a name="line.44"></a>
+<span class="sourceLineNo">044</span> *      (see {@link JSimpleDB#createTransaction JSimpleDB.createTransaction()}). Default false.&lt;/li&gt;<a name="line.44"></a>
 <span class="sourceLineNo">045</span> *  &lt;li&gt;{@code "validationMode"} - validation mode for the transaction<a name="line.45"></a>
-<span class="sourceLineNo">046</span> *      (see {@link JLayer#createTransaction JLayer.createTransaction()}). Default {@link ValidationMode#AUTOMATIC}.&lt;/li&gt;<a name="line.46"></a>
+<span class="sourceLineNo">046</span> *      (see {@link JSimpleDB#createTransaction JSimpleDB.createTransaction()}). Default {@link ValidationMode#AUTOMATIC}.&lt;/li&gt;<a name="line.46"></a>
 <span class="sourceLineNo">047</span> * &lt;/ul&gt;<a name="line.47"></a>
 <span class="sourceLineNo">048</span> * &lt;/p&gt;<a name="line.48"></a>
 <span class="sourceLineNo">049</span> */<a name="line.49"></a>
 <span class="sourceLineNo">050</span>public class OpenTransactionInViewFilter extends OncePerRequestFilter {<a name="line.50"></a>
 <span class="sourceLineNo">051</span><a name="line.51"></a>
 <span class="sourceLineNo">052</span>    /**<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * The default name of the {@link JLayer} bean: &lt;code&gt;{@value}&lt;/code&gt;.<a name="line.53"></a>
+<span class="sourceLineNo">053</span>     * The default name of the {@link JSimpleDB} bean: &lt;code&gt;{@value}&lt;/code&gt;.<a name="line.53"></a>
 <span class="sourceLineNo">054</span>     *<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * @see #JLAYER_BEAN_NAME_PARAMETER<a name="line.55"></a>
+<span class="sourceLineNo">055</span>     * @see #JSIMPLEDB_BEAN_NAME_PARAMETER<a name="line.55"></a>
 <span class="sourceLineNo">056</span>     */<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    public static final String DEFAULT_JLAYER_BEAN_NAME = "jlayer";<a name="line.57"></a>
+<span class="sourceLineNo">057</span>    public static final String DEFAULT_JSIMPLEDB_BEAN_NAME = "jsimpledb";<a name="line.57"></a>
 <span class="sourceLineNo">058</span><a name="line.58"></a>
 <span class="sourceLineNo">059</span>    /**<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * Filter init parameter that specifies the name of the {@link JLayer} bean: &lt;code&gt;{@value}&lt;/code&gt;.<a name="line.60"></a>
+<span class="sourceLineNo">060</span>     * Filter init parameter that specifies the name of the {@link JSimpleDB} bean: &lt;code&gt;{@value}&lt;/code&gt;.<a name="line.60"></a>
 <span class="sourceLineNo">061</span>     *<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     * @see #DEFAULT_JLAYER_BEAN_NAME<a name="line.62"></a>
+<span class="sourceLineNo">062</span>     * @see #DEFAULT_JSIMPLEDB_BEAN_NAME<a name="line.62"></a>
 <span class="sourceLineNo">063</span>     */<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    public static final String JLAYER_BEAN_NAME_PARAMETER = "jlayerBeanName";<a name="line.64"></a>
+<span class="sourceLineNo">064</span>    public static final String JSIMPLEDB_BEAN_NAME_PARAMETER = "JSimpleDBBeanName";<a name="line.64"></a>
 <span class="sourceLineNo">065</span><a name="line.65"></a>
 <span class="sourceLineNo">066</span>    /**<a name="line.66"></a>
 <span class="sourceLineNo">067</span>     * Filter init parameter that specifies transaction attributes: &lt;code&gt;{@value}&lt;/code&gt;.<a name="line.67"></a>
 <span class="sourceLineNo">068</span>     */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    public static final String JLAYER_TRANSACTION_ATTRIBUTE_PARAMETER = "transactionAttributes";<a name="line.69"></a>
+<span class="sourceLineNo">069</span>    public static final String JSIMPLEDB_TRANSACTION_ATTRIBUTE_PARAMETER = "transactionAttributes";<a name="line.69"></a>
 <span class="sourceLineNo">070</span><a name="line.70"></a>
 <span class="sourceLineNo">071</span>    /**<a name="line.71"></a>
 <span class="sourceLineNo">072</span>     * Filter init parameter that specifies whether creation of a new schema version in the database is allowed.<a name="line.72"></a>
 <span class="sourceLineNo">073</span>     * Default false.<a name="line.73"></a>
 <span class="sourceLineNo">074</span>     */<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    public static final String JLAYER_ALLOW_NEW_SCHEMA_PARAMETER = "allowNewSchema";<a name="line.75"></a>
+<span class="sourceLineNo">075</span>    public static final String JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER = "allowNewSchema";<a name="line.75"></a>
 <span class="sourceLineNo">076</span><a name="line.76"></a>
 <span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
 <span class="sourceLineNo">078</span>     * Filter init parameter that specifies the validation mode for the transaction.<a name="line.78"></a>
 <span class="sourceLineNo">079</span>     * Default {@link ValidationMode#AUTOMATIC}.<a name="line.79"></a>
 <span class="sourceLineNo">080</span>     */<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    public static final String JLAYER_VALIDATION_MODE_PARAMETER = "validationMode";<a name="line.81"></a>
+<span class="sourceLineNo">081</span>    public static final String JSIMPLEDB_VALIDATION_MODE_PARAMETER = "validationMode";<a name="line.81"></a>
 <span class="sourceLineNo">082</span><a name="line.82"></a>
-<span class="sourceLineNo">083</span>    private String jlayerBeanName = DEFAULT_JLAYER_BEAN_NAME;<a name="line.83"></a>
+<span class="sourceLineNo">083</span>    private String jsimpledbBeanName = DEFAULT_JSIMPLEDB_BEAN_NAME;<a name="line.83"></a>
 <span class="sourceLineNo">084</span>    private TransactionAttribute transactionAttributes;<a name="line.84"></a>
 <span class="sourceLineNo">085</span>    private boolean allowNewSchema;<a name="line.85"></a>
 <span class="sourceLineNo">086</span>    private ValidationMode validationMode = ValidationMode.AUTOMATIC;<a name="line.86"></a>
 <span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    private volatile JLayer jlayer;<a name="line.88"></a>
+<span class="sourceLineNo">088</span>    private volatile JSimpleDB jdb;<a name="line.88"></a>
 <span class="sourceLineNo">089</span><a name="line.89"></a>
 <span class="sourceLineNo">090</span>    /**<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     * Get the name of the {@link JLayer} bean to find in the Spring root application context.<a name="line.91"></a>
+<span class="sourceLineNo">091</span>     * Get the name of the {@link JSimpleDB} bean to find in the Spring root application context.<a name="line.91"></a>
 <span class="sourceLineNo">092</span>     *<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * @see #JLAYER_BEAN_NAME_PARAMETER<a name="line.93"></a>
+<span class="sourceLineNo">093</span>     * @see #JSIMPLEDB_BEAN_NAME_PARAMETER<a name="line.93"></a>
 <span class="sourceLineNo">094</span>     */<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    public String getJlayerBeanName() {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        return this.jlayerBeanName;<a name="line.96"></a>
+<span class="sourceLineNo">095</span>    public String getJSimpleDBBeanName() {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        return this.jsimpledbBeanName;<a name="line.96"></a>
 <span class="sourceLineNo">097</span>    }<a name="line.97"></a>
 <span class="sourceLineNo">098</span><a name="line.98"></a>
 <span class="sourceLineNo">099</span>    /**<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     * Set the name of the {@link JLayer} bean to find in the Spring root application context.<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * Default is {@link #DEFAULT_JLAYER_BEAN_NAME}.<a name="line.101"></a>
+<span class="sourceLineNo">100</span>     * Set the name of the {@link JSimpleDB} bean to find in the Spring root application context.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * Default is {@link #DEFAULT_JSIMPLEDB_BEAN_NAME}.<a name="line.101"></a>
 <span class="sourceLineNo">102</span>     *<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * @see #JLAYER_BEAN_NAME_PARAMETER<a name="line.103"></a>
+<span class="sourceLineNo">103</span>     * @see #JSIMPLEDB_BEAN_NAME_PARAMETER<a name="line.103"></a>
 <span class="sourceLineNo">104</span>     */<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    public void setJlayerBeanName(String jlayerBeanName) {<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        this.jlayerBeanName = jlayerBeanName;<a name="line.106"></a>
+<span class="sourceLineNo">105</span>    public void setJSimpleDBBeanName(String jsimpledbBeanName) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        this.jsimpledbBeanName = jsimpledbBeanName;<a name="line.106"></a>
 <span class="sourceLineNo">107</span>    }<a name="line.107"></a>
 <span class="sourceLineNo">108</span><a name="line.108"></a>
 <span class="sourceLineNo">109</span>    /**<a name="line.109"></a>
 <span class="sourceLineNo">110</span>     * Get the transaction attributes.<a name="line.110"></a>
 <span class="sourceLineNo">111</span>     *<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     * @see #JLAYER_TRANSACTION_ATTRIBUTE_PARAMETER<a name="line.112"></a>
+<span class="sourceLineNo">112</span>     * @see #JSIMPLEDB_TRANSACTION_ATTRIBUTE_PARAMETER<a name="line.112"></a>
 <span class="sourceLineNo">113</span>     */<a name="line.113"></a>
 <span class="sourceLineNo">114</span>    public TransactionAttribute getTransactionAttributes() {<a name="line.114"></a>
 <span class="sourceLineNo">115</span>        return this.transactionAttributes;<a name="line.115"></a>
@@ -126,7 +126,7 @@
 <span class="sourceLineNo">118</span>    /**<a name="line.118"></a>
 <span class="sourceLineNo">119</span>     * Set the transaction attributes.<a name="line.119"></a>
 <span class="sourceLineNo">120</span>     *<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     * @see #JLAYER_TRANSACTION_ATTRIBUTE_PARAMETER<a name="line.121"></a>
+<span class="sourceLineNo">121</span>     * @see #JSIMPLEDB_TRANSACTION_ATTRIBUTE_PARAMETER<a name="line.121"></a>
 <span class="sourceLineNo">122</span>     */<a name="line.122"></a>
 <span class="sourceLineNo">123</span>    public void setTransactionAttributes(TransactionAttribute transactionAttributes) {<a name="line.123"></a>
 <span class="sourceLineNo">124</span>        this.transactionAttributes = transactionAttributes;<a name="line.124"></a>
@@ -135,7 +135,7 @@
 <span class="sourceLineNo">127</span>    /**<a name="line.127"></a>
 <span class="sourceLineNo">128</span>     * Get whether new scheme creation is allowed.<a name="line.128"></a>
 <span class="sourceLineNo">129</span>     *<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     * @see #JLAYER_ALLOW_NEW_SCHEMA_PARAMETER<a name="line.130"></a>
+<span class="sourceLineNo">130</span>     * @see #JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER<a name="line.130"></a>
 <span class="sourceLineNo">131</span>     */<a name="line.131"></a>
 <span class="sourceLineNo">132</span>    public boolean isAllowNewSchema() {<a name="line.132"></a>
 <span class="sourceLineNo">133</span>        return this.allowNewSchema;<a name="line.133"></a>
@@ -144,7 +144,7 @@
 <span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
 <span class="sourceLineNo">137</span>     * Set whether new scheme creation is allowed.<a name="line.137"></a>
 <span class="sourceLineNo">138</span>     *<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * @see #JLAYER_ALLOW_NEW_SCHEMA_PARAMETER<a name="line.139"></a>
+<span class="sourceLineNo">139</span>     * @see #JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER<a name="line.139"></a>
 <span class="sourceLineNo">140</span>     */<a name="line.140"></a>
 <span class="sourceLineNo">141</span>    public void setAllowNewSchema(boolean allowNewSchema) {<a name="line.141"></a>
 <span class="sourceLineNo">142</span>        this.allowNewSchema = allowNewSchema;<a name="line.142"></a>
@@ -153,7 +153,7 @@
 <span class="sourceLineNo">145</span>    /**<a name="line.145"></a>
 <span class="sourceLineNo">146</span>     * Get transaction validation mode.<a name="line.146"></a>
 <span class="sourceLineNo">147</span>     *<a name="line.147"></a>
-<span class="sourceLineNo">148</span>     * @see #JLAYER_VALIDATION_MODE_PARAMETER<a name="line.148"></a>
+<span class="sourceLineNo">148</span>     * @see #JSIMPLEDB_VALIDATION_MODE_PARAMETER<a name="line.148"></a>
 <span class="sourceLineNo">149</span>     */<a name="line.149"></a>
 <span class="sourceLineNo">150</span>    public ValidationMode getValidationMode() {<a name="line.150"></a>
 <span class="sourceLineNo">151</span>        return this.validationMode;<a name="line.151"></a>
@@ -162,7 +162,7 @@
 <span class="sourceLineNo">154</span>    /**<a name="line.154"></a>
 <span class="sourceLineNo">155</span>     * Set transaction validation mode.<a name="line.155"></a>
 <span class="sourceLineNo">156</span>     *<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     * @see #JLAYER_VALIDATION_MODE_PARAMETER<a name="line.157"></a>
+<span class="sourceLineNo">157</span>     * @see #JSIMPLEDB_VALIDATION_MODE_PARAMETER<a name="line.157"></a>
 <span class="sourceLineNo">158</span>     */<a name="line.158"></a>
 <span class="sourceLineNo">159</span>    public void setValidationMode(ValidationMode validationMode) {<a name="line.159"></a>
 <span class="sourceLineNo">160</span>        if (validationMode == null)<a name="line.160"></a>
@@ -171,17 +171,17 @@
 <span class="sourceLineNo">163</span>    }<a name="line.163"></a>
 <span class="sourceLineNo">164</span><a name="line.164"></a>
 <span class="sourceLineNo">165</span>    /**<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * Look up the {@link JLayer} that this filter should use.<a name="line.166"></a>
+<span class="sourceLineNo">166</span>     * Look up the {@link JSimpleDB} that this filter should use.<a name="line.166"></a>
 <span class="sourceLineNo">167</span>     *<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     * @return the JLayer to use<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     * @see #getJlayerBeanName<a name="line.169"></a>
+<span class="sourceLineNo">168</span>     * @return the JSimpleDB to use<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * @see #getJSimpleDBBeanName<a name="line.169"></a>
 <span class="sourceLineNo">170</span>     */<a name="line.170"></a>
-<span class="sourceLineNo">171</span>    protected JLayer lookupJLayer() {<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        if (this.jlayer == null) {<a name="line.172"></a>
+<span class="sourceLineNo">171</span>    protected JSimpleDB lookupJSimpleDB() {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        if (this.jdb == null) {<a name="line.172"></a>
 <span class="sourceLineNo">173</span>            final WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext());<a name="line.173"></a>
-<span class="sourceLineNo">174</span>            this.jlayer = wac.getBean(this.getJlayerBeanName(), JLayer.class);<a name="line.174"></a>
+<span class="sourceLineNo">174</span>            this.jdb = wac.getBean(this.getJSimpleDBBeanName(), JSimpleDB.class);<a name="line.174"></a>
 <span class="sourceLineNo">175</span>        }<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        return this.jlayer;<a name="line.176"></a>
+<span class="sourceLineNo">176</span>        return this.jdb;<a name="line.176"></a>
 <span class="sourceLineNo">177</span>    }<a name="line.177"></a>
 <span class="sourceLineNo">178</span><a name="line.178"></a>
 <span class="sourceLineNo">179</span>    @Override<a name="line.179"></a>
@@ -202,7 +202,7 @@
 <span class="sourceLineNo">194</span>            attr = new DefaultTransactionAttribute();<a name="line.194"></a>
 <span class="sourceLineNo">195</span><a name="line.195"></a>
 <span class="sourceLineNo">196</span>        // Create transaction<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        final JTransaction jtx = this.lookupJLayer().createTransaction(this.allowNewSchema, this.validationMode);<a name="line.197"></a>
+<span class="sourceLineNo">197</span>        final JTransaction jtx = this.lookupJSimpleDB().createTransaction(this.allowNewSchema, this.validationMode);<a name="line.197"></a>
 <span class="sourceLineNo">198</span><a name="line.198"></a>
 <span class="sourceLineNo">199</span>        // Configure it<a name="line.199"></a>
 <span class="sourceLineNo">200</span>        if (attr.isReadOnly())<a name="line.200"></a>
