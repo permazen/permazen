@@ -50,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Java annotation layer transaction.
+ * A transaction associated with a {@link JSimpleDB} instance.
  */
 public class JTransaction implements VersionChangeListener, CreateListener, DeleteListener {
 
@@ -505,7 +505,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * </p>
      *
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws RetryTransactionException from {@link org.jsimpledb.kv.KVTransaction#commit KVTransaction.commit()}
+     * @throws org.jsimpledb.kv.RetryTransactionException from {@link org.jsimpledb.kv.KVTransaction#commit KVTransaction.commit()}
      * @throws ValidationException if a validation error is detected
      * @throws IllegalStateException if this method is invoked re-entrantly from within a validation check
      */
@@ -557,14 +557,14 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      *
      * <p>
      * If validation fails, validation stops, all remaining unvalidated objects are left on the validation queue,
-     * and a {@link ValidationException} is thrown.
+     * and a {@link ValidationException} is thrown. The transaction will remain usable.
      * </p>
      *
      * <p>
      * <b>Note:</b> if the this transaction was created with {@link ValidationMode#DISABLED}, then this method does nothing.
      * </p>
      *
-     * @throws RetryTransactionException from {@link org.jsimpledb.kv.KVTransaction#commit KVTransaction.commit()}
+     * @throws org.jsimpledb.kv.RetryTransactionException from {@link org.jsimpledb.kv.KVTransaction#commit KVTransaction.commit()}
      * @throws ValidationException if a validation error is detected
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws StaleTransactionException if this transaction is no longer usable

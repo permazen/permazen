@@ -11,6 +11,12 @@ import org.jsimpledb.core.ObjId;
 
 /**
  * Interface implemented by {@link JSimpleDB} Java model objects.
+ *
+ * <p>
+ * {@link JSimpleDB} automatically generates sub-classes of user-supplied Java model classes.
+ * These sub-classes know how to access database fields in the transaction associated with the current thread.
+ * In addition, these sub-classes implement this interface.
+ * </p>
  */
 public interface JObject {
 

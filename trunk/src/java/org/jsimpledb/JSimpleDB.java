@@ -34,25 +34,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Java model layer for accessing a JSimpleDB {@link Database} using normal Java objects.
+ * Abstraction layer allowing access to a {@link Database} using normal Java objects.
  *
  * <p>
- * This class provides a natural, Java-centric view of a JSimpleDB {@link Database}. This is done via two main
- * enhancements to the core functionality provided by {@link Database}:
+ * This class provides a natural, Java-centric view on top of the core {@link Database} class. This is done via two main
+ * enhancements to the functionality provided by {@link Database}:
  * <ul>
- *  <li>Java annotations are used to define all {@link Database} objects and fields, and to automatically
- *      register various listeners.</li>
+ *  <li>Java annotations are used to define all {@link Database} objects and fields, to automatically
+ *      register various listeners, and to define methods that access indexed fields.</li>
  *  <li>{@link Database} objects and fields are represented using actual Java model objects, where the Java model classes
- *      are automatically generated subclasses of suitably annotated user-supplied Java bean superclasses. That is,
- *      all {@link Database} object references (i.e., {@link ObjId}s) are replaced by references to these Java model objects,
- *      and all {@link Database} fields are accessible through the annotated Java bean getter and setter methods.</li>
+ *      are automatically generated subclasses of the user-supplied Java bean model classes. That is, in the view that
+ *      a {@link JSimpleDB} provides, all {@link Database} object references (which are all {@link ObjId} objects)
+ *      are replaced by normal Java model objects of the appropriate type, and all {@link Database} fields are accessible
+ *      through the corresponding model objects' Java bean getter and setter methods, instead of directly through
+ *      a {@link Transaction} object.</li>
  * </ul>
  * </p>
  *
  * <p>
- * This class guarantees that for each {@link ObjId} there is only ever one Java model object in existence,
- * independent of any transaction. Therefore, the same Java objects can be used in any transaction. The Java model
- * objects are stateless; all field state is contained within whichever transaction is associated with the current thread.
+ * In addition, a {@link JSimpleDB} provides automatic incremental JSR 303 validation.
+ * </p>
+ *
+ * <p>
+ * This class guarantees that for each {@link ObjId} it will only create a single, globally unique, Java model object.
+ * Therefore, the same Java model objects can be used in and out of any transaction, and can serve as
+ * unique database object identifiers (if you have not overridden {@link #equals equals()} in your model clases).
+ * Except for their associated {@link ObjId}s, the generated Java model objects are stateless; all database field state
+ * is contained within whichever transaction is {@linkplain JTransaction#getCurrent associated with the current thread}.
+ * All generated Java model classes will implement the {@link JObject} interface.
  * </p>
  */
 public class JSimpleDB {
@@ -80,8 +89,8 @@ public class JSimpleDB {
     /**
      * Constructor.
      *
-     * @param database database to use
-     * @param version schema version associated with {@code classes}
+     * @param database core database to use
+     * @param version schema version number of the schema derived from {@code classes}
      * @param classes classes annotated with {@link JSimpleClass} and/or {@link JFieldType} annotations
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code version} is not greater than zero
