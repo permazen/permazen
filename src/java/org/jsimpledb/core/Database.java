@@ -34,7 +34,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents a jSimpleDB database.
+ * Provides an object database abstraction on top of a key/value database.
+ *
+ * <p>
+ * Includes support for:
+ * <ul>
+ *  <li>Objects and fields defined by a {@link SchemaModel}</li>
+ *  <li>Simple values fields containing any atomic type</li>
+ *  <li>User-defined custom {@link FieldType}s</li>
+ *  <li>Invertable reference fields with strong referential integrity and configurable delete cascading</li>
+ *  <li>Complex fields of type {@link java.util.NavigableSet}, {@link java.util.List}, and {@link java.util.NavigableMap}</li>
+ *  <li>Configurable indexing of any simple or complex field</li>
+ *  <li>Notification of field changes as seen through an arbitrary path of references</li>
+ *  <li>Automatic schema tracking and object versioning with schema change notification support</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * This class defines an abstraction layer that sits below {@link org.jsimpledb.JSimpleDB}. Compared to
+ * {@link org.jsimpledb.JSimpleDB}, a {@link Database} has these differences:
+ * <ul>
+ *  <li>A {@link SchemaModel} must be explicitly provided to define the schema in use</li>
+ *  <li>Database objects are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type</li>
+ *  <li>All object types and fields must be referenced by storage ID using a {@link Transaction} object</li>
+ *  <li>There is no automatic validation support</li>
+ * </ul>
+ * </p>
  *
  * @see org.jsimpledb
  */
