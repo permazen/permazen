@@ -1,0 +1,55 @@
+#summary Getting Started with JSimpleDB
+
+== Getting Started ==
+
+JSimpleDB is designed to make life easy for Java programmers, so this "Getting Started" document ought to be easy for any Java programmer to understand.
+
+<wiki:toc max_depth="3"/>
+
+== Quick Example ==
+
+Sometimes code is worth a thousand words, so here is some code:
+<code language="java">
+@JSimpleClass(storageId = 100)
+public abstract class Person {
+ 
+    // My age
+    @JField(storageId = 101)
+    public abstract int getAge();
+    public abstract void setAge(int age);
+ 
+    // My friends
+    @JSetField(storageId = 102, element = @JField(storageId = 103))
+    public abstract Set<Person> getFriends();
+}
+</code>
+
+Of note:
+ * We are defining a class `Person` with two fields:
+   * A simple field named `age` of type `int`
+   * A complex `Set` field named `friends` with element type `Person`
+ * There is no setter method for `friends`; the set always exists
+ * The `Person` class and each field (including the sub-field `element` of the set field `friends`) has a unique *storage ID*
+ * The getter methods for `age` and `friends` are declared `abstract`
+
+=== Custom Indexes ===
+
+=== Schema Changes ===
+
+=== Validation ===
+
+=== Lifecycle Notifications ===
+
+
+== The JSimpleDB Model ==
+
+JSimpleDB is normally used and configured via annotated Java classes, but this is not actually required. The Java model/annotation layer sits on top of the *core database* layer, which we will describe first.
+
+The core database layer has the following notions:
+ * *Objects* - An object is a collection of fields
+ * *Fields* - A field can be *simple* or *complex*
+ * *Simple Fields* - Holds an atomic value like `int` or `Date`. Non-primitive types may be null. Simple fields may optionally be *indexed*.
+ * *Complex Fields* - Sets, Lists, and Maps. Complex fields have one or more *sub-fields*, which are themselves always simple fields; a complex field may not be itself indexed, but its simple sub-field(s) may be
+ * *Reference Fields* - A reference field is a special type of simple field that holds a reference to an object. Reference fields are always indexed.
+
+All objects and fields have a unique *storage ID*.
