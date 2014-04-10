@@ -39,11 +39,11 @@
 <span class="sourceLineNo">031</span> *<a name="line.31"></a>
 <span class="sourceLineNo">032</span> * @param &lt;T&gt; the Java class<a name="line.32"></a>
 <span class="sourceLineNo">033</span> */<a name="line.33"></a>
-<span class="sourceLineNo">034</span>public class JClass&lt;T&gt; extends JLayerObject {<a name="line.34"></a>
+<span class="sourceLineNo">034</span>public class JClass&lt;T&gt; extends JSchemaObject {<a name="line.34"></a>
 <span class="sourceLineNo">035</span><a name="line.35"></a>
 <span class="sourceLineNo">036</span>    final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.36"></a>
 <span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>    final JLayer jlayer;<a name="line.38"></a>
+<span class="sourceLineNo">038</span>    final JSimpleDB jdb;<a name="line.38"></a>
 <span class="sourceLineNo">039</span>    final TypeToken&lt;T&gt; typeToken;<a name="line.39"></a>
 <span class="sourceLineNo">040</span>    final TreeMap&lt;Integer, JField&gt; jfields = new TreeMap&lt;&gt;();<a name="line.40"></a>
 <span class="sourceLineNo">041</span>    final TreeMap&lt;String, JField&gt; jfieldsByName = new TreeMap&lt;&gt;();<a name="line.41"></a>
@@ -61,20 +61,20 @@
 <span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
 <span class="sourceLineNo">054</span>     * Constructor.<a name="line.54"></a>
 <span class="sourceLineNo">055</span>     *<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * @param jlayer the associated {@link JLayer}<a name="line.56"></a>
+<span class="sourceLineNo">056</span>     * @param jdb the associated {@link JSimpleDB}<a name="line.56"></a>
 <span class="sourceLineNo">057</span>     * @param name the name of the object type<a name="line.57"></a>
 <span class="sourceLineNo">058</span>     * @param storageId object type storage ID<a name="line.58"></a>
 <span class="sourceLineNo">059</span>     * @param type object type Java model class<a name="line.59"></a>
 <span class="sourceLineNo">060</span>     * @throws IllegalArgumentException if any parameter is null<a name="line.60"></a>
 <span class="sourceLineNo">061</span>     * @throws IllegalArgumentException if {@code storageId} is non-positive<a name="line.61"></a>
 <span class="sourceLineNo">062</span>     */<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    JClass(JLayer jlayer, String name, int storageId, TypeToken&lt;T&gt; typeToken) {<a name="line.63"></a>
+<span class="sourceLineNo">063</span>    JClass(JSimpleDB jdb, String name, int storageId, TypeToken&lt;T&gt; typeToken) {<a name="line.63"></a>
 <span class="sourceLineNo">064</span>        super(name, storageId, "object type `" + name + "' (" + typeToken + ")");<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        if (jlayer == null)<a name="line.65"></a>
-<span class="sourceLineNo">066</span>            throw new IllegalArgumentException("null jlayer");<a name="line.66"></a>
+<span class="sourceLineNo">065</span>        if (jdb == null)<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            throw new IllegalArgumentException("null jdb");<a name="line.66"></a>
 <span class="sourceLineNo">067</span>        if (name == null)<a name="line.67"></a>
 <span class="sourceLineNo">068</span>            throw new IllegalArgumentException("null name");<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        this.jlayer = jlayer;<a name="line.69"></a>
+<span class="sourceLineNo">069</span>        this.jdb = jdb;<a name="line.69"></a>
 <span class="sourceLineNo">070</span>        this.typeToken = typeToken;<a name="line.70"></a>
 <span class="sourceLineNo">071</span>    }<a name="line.71"></a>
 <span class="sourceLineNo">072</span><a name="line.72"></a>
@@ -101,10 +101,10 @@
 <span class="sourceLineNo">093</span>// Public API<a name="line.93"></a>
 <span class="sourceLineNo">094</span><a name="line.94"></a>
 <span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * Get the {@link JLayer} with which this instance is associated.<a name="line.96"></a>
+<span class="sourceLineNo">096</span>     * Get the {@link JSimpleDB} with which this instance is associated.<a name="line.96"></a>
 <span class="sourceLineNo">097</span>     */<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    public JLayer getJLayer() {<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        return this.jlayer;<a name="line.99"></a>
+<span class="sourceLineNo">098</span>    public JSimpleDB getJSimpleDB() {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        return this.jdb;<a name="line.99"></a>
 <span class="sourceLineNo">100</span>    }<a name="line.100"></a>
 <span class="sourceLineNo">101</span><a name="line.101"></a>
 <span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
@@ -349,7 +349,7 @@
 <span class="sourceLineNo">341</span><a name="line.341"></a>
 <span class="sourceLineNo">342</span>        // See if field type encompasses one or more JClass types and is therefore a reference type<a name="line.342"></a>
 <span class="sourceLineNo">343</span>        boolean isReferenceType = false;<a name="line.343"></a>
-<span class="sourceLineNo">344</span>        for (JClass&lt;?&gt; jclass : this.jlayer.jclasses.values()) {<a name="line.344"></a>
+<span class="sourceLineNo">344</span>        for (JClass&lt;?&gt; jclass : this.jdb.jclasses.values()) {<a name="line.344"></a>
 <span class="sourceLineNo">345</span>            if (fieldTypeToken.isAssignableFrom(jclass.typeToken)) {<a name="line.345"></a>
 <span class="sourceLineNo">346</span>                isReferenceType = true;<a name="line.346"></a>
 <span class="sourceLineNo">347</span>                break;<a name="line.347"></a>
@@ -361,7 +361,7 @@
 <span class="sourceLineNo">353</span>        if (typeName != null) {<a name="line.353"></a>
 <span class="sourceLineNo">354</span><a name="line.354"></a>
 <span class="sourceLineNo">355</span>            // Field type is explicitly specified by name<a name="line.355"></a>
-<span class="sourceLineNo">356</span>            if ((nonReferenceType = this.jlayer.db.getFieldTypeRegistry().getFieldType(typeName)) == null)<a name="line.356"></a>
+<span class="sourceLineNo">356</span>            if ((nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(typeName)) == null)<a name="line.356"></a>
 <span class="sourceLineNo">357</span>                throw new IllegalArgumentException("invalid " + description + ": unknown simple field type `" + typeName + "'");<a name="line.357"></a>
 <span class="sourceLineNo">358</span><a name="line.358"></a>
 <span class="sourceLineNo">359</span>            // Verify field type matches what we expect<a name="line.359"></a>
@@ -375,7 +375,7 @@
 <span class="sourceLineNo">367</span><a name="line.367"></a>
 <span class="sourceLineNo">368</span>            // Try to find a field type supporting getter method return type<a name="line.368"></a>
 <span class="sourceLineNo">369</span>            try {<a name="line.369"></a>
-<span class="sourceLineNo">370</span>                nonReferenceType = this.jlayer.db.getFieldTypeRegistry().getFieldType(fieldTypeToken);<a name="line.370"></a>
+<span class="sourceLineNo">370</span>                nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(fieldTypeToken);<a name="line.370"></a>
 <span class="sourceLineNo">371</span>            } catch (IllegalArgumentException e) {<a name="line.371"></a>
 <span class="sourceLineNo">372</span>                if (!isReferenceType) {<a name="line.372"></a>
 <span class="sourceLineNo">373</span>                    throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"<a name="line.373"></a>

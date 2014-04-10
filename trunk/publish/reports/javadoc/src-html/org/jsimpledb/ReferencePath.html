@@ -101,19 +101,19 @@
 <span class="sourceLineNo">093</span>    /**<a name="line.93"></a>
 <span class="sourceLineNo">094</span>     * Constructor.<a name="line.94"></a>
 <span class="sourceLineNo">095</span>     *<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * @param jlayer {@link JLayer} with which to resolve object and field names<a name="line.96"></a>
+<span class="sourceLineNo">096</span>     * @param jdb {@link JSimpleDB} against which to resolve object and field names<a name="line.96"></a>
 <span class="sourceLineNo">097</span>     * @param startType starting Java type for the path<a name="line.97"></a>
 <span class="sourceLineNo">098</span>     * @param path dot-separated path of zero or more reference fields, followed by a target field<a name="line.98"></a>
 <span class="sourceLineNo">099</span>     * @param lastIsSubField true if the last field can be a complex sub-field but not a complex field, false for the reverse,<a name="line.99"></a>
 <span class="sourceLineNo">100</span>     *  or null for don't care<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * @throws IllegalArgumentException if {@code jlayer}, {@code startType}, or {@code path} is null<a name="line.101"></a>
+<span class="sourceLineNo">101</span>     * @throws IllegalArgumentException if {@code jdb}, {@code startType}, or {@code path} is null<a name="line.101"></a>
 <span class="sourceLineNo">102</span>     * @throws IllegalArgumentException if {@code path} is invalid<a name="line.102"></a>
 <span class="sourceLineNo">103</span>     */<a name="line.103"></a>
-<span class="sourceLineNo">104</span>    ReferencePath(JLayer jlayer, TypeToken&lt;?&gt; startType, String path, Boolean lastIsSubField) {<a name="line.104"></a>
+<span class="sourceLineNo">104</span>    ReferencePath(JSimpleDB jdb, TypeToken&lt;?&gt; startType, String path, Boolean lastIsSubField) {<a name="line.104"></a>
 <span class="sourceLineNo">105</span><a name="line.105"></a>
 <span class="sourceLineNo">106</span>        // Sanity check<a name="line.106"></a>
-<span class="sourceLineNo">107</span>        if (jlayer == null)<a name="line.107"></a>
-<span class="sourceLineNo">108</span>            throw new IllegalArgumentException("null jlayer");<a name="line.108"></a>
+<span class="sourceLineNo">107</span>        if (jdb == null)<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            throw new IllegalArgumentException("null jdb");<a name="line.108"></a>
 <span class="sourceLineNo">109</span>        if (startType == null)<a name="line.109"></a>
 <span class="sourceLineNo">110</span>            throw new IllegalArgumentException("null startType");<a name="line.110"></a>
 <span class="sourceLineNo">111</span>        if (path == null)<a name="line.111"></a>
@@ -152,7 +152,7 @@
 <span class="sourceLineNo">144</span><a name="line.144"></a>
 <span class="sourceLineNo">145</span>            // Find all JFields matching 'fieldName' in some JClass whose type matches 'typeToken'<a name="line.145"></a>
 <span class="sourceLineNo">146</span>            final HashMap&lt;JClass&lt;?&gt;, JField&gt; matchingFields = new HashMap&lt;&gt;();<a name="line.146"></a>
-<span class="sourceLineNo">147</span>            for (JClass&lt;?&gt; jclass : jlayer.jclasses.values()) {<a name="line.147"></a>
+<span class="sourceLineNo">147</span>            for (JClass&lt;?&gt; jclass : jdb.jclasses.values()) {<a name="line.147"></a>
 <span class="sourceLineNo">148</span>                if (!currentType.isAssignableFrom(jclass.typeToken))<a name="line.148"></a>
 <span class="sourceLineNo">149</span>                    continue;<a name="line.149"></a>
 <span class="sourceLineNo">150</span>                final JField jfield = jclass.jfieldsByName.get(fieldName);<a name="line.150"></a>
