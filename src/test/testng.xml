@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Id$ -->
+<suite name="Unit Test Suite" verbose="2">
+
+    <parameter name="deleteTempDirs" value="true"/>
+    <parameter name="randomSeed" value=""/>
+
+    <test name="Unit Tests">
+        <packages>
+            <package name="org.jsimpledb"/>
+            <package name="org.jsimpledb.jlayer"/>
+            <package name="org.jsimpledb.kv.simple"/>
+            <package name="org.jsimpledb.kv.util"/>
+            <package name="org.jsimpledb.spring"/>
+            <package name="org.jsimpledb.util"/>
+        </packages>
+    </test>
+</suite>
+

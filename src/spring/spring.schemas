@@ -1,0 +1,3 @@
+# $Id: spring.schemas 357 2014-04-10 15:53:10Z archie $
+
+http\://jsimpledb.googlecode.com/svn/schemas/jsimpledb-1.0.xsd=org/jsimpledb/spring/jsimpledb-1.0.xsd

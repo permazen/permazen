@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<binding>
+    <include path="schemaField.xml"/>
+    <mapping abstract="true" type-name="referenceSchemaField" class="org.jsimpledb.schema.ReferenceSchemaField">
+        <structure map-as="schemaField"/>
+        <value style="attribute" name="onDelete" field="onDelete" usage="optional" default="EXCEPTION"/>
+    </mapping>
+</binding>
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<binding>
+    <include path="complexSchemaField.xml"/>
+    <include path="simpleSchemaField.xml"/>
+    <mapping abstract="true" type-name="collectionSchemaField" class="org.jsimpledb.schema.CollectionSchemaField">
+        <structure map-as="complexSchemaField"/>
+        <structure field="elementField"/>
+    </mapping>
+</binding>
+

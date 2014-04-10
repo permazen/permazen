@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jsimpledb="http://jsimpledb.googlecode.com/schema/jsimpledb"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="
+     http://jsimpledb.googlecode.com/schema/jsimpledb http://jsimpledb.googlecode.com/svn/schemas/jsimpledb-1.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/>
+
+    <bean id="jdb" class="org.jsimpledb.JSimpleDB" p:KVDatabase-ref="kvdb"/>
+
+    <bean id="jlayer" class="org.jsimpledb.jlayer.JLayer" c:database-ref="jdb" c:version="1">
+        <constructor-arg>
+            <jsimpledb:jlayer-scan base-package="org.jsimpledb.spring">
+                <jsimpledb:include-filter type="regex" expression="org\.dellroad\.jsimpledb\.spring\.SimpleSpringTest\$.*"/>
+            </jsimpledb:jlayer-scan>
+        </constructor-arg>
+    </bean>
+
+    <bean id="transactionManager" class="org.jsimpledb.spring.JLayerTransactionManager" p:jlayer-ref="jlayer"/>
+
+    <bean id="myBean" class="org.jsimpledb.spring.SimpleSpringTest"/>
+
+</beans>

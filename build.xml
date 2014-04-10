@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<project name="jsimpledb" default="build"
+  xmlns:dellroad="urn:org.dellroad.ant"
+  xmlns:antcontrib="urn:net.sf.antcontrib"
+  xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+  xmlns:ivy="urn:org.apache.ivy.ant">
+
+    <!-- Configure build & stuff -->
+    <property name="maven.group.id" value="org.jsimpledb"/>
+    <property name="library.version" value="1.0"/>
+    <property name="javac.compiler.flags" value="-Xlint:all"/>
+
+    <!-- Import generic build macros -->
+    <import file="${basedir}/src/build/macros.xml"/>
+
+    <!-- Determine SVN revision and full version -->
+    <dellroad:svnrevision property="svn.revision"/>
+    <property name="full.version" value="${library.version}.${svn.revision}"/>
+    <echo message=""/>
+    <echo message="Version is ${library.version}.${svn.revision}"/>
+    <echo message=""/>
+
+    <!-- Classpath targets -->
+    <target name="build.classpath" unless="build.classpath.resolved">
+        <dellroad:ivypath pathid="build.classpath" conf="build"/>
+        <property name="build.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="javac.classpath" unless="javac.classpath.resolved">
+        <dellroad:ivypath pathid="javac.classpath" conf="javac"/>
+        <property name="javac.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="jibx-bind.classpath" unless="jibx-bind.classpath.resolved">
+        <dellroad:ivypath pathid="jibx-bind.classpath" conf="jibx-bind"/>
+        <property name="jibx-bind.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="unittest.classpath" depends="jar" unless="unittest.classpath.resolved">
+        <dellroad:ivypath pathid="unittest.classpath" conf="test"/>
+        <property name="unittest.classpath.resolved" value="true"/>
+    </target>
+
+    <!-- Resources -->
+    <target name="resources" unless="resources.completed" description="Gather resources">
+        <delete dir="build/resources"/>
+        <mkdir dir="build/resources"/>
+        <copy todir="build/resources">
+            <fileset dir="src/java" includes="**/*.xsd"/>
+            <fileset dir="src/properties" includes="${ant.project.name}.properties"/>
+            <filterset>
+                <filter token="VERSION" value="${full.version}"/>
+            </filterset>
+        </copy>
+        <property name="resources.completed" value="true"/>
+    </target>
+
+    <!-- JiBX bindings -->
+    <target name="jibx-bind" depends="javac, jibx-bind.classpath" unless="jibx-bind.completed">
+        <taskdef name="bind" classname="org.jibx.binding.ant.CompileTask" classpathref="jibx-bind.classpath"/>
+        <antcontrib:outofdate>
+            <sourcefiles>
+                <fileset dir="." includes="build.xml"/>
+                <fileset dir="src/java" includes="**/*.xml"/>
+                <fileset dir="src/java" includes="**/*.java"/>
+                <fileset dir="build/classes">
+                    <include name="**/*.class"/>
+                    <exclude name="**/JiBX_*.class"/>
+                </fileset>
+            </sourcefiles>
+            <targetfiles>
+                <pathelement path="build/classes/org/jsimpledb/schema/JiBX_bindingFactory.class"/>
+            </targetfiles>
+            <sequential>
+                <dellroad:jibx-bind name="XML encoded classes">
+                    <classes>
+                        <pathelement path="build/classes"/>
+                    </classes>
+                    <bindings>
+                        <include name="src/java/**/binding.xml"/>
+                    </bindings>
+                </dellroad:jibx-bind>
+            </sequential>
+        </antcontrib:outofdate>
+        <property name="jibx-bind.completed" value="true"/>
+    </target>
+
+    <!-- Main JAR -->
+    <target name="jar" depends="javac, jibx-bind, resources, build.classpath" unless="jar.completed"
+      description="Build main JAR">
+        <dellroad:ivyput pattern="build/[artifact].[ext]" conf="asm"/>
+        <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="build.classpath"/>
+        <mkdir dir="build/dist"/>
+        <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
+        <jarjar destfile="build/dist/${ant.project.name}-${full.version}.jar">
+            <zipfileset src="build/asm.jar"/>
+            <rule pattern="org.objectweb.asm.**" result="org.jsimpledb.asm.@1"/>
+            <fileset dir="build/classes"/>
+            <fileset dir="build/resources"/>
+            <manifest>
+                <attribute name="Implementation-Version" value="${full.version}"/>
+            </manifest>
+            <metainf dir="src/spring" includes="spring.*"/>
+        </jarjar>
+        <property name="jar.completed" value="true"/>
+    </target>
+
+    <!-- All distribution files -->
+    <target name="jars" depends="jar, javadoc" unless="jars.completed"
+      description="Build JARs">
+        <mkdir dir="build/dist"/>
+        <delete file="build/dist/${ant.project.name}-sources-${full.version}.zip"/>
+        <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">
+            <fileset dir="src/java" includes="**/*"/>
+        </zip>
+        <delete file="build/dist/${ant.project.name}-javadocs-${full.version}.zip"/>
+        <zip destfile="build/dist/${ant.project.name}-javadocs-${full.version}.zip">
+            <fileset dir="build/reports/javadoc" includes="**/*"/>
+        </zip>
+        <property name="jars.completed" value="true"/>
+    </target>
+
+    <!-- Build Javadocs -->
+    <target name="javadoc" depends="javac" unless="javadoc.completed"
+      description="Build API JavaDocs">
+        <delete dir="build/javadoc"/>
+        <mkdir dir="build/javadoc"/>
+        <copy todir="build/javadoc">
+            <fileset dir="src/java/org/jsimpledb" includes="overview.html"/>
+            <filterset>
+                <filter token="VERSION" value="${full.version}"/>
+            </filterset>
+        </copy>
+        <dellroad:javadoc overview="build/javadoc/overview.html">
+            <additional-classpath>
+                <pathelement path="build/classes"/>
+            </additional-classpath>
+            <links>
+                <link href="http://download.oracle.com/javase/7/docs/api/"/>
+                <link href="http://download.oracle.com/javaee/7/api/"/>
+                <link href="http://docs.guava-libraries.googlecode.com/git-history/v16.0/javadoc/"/>
+                <link href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/"/>
+                <link href="http://docs.spring.io/spring/docs/4.0.x/javadoc-api/"/>
+                <link href="https://foundationdb.com/documentation/javadoc/"/>
+                <link href="http://www.slf4j.org/api/"/>
+            </links>
+        </dellroad:javadoc>
+        <property name="javadoc.completed" value="true"/>
+    </target>
+
+    <!-- Checkstyle the source -->
+    <target name="checkstyle" description="Run checkstyle report"
+      depends="javac.classpath, unittest.classpath, checkstyle.classpath"
+      unless="checkstyle.completed">
+        <dellroad:checkstyle maxWarnings="0" maxErrors="0"/>
+        <property name="checkstyle.completed" value="true"/>
+    </target>
+
+    <!-- Run unit tests -->
+    <target name="tests" description="Run unit tests"
+      depends="javac, jibx-bind, unittest.classpath, testng.classpath, cobertura.classpath"
+      unless="tests.completed">
+        <copy todir="build/test" overwrite="true">
+            <fileset dir="src/test" includes="**/*.xsl"/>
+            <fileset dir="src/test" includes="**/*.xml"/>
+        </copy>
+        <mkdir dir="build/test/META-INF"/>
+        <copy todir="build/test/META-INF" overwrite="true">
+            <fileset dir="src/spring" includes="spring.*"/>
+        </copy>
+        <copy file="src/xml/log4j-build.xml" tofile="build/test/log4j.xml"/>
+        <dellroad:unit-tests>
+            <excludes>
+                <exclude name="**/JiBX_*.class"/>
+            </excludes>
+            <addclasspath>
+                <path refid="javac.classpath"/>
+            </addclasspath>
+        </dellroad:unit-tests>
+        <property name="tests.completed" value="true"/>
+    </target>
+
+    <!-- Publish reports -->
+    <target name="publish" description="Publish build results" depends="reports">
+
+        <!-- Remove exisiting stuff first -->
+        <delete includeemptydirs="false">
+            <fileset dir="publish">
+                <include name="**/*"/>
+            </fileset>
+        </delete>
+
+        <!-- Reports -->
+        <mkdir dir="publish/reports"/>
+        <copy todir="publish/reports">
+            <fileset dir="build/reports">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Publish to maven -->
+    <target name="mavenpub" depends="jars" description="Deploy JARs to Maven staging repository">
+
+        <!-- Define Maven coordinates -->
+        <property name="groupId" value="${maven.group.id}"/>
+        <property name="artifactId" value="${ant.project.name}"/>
+        <property name="version" value="${full.version}"/>
+
+        <!-- Define artifacts' name, which follows the convention of Maven -->
+        <property name="maven-jar" value="${dist}/lib/${artifactId}-${version}.jar" />
+        <property name="maven-javadoc-jar" value="${dist}/lib/${artifactId}-${version}-javadoc.jar" />
+        <property name="maven-sources-jar" value="${dist}/lib/${artifactId}-${version}-sources.jar" />
+
+        <!-- Define maven snapshots and staging repository id and url -->
+        <property name="maven-snapshots-repository-id" value="sonatype-nexus-snapshots" />
+        <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
+        <property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
+        <property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
+
+        <!-- Generate pom.xml -->
+        <copy todir="build">
+            <fileset dir="src/mvn" includes="pom.xml"/>
+            <filterset>
+                <filter token="VERSION" value="${full.version}"/>
+                <filter token="GROUP_ID" value="${maven.group.id}"/>
+                <filter token="ARTIFACT_ID" value="${ant.project.name}"/>
+            </filterset>
+        </copy>
+
+        <!-- Sign and deploy the main artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=build/pom.xml" />
+            <arg value="-Dfile=build/dist/${ant.project.name}-${full.version}.jar"/>
+            <arg value="-Pgpg" />
+        </artifact:mvn>
+
+        <!-- sign and deploy the sources artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=build/pom.xml" />
+            <arg value="-Dfile=build/dist/${ant.project.name}-sources-${full.version}.zip"/>
+            <arg value="-Dclassifier=sources" />
+            <arg value="-Pgpg" />
+        </artifact:mvn>
+
+        <!-- sign and deploy the javadoc artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=build/pom.xml" />
+            <arg value="-Dfile=build/dist/${ant.project.name}-javadocs-${full.version}.zip"/>
+            <arg value="-Dclassifier=javadoc" />
+            <arg value="-Pgpg" />
+        </artifact:mvn>
+    </target>
+
+    <!-- Reports target -->
+    <target name="reports-project" depends="javadoc, checkstyle, tests"/>
+
+    <!-- Release time stuff -->
+    <target name="release" depends="clean, jars, reports, publish, mavenpub"
+      description="Perform release-time tasks"/>
+
+    <!-- Default target -->
+    <target name="build" depends="clean, jars, reports"/>
+
+</project>
+

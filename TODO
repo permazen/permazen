@@ -1,0 +1,6 @@
+
+- Ant task for easy validation of JLayer annotations during a build
+
+- Command line tool
+    - JPQL (?) parser and executor
+
