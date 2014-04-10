@@ -23,12 +23,12 @@ import org.objectweb.asm.Type;
 /**
  * Represents a field in a Java model object.
  */
-public abstract class JField extends JLayerObject {
+public abstract class JField extends JSchemaObject {
 
     final Method getter;
     final boolean requiresValidation;
 
-    JLayerObject parent;
+    JSchemaObject parent;
 
     JField(String name, int storageId, String description, Method getter) {
         super(name, storageId, description);

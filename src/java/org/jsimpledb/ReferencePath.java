@@ -93,19 +93,19 @@ public class ReferencePath {
     /**
      * Constructor.
      *
-     * @param jlayer {@link JLayer} with which to resolve object and field names
+     * @param jdb {@link JSimpleDB} against which to resolve object and field names
      * @param startType starting Java type for the path
      * @param path dot-separated path of zero or more reference fields, followed by a target field
      * @param lastIsSubField true if the last field can be a complex sub-field but not a complex field, false for the reverse,
      *  or null for don't care
-     * @throws IllegalArgumentException if {@code jlayer}, {@code startType}, or {@code path} is null
+     * @throws IllegalArgumentException if {@code jdb}, {@code startType}, or {@code path} is null
      * @throws IllegalArgumentException if {@code path} is invalid
      */
-    ReferencePath(JLayer jlayer, TypeToken<?> startType, String path, Boolean lastIsSubField) {
+    ReferencePath(JSimpleDB jdb, TypeToken<?> startType, String path, Boolean lastIsSubField) {
 
         // Sanity check
-        if (jlayer == null)
-            throw new IllegalArgumentException("null jlayer");
+        if (jdb == null)
+            throw new IllegalArgumentException("null jdb");
         if (startType == null)
             throw new IllegalArgumentException("null startType");
         if (path == null)
@@ -144,7 +144,7 @@ public class ReferencePath {
 
             // Find all JFields matching 'fieldName' in some JClass whose type matches 'typeToken'
             final HashMap<JClass<?>, JField> matchingFields = new HashMap<>();
-            for (JClass<?> jclass : jlayer.jclasses.values()) {
+            for (JClass<?> jclass : jdb.jclasses.values()) {
                 if (!currentType.isAssignableFrom(jclass.typeToken))
                     continue;
                 final JField jfield = jclass.jfieldsByName.get(fieldName);

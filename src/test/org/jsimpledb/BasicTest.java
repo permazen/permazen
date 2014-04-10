@@ -27,15 +27,15 @@ import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class JLayerTest extends TestSupport {
+public class BasicTest extends TestSupport {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testJLayer1() throws Exception {
+    public void testBasicStuff() throws Exception {
 
-        final JLayer jlayer = JLayerTest.getJLayer();
+        final JSimpleDB jdb = BasicTest.getJSimpleDB();
 
-        final JTransaction tx = jlayer.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
         try {
 
@@ -190,14 +190,14 @@ public class JLayerTest extends TestSupport {
         Assert.assertEquals(t.getRatings(), buildMap(ratingKeyValues));
     }
 
-    public static JLayer getJLayer() {
-        return JLayerTest.getJLayer(MeanPerson.class, Person.class, Indexer.class);
+    public static JSimpleDB getJSimpleDB() {
+        return BasicTest.getJSimpleDB(MeanPerson.class, Person.class, Indexer.class);
     }
 
-    public static JLayer getJLayer(Class<?>... classes) {
+    public static JSimpleDB getJSimpleDB(Class<?>... classes) {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
         final Database db = new Database(kvstore);
-        return new JLayer(db, 1, Arrays.<Class<?>>asList(classes));
+        return new JSimpleDB(db, 1, Arrays.<Class<?>>asList(classes));
     }
 
 // Model Classes

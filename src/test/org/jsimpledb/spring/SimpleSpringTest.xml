@@ -20,17 +20,17 @@
 
     <bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/>
 
-    <bean id="jdb" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvdb"/>
+    <bean id="database" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvdb"/>
 
-    <bean id="jlayer" class="org.jsimpledb.JLayer" c:database-ref="jdb" c:version="1">
+    <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1">
         <constructor-arg>
-            <jsimpledb:jlayer-scan base-package="org.jsimpledb.spring">
+            <jsimpledb:scan-classpath base-package="org.jsimpledb.spring">
                 <jsimpledb:include-filter type="regex" expression="org\.dellroad\.jsimpledb\.spring\.SimpleSpringTest\$.*"/>
-            </jsimpledb:jlayer-scan>
+            </jsimpledb:scan-classpath>
         </constructor-arg>
     </bean>
 
-    <bean id="transactionManager" class="org.jsimpledb.spring.JLayerTransactionManager" p:jlayer-ref="jlayer"/>
+    <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager" p:JSimpleDB-ref="jsimpledb"/>
 
     <bean id="myBean" class="org.jsimpledb.spring.SimpleSpringTest"/>
 

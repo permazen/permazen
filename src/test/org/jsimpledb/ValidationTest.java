@@ -24,10 +24,10 @@ public class ValidationTest extends TestSupport {
     @Test
     public void testValidation() {
 
-        final JLayer jlayer = JLayerTest.getJLayer(Person.class);
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
 
         // Transaction with validation disabled
-        JTransaction tx = jlayer.createTransaction(true, ValidationMode.DISABLED);
+        JTransaction tx = jdb.createTransaction(true, ValidationMode.DISABLED);
         JTransaction.setCurrent(tx);
         Person p1;
         try {
@@ -53,7 +53,7 @@ public class ValidationTest extends TestSupport {
         }
 
         // Transaction with validation manually requested
-        tx = jlayer.createTransaction(false, ValidationMode.MANUAL);
+        tx = jdb.createTransaction(false, ValidationMode.MANUAL);
         JTransaction.setCurrent(tx);
         try {
 
@@ -112,7 +112,7 @@ public class ValidationTest extends TestSupport {
         }
 
         // Transaction with automatic validation
-        tx = jlayer.createTransaction(false, ValidationMode.AUTOMATIC);
+        tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 
@@ -130,7 +130,7 @@ public class ValidationTest extends TestSupport {
         }
 
         // Now fix the problem
-        tx = jlayer.createTransaction(false, ValidationMode.AUTOMATIC);
+        tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 

@@ -16,12 +16,12 @@ import org.jsimpledb.core.ObjId;
  */
 class ReferenceConverter extends Converter<JObject, ObjId> {
 
-    private final JLayer jlayer;
+    private final JSimpleDB jdb;
 
-    ReferenceConverter(JLayer jlayer) {
-        if (jlayer == null)
-            throw new IllegalArgumentException("null jlayer");
-        this.jlayer = jlayer;
+    ReferenceConverter(JSimpleDB jdb) {
+        if (jdb == null)
+            throw new IllegalArgumentException("null jdb");
+        this.jdb = jdb;
     }
 
     @Override
@@ -35,7 +35,7 @@ class ReferenceConverter extends Converter<JObject, ObjId> {
     protected JObject doBackward(ObjId id) {
         if (id == null)
             return null;
-        return this.jlayer.getJObject(id);
+        return this.jdb.getJObject(id);
     }
 }
 

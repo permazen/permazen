@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * objects are stateless; all field state is contained within whichever transaction is associated with the current thread.
  * </p>
  */
-public class JLayer {
+public class JSimpleDB {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -73,7 +73,7 @@ public class JLayer {
       new CacheLoader<ObjId, JObject>() {
         @Override
         public JObject load(ObjId id) throws Exception {
-            return (JObject)JLayer.this.getJClass(id.getStorageId()).getConstructor().newInstance(id);
+            return (JObject)JSimpleDB.this.getJClass(id.getStorageId()).getConstructor().newInstance(id);
         }
     });
 
@@ -88,7 +88,7 @@ public class JLayer {
      * @throws IllegalArgumentException if {@code classes} contains a null, primitive, or interface class
      * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    public JLayer(Database database, int version, Iterable<Class<?>> classes) {
+    public JSimpleDB(Database database, int version, Iterable<Class<?>> classes) {
 
         // Initialize
         if (database == null)
@@ -300,7 +300,7 @@ public class JLayer {
     public JClass<?> getJClass(int storageId) {
         final JClass<?> jclass = this.jclasses.get(storageId);
         if (jclass == null)
-            throw new IllegalArgumentException("no jlayer class associated with storage ID " + storageId);
+            throw new IllegalArgumentException("no JSimpleDB class associated with storage ID " + storageId);
         return jclass;
     }
 
@@ -373,7 +373,7 @@ public class JLayer {
     <T extends JField> T getJField(int storageId, Class<T> type) {
         final JField jfield = this.jfields.get(storageId);
         if (jfield == null)
-            throw new IllegalArgumentException("no jlayer field associated with storage ID " + storageId);
+            throw new IllegalArgumentException("no JSimpleDB field associated with storage ID " + storageId);
         return type != null ? type.cast(jfield) : (T)jfield;
     }
 

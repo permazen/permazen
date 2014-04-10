@@ -80,7 +80,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
             // Parse reference path
             try {
-                this.path = new ReferencePath(OnChangeScanner.this.jclass.jlayer, startType, annotation.value(), false);
+                this.path = new ReferencePath(OnChangeScanner.this.jclass.jdb, startType, annotation.value(), false);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
             }
@@ -219,16 +219,16 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
     // Internal methods
 
         private JObject getJObject(ObjId id) {
-            return JTransaction.getCurrent().jlayer.getJObject(id);
+            return JTransaction.getCurrent().jdb.getJObject(id);
         }
 
         private void invoke(NavigableSet<ObjId> referrers, FieldChange<JObject> change) {
             if (this.isStatic)
                 this.invoke(null, change);
             else {
-                final JLayer jlayer = JTransaction.getCurrent().jlayer;
+                final JSimpleDB jdb = JTransaction.getCurrent().jdb;
                 for (ObjId id : referrers)
-                    this.invoke(jlayer.getJObject(id), change);
+                    this.invoke(jdb.getJObject(id), change);
             }
         }
 

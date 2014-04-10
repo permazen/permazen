@@ -58,7 +58,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    final JLayer jlayer;
+    final JSimpleDB jdb;
     final Transaction tx;
 
     private final ValidationMode validationMode;
@@ -74,16 +74,16 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      *
      * @throws IllegalArgumentException if any parameter is null
      */
-    JTransaction(JLayer jlayer, Transaction tx, ValidationMode validationMode) {
+    JTransaction(JSimpleDB jdb, Transaction tx, ValidationMode validationMode) {
 
         // Initialization
-        if (jlayer == null)
-            throw new IllegalArgumentException("null jlayer");
+        if (jdb == null)
+            throw new IllegalArgumentException("null jdb");
         if (tx == null)
             throw new IllegalArgumentException("null tx");
         if (validationMode == null)
             throw new IllegalArgumentException("null validationMode");
-        this.jlayer = jlayer;
+        this.jdb = jdb;
         this.tx = tx;
         this.validationMode = validationMode;
 
@@ -91,14 +91,14 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         this.tx.addCreateListener(this);
         this.tx.addDeleteListener(this);
         this.tx.addVersionChangeListener(this);
-        for (JClass<?> jclass : this.jlayer.jclasses.values()) {
+        for (JClass<?> jclass : this.jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
                 changeInfo.registerChangeListener(this.tx);
             }
         }
         if (validationMode == ValidationMode.AUTOMATIC) {
-            for (JClass<?> jclass : this.jlayer.jclasses.values()) {
+            for (JClass<?> jclass : this.jdb.jclasses.values()) {
                 for (JField jfield : jclass.jfields.values()) {
                     if (jfield.requiresValidation)
                         jfield.registerChangeListener(this.tx, new int[0], this.validationListener);
@@ -134,10 +134,10 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
 // Accessors
 
     /**
-     * Get the {@link JLayer} associated with this instance.
+     * Get the {@link JSimpleDB} associated with this instance.
      */
-    public JLayer getJLayer() {
-        return this.jlayer;
+    public JSimpleDB getJSimpleDB() {
+        return this.jdb;
     }
 
     /**
@@ -157,12 +157,12 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     public <T> NavigableSet<T> getAll(Class<T> type) {
         final TypeToken<T> typeToken = TypeToken.of(type);
         final ArrayList<NavigableSet<ObjId>> sets = new ArrayList<>();
-        for (JClass<?> jclass : this.jlayer.jclasses.values()) {
+        for (JClass<?> jclass : this.jdb.jclasses.values()) {
             if (typeToken.isAssignableFrom(jclass.typeToken))
                 sets.add(this.tx.getAll(jclass.storageId));
         }
         return sets.isEmpty() ? NavigableSets.<T>empty() :
-          (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(NavigableSets.union(sets), this.jlayer.referenceConverter);
+          (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(NavigableSets.union(sets), this.jdb.referenceConverter);
     }
 
     /**
@@ -209,8 +209,8 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     public byte[] getKey(JObject jobj, String path) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        final TypeToken<?> startType = this.jlayer.getJClass(jobj.getObjId().getStorageId()).typeToken;
-        final ReferencePath refPath = new ReferencePath(this.jlayer, startType, path, false);
+        final TypeToken<?> startType = this.jdb.getJClass(jobj.getObjId().getStorageId()).typeToken;
+        final ReferencePath refPath = new ReferencePath(this.jdb, startType, path, false);
         if (refPath.getReferenceFields().length > 0)
             throw new IllegalArgumentException("path `" + path + "' contains one or more reference fields");
         if (!refPath.targetType.getRawType().isInstance(jobj))
@@ -228,9 +228,9 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * @throws IllegalArgumentException if {@code type} is not a known Java object model type
      */
     public <T> T create(Class<T> type) {
-        final JClass<T> jclass = this.jlayer.getJClass(TypeToken.of(type));
+        final JClass<T> jclass = this.jdb.getJClass(TypeToken.of(type));
         final ObjId id = this.tx.create(jclass.storageId);
-        return type.cast(this.jlayer.getJObject(id));
+        return type.cast(this.jdb.getJObject(id));
     }
 
     /**
@@ -303,7 +303,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      */
     public Object readSimpleField(ObjId id, int storageId) {
         final Object value = this.tx.readSimpleField(id, storageId);
-        return this.jlayer.getJField(storageId, JSimpleField.class).convert(this.jlayer.referenceConverter, value);
+        return this.jdb.getJField(storageId, JSimpleField.class).convert(this.jdb.referenceConverter, value);
     }
 
     /**
@@ -316,7 +316,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * </p>
      */
     public void writeSimpleField(ObjId id, int storageId, Object value) {
-        if (this.jlayer.getJField(storageId, null) instanceof JReferenceField)
+        if (this.jdb.getJField(storageId, null) instanceof JReferenceField)
             value = ((JObject)value).getObjId();
         this.tx.writeSimpleField(id, storageId, value);
     }
@@ -332,7 +332,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      */
     public NavigableSet<?> readSetField(ObjId id, int storageId) {
         final NavigableSet<?> set = this.tx.readSetField(id, storageId);
-        return this.jlayer.getJField(storageId, JSetField.class).convert(this.jlayer.referenceConverter, set);
+        return this.jdb.getJField(storageId, JSetField.class).convert(this.jdb.referenceConverter, set);
     }
 
     /**
@@ -346,7 +346,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      */
     public List<?> readListField(ObjId id, int storageId) {
         final List<?> list = this.tx.readListField(id, storageId);
-        return this.jlayer.getJField(storageId, JListField.class).convert(this.jlayer.referenceConverter, list);
+        return this.jdb.getJField(storageId, JListField.class).convert(this.jdb.referenceConverter, list);
     }
 
     /**
@@ -360,7 +360,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      */
     public NavigableMap<?, ?> readMapField(ObjId id, int storageId) {
         final NavigableMap<?, ?> map = this.tx.readMapField(id, storageId);
-        return this.jlayer.getJField(storageId, JMapField.class).convert(this.jlayer.referenceConverter, map);
+        return this.jdb.getJField(storageId, JMapField.class).convert(this.jdb.referenceConverter, map);
     }
 
 // Reference Path Access
@@ -379,16 +379,16 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     public <T> NavigableSet<T> invertReferencePath(Class<T> startType, String path, Iterable<? extends JObject> targetObjects) {
         if (targetObjects == null)
             throw new IllegalArgumentException("null targetObjects");
-        final ReferencePath refPath = new ReferencePath(this.jlayer, TypeToken.of(startType), path, true);
+        final ReferencePath refPath = new ReferencePath(this.jdb, TypeToken.of(startType), path, true);
         final int targetField = refPath.getTargetField();
-        if (!this.jlayer.isReferenceField(targetField)) {
+        if (!this.jdb.isReferenceField(targetField)) {
             final String fieldName = path.substring(path.lastIndexOf('.') + 1);
             throw new IllegalArgumentException("last field `" + fieldName + "' of path `" + path + "' is not a reference field");
         }
         final int[] refs = Ints.concat(refPath.getReferenceFields(), new int[] { targetField });
         final NavigableSet<ObjId> ids = this.tx.invertReferencePath(refs,
-          Iterables.transform(targetObjects, this.jlayer.referenceConverter));
-        return (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(ids, this.jlayer.referenceConverter);
+          Iterables.transform(targetObjects, this.jdb.referenceConverter));
+        return (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(ids, this.jdb.referenceConverter);
     }
 
 // Index Access
@@ -408,9 +408,9 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<?>> querySimpleField(int storageId) {
         final NavigableMap<?, NavigableSet<ObjId>> map = this.tx.querySimpleField(storageId);
-        final Converter keyConverter = this.jlayer.isReferenceField(storageId) ?
-          this.jlayer.referenceConverter : Converter.identity();
-        return new ConvertedNavigableMap(map, keyConverter, new NavigableSetConverter(this.jlayer.referenceConverter));
+        final Converter keyConverter = this.jdb.isReferenceField(storageId) ?
+          this.jdb.referenceConverter : Converter.identity();
+        return new ConvertedNavigableMap(map, keyConverter, new NavigableSetConverter(this.jdb.referenceConverter));
     }
 
     /**
@@ -429,10 +429,10 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<?>> queryListFieldEntries(int storageId) {
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.ListIndexEntry>> map = this.tx.queryListFieldEntries(storageId);
-        final Converter keyConverter = this.jlayer.isReferenceField(storageId) ?
-          this.jlayer.referenceConverter : Converter.identity();
+        final Converter keyConverter = this.jdb.isReferenceField(storageId) ?
+          this.jdb.referenceConverter : Converter.identity();
         return new ConvertedNavigableMap(map, keyConverter,
-          new NavigableSetConverter(new ListIndexEntryConverter(this.jlayer.referenceConverter)));
+          new NavigableSetConverter(new ListIndexEntryConverter(this.jdb.referenceConverter)));
     }
 
     /**
@@ -453,10 +453,10 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapKeyIndexEntry<?>>> map
           = this.tx.queryMapFieldKeyEntries(storageId);
         final MapField<?, ?> mapField = this.tx.getSchemaVersion().getSchemaItem(storageId, MapField.class);
-        final ReferenceConverter referenceConverter = this.jlayer.referenceConverter;
-        final Converter keyConverter = this.jlayer.isReferenceField(mapField.getKeyField().getStorageId()) ?
+        final ReferenceConverter referenceConverter = this.jdb.referenceConverter;
+        final Converter keyConverter = this.jdb.isReferenceField(mapField.getKeyField().getStorageId()) ?
           referenceConverter : Converter.identity();
-        final Converter valueConverter = this.jlayer.isReferenceField(mapField.getValueField().getStorageId()) ?
+        final Converter valueConverter = this.jdb.isReferenceField(mapField.getValueField().getStorageId()) ?
           referenceConverter : Converter.identity();
         return new ConvertedNavigableMap(map, keyConverter,
           new NavigableSetConverter(new MapKeyIndexEntryConverter(referenceConverter, valueConverter)));
@@ -480,10 +480,10 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapValueIndexEntry<?>>> map
           = this.tx.queryMapFieldValueEntries(storageId);
         final MapField<?, ?> mapField = this.tx.getSchemaVersion().getSchemaItem(storageId, MapField.class);
-        final ReferenceConverter referenceConverter = this.jlayer.referenceConverter;
-        final Converter keyConverter = this.jlayer.isReferenceField(mapField.getKeyField().getStorageId()) ?
+        final ReferenceConverter referenceConverter = this.jdb.referenceConverter;
+        final Converter keyConverter = this.jdb.isReferenceField(mapField.getKeyField().getStorageId()) ?
           referenceConverter : Converter.identity();
-        final Converter valueConverter = this.jlayer.isReferenceField(mapField.getValueField().getStorageId()) ?
+        final Converter valueConverter = this.jdb.isReferenceField(mapField.getValueField().getStorageId()) ?
           referenceConverter : Converter.identity();
         return new ConvertedNavigableMap(map, valueConverter,
           new NavigableSetConverter(new MapValueIndexEntryConverter(referenceConverter, keyConverter)));
@@ -612,11 +612,11 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
                 continue;
 
             // Validate it
-            final JObject jobj = this.jlayer.getJObject(id);
+            final JObject jobj = this.jdb.getJObject(id);
             final Set<ConstraintViolation<JObject>> violations = ValidationUtil.validate(jobj);
             if (!violations.isEmpty()) {
                 throw new ValidationException(jobj, violations, "validation error for object " + id + " of type `"
-                  + this.jlayer.jclasses.get(id.getStorageId()).name + "':\n" + ValidationUtil.describe(violations));
+                  + this.jdb.jclasses.get(id.getStorageId()).name + "':\n" + ValidationUtil.describe(violations));
             }
         }
     }
@@ -637,14 +637,14 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     public void onCreate(Transaction tx, ObjId id) {
         if (tx != this.tx)
             throw new IllegalArgumentException("wrong tx");
-        final JClass<?> jclass = this.jlayer.getJClass(id.getStorageId());
+        final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
         this.doOnCreate(jclass, id);
     }
 
     // This method exists solely to bind the generic type parameters
     private <T> void doOnCreate(JClass<T> jclass, ObjId id) {
         for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods)
-            Util.invoke(info.getMethod(), this.jlayer.getJObject(id));
+            Util.invoke(info.getMethod(), this.jdb.getJObject(id));
     }
 
 // DeleteListener
@@ -653,14 +653,14 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     public void onDelete(Transaction tx, ObjId id) {
         if (tx != this.tx)
             throw new IllegalArgumentException("wrong tx");
-        final JClass<?> jclass = this.jlayer.getJClass(id.getStorageId());
+        final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
         this.doOnDelete(jclass, id);
     }
 
     // This method exists solely to bind the generic type parameters
     private <T> void doOnDelete(JClass<T> jclass, ObjId id) {
         for (OnDeleteScanner<T>.MethodInfo info : jclass.onDeleteMethods)
-            Util.invoke(info.getMethod(), this.jlayer.getJObject(id));
+            Util.invoke(info.getMethod(), this.jdb.getJObject(id));
     }
 
 // VersionChangeListener
@@ -669,7 +669,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     public void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
         if (tx != this.tx)
             throw new IllegalArgumentException("wrong tx");
-        final JClass<?> jclass = this.jlayer.getJClass(id.getStorageId());
+        final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
         this.doOnVersionChange(jclass, id, oldVersion, newVersion, oldFieldValues);
     }
 
@@ -689,7 +689,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
 
             // Get Java model object
             if (jobj == null)
-                jobj = this.jlayer.getJObject(id);
+                jobj = this.jdb.getJObject(id);
 
             // Convert old field values so ObjId's become JObjects
             final TreeMap<Integer, Object> convertedValues = new TreeMap<>();
@@ -702,18 +702,18 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
                     continue;
                 final Field<?> field = oldSchema.getSchemaItem(storageId, Field.class);
                 if (field instanceof SimpleField)
-                    oldValue = JSimpleField.convertValue(this.jlayer.referenceConverter, oldValue, field instanceof ReferenceField);
+                    oldValue = JSimpleField.convertValue(this.jdb.referenceConverter, oldValue, field instanceof ReferenceField);
                 else if (field instanceof SetField) {
                     final SetField<?> setField = (SetField<?>)field;
-                    oldValue = JSetField.convert(this.jlayer.referenceConverter, oldValue,
+                    oldValue = JSetField.convert(this.jdb.referenceConverter, oldValue,
                       setField.getElementField() instanceof ReferenceField);
                 } else if (field instanceof ListField) {
                     final ListField<?> listField = (ListField<?>)field;
-                    oldValue = JListField.convert(this.jlayer.referenceConverter, oldValue,
+                    oldValue = JListField.convert(this.jdb.referenceConverter, oldValue,
                       listField.getElementField() instanceof ReferenceField);
                 } else if (field instanceof MapField) {
                     final MapField<?, ?> mapField = (MapField<?, ?>)field;
-                    oldValue = JMapField.convert(this.jlayer.referenceConverter, oldValue,
+                    oldValue = JMapField.convert(this.jdb.referenceConverter, oldValue,
                       mapField.getKeyField() instanceof ReferenceField, mapField.getValueField() instanceof ReferenceField);
                 } else
                     throw new RuntimeException("unexpected field: " + field);

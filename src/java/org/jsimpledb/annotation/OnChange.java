@@ -14,7 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for methods that are to be invoked whenever a targe field in some target object changes,
+ * Annotation for methods that are to be invoked whenever a target field in some target object changes,
  * where the target object containing the changed field is found at the end of a path of references
  * starting from the object to be notified.
  * See {@link org.jsimpledb.ReferencePath} for more information about reference paths.

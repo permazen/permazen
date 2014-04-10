@@ -15,8 +15,9 @@ import java.lang.annotation.Target;
 
 /**
  * Java annotation for classes that define custom {@link org.jsimpledb.core.FieldType}s
- * for a {@link org.jsimpledb.JLayer}. These classes will be automatically instantiated
- * and added to the {@linkplain org.jsimpledb.core.Database#getFieldTypeRegistry associated}
+ * for a {@link org.jsimpledb.JSimpleDB}'s underlying {@link org.jsimpledb.core.Database}.
+ * These classes will be automatically instantiated and registered with the
+ * {@linkplain org.jsimpledb.core.Database#getFieldTypeRegistry associated}
  * {@link org.jsimpledb.core.FieldTypeRegistry}.
  *
  * <p>

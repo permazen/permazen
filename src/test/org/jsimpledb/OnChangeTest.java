@@ -38,8 +38,8 @@ public class OnChangeTest extends TestSupport {
     @Test
     public void testSimpleFieldChange() {
 
-        final JLayer jlayer = JLayerTest.getJLayer(Person.class, MeanPerson.class, NicePerson.class);
-        final JTransaction tx = jlayer.createTransaction(true, ValidationMode.AUTOMATIC);
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class, MeanPerson.class, NicePerson.class);
+        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
 

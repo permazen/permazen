@@ -34,10 +34,10 @@ public class ReferencePathTest extends TestSupport {
             refs = new int[0];
 
         // Parse path
-        final JLayer jlayer = JLayerTest.getJLayer(Person.class, MeanPerson.class);
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class, MeanPerson.class);
         final ReferencePath path;
         try {
-            path = new ReferencePath(jlayer, startType, pathString, lastIsSubField);
+            path = new ReferencePath(jdb, startType, pathString, lastIsSubField);
             assert valid : "path was supposed to be invalid";
         } catch (IllegalArgumentException e) {
             assert !valid : "path was supposed to be valid";

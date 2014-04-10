@@ -9,7 +9,7 @@ package org.jsimpledb.spring;
 
 import java.util.List;
 
-import org.jsimpledb.JLayer;
+import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.ValidationMode;
 import org.jsimpledb.core.DatabaseException;
@@ -42,7 +42,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
  * @see org.jsimpledb.spring
  */
 @SuppressWarnings("serial")
-public class JLayerTransactionManager extends AbstractPlatformTransactionManager
+public class JSimpleDBTransactionManager extends AbstractPlatformTransactionManager
   implements ResourceTransactionManager, InitializingBean {
 
     /**
@@ -51,9 +51,9 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
     public static final ValidationMode DEFAULT_VALIDATION_MODE = ValidationMode.AUTOMATIC;
 
     /**
-     * The configured {@link JLayer} from which transactions are created.
+     * The configured {@link JSimpleDB} from which transactions are created.
      */
-    protected transient JLayer jlayer;
+    protected transient JSimpleDB jdb;
 
     /**
      * Whether a new schema version is allowed. Default true.
@@ -68,19 +68,19 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
     private boolean validateBeforeCommit = true;
 
     public void afterPropertiesSet() throws Exception {
-        if (this.jlayer == null)
-            throw new Exception("no jlayer configured");
+        if (this.jdb == null)
+            throw new Exception("no JSimpleDB configured");
     }
 
     /**
-     * Configure the {@link JLayer} that this instance will operate on.
+     * Configure the {@link JSimpleDB} that this instance will operate on.
      *
      * <p>
      * Required property.
      * </p>
      */
-    public void setJlayer(JLayer jlayer) {
-        this.jlayer = jlayer;
+    public void setJSimpleDB(JSimpleDB jdb) {
+        this.jdb = jdb;
     }
 
     /**
@@ -121,7 +121,7 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
 
     @Override
     public Object getResourceFactory() {
-        return this.jlayer;
+        return this.jdb;
     }
 
     @Override
@@ -142,15 +142,15 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
         if (tx.getJTransaction() != null)
             throw new TransactionUsageException("there is already a transaction associated with the current thread");
 
-        // Create JLayer transaction
+        // Create JSimpleDB transaction
         final JTransaction jtx;
         try {
-            jtx = this.jlayer.createTransaction(this.allowNewSchema, this.validationMode);
+            jtx = this.jdb.createTransaction(this.allowNewSchema, this.validationMode);
         } catch (DatabaseException e) {
             throw new CannotCreateTransactionException("error creating new JSimpleDB transaction", e);
         }
 
-        // Configure JLayer transaction and bind to current thread; but if we fail, roll it back
+        // Configure JSimpleDB transaction and bind to current thread; but if we fail, roll it back
         boolean succeeded = false;
         try {
             this.configureTransaction(jtx, txDef);
@@ -211,7 +211,7 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
      * Configure a new transaction.
      *
      * <p>
-     * The implementation in {@link JLayerTransactionManager} sets the transaction's timeout and read-only properties.
+     * The implementation in {@link JSimpleDBTransactionManager} sets the transaction's timeout and read-only properties.
      * </p>
      *
      * @throws DatabaseException if an error occurs
