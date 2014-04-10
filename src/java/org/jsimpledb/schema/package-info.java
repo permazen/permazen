@@ -6,6 +6,6 @@
  */
 
 /**
- * Classes for modeling {@link org.jsimpledb.JSimpleDB} schemas.
+ * Classes for modeling JSimpleDB {@link org.jsimpledb.Database} schemas.
  */
 package org.jsimpledb.schema;

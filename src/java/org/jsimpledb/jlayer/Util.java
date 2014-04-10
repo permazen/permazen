@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 
 import javax.validation.Constraint;
 
-import org.jsimpledb.JSimpleDBException;
+import org.jsimpledb.DatabaseException;
 
 /**
  * Utility routines;
@@ -56,7 +56,7 @@ final class Util {
     }
 
     /**
-     * Invoke method via reflection and re-throw any checked exception wrapped in an {@link JSimpleDBException}.
+     * Invoke method via reflection and re-throw any checked exception wrapped in an {@link DatabaseException}.
      */
     public static Object invoke(Method method, Object target, Object... params) {
         try {
@@ -64,7 +64,7 @@ final class Util {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);
+            throw new DatabaseException("unexpected error invoking method " + method + " on " + target, e);
         }
     }
 }

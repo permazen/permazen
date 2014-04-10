@@ -57,7 +57,7 @@ public class VersionChangeListenerTest extends TestSupport {
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
     // Tx #1
 

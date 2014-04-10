@@ -21,9 +21,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
+import org.jsimpledb.Database;
+import org.jsimpledb.DatabaseException;
 import org.jsimpledb.FieldType;
-import org.jsimpledb.JSimpleDB;
-import org.jsimpledb.JSimpleDBException;
 import org.jsimpledb.ObjId;
 import org.jsimpledb.Transaction;
 import org.jsimpledb.annotation.JFieldType;
@@ -34,18 +34,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JSimpleDB} Java model layer.
+ * Java model layer for accessing a JSimpleDB {@link Database} using normal Java objects.
  *
  * <p>
- * This class provides a natural, Java-centric view of a {@link JSimpleDB} database. This is done via two main
- * enhancements to the base {@link JSimpleDB} functionality:
+ * This class provides a natural, Java-centric view of a JSimpleDB {@link Database}. This is done via two main
+ * enhancements to the core functionality provided by {@link Database}:
  * <ul>
- *  <li>Java annotations are used to define all {@link JSimpleDB} objects and fields, and to automatically
+ *  <li>Java annotations are used to define all {@link Database} objects and fields, and to automatically
  *      register various listeners.</li>
- *  <li>{@link JSimpleDB} objects and fields are represented using actual Java model objects, where the Java model classes
+ *  <li>{@link Database} objects and fields are represented using actual Java model objects, where the Java model classes
  *      are automatically generated subclasses of suitably annotated user-supplied Java bean superclasses. That is,
- *      all {@link JSimpleDB} object references (i.e., {@link ObjId}s) are replaced by references to these Java model objects,
- *      and all {@link JSimpleDB} fields are accessible through annotated Java bean getter and setter methods.</li>
+ *      all {@link Database} object references (i.e., {@link ObjId}s) are replaced by references to these Java model objects,
+ *      and all {@link Database} fields are accessible through the annotated Java bean getter and setter methods.</li>
  * </ul>
  * </p>
  *
@@ -63,7 +63,7 @@ public class JLayer {
     final HashMap<TypeToken<?>, JClass<?>> jclassesByType = new HashMap<>();
     final HashMap<Integer, JField> jfields = new HashMap<>();
     final ReferenceConverter referenceConverter = new ReferenceConverter(this);
-    final JSimpleDB db;
+    final Database db;
     final int version;
 
     private SchemaModel schemaModel;
@@ -88,7 +88,7 @@ public class JLayer {
      * @throws IllegalArgumentException if {@code classes} contains a null, primitive, or interface class
      * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    public JLayer(JSimpleDB database, int version, Iterable<Class<?>> classes) {
+    public JLayer(Database database, int version, Iterable<Class<?>> classes) {
 
         // Initialize
         if (database == null)
@@ -125,10 +125,10 @@ public class JLayer {
                 try {
                     obj = type.newInstance();
                 } catch (Exception e) {
-                    throw new JSimpleDBException("can't instantiate " + type, e);
+                    throw new DatabaseException("can't instantiate " + type, e);
                 }
                 if (!(obj instanceof FieldType)) {
-                    throw new JSimpleDBException("invalid @" + JFieldType.class.getSimpleName()
+                    throw new DatabaseException("invalid @" + JFieldType.class.getSimpleName()
                       + " annotation on " + type + ": not a subclass of " + FieldType.class);
                 }
 
@@ -327,7 +327,7 @@ public class JLayer {
         }
         if (cause instanceof Error)
             throw (Error)cause;
-        throw new JSimpleDBException("can't instantiate object for ID " + id, cause);
+        throw new DatabaseException("can't instantiate object for ID " + id, cause);
     }
 
     /**

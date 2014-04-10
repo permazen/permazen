@@ -61,9 +61,8 @@ public @interface JField {
      *
      * <p>
      * If set, this must equal the name of a type registered in the {@link org.jsimpledb.FieldTypeRegistry}
-     * associated with the {@link org.jsimpledb.JSimpleDB} instance, and the annotated method's return type
-     * must match the {@link org.jsimpledb.FieldType}'s
-     * {@linkplain org.jsimpledb.FieldType#getTypeToken supported Java type}.
+     * associated with the {@link org.jsimpledb.Database} instance, and the annotated method's return type
+     * must match the {@link org.jsimpledb.FieldType}'s {@linkplain org.jsimpledb.FieldType#getTypeToken supported Java type}.
      *
      * <p>
      * If equal to the empty string (default value), then the Java type is inferred from the return type of the getter method

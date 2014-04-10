@@ -12,7 +12,7 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.Database;
 import org.jsimpledb.ObjId;
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.annotation.JField;
@@ -28,7 +28,7 @@ public class OnVersionChangeTest extends TestSupport {
     public void testOnVersionChange() {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
         ObjId id1;
         ObjId id2;

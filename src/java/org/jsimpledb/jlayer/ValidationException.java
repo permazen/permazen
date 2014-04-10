@@ -11,13 +11,13 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 
-import org.jsimpledb.JSimpleDBException;
+import org.jsimpledb.DatabaseException;
 
 /**
  * Thrown when a validating {@link JTransaction} is committed and validation fails.
  */
 @SuppressWarnings("serial")
-public class ValidationException extends JSimpleDBException {
+public class ValidationException extends DatabaseException {
 
     private final JObject jobj;
     private final Set<ConstraintViolation<JObject>> violations;

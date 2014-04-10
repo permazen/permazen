@@ -23,7 +23,7 @@ import org.dellroad.stuff.jibx.JiBXUtil;
 import org.jibx.runtime.JiBXException;
 
 /**
- * Models one {@link org.jsimpledb.JSimpleDB} schema version.
+ * Models one JSimpleDB {@link org.jsimpledb.Database} schema version.
  */
 public class SchemaModel implements Cloneable {
 

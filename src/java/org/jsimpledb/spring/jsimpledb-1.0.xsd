@@ -20,6 +20,7 @@
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
     Scans the classpath and builds a list of @JSimpleClass and @JSimpleFieldType-annotated classes.
+    Works just like &lt;context:component-scan/&gt;.
 			]]></xsd:documentation>
 		</xsd:annotation>
 		<xsd:complexType>

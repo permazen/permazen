@@ -6,6 +6,6 @@
  */
 
 /**
- * Java object layer for JSimpleDB.
+ * Java model layer for accessing a JSimpleDB {@link org.jsimpledb.Database} using normal Java objects.
  */
 package org.jsimpledb.jlayer;

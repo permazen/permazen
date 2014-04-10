@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see org.jsimpledb
  */
-public class JSimpleDB {
+public class Database {
 
     // Special key prefix reserved for JSimpleDB
     private static final byte JSIMPLEDB_KEY_PREFIX = (byte)0x00;
@@ -63,7 +63,7 @@ public class JSimpleDB {
     /**
      * Default Constructor. Caller must separately configure the {@link KVDatabase} to use via {@link #setKVDatabase}.
      */
-    public JSimpleDB() {
+    public Database() {
     }
 
     /**
@@ -72,7 +72,7 @@ public class JSimpleDB {
      * @param kvdb the underlying key/value store in which to store information
      * @throws IllegalArgumentException if {@code kvdb} is null
      */
-    public JSimpleDB(KVDatabase kvdb) {
+    public Database(KVDatabase kvdb) {
         if (kvdb == null)
             throw new IllegalArgumentException("null kvdb");
         this.kvdb = kvdb;
@@ -115,7 +115,7 @@ public class JSimpleDB {
      * </p>
      *
      * <p>
-     * Within each {@link JSimpleDB} is stored a record of all schema versions previously used with the database.
+     * Within each {@link Database} is stored a record of all schema versions previously used with the database.
      * When creating a new transaction, the following checks are applied:
      * <ul>
      *  <li>If a schema with version number {@code version} is recorded in the database, and the given schema
@@ -144,7 +144,7 @@ public class JSimpleDB {
      * </p>
      *
      * <p>
-     * Each object in a {@link JSimpleDB} database contains an internal version number that indicates its current schema version;
+     * Each object in a {@link Database} contains an internal version number that indicates its current schema version;
      * this in turn dictates what fields that object contains.
      * </p>
      *

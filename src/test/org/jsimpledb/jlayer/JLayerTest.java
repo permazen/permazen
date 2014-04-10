@@ -16,7 +16,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.SortedSet;
 
-import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.Database;
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
@@ -197,7 +197,7 @@ public class JLayerTest extends TestSupport {
 
     public static JLayer getJLayer(Class<?>... classes) {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
         return new JLayer(db, 1, Arrays.<Class<?>>asList(classes));
     }
 

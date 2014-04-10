@@ -14,7 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Java annotation for the getter methods of Java bean properties reflecting {@link org.jsimpledb.JSimpleDB}
+ * Java annotation for the getter methods of Java bean properties reflecting {@link org.jsimpledb.jlayer.JLayer}
  * {@link java.util.Set} fields.
  *
  * <p>

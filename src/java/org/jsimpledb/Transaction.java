@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link JSimpleDB} transaction.
+ * A JSimpleDB {@link Database} transaction.
  *
  * <p>
  * Methods in this class can be divided into the following categories:
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Transaction Meta-Data</b>
  * <ul>
- *  <li>{@link #getDatabase getDatabase()} - Get the associated {@link JSimpleDB}
+ *  <li>{@link #getDatabase getDatabase()} - Get the associated {@link Database}
  *  <li>{@link #getSchema getSchema()} - Get the database {@link Schema}, as seen by this transaction
  *  <li>{@link #getSchemaVersion() getSchemaVersion()} - Get the {@link SchemaVersion} that will be used by this transaction
  * </ul>
@@ -162,7 +162,7 @@ public class Transaction {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    final JSimpleDB db;
+    final Database db;
     final KVTransaction kvt;
     final Schema schema;
     final SchemaVersion version;
@@ -178,7 +178,7 @@ public class Transaction {
     private final HashMap<Integer, HashSet<FieldMonitor>> monitorMap = new HashMap<>();
     private final LinkedHashSet<Callback> callbacks = new LinkedHashSet<>();
 
-    Transaction(JSimpleDB db, KVTransaction kvt, Schema schema, int versionNumber) {
+    Transaction(Database db, KVTransaction kvt, Schema schema, int versionNumber) {
         this.db = db;
         this.kvt = kvt;
         this.schema = schema;
@@ -190,7 +190,7 @@ public class Transaction {
     /**
      * Get the database with which this transaction is associated.
      */
-    public JSimpleDB getDatabase() {
+    public Database getDatabase() {
         return this.db;
     }
 
@@ -473,7 +473,7 @@ public class Transaction {
             if (this.kvt.get(keyWriter.getBytes()) == null)
                 break;
             if (++attempts == MAX_UNIQUE_KEY_ATTEMPTS) {
-                throw new JSimpleDBException("could not find a new, unused object ID after "
+                throw new DatabaseException("could not find a new, unused object ID after "
                   + attempts + " attempts; is our source of randomness truly random?");
             }
             keyWriter.reset(0);

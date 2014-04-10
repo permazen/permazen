@@ -12,7 +12,7 @@ package org.jsimpledb;
  * by a {@link ReferenceField} configured for {@link DeleteAction#EXCEPTION}.
  */
 @SuppressWarnings("serial")
-public class ReferencedObjectException extends JSimpleDBException {
+public class ReferencedObjectException extends DatabaseException {
 
     private final ObjId id;
     private final ObjId referrer;

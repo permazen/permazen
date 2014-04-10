@@ -46,7 +46,7 @@ public class BasicTest1 extends TestSupport {
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
         Transaction tx = db.createTransaction(schema1, 1, true);
         //this.showKV(tx, "testPrimitiveFields: 1");
@@ -166,7 +166,7 @@ public class BasicTest1 extends TestSupport {
     public void testComplexDelete() throws Exception {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -275,7 +275,7 @@ public class BasicTest1 extends TestSupport {
     public void testSetField() throws Exception {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -637,7 +637,7 @@ public class BasicTest1 extends TestSupport {
     public void testListField() throws Exception {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -791,7 +791,7 @@ public class BasicTest1 extends TestSupport {
     public void testMapField() throws Exception {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
