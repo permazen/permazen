@@ -16,7 +16,7 @@ import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
- * Object IDs. Instances identify individual {@link JSimpleDB} objects.
+ * Object IDs. Instances identify individual {@link Database} objects.
  */
 public class ObjId implements Comparable<ObjId> {
 

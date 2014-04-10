@@ -25,7 +25,7 @@ import org.jsimpledb.schema.SetSchemaField;
 import org.jsimpledb.schema.SimpleSchemaField;
 
 /**
- * Defines a {@link JSimpleDB} database object type.
+ * Represents a {@link Database} object type.
  */
 public class ObjType extends SchemaItem {
 

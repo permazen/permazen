@@ -27,7 +27,7 @@ public class FieldMonitorTest extends TestSupport {
     public void testFieldMonitors() throws Exception {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
         final String schemaXML =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

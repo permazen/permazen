@@ -11,7 +11,7 @@ package org.jsimpledb;
  * Thrown when an unknown field is accessed.
  */
 @SuppressWarnings("serial")
-public class UnknownFieldException extends JSimpleDBException {
+public class UnknownFieldException extends DatabaseException {
 
     private final ObjType type;
     private final int storageId;

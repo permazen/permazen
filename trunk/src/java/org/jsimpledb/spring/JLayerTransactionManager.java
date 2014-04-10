@@ -9,7 +9,7 @@ package org.jsimpledb.spring;
 
 import java.util.List;
 
-import org.jsimpledb.JSimpleDBException;
+import org.jsimpledb.DatabaseException;
 import org.jsimpledb.Transaction;
 import org.jsimpledb.jlayer.JLayer;
 import org.jsimpledb.jlayer.JTransaction;
@@ -146,7 +146,7 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
         final JTransaction jtx;
         try {
             jtx = this.jlayer.createTransaction(this.allowNewSchema, this.validationMode);
-        } catch (JSimpleDBException e) {
+        } catch (DatabaseException e) {
             throw new CannotCreateTransactionException("error creating new JSimpleDB transaction", e);
         }
 
@@ -156,13 +156,13 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
             this.configureTransaction(jtx, txDef);
             JTransaction.setCurrent(jtx);
             succeeded = true;
-        } catch (JSimpleDBException e) {
+        } catch (DatabaseException e) {
             throw new CannotCreateTransactionException("error configuring JSimpleDB transaction", e);
         } finally {
             if (!succeeded) {
                 try {
                     jtx.rollback();
-                } catch (JSimpleDBException e) {
+                } catch (DatabaseException e) {
                     // ignore
                 }
             }
@@ -214,7 +214,7 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
      * The implementation in {@link JLayerTransactionManager} sets the transaction's timeout and read-only properties.
      * </p>
      *
-     * @throws JSimpleDBException if an error occurs
+     * @throws DatabaseException if an error occurs
      */
     protected void configureTransaction(JTransaction jtx, TransactionDefinition txDef) {
 
@@ -263,7 +263,7 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
             throw new PessimisticLockingFailureException("transaction must be retried", e);
         } catch (StaleTransactionException e) {
             throw new TransactionTimedOutException("transaction is no longer usable", e);
-        } catch (JSimpleDBException e) {
+        } catch (DatabaseException e) {
             throw new TransactionSystemException("error committing transaction", e);
         }
     }
@@ -281,7 +281,7 @@ public class JLayerTransactionManager extends AbstractPlatformTransactionManager
             jtx.rollback();
         } catch (StaleTransactionException e) {
             throw new TransactionTimedOutException("transaction is no longer usable", e);
-        } catch (JSimpleDBException e) {
+        } catch (DatabaseException e) {
             throw new TransactionSystemException("error committing transaction", e);
         }
     }

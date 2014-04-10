@@ -12,7 +12,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 
 import org.dellroad.stuff.java.Primitive;
-import org.jsimpledb.JSimpleDBException;
+import org.jsimpledb.DatabaseException;
 import org.jsimpledb.ObjId;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -129,7 +129,7 @@ class ClassGenerator<T> {
         try {
             return (Class<? extends T>)this.loader.loadClass(this.getClassName());
         } catch (ClassNotFoundException e) {
-            throw new JSimpleDBException("internal error", e);
+            throw new DatabaseException("internal error", e);
         }
     }
 

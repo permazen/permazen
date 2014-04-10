@@ -28,7 +28,7 @@ public class OnDeleteTest extends TestSupport {
     public void testOnDelete() throws Exception {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
         final String xmlTemplate =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

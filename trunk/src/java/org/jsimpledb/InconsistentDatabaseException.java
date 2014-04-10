@@ -8,11 +8,11 @@
 package org.jsimpledb;
 
 /**
- * Thrown when inconsistent content is detected in a {@link JSimpleDB} indicating a corrupted or invalid database,
+ * Thrown when inconsistent content is detected in a {@link Database} indicating a corrupted or invalid database,
  * or a buggy underlying key-value store.
  */
 @SuppressWarnings("serial")
-public class InconsistentDatabaseException extends JSimpleDBException {
+public class InconsistentDatabaseException extends DatabaseException {
 
     InconsistentDatabaseException() {
     }

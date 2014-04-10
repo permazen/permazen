@@ -20,7 +20,7 @@ public class SchemaTest extends TestSupport {
     private void testSchema(boolean validXML, boolean validSchema, String xml) throws Exception {
         xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml + "</Schema>\n";
         final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
-        final JSimpleDB db = new JSimpleDB(kvstore);
+        final Database db = new Database(kvstore);
 
         // Validate XML
         final SchemaModel schema;

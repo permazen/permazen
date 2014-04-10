@@ -40,7 +40,7 @@
  *     &lt;!-- Define the underlying key/value database --&gt;
  *     &lt;bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/&gt;
  *
- *     &lt;!-- Define the core JSimpleDB database layer on top of that --&gt;
+ *     &lt;!-- Define the core Database layer on top of that --&gt;
  *     &lt;bean id="jdb" class="org.jsimpledb.JSimpleDB" p:KVDatabase-ref="kvdb"/&gt;
  *
  *     &lt;!-- Define the Java "JLayer" on top of the JSimpleDB database --&gt;

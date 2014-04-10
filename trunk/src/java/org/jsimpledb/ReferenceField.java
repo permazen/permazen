@@ -8,7 +8,7 @@
 package org.jsimpledb;
 
 /**
- * A field that references a {@link JSimpleDB} database object.
+ * A field that references another {@link Database} object.
  *
  * <p>
  * Null values sort last.

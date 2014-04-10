@@ -6,6 +6,6 @@
  */
 
 /**
- * General utility classes used with {@link org.jsimpledb.JSimpleDB}.
+ * General utility classes used with JSimpleDB.
  */
 package org.jsimpledb.util;

@@ -11,7 +11,7 @@ package org.jsimpledb;
  * Superclass of exceptions associated with a specific {@link Transaction}.
  */
 @SuppressWarnings("serial")
-public class TransactionException extends JSimpleDBException {
+public class TransactionException extends DatabaseException {
 
     private final Transaction tx;
 

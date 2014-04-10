@@ -11,7 +11,7 @@ package org.jsimpledb;
  * Thrown when a field of a deleted object is accessed.
  */
 @SuppressWarnings("serial")
-public class DeletedObjectException extends JSimpleDBException {
+public class DeletedObjectException extends DatabaseException {
 
     private final ObjId id;
 
