@@ -1,0 +1,12 @@
+org.jsimpledb
+org.jsimpledb.annotation
+org.jsimpledb.change
+org.jsimpledb.core
+org.jsimpledb.kv
+org.jsimpledb.kv.fdb
+org.jsimpledb.kv.simple
+org.jsimpledb.kv.sql
+org.jsimpledb.kv.util
+org.jsimpledb.schema
+org.jsimpledb.spring
+org.jsimpledb.util
