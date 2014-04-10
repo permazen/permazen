@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
+<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>package org.jsimpledb.annotation;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.lang.annotation.Documented;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.lang.annotation.ElementType;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.lang.annotation.Retention;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.lang.annotation.RetentionPolicy;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.lang.annotation.Target;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>/**<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * Annotates JLayer model class methods that query an indexed field.<a name="line.17"></a>
+<span class="sourceLineNo">018</span> *<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * &lt;p&gt;<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * The annotated method must take zero parameters and return<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * {@link java.util.NavigableMap NavigableMap}{@code &lt;V, }{@link java.util.NavigableSet NavigableSet}{@code &lt;T&gt;&gt;}, where<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * {@code V} is the type of the indexed field's values, and {@code T} is the type of the Java model object<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * containing the field.<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * &lt;/p&gt;<a name="line.24"></a>
+<span class="sourceLineNo">025</span> *<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * &lt;p&gt;<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * For example:<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;pre&gt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &amp;#64;JSimpleClass(storageId = 10)<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * public class Person {<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *     &amp;#64;JSimpleSetField(storageId = 11, &lt;b&gt;indexed = true&lt;/b&gt;)<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *     public abstract Set&amp;lt;String&amp;gt; getNicknames();<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *     &lt;b&gt;&amp;#64;IndexQuery("nicknames")&lt;/b&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *     private abstract NavigableMap&amp;lt;String, NavigableSet&amp;lt;Person&amp;gt;&amp;gt; queryNicknames();<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *     // Get all people with the given nickname<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *     public Set&amp;lt;Person&amp;gt; getPeopleWithNickame(String nickname) {<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *         final Set&amp;lt;Person&amp;gt; people = this.queryNicknames().get(nickname);<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *         return people != null ? people : Collections.&amp;lt;Person&amp;gt;emptySet();<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *     }<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *     // Get all known nicknames, sorted by nickname<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *     public NavigableSet&amp;lt;String&amp;gt; getAllNickames() {<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *         return this.queryNicknames().navigableKeySet();<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *     }<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *     // Do an "inner join" on two nicknames<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *     public NavigableSet&amp;lt;Person&amp;gt; getPeopleWithBothNicknames(String nickname1, String nickname2) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *         return NaviableSets.intersection(this.getPeopleWithNickame(nickname1), this.getPeopleWithNickame(nickname2));<a name="line.51"></a>
+<span class="sourceLineNo">052</span> *     }<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * }<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * &lt;/pre&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * &lt;/p&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * &lt;p&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * The returned {@link java.util.NavigableMap NavigableMap} contains an entry for every value that is actually present<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * in the field in some object, with the corresponding value being the set of those objects. It represents a "live" view:<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * if an indexed field is modified, any previously returned {@link java.util.NavigableMap NavigableMap} updates itself<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * immediately.<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * &lt;/p&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * &lt;p&gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * For list and map fields, you may also query the index for additional information beyond just which objects contain<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * the queried value in the indexed field: in the case of a list, you can also get the<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * list index, and in the case of a map, you can also get the corresponding key or value. For these kinds of query, specify the<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * type {@code T} to be either {@link org.jsimpledb.ListIndexEntry},<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * {@link org.jsimpledb.MapKeyIndexEntry}, or {@link org.jsimpledb.MapValueIndexEntry} as appropriate. For example:<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * &lt;pre&gt;<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * public class Company {<a name="line.71"></a>
+<span class="sourceLineNo">072</span> *<a name="line.72"></a>
+<span class="sourceLineNo">073</span> *     &amp;#64;JSimpleMapField(storageId = 11,<a name="line.73"></a>
+<span class="sourceLineNo">074</span> *       key = &amp;#64;JSimpleField(storageId = 12, &lt;b&gt;indexed = true&lt;/b&gt;),<a name="line.74"></a>
+<span class="sourceLineNo">075</span> *       value = &amp;#64;JSimpleField(storageId = 13, type = "float")) // primitive type to disallow nulls<a name="line.75"></a>
+<span class="sourceLineNo">076</span> *     public abstract Map&amp;lt;Vendor, Float&amp;gt; getAccountsPayable();<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *<a name="line.77"></a>
+<span class="sourceLineNo">078</span> *     // Query to get mapping by Vendor of which Company's owe that vendor and how much they owe<a name="line.78"></a>
+<span class="sourceLineNo">079</span> *     &lt;b&gt;&amp;#64;IndexQuery("accountsPayable.key")&lt;/b&gt;<a name="line.79"></a>
+<span class="sourceLineNo">080</span> *     private abstract NavigableMap&amp;lt;Vendor, NavigableSet&amp;lt;MapKeyIndexEntry&amp;lt;Company, Float&amp;gt;&amp;gt;&amp;gt; queryVendorDebts();<a name="line.80"></a>
+<span class="sourceLineNo">081</span> * }<a name="line.81"></a>
+<span class="sourceLineNo">082</span> * &lt;/pre&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span> * &lt;/p&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span> *<a name="line.84"></a>
+<span class="sourceLineNo">085</span> * &lt;p&gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span> * The annotation {@link #value} is a {@link org.jsimpledb.ReferencePath} specifying the indexed<a name="line.86"></a>
+<span class="sourceLineNo">087</span> * field to query. The path is assumed to start at the type containing the annotated method; however, a different<a name="line.87"></a>
+<span class="sourceLineNo">088</span> * starting type may be specified via {@link #startType}.<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * &lt;/p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span> *<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * &lt;p&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span> * The annotated method must be an instance method. Note, static methods would be more appropriate (the index query is<a name="line.92"></a>
+<span class="sourceLineNo">093</span> * not specific to any instance), but static methods cannot be overridden by generated subclasses. For this reason<a name="line.93"></a>
+<span class="sourceLineNo">094</span> * it is sometimes useful to have a singleton Java model object type that only provides methods for querying indexes.<a name="line.94"></a>
+<span class="sourceLineNo">095</span> * &lt;p&gt;<a name="line.95"></a>
+<span class="sourceLineNo">096</span> */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>@Retention(RetentionPolicy.RUNTIME)<a name="line.97"></a>
+<span class="sourceLineNo">098</span>@Target(ElementType.METHOD)<a name="line.98"></a>
+<span class="sourceLineNo">099</span>@Documented<a name="line.99"></a>
+<span class="sourceLineNo">100</span>public @interface IndexQuery {<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * Specifies the target field to watch for changes.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     *<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * &lt;p&gt;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * The value must be a {@linkplain org.jsimpledb.ReferencePath reference path} with<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * zero references, e.g., {@code "MyClass.myfield"} or {@code "MyClass.mymap.key"}. The path cannot end on a<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * complex field itself; it must end on some specific sub-field. So for example {@code "MyClass.mymap"} would be invalid.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * &lt;p&gt;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     *<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * &lt;p&gt;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * See {@link org.jsimpledb.ReferencePath} for information on the proper syntax for reference paths.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * &lt;/p&gt;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     *<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * @see org.jsimpledb.ReferencePath<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     */<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    String value();<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    /**<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * Specifies the starting type for the {@link org.jsimpledb.ReferencePath} specified by {@code #value}.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     *<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * &lt;p&gt;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * If this property is left unset, then then class containing the annotated method is assumed.<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * &lt;/p&gt;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     *<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * @see org.jsimpledb.ReferencePath<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     */<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    Class&lt;?&gt; startType() default void.class;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>}<a name="line.129"></a>
+<span class="sourceLineNo">130</span><a name="line.130"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
