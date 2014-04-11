@@ -1,4 +1,5 @@
 #summary Getting Started with JSimpleDB
+#labels Featured
 
 == Getting Started ==
 
