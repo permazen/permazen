@@ -50,6 +50,7 @@ class ClassGenerator<T> {
     static final Method GET_OBJ_ID_METHOD;
     static final Method JOBJECT_DELETE_METHOD;
     static final Method JOBJECT_EXISTS_METHOD;
+    static final Method JOBJECT_RECREATE_METHOD;
     static final Method JOBJECT_REVALIDATE_METHOD;
 
     // JTransaction method handles
@@ -62,6 +63,7 @@ class ClassGenerator<T> {
     static final Method READ_MAP_FIELD_METHOD;
     static final Method DELETE_METHOD;
     static final Method EXISTS_METHOD;
+    static final Method RECREATE_METHOD;
     static final Method REVALIDATE_METHOD;
     static final Method QUERY_SIMPLE_FIELD_METHOD;
     static final Method QUERY_LIST_FIELD_ENTRIES_METHOD;
@@ -75,6 +77,7 @@ class ClassGenerator<T> {
             GET_OBJ_ID_METHOD = JObject.class.getMethod("getObjId");
             JOBJECT_DELETE_METHOD = JObject.class.getMethod("delete");
             JOBJECT_EXISTS_METHOD = JObject.class.getMethod("exists");
+            JOBJECT_RECREATE_METHOD = JObject.class.getMethod("recreate");
             JOBJECT_REVALIDATE_METHOD = JObject.class.getMethod("revalidate");
 
             // JTransaction methods
@@ -87,6 +90,7 @@ class ClassGenerator<T> {
             READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, Integer.TYPE);
             DELETE_METHOD = JTransaction.class.getMethod("delete", JObject.class);
             EXISTS_METHOD = JTransaction.class.getMethod("exists", JObject.class);
+            RECREATE_METHOD = JTransaction.class.getMethod("recreate", JObject.class);
             REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", JObject.class);
             QUERY_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("querySimpleField", int.class);
             QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class);
@@ -245,7 +249,20 @@ class ClassGenerator<T> {
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
           Type.getMethodDescriptor(Type.getType(JTransaction.class)));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, EXISTS_METHOD);
+        this.emitInvoke(mv, RECREATE_METHOD);
+        mv.visitInsn(Opcodes.IRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Add JObject.recreate()
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JOBJECT_RECREATE_METHOD.getName(),
+          Type.getMethodDescriptor(JOBJECT_RECREATE_METHOD), null, null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
+          Type.getMethodDescriptor(Type.getType(JTransaction.class)));
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        this.emitInvoke(mv, RECREATE_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

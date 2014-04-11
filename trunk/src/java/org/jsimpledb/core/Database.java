@@ -51,8 +51,13 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * This class defines an abstraction layer that sits below {@link org.jsimpledb.JSimpleDB}. Compared to
- * {@link org.jsimpledb.JSimpleDB}, a {@link Database} has these differences:
+ * See {@link Transaction} for further details on the above functionality.
+ * </p>
+ *
+ * <p>
+ * This class defines an abstraction layer that usually sits below a {@link org.jsimpledb.JSimpleDB} but is completely
+ * independent of {@link org.jsimpledb.JSimpleDB} and can be used on its own.
+ * Compared to {@link org.jsimpledb.JSimpleDB}, a {@link Database} has these differences:
  * <ul>
  *  <li>A {@link SchemaModel} must be explicitly provided to define the schema in use</li>
  *  <li>Database objects are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type</li>
@@ -61,6 +66,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * </p>
  *
+ * @see Transaction
  * @see org.jsimpledb
  */
 public class Database {

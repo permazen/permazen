@@ -104,8 +104,8 @@ public @interface IndexQuery {
      *
      * <p>
      * The value must be a {@linkplain org.jsimpledb.ReferencePath reference path} with
-     * zero references, e.g., {@code "MyClass.myfield"} or {@code "MyClass.mymap.key"}. The path cannot end on a
-     * complex field itself; it must end on some specific sub-field. So for example {@code "MyClass.mymap"} would be invalid.
+     * zero references, e.g., {@code "myfield"} or {@code "mymap.key"}. The path cannot end on a
+     * complex field itself; it must end on some specific sub-field. So for example {@code "mymap"} would be invalid.
      * <p>
      *
      * <p>

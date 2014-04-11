@@ -264,6 +264,21 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     }
 
     /**
+     * Recreate the given instance in this transaction.
+     *
+     * <p>
+     * This method is typically only used by generated classes; normally, {@link JObject#recreate} would be used instead.
+     * </p>
+     *
+     * @param jobj Java model object
+     * @return true if the object was recreated, false if {@code obj} already existed
+     * @throws NullPointerException if {@code jobj} is null
+     */
+    public boolean recreate(JObject jobj) {
+        return this.tx.create(jobj.getObjId());
+    }
+
+    /**
      * Add the given instance to the validation queue for validation, which will occur either at {@link #commit} time
      * or at the next invocation of {@link #validate}, whichever occurs first.
      *
@@ -372,7 +387,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * @param path dot-separated path of zero or more reference fields, followed by a final reference field
      * @param targetObjects target objects
      * @return set of objects that refer to any of the {@code targetObjects} via the {@code path} from {@code startType}
-     * @throws UnknownFieldException if {@code path} is invalid
+     * @throws org.jsimpledb.core.UnknownFieldException if {@code path} is invalid
      * @throws IllegalArgumentException if any parameter is null
      */
     @SuppressWarnings("unchecked")
