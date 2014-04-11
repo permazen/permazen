@@ -11,7 +11,7 @@ JSimpleDB is designed to make life easy for Java programmers, so this "Getting S
 Sometimes code is worth a thousand words, so here is some code:
 <code language="java">
 @JSimpleClass(storageId = 100)
-public abstract class Person {
+public abstract class Person implements JObject {
  
     // My age
     @JField(storageId = 101)
@@ -28,11 +28,227 @@ Of note:
  * We are defining a class `Person` with two fields:
    * A simple field named `age` of type `int`
    * A complex `Set` field named `friends` with element type `Person`
- * There is no setter method for `friends`; the set always exists
- * The `Person` class and each field (including the sub-field `element` of the set field `friends`) has a unique *storage ID*
  * The getter methods for `age` and `friends` are declared `abstract`
+   * A concrete subclass is auto-generated at runtime by JSimpleDB
+   * The subclass will implement the `JObject` interface
+ * There is no setter method for `friends`
+   * The set will always exist
+ * Every Java model class and field (including sub-fields like the `element` of `friends`) has a unique *storage ID*
+   * Internally, objects and fields are identified by storage ID, not name
+   * Storage IDs are used to identify old fields after a schema change
+
+So far so good. But how do you create a `Person`? Use `JTransaction.create()`, e.g.:
+
+<code language="java">
+    // Create a new database object
+    public static Person create() {
+        return JTransaction.getCurrent().create(Person.class);
+    }
+</code>
+
+`JTransaction` represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`.
+
+All state associated with JSimpleDB objects lives in the `JTransaction`. The model objects themselves are stateless, except for their internal object ID. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no such `JTransaction`, an `IllegalStateException` is thrown.
+
+Java model objects do not change from transaction to transaction like with JPA. You can use the same `Person` object over and over again in multiple transactions.
+
+If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `Person.exists()`.
+
+To get all `Person`s:
+
+<code language="java">
+    // Get all people
+    public static Set<Person> getAll() {
+        return JTransaction.getAll(Person.class);
+    }
+</code>
+
+How do you delete a `Person`?
+
+<code language="java">
+    person.delete();
+</code>
+
+The `exists()` and `delete()` methods are part of the `JObject` interface. Alternately, you can say:
+
+<code language="java">
+    JTransaction.getCurrent().delete(person);
+</code>
+
+The two are equivalent.
+
+=== Indexes ===
+
+Given the above class, if you wanted to calculate whether any `Person` having a specific age existed, you would have to write this code:
+<code language="java">
+    public boolean existsPersonOfAge(int age) {
+        for (Person person : Person.getAll()) {
+            if (person.getAge() == age)
+                return true;
+        }
+        return false;
+    }
+</code>
+
+Having to write that code is a _good_ thing: JSimpleDB is forcing you to confront the fact that the cost of calculating this function is iterating over every `Person` in the database. That might take a long time.
+
+This is of course a perfect opportunity to index the `age` field. Here we add `indexed = true` to the `@JField` annotation:
+
+<code language="java">
+    // My age - now indexed!
+    @JField(storageId = 101, indexed = true)
+    public abstract int getAge();
+    public abstract void setAge(int age);
+</code>
+
+Now how do you read that index?
+
+<code language="java">
+    @IndexQuery("age")
+    public abstract NavigableMap<Integer, NavigableSet<Person>> queryPersonAges();
+</code>
+
+A JSimpleDB index is returned as a mapping from field value to the set of objects having that field value in the field.
+
+Now we can rewrite our `existsPersonOfAge()` method:
+
+<code language="java">
+    public boolean existsPersonOfAge(int age) {
+        return this.queryPersonAges().containsKey(age);
+    }
+</code>
+
+Lots of other possibilities exist as well. For example:
+
+<code language="java">
+    public int getMaximumAge() {
+        NavigableMap<Integer, NavigableSet<Person>> index = this.queryPersonAges();
+        return !index.isEmpty() ? index.lastKey() : -1;
+    }
+</code>
+
+The astute reader may notice that the `getMaximumAge()` method should really be a static method, because there's nothing about it that is specific to one `Person`. And that is correct; however, you can't override static methods, so the method has to be an instance method for JSimpleDB to generate a subclass implementation. If you really wanted a static method, you could do this:
+
+<code language="java">
+    @SuppressWarnings("unchecked")
+    public static boolean getMaximumAge() {
+        NavigableMap<Integer, NavigableSet<Person>> index
+          = (NavigableMap<Integer, NavigableSet<Person>>)JTransaction.getCurrent().querySimpleField(101);
+        return JTransaction.getCurrent().querySimpleField(101).containsKey(age);
+    }
+</code>
+
+A cleaner possibility is to define a singleton `Indexes` class containing all your index queries.
+
+=== Joins ===
+
+Now suppose the question you need to frequently answer is not whether any person exists of a specific age, but whether a specifc `Person` has any _friend_ of a specific age.
+
+Now we just need to intersect the set of friends with the set of people of a specified age. This is the equivalent of an SQL `INNER JOIN`.
+
+First we need to declare `friends` as a `NavigableSet` (which is what it really is):
+
+<code language="java">
+    // My friends
+    @JSetField(storageId = 102, element = @JField(storageId = 103))
+    public abstract NavigableSet<Person> getFriends();
+}
+</code>
+
+Then we just do the "join" via set intersection:
+
+<code language="java">
+    public boolean existsFriendOfAge(int age) {
+        NavigableSet<Person> peopleOfAge = this.queryPersonAges().get(age);
+        return peopleOfAge != null && !NavigableSets.intersect(peopleOfAge, this.getFriends()).isEmpty();
+    }
+</code>
+
+The `NavigableSets` utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements.
+
+=== Reference Inversion ===
+
+In JSimpleDB reference fields, including sub-fields of a collection field, are always indexed, so it's easy to ask what objects reference any other object:
+
+<code language="java">
+    @IndexQuery("friends.element")
+    abstract NavigableMap<Person, NavigableSet<Person>> queryFriends();
+ 
+    // Who considers me a friend?
+    public abstract Set<Person> whoConsidersMeAFriend() {
+        return this.queryFriends().get(this);
+    }
+</code>
+
+Alternatively, you can invert references in an ad hoc manner:
+
+<code language="java">
+    // Who considers me a friend?
+    public abstract Set<Person> whoConsidersMeAFriend() {
+        Set<Person> refs = JTransaction.getCurrent().invertReferencePath(Person.class,
+          "friend", Collections.singleton(this));
+    }
+ 
+    // Who considers me a friend of a friend?
+    public abstract Set<Person> whoConsidersMeAFriendOfAFriend() {
+        Set<Person> refs = JTransaction.getCurrent().invertReferencePath(Person.class,
+          "friend.friend", Collections.singleton(this));
+    }
+</code>
 
 === Custom Indexes ===
+
+An index is just a special case of _derived information_ that is kept up to date automatically for you by the database. You can build your own "index" based on any derived information. The trick is tracking down all the places in your code that could possibly modify the information from which your index is derived.
+
+With traditional databases, this is relatively easy as long as the information is all contained in one object: you put "secret" update code in the setter methods of all the fields that affect the derived information.
+
+Or if you're lucky, your derived information matches an SQL built-in aggregate function like `AVG()` for which SQL databases often have "secret" indexes that make the function fast. But that hack only works if you `AVG()` the entire table.
+
+What if your "index" is derived for many objects, possibly ones that are far away? Suppose for example you need to be able to efficiently calculate the average age of _all the friends_ of any `Person`. An SQL `AVG()` query will need to iterate through all the friends to calculate the average. Not a problem if you don't have many friends, but in general with today's huge datasets this could be very slow.
+
+With JSimpleDB, you can create your own index with arbitrarily distant dependencies using the `@OnChange` annotation, and keep all the code to maintain your custom "friends' average age" index in one place.
+
+In this example, we monitor for changes in our set of friends and their ages, and update the average automatically. This works no matter how the age is modified or where those changes occur in your codebase:
+
+<code language="java">
+    public double getFriendsAverageAge() {
+        return (double)this.getFriendsAgeSum() / this.getNumFriends();
+    }
+ 
+    // Secretly keep track how many friends I have
+    @JSaneField(storageId = 104)
+    abstract int getNumFriends();
+    abstract void setNumFriends(int numFriends);
+ 
+    // Secretly keep track of the sum of my friends' ages
+    @JSaneField(storageId = 105)
+    abstract long getFriendsAgeSum();
+    abstract void setFriendsAgeSum(long ageSum);
+ 
+    // Notify me when any of my friend's ages changes and update age sum
+    @OnChange("friends.element.age")
+    boolean existsFriendOfAge(SimpleFieldChange<Person, Integer> change) {
+        this.setFriendsAgeSum(this.getFriendsAgeSum() - change.getOldValue() + change.getNewValue());
+    }
+ 
+    // Notify me when my set of friends changes and update age sum and friend count
+    @OnChange("friends.element.age")
+    boolean existsFriendOfAge(SetFieldChange<Person, Person> change) {
+        if (change instanceof SetFieldAdd) {
+            this.setFriendsAgeSum(this.getFriendsAgeSum() + ((SetFieldAdd)change).getElement().getAge());
+            this.setNumFriends(this.getNumFriends() + 1);
+        } else if (change instanceof SetFieldRemove) {
+            this.setFriendsAgeSum(this.getFriendsAgeSum() - ((SetFieldAdd)change).getElement().getAge());
+            this.setNumFriends(this.getNumFriends() - 1);
+        } else {                                        // SetFieldClear
+            this.setNumFriends(0);
+            this.setFriendsAgeSum(0);
+        }
+    }
+</code>
+This index is maintained as efficiently as possible: we are notified only when an meaningful change occurs, and the update is incremental.
+
+By the way JSimpleDB does not notify for "changes" that don't actually change anything, such as `person.getFriends().add(friend)` when `friend` is already a friend of `person`. 
 
 === Schema Changes ===
 
@@ -47,9 +263,14 @@ JSimpleDB is normally used and configured via annotated Java classes, but this i
 
 The core database layer has the following notions:
  * *Objects* - An object is a collection of fields
+   * Objects have an implicit *schema version*
+   * Objects with schema versions not matching the current version are automatically updated and an `@OnVersionChange` notification is delivered to the object
  * *Fields* - A field can be *simple* or *complex*
  * *Simple Fields* - Holds an atomic value like `int` or `Date`. Non-primitive types may be null. Simple fields may optionally be *indexed*.
- * *Complex Fields* - Sets, Lists, and Maps. Complex fields have one or more *sub-fields*, which are themselves always simple fields; a complex field may not be itself indexed, but its simple sub-field(s) may be
  * *Reference Fields* - A reference field is a special type of simple field that holds a reference to an object. Reference fields are always indexed.
+ * *Complex Fields* - Sets, Lists, and Maps.
+   * Complex fields have one or more *sub-fields*, which are themselves always simple fields
+   * A complex field may not be itself indexed, but its simple sub-field(s) may be.
+   * Complex sub-fields may have primitive types; if so, an `IllegalArgumentException` is thrown if you attempt to add `null`
 
 All objects and fields have a unique *storage ID*.
