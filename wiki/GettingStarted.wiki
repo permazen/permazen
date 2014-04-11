@@ -3,7 +3,7 @@
 
 == Getting Started ==
 
-JSimpleDB is designed to make life easy for Java programmers, so this "Getting Started" document ought to be easy for any Java programmer to understand.
+JSimpleDB is designed to make powerful persistence easy for Java programmers.
 
 <wiki:toc max_depth="3"/>
 
@@ -29,18 +29,18 @@ Of note:
    * A simple field named `age` of type `int`
    * A complex `Set` field named `friends` with element type `Person`
  * The getter methods for `age` and `friends` are declared `abstract`
-   * A concrete subclass is auto-generated at runtime by JSimpleDB
-   * The subclass will implement the `JObject` interface
+   * This is optional, but JSimpleDB will override these methods in an auto-generated subclass at runtime
+   * The generated subclass will implement the `JObject` interface (optional for `Person`)
  * There is no setter method for `friends`
    * The set will always exist
  * Every Java model class and field (including sub-fields like the `element` of `friends`) has a unique *storage ID*
    * Internally, objects and fields are identified by storage ID, not name
-   * Storage IDs are used to identify old fields after a schema change
+   * Storage IDs are used to access (possibly removed) old fields after a schema change
 
 So far so good. But how do you create a `Person`? Use `JTransaction.create()`, e.g.:
 
 <code language="java">
-    // Create a new database object
+    // Create a Person
     public static Person create() {
         return JTransaction.getCurrent().create(Person.class);
     }</code>
@@ -49,7 +49,7 @@ So far so good. But how do you create a `Person`? Use `JTransaction.create()`, e
 
 All state associated with JSimpleDB objects lives in the `JTransaction`. The model objects themselves are stateless, except for their internal object ID. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no such `JTransaction`, an `IllegalStateException` is thrown.
 
-Java model objects do not change from transaction to transaction like with JPA. You can use the same `Person` object over and over again in multiple transactions.
+Java model objects do not change from transaction to transaction like with JPA. You can use the same `Person` object over and over again in multiple transactions. Of course, the person's fields may have different values in different transactions.
 
 If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `JObject.exists()`, and recreate the object (with all fields reinitialized) via `JObject.recreate()`.
 
@@ -66,12 +66,14 @@ How do you delete a `Person`?
 <code language="java">
     person.delete();</code>
 
-The `exists()` and `delete()` methods are part of the `JObject` interface. Alternately, you can say:
+Alternately, you can say:
 
 <code language="java">
     JTransaction.getCurrent().delete(person);</code>
 
 The two are equivalent.
+
+The `exists()`, `delete()`, and `recreate()` methods are part of the `JObject` interface.
 
 === Indexes ===
 
@@ -85,7 +87,7 @@ Given the above class, if you wanted to calculate whether any `Person` having a 
         return false;
     }</code>
 
-Having to write that code is a _good_ thing: JSimpleDB is forcing you to confront the fact that the cost of calculating this function is iterating over every `Person` in the database. That might take a long time.
+Having to write that code is a _good_ thing: JSimpleDB is exposing the underlying performance reality and forcing you to confront the fact that the cost of calculating this function is iterating over every `Person` in the database. With large database, that could be impractical.
 
 This is of course a perfect opportunity to index the `age` field. Here we add `indexed = true` to the `@JField` annotation:
 
@@ -95,13 +97,13 @@ This is of course a perfect opportunity to index the `age` field. Here we add `i
     public abstract int getAge();
     public abstract void setAge(int age);</code>
 
-Now how do you read that index?
+Now how do you read that index? You just delcare and annotate a method that reads it:
 
 <code language="java">
     @IndexQuery("age")
     public abstract NavigableMap<Integer, NavigableSet<Person>> queryPersonAges();</code>
 
-A JSimpleDB index is returned as a mapping from field value to the set of objects having that field value in the field.
+A JSimpleDB index is returned as a mapping from field value to the set of objects having that value in the field.
 
 Now we can rewrite our `existsPersonOfAge()` method:
 
@@ -118,7 +120,7 @@ Lots of other possibilities exist as well. For example:
         return !index.isEmpty() ? index.lastKey() : -1;
     }</code>
 
-The astute reader may notice that the `getMaximumAge()` method should really be a static method, because there's nothing about it that is specific to one `Person`. And that is correct; however, you can't override static methods, so the method has to be an instance method for JSimpleDB to generate a subclass implementation. If you really wanted a static method, you could do this:
+The astute reader may notice that `existsPersonOfAge()` and `getMaximumAge()` should really be a static methods, because there's nothing about them that is specific to one `Person`. And that is correct; however, you can't override static methods, so the method has to be an instance method for JSimpleDB to generate a subclass implementation. If you really wanted a static method, you could do this:
 
 <code language="java">
     @SuppressWarnings("unchecked")
@@ -128,13 +130,13 @@ The astute reader may notice that the `getMaximumAge()` method should really be 
         return JTransaction.getCurrent().querySimpleField(101).containsKey(age);
     }</code>
 
-A cleaner possibility is to define a singleton `Indexes` class containing all your index queries.
+Instead, a cleaner option is to define a singleton class `Indexes` containing all your index query methods.
 
 === Joins ===
 
 Now suppose the question you need to frequently answer is not whether any person exists of a specific age, but whether a specifc `Person` has any _friend_ of a specific age.
 
-Now we just need to intersect the set of friends with the set of people of a specified age. This is the equivalent of an SQL `INNER JOIN`.
+We just need to intersect the set of friends with the set of people of a specified age. This is the equivalent of an SQL `INNER JOIN`.
 
 First we need to declare `friends` as a `NavigableSet` (which is what it really is):
 
@@ -151,7 +153,7 @@ Then we just do the "join" via set intersection:
         return peopleOfAge != null && !NavigableSets.intersect(peopleOfAge, this.getFriends()).isEmpty();
     }</code>
 
-The `NavigableSets` utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements.
+The `NavigableSets` utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements, and in particular, a consistent sort order for those elements, which is what allows the intersection operation to be efficient. JSimpleDB provides (and verifies) this consistent ordering for you.
 
 === Reference Inversion ===
 
@@ -162,7 +164,7 @@ In JSimpleDB reference fields, including sub-fields of a collection field, are a
     abstract NavigableMap<Person, NavigableSet<Person>> queryFriends();
  
     // Who considers me a friend?
-    public abstract Set<Person> whoConsidersMeAFriend() {
+    public Set<Person> whoConsidersMeAFriend() {
         return this.queryFriends().get(this);
     }</code>
 
@@ -170,15 +172,15 @@ Alternatively, you can invert references in an ad hoc manner:
 
 <code language="java">
     // Who considers me a friend?
-    public abstract Set<Person> whoConsidersMeAFriend() {
-        Set<Person> refs = JTransaction.getCurrent().invertReferencePath(Person.class,
+    public Set<Person> whoConsidersMeAFriend() {
+        return JTransaction.getCurrent().invertReferencePath(Person.class,
           "friend", Collections.singleton(this));
     }
  
-    // Who considers me a friend of a friend?
-    public abstract Set<Person> whoConsidersMeAFriendOfAFriend() {
-        Set<Person> refs = JTransaction.getCurrent().invertReferencePath(Person.class,
-          "friend.friend", Collections.singleton(this));
+    // Who considers any of my friends a friend of a friend?
+    public Set<Person> whoConsidersAnyOfMyFriendsAFriend() {
+        return JTransaction.getCurrent().invertReferencePath(Person.class,
+          "friend.friend", this.getFriends());
     }</code>
 
 === Custom Indexes and `@OnChange` ===
@@ -187,15 +189,19 @@ An index is just a special case of _derived information_ that is kept up to date
 
 With traditional databases, this is relatively easy as long as the information is all contained in one object: you put "secret" update code in the setter methods of all the fields that affect the derived information.
 
-Or if you're lucky, your derived information matches an SQL built-in aggregate function like `AVG()` for which SQL databases often have "secret" indexes that make the function fast. But that hack only works if you `AVG()` the entire table.
+Or if you're lucky, your derived information matches an SQL built-in aggregate function like `AVG()` for which SQL databases often have "secret" indexes that make the function fast. But that hack only works if your query runs `AVG()` over the entire table.
 
-What if your "index" is derived for many objects, possibly ones that are far away? Suppose for example you need to be able to efficiently calculate the average age of _all the friends_ of any `Person`. An SQL `AVG()` query will need to iterate through all the friends to calculate the average. Not a problem if you don't have many friends, but in general with today's huge datasets this could be very slow.
+What if your "index" is derived for many objects, possibly ones that are far away? Suppose for example you need to be able to efficiently calculate the average age of _all the friends_ of any `Person`. An SQL `AVG()` query will need to iterate through all the friends to calculate the average: the "secret" `AVG()` index can't be used. Not a problem if you don't have many friends, but in general with today's huge datasets this could be very slow.
 
-With JSimpleDB, you can create your own index with arbitrarily distant dependencies using the `@OnChange` annotation, and keep all the code to maintain your custom "friends' average age" index in one place.
+This is an important subtlety that affects scaling applications written using SQL databases: if what you want to index can't be done by the index capability built-in to the database, but your dataset is too large to _not_ index the information you need, then suddenly you have "index" logic spamming your Java codebase. Database index logic belongs at the data layer, not the service or business layer.
 
-In this example, we monitor for changes in our set of friends and their ages, and update the average automatically. This works no matter how the age is modified or where those changes occur in your codebase:
+With JSimpleDB, you can create your own index with arbitrarily distant dependencies using the `@OnChange` annotation, and keep all the code to maintain your custom "friends' average age" index in one place where it belongs - in the object maintaining the index.
+
+In this example, we monitor for changes in our set of friends and their ages, and update the average automatically. This works no matter how the age is modified or where else those changes might occur in your codebase:
 
 <code language="java">
+
+    // Get my friends' average age - value is always up to date
     public double getFriendsAverageAge() {
         return (double)this.getFriendsAgeSum() / this.getNumFriends();
     }
@@ -212,36 +218,150 @@ In this example, we monitor for changes in our set of friends and their ages, an
  
     // Notify me when any of my friend's ages changes and update age sum
     @OnChange("friends.element.age")
-    boolean existsFriendOfAge(SimpleFieldChange<Person, Integer> change) {
+    private boolean onFriendAgeChange(SimpleFieldChange<Person, Integer> change) {
         this.setFriendsAgeSum(this.getFriendsAgeSum() - change.getOldValue() + change.getNewValue());
     }
  
     // Notify me when my set of friends changes and update age sum and friend count
     @OnChange("friends.element.age")
-    boolean existsFriendOfAge(SetFieldChange<Person, Person> change) {
+    private boolean onFriendsChange(SetFieldChange<Person, Person> change) {
         if (change instanceof SetFieldAdd) {
             this.setFriendsAgeSum(this.getFriendsAgeSum() + ((SetFieldAdd)change).getElement().getAge());
             this.setNumFriends(this.getNumFriends() + 1);
         } else if (change instanceof SetFieldRemove) {
             this.setFriendsAgeSum(this.getFriendsAgeSum() - ((SetFieldAdd)change).getElement().getAge());
             this.setNumFriends(this.getNumFriends() - 1);
-        } else {                                        // SetFieldClear
+        } else {
+            assert change instanceof SetFieldClear;
             this.setNumFriends(0);
             this.setFriendsAgeSum(0);
         }
     }</code>
-This index is maintained as efficiently as possible: we are notified only when an meaningful change occurs, and the update is incremental.
+This index is maintained as efficiently as possible: we are notified only when a meaningful change occurs, and the update is incremental (constant time) and immediate.
 
-By the way JSimpleDB does not notify for "changes" that don't actually change anything, such as `person.getFriends().add(friend)` when `friend` is already a friend of `person`. 
+By the way, JSimpleDB does not notify for "changes" that don't actually change anything, such as `person.getFriends().add(friend)` when `friend` is already in the set.
 
 `@OnChange` notifications are also handy for validation scenarios involving distant dependencies.
 
+==== Calculating Sizes ====
+
+Notice in the example we are tracking the size of the `friends` set manually. Why not just use `this.getFriends().size()`?
+
+In JSimpleDB invoking `size()` on any collection type requires an _O(n)_ time interation through the collection.
+
+This seems inefficient, but there is an important reason for it: allowing for reduced contention in distributed databases.
+
+Imagine a database with 20 distributed nodes on the network, and on each node an application is rapidly adding new objects to some `Set`. If JSimpleDB maintained a hidden `size` field with each collection, then that field would have to be updated with each insert, and therefore would be highly contended and cause the database to be slow. Without it, however, the set elements can be added concurrently without conflict.
+
+Instead, JSimpleDB leaves it up to you whether the size of a collection should be explicitly maintained. After all, the size of a collection is just another type of index (derived information).
+
+Some databases provide datatypes allowing writing without reading, for example incrementing a counter without reading it. This allows concurrent writes to be handled withouth conflict and would be a best-of-both-worlds solution for maintaining collection sizes. In the future, JSimpleDB may add a new integral datatype reflecting this support, falling back to the usual behavior for key/values stores that don't support it.
+
 === Schema Changes ===
+
+Traditional SQL databases provide no explicit support for managing schema changes. This used to be OK when you had a single database, and it was small enough that running a few `ALTER TABLE` statements was relatively quick.
+
+Today, however, not only are the data sets too large for "stop the world" schema changes, it's often not acceptable to bring down the application servers all at the same time, even for a short amount of time. Therefore, at some point you are going to have two different versions of your application running on two different nodes, both talking to the same database but expecting to see different schemas. This situation presents obvious challenges.
+
+Some NoSQL databases duck this question by being "schemaless", which really means "the schema is your problem, not mine". Other databases support the notion of an object version, but leave the rest to the application developer.
+
+An important goal of JSimpleDB is to provide a first class solution to this problem by providing explicit support to the application for schema maintenance and migration.
+
+This support has several aspects.
+
+==== Schema Tracking ====
+
+JSimpleDB databases have an explicit notion of a *schema* as well as schema *versions*, and you must explicitly tell JSimpleDB what schema and version you are using. If what you are intending to use doesn't match what's in the database already, you get an error - JSimpleDB won't let you write data incompatibly.
+
+A schema is defined as a set of objects and the fields in those objects. Each object and field is identified only by its storage ID, which must be unique in that schema. Therefore, changes to the names of objects or fields do not constitute a schema change.
+
+Internally, schemas are represented by `SchemaModel` objects. This object type has an XML representation which is used to record the schema in the database.
+
+Normally, you don't need to mess with `SchemaModel`s - they are generated for you by inspecting your annotated classes and handled automatically.
+
+==== Schema Verification ====
+
+When a JSimpleDB database is created, you must specify the *version* of the schema generated from your class annotations. Within each JSimpleDB database is recorded the version and associated `SchemaModel` of every schema that has ever been used with the database in the past.
+
+With JSimpleDB, the first thing that occurs in a new transaction is a quick verification that the provided schema matches one of the schemas recorded in the database.
+
+If not, and you have configured JSimpleDB to allow recording new schemas, it will record the new schema and proceed normally. If JSimpleDB is configured to not allow recording new schemas, an exception is thrown. More on how to configure this setting later.
+
+==== Object Versions ====
+
+In addition to tracking the schemas, JSimpleDB also encodes in each object the storage ID associated with the object's type, as well as the version of the schema under which the object was written. Together this information tells us what fields are part of that object.
+
+So now imagine two different application servers talking to the same database. If they are both creating objects, then the database might contain objects of the same type (i.e., with the same storage ID) but having different versions and therefore containing different fields.
+
+What happens when an object with version X is read by the application server using schema version Y? Here's what:
+
+ # The object is automatically upgraded from schema version X to schema version Y
+    * Removed fields are removed
+    * New fields are initialized to their default values
+    * All other fields stay the same
+ # Any `@OnVersionChange` methods are invoked with these parameters
+    * The old schema version
+    * The new schema version
+    * A `Map<Integer, Object>` of all old field values indexed by storage ID
+
+The `@OnVersionChange` notification allows the object to handle the upgrade in a controlled manner. For example, suppose your application version 1.1 uses schema version #1 and has this field:
+
+<code language="java">
+    @JField(storageId = 106)
+    public abstract String getName();
+    public abstract void setName(String name);</code>
+
+But then in application version 1.2 you decided you needed separate last and first names, so you create a new schema version #2 with separate last and first name fields. Then your version 1.2 code might look like this:
+
+<code language="java">
+    @JField(storageId = 107)
+    public abstract String getLastName();
+    public abstract void setLastName(String lastName);
+
+    @JField(storageId = 108)
+    public abstract String getFirstName();
+    public abstract void setFirstName(String firstName);
+
+    @OnVersionChange(oldVersion = 1, newVersion = 2)
+    private void splitNameField(Map<Integer, Object> oldValues) {
+        final String name = (String)oldValues.get(106);
+        final int comma = name.indexOf(',');
+        this.setLastName(name.substring(0, comma).trim());
+        this.setFirstName(name.substring(comma + 1).trim());
+    }</code>
+
+This will ensure that the field is forward-migrated properly.
+
+==== Schema Migration ====
+
+The astue reader may notice that in a "no downtime" world, even adding the above `@OnVersionChange` handler is insufficient. That's because _backward_ migration may also occur, for example, if when you have upgraded some but not all of your servers to version 1.2, a version 1.1 server (not yet upgraded) needs to read an object written by version 1.2 server (already upgraded).
+
+So we see the combination of multiple nodes, no application downtime, and incremental upgrades involving incompatible schemas makes things tricky.
+
+The answer is a multi-step migration process. First, create an intermediate software version 1.1.5 containing the downward migration `@OnVersionChange` handler:
+
+<code language="java">
+    @JField(storageId = 106)
+    public abstract String getName();
+    public abstract void setName(String name);</code>
+
+    @OnVersionChange(oldVersion = 2, newVersion = 1)
+    private void splitNameField(Map<Integer, Object> oldValues) {
+        this.setName(oldValues.get(107) + ", " + oldValues.get(108));
+    }</code>
+
+Note that version 1.1.5 of your software still uses the original schema version #1, but it is prepared to handle schema version #2 if encountered.
+
+Now your upgrade rolls out in two phases:
+
+ # Upgrade all machines from version 1.1 to 1.1.5
+ # Upgrade all machines from version 1.1.5 to 1.2
+
+Voilà - an incremental, multi-node application upgrade between releases using incompatible schema versions with no downtime.
 
 === Validation ===
 
 === Lifecycle Notifications ===
-
 
 == The JSimpleDB Model ==
 
