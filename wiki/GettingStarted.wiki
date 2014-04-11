@@ -21,8 +21,7 @@ public abstract class Person implements JObject {
     // My friends
     @JSetField(storageId = 102, element = @JField(storageId = 103))
     public abstract Set<Person> getFriends();
-}
-</code>
+}</code>
 
 Of note:
  * We are defining a class `Person` with two fields:
@@ -43,8 +42,7 @@ So far so good. But how do you create a `Person`? Use `JTransaction.create()`, e
     // Create a new database object
     public static Person create() {
         return JTransaction.getCurrent().create(Person.class);
-    }
-</code>
+    }</code>
 
 `JTransaction` represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`.
 
@@ -52,7 +50,7 @@ All state associated with JSimpleDB objects lives in the `JTransaction`. The mod
 
 Java model objects do not change from transaction to transaction like with JPA. You can use the same `Person` object over and over again in multiple transactions.
 
-If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `Person.exists()`.
+If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `JObject.exists()`, and recreate the object (with all fields reinitialized) via `JObject.recreate()`.
 
 To get all `Person`s:
 
@@ -60,20 +58,17 @@ To get all `Person`s:
     // Get all people
     public static Set<Person> getAll() {
         return JTransaction.getAll(Person.class);
-    }
-</code>
+    }</code>
 
 How do you delete a `Person`?
 
 <code language="java">
-    person.delete();
-</code>
+    person.delete();</code>
 
 The `exists()` and `delete()` methods are part of the `JObject` interface. Alternately, you can say:
 
 <code language="java">
-    JTransaction.getCurrent().delete(person);
-</code>
+    JTransaction.getCurrent().delete(person);</code>
 
 The two are equivalent.
 
@@ -87,8 +82,7 @@ Given the above class, if you wanted to calculate whether any `Person` having a 
                 return true;
         }
         return false;
-    }
-</code>
+    }</code>
 
 Having to write that code is a _good_ thing: JSimpleDB is forcing you to confront the fact that the cost of calculating this function is iterating over every `Person` in the database. That might take a long time.
 
@@ -98,15 +92,13 @@ This is of course a perfect opportunity to index the `age` field. Here we add `i
     // My age - now indexed!
     @JField(storageId = 101, indexed = true)
     public abstract int getAge();
-    public abstract void setAge(int age);
-</code>
+    public abstract void setAge(int age);</code>
 
 Now how do you read that index?
 
 <code language="java">
     @IndexQuery("age")
-    public abstract NavigableMap<Integer, NavigableSet<Person>> queryPersonAges();
-</code>
+    public abstract NavigableMap<Integer, NavigableSet<Person>> queryPersonAges();</code>
 
 A JSimpleDB index is returned as a mapping from field value to the set of objects having that field value in the field.
 
@@ -115,8 +107,7 @@ Now we can rewrite our `existsPersonOfAge()` method:
 <code language="java">
     public boolean existsPersonOfAge(int age) {
         return this.queryPersonAges().containsKey(age);
-    }
-</code>
+    }</code>
 
 Lots of other possibilities exist as well. For example:
 
@@ -124,8 +115,7 @@ Lots of other possibilities exist as well. For example:
     public int getMaximumAge() {
         NavigableMap<Integer, NavigableSet<Person>> index = this.queryPersonAges();
         return !index.isEmpty() ? index.lastKey() : -1;
-    }
-</code>
+    }</code>
 
 The astute reader may notice that the `getMaximumAge()` method should really be a static method, because there's nothing about it that is specific to one `Person`. And that is correct; however, you can't override static methods, so the method has to be an instance method for JSimpleDB to generate a subclass implementation. If you really wanted a static method, you could do this:
 
@@ -135,8 +125,7 @@ The astute reader may notice that the `getMaximumAge()` method should really be 
         NavigableMap<Integer, NavigableSet<Person>> index
           = (NavigableMap<Integer, NavigableSet<Person>>)JTransaction.getCurrent().querySimpleField(101);
         return JTransaction.getCurrent().querySimpleField(101).containsKey(age);
-    }
-</code>
+    }</code>
 
 A cleaner possibility is to define a singleton `Indexes` class containing all your index queries.
 
@@ -151,9 +140,7 @@ First we need to declare `friends` as a `NavigableSet` (which is what it really 
 <code language="java">
     // My friends
     @JSetField(storageId = 102, element = @JField(storageId = 103))
-    public abstract NavigableSet<Person> getFriends();
-}
-</code>
+    public abstract NavigableSet<Person> getFriends();</code>
 
 Then we just do the "join" via set intersection:
 
@@ -161,8 +148,7 @@ Then we just do the "join" via set intersection:
     public boolean existsFriendOfAge(int age) {
         NavigableSet<Person> peopleOfAge = this.queryPersonAges().get(age);
         return peopleOfAge != null && !NavigableSets.intersect(peopleOfAge, this.getFriends()).isEmpty();
-    }
-</code>
+    }</code>
 
 The `NavigableSets` utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements.
 
@@ -177,8 +163,7 @@ In JSimpleDB reference fields, including sub-fields of a collection field, are a
     // Who considers me a friend?
     public abstract Set<Person> whoConsidersMeAFriend() {
         return this.queryFriends().get(this);
-    }
-</code>
+    }</code>
 
 Alternatively, you can invert references in an ad hoc manner:
 
@@ -193,10 +178,9 @@ Alternatively, you can invert references in an ad hoc manner:
     public abstract Set<Person> whoConsidersMeAFriendOfAFriend() {
         Set<Person> refs = JTransaction.getCurrent().invertReferencePath(Person.class,
           "friend.friend", Collections.singleton(this));
-    }
-</code>
+    }</code>
 
-=== Custom Indexes ===
+=== Custom Indexes and `@OnChange` ===
 
 An index is just a special case of _derived information_ that is kept up to date automatically for you by the database. You can build your own "index" based on any derived information. The trick is tracking down all the places in your code that could possibly modify the information from which your index is derived.
 
@@ -244,11 +228,12 @@ In this example, we monitor for changes in our set of friends and their ages, an
             this.setNumFriends(0);
             this.setFriendsAgeSum(0);
         }
-    }
-</code>
+    }</code>
 This index is maintained as efficiently as possible: we are notified only when an meaningful change occurs, and the update is incremental.
 
 By the way JSimpleDB does not notify for "changes" that don't actually change anything, such as `person.getFriends().add(friend)` when `friend` is already a friend of `person`. 
+
+`@OnChange` notifications are also handy for validation scenarios involving distant dependencies.
 
 === Schema Changes ===
 
