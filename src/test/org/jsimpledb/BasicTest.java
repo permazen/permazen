@@ -23,6 +23,8 @@ import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.core.DeletedObjectException;
+import org.jsimpledb.core.ReferencedObjectException;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -153,6 +155,38 @@ public class BasicTest extends TestSupport {
               Mood.HAPPY,   buildSet(t1),
               Mood.NORMAL,  buildSet(t3),
               null,         buildSet(t2)));
+
+            try {
+                t1.delete();
+                assert false;
+            } catch (ReferencedObjectException e) {
+                // expected
+            }
+            t3.getRatings().remove(t1);
+
+            boolean deleted = t1.delete();
+            Assert.assertTrue(deleted);
+            Assert.assertEquals(i.queryHaters(), buildMap());
+            Assert.assertEquals(i.queryMoods(), buildMap(
+              Mood.NORMAL,  buildSet(t3),
+              null,         buildSet(t2)));
+
+            try {
+                t1.getScores();
+                assert false;
+            } catch (DeletedObjectException e) {
+                // expected
+            }
+
+            deleted = t1.delete();
+            Assert.assertFalse(deleted);
+
+            boolean recreated = t1.recreate();
+            Assert.assertTrue(recreated);
+            this.check(t1, false, (byte)0, (short)0, (char)0, 0, 0.0f, 0L, 0.0, null, null, null, null, null);
+
+            recreated = t1.recreate();
+            Assert.assertFalse(recreated);
 
             tx.commit();
 

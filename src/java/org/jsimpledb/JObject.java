@@ -54,6 +54,18 @@ public interface JObject {
     boolean exists();
 
     /**
+     * Recreate a deleted instance, if it does not exist, in
+     * {@linkplain JTransaction#getCurrent the transaction associated with the current thread}.
+     * The fields of a recreated object will be set to their initial values.
+     *
+     * @return true if instance was recreated, false if it already existed
+     * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
+     * @throws org.jsimpledb.StaleTransactionException
+     *  if the transaction associated with the current thread is no longer usable
+     */
+    boolean recreate();
+
+    /**
      * Add this instance to the validation queue for validation in
      * {@linkplain JTransaction#getCurrent the transaction associated with the current thread}.
      *
