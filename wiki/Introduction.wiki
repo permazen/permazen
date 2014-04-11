@@ -5,7 +5,7 @@
 
 JSimpleDB is designed to make powerful persistence easy for Java programmers. It does this by relegating the database to the simplest role possible--storing data as key/value pairs--and reimplementing and enhancing all of the usual database supporting features, such as indexes and notifications, in a Java-centric way.
 
-<wiki:toc max_depth="3"/>
+<wiki:toc max_depth="5"/>
 
 == Quick Example ==
 
@@ -25,7 +25,7 @@ public abstract class Person implements JObject {
 }</code>
 
 Of note:
- * We are defining a class `Person` with two fields:
+ * We are defining a persistent database object `Person` containing two fields:
    * An `int` field named `age` of type `int`
    * A `Set` field named `friends` with element type `Person`
  * The getter methods for `age` and `friends` may be declared `abstract`
@@ -36,6 +36,8 @@ Of note:
  * Every Java model class and field (including sub-fields, like the `element` sub-field of `friends`) has a unique *storage ID*
    * Internally, objects and fields are identified by storage ID, not name
    * Storage IDs are used to access (possibly removed) old fields after a schema change (more on that later)
+
+== Accessing Data ==
 
 === Object Lifecycle ===
 
@@ -51,7 +53,7 @@ So far so good. But how do you create a `Person`? Invoke `create()` on a `JTrans
 
 All state associated with JSimpleDB objects lives in the `JTransaction`. The model objects themselves are stateless, except for their internal object ID. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no such `JTransaction`, an `IllegalStateException` is thrown.
 
-Java model objects do not change from transaction to transaction like with JPA. You can use the same `Person` object over and over again in multiple transactions. Of course, the person's fields may have different values in different transactions.
+Java model objects do not change from transaction to transaction like with JPA. You will get, and can use, the same `Person` object over and over again in multiple transactions. Of course, the person's fields may have different values in different transactions.
 
 If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `JObject.exists()`, and (if need be) recreate the object (with all fields reinitialized) via `JObject.recreate()`.
 
@@ -75,7 +77,7 @@ Alternately, you can say:
 
 The two are equivalent.
 
-The `exists()`, `delete()`, and `recreate()` methods are part of the `JObject` interface, which all generated model subclasses implement.
+The `exists()`, `delete()`, and `recreate()` methods are part of the `JObject` interface, which all generated model subclasses implement. Your classes don't have to to be declared to implement `JObject`, but life is easier if they are.
 
 === Delete Cascade ===
 
@@ -88,7 +90,11 @@ You have four choices, represented by the constants in the `DeleteAction` enum c
  * `DELETE` - Delete all objects referring to the deleted object, repeating recursively as necessary.
  * `NOTHING` - Do nothing; subsequent attempts to dereference the deleted object will result in a `DeletedObjectException`.
 
-Note: if you never use the `NOTHING` setting, and you always first check `exists()` before using a Java model object that has been brought in from outside a transaction, then you should never see any `DeletedObjectException`s.
+The default value is `EXCEPTION`.
+
+You can be guaranteed to never see any `DeletedObjectException`s if you adhere to the following:
+ # Don't use `DeleteAction.NOTHING` for object references
+ # Always check `exists()` before using a Java model object that has been brought in from outside the transaction
 
 === Indexes ===
 
@@ -104,7 +110,7 @@ Given the above `Person` class, if you wanted to calculate whether any `Person` 
 
 Having to write that code is a _good_ thing: JSimpleDB is exposing the underlying performance reality and forcing you to confront the fact that the cost of calculating this function is an iteration over every `Person` in the database. With large database, that could be impractical.
 
-This is of course a perfect opportunity to create an *index* for the `age` field. Here we add `indexed = true` to the `@JField` annotation:
+This is of course the perfect situation for an *index* on the `age` field. Here we add `indexed = true` to the `@JField` annotation:
 
 <code language="java">
     // My age - now indexed!
@@ -112,7 +118,7 @@ This is of course a perfect opportunity to create an *index* for the `age` field
     public abstract int getAge();
     public abstract void setAge(int age);</code>
 
-Now how do you read that index? You just delcare and annotate with `@IndexQuery` a method that reads it:
+To read that index, you just delcare and annotate with `@IndexQuery` a method that reads it:
 
 <code language="java">
     @IndexQuery("age")
@@ -146,6 +152,64 @@ The astute reader may notice that `existsPersonOfAge()` and `getMaximumAge()` sh
     }</code>
 
 but that's rather ugly. A cleaner option is to define a singleton class `Indexes` containing all of your index query methods.
+
+==== Complex Field Indexes ====
+
+You can also index the `element` sub-field of a `Set` or `List`, or the `key` or `value` sub-fields of a `Map`. For example:
+
+<code language="java">
+@JSimpleClass(storageId = 200)
+public abstract class Student implements JObject {
+
+    @JSetField(storageId = 201,
+      element = @JField(storageId = 202, indexed = true)
+    public abstract Set<LectureClass> getLectureClasses();
+
+    @IndexQuery("lectureClasses.element")
+    public abstract NavigableMap<LectureClass, NavigableSet<Student>> queryStudentsByLectureClass();
+
+    @JListField(storageId = 203,
+      element = @JField(storageId = 204, indexed = true)
+    public abstract List<Teacher> getTeacherRankings();
+
+    @IndexQuery("teacherRankings.element")
+    public abstract NavigableMap<Teacher, NavigableSet<Student>> queryStudentsByRankedTeacher();
+
+    @JMapField(storageId = 205,
+      key = @JField(storageId = 206)
+      value = @JField(storageId = 207, indexed = true)
+    public abstract Map<Test, Float> getTestScores();
+
+    @IndexQuery("testScores.key")
+    public abstract NavigableMap<Test, NavigableSet<Student>> queryStudentsByTest();
+
+    @IndexQuery("testScores.value")
+    public abstract NavigableMap<Float, NavigableSet<Student>> queryStudentsByTestScore();
+}</code>
+
+==== Complex Field Indexes (Advanced) ====
+
+In the case of `List` and `Map`, you also have the option of returning not just the set of objects having the indexed value, but also their position in the list (for `List`) or corresponding value or key (for `Map`):
+
+<code language="java">
+@JSimpleClass(storageId = 200)
+public abstract class Student implements JObject {
+
+    @IndexQuery("teacherRankings.element")
+    public abstract NavigableMap<Teacher, NavigableSet<ListIndexEntry<Student>>> queryStudentsByRankedTeacherWithRank();
+
+    @IndexQuery("testScores.key")
+    public abstract NavigableMap<Test, NavigableSet<MapKeyIndexEntry<Student, Float>>>
+      queryStudentsByTestWithScore();
+
+    @IndexQuery("testScores.value")
+    public abstract NavigableMap<Float, NavigableSet<MapValueIndexEntry<Student, Test>>>
+      queryStudentsByTestScoreWithTest();</code>
+
+So while `queryStudentsByRankedTeacher().get(teacher)` returns all students who ranked `teacher`, `queryStudentsByRankedTeacherWithRank().get(teacher)` returns all students who ranked `teacher` along with the teacher's rank.
+
+Similarly, while `queryStudentsByTest().get(test)` returns all students who took `test`, `queryStudentsByTestWithScore().get(test)` returns all students who took `test` along with their scores on the test; and
+, while `queryStudentsByTestScore().get(95.0f)` returns all students who got a `95` on some test, `queryStudentsByTestScoreWithTest().get(95.0f)` returns all students who got a `95` on some test along with the test.
 
 === Joins ===
 
@@ -197,6 +261,8 @@ Alternatively, you can invert references in an ad hoc manner by providing a *ref
         return JTransaction.getCurrent().invertReferencePath(Person.class,
           "friend.friend", this.getFriends());
     }</code>
+
+== Detecting Changes ==
 
 === Custom Indexes and `@OnChange` ===
 
@@ -270,6 +336,25 @@ Imagine a database with 20 distributed nodes on the network, and on each node an
 JSimpleDB leaves it up to you whether the size of a collection should be explicitly maintained. After all, the size of a collection is just another type of index (derived information).
 
 Some key/value databases provide datatypes allowing writing without reading, for example incrementing a counter without reading it. This allows concurrent writes to be handled withouth conflict and would be a best-of-both-worlds solution for maintaining collection sizes. In the future, JSimpleDB may add a new integral datatype reflecting this support, falling back to the usual behavior for key/values stores that don't support it.
+
+=== Lifecycle Notifications ===
+
+JSimpleDB provides notifications whenever a database object is created or deleted via the `@OnCreate` and `@OnDelete` annotations:
+
+<code language="java">
+    @OnCreate 
+    private void gotCreated() {
+        System.out.println("Hello world");
+    }
+ 
+    @OnDelete 
+    private void gotDeleted() {
+        System.out.println("Goodbye world");
+    }</code>
+
+Note that `@OnCreate` is not the same event as object construction, e.g., because a deleted object can be `recreate()`d in which case `@OnCreate` will be invoked again.
+
+== Schema Management ==
 
 === Schema Changes ===
 
@@ -374,7 +459,7 @@ Voilà - an incremental, multi-node rolling application upgrade across releases 
 
 Note that release 1.2 of your software will need to configure JSimpleDB to allow the addition of new schemas. Once at least one 1.2 application server has committed a transaction, the new schema #2 will be recorded in the database, and this setting can be turned back off if desired.
 
-=== Validation ===
+== Validation ==
 
 JSimpleDB supports automatic incremental verification of JSR 303 validation constraints. By "incremental" we mean only those objects containing a field that has actually changed are (re)validated. Each time an object field is changed, the object is added to an internal validation queue (if not already on it). The validation queue is processed automatically on `commit()`, and if validation fails, a `ValidationException` is thrown.
 
@@ -386,14 +471,14 @@ What is described above is the same as supplied by e.g., JPA. However, JSimpleDB
 
 Note that JSimpleDB validates on a per-object basis. Therefore, the `@Valid` constraint, which causes validation to recurse through reference(s) to other objects, is redundant and rarely needed.
 
-==== Configuring Validation ====
+=== Configuring Validation ===
 
 When creating a new JSimpleDB transaction, you specify the `ValidationMode` for the transaction. The default is `AUTOMATIC` which gives the behavior described above. The available options are:
  * `DISABLED` - no validation will be performed, even if you invoke `JTransaction.validate()` explicitly
  * `MANUAL` - validation is only performed when you invoke `JTransaction.validate()` explicitly
  * `AUTOMATIC` - validation is performed when you invoke `JTransaction.validate()` explicitly and on `commit()`
 
-==== Complex Validation ====
+=== Complex Validation ===
 
 Although `javax.validation.constraints` provides many handy validation constraints, there are often cases that require validation of more complex constraints that depend on multiple objects at once. For example, suppose each `Person` may have both `friends` and `enemies` and you may have a constraint that says nobody can be both a friend and an enemy. This kind of constraint is difficult to handle efficiently with traditional ORM solutions.
 
@@ -412,28 +497,11 @@ With JSimpleDB, this is easy to do by following these steps:
         this.revalidate();
     }
  
-    @Validate
+    @Validate 
     private void checkForFrenemies() {
         if (!NavigableSets.intersection(this.getFriends(), this.getEnemies()).isEmpty())
             throw new ValidationException(this, "we don't allow frenemies");
     }</code>
-
-=== Lifecycle Notifications ===
-
-JSimpleDB provides notifications whenever a database object is created or deleted via the `@OnCreate` and `@OnDelete` annotations:
-
-<code language="java">
-    @OnCreate 
-    private void gotCreated() {
-        System.out.println("Hello world");
-    }
- 
-    @OnDelete 
-    private void gotDeleted() {
-        System.out.println("Goodbye world");
-    }</code>
-
-Note that `@OnCreate` is not the same event as object construction, e.g., because a deleted object can be `recreate()`d in which case `@OnCreate` will be invoked again.
 
 == Core Database Model ==
 
