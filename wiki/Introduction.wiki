@@ -314,21 +314,27 @@ So we keep all the code to maintain our custom "friends' average age" index in o
         this.setFriendsAgeSum(this.getFriendsAgeSum() - change.getOldValue() + change.getNewValue());
     }
  
-    // Notify me when my set of friends changes and update average
+    // Notify me when a friend is added
     @OnChange("friends")
-    private boolean onFriendsChange(SetFieldChange<Person, Person> change) {
-        if (change instanceof SetFieldAdd) {
-            this.setFriendsAgeSum(this.getFriendsAgeSum() + ((SetFieldAdd)change).getElement().getAge());
-            this.setNumFriends(this.getNumFriends() + 1);
-        } else if (change instanceof SetFieldRemove) {
-            this.setFriendsAgeSum(this.getFriendsAgeSum() - ((SetFieldRemove)change).getElement().getAge());
-            this.setNumFriends(this.getNumFriends() - 1);
-        } else {
-            assert change instanceof SetFieldClear;
-            this.setNumFriends(0);
-            this.setFriendsAgeSum(0);
-        }
+    private boolean onFriendsAdd(SetFieldAdd<Person, Person> change) {
+        this.setFriendsAgeSum(this.getFriendsAgeSum() + change.getElement().getAge());
+        this.setNumFriends(this.getNumFriends() + 1);
+    }
+ 
+    // Notify me when a friend is removed
+    @OnChange("friends")
+    private boolean onFriendsRemove(SetFieldRemove<Person, Person> change) {
+        this.setFriendsAgeSum(this.getFriendsAgeSum() - change.getElement().getAge());
+        this.setNumFriends(this.getNumFriends() - 1);
+    }
+ 
+    // Notify me when friends is cleared
+    @OnChange("friends")
+    private boolean onFriendsClear(SetFieldClear<Person> change) {
+        this.setNumFriends(0);
+        this.setFriendsAgeSum(0);
     }</code>
+
 This index is maintained as efficiently as possible: we are notified only when a meaningful change occurs, and the update is incremental (constant time) and immediate.
 
 By the way, JSimpleDB does not notify for "changes" that don't actually change anything, such as `person.setAge(21)` when the age equals `21`, or `person.getFriends().add(friend)` when `friend` is already in the set.
@@ -339,7 +345,7 @@ By the way, JSimpleDB does not notify for "changes" that don't actually change a
 
 Notice in the example we are tracking the size of the `friends` set manually. Why not just use `this.getFriends().size()`?
 
-In JSimpleDB invoking `size()` on any collection type requires an _O(n)_ time interation through the collection. This may seem dumb - why not just keep track of the size?
+In JSimpleDB invoking `size()` on any collection type requires an _O(n)_ time interation through the collection, which can be a slow operation. This may seem dumb - why not just keep track of the size?
 
 There is an important reason: allowing for reduced contention in distributed databases.
 
@@ -347,7 +353,7 @@ Imagine a database with 20 distributed nodes on the network, and on each node an
 
 JSimpleDB leaves it up to you whether the size of a collection should be explicitly maintained. After all, the size of a collection is just another type of index (derived information).
 
-Some key/value databases provide datatypes allowing writing without reading, for example incrementing a counter without reading it. This allows concurrent writes to be handled withouth conflict and would be a best-of-both-worlds solution for maintaining collection sizes. In the future, JSimpleDB may add a new integral datatype reflecting this support, falling back to the usual behavior for key/values stores that don't support it.
+*Note* Some key/value databases provide datatypes allowing writing without reading, for example incrementing a counter without reading it. This allows concurrent writes to be handled withouth conflict and would be a best-of-both-worlds solution for maintaining collection sizes. In the future, JSimpleDB will add a new integral datatype reflecting this support, falling back to the usual behavior for key/values stores that don't support it.
 
 === Lifecycle Notifications ===
 
@@ -368,8 +374,6 @@ Note that `@OnCreate` is not the same event as object construction, e.g., becaus
 
 == Schema Management ==
 
-=== Schema Changes ===
-
 Traditional SQL databases provide no explicit support for managing schema changes. This used to be OK when you had a single database, and it was small enough that running a few `ALTER TABLE` statements was relatively quick.
 
 Today, however, not only are the data sets too large for schema changes that lock an entire table, it's often not acceptable to bring down the application servers all at the same time, even if you could upgrade them quickly. Instead, a rolling upgrade is required, where during the upgrade period different application servers will be running different versions of the software. Therefore, at some point you are going to have two different versions of your application running on two different nodes, both reading from and writing to the same database, but expecting to see and use different schemas. This situation presents obvious challenges.
@@ -380,21 +384,21 @@ An important goal of JSimpleDB is to provide a first class solution to this prob
 
 This support has several aspects.
 
-==== Schema Tracking ====
+=== Schema Tracking ===
 
-JSimpleDB databases have an explicit notion of a *schema* as well as schema *version numbers*, and you must explicitly tell JSimpleDB what schema and version number you are using before you can do anything with a database. If the schema you are intending to use conflicts with what's recorded in the database, you will get an error. JSimpleDB simply won't let you write data incompatibly.
+JSimpleDB databases have an explicit notion of a *schema* as well as schema *version numbers*, and you must explicitly tell JSimpleDB what schema and version number you are using before you can do anything with a database. If the schema you are intending to use conflicts with what's recorded in the database, you will get an error. JSimpleDB simply won't let you inadvertently read or write data in an incompatible way.
 
-A schema is defined as a set of object types and the fields in those object types. Each object type and field is identified only by its storage ID, which must be unique in that schema. Therefore, changes to the names of objects or fields do not constitute a schema change.
+A schema is defined as a set of object types and the fields in those object types. Each object type and field is identified by its unique storage ID. Therefore, changes to the names of objects or fields do not constitute a schema change.
 
-Internally, schemas are represented by `SchemaModel` objects. This object type has an XML representation which is used to serialize the schema into the database. Normally, you don't need to mess with `SchemaModel`s - they are generated for you from your annotated classes and handled automatically.
+Internally, schemas are represented by `SchemaModel` objects. This object type has an XML representation which is used to serialize the schema into the database. Normally, you don't need to mess with `SchemaModel`s - they are generated for you from your annotated classes and handled automatically. But methods exist to allow you to access and introspect the current and all previously recorded database schemas if necessary.
 
-==== Schema Verification ====
+=== Schema Verification ===
 
-Within each JSimpleDB database is recorded the version and associated `SchemaModel` of every schema that has ever been used with the database in the past. When a JSimpleDB database is initialized, a schema is generated from your annotated classes, but you must specify the version number of that schema, and the first thing that occurs in each new transaction is a (quick) verification that the provided schema matches one of the schemas recorded in the database.
+Within each JSimpleDB database is recorded the version and associated `SchemaModel` of every schema that has ever been used to write new objects into that database in the past. When a JSimpleDB database is initialized, a schema is generated from your annotated classes, but you must specify the version number of that schema, and the first thing that occurs in each new transaction is a (quick) verification that the provided schema matches the schema with that version number recorded in the database.
 
-If not, and you have configured JSimpleDB to allow recording new schemas, it will write the new schema into the database and proceed normally. If JSimpleDB is configured to not allow recording new schemas, an exception is thrown (more on when to enable this setting below).
+If there is a mismatch, an `InvalidSchemaException` exception is thrown. If the database has no record of that schema version, and you have configured JSimpleDB to allow recording new schemas, it will write the new schema into the database and proceed normally. If JSimpleDB is configured to not allow recording new schemas, an exception is thrown (more on when to enable this setting below).
 
-==== Object Versions ====
+=== Object Versions ===
 
 In addition to tracking the schemas, JSimpleDB also records with each object:
  * The storage ID associated with the object's type; and
@@ -421,7 +425,7 @@ So the `@OnVersionChange` notification allows the object to handle the upgrade i
     public abstract String getName();
     public abstract void setName(String name);</code>
 
-But in application release 1.2 you decided you needed separate last and first names, so you create schema version #2 with separate `lastName` and `firstName` fields. Then your release 1.2 code that handles this schema change might look like this:
+But in application release 1.2 you decided you needed separate last and first names, so you create schema version #2, replacing the `name` field with `lastName` and `firstName` fields. Then your release 1.2 code, with a new method to handle the schema change, might look like this:
 
 <code language="java">
     @JField(storageId = 107)
@@ -442,7 +446,7 @@ But in application release 1.2 you decided you needed separate last and first na
 
 The `splitNameField()` method will be invoked just prior to the first field access of the `Person` object being upgraded. It ensures that the field is forward-migrated properly, and none of your other release 1.2 code needs to know anything about prior schema versions.
 
-==== Schema Migration ====
+=== Schema Migration ===
 
 The astue reader may notice that in a "no downtime" world, even adding the above `@OnVersionChange` handler is insufficient. That's because _backward_ migration may also occur, for example, when you have upgraded some (but not all) of your servers to release 1.2, and a yet-to-be-upgraded release 1.1 server needs to read an object written by an already-upgraded release 1.2 server.
 
@@ -460,18 +464,18 @@ The answer is a multi-step migration process. First, create an intermediate soft
         this.setName(oldValues.get(107) + ", " + oldValues.get(108));
     }</code>
 
-This new intermediate release 1.1.5 of your software still uses the original schema version #1, but it is prepared to handle schema version #2 if encountered. Again, this handling is contained entirely in the data object.
+This new intermediate release 1.1.5 of your software still uses the original schema version #1, but it is now prepared to handle a schema version #2 object if it encounters one. Again, this handling is contained entirely in the data object.
 
 Now your upgrade rolls out in two phases:
 
  # Upgrade all machines from version 1.1 to 1.1.5
  # Upgrade all machines from version 1.1.5 to 1.2
 
-During phase 1, all objects stay at schema version #1. During phase 2, objects are upgraded and downgraded as necessary as different servers access them. Once phase 2 is complete, all future object accesses will upgrade objects to version #2 if not already there.
-
-Note that release 1.2 of your software will need to configure JSimpleDB to allow the addition of new schemas. Once phase 2 is complete, this setting can be turned back off if desired.
-
 Voilà - an incremental, multi-node rolling application upgrade across releases using incompatible schema versions and with no downtime.
+
+During phase 1, all objects stay at schema version #1. During phase 2, objects are upgraded and downgraded as necessary as different servers access them. Once phase 2 is complete, all future object accesses will use schema version #2, upgrading old version #1 objects on demand over time. Or, you can run a one-time scan that forces upgrades of all objects via `JTransaction.upgrade()`.
+
+Note that release 1.2 of your software will need to configure JSimpleDB to allow the addition of new schemas. Once phase 2 is complete, this setting can be turned back off.
 
 == Validation ==
 
@@ -479,9 +483,9 @@ JSimpleDB supports automatic incremental verification of JSR 303 validation cons
 
 What is described above is the same as supplied by e.g., JPA. However, JSimpleDB also adds a few additional useful features.
 
- * You can manually add any object to the validation queue by invoking `JObject.revalidate()` on that object.
- * You can supply custom validation logic by annotating a method with `@Validate`: all such methods will be invoked when the object is validated.
- * Combining `@Validate` with `@OnChange` allows you to validate complex, mult-object constraints (see below)
+ * You can manually add any object to the validation queue by invoking `revalidate()` on that object.
+ * You can supply custom validation logic by annotating a method with `@Validate`. All such methods will be invoked when the object is validated.
+ * Combining `@Validate` with `@OnChange` allows you to validate complex, multi-object constraints (see below)
 
 Note that JSimpleDB validates on a per-object basis. Therefore, the `@Valid` constraint, which causes validation to recurse through reference(s) to other objects, is redundant and rarely needed.
 
@@ -490,24 +494,28 @@ Note that JSimpleDB validates on a per-object basis. Therefore, the `@Valid` con
 When creating a new JSimpleDB transaction, you specify the `ValidationMode` for the transaction. The default is `AUTOMATIC` which gives the behavior described above. The available options are:
  * `DISABLED` - no validation will be performed, even if you invoke `JTransaction.validate()` explicitly
  * `MANUAL` - validation is only performed when you invoke `JTransaction.validate()` explicitly
- * `AUTOMATIC` - validation is performed when you invoke `JTransaction.validate()` explicitly and on `commit()`
+ * `AUTOMATIC` - validation is performed when you invoke `JTransaction.validate()` explicitly, and automatically on `commit()`
 
 === Complex Validation ===
 
-Although `javax.validation.constraints` provides many handy validation constraints, there are often cases that require validation of more complex constraints that depend on multiple objects at once. For example, suppose each `Person` may have both `friends` and `enemies` and you may have a constraint that says nobody can be both a friend and an enemy. This kind of constraint is difficult to handle efficiently with traditional ORM solutions.
+Although `javax.validation.constraints` provides many handy validation constraints, there are often cases that require validation of more complex constraints that depend on more than one field, or even multiple objects at the same time.
+
+For example, suppose each `Person` may have both `friends` and `enemies` and you have a constraint that says nobody can be both a friend and an enemy. This kind of constraint is difficult to handle efficiently with traditional ORM solutions.
 
 With JSimpleDB, this is easy to do by following these steps:
  # Add a `@Validate`-annotated method that checks the constraint
  # Detect relevant changes via `@OnChange` and enqueue for validation
 
+Here's an example:
+
 <code language="java">
     @OnChange("friends")
-    private boolean onFriendsChange(SetFieldChange<Person, Person> change) {
+    private boolean onFriendsChange(SetFieldChange<Person> change) {
         this.revalidate();
     }
  
     @OnChange("enemies")
-    private boolean onEnemiesChange(SetFieldChange<Person, Person> change) {
+    private boolean onEnemiesChange(SetFieldChange<Person> change) {
         this.revalidate();
     }
  
@@ -523,34 +531,36 @@ JSimpleDB is normally used and configured via annotated Java classes, but this i
 
 The core database layer has the following notions:
  * *Schema*
-    - Has a *version number* (positive integer)
-    - Includes a collection of *object types*
+  * Has a *version number* (positive integer)
+  * Includes a collection of *object types*
  * *Object Type*
-    - Identified by a unique storage ID
-    - Includes a collection of *fields*
+  * Identified by a unique storage ID
+  * Includes a collection of *fields*
  * *Objects*
-   * Objects have an associated object type
-   * Objects have a schema version number
+  * Objects have an associated object type
+  * Objects have a schema version number
  * *Fields*
-   * Is either *simple* or *complex*
-   * Has a unique storage ID
+  * Is either *simple* or *complex*
+  * Has a unique storage ID
  * *Simple Fields*
-   * Holds an atomic, sortable value like `int` or `Date`
-   * Primitive types are supported
-   * Non-primitive types may be null
-   * May optionally be *indexed*.
+  * Holds an atomic, sortable value like `int` or `Date`
+  * Primitive types are supported
+  * Non-primitive types may be null
+  * May optionally be *indexed*.
  * *Reference Fields*
-   * A special type of simple field that holds a reference to an object
-   * Always indexed
+  * A special type of simple field that holds a reference to an object
+  * Always indexed
  * *Complex Fields*
-   * Sets, Lists, and Maps
-   * Complex fields have one or more *sub-fields*, which are always simple fields
-   * A complex field may not be itself indexed, but any of its simple sub-field(s) may be
-   * Bub-fields may have primitive type; if so, `IllegalArgumentException` is thrown if you try to add `null`
+  * Sets, Lists, and Maps
+  * Complex fields have one or more *sub-fields*, which are always simple fields
+  * A complex field may not be itself indexed, but any of its simple sub-field(s) may be
+  * Bub-fields may have primitive type; if so, `IllegalArgumentException` is thrown if you try to add `null`
 
 All objects and fields have a unique *storage ID*. However, the same field may be contained in multiple object types (this is how Java sub-types are handled).
 
 Any storage ID that is used by two or more schema versions must be used consistently. This means the storage ID of an object type must always be associated with an object type, and the storage ID of a field must always be associated with a field having the same type (including sub-fields if complex). There are a few exceptions however:
  * Simple fields may change whether they are indexed between schema versions
  * Reference fields may change their `DeleteAction` between schema versions
+
+If a field is changed between schema versions, the field will behave according to the schema version of the object containing it. So for example when a field's indexing is turned on or off between schemas, an object containing that field will appear in the index only when the schema associated with the object's version has the field indexed.
 
