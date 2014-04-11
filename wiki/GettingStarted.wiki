@@ -75,6 +75,19 @@ The two are equivalent.
 
 The `exists()`, `delete()`, and `recreate()` methods are part of the `JObject` interface.
 
+== Delete Cascade ==
+
+JSimpleDB provides an equivalent of SQL `ON DELETE ...` for reference fields. This applies to the situation where an object is deleted, but that object has one or more other objects still referencing it.
+
+You have four choices, represented by the constants in the `DeleteAction` enum class:
+
+ * `EXCEPTION` - Disallow deletion of such an object; instead, throw `ReferencedObjectException`.
+ * `UNREFERENCE` - Set all references to the object to null (in the case of simple reference fields) or remove the corresponding collection entry (sets, list) or key/value entry (maps).
+ * `DELETE` - Delete all objects referring to the deleted object (repeating recursively as necessary).
+ * `NOTHING` - Do nothing; subsequent attempts to dereference the deleted object will result in a `DeletedObjectException`.
+
+Note: if you never use the `NOTHING` setting, and you always first check `exists()` before using a Java model object that has been brought in from outside a transaction, then you should never see any `DeletedObjectException`s.
+
 === Indexes ===
 
 Given the above class, if you wanted to calculate whether any `Person` having a specific age existed, you would have to write this code:
@@ -253,15 +266,15 @@ This seems inefficient, but there is an important reason for it: allowing for re
 
 Imagine a database with 20 distributed nodes on the network, and on each node an application is rapidly adding new objects to some `Set`. If JSimpleDB maintained a hidden `size` field with each collection, then that field would have to be updated with each insert, and therefore would be highly contended and cause the database to be slow. Without it, however, the set elements can be added concurrently without conflict.
 
-Instead, JSimpleDB leaves it up to you whether the size of a collection should be explicitly maintained. After all, the size of a collection is just another type of index (derived information).
+JSimpleDB leaves it up to you whether the size of a collection should be explicitly maintained. After all, the size of a collection is just another type of index (derived information).
 
-Some databases provide datatypes allowing writing without reading, for example incrementing a counter without reading it. This allows concurrent writes to be handled withouth conflict and would be a best-of-both-worlds solution for maintaining collection sizes. In the future, JSimpleDB may add a new integral datatype reflecting this support, falling back to the usual behavior for key/values stores that don't support it.
+Some key/value databases provide datatypes allowing writing without reading, for example incrementing a counter without reading it. This allows concurrent writes to be handled withouth conflict and would be a best-of-both-worlds solution for maintaining collection sizes. In the future, JSimpleDB may add a new integral datatype reflecting this support, falling back to the usual behavior for key/values stores that don't support it.
 
 === Schema Changes ===
 
 Traditional SQL databases provide no explicit support for managing schema changes. This used to be OK when you had a single database, and it was small enough that running a few `ALTER TABLE` statements was relatively quick.
 
-Today, however, not only are the data sets too large for "stop the world" schema changes, it's often not acceptable to bring down the application servers all at the same time, even for a short amount of time. Therefore, at some point you are going to have two different versions of your application running on two different nodes, both talking to the same database but expecting to see different schemas. This situation presents obvious challenges.
+Today, however, not only are the data sets too large for schema changes that lock an entire table, it's often not acceptable to bring down the application servers all at the same time, even if you can upgrade them quickly. Instead, a rolling upgrade is required where for some period different application servers may be running different versions of the software. Therefore, at some point you are going to have two different versions of your application running on two different nodes, both reading from and writing to the same database, but expecting to see and use different schemas. This situation presents obvious challenges.
 
 Some NoSQL databases duck this question by being "schemaless", which really means "the schema is your problem, not mine". Other databases support the notion of an object version, but leave the rest to the application developer.
 
@@ -271,57 +284,55 @@ This support has several aspects.
 
 ==== Schema Tracking ====
 
-JSimpleDB databases have an explicit notion of a *schema* as well as schema *versions*, and you must explicitly tell JSimpleDB what schema and version you are using. If what you are intending to use doesn't match what's in the database already, you get an error - JSimpleDB won't let you write data incompatibly.
+JSimpleDB databases have an explicit notion of a *schema* as well as schema *version numbers*, and you must explicitly tell JSimpleDB what schema you are using as well as its version number. If what you are intending to use doesn't match what's in the database already, you get an error - JSimpleDB won't let you write data incompatibly.
 
 A schema is defined as a set of objects and the fields in those objects. Each object and field is identified only by its storage ID, which must be unique in that schema. Therefore, changes to the names of objects or fields do not constitute a schema change.
 
-Internally, schemas are represented by `SchemaModel` objects. This object type has an XML representation which is used to record the schema in the database.
-
-Normally, you don't need to mess with `SchemaModel`s - they are generated for you by inspecting your annotated classes and handled automatically.
+Internally, schemas are represented by `SchemaModel` objects. This object type has an XML representation which is used to record the schema in the database. Normally, you don't need to mess with `SchemaModel`s - they are generated for you by inspecting your annotated classes and handled automatically.
 
 ==== Schema Verification ====
 
 When a JSimpleDB database is created, you must specify the *version* of the schema generated from your class annotations. Within each JSimpleDB database is recorded the version and associated `SchemaModel` of every schema that has ever been used with the database in the past.
 
-With JSimpleDB, the first thing that occurs in a new transaction is a quick verification that the provided schema matches one of the schemas recorded in the database.
+The first thing that occurs in each new transaction is a quick verification that the provided schema matches one of the schemas recorded in the database.
 
-If not, and you have configured JSimpleDB to allow recording new schemas, it will record the new schema and proceed normally. If JSimpleDB is configured to not allow recording new schemas, an exception is thrown. More on how to configure this setting later.
+If not, and you have configured JSimpleDB to allow recording new schemas, it will record the new schema and proceed normally. If JSimpleDB is configured to not allow recording new schemas, an exception is thrown. More on when to enable this setting later.
 
 ==== Object Versions ====
 
 In addition to tracking the schemas, JSimpleDB also encodes in each object the storage ID associated with the object's type, as well as the version of the schema under which the object was written. Together this information tells us what fields are part of that object.
 
-So now imagine two different application servers talking to the same database. If they are both creating objects, then the database might contain objects of the same type (i.e., with the same storage ID) but having different versions and therefore containing different fields.
+So now imagine two different application servers talking to the same database but using different schema versions. If they are both creating objects, then the database might contain objects of the same type (i.e., with the same storage ID) but having different versions and therefore containing different fields.
 
-What happens when an object with version X is read by the application server using schema version Y? Here's what:
+What happens when an object with version X is read by the application server using schema version Y?
 
  # The object is automatically upgraded from schema version X to schema version Y
-    * Removed fields are removed
+    * Removed fields are removed (pending step #2)
     * New fields are initialized to their default values
     * All other fields stay the same
- # Any `@OnVersionChange` methods are invoked with these parameters
+ # Any `@OnVersionChange` methods are invoked with these parameters:
     * The old schema version
     * The new schema version
     * A `Map<Integer, Object>` of all old field values indexed by storage ID
 
-The `@OnVersionChange` notification allows the object to handle the upgrade in a controlled manner. For example, suppose your application version 1.1 uses schema version #1 and has this field:
+So the `@OnVersionChange` notification allows the object to handle the upgrade in a controlled manner. For example, suppose your application version 1.1 uses schema version #1 which has this field containing names in the form _Last, First_:
 
 <code language="java">
     @JField(storageId = 106)
     public abstract String getName();
     public abstract void setName(String name);</code>
 
-But then in application version 1.2 you decided you needed separate last and first names, so you create a new schema version #2 with separate last and first name fields. Then your version 1.2 code might look like this:
+But in application version 1.2 you decided you needed separate last and first names, so you create schema version #2 with separate last and first name fields. Then your version 1.2 code that handles the schema change automatically might look like this:
 
 <code language="java">
     @JField(storageId = 107)
     public abstract String getLastName();
     public abstract void setLastName(String lastName);
-
+ 
     @JField(storageId = 108)
     public abstract String getFirstName();
     public abstract void setFirstName(String firstName);
-
+ 
     @OnVersionChange(oldVersion = 1, newVersion = 2)
     private void splitNameField(Map<Integer, Object> oldValues) {
         final String name = (String)oldValues.get(106);
@@ -334,7 +345,7 @@ This will ensure that the field is forward-migrated properly.
 
 ==== Schema Migration ====
 
-The astue reader may notice that in a "no downtime" world, even adding the above `@OnVersionChange` handler is insufficient. That's because _backward_ migration may also occur, for example, if when you have upgraded some but not all of your servers to version 1.2, a version 1.1 server (not yet upgraded) needs to read an object written by version 1.2 server (already upgraded).
+The astue reader may notice that in a "no downtime" world, even adding the above `@OnVersionChange` handler is insufficient. That's because _backward_ migration may also occur, for example, when you have upgraded some (but not all) of your servers to version 1.2, and a version 1.1 server needs to read an object written by version 1.2 server.
 
 So we see the combination of multiple nodes, no application downtime, and incremental upgrades involving incompatible schemas makes things tricky.
 
@@ -343,14 +354,14 @@ The answer is a multi-step migration process. First, create an intermediate soft
 <code language="java">
     @JField(storageId = 106)
     public abstract String getName();
-    public abstract void setName(String name);</code>
-
+    public abstract void setName(String name);
+ 
     @OnVersionChange(oldVersion = 2, newVersion = 1)
-    private void splitNameField(Map<Integer, Object> oldValues) {
+    private void joinNameField(Map<Integer, Object> oldValues) {
         this.setName(oldValues.get(107) + ", " + oldValues.get(108));
     }</code>
 
-Note that version 1.1.5 of your software still uses the original schema version #1, but it is prepared to handle schema version #2 if encountered.
+This new intermediate version 1.1.5 of your software still uses the original schema version #1, but it is prepared to handle schema version #2 if encountered.
 
 Now your upgrade rolls out in two phases:
 
@@ -359,9 +370,26 @@ Now your upgrade rolls out in two phases:
 
 Voilà - an incremental, multi-node application upgrade between releases using incompatible schema versions with no downtime.
 
+Note that version 1.2 of your software will need to configure JSimpleDB to allow the addition of new schemas. Once at least one 1.2 application server has committed a transaction, this setting can be turned back off for safety.
+
 === Validation ===
 
 === Lifecycle Notifications ===
+
+JSimpleDB provides notifications whenever a database object is created or deleted via the `@OnCreate` and `@OnDelete` annotations:
+
+<code language="java">
+    @OnCreate
+    private void gotCreated() {
+        System.out.println("Hello world");
+    }
+ 
+    @OnDelete
+    private void gotDeleted() {
+        System.out.println("Goodbye world");
+    }</code>
+
+Note that `@OnCreate` is not the same event as object construction, e.g., because a deleted object can be `recreate()`d in which case `@OnCreate` will be invoked again.
 
 == The JSimpleDB Model ==
 
