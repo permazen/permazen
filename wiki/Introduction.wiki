@@ -3,13 +3,17 @@
 
 == Introduction ==
 
-JSimpleDB is designed to make powerful persistence easy for Java programmers. It does this by relegating the database to the simplest role possible--storing data as key/value pairs--and reimplementing and enhancing all of the usual database supporting features, such as indexes and notifications, in a Java-centric way.
+JSimpleDB is designed to make powerful persistence easy for Java programmers. It does this by relegating the database to the simplest role possible--storing data as key/value pairs--and reimplementing and enhancing all of the usual database supporting features, such as indexes and notifications, in a Java-centric way, and by adding a few new features that traditional databases don't provide as well.
+
+In other words, for the most part JSimpleDB is not trying to create solutions where none existed before. Rather, it's trying to reimplement many of the same, well-tested ideas and algorithms used in traditional databases in a way that is more natural for Java programmers. So convenience and maintainability are primary benefits, but as it happens, new solutions to some problems that traditional databases _don't_ solve for you also become easy and natural.
 
 <wiki:toc max_depth="5"/>
 
 == Quick Example ==
 
-Sometimes code is worth a thousand words, so here is some code:
+JSimpleDB runs on top of a transactional key/value database that you supply. The JSimpleDB code includes adapters for some existing databases, as well as in-memory and simple flat file key/value stores for testing and prototyping.
+
+JSimpleDB itself is configured entirely using Java annotations. For example:
 <code language="java">
 @JSimpleClass(storageId = 100)
 public abstract class Person implements JObject {
