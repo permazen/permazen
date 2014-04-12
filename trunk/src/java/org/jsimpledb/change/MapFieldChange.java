@@ -12,10 +12,8 @@ package org.jsimpledb.change;
  * when a map field changes.
  *
  * @param <T> the type of the object containing the changed field
- * @param <K> the type of the changed map's key
- * @param <V> the type of the changed map's value
  */
-public abstract class MapFieldChange<T, K, V> extends FieldChange<T> {
+public abstract class MapFieldChange<T> extends FieldChange<T> {
 
     /**
      * Constructor.

@@ -14,7 +14,7 @@ package org.jsimpledb.change;
  * @param <T> the type of the object containing the changed field
  * @param <E> the type of the changed list's elements
  */
-public class ListFieldReplace<T, E> extends ListFieldChange<T, E> {
+public class ListFieldReplace<T, E> extends ListFieldChange<T> {
 
     private final int index;
     private final E oldValue;
