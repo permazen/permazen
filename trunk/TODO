@@ -8,8 +8,6 @@
 
 - Counter data type
 
-- @Validate
-
 - Add order() property to @OnVersionChange
 
 - Add boolean JTransaction.upgrade()
