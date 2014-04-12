@@ -51,6 +51,7 @@ class ClassGenerator<T> {
     static final Method JOBJECT_DELETE_METHOD;
     static final Method JOBJECT_EXISTS_METHOD;
     static final Method JOBJECT_RECREATE_METHOD;
+    static final Method JOBJECT_UPGRADE_METHOD;
     static final Method JOBJECT_REVALIDATE_METHOD;
 
     // JTransaction method handles
@@ -64,6 +65,7 @@ class ClassGenerator<T> {
     static final Method DELETE_METHOD;
     static final Method EXISTS_METHOD;
     static final Method RECREATE_METHOD;
+    static final Method UPDATE_SCHEMA_VERSION_METHOD;
     static final Method REVALIDATE_METHOD;
     static final Method QUERY_SIMPLE_FIELD_METHOD;
     static final Method QUERY_LIST_FIELD_ENTRIES_METHOD;
@@ -78,6 +80,7 @@ class ClassGenerator<T> {
             JOBJECT_DELETE_METHOD = JObject.class.getMethod("delete");
             JOBJECT_EXISTS_METHOD = JObject.class.getMethod("exists");
             JOBJECT_RECREATE_METHOD = JObject.class.getMethod("recreate");
+            JOBJECT_UPGRADE_METHOD = JObject.class.getMethod("upgrade");
             JOBJECT_REVALIDATE_METHOD = JObject.class.getMethod("revalidate");
 
             // JTransaction methods
@@ -91,6 +94,7 @@ class ClassGenerator<T> {
             DELETE_METHOD = JTransaction.class.getMethod("delete", JObject.class);
             EXISTS_METHOD = JTransaction.class.getMethod("exists", JObject.class);
             RECREATE_METHOD = JTransaction.class.getMethod("recreate", JObject.class);
+            UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
             REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", JObject.class);
             QUERY_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("querySimpleField", int.class);
             QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class);
@@ -276,6 +280,19 @@ class ClassGenerator<T> {
           Type.getMethodDescriptor(Type.getType(JTransaction.class)));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, REVALIDATE_METHOD);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Add JObject.upgrade()
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JOBJECT_UPGRADE_METHOD.getName(),
+          Type.getMethodDescriptor(JOBJECT_UPGRADE_METHOD), null, null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
+          Type.getMethodDescriptor(Type.getType(JTransaction.class)));
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        this.emitInvoke(mv, UPDATE_SCHEMA_VERSION_METHOD);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

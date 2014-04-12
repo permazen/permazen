@@ -308,6 +308,31 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     }
 
     /**
+     * Update the schema version of the specified object, if necessary, so that its version matches
+     * the schema version associated with this {@link JSimpleDB}.
+     *
+     * <p>
+     * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange} methods will be invoked prior
+     * to this method returning.
+     * </p>
+     *
+     * @param jobj Java model object
+     * @return true if the object's schema version was changed, false if it was already updated
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws org.jsimpledb.core.DeletedObjectException if the object does not exist in this transaction
+     * @throws IllegalArgumentException if {@code jobj} is null
+     */
+    public synchronized boolean updateSchemaVersion(JObject jobj) {
+
+        // Sanity check
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+
+        // Update version
+        return this.tx.updateSchemaVersion(jobj.getObjId());
+    }
+
+    /**
      * Read a simple field. This returns the value returned by {@link Transaction#readSimpleField Transaction.readSimpleField()}
      * with {@link ObjId}s converted into {@link JObject}s.
      *

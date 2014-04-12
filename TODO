@@ -10,7 +10,5 @@
 
 - Add order() property to @OnVersionChange
 
-- Add boolean JTransaction.upgrade()
-
 - Allow reference paths to contain backwards steps
 

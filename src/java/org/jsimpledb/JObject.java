@@ -80,5 +80,20 @@ public interface JObject {
      *  if the transaction associated with the current thread is no longer usable
      */
     void revalidate();
+
+    /**
+     * Update the schema version of this instance, if necessary, so that it matches the schema version of the
+     * {@linkplain JTransaction#getCurrent the transaction associated with the current thread}.
+     *
+     * <p>
+     * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange} methods will be invoked prior
+     * to this method returning.
+     * </p>
+     *
+     * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
+     * @throws org.jsimpledb.StaleTransactionException
+     *  if the transaction associated with the current thread is no longer usable
+     */
+    void upgrade();
 }
 
