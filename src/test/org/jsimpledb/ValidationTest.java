@@ -16,6 +16,7 @@ import javax.validation.constraints.Size;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.annotation.Validate;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -47,6 +48,8 @@ public class ValidationTest extends TestSupport {
                 assert false;
             }
 
+            Assert.assertEquals(p1.getChecks(), 0);
+
             tx.commit();
         } finally {
             JTransaction.setCurrent(null);
@@ -74,17 +77,23 @@ public class ValidationTest extends TestSupport {
             } catch (ValidationException e) {
                 // expected
                 Assert.assertEquals(e.getObject(), p1);
+                Assert.assertEquals(e.getViolations().size(), 3);
             }
 
-            // Make p1 valid
+            Assert.assertEquals(p1.getChecks(), 0);
+
+            // Make p1 valid, request revalidation, and validate
             p1.setName("fred");
             p1.setAge(32);
             p1.getFriends().clear();
+            p1.revalidate();
             try {
                 tx.validate();
             } catch (ValidationException e) {
                 assert false;
             }
+
+            Assert.assertEquals(p1.getChecks(), 1);
 
             // No revalidation requested yet...
             p1.setName(null);
@@ -94,6 +103,8 @@ public class ValidationTest extends TestSupport {
                 assert false;
             }
 
+            Assert.assertEquals(p1.getChecks(), 1);
+
             // OK now
             p1.revalidate();
             try {
@@ -102,7 +113,10 @@ public class ValidationTest extends TestSupport {
             } catch (ValidationException e) {
                 // expected
                 Assert.assertEquals(e.getObject(), p1);
+                Assert.assertEquals(e.getViolations().size(), 1);
             }
+
+            Assert.assertEquals(p1.getChecks(), 1);
 
             // Leave invalid for commit - should be allowed
 
@@ -123,7 +137,10 @@ public class ValidationTest extends TestSupport {
             } catch (ValidationException e) {
                 // expected
                 Assert.assertEquals(e.getObject(), p1);
+                Assert.assertEquals(e.getViolations().size(), 1);
             }
+
+            Assert.assertEquals(p1.getChecks(), 1);
 
         } finally {
             JTransaction.setCurrent(null);
@@ -141,6 +158,29 @@ public class ValidationTest extends TestSupport {
                 assert false;
             }
 
+            Assert.assertEquals(p1.getChecks(), 2);
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
+        // Now test @Validate
+        tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(tx);
+        try {
+
+            p1.setChecks(-1);
+            p1.revalidate();
+
+            try {
+                tx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                // expected
+                Assert.assertEquals(e.getObject(), p1);
+                Assert.assertNull(e.getViolations());
+            }
+
         } finally {
             JTransaction.setCurrent(null);
         }
@@ -151,6 +191,15 @@ public class ValidationTest extends TestSupport {
 
     @JSimpleClass(storageId = 100)
     public abstract static class Person implements JObject {
+
+        private int checks;
+
+        public int getChecks() {
+            return this.checks;
+        }
+        public void setChecks(int checks) {
+            this.checks = checks;
+        }
 
         @JField(storageId = 101)
         @NotNull
@@ -166,6 +215,13 @@ public class ValidationTest extends TestSupport {
         @NotNull
         @Size(max = 2)
         public abstract List<Person> getFriends();
+
+        @Validate
+        private void checkMe() {
+            if (this.checks == -1)
+                throw new ValidationException(this, "checks == -1");
+            this.checks++;
+        }
     }
 }
 

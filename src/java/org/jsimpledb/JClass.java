@@ -43,6 +43,7 @@ public class JClass<T> extends JSchemaObject {
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
     Set<OnChangeScanner<T>.MethodInfo> onChangeMethods;
+    Set<ValidateScanner<T>.MethodInfo> validateMethods;
     Set<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
     Set<IndexQueryScanner<T>.MethodInfo> indexQueryMethods;
 
@@ -277,6 +278,7 @@ public class JClass<T> extends JSchemaObject {
         this.onCreateMethods = new OnCreateScanner<T>(this).findAnnotatedMethods();
         this.onDeleteMethods = new OnDeleteScanner<T>(this).findAnnotatedMethods();
         this.onChangeMethods = new OnChangeScanner<T>(this).findAnnotatedMethods();
+        this.validateMethods = new ValidateScanner<T>(this).findAnnotatedMethods();
         this.onVersionChangeMethods = new OnVersionChangeScanner<T>(this).findAnnotatedMethods();
         this.indexQueryMethods = new IndexQueryScanner<T>(this).findAnnotatedMethods();
     }

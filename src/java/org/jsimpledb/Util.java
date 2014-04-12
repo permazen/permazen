@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -61,6 +62,14 @@ final class Util {
     public static Object invoke(Method method, Object target, Object... params) {
         try {
             return method.invoke(target, params);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof Error)
+                throw (Error)e.getCause();
+            if (e.getCause() instanceof RuntimeException)
+                throw (RuntimeException)e.getCause();
+            throw new DatabaseException("unexpected error invoking method " + method + " on " + target, e);
+        } catch (Error e) {
+            throw e;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
