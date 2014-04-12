@@ -626,13 +626,18 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
             if (!this.tx.exists(id))
                 continue;
 
-            // Validate it
+            // Do JSR 303 validation
             final JObject jobj = this.jdb.getJObject(id);
             final Set<ConstraintViolation<JObject>> violations = ValidationUtil.validate(jobj);
             if (!violations.isEmpty()) {
                 throw new ValidationException(jobj, violations, "validation error for object " + id + " of type `"
                   + this.jdb.jclasses.get(id.getStorageId()).name + "':\n" + ValidationUtil.describe(violations));
             }
+
+            // Do @Validate validation
+            final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
+            for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods)
+                Util.invoke(info.getMethod(), jobj);
         }
     }
 
