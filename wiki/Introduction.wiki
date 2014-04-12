@@ -35,6 +35,8 @@ Of note:
  * The getter methods for `age` and `friends` may be declared `abstract`
    * JSimpleDB will override these methods in an auto-generated subclass at runtime
    * The generated subclass will implement the `JObject` interface
+ * JSimpleDB contains built-in support for sets, lists, and maps
+   * You can build virtually anything out of these three collection types
  * There is no setter method for the `friends` set
    * The set will always exist
  * Every Java model class and field (including sub-fields, like the `element` sub-field of `friends`) has a unique *storage ID*
@@ -81,7 +83,7 @@ Alternately, you can say:
 
 The two are equivalent.
 
-The `exists()`, `delete()`, and `recreate()` methods are part of the `JObject` interface, which all generated model subclasses implement. Your classes don't have to to be declared to implement `JObject`, but life is easier if they are.
+The `exists()`, `delete()`, and `recreate()` methods are part of the `JObject` interface, which all generated model subclasses implement. Your classes don't have to to be declared to implement `JObject`, but life is a little easier if they are.
 
 === Delete Cascade ===
 
@@ -91,13 +93,13 @@ You have four choices, represented by the constants in the `DeleteAction` enum c
 
  * `EXCEPTION` - Disallow deletion of such an object; instead, throw `ReferencedObjectException`.
  * `UNREFERENCE` - Set all references to the object to null (in the case of simple reference fields) or remove the corresponding collection entry (in the case of sets and lists) or key/value entry (in the case of maps).
- * `DELETE` - Delete all objects referring to the deleted object, repeating recursively as necessary.
+ * `DELETE` - Delete all objects referring to the deleted object, repeating recursively as necessary (cycles in the reference graph are handled properly).
  * `NOTHING` - Do nothing; subsequent attempts to dereference the deleted object will result in a `DeletedObjectException`.
 
 The default value is `EXCEPTION`.
 
 You can be guaranteed to never see any `DeletedObjectException`s if you adhere to the following:
- # Don't use `DeleteAction.NOTHING` for object references
+ # Avoid configuring reference fields with `DeleteAction.NOTHING`
  # Always check `exists()` before using a Java model object that has been brought in from outside the transaction
 
 === Indexes ===
@@ -122,7 +124,7 @@ This is of course the perfect situation for an *index* on the `age` field. Here 
     public abstract int getAge();
     public abstract void setAge(int age);</code>
 
-To read that index, you just delcare and annotate with `@IndexQuery` a method that reads it:
+To read that index, you just declare an abstract method annotated with `@IndexQuery`:
 
 <code language="java">
     @IndexQuery("age")
@@ -137,13 +139,15 @@ Now we can rewrite our `existsPersonOfAge()` method:
         return this.queryPersonAges().containsKey(age);
     }</code>
 
-Lots of other possibilities exist as well. For example:
+Since the mapping is a `NavigableMap`, you can efficiently find the minimum or maximum value, created a restricted range of values, iterate values in forward or reverse order, etc.
 
 <code language="java">
     public int getMaximumAge() {
         NavigableMap<Integer, NavigableSet<Person>> index = this.queryPersonAges();
         return !index.isEmpty() ? index.lastKey() : -1;
     }</code>
+
+You may be wondering what sort order applies to `Person`. JSimpleDB sorts database objects by their type (i.e., Java class), and then by their unique object ID (the object ID is available via `JObject.getObjId()`). Object IDs are opaque 64-bit values. Newly created objects get a randomly generated value (this avoids distributed database contention that would occur with an auto-increment counter).
 
 The astute reader may notice that `existsPersonOfAge()` and `getMaximumAge()` should really be a static methods, because there's nothing about them that is specific to one `Person`. And that is correct; however, you can't override static methods, so the method has to be an instance method for JSimpleDB to generate a subclass implementation. If you really wanted a static method, you could do this:
 
@@ -159,7 +163,7 @@ but that's rather ugly. A cleaner option is to define a singleton class `Indexes
 
 ==== Complex Field Indexes ====
 
-You can also index the `element` sub-field of a `Set` or `List`, or the `key` or `value` sub-fields of a `Map`. For example:
+You can also index the `element` sub-field of a `Set` or `List`, or the `key` or `value` sub-field of a `Map`. For example:
 
 <code language="java">
 @JSimpleClass(storageId = 200)
@@ -174,7 +178,7 @@ public abstract class Student implements JObject {
     public abstract List<Teacher> getTeacherRankings();
  
     @JMapField(storageId = 205,
-      key = @JField(storageId = 206)
+      key = @JField(storageId = 206, indexed = true)
       value = @JField(storageId = 207, indexed = true)
     public abstract Map<Test, Float> getTestScores();
  
@@ -191,7 +195,9 @@ public abstract class Student implements JObject {
     public abstract NavigableMap<Float, NavigableSet<Student>> queryStudentsByTestScore();
 }</code>
 
-Indexes are a perfect way to providing Java access to both sides of a one-to-many, many-to-one, or many-to-many relationship, without there having to actually be any redundant information. Contrast with JPA, where it's possible for e.g., `parent.getChildren()` and `child.getParent()` to get out of sync.
+In JSimpleDB, reference fields are always indexed (analogous to SQL, where an index is required for foreign key constraints). So in the above example, setting `indexed = true` is redundant for `lectureClasses`, `teacherRankings`, and `testScores.key`. 
+
+Indexes are a perfect way to providing Java access to both sides of a one-to-many, many-to-one, or many-to-many relationship, without there having to actually be any redundant information: you just query the index for the "inverse" side of the relationship. Contrast with JPA, where it's possible for e.g., `parent.getChildren()` and `child.getParent()` to get out of sync.
 
 ==== Complex Field Indexes (Advanced) ====
 
@@ -273,7 +279,9 @@ Alternatively, you can invert references in an ad hoc manner by providing a *ref
 
 === Custom Indexes and `@OnChange` ===
 
-A database _index_ is just a special case of _derived information_ that is kept up to date automatically for you by the database. The key benefit of using database indexes, besides better performance, is that (a) the derived information is always kept up-to-date, and (b) the database hides all the details, keeping your application logic clean.
+A database _index_ is just a special case of _derived information_ that is kept up to date automatically for you by the database. The key benefits of using database indexes, besides better performance, are:
+ * The derived information is automatically kept up-to-date
+ * The database hides all the details, keeping your application logic clean
 
 With JSimpleDB you can easily build your own indexes, based on any derived information, that also satisfy these two criteria.
 
@@ -281,20 +289,22 @@ Traditionally, in general this is hard part because it means tracking down all t
 
 With traditional databases, sometimes you can make it work when the information is all contained in one object: then you can add intercept/update code into the setter methods of all the fields that affect the derived information. This extra code effectively serves as a trap for change notification, where it then updates the derived information.
 
-Or if you're lucky, your derived information matches an SQL built-in aggregate function like `MAX()` for which SQL databases often have "secret" indexes that make the function fast. But even if so, that hack only works when your query runs `MAX()` over the entire table.
+Or if you're lucky, your derived information matches an SQL built-in aggregate function like `MAX()` for which SQL databases often have built-in functions. Often these built-in functions rely on "secret" internal indexes that make the function fast. But even if so, that hack only works when your query runs `MAX()` over the entire table.
 
-Thinking more generally, what if your "index" is derived for many objects, possibly ones that are far away from each other? Suppose for example you need to be able to efficiently calculate the average age of _all the friends_ of any `Person`. An SQL `AVG()` query will need to iterate through all the friends to calculate the average. With today's huge datasets iterating through every element of a collection may not be an option. Since there's no SQL command to tell the database to keep an index of the average age of each `Person`'s friends, you will have to consruct and maintain this index yourself.
+Thinking more generally, what if your "index" is derived for many objects, possibly ones that are far away from each other? Suppose for example you need to be able to efficiently calculate the average age of _all the friends_ of any `Person`. An SQL `AVG()` query will need to iterate through all the friends to calculate the average. With today's huge datasets, iterating through every element of a collection may not be an option. Since there's no SQL command to tell the database to keep an index of the average age of each `Person`'s friends, you will have to consruct and maintain this index yourself.
 
 This is an important subtlety that affects scaling applications written using SQL databases: if what you want to index can't be done by the index capability built-in to the database, but your dataset is too large to _not_ index the information you need, then suddenly you have "index" logic spamming your Java codebase.
 
 In our present example, you would have to track down any code that either (a) alters the age of a `Person` (and then figure out who that `Person` is a friend of), or (b) changes any `Person`'s set of friends. But clearly the logic for maintaining a database index, which is nothing but derived information, belongs at the data layer, not the service or business layer.
 
-With JSimpleDB, you can index virtually anything, based on arbitrarily distant dependencies, using the `@OnChange` annotation, which is capable of detecting arbitrarily "distant" changes:
+With JSimpleDB, you can index virtually anything, based on arbitrarily distant dependencies, using the `@OnChange` annotation. The `@OnChange` annotation allows you to monitor arbitrarily distant changes by specifying the reference path to the change you want to monitor. Now maintaining an index is as simple as:
  # Detect relevant changes via `@OnChange`-annotated methods
  # Update the derived information when a change occurs
 
+Most importantly, the code that implements #1 and #2 above lives in a single Java class.
+
 In the example below, we monitor for changes in our set of friends and their ages, and update the average age automatically. This works no matter how the age is modified or where else those changes might be made in your codebase.
-So we keep all the code to maintain our custom "friends' average age" index in one place where it belongs - in the data object.
+We keep all the code to maintain our custom "friends' average age" index in one place where it belongs - in the data object.
 
 <code language="java">
     // Get my friends' average age - value is always up to date!
@@ -312,7 +322,7 @@ So we keep all the code to maintain our custom "friends' average age" index in o
     abstract long getFriendsAgeSum();
     abstract void setFriendsAgeSum(long ageSum);
  
-    // Notify me when any of my friend's ages changes and update average
+    // Notify me when any of my friend's ages changes
     @OnChange("friends.element.age")
     private boolean onFriendAgeChange(SimpleFieldChange<Person, Integer> change) {
         this.setFriendsAgeSum(this.getFriendsAgeSum() - change.getOldValue() + change.getNewValue());
@@ -341,7 +351,7 @@ So we keep all the code to maintain our custom "friends' average age" index in o
 
 This index is maintained as efficiently as possible: we are notified only when a meaningful change occurs, and the update is incremental (constant time) and immediate.
 
-By the way, JSimpleDB does not notify for "changes" that don't actually change anything, such as `person.setAge(21)` when the age equals `21`, or `person.getFriends().add(friend)` when `friend` is already in the set.
+By the way, JSimpleDB does not notify for "changes" that don't actually change anything, such as `person.setAge(21)` when the age equals `21`, or `person.getFriends().add(friend)` when `friend` is already in the set. Also, each object is only notified once about any particular change, even if the change is visible through multiple different routes through the reference path (this would necessarily involve a collection somewhere on the path).
 
 `@OnChange` notifications are also handy for validation scenarios involving distant dependencies (see [#Validation Validation]).
 
@@ -349,11 +359,11 @@ By the way, JSimpleDB does not notify for "changes" that don't actually change a
 
 Notice in the example we are tracking the size of the `friends` set manually. Why not just use `this.getFriends().size()`?
 
-In JSimpleDB invoking `size()` on any collection type requires an _O(n)_ time interation through the collection, which can be a slow operation. This may seem dumb - why not just keep track of the size?
+In JSimpleDB invoking `size()` on any collection type requires an _O(n)_ time interation through the collection, which can be a slow operation.
 
-There is an important reason: allowing for reduced contention in distributed databases.
+This may seem dumb - why not just keep track of the size? There is an important reason: allowing for reduced contention in distributed databases.
 
-Imagine a database with 20 distributed nodes on the network, and on each node an application is rapidly adding new objects to some `Set`. If JSimpleDB maintained a hidden `size` field with each collection, then that field would have to be updated with each insert, and therefore would be highly contended and cause the database to be slow. Without it, however, the set elements can be added concurrently without conflict.
+Imagine a database with many distributed nodes on the network, and on each node an application is rapidly adding new objects to some `Set`. If JSimpleDB maintained a hidden `size` field with each collection, then that field would have to be updated with each insert, and therefore would be highly contended (i.e., causing a bottleneck), causing the database to be slow. Without it, however, the set elements can be added concurrently without conflict.
 
 JSimpleDB leaves it up to you whether the size of a collection should be explicitly maintained. After all, the size of a collection is just another type of index (derived information).
 
@@ -378,9 +388,9 @@ Note that `@OnCreate` is not the same event as object construction, e.g., becaus
 
 == Schema Management ==
 
-Traditional SQL databases provide no explicit support for managing schema changes. This used to be OK when you had a single database, and it was small enough that running a few `ALTER TABLE` statements was relatively quick.
+Traditional SQL databases provide no explicit support for managing schema changes. This used to be OK when you had a single application server running on a single database, and it was small enough that running a few `ALTER TABLE` statements after a restart was relatively quick.
 
-Today, however, not only are the data sets too large for schema changes that lock an entire table, it's often not acceptable to bring down the application servers all at the same time, even if you could upgrade them quickly. Instead, a rolling upgrade is required, where during the upgrade period different application servers will be running different versions of the software. Therefore, at some point you are going to have two different versions of your application running on two different nodes, both reading from and writing to the same database, but expecting to see and use different schemas. This situation presents obvious challenges.
+Today, however, not only are the data sets too large for schema changes that lock an entire table, it's often not acceptable to bring down all of the application servers at the same time, even if you could upgrade them all quickly. Instead, a rolling upgrade is required, where during the upgrade period different application servers will be running different versions of the software. Therefore, at some point you are going to have two different versions of your application running on two different nodes, both reading from and writing to the same database, but expecting to see and use different schemas. This situation presents obvious challenges.
 
 Some NoSQL databases duck this question by being "schemaless", which really means "the schema is your problem, not mine". Other databases support the notion of an object version, but leave the rest to the application developer.
 
