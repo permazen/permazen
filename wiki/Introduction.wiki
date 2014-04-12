@@ -11,7 +11,7 @@ In other words, for the most part JSimpleDB is not trying to create solutions wh
 
 == Quick Example ==
 
-JSimpleDB runs on top of a transactional key/value database that you supply. The JSimpleDB code includes adapters for some existing databases, as well as in-memory and simple flat file key/value stores for testing and prototyping.
+JSimpleDB runs on top of a transactional key/value database that you supply. The JSimpleDB code includes adapters for some existing databases, as well as in-memory and flat file key/value stores for testing and prototyping.
 
 JSimpleDB itself is configured entirely using Java annotations. For example:
 <code language="java">
