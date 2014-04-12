@@ -489,7 +489,7 @@ Now your upgrade rolls out in two phases:
 
 Voilà - an incremental, multi-node rolling application upgrade across releases using incompatible schema versions and with no downtime.
 
-During phase 1, all objects stay at schema version #1. During phase 2, objects are upgraded and downgraded as necessary as different servers access them. Once phase 2 is complete, all future object accesses will use schema version #2, upgrading old version #1 objects on demand over time. Or, you can run a one-time scan that forces upgrades of all objects via `JTransaction.upgrade()`.
+During phase 1, all objects stay at schema version #1. During phase 2, objects are upgraded and downgraded as necessary as different servers access them. Once phase 2 is complete, all future object accesses will use schema version #2, upgrading old version #1 objects on demand over time. Or, you can run a one-time scan that upgrades objects using `JObject.upgrade()`.
 
 Note that release 1.2 of your software will need to configure JSimpleDB to allow the addition of new schemas. Once phase 2 is complete, this setting can be turned back off.
 
@@ -509,8 +509,8 @@ Note that JSimpleDB validates on a per-object basis. Therefore, the `@Valid` con
 
 When creating a new JSimpleDB transaction, you specify the `ValidationMode` for the transaction. The default is `AUTOMATIC` which gives the behavior described above. The available options are:
  * `DISABLED` - no validation will be performed, even if you invoke `JTransaction.validate()` explicitly
- * `MANUAL` - validation is only performed when you invoke `JTransaction.validate()` explicitly
- * `AUTOMATIC` - validation is performed when you invoke `JTransaction.validate()` explicitly, and automatically on `commit()`
+ * `MANUAL` - validation is only performed when you invoke `JTransaction.validate()` explicitly; changes to fields with JSR 303 annotations do _not_ enqueue the object for validation
+ * `AUTOMATIC` - validation is performed when you invoke `JTransaction.validate()` explicitly, and automatically on `commit()`; changes to fields with JSR 303 annotations automatically enqueue the object for validation
 
 === Complex Validation ===
 
