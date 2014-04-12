@@ -12,9 +12,8 @@ package org.jsimpledb.change;
  * when a set field changes.
  *
  * @param <T> the type of the object containing the changed field
- * @param <E> the type of the changed set's elements
  */
-public abstract class SetFieldChange<T, E> extends FieldChange<T> {
+public abstract class SetFieldChange<T> extends FieldChange<T> {
 
     /**
      * Constructor.

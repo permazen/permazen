@@ -14,7 +14,7 @@ package org.jsimpledb.change;
  * @param <T> the type of the object containing the changed field
  * @param <E> the type of the changed set's elements
  */
-public class SetFieldAdd<T, E> extends SetFieldChange<T, E> {
+public class SetFieldAdd<T, E> extends SetFieldChange<T> {
 
     private final E element;
 

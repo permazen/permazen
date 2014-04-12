@@ -12,9 +12,8 @@ package org.jsimpledb.change;
  * when a list field changes.
  *
  * @param <T> the type of the object containing the changed field
- * @param <E> the type of the changed list's elements
  */
-public abstract class ListFieldChange<T, E> extends FieldChange<T> {
+public abstract class ListFieldChange<T> extends FieldChange<T> {
 
     /**
      * Constructor.

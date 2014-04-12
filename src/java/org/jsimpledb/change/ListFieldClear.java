@@ -14,7 +14,7 @@ package org.jsimpledb.change;
  * @param <T> the type of the object containing the changed field
  * @param <E> the type of the changed list's elements
  */
-public class ListFieldClear<T, E> extends ListFieldChange<T, E> {
+public class ListFieldClear<T, E> extends ListFieldChange<T> {
 
     /**
      * Constructor.

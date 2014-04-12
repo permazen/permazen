@@ -4,3 +4,15 @@
 - Command line tool
     - JPQL (?) parser and executor
 
+- Only record new schema version in database on first mutation
+
+- Counter data type
+
+- @Validate
+
+- Add order() property to @OnVersionChange
+
+- Add boolean JTransaction.upgrade()
+
+- Allow reference paths to contain backwards steps
+

@@ -104,10 +104,8 @@ public class JMapField extends JComplexField {
       TypeToken<T> targetType, TypeToken<K> keyType, TypeToken<V> valueType) {
         types.add(new TypeToken<FieldChange<T>>() { }
           .where(new TypeParameter<T>() { }, targetType));
-        types.add(new TypeToken<MapFieldChange<T, K, V>>() { }
-          .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<K>() { }, keyType.wrap())
-          .where(new TypeParameter<V>() { }, valueType.wrap()));
+        types.add(new TypeToken<MapFieldChange<T>>() { }
+          .where(new TypeParameter<T>() { }, targetType));
         types.add(new TypeToken<MapFieldAdd<T, K, V>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<K>() { }, keyType.wrap())

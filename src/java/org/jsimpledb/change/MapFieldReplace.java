@@ -15,7 +15,7 @@ package org.jsimpledb.change;
  * @param <K> the type of the changed map's key
  * @param <V> the type of the changed map's value
  */
-public class MapFieldReplace<T, K, V> extends MapFieldChange<T, K, V> {
+public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
 
     private final K key;
     private final V oldValue;
