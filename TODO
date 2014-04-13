@@ -8,7 +8,5 @@
 
 - Counter data type
 
-- Add order() property to @OnVersionChange
-
 - Allow reference paths to contain backwards steps
 

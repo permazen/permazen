@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 import java.util.SortedMap;
@@ -44,7 +45,7 @@ public class JClass<T> extends JSchemaObject {
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
     Set<OnChangeScanner<T>.MethodInfo> onChangeMethods;
     Set<ValidateScanner<T>.MethodInfo> validateMethods;
-    Set<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
+    ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
     Set<IndexQueryScanner<T>.MethodInfo> indexQueryMethods;
 
     int[] subtypeStorageIds;
@@ -279,7 +280,9 @@ public class JClass<T> extends JSchemaObject {
         this.onDeleteMethods = new OnDeleteScanner<T>(this).findAnnotatedMethods();
         this.onChangeMethods = new OnChangeScanner<T>(this).findAnnotatedMethods();
         this.validateMethods = new ValidateScanner<T>(this).findAnnotatedMethods();
-        this.onVersionChangeMethods = new OnVersionChangeScanner<T>(this).findAnnotatedMethods();
+        final OnVersionChangeScanner<T> onVersionChangeScanner = new OnVersionChangeScanner<T>(this);
+        this.onVersionChangeMethods = new ArrayList<>(onVersionChangeScanner.findAnnotatedMethods());
+        Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);
         this.indexQueryMethods = new IndexQueryScanner<T>(this).findAnnotatedMethods();
     }
 
