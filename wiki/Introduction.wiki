@@ -366,7 +366,7 @@ This index is maintained as efficiently as possible: we are notified only when a
 
 By the way, JSimpleDB does not notify for "changes" that don't actually change anything, such as `person.setAge(21)` when the age equals `21`, or `person.getFriends().add(friend)` when `friend` is already in the set. Also, each object is only notified once about any particular change, even if the change is visible through multiple different routes through the reference path (this would necessarily involve a collection somewhere on the path).
 
-`@OnChange` notifications are also handy for validation scenarios involving distant dependencies (see [#Validation Validation]).
+Of course, `@OnChange` notifications are handy for lots of other purposes besides custom indexes. For example, you might want to monitor some condition involving several related objects and generate an alert, etc. `@OnChange` notifications are also handy for validation scenarios involving distant dependencies (see [#Validation Validation]).
 
 ==== Calculating Sizes ====
 
