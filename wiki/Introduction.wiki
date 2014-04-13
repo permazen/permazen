@@ -251,7 +251,7 @@ The `NavigableSets` utility class provides efficient methods for set intersectio
 
 === Reference Inversion ===
 
-In JSimpleDB reference fields, including sub-fields of a collection field, are always indexed, so it's easy to ask what objects reference any other object:
+In JSimpleDB reference fields, including sub-fields of a collection field, are always indexed. Therefore, unlike in normal Java programming, we can efficiently determine what objects (if any) refer to a given object:
 
 <code language="java">
     @IndexQuery("friends.element")
@@ -262,7 +262,7 @@ In JSimpleDB reference fields, including sub-fields of a collection field, are a
         return this.queryFriends().get(this);
     }</code>
 
-Alternatively, you can invert references in an ad hoc manner by providing a *reference path* to `invertReferencePath()`:
+More generally, we can even determine what objects refer to a given object indirectly, through an arbitrary sequence of reference fields. Such a sequence is called a *reference path*, and JSimpleDB exposes this functionality via `JTransaction.invertReferencePath()`:
 
 <code language="java">
     // Who considers me a friend?
@@ -277,17 +277,24 @@ Alternatively, you can invert references in an ad hoc manner by providing a *ref
           "friend.friend", this.getFriends());
     }</code>
 
-== Detecting Changes ==
+A reference path is simply a chain of reference fields via which one can hop through the graph defined by objects (nodes) and references (edges). Following a reference path in the forward direction is what one normally does in Java. JSimpleDB allows you to also invert reference paths.
 
-=== Custom Indexes and `@OnChange` ===
+When inverting reference paths, JSimpleDB eliminates duplicates (caused by multiple routes to the same destination) as soon as possible. However, there's no magic surrounding how reference paths are followed. If you're not careful, you can create a combinatorial explosion.
 
-A database _index_ is just a special case of _derived information_ that is kept up to date automatically for you by the database. The key benefits of using database indexes, besides better performance, are:
- * The derived information is automatically kept up-to-date
- * The database hides all the details, keeping your application logic clean
+Reference paths are also the basis of the powerful `@OnChange` annotation, described below.
 
-With JSimpleDB you can easily build your own indexes, based on any derived information, that also satisfy these two criteria.
+== Indexing and Detecting Changes ==
 
-Traditionally, in general this is hard part because it means tracking down all the places in your code that could possibly modify the information from which your index is derived. JSimpleDB makes that task much easier.
+=== Indexing in the General Sense ===
+
+A database _index_ is just a special case of _derived information_ that is kept up to date automatically for you by the database. The key benefits of using database indexes are:
+ * Much better performance - usually constant time queries
+ * The database keeps the derived information up-to-date automatically
+ * The database hides all the implementation details, keeping your application logic clean
+
+With JSimpleDB you can easily build your own arbitrary indexes, based on any derived information, that also satisfy these criteria.
+
+Traditionally, in general this is hard part because it means tracking down all the places in your code that could possibly modify the information from which your index is derived and adding hooks in all those places. JSimpleDB makes solving this problem much easier.
 
 With traditional databases, sometimes you can make it work when the information is all contained in one object: then you can add intercept/update code into the setter methods of all the fields that affect the derived information. This extra code effectively serves as a trap for change notification, where it then updates the derived information.
 
@@ -295,15 +302,19 @@ Or if you're lucky, your derived information matches an SQL built-in aggregate f
 
 Thinking more generally, what if your "index" is derived for many objects, possibly ones that are far away from each other? Suppose for example you need to be able to efficiently calculate the average age of _all the friends_ of any `Person`. An SQL `AVG()` query will need to iterate through all the friends to calculate the average. With today's huge datasets, iterating through every element of a collection may not be an option. Since there's no SQL command to tell the database to keep an index of the average age of each `Person`'s friends, you will have to consruct and maintain this index yourself.
 
-This is an important subtlety that affects scaling applications written using SQL databases: if what you want to index can't be done by the index capability built-in to the database, but your dataset is too large to _not_ index the information you need, then suddenly you have "index" logic spamming your Java codebase.
+This is an important subtlety that affects scaling applications written using SQL databases: if what you want to index can't be indexed by a capability built-in to the database, but your dataset is too large to _not_ index the information you need, then suddenly you have "index" logic spamming your Java codebase.
 
 In our present example, you would have to track down any code that either (a) alters the age of a `Person` (and then figure out who that `Person` is a friend of), or (b) changes any `Person`'s set of friends. But clearly the logic for maintaining a database index, which is nothing but derived information, belongs at the data layer, not the service or business layer.
 
-With JSimpleDB, you can index virtually anything, based on arbitrarily distant dependencies, using the `@OnChange` annotation. The `@OnChange` annotation allows you to monitor arbitrarily distant changes by specifying the reference path to the change you want to monitor. Now maintaining an index is as simple as:
+=== `@OnChange` ===
+
+With JSimpleDB, you can index virtually anything, based on any reachable information, using the `@OnChange` annotation. The `@OnChange` annotation allows you to monitor arbitrarily distant changes by specifying the reference path to the change you want to monitor.
+
+Now maintaining an index is as simple as:
  # Detect relevant changes via `@OnChange`-annotated methods
  # Update the derived information when a change occurs
 
-Most importantly, the code that implements #1 and #2 above lives in a single Java class.
+Most importantly, the code that implements #1 and #2 above all lives in one Java class.
 
 In the example below, we monitor for changes in our set of friends and their ages, and update the average age automatically. This works no matter how the age is modified or where else those changes might be made in your codebase.
 We keep all the code to maintain our custom "friends' average age" index in one place where it belongs - in the data object.
