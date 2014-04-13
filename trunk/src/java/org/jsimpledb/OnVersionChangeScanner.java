@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Map;
 
 import org.jsimpledb.annotation.OnVersionChange;
@@ -18,7 +19,8 @@ import org.jsimpledb.annotation.OnVersionChange;
 /**
  * Scans for {@link OnVersionChange &#64;OnVersionChange} annotations.
  */
-class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange> {
+class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
+  implements Comparator<OnVersionChangeScanner<T>.MethodInfo> {
 
     OnVersionChangeScanner(JClass<T> jclass) {
         super(jclass, OnVersionChange.class);
@@ -47,6 +49,21 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange> {
 
         // Done
         return true;
+    }
+
+// Comparator
+
+    @Override
+    public int compare(MethodInfo info1, MethodInfo info2) {
+        final OnVersionChange annotation1 = info1.getAnnotation();
+        final OnVersionChange annotation2 = info2.getAnnotation();
+        int diff = Boolean.compare(annotation1.oldVersion() == 0, annotation2.oldVersion() == 0);
+        if (diff != 0)
+            return diff;
+        diff = Boolean.compare(annotation1.newVersion() == 0, annotation2.newVersion() == 0);
+        if (diff != 0)
+            return diff;
+        return 0;
     }
 }
 

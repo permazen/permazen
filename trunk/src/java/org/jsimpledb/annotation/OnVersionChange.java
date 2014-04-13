@@ -28,6 +28,12 @@ import java.lang.annotation.Target;
  *      indexed by storage ID</li>
  *  </ol>
  * </p>
+ *
+ * <p>
+ * If a class has multiple {@link OnVersionChange &#64;OnVersionChange}-annotated methods, methods with a non-zero
+ * {@link #oldVersion} or {@link #newVersion} (i.e., more specific constraint) will be invoked before methods having
+ * no constraint when possible.
+ * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
