@@ -86,8 +86,8 @@ public interface JObject {
      * {@linkplain JTransaction#getCurrent the transaction associated with the current thread}.
      *
      * <p>
-     * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange} methods will be invoked prior
-     * to this method returning.
+     * If a version change occurs, matching {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange}
+     * methods will be invoked prior to this method returning.
      * </p>
      *
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
