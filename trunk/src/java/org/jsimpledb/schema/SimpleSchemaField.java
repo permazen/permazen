@@ -38,6 +38,11 @@ public class SimpleSchemaField extends SchemaField {
         this.indexed = indexed;
     }
 
+    @Override
+    public <R> R visit(SchemaFieldSwitch<R> target) {
+        return target.caseSimpleSchemaField(this);
+    }
+
 // Object
 
     @Override
