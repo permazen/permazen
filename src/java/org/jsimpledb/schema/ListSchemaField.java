@@ -12,6 +12,11 @@ package org.jsimpledb.schema;
  */
 public class ListSchemaField extends CollectionSchemaField {
 
+    @Override
+    public <R> R visit(SchemaFieldSwitch<R> target) {
+        return target.caseListSchemaField(this);
+    }
+
 // Object
 
     @Override

@@ -12,6 +12,15 @@ package org.jsimpledb.schema;
  */
 public abstract class SchemaField extends AbstractSchemaItem {
 
+    /**
+     * Apply visitor pattern.
+     *
+     * @param target target to invoke
+     * @return value from the method of {@code target} corresponding to this instance's type
+     * @throws NullPointerException if {@code target} is null
+     */
+    public abstract <R> R visit(SchemaFieldSwitch<R> target);
+
 // Object
 
     @Override

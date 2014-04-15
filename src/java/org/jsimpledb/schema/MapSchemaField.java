@@ -49,6 +49,11 @@ public class MapSchemaField extends ComplexSchemaField {
         return map;
     }
 
+    @Override
+    public <R> R visit(SchemaFieldSwitch<R> target) {
+        return target.caseMapSchemaField(this);
+    }
+
 // Object
 
     @Override

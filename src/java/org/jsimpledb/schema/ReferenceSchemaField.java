@@ -49,6 +49,11 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         super.setIndexed(indexed);
     }
 
+    @Override
+    public <R> R visit(SchemaFieldSwitch<R> target) {
+        return target.caseReferenceSchemaField(this);
+    }
+
 // Object
 
     @Override

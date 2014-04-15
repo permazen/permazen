@@ -16,13 +16,8 @@ import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.jsimpledb.schema.ListSchemaField;
-import org.jsimpledb.schema.MapSchemaField;
-import org.jsimpledb.schema.ReferenceSchemaField;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaObject;
-import org.jsimpledb.schema.SetSchemaField;
-import org.jsimpledb.schema.SimpleSchemaField;
 
 /**
  * Represents a {@link Database} object type.
@@ -46,25 +41,9 @@ public class ObjType extends SchemaItem {
         this.fieldTypeRegistry = fieldTypeRegistry;
 
         // Build fields
-        for (SchemaField schemaField : schemaObject.getSchemaFields().values()) {
-            if (schemaField instanceof SimpleSchemaField)
-                this.addField(this.buildSimpleField((SimpleSchemaField)schemaField, schemaField.getName()));
-            else if (schemaField instanceof SetSchemaField) {
-                final SetSchemaField setField = (SetSchemaField)schemaField;
-                this.addField(this.buildSetField(setField,
-                  this.buildSimpleField(setField.getElementField(), SetField.ELEMENT_FIELD_NAME)));
-            } else if (schemaField instanceof ListSchemaField) {
-                final ListSchemaField listField = (ListSchemaField)schemaField;
-                this.addField(this.buildListField(listField,
-                  this.buildSimpleField(listField.getElementField(), ListField.ELEMENT_FIELD_NAME)));
-            } else if (schemaField instanceof MapSchemaField) {
-                final MapSchemaField mapField = (MapSchemaField)schemaField;
-                this.addField(this.buildMapField(mapField,
-                  this.buildSimpleField(mapField.getKeyField(), MapField.KEY_FIELD_NAME),
-                  this.buildSimpleField(mapField.getValueField(), MapField.VALUE_FIELD_NAME)));
-            } else
-                throw new RuntimeException("internal error");
-        }
+        final FieldBuilder fieldBuilder = new FieldBuilder(this.version, this.fieldTypeRegistry);
+        for (SchemaField schemaField : schemaObject.getSchemaFields().values())
+            this.addField(schemaField.visit(fieldBuilder));
 
         // Build mappings for only simple and only complex fields
         this.simpleFields.clear();
@@ -129,40 +108,6 @@ public class ObjType extends SchemaItem {
             throw new InconsistentDatabaseException("duplicate use of storage ID " + field.storageId
               + " by fields `" + previous.name + "' and `" + field.name + "' in " + this);
         }
-    }
-
-    private SimpleField<?> buildSimpleField(SimpleSchemaField simpleField, String fieldName) {
-        if (simpleField instanceof ReferenceSchemaField) {
-            final ReferenceSchemaField refField = (ReferenceSchemaField)simpleField;
-            return new ReferenceField(fieldName, refField.getStorageId(), this.version, refField.getOnDelete());
-        }
-        final String fieldTypeName = simpleField.getType();
-        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(fieldTypeName);
-        if (fieldType == null) {
-            throw new IllegalArgumentException("unknown field type `" + fieldTypeName
-              + "' for field `" + fieldName + "' in " + this);
-        }
-        return this.buildSimpleField(simpleField, fieldName, fieldType);
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, String fieldName, FieldType<T> fieldType) {
-        return new SimpleField<T>(fieldName, field.getStorageId(), this.version, fieldType, field.isIndexed());
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <E> SetField<E> buildSetField(SetSchemaField field, SimpleField<E> elementField) {
-        return new SetField<E>(field.getName(), field.getStorageId(), this.version, elementField);
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <E> ListField<E> buildListField(ListSchemaField field, SimpleField<E> elementField) {
-        return new ListField<E>(field.getName(), field.getStorageId(), this.version, elementField);
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <K, V> MapField<K, V> buildMapField(MapSchemaField field, SimpleField<K> keyField, SimpleField<V> valueField) {
-        return new MapField<K, V>(field.getName(), field.getStorageId(), this.version, keyField, valueField);
     }
 }
 
