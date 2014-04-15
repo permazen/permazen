@@ -54,25 +54,6 @@ class ObjectArrayType<E> extends ArrayType<E[], E> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        while (true) {
-            final int first = reader.readByte();
-            if (first == END) {
-                writer.writeByte(first);
-                break;
-            }
-            if (this.inline)
-                reader.unread();
-            else {
-                if (first != VALUE)
-                    throw new IllegalArgumentException("invalid encoding of " + this);
-                writer.writeByte(first);
-            }
-            this.elementType.copy(reader, writer);
-        }
-    }
-
-    @Override
     public void write(ByteWriter writer, E[] array) {
         for (int i = 0; i < array.length; i++) {
             if (!this.inline)

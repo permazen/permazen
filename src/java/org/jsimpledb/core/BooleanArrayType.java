@@ -62,19 +62,6 @@ loop:   while (true) {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        while (true) {
-            int value = reader.readByte();
-            writer.writeByte(value);
-            if ((value & 0xc0) == 0
-              || (value & 0x30) == 0
-              || (value & 0x0c) == 0
-              || (value & 0x03) == 0)
-                break;
-        }
-    }
-
-    @Override
     public void write(ByteWriter writer, boolean[] array) {
         int value = 0;
         for (int i = 0; i < array.length; i++) {

@@ -36,12 +36,6 @@ abstract class IntegralType<T extends Number> extends PrimitiveType<T> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        for (int len = LongEncoder.decodeLength(reader.peek()); len > 0; len--)
-            writer.writeByte(reader.readByte());
-    }
-
-    @Override
     public void skip(ByteReader reader) {
         reader.skip(LongEncoder.decodeLength(reader.peek()));
     }

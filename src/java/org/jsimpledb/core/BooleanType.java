@@ -43,11 +43,6 @@ class BooleanType extends PrimitiveType<Boolean> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        this.write(writer, this.read(reader));
-    }
-
-    @Override
     public void skip(ByteReader reader) {
         this.read(reader);
     }

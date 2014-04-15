@@ -97,33 +97,6 @@ public class NullSafeType<T> extends FieldType<T> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        if (this.inline) {
-            final int prefix = reader.peek();
-            switch (prefix) {
-            case NULL_SENTINEL:
-                writer.writeByte(prefix);
-                break;
-            default:
-                this.inner.copy(reader, writer);
-                break;
-            }
-        } else {
-            final int prefix = reader.readByte();
-            writer.writeByte(prefix);
-            switch (prefix) {
-            case NULL_SENTINEL:
-                break;
-            case NOT_NULL_SENTINEL:
-                this.inner.copy(reader, writer);
-                break;
-            default:
-                throw new IllegalArgumentException("invalid encoding of " + this);
-            }
-        }
-    }
-
-    @Override
     public byte[] getDefaultValue() {
         return DEFAULT_VALUE;
     }

@@ -75,26 +75,6 @@ class StringType extends FieldType<String> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        int value = reader.readByte();
-        while (true) {
-            writer.writeByte(value);
-            switch (value) {
-            case END:
-                return;
-            case ESCAPE:
-                writer.writeByte(reader.readByte());
-                break;
-            default:
-                for (int length = UnsignedIntEncoder.decodeLength(value); --length > 0; )
-                    writer.writeByte(reader.readByte());
-                break;
-            }
-            value = reader.readByte();
-        }
-    }
-
-    @Override
     public void skip(ByteReader reader) {
         int value = reader.readByte();
         while (true) {

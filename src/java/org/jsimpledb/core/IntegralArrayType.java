@@ -53,19 +53,6 @@ abstract class IntegralArrayType<T, E extends Number> extends ArrayType<T, E> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        while (true) {
-            final int first = reader.readByte();
-            writer.writeByte(first);
-            if (first == END)
-                break;
-            int len = LongEncoder.decodeLength(first);
-            while (--len > 0)
-                writer.writeByte(reader.readByte());
-        }
-    }
-
-    @Override
     public void write(ByteWriter writer, T array) {
         if (array == null)
             throw new IllegalArgumentException("null array");

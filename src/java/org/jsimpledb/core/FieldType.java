@@ -213,16 +213,6 @@ public abstract class FieldType<T> implements Comparator<T> {
     public abstract T read(ByteReader input);
 
     /**
-     * Copy a value from the given input to the given output.
-     *
-     * @param reader byte input
-     * @param writer byte output
-     * @throws IllegalArgumentException if invalid input is encountered
-     * @throws IndexOutOfBoundsException if input is truncated
-     */
-    public abstract void copy(ByteReader reader, ByteWriter writer);
-
-    /**
      * Write a value to the given output.
      *
      * @param writer byte output
