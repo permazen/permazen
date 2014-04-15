@@ -1368,16 +1368,64 @@ public class Transaction {
         this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, listener));
     }
 
+    /**
+     * Monitor for changes within this transaction to the specified {@link SetField} as seen through a path of references.
+     *
+     * <p>
+     * See {@link #addSimpleFieldChangeListener} for details on how notifications are delivered.
+     * </p>
+     *
+     * @param storageId storage ID of the field to monitor
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param listener callback for notifications on changes in value
+     * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
     public synchronized void addSetFieldChangeListener(int storageId, int[] path, SetFieldChangeListener listener) {
         this.validateChangeListener(SetField.class, storageId, path, listener);
         this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, listener));
     }
 
+    /**
+     * Monitor for changes within this transaction to the specified {@link ListField} as seen through a path of references.
+     *
+     * <p>
+     * See {@link #addSimpleFieldChangeListener} for details on how notifications are delivered.
+     * </p>
+     *
+     * @param storageId storage ID of the field to monitor
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param listener callback for notifications on changes in value
+     * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
     public synchronized void addListFieldChangeListener(int storageId, int[] path, ListFieldChangeListener listener) {
         this.validateChangeListener(ListField.class, storageId, path, listener);
         this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, listener));
     }
 
+    /**
+     * Monitor for changes within this transaction to the specified {@link MapField} as seen through a path of references.
+     *
+     * <p>
+     * See {@link #addSimpleFieldChangeListener} for details on how notifications are delivered.
+     * </p>
+     *
+     * @param storageId storage ID of the field to monitor
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param listener callback for notifications on changes in value
+     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
     public synchronized void addMapFieldChangeListener(int storageId, int[] path, MapFieldChangeListener listener) {
         this.validateChangeListener(MapField.class, storageId, path, listener);
         this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, listener));
@@ -1400,16 +1448,52 @@ public class Transaction {
         this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, listener));
     }
 
+    /**
+     * Remove a monitor previously added via {@link #addSetFieldChangeListener addSetFieldChangeListener()}.
+     *
+     * @param storageId storage ID of the field to no longer monitor
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param listener callback for notifications on changes in value
+     * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
     public synchronized void removeSetFieldChangeListener(int storageId, int[] path, SetFieldChangeListener listener) {
         this.validateChangeListener(SetField.class, storageId, path, listener);
         this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, listener));
     }
 
+    /**
+     * Remove a monitor previously added via {@link #addListFieldChangeListener addListFieldChangeListener()}.
+     *
+     * @param storageId storage ID of the field to no longer monitor
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param listener callback for notifications on changes in value
+     * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
     public synchronized void removeListFieldChangeListener(int storageId, int[] path, ListFieldChangeListener listener) {
         this.validateChangeListener(ListField.class, storageId, path, listener);
         this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, listener));
     }
 
+    /**
+     * Remove a monitor previously added via {@link #addMapFieldChangeListener addMapFieldChangeListener()}.
+     *
+     * @param storageId storage ID of the field to no longer monitor
+     * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param listener callback for notifications on changes in value
+     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
+     * @throws IllegalArgumentException if {@code storageId} refers to a sub-field of a complex field
+     * @throws IllegalArgumentException if {@code path} or {@code listener} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
     public synchronized void removeMapFieldChangeListener(int storageId, int[] path, MapFieldChangeListener listener) {
         this.validateChangeListener(MapField.class, storageId, path, listener);
         this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, listener));
