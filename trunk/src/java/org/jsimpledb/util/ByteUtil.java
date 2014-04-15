@@ -124,5 +124,65 @@ public final class ByteUtil {
         }
         return new String(result);
     }
+
+    /**
+     * Read an {@code int} as four big-endian bytes.
+     *
+     * @param reader input
+     * @return decoded integer
+     * @throws IndexOutOfBoundsException if less than four bytes remain in {@code reader}
+     * @see #writeInt writeInt()
+     */
+    public static int readInt(ByteReader reader) {
+        return (reader.readByte() << 24) | (reader.readByte() << 16) | (reader.readByte() << 8) | reader.readByte();
+    }
+
+    /**
+     * Write an {@code int} as four big-endian bytes.
+     *
+     * @param writer byte destination
+     * @param value value to write
+     * @see #readInt readInt()
+     */
+    public static void writeInt(ByteWriter writer, int value) {
+        writer.writeByte(value >> 24);
+        writer.writeByte(value >> 16);
+        writer.writeByte(value >> 8);
+        writer.writeByte(value);
+    }
+
+    /**
+     * Read a {@code long} as eight big-endian bytes.
+     *
+     * @param reader input
+     * @return decoded long
+     * @throws IndexOutOfBoundsException if less than eight bytes remain in {@code reader}
+     * @see #writeLong writeLong()
+     */
+    public static long readLong(ByteReader reader) {
+        return
+            ((long)reader.readByte() << 56) | ((long)reader.readByte() << 48)
+          | ((long)reader.readByte() << 40) | ((long)reader.readByte() << 32)
+          | ((long)reader.readByte() << 24) | ((long)reader.readByte() << 16)
+          | ((long)reader.readByte() <<  8) |  (long)reader.readByte();
+    }
+
+    /**
+     * Write a {@code long} as eight big-endian bytes.
+     *
+     * @param writer byte destination
+     * @param value value to write
+     * @see #readLong readLong()
+     */
+    public static void writeLong(ByteWriter writer, long value) {
+        writer.writeByte((int)(value >> 56));
+        writer.writeByte((int)(value >> 48));
+        writer.writeByte((int)(value >> 40));
+        writer.writeByte((int)(value >> 32));
+        writer.writeByte((int)(value >> 24));
+        writer.writeByte((int)(value >> 16));
+        writer.writeByte((int)(value >> 8));
+        writer.writeByte((int)value);
+    }
 }
 

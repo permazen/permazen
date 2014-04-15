@@ -9,6 +9,7 @@ package org.jsimpledb.core;
 
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.util.ByteReader;
+import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
 
 /**
@@ -30,11 +31,7 @@ class FloatType extends PrimitiveType<Float> {
 
     @Override
     public Float read(ByteReader reader) {
-        int bits =
-            (reader.readByte() << 24)
-          | (reader.readByte() << 16)
-          | (reader.readByte() <<  8)
-          | (reader.readByte());
+        int bits = ByteUtil.readInt(reader);
         bits ^= (bits & SIGN_BIT) == 0 ? NEG_XOR : POS_XOR;
         return Float.intBitsToFloat(bits);
     }
@@ -43,10 +40,7 @@ class FloatType extends PrimitiveType<Float> {
     public void write(ByteWriter writer, Float value) {
         int bits = Float.floatToIntBits(value);
         bits ^= (bits & SIGN_BIT) != 0 ? NEG_XOR : POS_XOR;
-        writer.writeByte(bits >> 24);
-        writer.writeByte(bits >> 16);
-        writer.writeByte(bits >> 8);
-        writer.writeByte(bits);
+        ByteUtil.writeInt(writer, bits);
     }
 
     @Override

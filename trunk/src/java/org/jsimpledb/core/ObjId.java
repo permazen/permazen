@@ -68,15 +68,7 @@ public class ObjId implements Comparable<ObjId> {
     public ObjId(ByteReader reader) {
         if (reader == null)
             throw new IllegalArgumentException("null reader");
-        this.value =
-            ((long)reader.readByte() << 56)
-          | ((long)reader.readByte() << 48)
-          | ((long)reader.readByte() << 40)
-          | ((long)reader.readByte() << 32)
-          | ((long)reader.readByte() << 24)
-          | ((long)reader.readByte() << 16)
-          | ((long)reader.readByte() <<  8)
-          | ((long)reader.readByte());
+        this.value = ByteUtil.readLong(reader);
         final int storageId;
         try {
             storageId = this.getStorageId();
@@ -110,15 +102,11 @@ public class ObjId implements Comparable<ObjId> {
         return this.value;
     }
 
+    /**
+     * Write the binary encoding of this instance to the given output.
+     */
     public void writeTo(ByteWriter writer) {
-        writer.writeByte((int)(this.value >> 56));
-        writer.writeByte((int)(this.value >> 48));
-        writer.writeByte((int)(this.value >> 40));
-        writer.writeByte((int)(this.value >> 32));
-        writer.writeByte((int)(this.value >> 24));
-        writer.writeByte((int)(this.value >> 16));
-        writer.writeByte((int)(this.value >> 8));
-        writer.writeByte((int)this.value);
+        ByteUtil.writeLong(writer, this.value);
     }
 
     static ObjId getMin(int storageId) {
