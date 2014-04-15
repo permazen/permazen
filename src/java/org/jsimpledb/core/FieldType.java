@@ -46,7 +46,7 @@ import org.jsimpledb.util.ByteWriter;
  * </p>
  *
  * <p>
- * A {@link FieldTypeRegistry} object contains a registry of {@link FieldType}s indexed by name.
+ * A {@link FieldTypeRegistry} contains a registry of {@link FieldType}s indexed by name.
  * </p>
  *
  * @param <T> The associated Java type
@@ -312,7 +312,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * The implementation in {@link FieldType} returns {@code true}.
      * </p>
      */
-    protected boolean hasPrefix0x00() {
+    public boolean hasPrefix0x00() {
         return true;
     }
 
@@ -324,7 +324,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * The implementation in {@link FieldType} returns {@code true}.
      * </p>
      */
-    protected boolean hasPrefix0xff() {
+    public boolean hasPrefix0xff() {
         return true;
     }
 

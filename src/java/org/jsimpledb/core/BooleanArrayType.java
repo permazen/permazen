@@ -107,7 +107,7 @@ loop:   while (true) {
     }
 
     @Override
-    protected boolean hasPrefix0xff() {
+    public boolean hasPrefix0xff() {
         return false;
     }
 

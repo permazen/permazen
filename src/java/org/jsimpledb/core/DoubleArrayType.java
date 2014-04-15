@@ -84,7 +84,7 @@ class DoubleArrayType extends ArrayType<double[], Double> {
     }
 
     @Override
-    protected boolean hasPrefix0xff() {
+    public boolean hasPrefix0xff() {
         return this.doubleType.hasPrefix0xff();
     }
 

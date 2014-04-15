@@ -58,7 +58,7 @@ class BooleanType extends PrimitiveType<Boolean> {
     }
 
     @Override
-    protected boolean hasPrefix0xff() {
+    public boolean hasPrefix0xff() {
         return false;
     }
 }

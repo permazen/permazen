@@ -174,12 +174,12 @@ public class NullSafeType<T> extends FieldType<T> {
     }
 
     @Override
-    protected boolean hasPrefix0xff() {
+    public boolean hasPrefix0xff() {
         return true;
     }
 
     @Override
-    protected boolean hasPrefix0x00() {
+    public boolean hasPrefix0x00() {
         return this.inline && this.inner.hasPrefix0x00();
     }
 

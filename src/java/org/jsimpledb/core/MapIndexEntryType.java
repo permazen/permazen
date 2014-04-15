@@ -74,12 +74,12 @@ abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldTyp
     }
 
     @Override
-    protected boolean hasPrefix0xff() {
+    public boolean hasPrefix0xff() {
         return FieldType.REFERENCE.hasPrefix0xff();
     }
 
     @Override
-    protected boolean hasPrefix0x00() {
+    public boolean hasPrefix0x00() {
         return FieldType.REFERENCE.hasPrefix0x00();
     }
 
