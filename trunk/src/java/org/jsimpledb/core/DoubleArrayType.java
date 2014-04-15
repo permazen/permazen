@@ -50,16 +50,6 @@ class DoubleArrayType extends ArrayType<double[], Double> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        while (true) {
-            final byte[] next = reader.readBytes(NUM_BYTES);
-            writer.write(next);
-            if (Arrays.equals(next, END))
-                break;
-        }
-    }
-
-    @Override
     public void write(ByteWriter writer, double[] array) {
         if (array == null)
             throw new IllegalArgumentException("null array");

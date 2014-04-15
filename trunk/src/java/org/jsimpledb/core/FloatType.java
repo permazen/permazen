@@ -50,11 +50,6 @@ class FloatType extends PrimitiveType<Float> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        writer.write(reader.readBytes(4));
-    }
-
-    @Override
     public void skip(ByteReader reader) {
         reader.skip(4);
     }

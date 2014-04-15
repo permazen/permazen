@@ -34,12 +34,6 @@ public class DateType extends FieldType<Date> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        for (int len = LongEncoder.decodeLength(reader.peek()); len > 0; len--)
-            writer.writeByte(reader.readByte());
-    }
-
-    @Override
     public void write(ByteWriter writer, Date date) {
         if (date == null)
             throw new IllegalArgumentException("null date");

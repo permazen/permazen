@@ -40,12 +40,6 @@ class CharacterType extends PrimitiveType<Character> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        writer.writeByte(reader.readByte());
-        writer.writeByte(reader.readByte());
-    }
-
-    @Override
     public void skip(ByteReader reader) {
         reader.skip(2);
     }

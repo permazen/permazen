@@ -40,12 +40,6 @@ class RawEnumType<T extends Enum<T>> extends FieldType<T> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        this.intType.copy(reader, writer);
-        this.stringType.copy(reader, writer);
-    }
-
-    @Override
     public void write(ByteWriter writer, T value) {
         this.intType.write(writer, value.ordinal());
         this.stringType.write(writer, value.name());

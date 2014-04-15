@@ -59,11 +59,6 @@ class DoubleType extends PrimitiveType<Double> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        writer.write(reader.readBytes(8));
-    }
-
-    @Override
     public void skip(ByteReader reader) {
         reader.skip(8);
     }

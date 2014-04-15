@@ -31,12 +31,6 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        FieldType.REFERENCE.copy(reader, writer);
-        writer.write(reader.readBytes(UnsignedIntEncoder.decodeLength(reader.peek())));
-    }
-
-    @Override
     public void write(ByteWriter writer, ListIndexEntry entry) {
         if (entry == null)
             throw new IllegalArgumentException("null entry");

@@ -37,11 +37,6 @@ class CharacterArrayType extends ArrayType<char[], Character> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        this.stringType.copy(reader, writer);
-    }
-
-    @Override
     public void write(ByteWriter writer, char[] array) {
         this.stringType.write(writer, new String(array));
     }

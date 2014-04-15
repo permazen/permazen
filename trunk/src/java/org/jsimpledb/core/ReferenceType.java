@@ -32,11 +32,6 @@ public class ReferenceType extends FieldType<ObjId> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        writer.write(reader.readBytes(ObjId.NUM_BYTES));
-    }
-
-    @Override
     public void write(ByteWriter writer, ObjId id) {
         writer.write(id.getBytes());
     }

@@ -37,12 +37,6 @@ abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldTyp
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        FieldType.REFERENCE.copy(reader, writer);
-        this.otherType.copy(reader, writer);
-    }
-
-    @Override
     public void write(ByteWriter writer, E entry) {
         if (entry == null)
             throw new IllegalArgumentException("null entry");

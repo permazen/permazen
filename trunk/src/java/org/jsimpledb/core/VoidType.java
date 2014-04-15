@@ -31,11 +31,6 @@ class VoidType extends PrimitiveType<Void> {
     }
 
     @Override
-    public void copy(ByteReader reader, ByteWriter writer) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void skip(ByteReader reader) {
         throw new UnsupportedOperationException();
     }
