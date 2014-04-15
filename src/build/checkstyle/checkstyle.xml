@@ -46,7 +46,9 @@
 
     <!-- Checks for Size Violations.                    -->
     <!-- See http://checkstyle.sf.net/config_sizes.html -->
-    <module name="FileLength"/>
+    <module name="FileLength">
+        <property name="max" value="5000"/>
+    </module>
 
     <!-- Miscellaneous other checks.                   -->
     <!-- See http://checkstyle.sourceforge.net/config_regexp.html#RegexpSingleline -->
