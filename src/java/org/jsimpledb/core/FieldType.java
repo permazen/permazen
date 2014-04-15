@@ -42,7 +42,7 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * Two {@link FieldType} instances should be equal according to {@link #equals equals()} if only if they behave identically
- * with respect to all of the above.</li>
+ * with respect to all of the above.
  * </p>
  *
  * <p>
