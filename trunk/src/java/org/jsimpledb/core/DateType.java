@@ -75,12 +75,12 @@ public class DateType extends FieldType<Date> {
     }
 
     @Override
-    protected boolean hasPrefix0x00() {
+    public boolean hasPrefix0x00() {
         return false;
     }
 
     @Override
-    protected boolean hasPrefix0xff() {
+    public boolean hasPrefix0xff() {
         return false;
     }
 }

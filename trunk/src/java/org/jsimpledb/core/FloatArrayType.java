@@ -84,7 +84,7 @@ class FloatArrayType extends ArrayType<float[], Float> {
     }
 
     @Override
-    protected boolean hasPrefix0xff() {
+    public boolean hasPrefix0xff() {
         return this.floatType.hasPrefix0xff();
     }
 

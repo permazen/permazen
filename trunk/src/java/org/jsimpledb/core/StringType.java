@@ -128,7 +128,7 @@ class StringType extends FieldType<String> {
     }
 
     @Override
-    protected boolean hasPrefix0xff() {
+    public boolean hasPrefix0xff() {
         return false;
     }
 
