@@ -45,31 +45,11 @@ public class ObjType extends SchemaItem {
         for (SchemaField schemaField : schemaObject.getSchemaFields().values())
             this.addField(schemaField.visit(fieldBuilder));
 
-        // Build mappings for only simple and only complex fields
+        // Build mappings for simple, complex, and counter fields
         this.simpleFields.clear();
-        this.simpleFields.putAll(Maps.transformValues(Maps.filterValues(this.fields, new Predicate<Field<?>>() {
-            @Override
-            public boolean apply(Field<?> field) {
-                return field instanceof SimpleField;
-            }
-        }), new Function<Field<?>, SimpleField<?>>() {
-            @Override
-            public SimpleField<?> apply(Field<?> field) {
-                return (SimpleField<?>)field;
-            }
-        }));
+        this.rebuildMap(this.simpleFields, SimpleField.class);
         this.complexFields.clear();
-        this.complexFields.putAll(Maps.transformValues(Maps.filterValues(this.fields, new Predicate<Field<?>>() {
-            @Override
-            public boolean apply(Field<?> field) {
-                return field instanceof ComplexField;
-            }
-        }), new Function<Field<?>, ComplexField<?>>() {
-            @Override
-            public ComplexField<?> apply(Field<?> field) {
-                return (ComplexField<?>)field;
-            }
-        }));
+        this.rebuildMap(this.complexFields, ComplexField.class);
     }
 
     /**
@@ -101,6 +81,21 @@ public class ObjType extends SchemaItem {
     }
 
 // Internal methods
+
+    private <T extends Field<?>> void rebuildMap(TreeMap<Integer, T> map, final Class<? super T> type) {
+        map.putAll(Maps.transformValues(Maps.filterValues(this.fields, new Predicate<Field<?>>() {
+            @Override
+            public boolean apply(Field<?> field) {
+                return type.isInstance(field);
+            }
+        }), new Function<Field<?>, T>() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public T apply(Field<?> field) {
+                return (T)type.cast(field);
+            }
+        }));
+    }
 
     private void addField(Field<?> field) {
         final Field<?> previous = this.fields.put(field.storageId, field);
