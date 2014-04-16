@@ -7,12 +7,12 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.NavigableSet;
 
 import org.jsimpledb.change.FieldChange;
 import org.jsimpledb.change.ListFieldReplace;
@@ -20,10 +20,8 @@ import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldChange;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SetSchemaField;
-import org.jsimpledb.util.ConvertedNavigableSet;
 import org.objectweb.asm.ClassWriter;
 
 /**
@@ -94,16 +92,16 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    NavigableSet<?> convert(ReferenceConverter converter, Object value) {
-        return JSetField.convert(converter, value, this.elementField instanceof JReferenceField);
+    NavigableSetConverter<?, ?> getConverter(JSimpleDB jdb) {
+        final Converter<?, ?> elementConverter = this.elementField.getConverter(jdb);
+        if (elementConverter == null)
+            return null;
+        return this.createConverter(elementConverter);
     }
 
-    @SuppressWarnings("unchecked")
-    static NavigableSet<?> convert(ReferenceConverter converter, Object value, boolean refElement) {
-        NavigableSet<?> set = (NavigableSet<?>)value;
-        if (refElement)
-            set = new ConvertedNavigableSet<JObject, ObjId>((NavigableSet<ObjId>)set, converter);
-        return set;
+    // This method exists solely to bind the generic type parameters
+    private <X, Y> NavigableSetConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
+        return new NavigableSetConverter<X, Y>(elementConverter);
     }
 }
 

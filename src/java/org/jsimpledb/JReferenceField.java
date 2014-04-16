@@ -7,6 +7,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
@@ -41,6 +42,11 @@ public class JReferenceField extends JSimpleField {
         super.initialize(schemaField);
         schemaField.setOnDelete(this.onDelete);
         return schemaField;
+    }
+
+    @Override
+    Converter<?, ?> getConverter(JSimpleDB jdb) {
+        return jdb.referenceConverter.reverse();
     }
 }
 

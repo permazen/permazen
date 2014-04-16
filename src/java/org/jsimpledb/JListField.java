@@ -7,6 +7,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
@@ -20,10 +21,8 @@ import org.jsimpledb.change.ListFieldAdd;
 import org.jsimpledb.change.ListFieldChange;
 import org.jsimpledb.change.ListFieldClear;
 import org.jsimpledb.change.ListFieldRemove;
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.ListSchemaField;
-import org.jsimpledb.util.ConvertedList;
 import org.objectweb.asm.ClassWriter;
 
 /**
@@ -107,16 +106,16 @@ public class JListField extends JCollectionField {
     }
 
     @Override
-    List<?> convert(ReferenceConverter converter, Object value) {
-        return JListField.convert(converter, value, this.elementField instanceof JReferenceField);
+    ListConverter<?, ?> getConverter(JSimpleDB jdb) {
+        final Converter<?, ?> elementConverter = this.elementField.getConverter(jdb);
+        if (elementConverter == null)
+            return null;
+        return this.createConverter(elementConverter);
     }
 
-    @SuppressWarnings("unchecked")
-    static List<?> convert(ReferenceConverter converter, Object value, boolean refElement) {
-        List<?> list = (List<?>)value;
-        if (refElement)
-            list = new ConvertedList<JObject, ObjId>((List<ObjId>)list, converter);
-        return list;
+    // This method exists solely to bind the generic type parameters
+    private <X, Y> ListConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
+        return new ListConverter<X, Y>(elementConverter);
     }
 }
 

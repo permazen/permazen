@@ -50,6 +50,7 @@ public class FieldTypeRegistry {
         this.add(FieldType.DOUBLE_WRAPPER);
         this.add(FieldType.STRING);
         this.add(FieldType.DATE);
+        this.add(FieldType.ENUM_VALUE);
     }
 
     /**
@@ -163,18 +164,12 @@ public class FieldTypeRegistry {
      * If there is no such {@link FieldType}, null is returned; if there is more than one such {@link FieldType},
      * an {@link IllegalArgumentException} is thrown.
      *
-     * <p>
-     * There are two special cases:
-     * <ul>
-     *  <li>Array types will be automatically created and registered on demand, assuming the base element
-     *      type is already registered.</li>
-     *  <li>If {@code typeToken} refers to an {@link Enum} class, and no {@link FieldType} is registered for that class,
-     *      an appropriate {@link FieldType} is automatically created and registered on demand. See {@link EnumType} for
-     *      important information about this type.</li>
-     * </ul>
-     * </p>
-     *
      * <b>Arrays</b>
+     *
+     * <p>
+     * Array types will be automatically created and registered on demand, assuming the base element
+     * type is already registered.
+     * </p>
      *
      * <p>
      * Arrays are passed by value: i.e., the entire array is copied. Therefore, changes to array elements after
@@ -183,15 +178,6 @@ public class FieldTypeRegistry {
      *
      * <p>
      * Arrays of references are not currently supported.
-     * </p>
-     *
-     * <b>Enums</b>
-     *
-     * <p>
-     * Enums present a problem because they have both a {@link Enum#name name()} and an {@link Enum#ordinal ordinal()} value,
-     * and either or both of these might change over time, perhaps due to code refactoring. Therefore,
-     * it's possible to encounter an unknown value when decoding an enum constant. See {@link EnumType}
-     * for details on how this situation is handled.
      * </p>
      *
      * @param typeToken supported Java value type
@@ -223,14 +209,6 @@ public class FieldTypeRegistry {
             }
         }
 
-        // Auto-generate enum types on demand
-        final Class<?> rawType = typeToken.getRawType();
-        if (Enum.class.isAssignableFrom(rawType)) {
-            final EnumType<?> fieldType = this.createEnumType(rawType);
-            this.add(fieldType);
-            return fieldType;
-        }
-
         // None found
         return null;
     }
@@ -252,12 +230,6 @@ public class FieldTypeRegistry {
     // This method exists solely to bind the generic type parameters
     private <T> NullSafeType<T> createNullSafeType(FieldType<T> notNullType) {
         return new NullSafeType<T>(notNullType);
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private EnumType<?> createEnumType(Class<?> type) {
-        return new EnumType(type.asSubclass(Enum.class));
     }
 }
 

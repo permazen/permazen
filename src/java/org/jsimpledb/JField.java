@@ -7,6 +7,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
@@ -100,8 +101,11 @@ public abstract class JField extends JSchemaObject {
     abstract void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener);
 
     /**
-     * Convert this field's value so that {@link org.jsimpledb.ObjId}s become {@link JObject}s as needed.
+     * Get a {@link Converter} that converts this field's value from what the core database returns
+     * to what the Java application expects, or null if no conversion is needed.
+     *
+     * @param jdb associated database
      */
-    abstract Object convert(ReferenceConverter converter, Object value);
+    abstract Converter<?, ?> getConverter(JSimpleDB jdb);
 }
 

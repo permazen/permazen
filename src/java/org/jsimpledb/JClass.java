@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
+import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.SchemaObject;
@@ -379,6 +380,10 @@ public class JClass<T> extends JSchemaObject {
                       + " because type " + fieldTypeToken + " is supported by more than one registered simple field type", e);
                 }
             }
+
+            // Check for enum types
+            if (nonReferenceType == null && Enum.class.isAssignableFrom(fieldTypeToken.getRawType()))
+                nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(TypeToken.of(EnumValue.class));
         }
 
         // If field type neither refers to a JClass type, or is a registered field type, fail
