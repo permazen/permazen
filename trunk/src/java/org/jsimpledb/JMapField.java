@@ -26,7 +26,6 @@ import org.jsimpledb.change.MapFieldReplace;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.MapSchemaField;
-import org.jsimpledb.util.ConvertedNavigableMap;
 import org.objectweb.asm.ClassWriter;
 
 /**
@@ -173,20 +172,19 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    NavigableMap<?, ?> convert(ReferenceConverter converter, Object value) {
-        return JMapField.convert(converter, value,
-          this.keyField instanceof JReferenceField, this.valueField instanceof JReferenceField);
+    NavigableMapConverter<?, ?, ?, ?> getConverter(JSimpleDB jdb) {
+        final Converter<?, ?> keyConverter = this.keyField.getConverter(jdb);
+        final Converter<?, ?> valueConverter = this.valueField.getConverter(jdb);
+        if (keyConverter == null && valueConverter == null)
+            return null;
+        return this.createConverter(keyConverter != null ? keyConverter : Converter.identity(),
+          valueConverter != null ? valueConverter : Converter.identity());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    static NavigableMap<?, ?> convert(ReferenceConverter converter, Object value, boolean refKey, boolean refValue) {
-        NavigableMap<?, ?> map = (NavigableMap<?, ?>)value;
-        if (refKey || refValue) {
-            map = new ConvertedNavigableMap(map,
-              refKey ? converter : Converter.identity(),
-              refValue ? converter : Converter.identity());
-        }
-        return map;
+    // This method exists solely to bind the generic type parameters
+    private <K, V, WK, WV> NavigableMapConverter<K, V, WK, WV> createConverter(
+      Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
+        return new NavigableMapConverter<K, V, WK, WV>(keyConverter, valueConverter);
     }
 }
 

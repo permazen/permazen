@@ -164,6 +164,11 @@ public abstract class FieldType<T> implements Comparator<T> {
      */
     static final FieldType<ListIndexEntry> LIST_INDEX_ENTRY = new ListIndexEntryType();
 
+    /**
+     * Type for {@link EnumValue}s.
+     */
+    static final NullSafeType<EnumValue> ENUM_VALUE = new NullSafeType<>(new EnumValueType());
+
     final String name;
     final TypeToken<T> typeToken;
 

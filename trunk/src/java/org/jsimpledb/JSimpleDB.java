@@ -386,10 +386,6 @@ public class JSimpleDB {
         return type != null ? type.cast(jfield) : (T)jfield;
     }
 
-    boolean isReferenceField(int storageId) {
-        return this.jfields.get(storageId) instanceof JReferenceField;
-    }
-
     // Add new JClass, checking for storage ID conflicts
     void addJClass(JClass<?> jclass) {
 

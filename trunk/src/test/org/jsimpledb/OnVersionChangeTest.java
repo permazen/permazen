@@ -16,6 +16,7 @@ import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnVersionChange;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.testng.Assert;
@@ -32,6 +33,8 @@ public class OnVersionChangeTest extends TestSupport {
         ObjId id1;
         ObjId id2;
         ObjId id3;
+        ObjId id4;
+        ObjId id5;
 
     // Version 1
 
@@ -43,10 +46,20 @@ public class OnVersionChangeTest extends TestSupport {
             Person1 p1 = tx.create(Person1.class);
             Person1 p2 = tx.create(Person1.class);
             Person1 p3 = tx.create(Person1.class);
+            Person1 p4 = tx.create(Person1.class);
+            Person1 p5 = tx.create(Person1.class);
+
+            p1.setIndex(1);
+            p2.setIndex(2);
+            p3.setIndex(3);
+            p4.setIndex(4);
+            p5.setIndex(5);
 
             id1 = p1.getObjId();
             id2 = p2.getObjId();
             id3 = p3.getObjId();
+            id4 = p4.getObjId();
+            id5 = p5.getObjId();
 
             p1.setName("Smith, Joe");
             p2.setName("Jones, Fred");
@@ -54,6 +67,12 @@ public class OnVersionChangeTest extends TestSupport {
 
             p1.setFriend(p2);
             p2.setFriend(p3);
+
+            p1.setEnum1(Enum1.AAA);
+            p2.setEnum1(Enum1.BBB);
+            p3.setEnum1(Enum1.CCC);
+            p4.setEnum1(Enum1.DDD);
+            p5.setEnum1(Enum1.EEE);
 
             tx.commit();
 
@@ -71,6 +90,8 @@ public class OnVersionChangeTest extends TestSupport {
             final Person2 p1 = jdb.getJObject(id1, Person2.class);
             final Person2 p2 = jdb.getJObject(id2, Person2.class);
             final Person2 p3 = jdb.getJObject(id3, Person2.class);
+            final Person2 p4 = jdb.getJObject(id4, Person2.class);
+            final Person2 p5 = jdb.getJObject(id5, Person2.class);
 
             Assert.assertEquals(p1.getLastName(), "Smith");
             Assert.assertEquals(p1.getFirstName(), "Joe");
@@ -82,6 +103,12 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertEquals(p1.getAge(), 0);
             Assert.assertEquals(p2.getAge(), 0);
             Assert.assertEquals(p3.getAge(), 0);
+
+            Assert.assertSame(p1.getEnum2(), Enum2.CCC);
+            Assert.assertSame(p2.getEnum2(), Enum2.BBB);
+            Assert.assertSame(p3.getEnum2(), Enum2.CCC);
+            Assert.assertSame(p4.getEnum2(), Enum2.DDD);
+            Assert.assertSame(p5.getEnum2(), null);
 
             p1.setAge(10);
             p2.setAge(20);
@@ -153,8 +180,24 @@ public class OnVersionChangeTest extends TestSupport {
 
 // Version 1
 
+    public enum Enum1 {
+        AAA,    // 0
+        BBB,    // 1
+        CCC,    // 2
+        DDD,    // 3
+        EEE;    // 4
+    }
+
     @JSimpleClass(storageId = 100)
     public abstract static class Person1 implements JObject {
+
+        @JField(storageId = 97)
+        public abstract int getIndex();
+        public abstract void setIndex(int index);
+
+        @JField(storageId = 98)
+        public abstract Enum1 getEnum1();
+        public abstract void setEnum1(Enum1 enum1);
 
         @JField(storageId = 99)
         public abstract Person1 getFriend();
@@ -167,8 +210,22 @@ public class OnVersionChangeTest extends TestSupport {
 
 // Version 2
 
+    public enum Enum2 {
+        CCC,    // 0
+        BBB,    // 1
+        DDD;    // 2
+    }
+
     @JSimpleClass(storageId = 100)
     public abstract static class Person2 implements JObject, HasName {
+
+        @JField(storageId = 97)
+        public abstract int getIndex();
+        public abstract void setIndex(int index);
+
+        @JField(storageId = 98)
+        public abstract Enum2 getEnum2();
+        public abstract void setEnum2(Enum2 enum2);
 
         @JField(storageId = 101, indexed = true)
         @Override
@@ -188,11 +245,20 @@ public class OnVersionChangeTest extends TestSupport {
         private void versionChange(int oldVersion, int newVersion, Map<Integer, Object> oldValues) {
             assert oldVersion == 1;
             assert newVersion == 2;
+
+            // Verify enum old value
+            final int index = this.getIndex();
+            Assert.assertEquals(oldValues.get(98), new EnumValue(Enum1.values()[index - 1]), "wrong enum for index " + index);
+
+            // Get old name
             final String name = (String)oldValues.get(101);
+            if (name == null)
+                return;
+
+            // Update name
             final int comma = name.indexOf(',');
             this.setLastName(name.substring(0, comma).trim());
             this.setFirstName(name.substring(comma + 1).trim());
-
             if (this.getLastName().equals("Smith")) {
                 final Person2 oldFriend = (Person2)oldValues.get(99);
                 Assert.assertEquals(oldFriend.getLastName(), "Jones");

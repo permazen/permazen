@@ -7,6 +7,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
@@ -18,7 +19,6 @@ import java.util.NavigableSet;
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.change.FieldChange;
 import org.jsimpledb.change.SimpleFieldChange;
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SimpleSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -147,12 +147,16 @@ public class JSimpleField extends JField {
     }
 
     @Override
-    Object convert(ReferenceConverter converter, Object value) {
-        return JSimpleField.convertValue(converter, value, this instanceof JReferenceField);
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    Converter<?, ?> getConverter(JSimpleDB jdb) {
+        if (Enum.class.isAssignableFrom(this.typeToken.getRawType()))
+            return this.createEnumConverter((TypeToken<Enum>)this.typeToken);
+        return null;
     }
 
-    static Object convertValue(ReferenceConverter converter, Object value, boolean isRef) {
-        return isRef ? converter.reverse().convert((ObjId)value) : value;
+    // This method exists solely to bind the generic type parameters
+    private <T extends Enum<T>> EnumConverter<T> createEnumConverter(TypeToken<T> etype) {
+        return new EnumConverter<T>(etype);
     }
 }
 
