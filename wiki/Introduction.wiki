@@ -48,7 +48,7 @@ Of note:
 
 === Storage IDs ===
 
-Although they must be unique, storage IDs are otherwise pretty much "set them and forget them". They are not used except occasionally during a schema update (see `@OnVersionChange` below); then they provide a way to access fields that may have changed or been removed in the schema update. In other words, storage IDs provide a level of indirection between your Java code and database identity, allongw your Java code to change more freely while also providing a controlled and well-defined way to update database contents (if necessary) when the schema does change.
+Although they must be unique, storage IDs are otherwise pretty much "set them and forget them". They are not used except occasionally during a schema update; then they provide a way to access fields that may have changed or been removed in the schema update. In other words, storage IDs provide a level of indirection between your Java code and database identity, allowing your Java code to change more freely while also providing a controlled and well-defined way to update database contents (if necessary) when the schema does change (see `@OnVersionChange` below).
 
 == Accessing Data ==
 
