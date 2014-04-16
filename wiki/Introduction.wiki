@@ -35,10 +35,11 @@ Of note:
    * An `int` field named `age` of type `int`
    * A `Set` field named `friends` with element type `Person`
  * The getter methods for `age` and `friends` may be declared `abstract`
-   * JSimpleDB will override these methods in an auto-generated subclass at runtime
+   * JSimpleDB overrides these methods in an auto-generated subclass at runtime
    * The generated subclass will implement the `JObject` interface
- * JSimpleDB contains built-in support for sets, lists, and maps
+ * JSimpleDB contains built-in support for primitive and simple types, and sets, lists, and maps
    * You can build virtually anything out of these three collection types
+   * You can define your own types and how they are to be encoded
  * There is no setter method for the `friends` set
    * The set will always exist
  * Every Java model class and field (including sub-fields, like the `element` sub-field of `friends`) has a unique *storage ID*
@@ -57,7 +58,7 @@ So far so good. But how do you create a `Person`? Invoke `create()` on a `JTrans
         return JTransaction.getCurrent().create(Person.class);
     }</code>
 
-`JTransaction` represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`.
+`JTransaction` represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`, which returns the instance associated with the current thread.
 
 All state associated with JSimpleDB objects lives in the `JTransaction`. The model objects themselves are stateless, except for their internal object ID. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no such `JTransaction`, an `IllegalStateException` is thrown.
 
@@ -94,8 +95,8 @@ JSimpleDB provides an equivalent of SQL `ON DELETE ...` for reference fields. Th
 You have four choices, represented by the constants in the `DeleteAction` enum class:
 
  * `EXCEPTION` - Disallow deletion of such an object; instead, throw `ReferencedObjectException`.
- * `UNREFERENCE` - Set all references to the object to null (in the case of simple reference fields) or remove the corresponding collection entry (in the case of sets and lists) or key/value entry (in the case of maps).
- * `DELETE` - Delete all objects referring to the deleted object, repeating recursively as necessary (cycles in the reference graph are handled properly).
+ * `UNREFERENCE` - Set all references to the object to null (in the case of simple reference fields) or remove the corresponding collection entry (in the case of sets, lists, and maps).
+ * `DELETE` - Delete all objects referring to the deleted object, repeating recursively as necessary; cycles in the reference graph are properly handled to avoid infinite loops.
  * `NOTHING` - Do nothing; subsequent attempts to dereference the deleted object will result in a `DeletedObjectException`.
 
 The default value is `EXCEPTION`.
@@ -116,9 +117,9 @@ Given the above `Person` class, if you wanted to calculate whether any `Person` 
         return false;
     }</code>
 
-Having to write that code is a _good_ thing: JSimpleDB is exposing the underlying performance reality and forcing you to confront the fact that the cost of calculating this function is an iteration over every `Person` in the database. With large database, that could be impractical.
+Having to write that code is a _good_ thing: JSimpleDB is exposing the underlying performance reality and forcing you to confront the fact that the cost of calculating this function is an iteration over every `Person` in the database. With large database, that could be impractically slow. But it will be slow for an obvious reason, not mysteriously so.
 
-This is of course the perfect situation for an *index* on the `age` field. Here we add `indexed = true` to the `@JField` annotation:
+Of course this is the perfect situation for an *index* on the `age` field. Here we create one by adding `indexed = true` to the `@JField` annotation:
 
 <code language="java">
     // My age - now indexed!
@@ -126,13 +127,13 @@ This is of course the perfect situation for an *index* on the `age` field. Here 
     public abstract int getAge();
     public abstract void setAge(int age);</code>
 
-To read that index, you just declare an abstract method annotated with `@IndexQuery`:
+To read that index, you declare a new abstract method and annotate it with `@IndexQuery`:
 
 <code language="java">
     @IndexQuery("age")
     public abstract NavigableMap<Integer, NavigableSet<Person>> queryPersonAges();</code>
 
-In JSimpleDB, an index is a mapping from field value to the set of objects having that value in the field.
+An index on a field is a mapping from field value to the set of objects having that value in the field. JSimpleDB presents it to you as exactly that.
 
 Now we can rewrite our `existsPersonOfAge()` method:
 
@@ -149,9 +150,9 @@ Since the mapping is a `NavigableMap`, you can efficiently find the minimum or m
         return !index.isEmpty() ? index.lastKey() : -1;
     }</code>
 
-You may be wondering what sort order applies to `Person`. JSimpleDB sorts database objects by their type (i.e., Java class), and then by their unique object ID (the object ID is available via `JObject.getObjId()`). Object IDs are opaque 64-bit values. Newly created objects get a randomly generated value (this avoids distributed database contention that would occur with an auto-increment counter).
+You may be wondering what sort order applies to `Person`. JSimpleDB sorts database objects by their type (i.e., Java class), and then by their unique object ID (the object ID is available via `JObject.getObjId()`). Object IDs are opaque 64-bit values. Newly created objects get a randomly generated value which avoids distributed database contention that would occur with an auto-increment counter.
 
-The astute reader may notice that `existsPersonOfAge()` and `getMaximumAge()` should really be a static methods, because there's nothing about them that is specific to one `Person`. And that is correct; however, you can't override static methods, so the method has to be an instance method for JSimpleDB to generate a subclass implementation. If you really wanted a static method, you could do this:
+The astute reader may notice that `existsPersonOfAge()` and `getMaximumAge()` would more appropriately be static methods, because there's nothing about them that is specific to one `Person`. And that is correct; however, you can't override static methods, so the method has to be an instance method for JSimpleDB to generate a subclass implementation. If you really wanted a static method, you could do this:
 
 <code language="java">
     @SuppressWarnings("unchecked")
@@ -197,7 +198,7 @@ public abstract class Student implements JObject {
     public abstract NavigableMap<Float, NavigableSet<Student>> queryStudentsByTestScore();
 }</code>
 
-In JSimpleDB, reference fields are always indexed (analogous to SQL, where an index is required for foreign key constraints). So in the above example, setting `indexed = true` is redundant for `lectureClasses`, `teacherRankings`, and `testScores.key`. 
+In JSimpleDB, reference fields are always indexed (the same logic applies to SQL, where an index is required for foreign key constraints). So in the above example, setting `indexed = true` is redundant for `lectureClasses`, `teacherRankings`, and `testScores.key`. 
 
 Indexes are a perfect way to providing Java access to both sides of a one-to-many, many-to-one, or many-to-many relationship, without there having to actually be any redundant information: you just query the index for the "inverse" side of the relationship. Contrast with JPA, where it's possible for e.g., `parent.getChildren()` and `child.getParent()` to get out of sync.
 
@@ -247,7 +248,7 @@ Then we just do the "join" via set intersection:
         return peopleOfAge != null && !NavigableSets.intersect(peopleOfAge, this.getFriends()).isEmpty();
     }</code>
 
-The `NavigableSets` utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements, and in particular, a consistent sort order for those elements (which is what allows the intersection operation to be efficient). JSimpleDB provides (and verifies) this consistent ordering for you.
+The `NavigableSets` utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements and a consistent sort order for those elements (which is what allows the intersection operation to be efficient). JSimpleDB provides (and verifies) this consistent ordering for you.
 
 === Reference Inversion ===
 
@@ -277,9 +278,9 @@ More generally, we can even determine what objects refer to a given object indir
           "friend.friend", this.getFriends());
     }</code>
 
-A reference path is simply a chain of reference fields via which one can hop through the graph defined by objects (nodes) and references (edges). Following a reference path in the forward direction is what one normally does in Java. JSimpleDB allows you to also invert reference paths.
+A reference path is simply a chain of reference fields via which one can hop through the graph defined by objects (nodes) and references (edges). Following a reference path in the forward direction is what one normally does in Java. JSimpleDB allows you to also invert reference paths, so now you can go in either direction.
 
-When inverting reference paths, JSimpleDB eliminates duplicates (caused by multiple routes to the same destination) as soon as possible. However, there's no magic surrounding how reference paths are followed. If you're not careful, you can create a combinatorial explosion.
+When inverting reference paths, JSimpleDB eliminates duplicates (caused by multiple routes to the same destination) as soon as possible. However, there's no magic surrounding how reference paths are followed. If you're not careful, you can create a combinatorial explosion when there is a high degree of fan-in.
 
 Reference paths are also the basis of the powerful `@OnChange` annotation, described below.
 
@@ -287,9 +288,9 @@ Reference paths are also the basis of the powerful `@OnChange` annotation, descr
 
 === Indexing in the General Sense ===
 
-A database _index_ is just a special case of _derived information_ that is kept up to date automatically for you by the database. The key benefits of using database indexes are:
- * Much better performance - usually constant time queries
- * The database keeps the derived information up-to-date automatically
+A database _index_ is just a special case of _derived information that is kept up to date automatically for you by the database_. The key benefits of using database indexes are:
+ * Much better performance - usually constant time queries of the indexed information
+ * The derived information is kept up-to-date automatically
  * The database hides all the implementation details, keeping your application logic clean
 
 With JSimpleDB you can easily build your own arbitrary indexes, based on any derived information, that also satisfy these criteria.
@@ -300,7 +301,7 @@ With traditional databases, sometimes you can make it work when the information 
 
 Or if you're lucky, your derived information matches an SQL built-in aggregate function like `MAX()` for which SQL databases often have built-in functions. Often these built-in functions rely on "secret" internal indexes that make the function fast. But even if so, that hack only works when your query runs `MAX()` over the entire table.
 
-Thinking more generally, what if your "index" is derived for many objects, possibly ones that are far away from each other? Suppose for example you need to be able to efficiently calculate the average age of _all the friends_ of any `Person`. An SQL `AVG()` query will need to iterate through all the friends to calculate the average. With today's huge datasets, iterating through every element of a collection may not be an option. Since there's no SQL command to tell the database to keep an index of the average age of each `Person`'s friends, you will have to consruct and maintain this index yourself.
+Thinking more generally, what if your "index" is derived for many objects, possibly ones that are far away from each other? Suppose for example you need to be able to efficiently calculate the average age of _all the friends_ of any `Person`. There's no way in SQL to tell the database to keep an index of the average age of each `Person`'s friends, and an SQL `AVG()` query will need to iterate through all the friends to calculate the average. With today's huge datasets, iterating through every element of a collection may not be an option. So you have to consruct and maintain this index yourself.
 
 This is an important subtlety that affects scaling applications written using SQL databases: if what you want to index can't be indexed by a capability built-in to the database, but your dataset is too large to _not_ index the information you need, then suddenly you have "index" logic spamming your Java codebase.
 
@@ -310,7 +311,7 @@ In our present example, you would have to track down any code that either (a) al
 
 With JSimpleDB, you can index virtually anything, based on any reachable information, using the `@OnChange` annotation. The `@OnChange` annotation allows you to monitor arbitrarily distant changes by specifying the reference path to the change you want to monitor.
 
-Now maintaining an index is as simple as:
+To maintain an index in JSimpleDB:
  # Detect relevant changes via `@OnChange`-annotated methods
  # Update the derived information when a change occurs
 
@@ -364,6 +365,8 @@ We keep all the code to maintain our custom "friends' average age" index in one 
 
 This index is maintained as efficiently as possible: we are notified only when a meaningful change occurs, and the update is incremental (constant time) and immediate.
 
+The average age is a simple example, but the indexed information can be arbitrary, e.g., the sum of your friends ages modulo 23, or whatever.
+
 By the way, JSimpleDB does not notify for "changes" that don't actually change anything, such as `person.setAge(21)` when the age equals `21`, or `person.getFriends().add(friend)` when `friend` is already in the set. Also, each object is only notified once about any particular change, even if the change is visible through multiple different routes through the reference path (this would necessarily involve a collection somewhere on the path).
 
 Of course, `@OnChange` notifications are handy for lots of other purposes besides custom indexes. For example, you might want to monitor some condition involving several related objects and generate an alert, etc. `@OnChange` notifications are also handy for validation scenarios involving distant dependencies (see [#Validation Validation]).
@@ -380,7 +383,7 @@ Imagine a database with many distributed nodes on the network, and on each node 
 
 JSimpleDB leaves it up to you whether the size of a collection should be explicitly maintained. After all, the size of a collection is just another type of index (derived information).
 
-*Note* Some key/value databases provide datatypes allowing writing without reading, for example incrementing a counter without reading it. This allows concurrent writes to be handled withouth conflict and would be a best-of-both-worlds solution for maintaining collection sizes. In the future, JSimpleDB will add a new integral datatype reflecting this support, falling back to the usual behavior for key/values stores that don't support it.
+To support such usage, JSimpleDB provides the `Counter` field type, which holds a `long` value and can be adjusted (adding/subtracting) by concurrent transactions entirely without locking. The underlying key/value store must support this optional feature, however, indicated by implementing the `CountingKVStore` interface.
 
 === Lifecycle Notifications ===
 
@@ -403,7 +406,7 @@ Note that `@OnCreate` is not the same event as object construction, e.g., becaus
 
 Traditional SQL databases provide no explicit support for managing schema changes. This used to be OK when you had a single application server running on a single database, and it was small enough that running a few `ALTER TABLE` statements after a restart was relatively quick.
 
-Today, however, not only are the data sets too large for schema changes that lock an entire table, it's often not acceptable to bring down all of the application servers at the same time, even if you could upgrade them all quickly. Instead, a rolling upgrade is required, where during the upgrade period different application servers will be running different versions of the software. Therefore, at some point you are going to have two different versions of your application running on two different nodes, both reading from and writing to the same database, but expecting to see and use different schemas. This situation presents obvious challenges.
+Today, however, not only are the data sets too large for schema changes that lock an entire table, it's often not acceptable to bring down all of the application servers at the same time, even if you _could_ upgrade them all quickly. Instead, a rolling upgrade is required, where during the upgrade period different application servers will be running different versions of the software. Therefore, at some point you are going to have two different versions of your application running on two different nodes, both reading from and writing to the same database, but expecting to see and use different schemas. This situation presents obvious challenges.
 
 Some NoSQL databases duck this question by being "schemaless", which really means "the schema is your problem, not mine". Other databases support the notion of an object version, but leave the rest to the application developer.
 
@@ -440,7 +443,7 @@ What happens when an object with version X is read by the application server usi
     * Removed fields are removed (pending step #2)
     * New fields are initialized to their default values
     * All other fields stay the same
- # Any `@OnVersionChange` methods are invoked with these parameters:
+ # Any `@OnVersionChange`-annotated methods in the affected object are invoked, with these parameters:
     * The old schema version
     * The new schema version
     * A `Map<Integer, Object>` containing all of the old field values indexed by storage ID
@@ -471,7 +474,7 @@ But in application release 1.2 you decided you needed separate last and first na
         this.setFirstName(name.substring(comma + 1).trim());
     }</code>
 
-The `splitNameField()` method will be invoked just prior to the first field access of the `Person` object being upgraded. It ensures that the field is forward-migrated properly, and none of your other release 1.2 code needs to know anything about prior schema versions.
+The `splitNameField()` method will be invoked just prior to the first field access of the `Person` object being upgraded. It ensures that the field is forward-migrated properly, and none of your other release 1.2 code will ever need to know anything about prior schema versions.
 
 === Schema Migration ===
 
@@ -498,9 +501,9 @@ Now your upgrade rolls out in two phases:
  # Upgrade all machines from version 1.1 to 1.1.5
  # Upgrade all machines from version 1.1.5 to 1.2
 
-Voilà - an incremental, multi-node rolling application upgrade across releases using incompatible schema versions and with no downtime.
-
 During phase 1, all objects stay at schema version #1. During phase 2, objects are upgraded and downgraded as necessary as different servers access them. Once phase 2 is complete, all future object accesses will use schema version #2, upgrading old version #1 objects on demand over time. Or, you can run a one-time scan that upgrades objects using `JObject.upgrade()`.
+
+Voilà - an incremental, multi-node rolling application upgrade across releases using incompatible schema versions and with no downtime.
 
 Note that release 1.2 of your software will need to configure JSimpleDB to allow the addition of new schemas. Once phase 2 is complete, this setting can be turned back off.
 
@@ -567,7 +570,7 @@ The core database layer has the following notions:
   * Objects have an associated object type
   * Objects have a schema version number
  * *Fields*
-  * Is either *simple* or *complex*
+  * Is either *simple*, *complex*, or *counter*
   * Has a unique storage ID
  * *Simple Fields*
   * Holds an atomic, sortable value like `int` or `Date`
@@ -581,13 +584,14 @@ The core database layer has the following notions:
   * Sets, Lists, and Maps
   * Complex fields have one or more *sub-fields*, which are always simple fields
   * A complex field may not be itself indexed, but any of its simple sub-field(s) may be
-  * Bub-fields may have primitive type; if so, `IllegalArgumentException` is thrown if you try to add `null`
+  * Sub-fields may have primitive type; if so, nulls are not allowed and `IllegalArgumentException` is thrown if you try to add one
+ * *Counter Fields*
+  * Optimized for concurrent add/subtract updates
+  * Does not support indexing or `@OnChange`
 
 All objects and fields have a unique *storage ID*. However, the same field may be contained in multiple object types (this is how Java sub-types are handled).
 
-Any storage ID that is used by two or more schema versions must be used consistently. This means the storage ID of an object type must always be associated with an object type, and the storage ID of a field must always be associated with a field having the same type (including sub-fields if complex). There are a few exceptions however:
- * Simple fields may change whether they are indexed between schema versions
- * Reference fields may change their `DeleteAction` between schema versions
+Any storage ID that is used by two or more schema versions must be used consistently. This means the storage ID of an object type must always be associated with an object type, and the storage ID of a field must always be associated with a field having the same type (including sub-fields if complex).
 
-If a field is changed between schema versions, the field will behave according to the schema version of the object containing it. So for example when a field's indexing is turned on or off between schemas, an object containing that field will appear in the index only when the schema associated with the object's version has the field indexed.
+There is one exception, however: simple fields may change whether they are indexed between schema versions. When a field's indexing is turned on or off between schemas, an object containing that field will appear in the index only when the schema associated with the object's version configures the field as being indexed.
 
