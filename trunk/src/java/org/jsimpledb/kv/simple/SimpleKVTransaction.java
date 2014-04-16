@@ -15,6 +15,7 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.StaleTransactionException;
+import org.jsimpledb.kv.util.CountingKVStoreAdapter;
 import org.jsimpledb.kv.util.LockOwner;
 import org.jsimpledb.util.ByteUtil;
 
@@ -25,7 +26,7 @@ import org.jsimpledb.util.ByteUtil;
  * Note lock order: first {@link SimpleKVTransaction}, then {@link SimpleKVDatabase}.
  * </p>
  */
-class SimpleKVTransaction implements KVTransaction {
+class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTransaction {
 
     final SimpleKVDatabase kvstore;
     final TreeSet<Mutation> mutations = new TreeSet<>(KeyRange.SORT_BY_MIN);

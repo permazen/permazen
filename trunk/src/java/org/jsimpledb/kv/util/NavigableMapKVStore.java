@@ -12,14 +12,13 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.ByteUtil;
 
 /**
- * Provides a {@link KVStore} view of an underlying {@link NavigableMap NavigableMap<byte[], byte[]>}
+ * Provides a {@link org.jsimpledb.kv.CountingKVStore} view of an underlying {@link NavigableMap NavigableMap<byte[], byte[]>}
  * whose keys are sorted lexicographically as unsigned bytes.
  */
-public class NavigableMapKVStore implements KVStore {
+public class NavigableMapKVStore extends CountingKVStoreAdapter {
 
     private final NavigableMap<byte[], byte[]> map;
 

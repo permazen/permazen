@@ -87,7 +87,12 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
             // Validate method parameter type
             final ArrayList<TypeToken<?>> changeParameterTypes = new ArrayList<TypeToken<?>>();
-            this.path.targetField.addChangeParameterTypes(changeParameterTypes, this.path.targetType);
+            try {
+                this.path.targetField.addChangeParameterTypes(changeParameterTypes, this.path.targetType);
+            } catch (UnsupportedOperationException e) {
+                throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
+                  + "change notifications are not supported for " + this.path.targetField, e);
+            }
             OnChangeScanner.this.checkSingleParameterType(method, changeParameterTypes);
 
             // Save actual parameter type

@@ -139,6 +139,11 @@ public class SchemaVersion {
             fieldInfo.setSubFields(subFieldInfos);
             this.addStorageInfo(fieldInfo);
         }
+        for (CounterField field : objType.counterFields.values()) {
+            final CounterFieldStorageInfo fieldInfo = field.toStorageInfo();
+            this.addStorageInfo(fieldInfo);
+            objInfo.getFields().put(field.storageId, fieldInfo);
+        }
     }
 
     private void addStorageInfo(StorageInfo storageInfo) {
@@ -151,6 +156,8 @@ public class SchemaVersion {
     private String getDescription(Class<? extends SchemaItem> type) {
         if (type == ObjType.class)
             return "object";
+        if (type == CounterField.class)
+            return "counter field";
         if (type == SimpleField.class)
             return "simple field";
         if (type == ReferenceField.class)

@@ -38,5 +38,10 @@ public interface SchemaFieldSwitch<R> {
      * Handle a {@link ReferenceSchemaField}.
      */
     R caseReferenceSchemaField(ReferenceSchemaField field);
+
+    /**
+     * Handle a {@link CounterSchemaField}.
+     */
+    R caseCounterSchemaField(CounterSchemaField field);
 }
 

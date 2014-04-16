@@ -80,6 +80,19 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
     }
 
     /**
+     * Handle a {@link CounterSchemaField}.
+     *
+     * <p>
+     * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseDefault caseDefault()}.
+     * </p>
+     * </p>
+     */
+    @Override
+    public R caseCounterSchemaField(CounterSchemaField field) {
+        return this.caseDefault(field);
+    }
+
+    /**
      * Adapter class roll-up method.
      *
      * <p>

@@ -4,6 +4,7 @@
 <binding>
 
     <include path="referenceSchemaField.xml"/> 
+    <include path="counterSchemaField.xml"/> 
     <include path="simpleSchemaField.xml"/> 
     <include path="setSchemaField.xml"/> 
     <include path="listSchemaField.xml"/> 
@@ -19,6 +20,11 @@
     <mapping name="ReferenceField" class="org.jsimpledb.schema.ReferenceSchemaField"
       extends="org.jsimpledb.schema.SimpleSchemaField">
         <structure map-as="referenceSchemaField"/>
+    </mapping>
+
+    <mapping name="CounterField" class="org.jsimpledb.schema.CounterSchemaField"
+      extends="org.jsimpledb.schema.SchemaField">
+        <structure map-as="counterSchemaField"/>
     </mapping>
 
     <mapping name="SetField" class="org.jsimpledb.schema.SetSchemaField"
