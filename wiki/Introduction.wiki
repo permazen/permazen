@@ -159,7 +159,7 @@ The astute reader may notice that `existsPersonOfAge()` and `getMaximumAge()` wo
     public static boolean getMaximumAge() {
         NavigableMap<Integer, NavigableSet<Person>> index
           = (NavigableMap<Integer, NavigableSet<Person>>)JTransaction.getCurrent().querySimpleField(101);
-        return JTransaction.getCurrent().querySimpleField(101).containsKey(age);
+        return index.containsKey(age);
     }</code>
 
 but that's rather ugly. A cleaner option is to define a singleton class `Indexes` containing all of your index query methods.
