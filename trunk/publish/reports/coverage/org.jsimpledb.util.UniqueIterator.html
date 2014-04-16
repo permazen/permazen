@@ -95,19 +95,19 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * @throws IllegalArgumentException if {@code comparator} is null</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;41</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;42</td>  <td class="nbHitsCovered">&nbsp;17199</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> UniqueIterator(Iterator&lt;? <span class="keyword">extends</span> E&gt; iterator, Comparator&lt;? <span class="keyword">super</span> E&gt; comparator) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;43</td>  <td class="nbHitsUncovered"><a title="Line 43: Conditional coverage 50% (1/2).">&nbsp;17199</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 43: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (comparator == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;42</td>  <td class="nbHitsCovered">&nbsp;17292</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> UniqueIterator(Iterator&lt;? <span class="keyword">extends</span> E&gt; iterator, Comparator&lt;? <span class="keyword">super</span> E&gt; comparator) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;43</td>  <td class="nbHitsUncovered"><a title="Line 43: Conditional coverage 50% (1/2).">&nbsp;17292</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 43: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (comparator == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;44</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null comparator"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsCovered">&nbsp;17199</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.iterator = Iterators.peekingIterator(iterator);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;46</td>  <td class="nbHitsCovered">&nbsp;17199</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.comparator = comparator;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;17199</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsCovered">&nbsp;17292</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.iterator = Iterators.peekingIterator(iterator);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;46</td>  <td class="nbHitsCovered">&nbsp;17292</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.comparator = comparator;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;17292</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;48</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;49</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;50</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">boolean</span> hasNext() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;51</td>  <td class="nbHitsCovered">&nbsp;496941</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.iterator.hasNext();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;51</td>  <td class="nbHitsCovered">&nbsp;465976</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.iterator.hasNext();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;52</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;53</td>  <td class="nbHits">&nbsp;</td>
@@ -116,16 +116,16 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;55</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> E next() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;56</td>  <td class="nbHitsCovered">&nbsp;483900</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> E next = <span class="keyword">this</span>.iterator.next();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered"><a title="Line 57: Conditional coverage 100% (2/2).">&nbsp;709580</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 57: Conditional coverage 100% (2/2).">        <span class="keyword">while</span> (<span class="keyword">this</span>.iterator.hasNext()) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsCovered">&nbsp;692873</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> E peek = <span class="keyword">this</span>.iterator.peek();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsUncovered"><a title="Line 59: Conditional coverage 30% (3/10) [each condition: 50%, 100%, 0%, 0%, 0%].">&nbsp;692873</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 59: Conditional coverage 30% (3/10) [each condition: 50%, 100%, 0%, 0%, 0%].">            <span class="keyword">if</span> (<span class="keyword">this</span>.comparator != <span class="keyword">null</span> ? <span class="keyword">this</span>.comparator.compare(next, peek) != 0 :</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;56</td>  <td class="nbHitsCovered">&nbsp;452908</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> E next = <span class="keyword">this</span>.iterator.next();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered"><a title="Line 57: Conditional coverage 100% (2/2).">&nbsp;648300</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 57: Conditional coverage 100% (2/2).">        <span class="keyword">while</span> (<span class="keyword">this</span>.iterator.hasNext()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsCovered">&nbsp;631329</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> E peek = <span class="keyword">this</span>.iterator.peek();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsUncovered"><a title="Line 59: Conditional coverage 30% (3/10) [each condition: 50%, 100%, 0%, 0%, 0%].">&nbsp;631329</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 59: Conditional coverage 30% (3/10) [each condition: 50%, 100%, 0%, 0%, 0%].">            <span class="keyword">if</span> (<span class="keyword">this</span>.comparator != <span class="keyword">null</span> ? <span class="keyword">this</span>.comparator.compare(next, peek) != 0 :</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;60</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;              next != <span class="keyword">null</span> ? !next.equals(peek) : peek != <span class="keyword">null</span>)</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;61</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">break</span>;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;62</td>  <td class="nbHitsCovered">&nbsp;225680</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.iterator.next();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;63</td>  <td class="nbHitsCovered">&nbsp;225680</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;64</td>  <td class="nbHitsCovered">&nbsp;483900</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> next;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;62</td>  <td class="nbHitsCovered">&nbsp;195392</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.iterator.next();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;63</td>  <td class="nbHitsCovered">&nbsp;195392</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;64</td>  <td class="nbHitsCovered">&nbsp;452908</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> next;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;65</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;66</td>  <td class="nbHits">&nbsp;</td>
@@ -143,6 +143,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/10/14 4:05 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/15/14 10:18 PM.</div>
 </body>
 </html>

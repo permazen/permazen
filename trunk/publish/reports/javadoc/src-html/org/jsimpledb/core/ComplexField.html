@@ -70,20 +70,20 @@
 <span class="sourceLineNo">062</span>    abstract ComplexFieldStorageInfo toStorageInfo();<a name="line.62"></a>
 <span class="sourceLineNo">063</span><a name="line.63"></a>
 <span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * Check compatibility with another {@link ComplexField}.<a name="line.65"></a>
+<span class="sourceLineNo">065</span>     * Check compatibility with another {@link ComplexField} across a schema change.<a name="line.65"></a>
 <span class="sourceLineNo">066</span>     * To be compatible, the two enties must be exactly the same in terms of data layouts and Java representations.<a name="line.66"></a>
 <span class="sourceLineNo">067</span>     * This is in effect an {@code #equals equals()} test with respect to those aspects. Note that compatibililty<a name="line.67"></a>
 <span class="sourceLineNo">068</span>     * does not necessarily imply the same sub-fields are indexed.<a name="line.68"></a>
 <span class="sourceLineNo">069</span>     *<a name="line.69"></a>
 <span class="sourceLineNo">070</span>     * &lt;p&gt;<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     * The implementation in {@link ComplexField} checks that {@code that} has the same Java type<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     * and as this instance and that all sub-fields have equivalent {@link FieldType}s.<a name="line.72"></a>
+<span class="sourceLineNo">071</span>     * The implementation in {@link ComplexField} checks that {@code that} has the same Java type and as this instance<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * and that all sub-fields are themselves {@link SimpleField#isSchemaChangeCompatible schema change compatible}.<a name="line.72"></a>
 <span class="sourceLineNo">073</span>     * &lt;/p&gt;<a name="line.73"></a>
 <span class="sourceLineNo">074</span>     *<a name="line.74"></a>
 <span class="sourceLineNo">075</span>     * @param that field to check for compatibility<a name="line.75"></a>
 <span class="sourceLineNo">076</span>     * @throws NullPointerException if {@code that} is null<a name="line.76"></a>
 <span class="sourceLineNo">077</span>     */<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    boolean isCompatible(ComplexField&lt;?&gt; that) {<a name="line.78"></a>
+<span class="sourceLineNo">078</span>    boolean isSchemaChangeCompatible(ComplexField&lt;?&gt; that) {<a name="line.78"></a>
 <span class="sourceLineNo">079</span>        if (that.getClass() != this.getClass() || that.storageId != this.storageId)<a name="line.79"></a>
 <span class="sourceLineNo">080</span>            return false;<a name="line.80"></a>
 <span class="sourceLineNo">081</span>        final List&lt;? extends SimpleField&lt;?&gt;&gt; thisSubFields = this.getSubFields();<a name="line.81"></a>
@@ -91,7 +91,7 @@
 <span class="sourceLineNo">083</span>        if (thisSubFields.size() != thatSubFields.size())<a name="line.83"></a>
 <span class="sourceLineNo">084</span>            return false;<a name="line.84"></a>
 <span class="sourceLineNo">085</span>        for (int i = 0; i &lt; thisSubFields.size(); i++) {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            if (!thisSubFields.get(i).fieldType.equals(thatSubFields.get(i).fieldType))<a name="line.86"></a>
+<span class="sourceLineNo">086</span>            if (!thisSubFields.get(i).isSchemaChangeCompatible(thatSubFields.get(i)))<a name="line.86"></a>
 <span class="sourceLineNo">087</span>                return false;<a name="line.87"></a>
 <span class="sourceLineNo">088</span>        }<a name="line.88"></a>
 <span class="sourceLineNo">089</span>        return true;<a name="line.89"></a>
@@ -120,7 +120,7 @@
 <span class="sourceLineNo">112</span>     * @param id object id<a name="line.112"></a>
 <span class="sourceLineNo">113</span>     */<a name="line.113"></a>
 <span class="sourceLineNo">114</span>    void deleteContent(Transaction tx, ObjId id) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        final byte[] minKey = this.buildContentPrefix(id);<a name="line.115"></a>
+<span class="sourceLineNo">115</span>        final byte[] minKey = this.buildKey(id);<a name="line.115"></a>
 <span class="sourceLineNo">116</span>        final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);<a name="line.116"></a>
 <span class="sourceLineNo">117</span>        this.deleteContent(tx, minKey, maxKey);<a name="line.117"></a>
 <span class="sourceLineNo">118</span>    }<a name="line.118"></a>
@@ -210,7 +210,7 @@
 <span class="sourceLineNo">202</span>     * @param subField sub-field of this field<a name="line.202"></a>
 <span class="sourceLineNo">203</span>     */<a name="line.203"></a>
 <span class="sourceLineNo">204</span>    void addIndexEntries(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField) {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>        for (KVPairIterator i = new KVPairIterator(tx.kvt, this.buildContentPrefix(id)); i.hasNext(); ) {<a name="line.205"></a>
+<span class="sourceLineNo">205</span>        for (KVPairIterator i = new KVPairIterator(tx.kvt, this.buildKey(id)); i.hasNext(); ) {<a name="line.205"></a>
 <span class="sourceLineNo">206</span>            final KVPair pair = i.next();<a name="line.206"></a>
 <span class="sourceLineNo">207</span>            this.addIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());<a name="line.207"></a>
 <span class="sourceLineNo">208</span>        }<a name="line.208"></a>
@@ -224,7 +224,7 @@
 <span class="sourceLineNo">216</span>     * @param subField sub-field of this field<a name="line.216"></a>
 <span class="sourceLineNo">217</span>     */<a name="line.217"></a>
 <span class="sourceLineNo">218</span>    void removeIndexEntries(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField) {<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        final byte[] prefix = this.buildContentPrefix(id);<a name="line.219"></a>
+<span class="sourceLineNo">219</span>        final byte[] prefix = this.buildKey(id);<a name="line.219"></a>
 <span class="sourceLineNo">220</span>        this.removeIndexEntries(tx, id, subField, prefix, ByteUtil.getKeyAfterPrefix(prefix));<a name="line.220"></a>
 <span class="sourceLineNo">221</span>    }<a name="line.221"></a>
 <span class="sourceLineNo">222</span><a name="line.222"></a>
@@ -241,18 +241,8 @@
 <span class="sourceLineNo">233</span>            this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());<a name="line.233"></a>
 <span class="sourceLineNo">234</span>        }<a name="line.234"></a>
 <span class="sourceLineNo">235</span>    }<a name="line.235"></a>
-<span class="sourceLineNo">236</span><a name="line.236"></a>
-<span class="sourceLineNo">237</span>    /**<a name="line.237"></a>
-<span class="sourceLineNo">238</span>     * Build the prefix of all content keys for this field in the given object.<a name="line.238"></a>
-<span class="sourceLineNo">239</span>     */<a name="line.239"></a>
-<span class="sourceLineNo">240</span>    byte[] buildContentPrefix(ObjId id) {<a name="line.240"></a>
-<span class="sourceLineNo">241</span>        final ByteWriter writer = new ByteWriter();<a name="line.241"></a>
-<span class="sourceLineNo">242</span>        id.writeTo(writer);<a name="line.242"></a>
-<span class="sourceLineNo">243</span>        UnsignedIntEncoder.write(writer, this.storageId);<a name="line.243"></a>
-<span class="sourceLineNo">244</span>        return writer.getBytes();<a name="line.244"></a>
-<span class="sourceLineNo">245</span>    }<a name="line.245"></a>
-<span class="sourceLineNo">246</span>}<a name="line.246"></a>
-<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">236</span>}<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
 
 
 

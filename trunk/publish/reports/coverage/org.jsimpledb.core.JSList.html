@@ -98,19 +98,19 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">// Constructors</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;36</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;37</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;    JSList(Transaction tx, ListField&lt;E&gt; field, ObjId id) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;38</td>  <td class="nbHitsUncovered"><a title="Line 38: Conditional coverage 50% (1/2).">&nbsp;50</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 38: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tx == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;37</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;    JSList(Transaction tx, ListField&lt;E&gt; field, ObjId id) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;38</td>  <td class="nbHitsUncovered"><a title="Line 38: Conditional coverage 50% (1/2).">&nbsp;55</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 38: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tx == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;39</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null tx"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;40</td>  <td class="nbHitsUncovered"><a title="Line 40: Conditional coverage 50% (1/2).">&nbsp;50</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 40: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (field == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;40</td>  <td class="nbHitsUncovered"><a title="Line 40: Conditional coverage 50% (1/2).">&nbsp;55</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 40: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (field == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;41</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null field"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;42</td>  <td class="nbHitsUncovered"><a title="Line 42: Conditional coverage 50% (1/2).">&nbsp;50</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 42: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (id == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;42</td>  <td class="nbHitsUncovered"><a title="Line 42: Conditional coverage 50% (1/2).">&nbsp;55</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 42: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (id == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;43</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null id"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;44</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.tx = tx;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.field = field;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;46</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.id = id;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.elementType = <span class="keyword">this</span>.field.elementField.fieldType;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.contentPrefix = field.buildContentPrefix(id);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;44</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.tx = tx;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.field = field;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;46</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.id = id;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.elementType = <span class="keyword">this</span>.field.elementField.fieldType;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.contentPrefix = field.buildKey(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;50</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;51</td>  <td class="nbHits">&nbsp;</td>
@@ -145,9 +145,9 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;68</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Find the last entry, if it exists</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered">&nbsp;337</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> KVPair pair = <span class="keyword">this</span>.tx.kvt.getAtMost(ByteUtil.getKeyAfterPrefix(<span class="keyword">this</span>.contentPrefix));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsUncovered"><a title="Line 70: Conditional coverage 75% (3/4) [each condition: 50%, 100%].">&nbsp;337</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 70: Conditional coverage 75% (3/4) [each condition: 50%, 100%].">        <span class="keyword">if</span> (pair == <span class="keyword">null</span> || !ByteUtil.isPrefixOf(<span class="keyword">this</span>.contentPrefix, pair.getKey()))</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;71</td>  <td class="nbHitsCovered">&nbsp;61</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> 0;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered">&nbsp;341</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> KVPair pair = <span class="keyword">this</span>.tx.kvt.getAtMost(ByteUtil.getKeyAfterPrefix(<span class="keyword">this</span>.contentPrefix));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsUncovered"><a title="Line 70: Conditional coverage 75% (3/4) [each condition: 50%, 100%].">&nbsp;341</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 70: Conditional coverage 75% (3/4) [each condition: 50%, 100%].">        <span class="keyword">if</span> (pair == <span class="keyword">null</span> || !ByteUtil.isPrefixOf(<span class="keyword">this</span>.contentPrefix, pair.getKey()))</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;71</td>  <td class="nbHitsCovered">&nbsp;65</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> 0;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;72</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;73</td>  <td class="nbHits">&nbsp;</td>
@@ -652,6 +652,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/10/14 4:05 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/15/14 10:18 PM.</div>
 </body>
 </html>

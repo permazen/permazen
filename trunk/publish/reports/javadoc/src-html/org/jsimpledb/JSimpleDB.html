@@ -394,24 +394,20 @@
 <span class="sourceLineNo">386</span>        return type != null ? type.cast(jfield) : (T)jfield;<a name="line.386"></a>
 <span class="sourceLineNo">387</span>    }<a name="line.387"></a>
 <span class="sourceLineNo">388</span><a name="line.388"></a>
-<span class="sourceLineNo">389</span>    boolean isReferenceField(int storageId) {<a name="line.389"></a>
-<span class="sourceLineNo">390</span>        return this.jfields.get(storageId) instanceof JReferenceField;<a name="line.390"></a>
-<span class="sourceLineNo">391</span>    }<a name="line.391"></a>
-<span class="sourceLineNo">392</span><a name="line.392"></a>
-<span class="sourceLineNo">393</span>    // Add new JClass, checking for storage ID conflicts<a name="line.393"></a>
-<span class="sourceLineNo">394</span>    void addJClass(JClass&lt;?&gt; jclass) {<a name="line.394"></a>
-<span class="sourceLineNo">395</span><a name="line.395"></a>
-<span class="sourceLineNo">396</span>        // Check for storage ID conflict<a name="line.396"></a>
-<span class="sourceLineNo">397</span>        final JClass&lt;?&gt; other = this.jclasses.get(jclass.storageId);<a name="line.397"></a>
-<span class="sourceLineNo">398</span>        if (other != null) {<a name="line.398"></a>
-<span class="sourceLineNo">399</span>            throw new IllegalArgumentException("illegal duplicate use of storage ID "<a name="line.399"></a>
-<span class="sourceLineNo">400</span>              + jclass.storageId + " for both " + other + " and " + jclass);<a name="line.400"></a>
-<span class="sourceLineNo">401</span>        }<a name="line.401"></a>
-<span class="sourceLineNo">402</span>        this.jclasses.put(jclass.storageId, jclass);<a name="line.402"></a>
-<span class="sourceLineNo">403</span>        this.jclassesByType.put(jclass.typeToken, jclass);      // this can never conflict, no need to check<a name="line.403"></a>
-<span class="sourceLineNo">404</span>    }<a name="line.404"></a>
-<span class="sourceLineNo">405</span>}<a name="line.405"></a>
-<span class="sourceLineNo">406</span><a name="line.406"></a>
+<span class="sourceLineNo">389</span>    // Add new JClass, checking for storage ID conflicts<a name="line.389"></a>
+<span class="sourceLineNo">390</span>    void addJClass(JClass&lt;?&gt; jclass) {<a name="line.390"></a>
+<span class="sourceLineNo">391</span><a name="line.391"></a>
+<span class="sourceLineNo">392</span>        // Check for storage ID conflict<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        final JClass&lt;?&gt; other = this.jclasses.get(jclass.storageId);<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        if (other != null) {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>            throw new IllegalArgumentException("illegal duplicate use of storage ID "<a name="line.395"></a>
+<span class="sourceLineNo">396</span>              + jclass.storageId + " for both " + other + " and " + jclass);<a name="line.396"></a>
+<span class="sourceLineNo">397</span>        }<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        this.jclasses.put(jclass.storageId, jclass);<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        this.jclassesByType.put(jclass.typeToken, jclass);      // this can never conflict, no need to check<a name="line.399"></a>
+<span class="sourceLineNo">400</span>    }<a name="line.400"></a>
+<span class="sourceLineNo">401</span>}<a name="line.401"></a>
+<span class="sourceLineNo">402</span><a name="line.402"></a>
 
 
 
