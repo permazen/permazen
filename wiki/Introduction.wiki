@@ -46,6 +46,8 @@ Of note:
    * Internally, objects and fields are identified by storage ID, not name
    * Storage IDs are used to access (possibly removed) old fields after a schema change (more on that later)
 
+=== Storage IDs ===
+
 Although they must be unique, storage IDs are otherwise pretty much "set them and forget them". They are not used except occasionally during a schema update (see `@OnVersionChange` below); then they provide a way to access fields that may have changed or been removed in the schema update. In other words, storage IDs provide a level of indirection between your Java code and database identity, allongw your Java code to change more freely while also providing a controlled and well-defined way to update database contents (if necessary) when the schema does change.
 
 == Accessing Data ==
