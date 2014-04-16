@@ -80,16 +80,14 @@ public class SchemaObject extends AbstractSchemaItem implements SelfValidating {
     @Override
     public void checkValid(ConstraintValidatorContext context) throws SelfValidationException {
         for (SchemaField field : this.getSchemaFields().values()) {
+            if (field.getName() == null)
+                throw new SelfValidationException(field + " must have a name");
             if (field instanceof ComplexSchemaField) {
                 final ComplexSchemaField complexField = (ComplexSchemaField)field;
                 for (SimpleSchemaField subField : complexField.getSubFields().values()) {
                     if (subField.getName() != null)
                         throw new SelfValidationException(subField + " must not specify a name");
                 }
-            } else {
-                final SimpleSchemaField simpleField = (SimpleSchemaField)field;
-                if (simpleField.getName() == null)
-                    throw new SelfValidationException(simpleField + " must have a name");
             }
         }
     }

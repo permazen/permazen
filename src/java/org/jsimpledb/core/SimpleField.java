@@ -57,7 +57,7 @@ public class SimpleField<T> extends Field<T> {
     }
 
     /**
-     * Check compatibility with another {@link SimpleField}.
+     * Check compatibility with another {@link SimpleField} across a schema change.
      * To be compatible, the two fields must be exactly the same in terms of binary encoding, Java representation,
      * and default value.
      * This is in effect an {@code #equals equals()} test with respect to those aspects. Note that compatibililty
@@ -70,7 +70,7 @@ public class SimpleField<T> extends Field<T> {
      * @param that field to check for compatibility
      * @throws NullPointerException if {@code that} is null
      */
-    boolean isCompatible(SimpleField<?> that) {
+    boolean isSchemaChangeCompatible(SimpleField<?> that) {
         return this.fieldType.equals(that.fieldType);
     }
 
@@ -116,23 +116,6 @@ public class SimpleField<T> extends Field<T> {
         this.fieldType.write(writer, value);
         final byte[] result = writer.getBytes();
         return Arrays.equals(result, this.fieldType.getDefaultValue()) ? null : result;
-    }
-
-    /**
-     * Build the key for this field in the given object.
-     */
-    byte[] buildKey(ObjId id) {
-        return SimpleField.buildKey(id, this.storageId);
-    }
-
-    /**
-     * Build the key for this field in the given object.
-     */
-    static byte[] buildKey(ObjId id, int storageId) {
-        final ByteWriter writer = new ByteWriter();
-        id.writeTo(writer);
-        UnsignedIntEncoder.write(writer, storageId);
-        return writer.getBytes();
     }
 
     /**

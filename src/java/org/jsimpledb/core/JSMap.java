@@ -31,7 +31,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
      * Primary constructor.
      */
     JSMap(Transaction tx, MapField<K, V> field, ObjId id) {
-        super(tx, field.keyField.fieldType, false, field.buildContentPrefix(id));
+        super(tx, field.keyField.fieldType, false, field.buildKey(id));
         this.id = id;
         this.field = field;
     }

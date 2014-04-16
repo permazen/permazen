@@ -147,17 +147,17 @@ public abstract class FieldType<T> implements Comparator<T> {
     /**
      * Type for object references.
      */
-    static final NullSafeType<ObjId> REFERENCE = new NullSafeType<ObjId>(new ReferenceType());
+    static final NullSafeType<ObjId> REFERENCE = new NullSafeType<>(new ReferenceType());
 
     /**
      * Type for {@link String}s.
      */
-    static final NullSafeType<String> STRING = new NullSafeType<String>(new StringType());
+    static final NullSafeType<String> STRING = new NullSafeType<>(new StringType());
 
     /**
      * Type for {@link Date}s.
      */
-    static final NullSafeType<Date> DATE = new NullSafeType<Date>(new DateType());
+    static final NullSafeType<Date> DATE = new NullSafeType<>(new DateType());
 
     /**
      * Type for {@link ListIndexEntry}s.
