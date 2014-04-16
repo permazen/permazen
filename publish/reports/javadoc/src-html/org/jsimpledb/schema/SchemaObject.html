@@ -88,31 +88,29 @@
 <span class="sourceLineNo">080</span>    @Override<a name="line.80"></a>
 <span class="sourceLineNo">081</span>    public void checkValid(ConstraintValidatorContext context) throws SelfValidationException {<a name="line.81"></a>
 <span class="sourceLineNo">082</span>        for (SchemaField field : this.getSchemaFields().values()) {<a name="line.82"></a>
-<span class="sourceLineNo">083</span>            if (field instanceof ComplexSchemaField) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                final ComplexSchemaField complexField = (ComplexSchemaField)field;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>                for (SimpleSchemaField subField : complexField.getSubFields().values()) {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>                    if (subField.getName() != null)<a name="line.86"></a>
-<span class="sourceLineNo">087</span>                        throw new SelfValidationException(subField + " must not specify a name");<a name="line.87"></a>
-<span class="sourceLineNo">088</span>                }<a name="line.88"></a>
-<span class="sourceLineNo">089</span>            } else {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                final SimpleSchemaField simpleField = (SimpleSchemaField)field;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                if (simpleField.getName() == null)<a name="line.91"></a>
-<span class="sourceLineNo">092</span>                    throw new SelfValidationException(simpleField + " must have a name");<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            }<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        }<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">083</span>            if (field.getName() == null)<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                throw new SelfValidationException(field + " must have a name");<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            if (field instanceof ComplexSchemaField) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                final ComplexSchemaField complexField = (ComplexSchemaField)field;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                for (SimpleSchemaField subField : complexField.getSubFields().values()) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                    if (subField.getName() != null)<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                        throw new SelfValidationException(subField + " must not specify a name");<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            }<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        }<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>// JiBX<a name="line.95"></a>
 <span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>// JiBX<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>    public void addSchemaField(SchemaField field) {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>        this.schemaFields.put(field.getStorageId(), field);<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    }<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>    public Iterator&lt;SchemaField&gt; iterateSchemaFields() {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        return this.schemaFields.values().iterator();<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
-<span class="sourceLineNo">106</span>}<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">097</span>    public void addSchemaField(SchemaField field) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        this.schemaFields.put(field.getStorageId(), field);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    public Iterator&lt;SchemaField&gt; iterateSchemaFields() {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        return this.schemaFields.values().iterator();<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
+<span class="sourceLineNo">104</span>}<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
 
 
 
