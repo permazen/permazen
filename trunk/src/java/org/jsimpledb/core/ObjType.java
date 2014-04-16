@@ -65,7 +65,7 @@ public class ObjType extends SchemaItem {
      * Get all fields, including sub-fields.
      */
     Iterable<Field<?>> getFieldsAndSubFields() {
-        Iterable<Field<?>> i = Iterables.concat(this.simpleFields.values(), this.complexFields.values());
+        Iterable<Field<?>> i = this.fields.values();
         for (ComplexField<?> field : this.complexFields.values())
             i = Iterables.concat(i, field.getSubFields());
         return i;

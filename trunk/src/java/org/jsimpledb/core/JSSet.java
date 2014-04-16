@@ -25,7 +25,7 @@ class JSSet<E> extends FieldTypeSet<E> {
      * Primary constructor.
      */
     JSSet(Transaction tx, SetField<E> field, ObjId id) {
-        super(tx, field.elementField.fieldType, false, field.buildContentPrefix(id));
+        super(tx, field.elementField.fieldType, false, field.buildKey(id));
         this.id = id;
         this.field = field;
     }
@@ -34,7 +34,7 @@ class JSSet<E> extends FieldTypeSet<E> {
      * Internal constructor.
      */
     JSSet(Transaction tx, SetField<E> field, ObjId id, boolean reversed, byte[] minKey, byte[] maxKey, Bounds<E> bounds) {
-        super(tx, field.elementField.fieldType, false, reversed, field.buildContentPrefix(id), minKey, maxKey, bounds);
+        super(tx, field.elementField.fieldType, false, reversed, field.buildKey(id), minKey, maxKey, bounds);
         this.id = id;
         this.field = field;
     }

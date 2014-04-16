@@ -9,6 +9,9 @@ package org.jsimpledb.core;
 
 import com.google.common.reflect.TypeToken;
 
+import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.UnsignedIntEncoder;
+
 /**
  * Represents a field in an {@link ObjType} or a ({@linkplain SimpleField simple}) sub-field of a {@link ComplexField}.
  *
@@ -43,6 +46,26 @@ public abstract class Field<T> extends SchemaItem {
         return this.typeToken;
     }
 
+    /**
+     * Build the key (or key prefix) for this field in the given object.
+     */
+    byte[] buildKey(ObjId id) {
+        return Field.buildKey(id, this.storageId);
+    }
+
+    /**
+     * Build the key (or key prefix) for this field in the given object.
+     */
+    static byte[] buildKey(ObjId id, int storageId) {
+        final ByteWriter writer = new ByteWriter();
+        id.writeTo(writer);
+        UnsignedIntEncoder.write(writer, storageId);
+        return writer.getBytes();
+    }
+
+    /**
+     * Determine if this field and the given field are exactly equivalent.
+     */
     abstract boolean isEquivalent(Field<?> field);
 }
 

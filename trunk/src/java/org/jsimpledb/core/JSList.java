@@ -45,7 +45,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         this.field = field;
         this.id = id;
         this.elementType = this.field.elementField.fieldType;
-        this.contentPrefix = field.buildContentPrefix(id);
+        this.contentPrefix = field.buildKey(id);
     }
 
 // List API

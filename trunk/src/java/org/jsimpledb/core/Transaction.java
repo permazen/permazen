@@ -827,7 +827,7 @@ public class Transaction {
             final SimpleField<?> newField = newType.simpleFields.get(storageId);
 
             // Save old field values for version change notification
-            final byte[] key = SimpleField.buildKey(id, storageId);
+            final byte[] key = Field.buildKey(id, storageId);
             final byte[] oldValue = this.kvt.get(key);
             if (oldField != null) {
                 oldFieldValues.put(storageId,
@@ -836,7 +836,8 @@ public class Transaction {
 
             // Preserve the value if we can, otherwise, discard the old value (if any) leaving new value as new field default
             boolean skipIndexUpdate = false;
-            if (oldField != null && newField != null && newField.isCompatible(oldField))    // value is compatible so just leave it
+            if (oldField != null && newField != null
+              && newField.isSchemaChangeCompatible(oldField))                               // value is compatible so just leave it
                 skipIndexUpdate = newField.indexed == oldField.indexed;                     // index need not change either
             else if (oldValue != null)
                 this.kvt.remove(key);                                                       // discard old value
@@ -849,9 +850,6 @@ public class Transaction {
             if (newField != null && newField.indexed && !skipIndexUpdate)
                 this.kvt.put(newField.buildIndexKey(id, null), ByteUtil.EMPTY);
         }
-
-        // Update object version
-        ObjInfo.write(this, id, this.version.versionNumber, info.isDeleteNotified());
 
     //////// Update complex fields and corresponding index entries
 
@@ -882,7 +880,7 @@ public class Transaction {
             oldFieldValues.put(storageId, oldField.getValue(this, id));
 
             // Determine if the fields are compatible and field content can be preserved
-            final boolean compatible = newField != null && newField.isCompatible(oldField);
+            final boolean compatible = newField != null && newField.isSchemaChangeCompatible(oldField);
 
             // If fields are not compatible, delete old field when done, otherwise check if index(s) should be added/removed
             if (!compatible)
@@ -890,6 +888,9 @@ public class Transaction {
             else
                 newField.updateSubFieldIndexes(this, oldField, id);
         }
+
+        // Update object version
+        ObjInfo.write(this, id, this.version.versionNumber, info.isDeleteNotified());
 
         // Notify about version update
         try {
@@ -969,9 +970,10 @@ public class Transaction {
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SimpleField}
+     * @return value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no field corresponding to {@code storageId} exists in the object
+     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
      */
     public Object readSimpleField(ObjId id, int storageId) {
@@ -989,9 +991,10 @@ public class Transaction {
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SimpleField}
      * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @return value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no field corresponding to {@code storageId} exists in the object
+     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
@@ -1032,7 +1035,7 @@ public class Transaction {
      * @param value new value for the field
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no field corresponding to {@code storageId} exists in the object
+     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -1102,7 +1105,7 @@ public class Transaction {
      * @param storageId storage ID of the {@link SetField}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no field corresponding to {@code storageId} exists in the object
+     * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
      */
     public NavigableSet<?> readSetField(ObjId id, int storageId) {
@@ -1143,7 +1146,7 @@ public class Transaction {
      * @param storageId storage ID of the {@link ListField}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no field corresponding to {@code storageId} exists in the object
+     * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
      */
     public List<?> readListField(ObjId id, int storageId) {
@@ -1184,7 +1187,7 @@ public class Transaction {
      * @param storageId storage ID of the {@link MapField}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no field corresponding to {@code storageId} exists in the object
+     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
      */
     public NavigableMap<?, ?> readMapField(ObjId id, int storageId) {

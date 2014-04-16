@@ -62,20 +62,20 @@ public abstract class ComplexField<T> extends Field<T> {
     abstract ComplexFieldStorageInfo toStorageInfo();
 
     /**
-     * Check compatibility with another {@link ComplexField}.
+     * Check compatibility with another {@link ComplexField} across a schema change.
      * To be compatible, the two enties must be exactly the same in terms of data layouts and Java representations.
      * This is in effect an {@code #equals equals()} test with respect to those aspects. Note that compatibililty
      * does not necessarily imply the same sub-fields are indexed.
      *
      * <p>
-     * The implementation in {@link ComplexField} checks that {@code that} has the same Java type
-     * and as this instance and that all sub-fields have equivalent {@link FieldType}s.
+     * The implementation in {@link ComplexField} checks that {@code that} has the same Java type and as this instance
+     * and that all sub-fields are themselves {@link SimpleField#isSchemaChangeCompatible schema change compatible}.
      * </p>
      *
      * @param that field to check for compatibility
      * @throws NullPointerException if {@code that} is null
      */
-    boolean isCompatible(ComplexField<?> that) {
+    boolean isSchemaChangeCompatible(ComplexField<?> that) {
         if (that.getClass() != this.getClass() || that.storageId != this.storageId)
             return false;
         final List<? extends SimpleField<?>> thisSubFields = this.getSubFields();
@@ -83,7 +83,7 @@ public abstract class ComplexField<T> extends Field<T> {
         if (thisSubFields.size() != thatSubFields.size())
             return false;
         for (int i = 0; i < thisSubFields.size(); i++) {
-            if (!thisSubFields.get(i).fieldType.equals(thatSubFields.get(i).fieldType))
+            if (!thisSubFields.get(i).isSchemaChangeCompatible(thatSubFields.get(i)))
                 return false;
         }
         return true;
@@ -112,7 +112,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param id object id
      */
     void deleteContent(Transaction tx, ObjId id) {
-        final byte[] minKey = this.buildContentPrefix(id);
+        final byte[] minKey = this.buildKey(id);
         final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
         this.deleteContent(tx, minKey, maxKey);
     }
@@ -202,7 +202,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param subField sub-field of this field
      */
     void addIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField) {
-        for (KVPairIterator i = new KVPairIterator(tx.kvt, this.buildContentPrefix(id)); i.hasNext(); ) {
+        for (KVPairIterator i = new KVPairIterator(tx.kvt, this.buildKey(id)); i.hasNext(); ) {
             final KVPair pair = i.next();
             this.addIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
         }
@@ -216,7 +216,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param subField sub-field of this field
      */
     void removeIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField) {
-        final byte[] prefix = this.buildContentPrefix(id);
+        final byte[] prefix = this.buildKey(id);
         this.removeIndexEntries(tx, id, subField, prefix, ByteUtil.getKeyAfterPrefix(prefix));
     }
 
@@ -232,16 +232,6 @@ public abstract class ComplexField<T> extends Field<T> {
             final KVPair pair = i.next();
             this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
         }
-    }
-
-    /**
-     * Build the prefix of all content keys for this field in the given object.
-     */
-    byte[] buildContentPrefix(ObjId id) {
-        final ByteWriter writer = new ByteWriter();
-        id.writeTo(writer);
-        UnsignedIntEncoder.write(writer, this.storageId);
-        return writer.getBytes();
     }
 }
 
