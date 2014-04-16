@@ -215,7 +215,8 @@ In the case of `List` and `Map`, you also have the option of returning not just 
 public abstract class Student implements JObject {
  
     @IndexQuery("teacherRankings.element")
-    public abstract NavigableMap<Teacher, NavigableSet<ListIndexEntry<Student>>> queryStudentsByRankedTeacherWithRank();
+    public abstract NavigableMap<Teacher, NavigableSet<ListIndexEntry<Student>>>
+      queryStudentsByRankedTeacherWithRank();
  
     @IndexQuery("testScores.key")
     public abstract NavigableMap<Test, NavigableSet<MapKeyIndexEntry<Student, Float>>>
