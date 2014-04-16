@@ -10,19 +10,24 @@ package org.jsimpledb.kv.fdb;
 import com.foundationdb.FDBException;
 import com.foundationdb.KeySelector;
 import com.foundationdb.KeyValue;
+import com.foundationdb.MutationType;
 import com.foundationdb.Transaction;
 import com.foundationdb.async.AsyncIterator;
 
+import org.jsimpledb.kv.CountingKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
+import org.jsimpledb.util.ByteReader;
+import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.ByteWriter;
 
 /**
  * FoundationDB transaction.
  */
-public class FoundationKVTransaction implements KVTransaction {
+public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
 
     private static final byte[] MIN_KEY = new byte[0];                      // minimum possible key (inclusive)
     private static final byte[] MAX_KEY = new byte[] { (byte)0xff };        // maximum possible key (exclusive)
@@ -39,6 +44,8 @@ public class FoundationKVTransaction implements KVTransaction {
         this.store = store;
         this.tx = this.store.getDatabase().createTransaction();
     }
+
+// KVTransaction
 
     @Override
     public FoundationKVDatabase getKVDatabase() {
@@ -142,6 +149,45 @@ public class FoundationKVTransaction implements KVTransaction {
             throw this.wrapException(e);
         }
     }
+
+// CountingKVStore
+
+    @Override
+    public byte[] encodeCounter(long value) {
+        final ByteWriter writer = new ByteWriter(8);
+        ByteUtil.writeLong(writer, value);
+        final byte[] bytes = writer.getBytes();
+        this.reverse(bytes);
+        return bytes;
+    }
+
+    @Override
+    public long decodeCounter(byte[] bytes) {
+        if (bytes.length != 8)
+            throw new IllegalArgumentException("invalid encoded counter value: length = " + bytes.length + " != 8");
+        bytes = bytes.clone();
+        this.reverse(bytes);
+        return ByteUtil.readLong(new ByteReader(bytes));
+    }
+
+    @Override
+    public void adjustCounter(byte[] key, long amount) {
+        this.tx.mutate(MutationType.ADD, key, this.encodeCounter(amount));
+    }
+
+    private void reverse(byte[] bytes) {
+        int i = 0;
+        int j = bytes.length - 1;
+        while (i < j) {
+            final byte temp = bytes[i];
+            bytes[i] = bytes[j];
+            bytes[j] = temp;
+            i++;
+            j--;
+        }
+    }
+
+// Other methods
 
     /**
      * Wrap the given {@link FDBException} in the appropriate {@link KVTransactionException}.

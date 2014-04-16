@@ -6,7 +6,5 @@
 
 - Only record new schema version in database on first mutation
 
-- Counter data type
-
 - Allow reference paths to contain backwards steps
 

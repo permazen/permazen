@@ -70,6 +70,12 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
                   + annotation.value() + "' contains " + path.getReferenceFields().length + " intermediate reference(s)");
             }
 
+            // Verify target field is simple
+            if (!(path.targetField instanceof JSimpleField)) {
+                throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method)
+                  + path.targetField + " does not support indexing; it is not a simple field");
+            }
+
             // Get target object, field, and complex super-field (if any)
             this.targetType = path.targetType;
             this.targetField = (JSimpleField)path.targetField;
@@ -83,7 +89,12 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
 
             // Validate the method's return type
             final ArrayList<TypeToken<?>> indexReturnTypes = new ArrayList<TypeToken<?>>();
-            this.targetField.addIndexReturnTypes(indexReturnTypes, this.targetType);
+            try {
+                this.targetField.addIndexReturnTypes(indexReturnTypes, this.targetType);
+            } catch (UnsupportedOperationException e) {
+                throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method)
+                  + "indexing is not supported for " + this.targetField, e);
+            }
             if (this.targetSuperField != null)
                 this.targetSuperField.addIndexEntryReturnTypes(indexReturnTypes, this.targetType, this.targetField);
             IndexQueryScanner.this.checkReturnType(method, indexReturnTypes);

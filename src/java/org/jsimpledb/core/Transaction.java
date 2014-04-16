@@ -19,6 +19,7 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.jsimpledb.kv.CountingKVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -86,6 +87,9 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getAll getAll()} - Get all objects of a specific type
  *  <li>{@link #readSimpleField readSimpleField()} - Read the value of a {@link SimpleField} in an object
  *  <li>{@link #writeSimpleField writeSimpleField()} - Write the value of a {@link SimpleField} in an object
+ *  <li>{@link #readCounterField readCounterField()} - Read the value of a {@link CounterField} in an object
+ *  <li>{@link #writeCounterField writeCounterField()} - Write the value of a {@link CounterField} in an object
+ *  <li>{@link #adjustCounterField adjustCounterField()} - Adjust the value of a {@link CounterField} in an object
  *  <li>{@link #readSetField readSetField()} - Access a {@link SetField} in an object as a {@link NavigableSet}
  *  <li>{@link #readListField readListField()} - Access a {@link ListField} in an object as a {@link List}
  *  <li>{@link #readMapField readMapField()} - Access a {@link MapField} in an object as a {@link NavigableMap}
@@ -221,6 +225,14 @@ public class Transaction {
      */
     public KVTransaction getKVTransaction() {
         return this.kvt;
+    }
+
+    private CountingKVStore getCountingKVTransaction() {
+        try {
+            return (CountingKVStore)this.kvt;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("the underlying key/value transaction does not support counters");
+        }
     }
 
 // Transaction Lifecycle
@@ -502,6 +514,13 @@ public class Transaction {
 
         // Write object meta-data
         ObjInfo.write(this, id, objType.version.versionNumber, false);
+
+        // Initialize counters to zero
+        if (!objType.counterFields.isEmpty()) {
+            final CountingKVStore ckv = this.getCountingKVTransaction();
+            for (CounterField field : objType.counterFields.values())
+                ckv.put(field.buildKey(id), ckv.encodeCounter(0));
+        }
 
         // Write simple field index entries
         for (SimpleField<?> field : objType.simpleFields.values()) {
@@ -809,10 +828,35 @@ public class Transaction {
             throw new InconsistentDatabaseException("object " + id + " has an unrecognized storage ID", e);
         }
 
-    //////// Update simple fields and corresponding index entries
-
         // Gather removed fields' values here for user migration
         final TreeMap<Integer, Object> oldFieldValues = new TreeMap<>();
+
+    //////// Update counter fields
+
+        // Get counter field storage IDs (old or new)
+        final TreeSet<Integer> counterFieldStorageIds = new TreeSet<>();
+        counterFieldStorageIds.addAll(oldType.counterFields.keySet());
+        counterFieldStorageIds.addAll(newType.counterFields.keySet());
+
+        // Update counter fields
+        for (int storageId : counterFieldStorageIds) {
+
+            // Get old and new counter fields having this storage ID
+            final CounterField oldField = oldType.counterFields.get(storageId);
+            final CounterField newField = newType.counterFields.get(storageId);
+
+            // Save old field values for version change notification
+            final byte[] key = Field.buildKey(id, storageId);
+            final byte[] oldValue = this.kvt.get(key);
+            if (oldField != null)
+                oldFieldValues.put(storageId, oldValue != null ? this.getCountingKVTransaction().decodeCounter(oldValue) : 0);
+
+            // Remove old value if field has disappeared, otherwise leave alone
+            if (oldValue != null && oldField != null && newField == null)
+                this.kvt.remove(key);
+        }
+
+    //////// Update simple fields and corresponding index entries
 
         // Get simple field storage IDs (old or new)
         final TreeSet<Integer> simpleFieldStorageIds = new TreeSet<>();
@@ -1089,6 +1133,158 @@ public class Transaction {
                 listener.onSimpleFieldChange(tx, this.id, this.storageId, path, referrers, oldObj, newObj);
             }
         });
+    }
+
+    /**
+     * Read the value of a {@link CounterField} from an object, automatically updating the object's schema version if necessary.
+     *
+     * <p>
+     * Equivalent to:
+     * <blockquote>
+     *  {@link #readCounterField(ObjId, int, boolean) readCounterField}{@code (id, storageId, true)}
+     * </blockquote>
+     * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link CounterField}
+     * @return value of the counter in the object
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public long readCounterField(ObjId id, int storageId) {
+        return this.readCounterField(id, storageId, true);
+    }
+
+    /**
+     * Read the value of a {@link CounterField} from an object, optionally updating the object's schema version.
+     *
+     * <p>
+     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
+     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link CounterField}
+     * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @return value of the counter in the object
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public synchronized long readCounterField(ObjId id, int storageId, boolean updateVersion) {
+
+        // Sanity check
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        if (id == null)
+            throw new IllegalArgumentException("null id");
+
+        // Get object info
+        final ObjInfo info = this.getObjectInfo(id, updateVersion);
+        final ObjType type = info.getObjType();
+
+        // Find field
+        final CounterField field = type.counterFields.get(storageId);
+        if (field == null)
+            throw new UnknownFieldException(type, storageId, "counter field");
+
+        // Read field
+        final byte[] key = field.buildKey(id);
+        final byte[] value = this.kvt.get(key);
+
+        // Decode value
+        return value != null ? this.getCountingKVTransaction().decodeCounter(value) : 0;
+    }
+
+    /**
+     * Set the value of a {@link CounterField} in an object.
+     *
+     * <p>
+     * The schema version of the object will be automatically changed to match
+     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link CounterField}
+     * @param value new counter value
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public synchronized void writeCounterField(final ObjId id, final int storageId, final long value) {
+        this.mutateAndNotify(id, new Mutation<Void>() {
+            @Override
+            public Void mutate() {
+                Transaction.this.doWriteCounterField(id, storageId, value);
+                return null;
+            }
+        });
+    }
+
+    private synchronized void doWriteCounterField(ObjId id, int storageId, long value) {
+
+        // Get object info
+        final ObjInfo info = this.getObjectInfo(id, true);
+        final ObjType type = info.getObjType();
+
+        // Find field
+        final CounterField field = type.counterFields.get(storageId);
+        if (field == null)
+            throw new UnknownFieldException(type, storageId, "counter field");
+
+        // Set value
+        final byte[] key = field.buildKey(id);
+        final CountingKVStore ckv = this.getCountingKVTransaction();
+        ckv.put(key, ckv.encodeCounter(value));
+    }
+
+    /**
+     * Adjust the value of a {@link CounterField} in an object by some amount.
+     *
+     * <p>
+     * The schema version of the object will be automatically changed to match
+     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link CounterField}
+     * @param offset offset value to add to counter value
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public synchronized void adjustCounterField(final ObjId id, final int storageId, final long offset) {
+        if (offset == 0)
+            return;
+        this.mutateAndNotify(id, new Mutation<Void>() {
+            @Override
+            public Void mutate() {
+                Transaction.this.doAdjustCounterField(id, storageId, offset);
+                return null;
+            }
+        });
+    }
+
+    private synchronized void doAdjustCounterField(ObjId id, int storageId, long offset) {
+
+        // Get object info
+        final ObjInfo info = this.getObjectInfo(id, true);
+        final ObjType type = info.getObjType();
+
+        // Find field
+        final CounterField field = type.counterFields.get(storageId);
+        if (field == null)
+            throw new UnknownFieldException(type, storageId, "counter field");
+
+        // Adjust value
+        final byte[] key = field.buildKey(id);
+        final CountingKVStore ckv = this.getCountingKVTransaction();
+        ckv.adjustCounter(key, offset);
     }
 
     /**

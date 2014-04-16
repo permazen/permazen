@@ -59,6 +59,7 @@ class ClassGenerator<T> {
     static final Method GET_CURRENT_METHOD;
     static final Method READ_SIMPLE_FIELD_METHOD;
     static final Method WRITE_SIMPLE_FIELD_METHOD;
+    static final Method READ_COUNTER_FIELD_METHOD;
     static final Method READ_SET_FIELD_METHOD;
     static final Method READ_LIST_FIELD_METHOD;
     static final Method READ_MAP_FIELD_METHOD;
@@ -86,11 +87,12 @@ class ClassGenerator<T> {
             // JTransaction methods
             GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
             GET_CURRENT_METHOD = JTransaction.class.getMethod("getCurrent");
-            READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", ObjId.class, Integer.TYPE);
-            WRITE_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("writeSimpleField", ObjId.class, Integer.TYPE, Object.class);
-            READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", ObjId.class, Integer.TYPE);
-            READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", ObjId.class, Integer.TYPE);
-            READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, Integer.TYPE);
+            READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", ObjId.class, int.class);
+            WRITE_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("writeSimpleField", ObjId.class, int.class, Object.class);
+            READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField", ObjId.class, int.class);
+            READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", ObjId.class, int.class);
+            READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", ObjId.class, int.class);
+            READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, int.class);
             DELETE_METHOD = JTransaction.class.getMethod("delete", JObject.class);
             EXISTS_METHOD = JTransaction.class.getMethod("exists", JObject.class);
             RECREATE_METHOD = JTransaction.class.getMethod("recreate", JObject.class);

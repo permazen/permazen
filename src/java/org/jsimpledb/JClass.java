@@ -143,6 +143,26 @@ public class JClass<T> extends JSchemaObject {
             final TypeToken<?> fieldTypeToken = TypeToken.of(getter.getGenericReturnType());
             this.log.debug("found " + description);
 
+            // Handle Counter fields
+            if (fieldTypeToken.equals(TypeToken.of(Counter.class))) {
+
+                // Sanity check annotation
+                if (annotation.type().length() != 0)
+                    throw new IllegalArgumentException("invalid " + description + ": counter fields must not specify a type");
+                if (annotation.indexed())
+                    throw new IllegalArgumentException("invalid " + description + ": counter fields cannot be indexed");
+
+                // Create counter field
+                final JCounterField jfield = new JCounterField(fieldName, annotation.storageId(),
+                  "counter field `" + fieldName + "' of object type `" + this.name + "'", getter);
+                jfield.parent = this;
+
+                // Add field
+                this.addField(jfield);
+                this.log.debug("added counter field `" + fieldName + "' to object type `" + this.name + "'");
+                continue;
+            }
+
             // Find corresponding setter method
             final Matcher matcher = Pattern.compile("(is|get)(.+)").matcher(getter.getName());
             if (!matcher.matches()) {

@@ -28,6 +28,7 @@ public class ObjType extends SchemaItem {
     final TreeMap<Integer, Field<?>> fields = new TreeMap<>();
     final TreeMap<Integer, SimpleField<?>> simpleFields = new TreeMap<>();
     final TreeMap<Integer, ComplexField<?>> complexFields = new TreeMap<>();
+    final TreeMap<Integer, CounterField> counterFields = new TreeMap<>();
 
     /**
      * Constructor.
@@ -50,6 +51,8 @@ public class ObjType extends SchemaItem {
         this.rebuildMap(this.simpleFields, SimpleField.class);
         this.complexFields.clear();
         this.rebuildMap(this.complexFields, ComplexField.class);
+        this.counterFields.clear();
+        this.rebuildMap(this.counterFields, CounterField.class);
     }
 
     /**

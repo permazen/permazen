@@ -7,6 +7,7 @@
 
 package org.jsimpledb.core;
 
+import org.jsimpledb.schema.CounterSchemaField;
 import org.jsimpledb.schema.ListSchemaField;
 import org.jsimpledb.schema.MapSchemaField;
 import org.jsimpledb.schema.ReferenceSchemaField;
@@ -53,6 +54,11 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
     @Override
     public SimpleField<?> caseSimpleSchemaField(SimpleSchemaField field) {
         return this.buildSimpleField(field, field.getName());
+    }
+
+    @Override
+    public CounterField caseCounterSchemaField(CounterSchemaField field) {
+        return new CounterField(field.getName(), field.getStorageId(), this.version);
     }
 
 // Internal methods

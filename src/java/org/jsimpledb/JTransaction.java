@@ -362,6 +362,19 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     }
 
     /**
+     * Read a counter field.
+     *
+     * <p>
+     * This method is used by generated {@link org.jsimpledb.annotation.JField &#64;JField} getter override methods
+     * and not normally invoked directly by user code.
+     * </p>
+     */
+    public Counter readCounterField(ObjId id, int storageId) {
+        this.jdb.getJField(storageId, JCounterField.class);
+        return new Counter(this.tx, id, storageId);
+    }
+
+    /**
      * Read a set field. This returns the set returned by {@link Transaction#readSetField Transaction.readSetField()} with
      * {@link ObjId}s converted into {@link JObject}s, etc.
      *
