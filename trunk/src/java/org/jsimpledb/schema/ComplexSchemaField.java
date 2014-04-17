@@ -9,18 +9,27 @@ package org.jsimpledb.schema;
 
 import java.util.Map;
 
-import javax.validation.constraints.NotNull;
+import org.jsimpledb.core.InvalidSchemaException;
 
 /**
  * A complex field in one version of a {@link SchemaObject}.
  */
 public abstract class ComplexSchemaField extends SchemaField {
 
-    // Overridde for @NotNull annotation
-    @NotNull(message = "complex fields must have a name")
     @Override
-    public String getName() {
-        return super.getName();
+    public void validate() {
+        super.validate();
+        if (this.getName() == null || this.getName().length() == 0)
+            throw new InvalidSchemaException(this + " must specify a name");
+        for (Map.Entry<String, SimpleSchemaField> entry : this.getSubFields().entrySet()) {
+            final String subFieldName = entry.getKey();
+            final SimpleSchemaField subField = entry.getValue();
+            if (subField == null)
+                throw new InvalidSchemaException("invalid " + this + ": missing sub-field `" + subFieldName + "'");
+            if (subField.getName() != null)
+                throw new InvalidSchemaException("sub-" + subField + " of " + this + " must not specify a name");
+            subField.validate();
+        }
     }
 
     public abstract Map<String, SimpleSchemaField> getSubFields();

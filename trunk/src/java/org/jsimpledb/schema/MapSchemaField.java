@@ -10,9 +10,6 @@ package org.jsimpledb.schema;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import org.jsimpledb.core.MapField;
 
 /**
@@ -23,8 +20,6 @@ public class MapSchemaField extends ComplexSchemaField {
     private SimpleSchemaField keyField;
     private SimpleSchemaField valueField;
 
-    @NotNull(message = "map fields must have key and value sub-fields")
-    @Valid
     public SimpleSchemaField getKeyField() {
         return this.keyField;
     }
@@ -32,8 +27,6 @@ public class MapSchemaField extends ComplexSchemaField {
         this.keyField = keyField;
     }
 
-    @NotNull(message = "map fields must have key and value sub-fields")
-    @Valid
     public SimpleSchemaField getValueField() {
         return this.valueField;
     }
@@ -58,7 +51,7 @@ public class MapSchemaField extends ComplexSchemaField {
 
     @Override
     public String toString() {
-        return "map " + super.toString() + " with key " + this.getKeyField() + " and value " + this.getValueField();
+        return "map " + super.toString() + " with key " + this.keyField + " and value " + this.valueField;
     }
 
     @Override

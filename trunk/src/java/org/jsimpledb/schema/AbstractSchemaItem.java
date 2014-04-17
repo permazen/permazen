@@ -7,21 +7,19 @@
 
 package org.jsimpledb.schema;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
+import org.jsimpledb.core.InvalidSchemaException;
 
 /**
  * Common superclass for {@link SchemaObject} and {@link SchemaField}.
  */
-public class AbstractSchemaItem implements Cloneable {
+public abstract class AbstractSchemaItem implements Cloneable {
 
     private String name;
     private int storageId;
 
     /**
-     * Get the name associated with this instance.
+     * Get the name associated with this instance, if any.
      */
-    @Size(min = 1, message = "names cannot be empty")
     public String getName() {
         return this.name;
     }
@@ -33,12 +31,21 @@ public class AbstractSchemaItem implements Cloneable {
      * Get the storage ID associated with this instance.
      * Storage IDs must be positive values.
      */
-    @Min(value = 1, message = "a positive storage ID is required")
     public int getStorageId() {
         return this.storageId;
     }
     public void setStorageId(int storageId) {
         this.storageId = storageId;
+    }
+
+    /**
+     * Validate this instance.
+     *
+     * @throws InvalidSchemaException if this instance in invalid
+     */
+    public void validate() {
+        if (this.storageId <= 0)
+            throw new InvalidSchemaException(this + " has an invalid storage ID; must be greater than zero");
     }
 
 // Object

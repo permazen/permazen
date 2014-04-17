@@ -16,11 +16,9 @@ import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import org.dellroad.stuff.jibx.JiBXUtil;
 import org.jibx.runtime.JiBXException;
+import org.jsimpledb.core.InvalidSchemaException;
 
 /**
  * Models one JSimpleDB {@link org.jsimpledb.core.Database} schema version.
@@ -29,8 +27,6 @@ public class SchemaModel implements Cloneable {
 
     private SortedMap<Integer, SchemaObject> schemaObjects = new TreeMap<>();
 
-    @NotNull
-    @Valid
     public SortedMap<Integer, SchemaObject> getSchemaObjects() {
         return this.schemaObjects;
     }
@@ -54,18 +50,31 @@ public class SchemaModel implements Cloneable {
     }
 
     /**
-     * Deserialize an instance from the given XML input.
+     * Deserialize an instance from the given XML input and validate it.
      *
      * @param input XML input
      * @throws IOException if an I/O error occurs
-     * @throws IllegalArgumentException if the XML input is invalid
+     * @throws InvalidSchemaException if the XML input or decoded {@link SchemaModel} is invalid
      */
     public static SchemaModel fromXML(InputStream input) throws IOException {
+        final SchemaModel schemaModel;
         try {
-            return JiBXUtil.readObject(SchemaModel.class, input);
+            schemaModel = JiBXUtil.readObject(SchemaModel.class, input);
         } catch (JiBXException e) {
-            throw new IllegalArgumentException("invalid XML", e);
+            throw new InvalidSchemaException("error parsing schema model XML", e);
         }
+        schemaModel.validate();
+        return schemaModel;
+    }
+
+    /**
+     * Validate this instance.
+     *
+     * @throws InvalidSchemaException if this instance is invalid
+     */
+    public void validate() {
+        for (SchemaObject schemaObject : this.schemaObjects.values())
+            schemaObject.validate();
     }
 
 // Object

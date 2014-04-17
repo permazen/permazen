@@ -7,9 +7,8 @@
 
 package org.jsimpledb.schema;
 
-import javax.validation.constraints.NotNull;
-
 import org.jsimpledb.core.DeleteAction;
+import org.jsimpledb.core.InvalidSchemaException;
 import org.jsimpledb.core.ReferenceType;
 
 /**
@@ -27,7 +26,6 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     /**
      * Get the desired behavior when an object referred to by this field is deleted.
      */
-    @NotNull(message = "a non-null onDelete value must be specified")
     public DeleteAction getOnDelete() {
         return this.onDelete;
     }
@@ -47,6 +45,13 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         if (!indexed)
             throw new IllegalArgumentException("reference fields are always indexed");
         super.setIndexed(indexed);
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        if (this.onDelete == null)
+            throw new InvalidSchemaException(this + " must specify a delete action");
     }
 
     @Override

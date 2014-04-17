@@ -10,17 +10,10 @@ package org.jsimpledb.core;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.validation.ConstraintViolation;
-
-import org.dellroad.stuff.jibx.JiBXUtil;
-import org.dellroad.stuff.validation.ValidationUtil;
-import org.jibx.runtime.JiBXException;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVPairIterator;
@@ -233,9 +226,7 @@ public class Database {
             throw new IllegalArgumentException("invalid schema version: " + version);
 
         // Validate schema
-        final Set<ConstraintViolation<SchemaModel>> violations = ValidationUtil.validate(schemaModel);
-        if (!violations.isEmpty())
-            throw new InvalidSchemaException("invalid schema model:\n" + ValidationUtil.describe(violations));
+        schemaModel.validate();
 
         // Open KV transaction
         final KVTransaction kvt;
@@ -387,9 +378,7 @@ public class Database {
             throw new IllegalArgumentException("null schemaModel");
 
         // Validate
-        final Set<ConstraintViolation<SchemaModel>> violations = ValidationUtil.validate(schemaModel);
-        if (!violations.isEmpty())
-            throw new InvalidSchemaException("invalid schema:\n" + ValidationUtil.describe(violations));
+        schemaModel.validate();
         try {
             new SchemaVersion(1, new byte[0], schemaModel, this.fieldTypeRegistry);
         } catch (IllegalArgumentException e) {
@@ -399,43 +388,38 @@ public class Database {
 
     /**
      * Build {@link Schema} object from a schema version XMLs.
+     *
+     * @throws InconsistentDatabaseException if any recorded schema version is invalid
      */
     private Schema buildSchema(SortedMap<Integer, byte[]> bytesMap) {
         final TreeMap<Integer, SchemaVersion> versionMap = new TreeMap<>();
         for (Map.Entry<Integer, byte[]> entry : bytesMap.entrySet()) {
             final int version = entry.getKey();
             final byte[] bytes = entry.getValue();
-            versionMap.put(version, new SchemaVersion(version, bytes, this.decodeSchema(version, bytes), this.fieldTypeRegistry));
+            final SchemaModel schemaModel;
+            try {
+                schemaModel = this.decodeSchema(bytes);
+            } catch (InvalidSchemaException e) {
+                throw new InconsistentDatabaseException("found invalid schema version " + version + " recorded in database", e);
+            }
+            if (this.log.isTraceEnabled())
+                this.log.trace("read schema version {} from database:\n{}", version, schemaModel);
+            versionMap.put(version, new SchemaVersion(version, bytes, schemaModel, this.fieldTypeRegistry));
         }
         return new Schema(versionMap);
     }
 
     /**
      * Decode and validate schema XML.
+     *
+     * @throws InvalidSchemaException if schema is invalid
      */
-    private SchemaModel decodeSchema(int version, byte[] value) {
-
-        // Decode as XML
-        SchemaModel schemaModel;
+    private SchemaModel decodeSchema(byte[] value) {
         try {
-            schemaModel = JiBXUtil.readObject(SchemaModel.class, new ByteArrayInputStream(value));
+            return SchemaModel.fromXML(new ByteArrayInputStream(value));
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
-        } catch (JiBXException e) {
-            throw new IllegalArgumentException("can't parse schema version " + version, e);
         }
-        if (this.log.isTraceEnabled())
-            this.log.trace("read schema version {} from database:\n{}", version, new String(value, Charset.forName("UTF-8")));
-
-        // Validate schema
-        final Set<ConstraintViolation<SchemaModel>> violations = ValidationUtil.validate(schemaModel);
-        if (!violations.isEmpty()) {
-            throw new IllegalArgumentException("found invalid schema version "
-              + version + ":\n" + ValidationUtil.describe(violations));
-        }
-
-        // Done
-        return schemaModel;
     }
 
     /**
@@ -446,10 +430,8 @@ public class Database {
         // Encode as XML
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         try {
-            JiBXUtil.writeObject(schema, buf);
+            schema.toXML(buf);
         } catch (IOException e) {
-            throw new RuntimeException("unexpected exception", e);
-        } catch (JiBXException e) {
             throw new RuntimeException("unexpected exception", e);
         }
 
