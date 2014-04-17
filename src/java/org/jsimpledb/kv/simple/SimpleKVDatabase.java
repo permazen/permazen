@@ -35,6 +35,17 @@ import org.jsimpledb.util.ByteUtil;
  */
 public class SimpleKVDatabase implements KVDatabase {
 
+    /**
+     * Default {@linkplain #getWaitTimeout wait timeout} for newly created transactions in milliseconds
+     * ({@value DEFAULT_WAIT_TIMEOUT}).
+     */
+    public static final long DEFAULT_WAIT_TIMEOUT = 500;
+
+    /**
+     * Default {@linkplain #getHoldTimeout hold timeout} in milliseconds ({@value DEFAULT_HOLD_TIMEOUT}).
+     */
+    public static final long DEFAULT_HOLD_TIMEOUT = 5000;
+
     // NOTE: The lock order here is first the SimpleKVTransaction, then the SimpleKVDatabase
 
     /**
@@ -43,26 +54,22 @@ public class SimpleKVDatabase implements KVDatabase {
     protected final KVStore kv;
 
     private final LockManager lockManager = new LockManager();
-
     private long waitTimeout;
 
     /**
-     * Constructor. Uses an internal in-memory {@link KVStore}.
+     * Constructor. Uses an internal in-memory {@link KVStore} and the default wait and hold timeouts.
      */
     public SimpleKVDatabase() {
         this(new NavigableMapKVStore());
     }
 
     /**
-     * Constructor taking caller-supplied storage.
+     * Constructor taking caller-supplied storage. Will use the default wait and hold timeouts.
      *
-     * @param kv {@link KVStore} for the committed data
-     * @throws IllegalArgumentException if {@code kv} is null
+     * @param kv {@link KVStore} for the committed data, or null for an in-memory {@link KVStore}
      */
     public SimpleKVDatabase(KVStore kv) {
-        if (kv == null)
-            throw new IllegalArgumentException("null kv");
-        this.kv = kv;
+        this(kv, DEFAULT_WAIT_TIMEOUT, DEFAULT_HOLD_TIMEOUT);
     }
 
     /**
@@ -79,7 +86,7 @@ public class SimpleKVDatabase implements KVDatabase {
     }
 
     /**
-     * Constructor taking (optional) caller-supplied storage and timeout settings.
+     * Primary constructor.
      *
      * @param kv {@link KVStore} for the committed data, or null for an in-memory {@link KVStore}
      * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
@@ -95,7 +102,7 @@ public class SimpleKVDatabase implements KVDatabase {
     }
 
     /**
-     * Get the default wait timeout for new transactions for this instance.
+     * Get the wait timeout for newly created transactions.
      *
      * <p>
      * The wait timeout limits how long a thread will wait for a contested lock before giving up and throwing
@@ -109,7 +116,7 @@ public class SimpleKVDatabase implements KVDatabase {
     }
 
     /**
-     * Set the default wait timeout for new transactions for this instance. Default is zero (unlimited).
+     * Set the wait timeout for newly created transactions. Default is {@link #DEFAULT_WAIT_TIMEOUT}.
      *
      * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
      *  in milliseconds (default), or zero for unlimited
@@ -136,7 +143,7 @@ public class SimpleKVDatabase implements KVDatabase {
     }
 
     /**
-     * Set the hold timeout for this instance. Default is zero (unlimited).
+     * Set the hold timeout for this instance. Default is {@link #DEFAULT_HOLD_TIMEOUT}.
      *
      * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
      *  in milliseconds, or zero for unlimited
