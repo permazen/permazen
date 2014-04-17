@@ -28,6 +28,7 @@ import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
 import org.slf4j.Logger;
@@ -87,14 +88,27 @@ public class JSimpleDB {
     });
 
     /**
-     * Constructor.
+     * Create an instance using an initially empty, in-memory {@link SimpleKVDatabase}.
+     * This constructor can also be used just to validate the given classes.
+     *
+     * @param classes classes annotated with {@link JSimpleClass} and/or {@link JFieldType} annotations
+     * @throws IllegalArgumentException if {@code classes} is null
+     * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
+     * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
+     */
+    public JSimpleDB(Iterable<Class<?>> classes) {
+        this(new Database(new SimpleKVDatabase()), 1, classes);
+    }
+
+    /**
+     * Primary constructor.
      *
      * @param database core database to use
      * @param version schema version number of the schema derived from {@code classes}
      * @param classes classes annotated with {@link JSimpleClass} and/or {@link JFieldType} annotations
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code version} is not greater than zero
-     * @throws IllegalArgumentException if {@code classes} contains a null, primitive, or interface class
+     * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
      * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
     public JSimpleDB(Database database, int version, Iterable<Class<?>> classes) {
@@ -112,6 +126,10 @@ public class JSimpleDB {
         // Scan for annotations
         final HashSet<Class<?>> classesSeen = new HashSet<>();
         for (Class<?> type : classes) {
+
+            // Sanity check
+            if (type == null)
+                throw new IllegalArgumentException("null class found in classes");
 
             // Ignore duplicates
             this.log.debug("checking " + type + " for JSimpleDB annotations");
