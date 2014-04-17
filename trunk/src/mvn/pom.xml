@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>@GROUP_ID@</groupId>
+  <artifactId>@ARTIFACT_ID@</artifactId>
+  <packaging>jar</packaging>
+  <name>JSimpleDB</name>
+  <version>@VERSION@</version>
+  <description>SimpleDB is designed to make powerful persistence easy for Java programmers. It does this by relegating the database to the simplest role possible-storing data as key/value pairs-and reimplementing and enhancing all of the usual database supporting features, such as indexes and notifications, in a Java-centric way, and by adding a few new features that traditional databases don't provide at all.</description>
+  <url>http://code.google.com/p/jsimpledb/</url>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <issueManagement>
+    <system>Google Code</system>
+    <url>http://code.google.com/p/jsimpledb/issues</url>
+  </issueManagement>
+  <scm>
+    <url>scm:svn:http://code.google.com/p/jsimpledb/source/browse/</url>
+    <connection>scm:svn:http://jsimpledb.googlecode.com/svn/trunk</connection>
+    <developerConnection>scm:svn:https://jsimpledb.googlecode.com/svn/trunk</developerConnection>
+  </scm>
+  <developers>
+    <developer>
+      <id>archie</id>
+      <name>Archie Cobbs</name>
+      <email>archie@dellroad.org</email>
+    </developer>
+  </developers>
+  <dependencies>
+    <dependency>
+      <groupId>org.jibx</groupId>
+      <artifactId>jibx-run</artifactId>
+      <version>1.2.5</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.dellroad</groupId>
+      <artifactId>dellroad-stuff</artifactId>
+      <version>1.0.850</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>16.0</version>
+    </dependency>
+  </dependencies>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+</project>
