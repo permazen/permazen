@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 import org.dellroad.stuff.string.ParseContext;
-import org.jibx.runtime.JiBXParseException;
 
 /**
  * Recreates {@link TypeToken}s from the output of {@link TypeToken#toString}.
@@ -130,18 +129,6 @@ public class TypeTokenParser {
             throw new RuntimeException("unexpected exception", e);
         }
         return (TypeToken<T>)TypeToken.of(type);
-    }
-
-// JiBX methods
-
-    public static TypeToken<?> deserialize(String string) throws JiBXParseException {
-        try {
-            return new TypeTokenParser().parse(string);
-        } catch (ClassNotFoundException e) {
-            throw new JiBXParseException("class not found in type token", string, e);
-        } catch (IllegalArgumentException e) {
-            throw new JiBXParseException("invalid type token", string, e);
-        }
     }
 
 // Test method
