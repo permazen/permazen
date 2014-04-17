@@ -7,7 +7,7 @@
 
 package org.jsimpledb.schema;
 
-import javax.validation.constraints.NotNull;
+import org.jsimpledb.core.InvalidSchemaException;
 
 /**
  * A simple field in a {@link SchemaObject}.
@@ -20,7 +20,6 @@ public class SimpleSchemaField extends SchemaField {
     /**
      * Get the name of this field's type. For example {@code int} for primitive integer type.
      */
-    @NotNull(message = "simple fields must have a type")
     public String getType() {
         return this.type;
     }
@@ -39,6 +38,13 @@ public class SimpleSchemaField extends SchemaField {
     }
 
     @Override
+    public void validate() {
+        super.validate();
+        if (this.type == null)
+            throw new InvalidSchemaException("invalid " + this + ": no type specified");
+    }
+
+    @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {
         return target.caseSimpleSchemaField(this);
     }
@@ -47,7 +53,7 @@ public class SimpleSchemaField extends SchemaField {
 
     @Override
     public String toString() {
-        return super.toString() + " of type " + this.type;
+        return super.toString() + (this.type != null ? " of type " + this.type : "");
     }
 
     @Override

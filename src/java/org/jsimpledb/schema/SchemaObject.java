@@ -11,35 +11,32 @@ import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.validation.ConstraintValidatorContext;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.dellroad.stuff.validation.SelfValidates;
-import org.dellroad.stuff.validation.SelfValidating;
-import org.dellroad.stuff.validation.SelfValidationException;
+import org.jsimpledb.core.InvalidSchemaException;
 
 /**
  * One object type in a {@link SchemaModel}.
  */
-@SelfValidates
-public class SchemaObject extends AbstractSchemaItem implements SelfValidating {
+public class SchemaObject extends AbstractSchemaItem {
 
     private SortedMap<Integer, SchemaField> schemaFields = new TreeMap<>();
 
-    // Overridden for @NotNull annotation
-    @NotNull(message = "must have a name")
-    public String getName() {
-        return super.getName();
-    }
-
-    @NotNull
-    @Valid
     public SortedMap<Integer, SchemaField> getSchemaFields() {
         return this.schemaFields;
     }
     public void setSchemaFields(SortedMap<Integer, SchemaField> schemaFields) {
         this.schemaFields = schemaFields;
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        if (this.getName() == null || this.getName().length() == 0)
+            throw new InvalidSchemaException(this + " must have a name");
+        for (SchemaField field : this.schemaFields.values()) {
+            if (field.getName() == null || field.getName().length() == 0)
+                throw new InvalidSchemaException(field + " of " + this + " must have a name");
+            field.validate();
+        }
     }
 
 // Object
@@ -73,23 +70,6 @@ public class SchemaObject extends AbstractSchemaItem implements SelfValidating {
         for (SchemaField schemaField : this.schemaFields.values())
             clone.addSchemaField(schemaField.clone());
         return clone;
-    }
-
-// SelfValidating
-
-    @Override
-    public void checkValid(ConstraintValidatorContext context) throws SelfValidationException {
-        for (SchemaField field : this.getSchemaFields().values()) {
-            if (field.getName() == null)
-                throw new SelfValidationException(field + " must have a name");
-            if (field instanceof ComplexSchemaField) {
-                final ComplexSchemaField complexField = (ComplexSchemaField)field;
-                for (SimpleSchemaField subField : complexField.getSubFields().values()) {
-                    if (subField.getName() != null)
-                        throw new SelfValidationException(subField + " must not specify a name");
-                }
-            }
-        }
     }
 
 // JiBX

@@ -10,9 +10,6 @@ package org.jsimpledb.schema;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import org.jsimpledb.core.CollectionField;
 
 /**
@@ -22,8 +19,6 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
 
     private SimpleSchemaField elementField;
 
-    @NotNull(message = "collection fields must have an element sub-field")
-    @Valid
     public SimpleSchemaField getElementField() {
         return this.elementField;
     }
@@ -33,14 +28,14 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
 
     @Override
     public Map<String, SimpleSchemaField> getSubFields() {
-        return Collections.<String, SimpleSchemaField> singletonMap(CollectionField.ELEMENT_FIELD_NAME, this.elementField);
+        return Collections.<String, SimpleSchemaField>singletonMap(CollectionField.ELEMENT_FIELD_NAME, this.elementField);
     }
 
 // Object
 
     @Override
     public String toString() {
-        return super.toString() + " with element " + this.getElementField();
+        return super.toString() + (this.elementField != null ? " with element " + this.elementField : "");
     }
 
     @Override
