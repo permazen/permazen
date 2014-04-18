@@ -159,16 +159,14 @@ class ClassGenerator<T> {
         cw.visitEnd();
         final byte[] classfile = cw.toByteArray();
 
-        // Debug dump
+        // Debug dump - requires asm-util
         // CHECKSTYLE OFF: GenericIllegalRegexp
-        if (false) {
-            System.out.println("***************** BEGIN " + this.getClassName() + " ******************");
-            org.objectweb.asm.ClassReader cr = new org.objectweb.asm.ClassReader(classfile);
-            java.io.PrintWriter pw = new java.io.PrintWriter(System.out, true);
-            cr.accept(new org.objectweb.asm.util.TraceClassVisitor(pw), 0);
-            pw.flush();
-            System.out.println("***************** END " + this.getClassName() + " ******************");
-        }
+        // System.out.println("***************** BEGIN " + this.getClassName() + " ******************");
+        // org.objectweb.asm.ClassReader cr = new org.objectweb.asm.ClassReader(classfile);
+        // java.io.PrintWriter pw = new java.io.PrintWriter(System.out, true);
+        // cr.accept(new org.objectweb.asm.util.TraceClassVisitor(pw), 0);
+        // pw.flush();
+        // System.out.println("***************** END " + this.getClassName() + " ******************");
         // CHECKSTYLE ON: GenericIllegalRegexp
 
         // Done

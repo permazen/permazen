@@ -40,18 +40,13 @@
       <artifactId>validation-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.dellroad</groupId>
-      <artifactId>dellroad-stuff</artifactId>
-      <version>1.0.850</version>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>16.0</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>16.0</version>
     </dependency>
   </dependencies>
   <parent>
