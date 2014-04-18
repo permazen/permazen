@@ -25,7 +25,7 @@ import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.AbstractXMLStreaming;
 
 /**
- * Utility methods for serializing and deserializing the contents of a {@link org.jsimpledb.kv.KVDatabase} to/from XML.
+ * Utility methods for serializing and deserializing the contents of a {@link org.jsimpledb.kv.KVStore} to/from XML.
  *
  * <p>
  * The XML has a simple format; empty values may be omitted:
