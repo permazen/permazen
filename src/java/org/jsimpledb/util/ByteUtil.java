@@ -111,6 +111,8 @@ public final class ByteUtil {
 
     /**
      * Convert a byte array into a string of hex digits, or {@code "null"} if {@code buf} is null.
+     *
+     * @see #parse parse()
      */
     public static String toString(byte[] buf) {
         if (buf == null)
@@ -123,6 +125,28 @@ public final class ByteUtil {
             result[off++] = Character.forDigit(value & 0x0f, 16);
         }
         return new String(result);
+    }
+
+    /**
+     * Decode a hexadecimal {@link String} into a {@code byte[]} array. The string must have an even
+     * number of digits and contain no other characters (e.g., whitespace).
+     *
+     * @param text string previously encoded by {@link #toString(byte[])}
+     * @throws IllegalArgumentException if any non-hexadecimal characters are found or the number of characters is odd
+     * @throws NullPointerException if {@code text} is null
+     * @see #toString(byte[]) toString()
+     */
+    public static byte[] parse(String text) {
+        if ((text.length() & 1) != 0)
+            throw new IllegalArgumentException("byte array has an odd number of digits");
+        final byte[] array = new byte[text.length() / 2];
+        int pos = 0;
+        for (int i = 0; pos < text.length(); i++) {
+            final int nib1 = Character.digit(text.charAt(pos++), 16);
+            final int nib2 = Character.digit(text.charAt(pos++), 16);
+            array[i] = (byte)((nib1 << 4) | nib2);
+        }
+        return array;
     }
 
     /**

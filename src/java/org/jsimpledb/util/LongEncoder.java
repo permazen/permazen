@@ -9,8 +9,6 @@ package org.jsimpledb.util;
 
 import java.util.Arrays;
 
-import org.dellroad.stuff.string.ByteArrayEncoder;
-
 /**
  * Encodes {@code long} values to/from binary, preserving sort order, and such that the length of the
  * encoding is optimized for values near zero.
@@ -211,14 +209,14 @@ public final class LongEncoder {
         for (String arg : args) {
             byte[] bytes = null;
             try {
-                bytes = ByteArrayEncoder.decode(arg);
+                bytes = ByteUtil.parse(arg);
             } catch (IllegalArgumentException e) {
                 if (arg.startsWith("0x"))
-                    bytes = ByteArrayEncoder.decode(arg.substring(2));
+                    bytes = ByteUtil.parse(arg.substring(2));
             }
             if (bytes != null) {
                 final long value = LongEncoder.read(new ByteReader(bytes));
-                System.out.println("0x" + ByteArrayEncoder.encode(bytes)
+                System.out.println("0x" + ByteUtil.toString(bytes)
                   + " decodes to " + value + " (" + String.format("0x%016x", value) + ")");
             }
             Long value = null;
@@ -231,7 +229,7 @@ public final class LongEncoder {
                 final ByteWriter writer = new ByteWriter();
                 LongEncoder.write(writer, value);
                 System.out.println(value + " (" + String.format("0x%016x", value)
-                  + ") encodes to " + ByteArrayEncoder.encode(writer.getBytes()));
+                  + ") encodes to " + ByteUtil.toString(writer.getBytes()));
             }
         }
     }
