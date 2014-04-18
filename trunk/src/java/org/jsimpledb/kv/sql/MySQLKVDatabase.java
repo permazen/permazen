@@ -51,6 +51,9 @@ public class MySQLKVDatabase extends SQLKVDatabase {
         return super.createGetLastStatement() + " LIMIT 1";
     }
 
+    /**
+     * Encloses the given {@code name} in backticks.
+     */
     @Override
     public String quote(String name) {
         return "`" + name + "`";
