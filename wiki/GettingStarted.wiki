@@ -133,7 +133,7 @@ public class JSimpleDBExample {
         // Create database
         final Database coreDb = new Database(new XMLKVDatabase(new File("jsimpledb.xml")));
         final JSimpleDB jdb = new JSimpleDB(coreDb, 1, Arrays.<Class<?>>asList(Person.class));
-  
+ 
         // Write to database
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
@@ -216,10 +216,10 @@ public class JSimpleDBExample {
             buf.append("Person (id " + this.getObjId() + ")\n");
             buf.append("  Name: " + this.getName() + "\n");
             buf.append("  Age: " + this.getAge() + "\n");
-            buf.append("  ->Friends of me:\n");
+            buf.append("  ->Friends of " + this.getName() + ":\n");
             for (Person friend : this.getFriends())
                 buf.append("    " + friend.getName() + "\n");
-            buf.append("  <-Friends with me:\n");
+            buf.append("  <-Friends with " + this.getName() + ":\n");
             for (Person reverseFriend : this.getFriendsToMe())
                 buf.append("    " + reverseFriend.getName() + "\n");
             return buf.toString().trim();
@@ -234,3 +234,33 @@ public class JSimpleDBExample {
         }
     }
 }</code>
+
+and sample output:
+{{{
+Writing database...
+Reading database...
+Person (id 6460f0e098b9b256)
+  Name: Joe
+  Age: 35
+  ->Friends of Joe:
+    Sally
+  <-Friends with Joe:
+    Fred
+Person (id 64878db4739d0e5e)
+  Name: Sally
+  Age: 45
+  ->Friends of Sally:
+    Fred
+  <-Friends with Sally:
+    Joe
+    Fred
+Person (id 64ed0329bf773c29)
+  Name: Fred
+  Age: 25
+  ->Friends of Fred:
+    Joe
+    Sally
+  <-Friends with Fred:
+    Sally
+}}}
+
