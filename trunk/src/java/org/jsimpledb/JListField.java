@@ -21,6 +21,7 @@ import org.jsimpledb.change.ListFieldAdd;
 import org.jsimpledb.change.ListFieldChange;
 import org.jsimpledb.change.ListFieldClear;
 import org.jsimpledb.change.ListFieldRemove;
+import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.ListSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -72,6 +73,9 @@ public class JListField extends JCollectionField {
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));
         types.add(new TypeToken<ListFieldRemove<T, E>>() { }
+          .where(new TypeParameter<T>() { }, targetType)
+          .where(new TypeParameter<E>() { }, elementType.wrap()));
+        types.add(new TypeToken<ListFieldReplace<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));
     }
