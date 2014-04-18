@@ -12,12 +12,12 @@ package org.jsimpledb.change;
  * when a simple field changes.
  *
  * @param <T> the type of the object containing the changed field
- * @param <F> the type of the changed field
+ * @param <V> the type of the changed field
  */
-public class SimpleFieldChange<T, F> extends FieldChange<T> {
+public class SimpleFieldChange<T, V> extends FieldChange<T> {
 
-    private final F oldValue;
-    private final F newValue;
+    private final V oldValue;
+    private final V newValue;
 
     /**
      * Constructor.
@@ -27,7 +27,7 @@ public class SimpleFieldChange<T, F> extends FieldChange<T> {
      * @param newValue the new field value
      * @throws IllegalArgumentException if {@code jobj} is null
      */
-    public SimpleFieldChange(T jobj, F oldValue, F newValue) {
+    public SimpleFieldChange(T jobj, V oldValue, V newValue) {
         super(jobj);
         this.oldValue = oldValue;
         this.newValue = newValue;
@@ -36,14 +36,14 @@ public class SimpleFieldChange<T, F> extends FieldChange<T> {
     /**
      * Get the value of the field before the change.
      */
-    public F getOldValue() {
+    public V getOldValue() {
         return this.oldValue;
     }
 
     /**
      * Get the value of the field after the change.
      */
-    public F getNewValue() {
+    public V getNewValue() {
         return this.newValue;
     }
 
