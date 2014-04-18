@@ -142,7 +142,8 @@ public class JClass<T> extends JSchemaObject {
             final String description = simpleFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
             final TypeToken<?> fieldTypeToken = TypeToken.of(getter.getGenericReturnType());
-            this.log.debug("found " + description);
+            if (this.log.isTraceEnabled())
+                this.log.trace("found " + description);
 
             // Handle Counter fields
             if (fieldTypeToken.equals(TypeToken.of(Counter.class))) {
@@ -160,7 +161,8 @@ public class JClass<T> extends JSchemaObject {
 
                 // Add field
                 this.addField(jfield);
-                this.log.debug("added counter field `" + fieldName + "' to object type `" + this.name + "'");
+                if (this.log.isTraceEnabled())
+                    this.log.trace("added counter field `" + fieldName + "' to object type `" + this.name + "'");
                 continue;
             }
 
@@ -193,7 +195,8 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
-            this.log.debug("added simple field `" + fieldName + "' to object type `" + this.name + "'");
+            if (this.log.isTraceEnabled())
+                this.log.trace("added simple field `" + fieldName + "' to object type `" + this.name + "'");
         }
 
         // Scan for Set fields
@@ -206,7 +209,8 @@ public class JClass<T> extends JSchemaObject {
             final Method getter = info.getMethod();
             final String description = setFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
-            this.log.debug("found " + description);
+            if (this.log.isTraceEnabled())
+                this.log.trace("found " + description);
 
             // Get element type (the raw return type has already been validated by the annotation scanner)
             final TypeToken<?> elementType = this.getParameterType(description, getter, 0);
@@ -224,7 +228,8 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
-            this.log.debug("added set field `" + fieldName + "' to object type `" + this.name + "'");
+            if (this.log.isTraceEnabled())
+                this.log.trace("added set field `" + fieldName + "' to object type `" + this.name + "'");
         }
 
         // Scan for List fields
@@ -237,7 +242,8 @@ public class JClass<T> extends JSchemaObject {
             final Method getter = info.getMethod();
             final String description = listFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
-            this.log.debug("found " + description);
+            if (this.log.isTraceEnabled())
+                this.log.trace("found " + description);
 
             // Get element type (the raw return type has already been validated by the annotation scanner)
             final TypeToken<?> elementType = this.getParameterType(description, getter, 0);
@@ -255,7 +261,8 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
-            this.log.debug("added list field `" + fieldName + "' to object type `" + this.name + "'");
+            if (this.log.isTraceEnabled())
+                this.log.trace("added list field `" + fieldName + "' to object type `" + this.name + "'");
         }
 
         // Scan for Map fields
@@ -269,7 +276,8 @@ public class JClass<T> extends JSchemaObject {
             final Method getter = info.getMethod();
             final String description = mapFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
-            this.log.debug("found " + description);
+            if (this.log.isTraceEnabled())
+                this.log.trace("found " + description);
 
             // Get key and value types (the raw return type has already been validated by the annotation scanner)
             final TypeToken<?> keyType = this.getParameterType(description, getter, 0);
@@ -293,7 +301,8 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
-            this.log.debug("added map field `" + fieldName + "' to object type `" + this.name + "'");
+            if (this.log.isTraceEnabled())
+                this.log.trace("added map field `" + fieldName + "' to object type `" + this.name + "'");
         }
     }
 
