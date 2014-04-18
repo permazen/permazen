@@ -34,7 +34,7 @@ public class FoundationKVDatabase implements KVDatabase {
     private final NetworkOptions options = this.fdb.options();
 
     private String clusterFilePath;
-    private byte[] databaseName = "DB".getBytes();
+    private byte[] databaseName = new byte[] { (byte)'D', (byte)'B' };
     private Executor executor;
 
     private Database database;
@@ -58,21 +58,21 @@ public class FoundationKVDatabase implements KVDatabase {
     /**
      * Configure the {@link Executor} used for the FoundationDB networking event loop.
      */
-    public void setExecutor() {
+    public void setExecutor(Executor executor) {
         this.executor = executor;
     }
 
     /**
      * Configure the cluster file path. Default is null, which results in the default fdb.cluster file being used.
      */
-    public void setClusterFilePath() {
+    public void setClusterFilePath(String clusterFilePath) {
         this.clusterFilePath = clusterFilePath;
     }
 
     /**
      * Configure the database name. Currently the default value ({@code "DB".getBytes()}) is the only valid value.
      */
-    public void setDatabaseName() {
+    public void setDatabaseName(byte[] databaseName) {
         this.databaseName = databaseName;
     }
 
