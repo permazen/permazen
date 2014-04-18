@@ -1,0 +1,241 @@
+#summary Getting JSimpleDB Running
+#labels Featured
+
+== Installation ==
+
+JSimpleDB is availble via Maven Central:
+
+<code language="xml">
+    <dependency>
+        <groupId>org.jsimpledb</groupId>
+        <artifactId>jsimpledb</artifactId>
+    </dependency></code>
+
+or from the [http://ivyroundup.googlecode.com/ Ivy RoundUp] ivy repository:
+
+<code language="xml">
+    <dependency org="org.jsimpledb" name="jsimpledb"/></code>
+
+== Configuration ==
+
+Creating and configuring a JSimpleDB database requires these steps:
+ # Configure your underlying key/value store
+ # Create a `Database` instance on top of the key/value store
+ # Create a `JSimpleDB` instance using the `Database` from step 2 and your annotated classes
+
+If you are using Spring you can do this all in XML using JSimpleDB's `<jsimpledb:scan-classpath>` custom XML tag. This works just like Spring's `<context:component-scan>`, except instead of scanning for classes annotated with `@Component`, etc., it scans for classes annotated with `@JSimpleClass` or `@JFieldType`.
+
+JSimpleDB also provides a Spring `TransactionManager` so you can do all the normal Spring things like `@Transactional`, transaction synchronizations, etc.
+
+Here's an example setup with Spring that uses a simple flat file for persistence:
+
+<code language="xml">
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:jsimpledb="http://jsimpledb.googlecode.com/schema/jsimpledb"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="
+     http://jsimpledb.googlecode.com/schema/jsimpledb http://jsimpledb.googlecode.com/svn/schemas/jsimpledb-1.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- Define the underlying key/value store -->
+    <bean id="kvstore" class="org.jsimpledb.kv.simple.XMLKVDatabase" c:file="%{user.home}/jsimpledb.xml"/>
+
+    <!-- Define the core Database layer on top of that -->
+    <bean id="database" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvstore"/>
+
+    <!-- Define the Java "JSimpleDB" using the core database and our annotated classes -->
+    <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1">
+        <constructor-arg>
+            <jsimpledb:scan-classpath base-package="com.example.myapp">
+                <jsimpledb:exclude-filter type="regex" expression="com\.example\.myapp\.test\..*"/>
+            </jsimpledb:scan-classpath>
+        </constructor-arg>
+    </bean>
+
+    <!-- Create a Spring transaction manager -->
+    <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
+      p:JSimpleDB-ref="jsimpledb"/>
+
+    <!-- Enable @Transactional annotations -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans></code>
+
+Of course, you can construct the equivalent `JSimpleDB` instance in plain Java as well:
+
+<code language="java">
+final JSimpleDB jdb = new JSimpleDB(new Database(new XMLKVDatabase("/tmp/jsimpledb.xml")),
+  1, Arrays.asList(MyClass1.class, MyClass2.class, ... ));</code>
+
+== Creating Transactions ==
+
+Once you have a `JSimpleDB` instance, you can create and commit transactions:
+
+<code language="java">
+    final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+    JTransaction.setCurrent(jtx);
+    try {
+        // Do work here ...
+        tx.commit();
+    } finally {
+        JTransaction.setCurrent(null);
+    }</code>
+
+When using the Spring transaction manager, this can be simplified:
+
+<code language="java">
+    @Transactional
+    public void doSomething() {
+        // Do work here ...
+    }</code>
+
+Like most databases, the underlying key/value store is allowed to throw an exception if it detects a deadlock or unresolvable lock conflict. In the case of `JSimpleDB`, the exception thrown is a `RetryTransactionException`; the JSimpleDB Spring transaction manager converts this into a `PessimisticLockingFailureException`.
+
+In these situations the transaction should be retried. The [https://code.google.com/p/dellroad-stuff/ DellRoad Stuff] library (included as a dependency) provides the [http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/dellroad/stuff/spring/RetryTransaction.html @RetryTransaction] annotation that automatically retries transactions:
+
+<code language="java">
+    @RetryTransaction
+    @Transactional
+    public void doSomething() {
+        // Do work here ...
+    }</code>
+
+== Hello World ==
+
+Here's a complete example using normal Java code:
+
+<code language="java">
+import java.io.File;
+import java.util.Arrays;
+import java.util.NavigableSet;
+import java.util.NavigableMap;
+import java.util.Set;
+
+import org.jsimpledb.JObject;
+import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.ValidationMode;
+import org.jsimpledb.annotation.IndexQuery;
+import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.annotation.JField;
+import org.jsimpledb.annotation.JSetField;
+import org.jsimpledb.core.Database;
+import org.jsimpledb.kv.simple.XMLKVDatabase;
+
+public class JSimpleDBExample {
+
+    public static void main(String[] args) throws Exception {
+
+        // Create database
+        final Database coreDb = new Database(new XMLKVDatabase(new File("jsimpledb.xml")));
+        final JSimpleDB jdb = new JSimpleDB(coreDb, 1, Arrays.<Class<?>>asList(Person.class));
+
+        // Model objects
+        Person fred;
+        Person joe;
+        Person sally;
+
+        // Write to database
+        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            System.out.println("Writing database...");
+
+            fred = Person.create();
+            joe = Person.create();
+            sally = Person.create();
+
+            fred.setName("Fred");
+            fred.setAge(25);
+
+            joe.setName("Joe");
+            joe.setAge(35);
+
+            sally.setName("Sally");
+            sally.setAge(45);
+
+            fred.getFriends().add(joe);
+            fred.getFriends().add(sally);
+
+            joe.getFriends().add(sally);
+
+            sally.getFriends().add(fred);
+
+            jtx.commit();
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
+        // Read from database
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            System.out.println("Reading database...");
+
+            for (Person person : Person.getAll())
+                System.out.println(person);
+
+            jtx.rollback();
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+// Persistent Classes
+
+    @JSimpleClass(storageId = 100)
+    public abstract static class Person implements JObject {
+
+        // My age
+        @JField(storageId = 101)
+        public abstract int getAge();
+        public abstract void setAge(int age);
+
+        // My name
+        @JField(storageId = 102)
+        public abstract String getName();
+        public abstract void setName(String name);
+
+        // My friends
+        @JSetField(storageId = 103, element = @JField(storageId = 104))
+        public abstract Set<Person> getFriends();
+
+        // Inverse of friends
+        public Set<Person> getFriendsToMe() {
+            return this.queryFriends().get(this);
+        }
+
+        // Inverse of friends
+        @IndexQuery("friends.element")
+        protected abstract NavigableMap<Person, NavigableSet<Person>> queryFriends();
+
+        @Override
+        public String toString() {
+            final StringBuilder buf = new StringBuilder();
+            buf.append("Person (id " + this.getObjId() + ")\n");
+            buf.append("  Name: " + this.getName() + "\n");
+            buf.append("  Age: " + this.getAge() + "\n");
+            buf.append("  ->Friends of me:\n");
+            for (Person friend : this.getFriends())
+                buf.append("    " + friend.getName() + "\n");
+            buf.append("  <-Friends with me:\n");
+            for (Person reverseFriend : this.getFriendsToMe())
+                buf.append("    " + reverseFriend.getName() + "\n");
+            return buf.toString().trim();
+        }
+
+        public static Person create() {
+            return JTransaction.getCurrent().create(Person.class);
+        }
+
+        public static Set<Person> getAll() {
+            return JTransaction.getCurrent().getAll(Person.class);
+        }
+    }
+}</code>
+
