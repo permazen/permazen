@@ -2184,9 +2184,9 @@ public class Transaction {
         void beforeCommit(boolean readOnly);
 
         /**
-         * Invoked before transaction completion in any case (but after any {@link #beforeCommit}).
+         * Invoked before transaction completion in any case (but after any {@link #beforeCommit beforeCommit()}).
          * This method is invoked whether the transaction is going to be committed or rolled back,
-         * and is invoked even if {@link #beforeCommit} throws an exception.
+         * and is invoked even if {@link #beforeCommit beforeCommit()} throws an exception.
          * Typically used to clean up resources before transaction completion.
          *
          * <p>
@@ -2196,7 +2196,7 @@ public class Transaction {
         void beforeCompletion();
 
         /**
-         * Invoked after successful transaction commit (and before any {@link #afterCompletion}).
+         * Invoked after successful transaction commit (and before any {@link #afterCompletion #afterCompletion()}).
          *
          * <p>
          * Any exceptions thrown will propagate to the caller.
