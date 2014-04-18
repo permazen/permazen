@@ -6,9 +6,9 @@
 JSimpleDB is availble via Maven Central:
 
 <code language="xml">
-    <dependency>
-        <groupId>org.jsimpledb</groupId>
-        <artifactId>jsimpledb</artifactId>
+    <dependency> 
+        <groupId>org.jsimpledb</groupId> 
+        <artifactId>jsimpledb</artifactId> 
     </dependency></code>
 
 or from the [http://ivyroundup.googlecode.com/ Ivy RoundUp] ivy repository:
@@ -40,13 +40,13 @@ Here's an example setup with Spring that uses a simple flat file for persistence
      http://jsimpledb.googlecode.com/schema/jsimpledb http://jsimpledb.googlecode.com/svn/schemas/jsimpledb-1.0.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
-
+ 
     <!-- Define the underlying key/value store -->
     <bean id="kvstore" class="org.jsimpledb.kv.simple.XMLKVDatabase" c:file="%{user.home}/jsimpledb.xml"/>
-
+ 
     <!-- Define the core Database layer on top of that -->
     <bean id="database" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvstore"/>
-
+ 
     <!-- Define the Java "JSimpleDB" using the core database and our annotated classes -->
     <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1">
         <constructor-arg>
@@ -55,11 +55,11 @@ Here's an example setup with Spring that uses a simple flat file for persistence
             </jsimpledb:scan-classpath>
         </constructor-arg>
     </bean>
-
+ 
     <!-- Create a Spring transaction manager -->
     <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
       p:JSimpleDB-ref="jsimpledb"/>
-
+ 
     <!-- Enable @Transactional annotations -->
     <tx:annotation-driven transaction-manager="transactionManager"/>
 </beans></code>
@@ -113,7 +113,7 @@ import java.util.Arrays;
 import java.util.NavigableSet;
 import java.util.NavigableMap;
 import java.util.Set;
-
+ 
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JTransaction;
@@ -124,96 +124,96 @@ import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
-
+ 
 public class JSimpleDBExample {
-
+ 
     public static void main(String[] args) throws Exception {
-
+ 
         // Create database
         final Database coreDb = new Database(new XMLKVDatabase(new File("jsimpledb.xml")));
         final JSimpleDB jdb = new JSimpleDB(coreDb, 1, Arrays.<Class<?>>asList(Person.class));
-
+ 
         // Model objects
         Person fred;
         Person joe;
         Person sally;
-
+ 
         // Write to database
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
-
+ 
             System.out.println("Writing database...");
-
+ 
             fred = Person.create();
             joe = Person.create();
             sally = Person.create();
-
+ 
             fred.setName("Fred");
             fred.setAge(25);
-
+ 
             joe.setName("Joe");
             joe.setAge(35);
-
+ 
             sally.setName("Sally");
             sally.setAge(45);
-
+ 
             fred.getFriends().add(joe);
             fred.getFriends().add(sally);
-
+ 
             joe.getFriends().add(sally);
-
+ 
             sally.getFriends().add(fred);
-
+ 
             jtx.commit();
         } finally {
             JTransaction.setCurrent(null);
         }
-
+ 
         // Read from database
         jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
-
+ 
             System.out.println("Reading database...");
-
+ 
             for (Person person : Person.getAll())
                 System.out.println(person);
-
+ 
             jtx.rollback();
         } finally {
             JTransaction.setCurrent(null);
         }
     }
-
+ 
 // Persistent Classes
-
+ 
     @JSimpleClass(storageId = 100)
     public abstract static class Person implements JObject {
-
+ 
         // My age
         @JField(storageId = 101)
         public abstract int getAge();
         public abstract void setAge(int age);
-
+ 
         // My name
         @JField(storageId = 102)
         public abstract String getName();
         public abstract void setName(String name);
-
+ 
         // My friends
         @JSetField(storageId = 103, element = @JField(storageId = 104))
         public abstract Set<Person> getFriends();
-
+ 
         // Inverse of friends
         public Set<Person> getFriendsToMe() {
             return this.queryFriends().get(this);
         }
-
+ 
         // Inverse of friends
         @IndexQuery("friends.element")
         protected abstract NavigableMap<Person, NavigableSet<Person>> queryFriends();
-
+ 
         @Override
         public String toString() {
             final StringBuilder buf = new StringBuilder();
@@ -228,14 +228,13 @@ public class JSimpleDBExample {
                 buf.append("    " + reverseFriend.getName() + "\n");
             return buf.toString().trim();
         }
-
+ 
         public static Person create() {
             return JTransaction.getCurrent().create(Person.class);
         }
-
+ 
         public static Set<Person> getAll() {
             return JTransaction.getCurrent().getAll(Person.class);
         }
     }
 }</code>
-
