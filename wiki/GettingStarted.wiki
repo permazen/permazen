@@ -47,12 +47,10 @@ Here's an example setup with Spring that uses a simple flat file for persistence
     <!-- Define the core Database layer on top of that -->
     <bean id="database" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvstore"/>
  
-    <!-- Define the Java "JSimpleDB" using the core database and our annotated classes -->
+    <!-- Define the Java model layer (JSimpleDB) using our annotated Java classes -->
     <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1"> 
         <constructor-arg> 
-            <jsimpledb:scan-classpath base-package="com.example.myapp"> 
-                <jsimpledb:exclude-filter type="regex" expression="com\.example\.myapp\.test\..*"/> 
-            </jsimpledb:scan-classpath> 
+            <jsimpledb:scan-classpath base-package="com.example.myapp.model"/> 
         </constructor-arg> 
     </bean> 
  
@@ -106,7 +104,7 @@ In these situations the transaction should be retried. The [https://code.google.
 
 == Hello World ==
 
-Here's a complete example using normal Java code:
+Here's a complete example using normal Java code that uses a flat file `jsimpledb.xml` for persistence:
 
 <code language="java">
 import java.io.File;
