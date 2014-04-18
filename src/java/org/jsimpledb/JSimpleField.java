@@ -123,12 +123,12 @@ public class JSimpleField extends JField {
 
     // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
-    private <T, F> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<F> fieldType) {
+    private <T, V> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<V> fieldType) {
         types.add(new TypeToken<FieldChange<T>>() { }
           .where(new TypeParameter<T>() { }, targetType));
-        types.add(new TypeToken<SimpleFieldChange<T, F>>() { }
+        types.add(new TypeToken<SimpleFieldChange<T, V>>() { }
           .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<F>() { }, fieldType.wrap()));
+          .where(new TypeParameter<V>() { }, fieldType.wrap()));
     }
 
     /**

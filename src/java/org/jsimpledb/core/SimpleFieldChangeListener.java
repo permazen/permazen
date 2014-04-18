@@ -34,9 +34,9 @@ public interface SimpleFieldChangeListener {
      * @param referrers all objects that (indirectly) refer to the affected object via the {@code path}
      * @param oldValue the field's previous value
      * @param newValue the field's new value
-     * @param <T> Java type for {@code field}'s values
+     * @param <V> Java type for {@code field}'s values
      */
-    <T> void onSimpleFieldChange(Transaction tx, ObjId id, int storageId,
-      int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue);
+    <V> void onSimpleFieldChange(Transaction tx, ObjId id, int storageId,
+      int[] path, NavigableSet<ObjId> referrers, V oldValue, V newValue);
 }
 
