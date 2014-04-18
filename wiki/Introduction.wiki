@@ -604,3 +604,11 @@ There is one exception, however: simple fields may change whether they are index
 
 JSimpleDB validates all of this for you, and will throw an exception if you try to do anything invalid.
 
+== Key/Value Stores ==
+
+JSimpleDB includes a simple key/value store that can be backed by memory or by a flat XML file, handy for testing or simple projects. It supports concurrent ACID transactions using read/write locks.
+
+JSimpleDB also includes key/value adapters for the following database technologies (so far):
+ * [http://foundationdb.com/ FoundationDB]
+ * Any SQL database - using a single table with two columns
+
