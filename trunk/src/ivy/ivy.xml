@@ -11,7 +11,7 @@
     <configurations>
         <conf name="javac" transitive="false" description="JARs required for javac"/>
         <conf name="build" extends="javac" description="JARs required for other build-time steps"/>
-        <conf name="asm" description="ASM JAR(s) to embed into our JAR"/>
+        <conf name="jarjars" transitive="false" description="JAR(s) to embed into our JAR"/>
         <conf name="test" extends="build" description="JARs required during testing"/>
     </configurations>
 
@@ -22,8 +22,8 @@
         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="javac->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="javac->default"/>
         <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1+" conf="javac->default"/>
-        <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.850" conf="javac->default"/>
-        <dependency force="true" org="org.objectweb.asm" name="asm" rev="4.+" conf="javac,build->default; asm->core"/>
+        <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.850" conf="javac->default; jarjars->default"/>
+        <dependency force="true" org="org.objectweb.asm" name="asm" rev="4.+" conf="javac,build->default; jarjars->core,util"/>
         <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7.2" conf="javac->default;test->log4j"/>
         <dependency force="true" org="org.springframework" name="spring" rev="4.0.3"
           conf="javac->aop,aspects,beans,context,tx"/>
