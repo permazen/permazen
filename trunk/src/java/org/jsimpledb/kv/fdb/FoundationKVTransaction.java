@@ -13,6 +13,7 @@ import com.foundationdb.MutationType;
 import com.foundationdb.Range;
 import com.foundationdb.Transaction;
 import com.foundationdb.async.AsyncIterator;
+import com.google.common.primitives.Bytes;
 
 import org.jsimpledb.kv.CountingKVStore;
 import org.jsimpledb.kv.KVPair;
@@ -34,15 +35,17 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
 
     private final FoundationKVDatabase store;
     private final Transaction tx;
+    private final byte[] keyPrefix;
 
     /**
      * Constructor.
      */
-    FoundationKVTransaction(FoundationKVDatabase store) {
+    FoundationKVTransaction(FoundationKVDatabase store, byte[] keyPrefix) {
         if (store == null)
             throw new IllegalArgumentException("null store");
         this.store = store;
         this.tx = this.store.getDatabase().createTransaction();
+        this.keyPrefix = keyPrefix;
     }
 
 // KVTransaction
@@ -71,7 +74,7 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
         if (key.length > 0 && key[0] == (byte)0xff)
             throw new IllegalArgumentException("key starts with 0xff");
         try {
-            return this.tx.get(key).get();
+            return this.tx.get(this.addPrefix(key)).get();
         } catch (FDBException e) {
             throw this.wrapException(e);
         }
@@ -81,23 +84,23 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
     public KVPair getAtLeast(byte[] minKey) {
         if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
             return null;
-        return this.getRange(new Range(minKey != null ? minKey : MIN_KEY, MAX_KEY), false);
+        return this.getFirstInRange(minKey, null, false);
     }
 
     @Override
     public KVPair getAtMost(byte[] maxKey) {
         if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
             maxKey = null;
-        return this.getRange(new Range(MIN_KEY, maxKey != null ? maxKey : MAX_KEY), true);
+        return this.getFirstInRange(null, maxKey, true);
     }
 
-    private KVPair getRange(Range range, boolean reverse) {
+    private KVPair getFirstInRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         try {
-            final AsyncIterator<KeyValue> i = this.tx.getRange(range, 1, reverse).iterator();
+            final AsyncIterator<KeyValue> i = this.tx.getRange(this.addPrefix(minKey, maxKey), 1, reverse).iterator();
             if (!i.hasNext())
                 return null;
             final KeyValue kv = i.next();
-            return new KVPair(kv.getKey(), kv.getValue());
+            return new KVPair(this.removePrefix(kv.getKey()), kv.getValue());
         } catch (FDBException e) {
             throw this.wrapException(e);
         }
@@ -108,7 +111,7 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
         if (key.length > 0 && key[0] == (byte)0xff)
             throw new IllegalArgumentException("key starts with 0xff");
         try {
-            this.tx.set(key, value);
+            this.tx.set(this.addPrefix(key), value);
         } catch (FDBException e) {
             throw this.wrapException(e);
         }
@@ -119,7 +122,7 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
         if (key.length > 0 && key[0] == (byte)0xff)
             throw new IllegalArgumentException("key starts with 0xff");
         try {
-            this.tx.clear(key);
+            this.tx.clear(this.addPrefix(key));
         } catch (FDBException e) {
             throw this.wrapException(e);
         }
@@ -134,7 +137,7 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
         if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
             throw new IllegalArgumentException("minKey > maxKey");
         try {
-            this.tx.clear(minKey != null ? minKey : MIN_KEY, maxKey != null ? maxKey : MAX_KEY);
+            this.tx.clear(this.addPrefix(minKey, maxKey));
         } catch (FDBException e) {
             throw this.wrapException(e);
         }
@@ -180,7 +183,7 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
 
     @Override
     public void adjustCounter(byte[] key, long amount) {
-        this.tx.mutate(MutationType.ADD, key, this.encodeCounter(amount));
+        this.tx.mutate(MutationType.ADD, this.addPrefix(key), this.encodeCounter(amount));
     }
 
     private void reverse(byte[] bytes) {
@@ -214,6 +217,28 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
         default:
             return new KVTransactionException(this, e);
         }
+    }
+
+// Key prefixing
+
+    private byte[] addPrefix(byte[] key) {
+        return this.keyPrefix != null ? Bytes.concat(this.keyPrefix, key) : key;
+    }
+
+    private Range addPrefix(byte[] minKey, byte[] maxKey) {
+        return new Range(this.addPrefix(minKey != null ? minKey : MIN_KEY), this.addPrefix(maxKey != null ? maxKey : MAX_KEY));
+    }
+
+    private byte[] removePrefix(byte[] key) {
+        if (this.keyPrefix == null)
+            return key;
+        if (!ByteUtil.isPrefixOf(this.keyPrefix, key)) {
+            throw new IllegalArgumentException("read key " + ByteUtil.toString(key) + " not having "
+              + ByteUtil.toString(this.keyPrefix) + " as a prefix");
+        }
+        final byte[] stripped = new byte[key.length - this.keyPrefix.length];
+        System.arraycopy(key, this.keyPrefix.length, stripped, 0, stripped.length);
+        return stripped;
     }
 }
 

@@ -22,6 +22,10 @@ import org.jsimpledb.kv.KVDatabaseException;
 
 /**
  * FoundationDB {@link KVDatabase} implementation.
+ *
+ * <p>
+ * Allows specifying a {@linkplain #setKeyPrefix key prefix} for all keys, allowing multiple independent databases.
+ * </p>
  */
 public class FoundationKVDatabase implements KVDatabase {
 
@@ -35,6 +39,7 @@ public class FoundationKVDatabase implements KVDatabase {
 
     private String clusterFilePath;
     private byte[] databaseName = new byte[] { (byte)'D', (byte)'B' };
+    private byte[] keyPrefix;
     private Executor executor;
 
     private Database database;
@@ -74,6 +79,32 @@ public class FoundationKVDatabase implements KVDatabase {
      */
     public void setDatabaseName(byte[] databaseName) {
         this.databaseName = databaseName;
+    }
+
+    /**
+     * Get the key prefix for all keys.
+     *
+     * @param keyPrefix key prefix, or null if there is none configured
+     */
+    public byte[] getKeyPrefix() {
+        return this.keyPrefix.clone();
+    }
+
+    /**
+     * Configure a prefix for all keys. The prefix will be added/removed automatically with all access.
+     * The default prefix is null, which is equivalent to an empty prefix.
+     *
+     * <p>
+     * The key prefix may not be changed after this instance has {@linkplain #start started}.
+     * </p>
+     *
+     * @param keyPrefix new prefix, or null for none
+     * @throws IllegalStateException if this instance has already been {@linkplain #start started}
+     */
+    public void setKeyPrefix(byte[] keyPrefix) {
+        if (this.database != null)
+            throw new IllegalStateException("already started");
+        this.keyPrefix = keyPrefix != null && keyPrefix.length > 0 ? keyPrefix.clone() : null;
     }
 
     /**
@@ -132,7 +163,7 @@ public class FoundationKVDatabase implements KVDatabase {
         if (this.database == null)
             throw new IllegalStateException("not started");
         try {
-            return new FoundationKVTransaction(this);
+            return new FoundationKVTransaction(this, this.keyPrefix);
         } catch (FDBException e) {
             throw new KVDatabaseException(this, e);
         }
