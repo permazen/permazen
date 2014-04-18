@@ -261,7 +261,7 @@ In JSimpleDB reference fields, including sub-fields of a collection field, are a
 
 <code language="java">
     @IndexQuery("friends.element")
-    abstract NavigableMap<Person, NavigableSet<Person>> queryFriends();
+    protected abstract NavigableMap<Person, NavigableSet<Person>> queryFriends();
  
     // Who considers me a friend?
     public Set<Person> whoConsidersMeAFriend() {
@@ -333,13 +333,13 @@ We keep all the code to maintain our custom "friends' average age" index in one 
  
     // Keep track of how many friends I have
     @JSaneField(storageId = 104)
-    abstract int getNumFriends();
-    abstract void setNumFriends(int numFriends);
+    protected abstract int getNumFriends();
+    protected abstract void setNumFriends(int numFriends);
  
     // Keep track of the sum of my friends' ages
     @JSaneField(storageId = 105)
-    abstract long getFriendsAgeSum();
-    abstract void setFriendsAgeSum(long ageSum);
+    protected abstract long getFriendsAgeSum();
+    protected abstract void setFriendsAgeSum(long ageSum);
  
     // Notify me when any of my friend's ages changes
     @OnChange("friends.element.age")
