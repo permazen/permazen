@@ -12,9 +12,8 @@ package org.jsimpledb.change;
  * when a list field is cleared.
  *
  * @param <T> the type of the object containing the changed field
- * @param <E> the type of the changed list's elements
  */
-public class ListFieldClear<T, E> extends ListFieldChange<T> {
+public class ListFieldClear<T> extends ListFieldChange<T> {
 
     /**
      * Constructor.

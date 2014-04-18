@@ -69,9 +69,8 @@ public class JListField extends JCollectionField {
         types.add(new TypeToken<ListFieldAdd<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));
-        types.add(new TypeToken<ListFieldClear<T, E>>() { }
-          .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<E>() { }, elementType.wrap()));
+        types.add(new TypeToken<ListFieldClear<T>>() { }
+          .where(new TypeParameter<T>() { }, targetType));
         types.add(new TypeToken<ListFieldRemove<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));

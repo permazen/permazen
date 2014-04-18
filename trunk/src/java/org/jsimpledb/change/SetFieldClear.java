@@ -12,9 +12,8 @@ package org.jsimpledb.change;
  * when a set field is cleared.
  *
  * @param <T> the type of the object containing the changed field
- * @param <E> the type of the changed set's elements
  */
-public class SetFieldClear<T, E> extends SetFieldChange<T> {
+public class SetFieldClear<T> extends SetFieldChange<T> {
 
     /**
      * Constructor.

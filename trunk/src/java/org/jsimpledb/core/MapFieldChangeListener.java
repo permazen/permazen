@@ -110,9 +110,7 @@ public interface MapFieldChangeListener {
      * @param storageId the storage ID of the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
-     * @param <K> Java type for {@code field}'s keys
-     * @param <V> Java type for {@code field}'s values
      */
-    <K, V> void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers);
+    void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers);
 }
 

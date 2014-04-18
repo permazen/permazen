@@ -148,9 +148,9 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         }
 
         @Override
-        public <E> void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             if (this.changeType.isAssignableFrom(SetFieldClear.class))
-                this.invoke(referrers, new SetFieldClear<JObject, E>(this.getJObject(id)));
+                this.invoke(referrers, new SetFieldClear<JObject>(this.getJObject(id)));
         }
 
     // ListFieldChangeListener
@@ -182,9 +182,9 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         }
 
         @Override
-        public <E> void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             if (this.changeType.isAssignableFrom(ListFieldClear.class))
-                this.invoke(referrers, new ListFieldClear<JObject, E>(this.getJObject(id)));
+                this.invoke(referrers, new ListFieldClear<JObject>(this.getJObject(id)));
         }
 
     // MapFieldChangeListener
@@ -216,9 +216,9 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         }
 
         @Override
-        public <K, V> void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             if (this.changeType.isAssignableFrom(MapFieldClear.class))
-                this.invoke(referrers, new MapFieldClear<JObject, K, V>(this.getJObject(id)));
+                this.invoke(referrers, new MapFieldClear<JObject>(this.getJObject(id)));
         }
 
     // Internal methods

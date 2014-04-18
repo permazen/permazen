@@ -65,9 +65,8 @@ public class JSetField extends JCollectionField {
         types.add(new TypeToken<SetFieldAdd<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));
-        types.add(new TypeToken<SetFieldClear<T, E>>() { }
-          .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<E>() { }, elementType.wrap()));
+        types.add(new TypeToken<SetFieldClear<T>>() { }
+          .where(new TypeParameter<T>() { }, targetType));
         types.add(new TypeToken<SetFieldRemove<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));

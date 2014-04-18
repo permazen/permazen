@@ -12,10 +12,8 @@ package org.jsimpledb.change;
  * when a map field is cleared.
  *
  * @param <T> the type of the object containing the changed field
- * @param <K> the type of the changed map's key
- * @param <V> the type of the changed map's value
  */
-public class MapFieldClear<T, K, V> extends MapFieldChange<T> {
+public class MapFieldClear<T> extends MapFieldChange<T> {
 
     /**
      * Constructor.
