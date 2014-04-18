@@ -3,7 +3,7 @@
 
 == Introduction ==
 
-JSimpleDB is designed to make powerful persistence easy for Java programmers. It does this by relegating the database to the simplest role possible--storing data as key/value pairs--and reimplementing and enhancing all of the usual database supporting features, such as indexes and notifications, in a Java-centric way. JSimpleDB also adds a few new features that traditional databases don't provide.
+JSimpleDB is designed to make powerful persistence easy for Java programmers. It does this by relegating the database to the simplest role possible - storing data as key/value pairs - and reimplementing and enhancing all of the usual database supporting features, such as indexes and notifications, in a Java-centric way. JSimpleDB also adds a few new features that traditional databases don't provide.
 
 In other words, for the most part JSimpleDB is not trying to create solutions where none existed before. Rather, it's trying to reimplement many of the same, well-tested ideas and algorithms used in traditional databases in a way that is more natural for Java programmers. So convenience and maintainability are primary benefits, but as it happens, new solutions to some problems that traditional databases _don't_ solve for you also become easy and natural.
 
@@ -122,6 +122,8 @@ Given the above `Person` class, if you wanted to calculate whether any `Person` 
     }</code>
 
 Having to write that code is a _good_ thing: JSimpleDB is exposing the underlying performance reality and forcing you to confront the fact that the cost of calculating this function is an iteration over every `Person` in the database. With large database, that could be impractically slow. But it will be slow for an obvious reason, not mysteriously so.
+
+In JSimpleDB it's simply not possible to have queries be horribly slow unless you write them that way yourself!
 
 Of course this is the perfect situation for an *index* on the `age` field. Here we create one by adding `indexed = true` to the `@JField` annotation:
 
