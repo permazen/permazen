@@ -194,9 +194,7 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Create an SQL statement that reads the value column associated with a specific key.
-     *
-     * @throws IllegalArgumentException if any parameter is null
+     * Create an SQL statement that reads the value column associated with key {@code ?1}.
      */
     public String createGetStatement() {
         return "SELECT " + this.quote(this.keyColumnName) + " FROM "
@@ -206,8 +204,6 @@ public class SQLKVDatabase implements KVDatabase {
     /**
      * Create an SQL statement that reads the key and value columns (in that order) associated
      * with the smallest key greater than or equal to {@code ?1}, if any.
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createGetAtLeastStatement() {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -216,8 +212,6 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that reads the key and value columns (in that order) associated with the first key, if any.
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createGetFirstStatement() {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -227,8 +221,6 @@ public class SQLKVDatabase implements KVDatabase {
     /**
      * Create an SQL statement that reads the key and value columns (in that order)
      * associated with the greatest key strictly less than {@code ?1}, if any.
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createGetAtMostStatement() {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -238,8 +230,6 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that reads the key and value columns (in that order) associated with the last key, if any.
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createGetLastStatement() {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -249,8 +239,6 @@ public class SQLKVDatabase implements KVDatabase {
     /**
      * Create an SQL statement that inserts the key/value pair with key {@code ?1} and value {@code ?2}.
      * Note that a row with key {@code ?1} may already exist; if so, the value should be updated to {@code ?2}.
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createPutStatement() {
         return "INSERT INTO " + this.quote(this.tableName) + " (" + this.quote(this.keyColumnName)
@@ -260,8 +248,6 @@ public class SQLKVDatabase implements KVDatabase {
     /**
      * Create an SQL statement that deletes the row associated with key {@code ?1}, if any.
      * Note that the key may or may not exist prior to this method being invoked.
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createRemoveStatement() {
         return "DELETE FROM " + this.quote(this.tableName) + " WHERE " + this.quote(this.keyColumnName) + " = ?1";
@@ -269,8 +255,6 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that deletes all rows with keys in the range {@code ?1} (inclusive} to {@code ?2} (exclusive).
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createRemoveRangeStatement() {
         return "DELETE FROM " + this.quote(this.tableName)
@@ -279,8 +263,6 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that deletes all rows with keys greater than or equal to {@code ?1}.
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createRemoveAtLeastStatement() {
         return "DELETE FROM " + this.quote(this.tableName) + " WHERE " + this.quote(this.keyColumnName) + " >= ?1";
@@ -288,8 +270,6 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that deletes all rows with keys strictly less than {@code ?1}.
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createRemoveAtMostStatement() {
         return "DELETE FROM " + this.quote(this.tableName) + " WHERE " + this.quote(this.keyColumnName) + " < ?2";
@@ -297,8 +277,6 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that deletes all rows.
-     *
-     * @throws IllegalArgumentException if any parameter is null
      */
     public String createRemoveAllStatement() {
         return "DELETE FROM " + this.quote(this.tableName);
