@@ -23,7 +23,7 @@
     <url>http://code.google.com/p/jsimpledb/issues</url>
   </issueManagement>
   <scm>
-    <url>scm:svn:http://code.google.com/p/jsimpledb/source/browse/</url>
+    <url>scm:svn:http://jsimpledb.googlecode.com/svn/trunk/</url>
     <connection>scm:svn:http://jsimpledb.googlecode.com/svn/trunk</connection>
     <developerConnection>scm:svn:https://jsimpledb.googlecode.com/svn/trunk</developerConnection>
   </scm>
