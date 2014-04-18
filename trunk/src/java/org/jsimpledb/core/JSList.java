@@ -172,11 +172,11 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
                 this.field.addIndexEntry(this.tx, this.id, this.field.elementField, key, value);
 
             // Notify field monitors
-            final int i2 = i;
+            final int index2 = index;
             this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
                 @Override
                 void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onListFieldAdd(tx, this.getId(), this.getStorageId(), path, referrers, i2, elem);
+                    listener.onListFieldAdd(tx, this.getId(), this.getStorageId(), path, referrers, index2, elem);
                 }
             });
 
