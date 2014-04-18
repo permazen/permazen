@@ -33,11 +33,6 @@
         <property name="javac.classpath.resolved" value="true"/>
     </target>
 
-    <target name="jibx-bind.classpath" unless="jibx-bind.classpath.resolved">
-        <dellroad:ivypath pathid="jibx-bind.classpath" conf="jibx-bind"/>
-        <property name="jibx-bind.classpath.resolved" value="true"/>
-    </target>
-
     <target name="unittest.classpath" depends="jar" unless="unittest.classpath.resolved">
         <dellroad:ivypath pathid="unittest.classpath" conf="test"/>
         <property name="unittest.classpath.resolved" value="true"/>
@@ -57,38 +52,8 @@
         <property name="resources.completed" value="true"/>
     </target>
 
-    <!-- JiBX bindings -->
-    <target name="jibx-bind" depends="javac, jibx-bind.classpath" unless="jibx-bind.completed">
-        <taskdef name="bind" classname="org.jibx.binding.ant.CompileTask" classpathref="jibx-bind.classpath"/>
-        <antcontrib:outofdate>
-            <sourcefiles>
-                <fileset dir="." includes="build.xml"/>
-                <fileset dir="src/java" includes="**/*.xml"/>
-                <fileset dir="src/java" includes="**/*.java"/>
-                <fileset dir="build/classes">
-                    <include name="**/*.class"/>
-                    <exclude name="**/JiBX_*.class"/>
-                </fileset>
-            </sourcefiles>
-            <targetfiles>
-                <pathelement path="build/classes/org/jsimpledb/schema/JiBX_bindingFactory.class"/>
-            </targetfiles>
-            <sequential>
-                <dellroad:jibx-bind name="XML encoded classes">
-                    <classes>
-                        <pathelement path="build/classes"/>
-                    </classes>
-                    <bindings>
-                        <include name="src/java/**/binding.xml"/>
-                    </bindings>
-                </dellroad:jibx-bind>
-            </sequential>
-        </antcontrib:outofdate>
-        <property name="jibx-bind.completed" value="true"/>
-    </target>
-
     <!-- Main JAR -->
-    <target name="jar" depends="javac, jibx-bind, resources, build.classpath" unless="jar.completed"
+    <target name="jar" depends="javac, resources, build.classpath" unless="jar.completed"
       description="Build main JAR">
         <dellroad:ivyput pattern="build/[artifact].[ext]" conf="asm"/>
         <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="build.classpath"/>
@@ -160,7 +125,7 @@
 
     <!-- Run unit tests -->
     <target name="tests" description="Run unit tests"
-      depends="javac, jibx-bind, unittest.classpath, testng.classpath, cobertura.classpath"
+      depends="javac, unittest.classpath, testng.classpath, cobertura.classpath"
       unless="tests.completed">
         <copy todir="build/test" overwrite="true">
             <fileset dir="src/test" includes="**/*.xsl"/>
@@ -172,9 +137,6 @@
         </copy>
         <copy file="src/xml/log4j-build.xml" tofile="build/test/log4j.xml"/>
         <dellroad:unit-tests>
-            <excludes>
-                <exclude name="**/JiBX_*.class"/>
-            </excludes>
             <addclasspath>
                 <path refid="javac.classpath"/>
             </addclasspath>

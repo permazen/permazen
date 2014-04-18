@@ -7,9 +7,12 @@
 
 package org.jsimpledb.schema;
 
-import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.jsimpledb.core.InvalidSchemaException;
 
@@ -37,6 +40,48 @@ public class SchemaObject extends AbstractSchemaItem {
                 throw new InvalidSchemaException(field + " of " + this + " must have a name");
             field.validate();
         }
+    }
+
+    @Override
+    void readSubElements(XMLStreamReader reader) throws XMLStreamException {
+        while (this.expect(reader, true, COUNTER_FIELD_TAG, LIST_FIELD_TAG, MAP_FIELD_TAG,
+          REFERENCE_FIELD_TAG, SET_FIELD_TAG, SIMPLE_FIELD_TAG)) {
+            SchemaField field;
+            if (reader.getName().equals(COUNTER_FIELD_TAG))
+                field = new CounterSchemaField();
+            else if (reader.getName().equals(LIST_FIELD_TAG))
+                field = new ListSchemaField();
+            else if (reader.getName().equals(MAP_FIELD_TAG))
+                field = new MapSchemaField();
+            else if (reader.getName().equals(REFERENCE_FIELD_TAG))
+                field = new ReferenceSchemaField();
+            else if (reader.getName().equals(SET_FIELD_TAG))
+                field = new SetSchemaField();
+            else if (reader.getName().equals(SIMPLE_FIELD_TAG))
+                field = new SimpleSchemaField();
+            else
+                throw new RuntimeException("internal error");
+            field.readXML(reader);
+            final int storageId = field.getStorageId();
+            final SchemaField previous = this.schemaFields.put(storageId, field);
+            if (previous != null) {
+                throw new InvalidSchemaException("duplicate use of storage ID " + storageId
+                  + " for both " + previous + " and " + field + " in " + this);
+            }
+        }
+    }
+
+    @Override
+    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
+        if (this.schemaFields.isEmpty())
+            writer.writeEmptyElement(OBJECT_TAG.getNamespaceURI(), OBJECT_TAG.getLocalPart());
+        else
+            writer.writeStartElement(OBJECT_TAG.getNamespaceURI(), OBJECT_TAG.getLocalPart());
+        this.writeAttributes(writer);
+        for (SchemaField schemaField : this.schemaFields.values())
+            schemaField.writeXML(writer);
+        if (!this.schemaFields.isEmpty())
+            writer.writeEndElement();
     }
 
 // Object
@@ -68,18 +113,8 @@ public class SchemaObject extends AbstractSchemaItem {
         final SchemaObject clone = (SchemaObject)super.clone();
         clone.schemaFields = new TreeMap<>();
         for (SchemaField schemaField : this.schemaFields.values())
-            clone.addSchemaField(schemaField.clone());
+            clone.getSchemaFields().put(schemaField.getStorageId(), schemaField.clone());
         return clone;
-    }
-
-// JiBX
-
-    public void addSchemaField(SchemaField field) {
-        this.schemaFields.put(field.getStorageId(), field);
-    }
-
-    public Iterator<SchemaField> iterateSchemaFields() {
-        return this.schemaFields.values().iterator();
     }
 }
 

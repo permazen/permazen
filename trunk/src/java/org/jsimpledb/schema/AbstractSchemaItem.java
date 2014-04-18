@@ -7,12 +7,17 @@
 
 package org.jsimpledb.schema;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.jsimpledb.core.InvalidSchemaException;
+import org.jsimpledb.util.AbstractXMLStreaming;
 
 /**
  * Common superclass for {@link SchemaObject} and {@link SchemaField}.
  */
-public abstract class AbstractSchemaItem implements Cloneable {
+public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements XMLConstants, Cloneable {
 
     private String name;
     private int storageId;
@@ -46,6 +51,37 @@ public abstract class AbstractSchemaItem implements Cloneable {
     public void validate() {
         if (this.storageId <= 0)
             throw new InvalidSchemaException(this + " has an invalid storage ID; must be greater than zero");
+    }
+
+    void readXML(XMLStreamReader reader) throws XMLStreamException {
+        this.readAttributes(reader);
+        this.readSubElements(reader);
+    }
+
+    void readAttributes(XMLStreamReader reader) throws XMLStreamException {
+        final String text = reader.getAttributeValue(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart());
+        if (text != null) {
+            try {
+                this.setStorageId(Integer.valueOf(text));
+            } catch (NumberFormatException e) {
+                throw new XMLStreamException("invalid storage ID `" + text + "': must be a positive integer", reader.getLocation());
+            }
+        }
+        final String newName = reader.getAttributeValue(NAME_ATTRIBUTE.getNamespaceURI(), NAME_ATTRIBUTE.getLocalPart());
+        if (newName != null)
+            this.setName(newName);
+    }
+
+    void readSubElements(XMLStreamReader reader) throws XMLStreamException {
+        this.expect(reader, true);
+    }
+
+    abstract void writeXML(XMLStreamWriter writer) throws XMLStreamException;
+
+    void writeAttributes(XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + this.storageId);
+        if (this.name != null)
+            writer.writeAttribute(NAME_ATTRIBUTE.getNamespaceURI(), NAME_ATTRIBUTE.getLocalPart(), this.name);
     }
 
 // Object

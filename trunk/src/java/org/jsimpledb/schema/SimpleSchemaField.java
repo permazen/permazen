@@ -7,6 +7,10 @@
 
 package org.jsimpledb.schema;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.jsimpledb.core.InvalidSchemaException;
 
 /**
@@ -47,6 +51,45 @@ public class SimpleSchemaField extends SchemaField {
     @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {
         return target.caseSimpleSchemaField(this);
+    }
+
+    @Override
+    void readAttributes(XMLStreamReader reader) throws XMLStreamException {
+        super.readAttributes(reader);
+        final String text1 = reader.getAttributeValue(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart());
+        if (text1 != null)
+            this.setType(text1);
+        final String text2 = reader.getAttributeValue(INDEXED_ATTRIBUTE.getNamespaceURI(), INDEXED_ATTRIBUTE.getLocalPart());
+        if (text2 != null) {
+            switch (text2) {
+            case "true":
+            case "false":
+                this.setIndexed(Boolean.valueOf(text2));
+                break;
+            default:
+                throw new XMLStreamException("invalid boolean value `" + text2
+                  + " for \"" + INDEXED_ATTRIBUTE.getLocalPart() + "\" attribute in " + this);
+            }
+        }
+    }
+
+    @Override
+    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(SIMPLE_FIELD_TAG.getNamespaceURI(), SIMPLE_FIELD_TAG.getLocalPart());
+        this.writeAttributes(writer);
+    }
+
+    @Override
+    void writeAttributes(XMLStreamWriter writer) throws XMLStreamException {
+        super.writeAttributes(writer);
+        this.writeSimpleAttributes(writer);
+    }
+
+    void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
+        if (this.type != null)
+            writer.writeAttribute(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart(), this.type);
+        if (this.indexed)
+            writer.writeAttribute(INDEXED_ATTRIBUTE.getNamespaceURI(), INDEXED_ATTRIBUTE.getLocalPart(), "" + this.indexed);
     }
 
 // Object

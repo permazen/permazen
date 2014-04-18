@@ -7,8 +7,12 @@
 
 package org.jsimpledb.schema;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.jsimpledb.core.MapField;
 
@@ -36,10 +40,22 @@ public class MapSchemaField extends ComplexSchemaField {
 
     @Override
     public Map<String, SimpleSchemaField> getSubFields() {
-        final HashMap<String, SimpleSchemaField> map = new HashMap<String, SimpleSchemaField>(2);
+        final LinkedHashMap<String, SimpleSchemaField> map = new LinkedHashMap<String, SimpleSchemaField>(2);
         map.put(MapField.KEY_FIELD_NAME, this.keyField);
         map.put(MapField.VALUE_FIELD_NAME, this.valueField);
         return map;
+    }
+
+    @Override
+    void readSubElements(XMLStreamReader reader) throws XMLStreamException {
+        this.keyField = this.readSubField(reader);
+        this.valueField = this.readSubField(reader);
+        this.expect(reader, true);
+    }
+
+    @Override
+    QName getXMLTag() {
+        return MAP_FIELD_TAG;
     }
 
     @Override

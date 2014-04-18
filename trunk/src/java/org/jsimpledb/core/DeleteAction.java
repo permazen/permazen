@@ -19,7 +19,7 @@ public enum DeleteAction {
     NOTHING,
 
     /**
-     * Disallow deleting the object, instead throwing {@link ReferencedObjectException}.
+     * Disallow deleting the object, instead throwing {@link ReferencedObjectException}. This is the default if not specified.
      *
      * <p>
      * Note: deleting an object that is only referred to by itself will not cause any exception to be thrown.

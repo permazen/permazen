@@ -77,8 +77,8 @@ public class SchemaTest extends TestSupport {
           + "<Object storageId=\"123\"/>\n"
           },
 
-          // Allow duplicate object types
-          { true,
+          // Don't allow duplicate object storage IDs
+          { false,
             "<!-- test 6 -->\n"
           + "<Object name=\"Foo\" storageId=\"123\"/>\n"
           + "<Object name=\"Foo\" storageId=\"123\"/>\n"
@@ -147,16 +147,16 @@ public class SchemaTest extends TestSupport {
           + "</Object>\n"
           },
 
-          // Allow duplicate fields
-          { true,
+          // Don't allow duplicate field storage IDs
+          { false,
             "<!-- test 16 -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
-          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"aaa\" type=\"int\" storageId=\"2\"/>\n"
+          + "  <SimpleField name=\"bbb\" type=\"int\" storageId=\"2\"/>\n"
           + "</Object>\n"
           },
 
-          // Allow duplicate names
+          // Allow duplicate field names
           { true,
             "<!-- test 17 -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
@@ -259,6 +259,17 @@ public class SchemaTest extends TestSupport {
             "<!-- test 27 -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
           + "  <CounterField storageId=\"20\"/>\n"
+          + "</Object>\n"
+          },
+
+          // Allow duplicate field storage IDs in different objects
+          { true,
+            "<!-- test 28 -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
+          + "</Object>\n"
+          + "<Object name=\"Bar\" storageId=\"20\">\n"
+          + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
           + "</Object>\n"
           },
 
