@@ -206,7 +206,7 @@ public abstract class Student implements JObject {
 
 In JSimpleDB, reference fields are always indexed (the same logic applies to SQL, where an index is required for foreign key constraints). So in the above example, setting `indexed = true` is redundant for `lectureClasses`, `teacherRankings`, and `testScores.key`. 
 
-Indexes are a perfect way to providing Java access to both sides of a one-to-many, many-to-one, or many-to-many relationship, without there having to actually be any redundant information: you just query the index for the "inverse" side of the relationship. Contrast with JPA, where it's possible for e.g., `parent.getChildren()` and `child.getParent()` to get out of sync.
+Indexes are a perfect way to provide Java access to both sides of a one-to-many, many-to-one, or many-to-many relationship, without there having to actually be any redundant information: you just query the index for the "inverse" side of the relationship. Contrast with JPA, where it's possible for e.g., `parent.getChildren()` and `child.getParent()` to get out of sync.
 
 ==== Complex Field Indexes (Advanced) ====
 
