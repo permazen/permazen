@@ -133,9 +133,11 @@ public class JSimpleDB {
                 throw new IllegalArgumentException("null class found in classes");
 
             // Ignore duplicates
-            this.log.debug("checking " + type + " for JSimpleDB annotations");
+            if (this.log.isTraceEnabled())
+                this.log.trace("checking " + type + " for JSimpleDB annotations");
             if (!classesSeen.add(type)) {
-                this.log.debug("already seen " + type + ", ignoring");
+                if (this.log.isTraceEnabled())
+                    this.log.trace("already seen " + type + ", ignoring");
                 continue;
             }
 
@@ -145,8 +147,10 @@ public class JSimpleDB {
 
                 // Get type name
                 final String name = fieldTypeAnnotation.name().length() != 0 ? fieldTypeAnnotation.name() : type.getName();
-                this.log.debug("found @" + JFieldType.class.getSimpleName()
-                  + " annotation on " + type + " defining field type `" + name + "'");
+                if (this.log.isTraceEnabled()) {
+                    this.log.trace("found @" + JFieldType.class.getSimpleName()
+                      + " annotation on " + type + " defining field type `" + name + "'");
+                }
 
                 // Instantiate class
                 final Object obj;
@@ -186,8 +190,10 @@ public class JSimpleDB {
 
                 // Create JClass
                 final String name = jclassAnnotation.name().length() != 0 ? jclassAnnotation.name() : type.getSimpleName();
-                this.log.debug("found @" + JSimpleClass.class.getSimpleName() + " annotation on " + type
-                  + " defining object type `" + name + "'");
+                if (this.log.isTraceEnabled()) {
+                    this.log.trace("found @" + JSimpleClass.class.getSimpleName() + " annotation on " + type
+                      + " defining object type `" + name + "'");
+                }
                 JClass<?> jclass;
                 try {
                     jclass = this.createJClass(name, jclassAnnotation.storageId(), TypeToken.of(type));
@@ -198,7 +204,7 @@ public class JSimpleDB {
 
                 // Add jclass
                 this.addJClass(jclass);
-                this.log.debug("added model class `" + jclass.name + "' for object type " + jclass.storageId);
+                this.log.debug("added Java model class `" + jclass.name + "' with storage ID " + jclass.storageId);
             }
         }
 
@@ -271,7 +277,7 @@ public class JSimpleDB {
                 model.getSchemaObjects().put(schemaObject.getStorageId(), schemaObject);
             }
             this.schemaModel = model;
-            this.log.debug("generated schema:\n{}", this.schemaModel);
+            this.log.debug("JSimpleDB schema generated from annotated classes:\n{}", this.schemaModel);
         }
         return this.schemaModel.clone();
     }
