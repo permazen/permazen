@@ -602,5 +602,5 @@ Any storage ID that is used by two or more schema versions must be used consiste
 
 There is one exception, however: simple fields may change whether they are indexed between schema versions. When a field's indexing is turned on or off between schemas, an object containing that field will appear in the index only when the schema associated with the object's version configures the field as being indexed.
 
-JSimpleDB validates all of this for you and will throw an exception if you try to violate this rule.
+JSimpleDB validates all of this for you, and will throw an exception if you try to do anything invalid.
 
