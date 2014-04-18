@@ -23,7 +23,7 @@ public class UniqueIterator<E> implements Iterator<E> {
     private final Comparator<? super E> comparator;
 
     /**
-     * Constructor. Object equality is used to detect duplicates.
+     * Constructor. Object equality using {@link Object#equals} is used to detect duplicates.
      *
      * @param iterator wrapped {@link Iterator}
      */
