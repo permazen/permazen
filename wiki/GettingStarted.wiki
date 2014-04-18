@@ -48,27 +48,28 @@ Here's an example setup with Spring that uses a simple flat file for persistence
     <bean id="database" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvstore"/>
  
     <!-- Define the Java "JSimpleDB" using the core database and our annotated classes -->
-    <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1">
-        <constructor-arg>
-            <jsimpledb:scan-classpath base-package="com.example.myapp">
-                <jsimpledb:exclude-filter type="regex" expression="com\.example\.myapp\.test\..*"/>
-            </jsimpledb:scan-classpath>
-        </constructor-arg>
-    </bean>
+    <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1"> 
+        <constructor-arg> 
+            <jsimpledb:scan-classpath base-package="com.example.myapp"> 
+                <jsimpledb:exclude-filter type="regex" expression="com\.example\.myapp\.test\..*"/> 
+            </jsimpledb:scan-classpath> 
+        </constructor-arg> 
+    </bean> 
  
     <!-- Create a Spring transaction manager -->
     <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
       p:JSimpleDB-ref="jsimpledb"/>
  
     <!-- Enable @Transactional annotations -->
-    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <tx:annotation-driven transaction-manager="transactionManager"/> 
 </beans></code>
 
 Of course, you can construct the equivalent `JSimpleDB` instance in plain Java as well:
 
 <code language="java">
-final JSimpleDB jdb = new JSimpleDB(new Database(new XMLKVDatabase("/tmp/jsimpledb.xml")),
-  1, Arrays.asList(MyClass1.class, MyClass2.class, ... ));</code>
+final JSimpleDB jdb = new JSimpleDB( 
+  new Database(new XMLKVDatabase("/tmp/jsimpledb.xml")), 1, 
+   Arrays.asList(MyClass1.class, MyClass2.class, ... ));</code>
 
 == Creating Transactions ==
 
@@ -94,11 +95,11 @@ When using the Spring transaction manager, this can be simplified:
 
 Like most databases, the underlying key/value store is allowed to throw an exception if it detects a deadlock or unresolvable lock conflict. In the case of `JSimpleDB`, the exception thrown is a `RetryTransactionException`; the JSimpleDB Spring transaction manager converts this into a `PessimisticLockingFailureException`.
 
-In these situations the transaction should be retried. The [https://code.google.com/p/dellroad-stuff/ DellRoad Stuff] library (included as a dependency) provides the [http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/dellroad/stuff/spring/RetryTransaction.html @RetryTransaction] annotation that automatically retries transactions:
+In these situations the transaction should be retried. The [https://code.google.com/p/dellroad-stuff/ DellRoad Stuff] library provides the [http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/dellroad/stuff/spring/RetryTransaction.html @RetryTransaction] annotation that automatically retries transactions:
 
 <code language="java">
-    @RetryTransaction
-    @Transactional
+    @RetryTransaction 
+    @Transactional 
     public void doSomething() {
         // Do work here ...
     }</code>
@@ -132,12 +133,7 @@ public class JSimpleDBExample {
         // Create database
         final Database coreDb = new Database(new XMLKVDatabase(new File("jsimpledb.xml")));
         final JSimpleDB jdb = new JSimpleDB(coreDb, 1, Arrays.<Class<?>>asList(Person.class));
- 
-        // Model objects
-        Person fred;
-        Person joe;
-        Person sally;
- 
+  
         // Write to database
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
@@ -145,9 +141,9 @@ public class JSimpleDBExample {
  
             System.out.println("Writing database...");
  
-            fred = Person.create();
-            joe = Person.create();
-            sally = Person.create();
+            Person fred = Person.create();
+            Person joe = Person.create();
+            Person sally = Person.create();
  
             fred.setName("Fred");
             fred.setAge(25);
