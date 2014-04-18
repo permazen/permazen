@@ -317,7 +317,7 @@ public class FieldMonitorTest extends TestSupport {
         }
 
         @Override
-        public <E> void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             Assert.assertEquals(tx, this.tx);
             this.notifys.add(new Notify("SetClear", id, storageId, path, referrers));
         }
@@ -344,7 +344,7 @@ public class FieldMonitorTest extends TestSupport {
         }
 
         @Override
-        public <E> void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             Assert.assertEquals(tx, this.tx);
             this.notifys.add(new Notify("ListClear", id, storageId, path, referrers));
         }
@@ -371,7 +371,7 @@ public class FieldMonitorTest extends TestSupport {
         }
 
         @Override
-        public <K, V> void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             Assert.assertEquals(tx, this.tx);
             this.notifys.add(new Notify("MapClear", id, storageId, path, referrers));
         }

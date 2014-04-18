@@ -106,8 +106,7 @@ public interface ListFieldChangeListener {
      * @param storageId the storage ID of the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
-     * @param <E> Java type for {@code field}'s elements
      */
-    <E> void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers);
+    void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers);
 }
 

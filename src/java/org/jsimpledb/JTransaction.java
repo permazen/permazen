@@ -846,7 +846,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         }
 
         @Override
-        public <E> void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             JTransaction.this.revalidate(referrers);
         }
 
@@ -871,7 +871,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         }
 
         @Override
-        public <E> void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             JTransaction.this.revalidate(referrers);
         }
 
@@ -896,7 +896,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         }
 
         @Override
-        public <K, V> void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             JTransaction.this.revalidate(referrers);
         }
     }
