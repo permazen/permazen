@@ -11,7 +11,6 @@
     <configurations>
         <conf name="javac" transitive="false" description="JARs required for javac"/>
         <conf name="build" extends="javac" description="JARs required for other build-time steps"/>
-        <conf name="jibx-bind" extends="build" description="JARs required for JiBX binding"/>
         <conf name="asm" description="ASM JAR(s) to embed into our JAR"/>
         <conf name="test" extends="build" description="JARs required during testing"/>
     </configurations>
@@ -22,7 +21,6 @@
         <dependency force="true" org="com.foundationdb" name="fdb-java" rev="2.0.4" conf="javac->default"/>
         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="javac->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="javac->default"/>
-        <dependency force="true" org="net.sourceforge.jibx" name="jibx" rev="1.2.5" conf="javac->runtime-xpp3,extras;jibx-bind->bind"/>
         <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1+" conf="javac->default"/>
         <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.850" conf="javac->default"/>
         <dependency force="true" org="org.objectweb.asm" name="asm" rev="4.+" conf="javac,build->default; asm->core"/>

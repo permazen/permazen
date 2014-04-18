@@ -7,6 +7,10 @@
 
 package org.jsimpledb.schema;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.InvalidSchemaException;
 import org.jsimpledb.core.ReferenceType;
@@ -34,29 +38,46 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
 
     @Override
-    public void setType(String type) {
-        if (!ReferenceType.NAME.equals(type))
-            throw new IllegalArgumentException("reference fields always have type `" + ReferenceType.NAME + "'");
-        super.setType(type);
-    }
-
-    @Override
-    public void setIndexed(boolean indexed) {
-        if (!indexed)
-            throw new IllegalArgumentException("reference fields are always indexed");
-        super.setIndexed(indexed);
-    }
-
-    @Override
     public void validate() {
         super.validate();
+        if (!ReferenceType.NAME.equals(this.getType()))
+            throw new InvalidSchemaException("invalid " + this + ": reference fields must have type `" + ReferenceType.NAME + "'");
+        if (!this.isIndexed())
+            throw new IllegalArgumentException("invalid " + this + ": reference fields must always be indexed");
         if (this.onDelete == null)
-            throw new InvalidSchemaException(this + " must specify a delete action");
+            throw new InvalidSchemaException("invalid " + this + ": no delete action specified");
     }
 
     @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {
         return target.caseReferenceSchemaField(this);
+    }
+
+    @Override
+    void readAttributes(XMLStreamReader reader) throws XMLStreamException {
+        super.readAttributes(reader);
+        final String text = reader.getAttributeValue(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart());
+        DeleteAction action = DeleteAction.EXCEPTION;
+        if (text != null) {
+            if ((action = Enum.valueOf(DeleteAction.class, text)) == null) {
+                throw new XMLStreamException("invalid value `" + text
+                  + " for \"" + ON_DELETE_ATTRIBUTE.getLocalPart() + "\" attribute in " + this);
+            }
+        }
+        this.setOnDelete(action);
+    }
+
+    @Override
+    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(REFERENCE_FIELD_TAG.getNamespaceURI(), REFERENCE_FIELD_TAG.getLocalPart());
+        this.writeAttributes(writer);
+        if (this.onDelete != null)
+            writer.writeAttribute(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart(), this.onDelete.name());
+    }
+
+    @Override
+    void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
+        // don't need to write type or indexed
     }
 
 // Object

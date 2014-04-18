@@ -7,6 +7,9 @@
 
 package org.jsimpledb.schema;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.jsimpledb.core.InvalidSchemaException;
 
 /**
@@ -24,6 +27,12 @@ public class CounterSchemaField extends SchemaField {
     @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {
         return target.caseCounterSchemaField(this);
+    }
+
+    @Override
+    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(COUNTER_FIELD_TAG.getNamespaceURI(), COUNTER_FIELD_TAG.getLocalPart());
+        this.writeAttributes(writer);
     }
 
 // Object

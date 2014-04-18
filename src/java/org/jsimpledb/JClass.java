@@ -24,6 +24,7 @@ import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -311,8 +312,10 @@ public class JClass<T> extends JSchemaObject {
     SchemaObject toSchemaItem() {
         final SchemaObject schemaObject = new SchemaObject();
         super.initialize(schemaObject);
-        for (JField field : this.jfields.values())
-            schemaObject.addSchemaField(field.toSchemaItem());
+        for (JField field : this.jfields.values()) {
+            SchemaField schemaField = field.toSchemaItem();
+            schemaObject.getSchemaFields().put(schemaField.getStorageId(), schemaField);
+        }
         return schemaObject;
     }
 

@@ -7,6 +7,8 @@
 
 package org.jsimpledb.schema;
 
+import javax.xml.namespace.QName;
+
 /**
  * A set field in one version of a {@link SchemaObject}.
  */
@@ -15,6 +17,11 @@ public class SetSchemaField extends CollectionSchemaField {
     @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {
         return target.caseSetSchemaField(this);
+    }
+
+    @Override
+    QName getXMLTag() {
+        return SET_FIELD_TAG;
     }
 
 // Object

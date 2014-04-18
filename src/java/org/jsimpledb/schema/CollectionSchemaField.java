@@ -10,6 +10,9 @@ package org.jsimpledb.schema;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
 import org.jsimpledb.core.CollectionField;
 
 /**
@@ -29,6 +32,12 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
     @Override
     public Map<String, SimpleSchemaField> getSubFields() {
         return Collections.<String, SimpleSchemaField>singletonMap(CollectionField.ELEMENT_FIELD_NAME, this.elementField);
+    }
+
+    @Override
+    void readSubElements(XMLStreamReader reader) throws XMLStreamException {
+        this.elementField = this.readSubField(reader);
+        this.expect(reader, true);
     }
 
 // Object

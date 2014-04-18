@@ -31,6 +31,7 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
+import org.jsimpledb.schema.SchemaObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -265,8 +266,10 @@ public class JSimpleDB {
     public SchemaModel getSchemaModel() {
         if (this.schemaModel == null) {
             final SchemaModel model = new SchemaModel();
-            for (JClass<?> jclass : this.jclasses.values())
-                model.addSchemaObject(jclass.toSchemaItem());
+            for (JClass<?> jclass : this.jclasses.values()) {
+                SchemaObject schemaObject = jclass.toSchemaItem();
+                model.getSchemaObjects().put(schemaObject.getStorageId(), schemaObject);
+            }
             this.schemaModel = model;
             this.log.debug("generated schema:\n{}", this.schemaModel);
         }
