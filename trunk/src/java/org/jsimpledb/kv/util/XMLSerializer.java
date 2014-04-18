@@ -17,12 +17,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.AbstractXMLStreaming;
+import org.jsimpledb.util.ByteUtil;
 
 /**
  * Utility methods for serializing and deserializing the contents of a {@link org.jsimpledb.kv.KVStore} to/from XML.
@@ -90,7 +90,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
             this.expect(reader, false, KEY_TAG);
             byte[] key;
             try {
-                key = ByteArrayEncoder.decode(reader.getElementText());
+                key = ByteUtil.parse(reader.getElementText());
             } catch (IllegalArgumentException e) {
                 throw new XMLStreamException("invalid hexadecimal key", reader.getLocation(), e);
             }
@@ -100,7 +100,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
             }
             byte[] value;
             try {
-                value = ByteArrayEncoder.decode(reader.getElementText());
+                value = ByteUtil.parse(reader.getElementText());
             } catch (IllegalArgumentException e) {
                 throw new XMLStreamException("invalid hexadecimal value", reader.getLocation(), e);
             }
@@ -157,7 +157,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
 // Internal methods
 
     private void writeElement(XMLStreamWriter writer, QName element, byte[] value) throws XMLStreamException {
-        this.writeElement(writer, element, ByteArrayEncoder.encode(value));
+        this.writeElement(writer, element, ByteUtil.toString(value));
     }
 }
 
