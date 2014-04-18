@@ -8,9 +8,9 @@
 package org.jsimpledb.kv.fdb;
 
 import com.foundationdb.FDBException;
-import com.foundationdb.KeySelector;
 import com.foundationdb.KeyValue;
 import com.foundationdb.MutationType;
+import com.foundationdb.Range;
 import com.foundationdb.Transaction;
 import com.foundationdb.async.AsyncIterator;
 
@@ -81,21 +81,19 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
     public KVPair getAtLeast(byte[] minKey) {
         if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
             return null;
-        return this.getRange(KeySelector.firstGreaterOrEqual(minKey != null ? minKey : MIN_KEY),
-          KeySelector.lastLessThan(MAX_KEY), false);
+        return this.getRange(new Range(minKey != null ? minKey : MIN_KEY, MAX_KEY), false);
     }
 
     @Override
     public KVPair getAtMost(byte[] maxKey) {
         if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
             maxKey = null;
-        return this.getRange(KeySelector.firstGreaterOrEqual(MIN_KEY),
-          KeySelector.lastLessThan(maxKey != null ? maxKey : MAX_KEY), true);
+        return this.getRange(new Range(MIN_KEY, maxKey != null ? maxKey : MAX_KEY), true);
     }
 
-    private KVPair getRange(KeySelector min, KeySelector max, boolean reverse) {
+    private KVPair getRange(Range range, boolean reverse) {
         try {
-            final AsyncIterator<KeyValue> i = this.tx.getRange(min, max, 1, reverse).iterator();
+            final AsyncIterator<KeyValue> i = this.tx.getRange(range, 1, reverse).iterator();
             if (!i.hasNext())
                 return null;
             final KeyValue kv = i.next();
