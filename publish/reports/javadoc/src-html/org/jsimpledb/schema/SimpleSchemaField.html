@@ -15,72 +15,121 @@
 <span class="sourceLineNo">007</span><a name="line.7"></a>
 <span class="sourceLineNo">008</span>package org.jsimpledb.schema;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import javax.validation.constraints.NotNull;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>/**<a name="line.12"></a>
-<span class="sourceLineNo">013</span> * A simple field in a {@link SchemaObject}.<a name="line.13"></a>
-<span class="sourceLineNo">014</span> */<a name="line.14"></a>
-<span class="sourceLineNo">015</span>public class SimpleSchemaField extends SchemaField {<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>    private String type;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>    private boolean indexed;<a name="line.18"></a>
-<span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>    /**<a name="line.20"></a>
-<span class="sourceLineNo">021</span>     * Get the name of this field's type. For example {@code int} for primitive integer type.<a name="line.21"></a>
-<span class="sourceLineNo">022</span>     */<a name="line.22"></a>
-<span class="sourceLineNo">023</span>    @NotNull(message = "simple fields must have a type")<a name="line.23"></a>
-<span class="sourceLineNo">024</span>    public String getType() {<a name="line.24"></a>
-<span class="sourceLineNo">025</span>        return this.type;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>    }<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    public void setType(String type) {<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        this.type = type;<a name="line.28"></a>
+<span class="sourceLineNo">010</span>import javax.xml.stream.XMLStreamException;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import javax.xml.stream.XMLStreamReader;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.xml.stream.XMLStreamWriter;<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.core.InvalidSchemaException;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>/**<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * A simple field in a {@link SchemaObject}.<a name="line.17"></a>
+<span class="sourceLineNo">018</span> */<a name="line.18"></a>
+<span class="sourceLineNo">019</span>public class SimpleSchemaField extends SchemaField {<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>    private String type;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>    private boolean indexed;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>    /**<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     * Get the name of this field's type. For example {@code int} for primitive integer type.<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     */<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    public String getType() {<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        return this.type;<a name="line.28"></a>
 <span class="sourceLineNo">029</span>    }<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    /**<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * Get whether this field is indexed or not.<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     */<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    public boolean isIndexed() {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>        return this.indexed;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    public void setIndexed(boolean indexed) {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        this.indexed = indexed;<a name="line.38"></a>
+<span class="sourceLineNo">030</span>    public void setType(String type) {<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        this.type = type;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    }<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>    /**<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * Get whether this field is indexed or not.<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    public boolean isIndexed() {<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        return this.indexed;<a name="line.38"></a>
 <span class="sourceLineNo">039</span>    }<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    @Override<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    public &lt;R&gt; R visit(SchemaFieldSwitch&lt;R&gt; target) {<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        return target.caseSimpleSchemaField(this);<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>// Object<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    @Override<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    public String toString() {<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        return super.toString() + " of type " + this.type;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>    @Override<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    public boolean equals(Object obj) {<a name="line.54"></a>
-<span class="sourceLineNo">055</span>        if (obj == this)<a name="line.55"></a>
-<span class="sourceLineNo">056</span>            return true;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        if (!super.equals(obj))<a name="line.57"></a>
-<span class="sourceLineNo">058</span>            return false;<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        final SimpleSchemaField that = (SimpleSchemaField)obj;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        return (this.type != null ? this.type.equals(that.type) : that.type == null) &amp;&amp; this.indexed == that.indexed;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>    @Override<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    public int hashCode() {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        return (this.type != null ? this.type.hashCode() : 0) ^ (this.indexed ? 1 : 0);<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>// Cloneable<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    @Override<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    public SimpleSchemaField clone() {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        return (SimpleSchemaField)super.clone();<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
-<span class="sourceLineNo">074</span>}<a name="line.74"></a>
+<span class="sourceLineNo">040</span>    public void setIndexed(boolean indexed) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        this.indexed = indexed;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    }<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    @Override<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    public void validate() {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        super.validate();<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        if (this.type == null)<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            throw new InvalidSchemaException("invalid " + this + ": no type specified");<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    @Override<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    public &lt;R&gt; R visit(SchemaFieldSwitch&lt;R&gt; target) {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        return target.caseSimpleSchemaField(this);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    @Override<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    void readAttributes(XMLStreamReader reader) throws XMLStreamException {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        super.readAttributes(reader);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        final String text1 = reader.getAttributeValue(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart());<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        if (text1 != null)<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            this.setType(text1);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        final String text2 = reader.getAttributeValue(INDEXED_ATTRIBUTE.getNamespaceURI(), INDEXED_ATTRIBUTE.getLocalPart());<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        if (text2 != null) {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>            switch (text2) {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            case "true":<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            case "false":<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                this.setIndexed(Boolean.valueOf(text2));<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                break;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            default:<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                throw new XMLStreamException("invalid boolean value `" + text2<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                  + " for \"" + INDEXED_ATTRIBUTE.getLocalPart() + "\" attribute in " + this);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>            }<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        }<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
 <span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>    @Override<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    void writeXML(XMLStreamWriter writer) throws XMLStreamException {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        writer.writeEmptyElement(SIMPLE_FIELD_TAG.getNamespaceURI(), SIMPLE_FIELD_TAG.getLocalPart());<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        this.writeAttributes(writer);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    }<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>    @Override<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    void writeAttributes(XMLStreamWriter writer) throws XMLStreamException {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        super.writeAttributes(writer);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        this.writeSimpleAttributes(writer);<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        if (this.type != null)<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            writer.writeAttribute(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart(), this.type);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        if (this.indexed)<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            writer.writeAttribute(INDEXED_ATTRIBUTE.getNamespaceURI(), INDEXED_ATTRIBUTE.getLocalPart(), "" + this.indexed);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>// Object<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    @Override<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    public String toString() {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        return super.toString() + (this.type != null ? " of type " + this.type : "");<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    @Override<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    public boolean equals(Object obj) {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        if (obj == this)<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            return true;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        if (!super.equals(obj))<a name="line.106"></a>
+<span class="sourceLineNo">107</span>            return false;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        final SimpleSchemaField that = (SimpleSchemaField)obj;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        return (this.type != null ? this.type.equals(that.type) : that.type == null) &amp;&amp; this.indexed == that.indexed;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    @Override<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    public int hashCode() {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        return (this.type != null ? this.type.hashCode() : 0) ^ (this.indexed ? 1 : 0);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    }<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>// Cloneable<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    @Override<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    public SimpleSchemaField clone() {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        return (SimpleSchemaField)super.clone();<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
+<span class="sourceLineNo">123</span>}<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
 
 
 

@@ -356,7 +356,7 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_UNIQUE_KEY_ATTEMPTS = 1000;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;166</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;167</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">final</span> Logger log = LoggerFactory.getLogger(<span class="keyword">this</span>.getClass());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;167</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">final</span> Logger log = LoggerFactory.getLogger(<span class="keyword">this</span>.getClass());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;168</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;169</td>  <td class="nbHits">&nbsp;</td>
@@ -377,20 +377,20 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">boolean</span> rollbackOnly;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;177</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;178</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> ThreadLocal&lt;TreeMap&lt;Integer, ArrayList&lt;FieldChangeNotifier&gt;&gt;&gt; pendingNotifications = <span class="keyword">new</span> ThreadLocal&lt;&gt;();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;179</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> HashSet&lt;VersionChangeListener&gt; versionChangeListeners = <span class="keyword">new</span> HashSet&lt;&gt;();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;180</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> HashSet&lt;CreateListener&gt; createListeners = <span class="keyword">new</span> HashSet&lt;&gt;();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;181</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> HashSet&lt;DeleteListener&gt; deleteListeners = <span class="keyword">new</span> HashSet&lt;&gt;();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;182</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;Integer, HashSet&lt;FieldMonitor&gt;&gt; monitorMap = <span class="keyword">new</span> HashMap&lt;&gt;();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;183</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> LinkedHashSet&lt;Callback&gt; callbacks = <span class="keyword">new</span> LinkedHashSet&lt;&gt;();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;178</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> ThreadLocal&lt;TreeMap&lt;Integer, ArrayList&lt;FieldChangeNotifier&gt;&gt;&gt; pendingNotifications = <span class="keyword">new</span> ThreadLocal&lt;&gt;();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;179</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> HashSet&lt;VersionChangeListener&gt; versionChangeListeners = <span class="keyword">new</span> HashSet&lt;&gt;();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;180</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> HashSet&lt;CreateListener&gt; createListeners = <span class="keyword">new</span> HashSet&lt;&gt;();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;181</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> HashSet&lt;DeleteListener&gt; deleteListeners = <span class="keyword">new</span> HashSet&lt;&gt;();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;182</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;Integer, HashSet&lt;FieldMonitor&gt;&gt; monitorMap = <span class="keyword">new</span> HashMap&lt;&gt;();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;183</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> LinkedHashSet&lt;Callback&gt; callbacks = <span class="keyword">new</span> LinkedHashSet&lt;&gt;();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;184</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;185</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;    Transaction(Database db, KVTransaction kvt, Schema schema, <span class="keyword">int</span> versionNumber) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;186</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.db = db;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;187</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kvt = kvt;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;188</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.schema = schema;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;189</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.version = <span class="keyword">this</span>.schema.getVersion(versionNumber);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;190</td>  <td class="nbHitsCovered">&nbsp;66</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;185</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;    Transaction(Database db, KVTransaction kvt, Schema schema, <span class="keyword">int</span> versionNumber) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;186</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.db = db;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;187</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kvt = kvt;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;188</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.schema = schema;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;189</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.version = <span class="keyword">this</span>.schema.getVersion(versionNumber);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;190</td>  <td class="nbHitsCovered">&nbsp;57</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;191</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;192</td>  <td class="nbHits">&nbsp;</td>
@@ -1890,7 +1890,7 @@
 <tr>  <td class="numLine">&nbsp;1112</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Optimization: check if the value has not changed</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1113</td>  <td class="nbHitsUncovered"><a title="Line 1113: Conditional coverage 50% (4/8) [each condition: 100%, 0%, 100%, 0%].">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1113: Conditional coverage 50% (4/8) [each condition: 100%, 0%, 100%, 0%].">        <span class="keyword">if</span> (oldValue != <span class="keyword">null</span> ? newValue != <span class="keyword">null</span> &amp;&amp; Arrays.equals(oldValue, newValue) : newValue == <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1114</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1114</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1115</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1116</td>  <td class="nbHits">&nbsp;</td>
@@ -1899,14 +1899,14 @@
 <tr>  <td class="numLineCover">&nbsp;1118</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.put(key, newValue);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1119</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">else</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1120</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.remove(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1120</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.remove(key);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1121</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1122</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Update index</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1123</td>  <td class="nbHitsUncovered"><a title="Line 1123: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1123: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (field.indexed) {</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1124</td>  <td class="nbHitsCovered">&nbsp;255</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.remove(field.buildIndexKey(id, oldValue));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1125</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.put(field.buildIndexKey(id, newValue), ByteUtil.EMPTY);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1124</td>  <td class="nbHitsCovered">&nbsp;256</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.remove(field.buildIndexKey(id, oldValue));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1125</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.put(field.buildIndexKey(id, newValue), ByteUtil.EMPTY);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1126</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1127</td>  <td class="nbHits">&nbsp;</td>
@@ -2999,7 +2999,7 @@
 <tr>  <td class="numLineCover">&nbsp;1731</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">this</span>.monitorMap.put(storageId, monitors);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1732</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1733</td>  <td class="nbHitsCovered">&nbsp;551</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> monitors;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1733</td>  <td class="nbHitsCovered">&nbsp;552</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> monitors;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1734</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1735</td>  <td class="nbHits">&nbsp;</td>
@@ -3021,7 +3021,7 @@
 <tr>  <td class="numLine">&nbsp;1743</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Does anybody care?</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1744</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">final</span> <span class="keyword">int</span> storageId = notifier.getStorageId();</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1745</td>  <td class="nbHitsUncovered"><a title="Line 1745: Conditional coverage 0% (0/2).">&nbsp;525</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1745: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.monitorMap.containsKey(storageId))</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1745</td>  <td class="nbHitsUncovered"><a title="Line 1745: Conditional coverage 0% (0/2).">&nbsp;526</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1745: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.monitorMap.containsKey(storageId))</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1746</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span>;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1747</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
@@ -3707,17 +3707,17 @@
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2139</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2140</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;        SimpleFieldChangeNotifier(SimpleField&lt;?&gt; field, ObjId id) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2141</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.storageId = field.storageId;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2142</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.id = id;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2143</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2140</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;        SimpleFieldChangeNotifier(SimpleField&lt;?&gt; field, ObjId id) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2141</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.storageId = field.storageId;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2142</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.id = id;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2143</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2144</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2145</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2146</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">public</span> <span class="keyword">int</span> getStorageId() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2147</td>  <td class="nbHitsCovered">&nbsp;338</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.storageId;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2147</td>  <td class="nbHitsCovered">&nbsp;339</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.storageId;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2148</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2149</td>  <td class="nbHits">&nbsp;</td>
@@ -3865,6 +3865,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/15/14 10:18 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/17/14 9:10 PM.</div>
 </body>
 </html>

@@ -15,78 +15,104 @@
 <span class="sourceLineNo">007</span><a name="line.7"></a>
 <span class="sourceLineNo">008</span>package org.jsimpledb.schema;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import javax.validation.constraints.NotNull;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.jsimpledb.core.DeleteAction;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.core.ReferenceType;<a name="line.13"></a>
-<span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>/**<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * A reference field in a {@link SchemaObject}.<a name="line.16"></a>
-<span class="sourceLineNo">017</span> */<a name="line.17"></a>
-<span class="sourceLineNo">018</span>public class ReferenceSchemaField extends SimpleSchemaField {<a name="line.18"></a>
-<span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>    private DeleteAction onDelete;<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>    public ReferenceSchemaField() {<a name="line.22"></a>
-<span class="sourceLineNo">023</span>        this.setType(ReferenceType.NAME);<a name="line.23"></a>
-<span class="sourceLineNo">024</span>        this.setIndexed(true);<a name="line.24"></a>
-<span class="sourceLineNo">025</span>    }<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>    /**<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * Get the desired behavior when an object referred to by this field is deleted.<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>    @NotNull(message = "a non-null onDelete value must be specified")<a name="line.30"></a>
-<span class="sourceLineNo">031</span>    public DeleteAction getOnDelete() {<a name="line.31"></a>
-<span class="sourceLineNo">032</span>        return this.onDelete;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    }<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    public void setOnDelete(DeleteAction onDelete) {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>        this.onDelete = onDelete;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>    @Override<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    public void setType(String type) {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>        if (!ReferenceType.NAME.equals(type))<a name="line.40"></a>
-<span class="sourceLineNo">041</span>            throw new IllegalArgumentException("reference fields always have type `" + ReferenceType.NAME + "'");<a name="line.41"></a>
-<span class="sourceLineNo">042</span>        super.setType(type);<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    }<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>    @Override<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    public void setIndexed(boolean indexed) {<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        if (!indexed)<a name="line.47"></a>
-<span class="sourceLineNo">048</span>            throw new IllegalArgumentException("reference fields are always indexed");<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        super.setIndexed(indexed);<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    }<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>    @Override<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    public &lt;R&gt; R visit(SchemaFieldSwitch&lt;R&gt; target) {<a name="line.53"></a>
-<span class="sourceLineNo">054</span>        return target.caseReferenceSchemaField(this);<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    }<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>// Object<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>    @Override<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    public boolean equals(Object obj) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        if (obj == this)<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            return true;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        if (!super.equals(obj))<a name="line.63"></a>
-<span class="sourceLineNo">064</span>            return false;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        final ReferenceSchemaField that = (ReferenceSchemaField)obj;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        return this.onDelete == that.onDelete;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
-<span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>    @Override<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    public int hashCode() {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        return super.hashCode() ^ (this.onDelete != null ? this.onDelete.hashCode() : 0);<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>// Cloneable<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>    @Override<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    public ReferenceSchemaField clone() {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        return (ReferenceSchemaField)super.clone();<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
-<span class="sourceLineNo">080</span>}<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">010</span>import javax.xml.stream.XMLStreamException;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import javax.xml.stream.XMLStreamReader;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.xml.stream.XMLStreamWriter;<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.core.DeleteAction;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.core.InvalidSchemaException;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.core.ReferenceType;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * A reference field in a {@link SchemaObject}.<a name="line.19"></a>
+<span class="sourceLineNo">020</span> */<a name="line.20"></a>
+<span class="sourceLineNo">021</span>public class ReferenceSchemaField extends SimpleSchemaField {<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>    private DeleteAction onDelete;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>    public ReferenceSchemaField() {<a name="line.25"></a>
+<span class="sourceLineNo">026</span>        this.setType(ReferenceType.NAME);<a name="line.26"></a>
+<span class="sourceLineNo">027</span>        this.setIndexed(true);<a name="line.27"></a>
+<span class="sourceLineNo">028</span>    }<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>    /**<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * Get the desired behavior when an object referred to by this field is deleted.<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    public DeleteAction getOnDelete() {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        return this.onDelete;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    }<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    public void setOnDelete(DeleteAction onDelete) {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        this.onDelete = onDelete;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    @Override<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    public void validate() {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        super.validate();<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        if (!ReferenceType.NAME.equals(this.getType()))<a name="line.43"></a>
+<span class="sourceLineNo">044</span>            throw new InvalidSchemaException("invalid " + this + ": reference fields must have type `" + ReferenceType.NAME + "'");<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        if (!this.isIndexed())<a name="line.45"></a>
+<span class="sourceLineNo">046</span>            throw new IllegalArgumentException("invalid " + this + ": reference fields must always be indexed");<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        if (this.onDelete == null)<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            throw new InvalidSchemaException("invalid " + this + ": no delete action specified");<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    @Override<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    public &lt;R&gt; R visit(SchemaFieldSwitch&lt;R&gt; target) {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        return target.caseReferenceSchemaField(this);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    @Override<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    void readAttributes(XMLStreamReader reader) throws XMLStreamException {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        super.readAttributes(reader);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        final String text = reader.getAttributeValue(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart());<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        DeleteAction action = DeleteAction.EXCEPTION;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        if (text != null) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>            if ((action = Enum.valueOf(DeleteAction.class, text)) == null) {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                throw new XMLStreamException("invalid value `" + text<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                  + " for \"" + ON_DELETE_ATTRIBUTE.getLocalPart() + "\" attribute in " + this);<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            }<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        }<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        this.setOnDelete(action);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    @Override<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    void writeXML(XMLStreamWriter writer) throws XMLStreamException {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        writer.writeEmptyElement(REFERENCE_FIELD_TAG.getNamespaceURI(), REFERENCE_FIELD_TAG.getLocalPart());<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        this.writeAttributes(writer);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        if (this.onDelete != null)<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            writer.writeAttribute(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart(), this.onDelete.name());<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    @Override<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        // don't need to write type or indexed<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>// Object<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>    @Override<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    public boolean equals(Object obj) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        if (obj == this)<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            return true;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        if (!super.equals(obj))<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            return false;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        final ReferenceSchemaField that = (ReferenceSchemaField)obj;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        return this.onDelete == that.onDelete;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    @Override<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    public int hashCode() {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        return super.hashCode() ^ (this.onDelete != null ? this.onDelete.hashCode() : 0);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>// Cloneable<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    @Override<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    public ReferenceSchemaField clone() {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        return (ReferenceSchemaField)super.clone();<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">106</span>}<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
 
 
 
