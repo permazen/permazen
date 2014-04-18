@@ -194,7 +194,7 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Create an SQL statement that reads the value column associated with key {@code ?1}.
+     * Create an SQL statement that reads the value column associated with key <code>&#63;1<?code>.
      */
     public String createGetStatement() {
         return "SELECT " + this.quote(this.keyColumnName) + " FROM "
@@ -203,7 +203,7 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that reads the key and value columns (in that order) associated
-     * with the smallest key greater than or equal to {@code ?1}, if any.
+     * with the smallest key greater than or equal to <code>&#63;1<?code>, if any.
      */
     public String createGetAtLeastStatement() {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -220,7 +220,7 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that reads the key and value columns (in that order)
-     * associated with the greatest key strictly less than {@code ?1}, if any.
+     * associated with the greatest key strictly less than <code>&#63;1<?code>, if any.
      */
     public String createGetAtMostStatement() {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -237,8 +237,8 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Create an SQL statement that inserts the key/value pair with key {@code ?1} and value {@code ?2}.
-     * Note that a row with key {@code ?1} may already exist; if so, the value should be updated to {@code ?2}.
+     * Create an SQL statement that inserts the key/value pair with key <code>&#63;1<?code> and value <code>&#63;2<?code>.
+     * Note that a row with key <code>&#63;1<?code> may already exist; if so, the value should be updated to <code>&#63;2<?code>.
      */
     public String createPutStatement() {
         return "INSERT INTO " + this.quote(this.tableName) + " (" + this.quote(this.keyColumnName)
@@ -246,7 +246,7 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Create an SQL statement that deletes the row associated with key {@code ?1}, if any.
+     * Create an SQL statement that deletes the row associated with key <code>&#63;1<?code>, if any.
      * Note that the key may or may not exist prior to this method being invoked.
      */
     public String createRemoveStatement() {
@@ -254,7 +254,8 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Create an SQL statement that deletes all rows with keys in the range {@code ?1} (inclusive} to {@code ?2} (exclusive).
+     * Create an SQL statement that deletes all rows with keys in the range <code>&#63;1<?code> (inclusive}
+     * to <code>&#63;2<?code> (exclusive).
      */
     public String createRemoveRangeStatement() {
         return "DELETE FROM " + this.quote(this.tableName)
@@ -262,14 +263,14 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Create an SQL statement that deletes all rows with keys greater than or equal to {@code ?1}.
+     * Create an SQL statement that deletes all rows with keys greater than or equal to <code>&#63;1<?code>.
      */
     public String createRemoveAtLeastStatement() {
         return "DELETE FROM " + this.quote(this.tableName) + " WHERE " + this.quote(this.keyColumnName) + " >= ?1";
     }
 
     /**
-     * Create an SQL statement that deletes all rows with keys strictly less than {@code ?1}.
+     * Create an SQL statement that deletes all rows with keys strictly less than <code>&#63;1<?code>.
      */
     public String createRemoveAtMostStatement() {
         return "DELETE FROM " + this.quote(this.tableName) + " WHERE " + this.quote(this.keyColumnName) + " < ?2";
