@@ -84,7 +84,7 @@ public class FoundationKVDatabase implements KVDatabase {
     /**
      * Get the key prefix for all keys.
      *
-     * @param keyPrefix key prefix, or null if there is none configured
+     * @return key prefix, or null if there is none configured
      */
     public byte[] getKeyPrefix() {
         return this.keyPrefix.clone();
