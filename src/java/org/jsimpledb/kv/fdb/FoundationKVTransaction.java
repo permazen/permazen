@@ -79,19 +79,23 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
 
     @Override
     public KVPair getAtLeast(byte[] minKey) {
+        if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
+            return null;
         return this.getRange(KeySelector.firstGreaterOrEqual(minKey != null ? minKey : MIN_KEY),
           KeySelector.lastLessThan(MAX_KEY), false);
     }
 
     @Override
     public KVPair getAtMost(byte[] maxKey) {
+        if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
+            maxKey = null;
         return this.getRange(KeySelector.firstGreaterOrEqual(MIN_KEY),
           KeySelector.lastLessThan(maxKey != null ? maxKey : MAX_KEY), true);
     }
 
     private KVPair getRange(KeySelector min, KeySelector max, boolean reverse) {
         try {
-            final AsyncIterator<KeyValue> i = this.tx.getRange(min, max, 1).iterator();
+            final AsyncIterator<KeyValue> i = this.tx.getRange(min, max, 1, reverse).iterator();
             if (!i.hasNext())
                 return null;
             final KeyValue kv = i.next();
@@ -125,6 +129,12 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
 
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
+        if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
+            return;
+        if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
+            maxKey = null;
+        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
+            throw new IllegalArgumentException("minKey > maxKey");
         try {
             this.tx.clear(minKey != null ? minKey : MIN_KEY, maxKey != null ? maxKey : MAX_KEY);
         } catch (FDBException e) {

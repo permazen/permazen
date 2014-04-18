@@ -30,6 +30,11 @@ public interface KVStore {
     /**
      * Get the key/value pair having the smallest key greater than or equal to the given minimum, if any.
      *
+     * <p>
+     * If keys starting with {@code 0xff} are not supported by this instance, and {@code minKey} starts with {@code 0xff},
+     * then this method returns null.
+     * </p>
+     *
      * @param minKey minimum key (inclusive), or null for no minimum (get the smallest key)
      * @return smallest key/value pair with {@code key >= minKey}, or null if none exists
      */
@@ -37,6 +42,11 @@ public interface KVStore {
 
     /**
      * Get the key/value pair having the largest key strictly less than the given maximum, if any.
+     *
+     * <p>
+     * If keys starting with {@code 0xff} are not supported by this instance, and {@code maxKey} starts with {@code 0xff},
+     * then this method behaves as if {@code maxKey} were null.
+     * </p>
      *
      * @param maxKey maximum key (exclusive), or null for no maximum (get the largest key)
      * @return largest key/value pair with {@code key < maxKey}, or null if none exists
@@ -70,6 +80,14 @@ public interface KVStore {
      * <p>
      * The {@code minKey} must be less than or equal to {@code maxKey}; if they equal (and not null)
      * then nothing happens; if they are both null then all entries are deleted.
+     * </p>
+     *
+     * <p>
+     * If keys starting with {@code 0xff} are not supported by this instance, then:
+     * <ul>
+     *  <li>If {@code minKey} starts with {@code 0xff}, then no change occurs</li>
+     *  <li>If {@code maxKey} starts with {@code 0xff}, then this method behaves as if {@code maxKey} were null</li>
+     * </ul>
      * </p>
      *
      * @param minKey minimum key (inclusive), or null for no minimum
