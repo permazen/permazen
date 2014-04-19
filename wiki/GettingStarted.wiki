@@ -261,3 +261,12 @@ Person (id 64ed0329bf773c29)
   <-Friends with Fred:
     Sally
 }}}
+
+To use [http://foundationdb.com/ FoundationDB] as the key/value store, replace the first line of the `main()` method above with:
+
+<code language="java">
+    final FoundationKVDatabase fdb = new FoundationKVDatabase();
+    fdb.setClusterFilePath("fdb.cluster");
+    fdb.start();
+    final Database coreDb = new Database(fdb);</code>
+
