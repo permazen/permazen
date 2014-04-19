@@ -131,12 +131,12 @@
 <span class="sourceLineNo">123</span><a name="line.123"></a>
 <span class="sourceLineNo">124</span>    // This method exists solely to bind the generic type parameters<a name="line.124"></a>
 <span class="sourceLineNo">125</span>    @SuppressWarnings("serial")<a name="line.125"></a>
-<span class="sourceLineNo">126</span>    private &lt;T, F&gt; void addChangeParameterTypes(List&lt;TypeToken&lt;?&gt;&gt; types, TypeToken&lt;T&gt; targetType, TypeToken&lt;F&gt; fieldType) {<a name="line.126"></a>
+<span class="sourceLineNo">126</span>    private &lt;T, V&gt; void addChangeParameterTypes(List&lt;TypeToken&lt;?&gt;&gt; types, TypeToken&lt;T&gt; targetType, TypeToken&lt;V&gt; fieldType) {<a name="line.126"></a>
 <span class="sourceLineNo">127</span>        types.add(new TypeToken&lt;FieldChange&lt;T&gt;&gt;() { }<a name="line.127"></a>
 <span class="sourceLineNo">128</span>          .where(new TypeParameter&lt;T&gt;() { }, targetType));<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        types.add(new TypeToken&lt;SimpleFieldChange&lt;T, F&gt;&gt;() { }<a name="line.129"></a>
+<span class="sourceLineNo">129</span>        types.add(new TypeToken&lt;SimpleFieldChange&lt;T, V&gt;&gt;() { }<a name="line.129"></a>
 <span class="sourceLineNo">130</span>          .where(new TypeParameter&lt;T&gt;() { }, targetType)<a name="line.130"></a>
-<span class="sourceLineNo">131</span>          .where(new TypeParameter&lt;F&gt;() { }, fieldType.wrap()));<a name="line.131"></a>
+<span class="sourceLineNo">131</span>          .where(new TypeParameter&lt;V&gt;() { }, fieldType.wrap()));<a name="line.131"></a>
 <span class="sourceLineNo">132</span>    }<a name="line.132"></a>
 <span class="sourceLineNo">133</span><a name="line.133"></a>
 <span class="sourceLineNo">134</span>    /**<a name="line.134"></a>

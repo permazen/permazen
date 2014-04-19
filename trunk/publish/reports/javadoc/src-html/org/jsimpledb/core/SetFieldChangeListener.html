@@ -87,11 +87,10 @@
 <span class="sourceLineNo">079</span>     * @param storageId the storage ID of the field that changed<a name="line.79"></a>
 <span class="sourceLineNo">080</span>     * @param path path of reference fields (represented by storage IDs) that lead to {@code id}<a name="line.80"></a>
 <span class="sourceLineNo">081</span>     * @param referrers all objects that (indirectly) refer to the affected object via {@code path}<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     * @param &lt;E&gt; Java type for {@code field}'s elements<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    &lt;E&gt; void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet&lt;ObjId&gt; referrers);<a name="line.84"></a>
-<span class="sourceLineNo">085</span>}<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">082</span>     */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet&lt;ObjId&gt; referrers);<a name="line.83"></a>
+<span class="sourceLineNo">084</span>}<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
 
 
 

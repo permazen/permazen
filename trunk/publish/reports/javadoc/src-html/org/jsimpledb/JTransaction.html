@@ -854,7 +854,7 @@
 <span class="sourceLineNo">846</span>        }<a name="line.846"></a>
 <span class="sourceLineNo">847</span><a name="line.847"></a>
 <span class="sourceLineNo">848</span>        @Override<a name="line.848"></a>
-<span class="sourceLineNo">849</span>        public &lt;E&gt; void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet&lt;ObjId&gt; referrers) {<a name="line.849"></a>
+<span class="sourceLineNo">849</span>        public void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet&lt;ObjId&gt; referrers) {<a name="line.849"></a>
 <span class="sourceLineNo">850</span>            JTransaction.this.revalidate(referrers);<a name="line.850"></a>
 <span class="sourceLineNo">851</span>        }<a name="line.851"></a>
 <span class="sourceLineNo">852</span><a name="line.852"></a>
@@ -879,7 +879,7 @@
 <span class="sourceLineNo">871</span>        }<a name="line.871"></a>
 <span class="sourceLineNo">872</span><a name="line.872"></a>
 <span class="sourceLineNo">873</span>        @Override<a name="line.873"></a>
-<span class="sourceLineNo">874</span>        public &lt;E&gt; void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet&lt;ObjId&gt; referrers) {<a name="line.874"></a>
+<span class="sourceLineNo">874</span>        public void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet&lt;ObjId&gt; referrers) {<a name="line.874"></a>
 <span class="sourceLineNo">875</span>            JTransaction.this.revalidate(referrers);<a name="line.875"></a>
 <span class="sourceLineNo">876</span>        }<a name="line.876"></a>
 <span class="sourceLineNo">877</span><a name="line.877"></a>
@@ -904,7 +904,7 @@
 <span class="sourceLineNo">896</span>        }<a name="line.896"></a>
 <span class="sourceLineNo">897</span><a name="line.897"></a>
 <span class="sourceLineNo">898</span>        @Override<a name="line.898"></a>
-<span class="sourceLineNo">899</span>        public &lt;K, V&gt; void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet&lt;ObjId&gt; referrers) {<a name="line.899"></a>
+<span class="sourceLineNo">899</span>        public void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet&lt;ObjId&gt; referrers) {<a name="line.899"></a>
 <span class="sourceLineNo">900</span>            JTransaction.this.revalidate(referrers);<a name="line.900"></a>
 <span class="sourceLineNo">901</span>        }<a name="line.901"></a>
 <span class="sourceLineNo">902</span>    }<a name="line.902"></a>
