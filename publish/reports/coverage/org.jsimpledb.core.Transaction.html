@@ -1849,13 +1849,13 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1086</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> writeSimpleField(<span class="keyword">final</span> ObjId id, <span class="keyword">final</span> <span class="keyword">int</span> storageId, <span class="keyword">final</span> Object value) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1087</td>  <td class="nbHitsCovered">&nbsp;357</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.mutateAndNotify(id, <span class="keyword">new</span> Mutation&lt;Void&gt;() {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1087</td>  <td class="nbHitsCovered">&nbsp;356</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.mutateAndNotify(id, <span class="keyword">new</span> Mutation&lt;Void&gt;() {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1088</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1089</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">public</span> Void mutate() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1090</td>  <td class="nbHitsCovered">&nbsp;365</td>  <td class="src"><pre class="src">&nbsp;                Transaction.<span class="keyword">this</span>.doWriteSimpleField(id, storageId, value);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1091</td>  <td class="nbHitsCovered">&nbsp;357</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1090</td>  <td class="nbHitsCovered">&nbsp;364</td>  <td class="src"><pre class="src">&nbsp;                Transaction.<span class="keyword">this</span>.doWriteSimpleField(id, storageId, value);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1091</td>  <td class="nbHitsCovered">&nbsp;356</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1092</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1093</td>  <td class="nbHits">&nbsp;</td>
@@ -1869,28 +1869,28 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1098</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Get object info</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1099</td>  <td class="nbHitsCovered">&nbsp;365</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjInfo info = <span class="keyword">this</span>.getObjectInfo(id, <span class="keyword">true</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1100</td>  <td class="nbHitsCovered">&nbsp;365</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjType type = info.getObjType();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1099</td>  <td class="nbHitsCovered">&nbsp;364</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjInfo info = <span class="keyword">this</span>.getObjectInfo(id, <span class="keyword">true</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1100</td>  <td class="nbHitsCovered">&nbsp;364</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjType type = info.getObjType();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1101</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1102</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Find field</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1103</td>  <td class="nbHitsCovered">&nbsp;365</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleField&lt;?&gt; field = type.simpleFields.get(storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1103</td>  <td class="nbHitsCovered">&nbsp;364</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleField&lt;?&gt; field = type.simpleFields.get(storageId);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1104</td>  <td class="nbHitsUncovered"><a title="Line 1104: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1104: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (field == <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1105</td>  <td class="nbHitsCovered">&nbsp;365</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> UnknownFieldException(type, storageId, <span class="string">"simple field"</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1105</td>  <td class="nbHitsCovered">&nbsp;364</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> UnknownFieldException(type, storageId, <span class="string">"simple field"</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1106</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1107</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Get old and new values</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1108</td>  <td class="nbHitsCovered">&nbsp;365</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] key = field.buildKey(id);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1109</td>  <td class="nbHitsCovered">&nbsp;365</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] oldValue = <span class="keyword">this</span>.kvt.get(key);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1110</td>  <td class="nbHitsCovered">&nbsp;357</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] newValue = field.encode(newObj);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1108</td>  <td class="nbHitsCovered">&nbsp;364</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] key = field.buildKey(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1109</td>  <td class="nbHitsCovered">&nbsp;364</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] oldValue = <span class="keyword">this</span>.kvt.get(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1110</td>  <td class="nbHitsCovered">&nbsp;356</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] newValue = field.encode(newObj);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1111</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1112</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Optimization: check if the value has not changed</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1113</td>  <td class="nbHitsUncovered"><a title="Line 1113: Conditional coverage 50% (4/8) [each condition: 100%, 0%, 100%, 0%].">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1113: Conditional coverage 50% (4/8) [each condition: 100%, 0%, 100%, 0%].">        <span class="keyword">if</span> (oldValue != <span class="keyword">null</span> ? newValue != <span class="keyword">null</span> &amp;&amp; Arrays.equals(oldValue, newValue) : newValue == <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1114</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1114</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1115</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1116</td>  <td class="nbHits">&nbsp;</td>
@@ -1899,14 +1899,14 @@
 <tr>  <td class="numLineCover">&nbsp;1118</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.put(key, newValue);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1119</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">else</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1120</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.remove(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1120</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.remove(key);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1121</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1122</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Update index</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1123</td>  <td class="nbHitsUncovered"><a title="Line 1123: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1123: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (field.indexed) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1124</td>  <td class="nbHitsCovered">&nbsp;256</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.remove(field.buildIndexKey(id, oldValue));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1125</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.put(field.buildIndexKey(id, newValue), ByteUtil.EMPTY);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1125</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.put(field.buildIndexKey(id, newValue), ByteUtil.EMPTY);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1126</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1127</td>  <td class="nbHits">&nbsp;</td>
@@ -1919,8 +1919,8 @@
   <td class="src"><pre class="src">&nbsp;            @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1132</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">public</span> <span class="keyword">void</span> notify(Transaction tx, SimpleFieldChangeListener listener, <span class="keyword">int</span>[] path, NavigableSet&lt;ObjId&gt; referrers) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1133</td>  <td class="nbHitsCovered">&nbsp;15</td>  <td class="src"><pre class="src">&nbsp;                listener.onSimpleFieldChange(tx, <span class="keyword">this</span>.id, <span class="keyword">this</span>.storageId, path, referrers, oldObj, newObj);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1134</td>  <td class="nbHitsCovered">&nbsp;15</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1133</td>  <td class="nbHitsCovered">&nbsp;17</td>  <td class="src"><pre class="src">&nbsp;                listener.onSimpleFieldChange(tx, <span class="keyword">this</span>.id, <span class="keyword">this</span>.storageId, path, referrers, oldObj, newObj);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1134</td>  <td class="nbHitsCovered">&nbsp;17</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1135</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        });</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1136</td>  <td class="nbHitsCovered">&nbsp;4</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
@@ -2264,7 +2264,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1327</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> NavigableSet&lt;?&gt; readSetField(ObjId id, <span class="keyword">int</span> storageId, <span class="keyword">boolean</span> updateVersion) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1328</td>  <td class="nbHitsCovered">&nbsp;58</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.readComplexField(id, storageId, updateVersion, SetField.<span class="keyword">class</span>, NavigableSet.<span class="keyword">class</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1328</td>  <td class="nbHitsCovered">&nbsp;62</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.readComplexField(id, storageId, updateVersion, SetField.<span class="keyword">class</span>, NavigableSet.<span class="keyword">class</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1329</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1330</td>  <td class="nbHits">&nbsp;</td>
@@ -2305,7 +2305,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1348</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> List&lt;?&gt; readListField(ObjId id, <span class="keyword">int</span> storageId) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1349</td>  <td class="nbHitsCovered">&nbsp;58</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.readListField(id, storageId, <span class="keyword">true</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1349</td>  <td class="nbHitsCovered">&nbsp;62</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.readListField(id, storageId, <span class="keyword">true</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1350</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1351</td>  <td class="nbHits">&nbsp;</td>
@@ -2344,7 +2344,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1368</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> List&lt;?&gt; readListField(ObjId id, <span class="keyword">int</span> storageId, <span class="keyword">boolean</span> updateVersion) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1369</td>  <td class="nbHitsCovered">&nbsp;39</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.readComplexField(id, storageId, updateVersion, ListField.<span class="keyword">class</span>, List.<span class="keyword">class</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1369</td>  <td class="nbHitsCovered">&nbsp;45</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.readComplexField(id, storageId, updateVersion, ListField.<span class="keyword">class</span>, List.<span class="keyword">class</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1370</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1371</td>  <td class="nbHits">&nbsp;</td>
@@ -2385,7 +2385,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1389</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> NavigableMap&lt;?, ?&gt; readMapField(ObjId id, <span class="keyword">int</span> storageId) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1390</td>  <td class="nbHitsCovered">&nbsp;39</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.readMapField(id, storageId, <span class="keyword">true</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1390</td>  <td class="nbHitsCovered">&nbsp;45</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.readMapField(id, storageId, <span class="keyword">true</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1391</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1392</td>  <td class="nbHits">&nbsp;</td>
@@ -2530,7 +2530,7 @@
 <tr>  <td class="numLineCover">&nbsp;1467</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">final</span> ByteWriter writer = <span class="keyword">new</span> ByteWriter();</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1468</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        id.writeTo(writer);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1469</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        UnsignedIntEncoder.write(writer, storageId);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1470</td>  <td class="nbHitsCovered">&nbsp;124</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> writer.getBytes();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1470</td>  <td class="nbHitsCovered">&nbsp;134</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> writer.getBytes();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1471</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1472</td>  <td class="nbHits">&nbsp;</td>
@@ -2564,7 +2564,7 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1491</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Return view</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1492</td>  <td class="nbHitsCovered">&nbsp;809</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> valueType.cast(field.getValue(<span class="keyword">this</span>, id));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1492</td>  <td class="nbHitsCovered">&nbsp;818</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> valueType.cast(field.getValue(<span class="keyword">this</span>, id));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1493</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1494</td>  <td class="nbHits">&nbsp;</td>
@@ -2605,7 +2605,7 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1514</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Get new object</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1515</td>  <td class="nbHitsCovered">&nbsp;25</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> ObjInfo(<span class="keyword">this</span>, id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1515</td>  <td class="nbHitsCovered">&nbsp;31</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> ObjInfo(<span class="keyword">this</span>, id);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1516</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1517</td>  <td class="nbHits">&nbsp;</td>
@@ -2708,7 +2708,7 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> addSimpleFieldChangeListener(<span class="keyword">int</span> storageId, <span class="keyword">int</span>[] path, SimpleFieldChangeListener listener) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1566</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">this</span>.validateChangeListener(SimpleField.<span class="keyword">class</span>, storageId, path, listener);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1567</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">this</span>.getMonitorsForField(storageId, <span class="keyword">true</span>).add(<span class="keyword">new</span> FieldMonitor(storageId, path, listener));</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1568</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1568</td>  <td class="nbHitsCovered">&nbsp;6</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1569</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1570</td>  <td class="nbHits">&nbsp;</td>
@@ -2747,7 +2747,7 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> addSetFieldChangeListener(<span class="keyword">int</span> storageId, <span class="keyword">int</span>[] path, SetFieldChangeListener listener) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1587</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">this</span>.validateChangeListener(SetField.<span class="keyword">class</span>, storageId, path, listener);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1588</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">this</span>.getMonitorsForField(storageId, <span class="keyword">true</span>).add(<span class="keyword">new</span> FieldMonitor(storageId, path, listener));</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1589</td>  <td class="nbHitsCovered">&nbsp;3</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1589</td>  <td class="nbHitsCovered">&nbsp;21</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1590</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1591</td>  <td class="nbHits">&nbsp;</td>
@@ -2786,7 +2786,7 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> addListFieldChangeListener(<span class="keyword">int</span> storageId, <span class="keyword">int</span>[] path, ListFieldChangeListener listener) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1608</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">this</span>.validateChangeListener(ListField.<span class="keyword">class</span>, storageId, path, listener);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1609</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">this</span>.getMonitorsForField(storageId, <span class="keyword">true</span>).add(<span class="keyword">new</span> FieldMonitor(storageId, path, listener));</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1610</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1610</td>  <td class="nbHitsCovered">&nbsp;12</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1611</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1612</td>  <td class="nbHits">&nbsp;</td>
@@ -2949,7 +2949,7 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> removeMapFieldChangeListener(<span class="keyword">int</span> storageId, <span class="keyword">int</span>[] path, MapFieldChangeListener listener) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1697</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">this</span>.validateChangeListener(MapField.<span class="keyword">class</span>, storageId, path, listener);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1698</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">this</span>.getMonitorsForField(storageId, <span class="keyword">false</span>).remove(<span class="keyword">new</span> FieldMonitor(storageId, path, listener));</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1699</td>  <td class="nbHitsCovered">&nbsp;39</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1699</td>  <td class="nbHitsCovered">&nbsp;78</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1700</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1701</td>  <td class="nbHits">&nbsp;</td>
@@ -2987,19 +2987,19 @@
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Verify all fields in the path are reference fields</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1722</td>  <td class="nbHitsUncovered"><a title="Line 1722: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1722: Conditional coverage 0% (0/2).">        <span class="keyword">for</span> (<span class="keyword">int</span> pathStorageId : path)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1723</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">this</span>.schema.verifyStorageInfo(pathStorageId, ReferenceFieldStorageInfo.<span class="keyword">class</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1724</td>  <td class="nbHitsCovered">&nbsp;58</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1724</td>  <td class="nbHitsCovered">&nbsp;104</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1725</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1726</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">synchronized</span> HashSet&lt;FieldMonitor&gt; getMonitorsForField(<span class="keyword">int</span> storageId, <span class="keyword">boolean</span> adding) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1727</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        HashSet&lt;FieldMonitor&gt; monitors = <span class="keyword">this</span>.monitorMap.get(storageId);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1728</td>  <td class="nbHitsUncovered"><a title="Line 1728: Conditional coverage 0% (0/2).">&nbsp;15</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1728: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (monitors == <span class="keyword">null</span>) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1728</td>  <td class="nbHitsUncovered"><a title="Line 1728: Conditional coverage 0% (0/2).">&nbsp;18</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1728: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (monitors == <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1729</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            monitors = <span class="keyword">new</span> HashSet&lt;FieldMonitor&gt;();</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1730</td>  <td class="nbHitsUncovered"><a title="Line 1730: Conditional coverage 0% (0/2).">&nbsp;15</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1730: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (adding)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1730</td>  <td class="nbHitsUncovered"><a title="Line 1730: Conditional coverage 0% (0/2).">&nbsp;18</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1730: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (adding)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1731</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">this</span>.monitorMap.put(storageId, monitors);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1732</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1733</td>  <td class="nbHitsCovered">&nbsp;552</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> monitors;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1733</td>  <td class="nbHitsCovered">&nbsp;556</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> monitors;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1734</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1735</td>  <td class="nbHits">&nbsp;</td>
@@ -3021,7 +3021,7 @@
 <tr>  <td class="numLine">&nbsp;1743</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Does anybody care?</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1744</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">final</span> <span class="keyword">int</span> storageId = notifier.getStorageId();</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1745</td>  <td class="nbHitsUncovered"><a title="Line 1745: Conditional coverage 0% (0/2).">&nbsp;526</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1745: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.monitorMap.containsKey(storageId))</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1745</td>  <td class="nbHitsUncovered"><a title="Line 1745: Conditional coverage 0% (0/2).">&nbsp;523</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1745: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.monitorMap.containsKey(storageId))</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1746</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span>;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1747</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
@@ -3029,7 +3029,7 @@
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Add a pending field monitor notification for the specified field</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1749</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">final</span> TreeMap&lt;Integer, ArrayList&lt;FieldChangeNotifier&gt;&gt; pendingNotificationMap = <span class="keyword">this</span>.pendingNotifications.get();</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1750</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        ArrayList&lt;FieldChangeNotifier&gt; pendingNotificationList = pendingNotificationMap.get(storageId);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1751</td>  <td class="nbHitsUncovered"><a title="Line 1751: Conditional coverage 0% (0/2).">&nbsp;26</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1751: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (pendingNotificationList == <span class="keyword">null</span>) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1751</td>  <td class="nbHitsUncovered"><a title="Line 1751: Conditional coverage 0% (0/2).">&nbsp;33</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1751: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (pendingNotificationList == <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1752</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            pendingNotificationList = <span class="keyword">new</span> ArrayList&lt;FieldChangeNotifier&gt;(2);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1753</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            pendingNotificationMap.put(storageId, pendingNotificationList);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1754</td>  <td class="nbHits">&nbsp;</td>
@@ -3050,7 +3050,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1763</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">boolean</span> hasFieldMonitor(Field&lt;?&gt; field) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1764</td>  <td class="nbHitsCovered">&nbsp;615</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.monitorMap.containsKey(field.storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1764</td>  <td class="nbHitsCovered">&nbsp;624</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.monitorMap.containsKey(field.storageId);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1765</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1766</td>  <td class="nbHits">&nbsp;</td>
@@ -3105,7 +3105,7 @@
   <td class="src"><pre class="src">&nbsp;        } <span class="keyword">finally</span> {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1797</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">try</span> {</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1798</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">final</span> TreeMap&lt;Integer, ArrayList&lt;FieldChangeNotifier&gt;&gt; pendingNotificationMap = <span class="keyword">this</span>.pendingNotifications.get();</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1799</td>  <td class="nbHitsUncovered"><a title="Line 1799: Conditional coverage 0% (0/2).">&nbsp;26</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1799: Conditional coverage 0% (0/2).">                <span class="keyword">while</span> (!pendingNotificationMap.isEmpty()) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1799</td>  <td class="nbHitsUncovered"><a title="Line 1799: Conditional coverage 0% (0/2).">&nbsp;33</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1799: Conditional coverage 0% (0/2).">                <span class="keyword">while</span> (!pendingNotificationMap.isEmpty()) {</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1800</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1801</td>  <td class="nbHits">&nbsp;</td>
@@ -3119,7 +3119,7 @@
 <tr>  <td class="numLineCover">&nbsp;1806</td>  <td class="nbHitsUncovered"><a title="Line 1806: Conditional coverage 50% (1/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1806: Conditional coverage 50% (1/2).">                    <span class="keyword">for</span> (FieldChangeNotifier notifier : entry.getValue()) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1807</td>  <td class="nbHitsUncovered"><a title="Line 1807: Conditional coverage 0% (0/4) [each condition: 0%, 0%].">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1807: Conditional coverage 0% (0/4) [each condition: 0%, 0%].">                        <span class="keyword">assert</span> notifier.getStorageId() == storageId;</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1808</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                        <span class="keyword">final</span> ArrayList&lt;FieldMonitor&gt; monitorList = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="keyword">this</span>.getMonitorsForField(storageId, <span class="keyword">false</span>));</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1809</td>  <td class="nbHitsUncovered"><a title="Line 1809: Conditional coverage 0% (0/2).">&nbsp;25</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1809: Conditional coverage 0% (0/2).">                        <span class="keyword">if</span> (!monitorList.isEmpty())</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1809</td>  <td class="nbHitsUncovered"><a title="Line 1809: Conditional coverage 0% (0/2).">&nbsp;32</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1809: Conditional coverage 0% (0/2).">                        <span class="keyword">if</span> (!monitorList.isEmpty())</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1810</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                            <span class="keyword">this</span>.notifyFieldMonitors(notifier, NavigableSets.singleton(notifier.getId()), monitorList, 0);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1811</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                    }</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1812</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                }</span></pre></td></tr>
@@ -3151,7 +3151,7 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1828</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Issue notification callback if we have back-tracked through the whole path</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1829</td>  <td class="nbHitsUncovered"><a title="Line 1829: Conditional coverage 0% (0/2).">&nbsp;25</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1829: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (monitor.path.length == step) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1829</td>  <td class="nbHitsUncovered"><a title="Line 1829: Conditional coverage 0% (0/2).">&nbsp;87</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1829: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (monitor.path.length == step) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1830</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                notifier.notify(<span class="keyword">this</span>, monitor.listener, monitor.path, objects);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1831</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">continue</span>;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1832</td>  <td class="nbHits">&nbsp;</td>
@@ -3162,7 +3162,7 @@
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Sort the unfinished monitors by their next (i.e., previous) reference field</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1835</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> storageId = monitor.path[monitor.path.length - step - 1];</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1836</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            ArrayList&lt;FieldMonitor&gt; remainingMonitors = remainingMonitorsMap.get(storageId);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1837</td>  <td class="nbHitsUncovered"><a title="Line 1837: Conditional coverage 0% (0/2).">&nbsp;30</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1837: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (remainingMonitors == <span class="keyword">null</span>) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1837</td>  <td class="nbHitsUncovered"><a title="Line 1837: Conditional coverage 0% (0/2).">&nbsp;29</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1837: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (remainingMonitors == <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1838</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                remainingMonitors = <span class="keyword">new</span> ArrayList&lt;FieldMonitor&gt;();</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1839</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                remainingMonitorsMap.put(storageId, remainingMonitors);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1840</td>  <td class="nbHits">&nbsp;</td>
@@ -3648,7 +3648,7 @@
   <td class="src"><pre class="src">&nbsp;    <span class="comment">// Query an index associated with a simple field assuming the given index entry type</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2107</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> &lt;E&gt; IndexMap&lt;?, E&gt; queryIndex(SimpleFieldStorageInfo storageInfo, FieldType&lt;E&gt; entryType) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2108</td>  <td class="nbHitsCovered">&nbsp;426</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> queryIndex(storageInfo.storageId, storageInfo.fieldType, entryType);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2108</td>  <td class="nbHitsCovered">&nbsp;425</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> queryIndex(storageInfo.storageId, storageInfo.fieldType, entryType);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2109</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2110</td>  <td class="nbHits">&nbsp;</td>
@@ -3676,7 +3676,7 @@
   <td class="src"><pre class="src">&nbsp;    <span class="comment">// Convenience method for querying a reference field index for all referring objects</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2123</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> NavigableSet&lt;ObjId&gt; findReferences(ReferenceFieldStorageInfo fieldInfo, ObjId id) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2124</td>  <td class="nbHitsCovered">&nbsp;365</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.queryIndex(fieldInfo, FieldType.REFERENCE).get(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2124</td>  <td class="nbHitsCovered">&nbsp;364</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.queryIndex(fieldInfo, FieldType.REFERENCE).get(id);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2125</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2126</td>  <td class="nbHits">&nbsp;</td>
@@ -3707,17 +3707,17 @@
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2139</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2140</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;        SimpleFieldChangeNotifier(SimpleField&lt;?&gt; field, ObjId id) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2141</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.storageId = field.storageId;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2142</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.id = id;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2143</td>  <td class="nbHitsCovered">&nbsp;320</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2140</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;        SimpleFieldChangeNotifier(SimpleField&lt;?&gt; field, ObjId id) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2141</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.storageId = field.storageId;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2142</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.id = id;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2143</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2144</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2145</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2146</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">public</span> <span class="keyword">int</span> getStorageId() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2147</td>  <td class="nbHitsCovered">&nbsp;339</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.storageId;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2147</td>  <td class="nbHitsCovered">&nbsp;337</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.storageId;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2148</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2149</td>  <td class="nbHits">&nbsp;</td>
@@ -3726,7 +3726,7 @@
   <td class="src"><pre class="src">&nbsp;        @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2151</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">public</span> ObjId getId() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2152</td>  <td class="nbHitsCovered">&nbsp;18</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.id;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2152</td>  <td class="nbHitsCovered">&nbsp;17</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.id;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2153</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2154</td>  <td class="nbHits">&nbsp;</td>
@@ -3735,8 +3735,8 @@
   <td class="src"><pre class="src">&nbsp;        @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2156</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">public</span> <span class="keyword">void</span> notify(Transaction tx, Object listener, <span class="keyword">int</span>[] path, NavigableSet&lt;ObjId&gt; referrers) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2157</td>  <td class="nbHitsCovered">&nbsp;15</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.notify(tx, (SimpleFieldChangeListener)listener, path, referrers);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2158</td>  <td class="nbHitsCovered">&nbsp;15</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2157</td>  <td class="nbHitsCovered">&nbsp;17</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.notify(tx, (SimpleFieldChangeListener)listener, path, referrers);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2158</td>  <td class="nbHitsCovered">&nbsp;17</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2159</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2160</td>  <td class="nbHits">&nbsp;</td>
@@ -3794,11 +3794,11 @@
 <tr>  <td class="numLine">&nbsp;2186</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">/**</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2187</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment">         * Invoked before transaction completion in any case (but after any {@link #beforeCommit}).</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment">         * Invoked before transaction completion in any case (but after any {@link #beforeCommit beforeCommit()}).</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2188</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">         * This method is invoked whether the transaction is going to be committed or rolled back,</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2189</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment">         * and is invoked even if {@link #beforeCommit} throws an exception.</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment">         * and is invoked even if {@link #beforeCommit beforeCommit()} throws an exception.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2190</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">         * Typically used to clean up resources before transaction completion.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2191</td>  <td class="nbHits">&nbsp;</td>
@@ -3818,7 +3818,7 @@
 <tr>  <td class="numLine">&nbsp;2198</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">/**</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2199</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment">         * Invoked after successful transaction commit (and before any {@link #afterCompletion}).</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment">         * Invoked after successful transaction commit (and before any {@link #afterCompletion #afterCompletion()}).</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2200</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">         *</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2201</td>  <td class="nbHits">&nbsp;</td>
@@ -3865,6 +3865,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/17/14 9:10 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/18/14 4:57 PM.</div>
 </body>
 </html>

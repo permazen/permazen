@@ -2192,9 +2192,9 @@
 <span class="sourceLineNo">2184</span>        void beforeCommit(boolean readOnly);<a name="line.2184"></a>
 <span class="sourceLineNo">2185</span><a name="line.2185"></a>
 <span class="sourceLineNo">2186</span>        /**<a name="line.2186"></a>
-<span class="sourceLineNo">2187</span>         * Invoked before transaction completion in any case (but after any {@link #beforeCommit}).<a name="line.2187"></a>
+<span class="sourceLineNo">2187</span>         * Invoked before transaction completion in any case (but after any {@link #beforeCommit beforeCommit()}).<a name="line.2187"></a>
 <span class="sourceLineNo">2188</span>         * This method is invoked whether the transaction is going to be committed or rolled back,<a name="line.2188"></a>
-<span class="sourceLineNo">2189</span>         * and is invoked even if {@link #beforeCommit} throws an exception.<a name="line.2189"></a>
+<span class="sourceLineNo">2189</span>         * and is invoked even if {@link #beforeCommit beforeCommit()} throws an exception.<a name="line.2189"></a>
 <span class="sourceLineNo">2190</span>         * Typically used to clean up resources before transaction completion.<a name="line.2190"></a>
 <span class="sourceLineNo">2191</span>         *<a name="line.2191"></a>
 <span class="sourceLineNo">2192</span>         * &lt;p&gt;<a name="line.2192"></a>
@@ -2204,7 +2204,7 @@
 <span class="sourceLineNo">2196</span>        void beforeCompletion();<a name="line.2196"></a>
 <span class="sourceLineNo">2197</span><a name="line.2197"></a>
 <span class="sourceLineNo">2198</span>        /**<a name="line.2198"></a>
-<span class="sourceLineNo">2199</span>         * Invoked after successful transaction commit (and before any {@link #afterCompletion}).<a name="line.2199"></a>
+<span class="sourceLineNo">2199</span>         * Invoked after successful transaction commit (and before any {@link #afterCompletion #afterCompletion()}).<a name="line.2199"></a>
 <span class="sourceLineNo">2200</span>         *<a name="line.2200"></a>
 <span class="sourceLineNo">2201</span>         * &lt;p&gt;<a name="line.2201"></a>
 <span class="sourceLineNo">2202</span>         * Any exceptions thrown will propagate to the caller.<a name="line.2202"></a>
