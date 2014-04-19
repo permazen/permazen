@@ -42,7 +42,7 @@ Here's an example setup with Spring that uses a simple flat file for persistence
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
  
     <!-- Define the underlying key/value store -->
-    <bean id="kvstore" class="org.jsimpledb.kv.simple.XMLKVDatabase" c:file="%{user.home}/jsimpledb.xml"/>
+    <bean id="kvstore" class="org.jsimpledb.kv.simple.XMLKVDatabase" c:file="${user.home}/jsimpledb.xml"/>
  
     <!-- Define the core Database layer on top of that -->
     <bean id="database" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvstore"/>
@@ -261,4 +261,3 @@ Person (id 64ed0329bf773c29)
   <-Friends with Fred:
     Sally
 }}}
-
