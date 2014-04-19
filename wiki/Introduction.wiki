@@ -37,24 +37,34 @@ Of note:
  * The getter methods for `age` and `friends` may be declared `abstract`
    * JSimpleDB overrides these methods in an auto-generated subclass at runtime
    * The generated subclass will implement the `JObject` interface
- * JSimpleDB contains built-in support for primitive and simple types, and sets, lists, and maps
-   * You can build virtually anything out of these three collection types
-   * You can define your own types and how they are to be encoded
  * There is no setter method for the `friends` set
    * The set will always exist
- * Every Java model class and field (including sub-fields, like the `element` sub-field of `friends`) has a unique *storage ID*
-   * Internally, objects and fields are identified by storage ID, not name
-   * Storage IDs are used to access (possibly removed) old fields after a schema change (more on that later)
 
 === Storage IDs ===
 
-Although they must be unique, storage IDs are otherwise pretty much "set them and forget them". They are not used except occasionally during a schema update; then they provide a way to access fields that may have changed or been removed in the schema update. In other words, storage IDs provide a level of indirection between your Java code and database identity, allowing your Java code to change more freely while also providing a controlled and well-defined way to update database contents (if necessary) when the schema does change. See [#Schema_Management Schema Management] for more info.
+Every JSimpleDB model class and field (including sub-fields of complex fields, like the `element` sub-field of `friends`) has a unique *storage ID*. Internally, objects and fields are identified by storage ID, not name. Storage IDs are used to access (possibly removed) old fields after a schema change (more on that later).
+
+Although they must be unique, storage IDs are otherwise pretty much "set and forget". You will not normally be using them, except occasionally during a schema update or Java code refactoring; then, they provide a way to access fields that may have changed or been removed in the change. In other words, storage IDs provide a level of indirection between your Java code and database identity, allowing your Java code to change more freely while also providing a controlled and well-defined way to update database contents (if necessary) when the schema does change. See [#Schema_Management Schema Management] for more info.
+
+=== Types ===
+
+JSimpleDB supports two kinds of fields: simple and complex.
+
+A simple field is any field that can be considered as a single value and encoded into binary form. This inclues primitive and primitive wrapper types, `String`, `Date`, etc., as well as object references. Simple fields also have a specific sort order (which is also reflected in their binary encodings).
+
+Array types are also supported. Array types are simple types and are read and written by value.
+
+The complex types are `Set` (actually `NavigableSet`), `List`, and `Map` (actually `NavigableMap`). JSimpleDB includes explicit support for these types, including indexing, change notification, etc. The complex types support any simple type as their elment or key/value type.
+
+You can define your own simple types by providing a class annotated with `@JFieldType`.
 
 == Accessing Data ==
 
+Once you have defined your classes, programming with JSimpleDB is just normal Java programming, with a few differences.
+
 === Object Lifecycle ===
 
-So far so good. But how do you create a `Person`? Invoke `create()` on a `JTransaction` object, e.g.:
+To create a persistent `Person` instance, invoke `create()` on a `JTransaction` object, e.g.:
 
 <code language="java">
     // Create a Person
@@ -70,7 +80,7 @@ Java model objects do not change from transaction to transaction like with JPA. 
 
 If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `JObject.exists()`, and (if need be) recreate the object (with all fields reinitialized) via `JObject.recreate()`.
 
-To get all `Person`s:
+To get all persistent `Person`s:
 
 <code language="java">
     // Get all people
@@ -78,17 +88,10 @@ To get all `Person`s:
         return JTransaction.getCurrent().getAll(Person.class);
     }</code>
 
-How do you delete a `Person`?
+To delete a persistent `Person`:
 
 <code language="java">
     person.delete();</code>
-
-Alternately, you can say:
-
-<code language="java">
-    JTransaction.getCurrent().delete(person);</code>
-
-The two are equivalent.
 
 The `exists()`, `delete()`, and `recreate()` methods are part of the `JObject` interface, which all generated model subclasses implement. Your classes don't have to to be declared to implement `JObject`, but life is a little easier if they are.
 
@@ -158,17 +161,7 @@ Since the mapping is a `NavigableMap`, you can efficiently find the minimum or m
 
 You may be wondering what sort order applies to `Person`. JSimpleDB sorts database objects by their type (i.e., Java class), and then by their unique object ID (the object ID is available via `JObject.getObjId()`). Object IDs are opaque 64-bit values. Newly created objects get a randomly generated value which avoids distributed database contention that would occur with an auto-increment counter.
 
-The astute reader may notice that `existsPersonOfAge()` and `getMaximumAge()` would more appropriately be static methods, because there's nothing about them that is specific to one `Person`. And that is correct; however, you can't override static methods, so the method has to be an instance method for JSimpleDB to generate a subclass implementation. If you really wanted a static method, you could do this:
-
-<code language="java">
-    @SuppressWarnings("unchecked")
-    public static boolean getMaximumAge() {
-        NavigableMap<Integer, NavigableSet<Person>> index
-          = (NavigableMap<Integer, NavigableSet<Person>>)JTransaction.getCurrent().querySimpleField(101);
-        return index.containsKey(age);
-    }</code>
-
-but that's rather ugly. A cleaner option is to define a singleton class `Indexes` containing all of your index query methods.
+The astute reader may notice that `existsPersonOfAge()` and `getMaximumAge()` would more appropriately be static methods, because there's nothing about them that is specific to one `Person`. And that is correct; however, you can't override static methods, so the method has to be an instance method for JSimpleDB to generate a subclass implementation. Another option is to define a singleton class `Indexes` containing all of your index query methods.
 
 ==== Complex Field Indexes ====
 
