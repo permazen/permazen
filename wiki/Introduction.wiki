@@ -54,7 +54,7 @@ A simple field is any field that can be considered as a single value and encoded
 
 Array types are also supported. Array types are simple types and are read and written by value.
 
-The complex types are `Set` (actually `NavigableSet`), `List`, and `Map` (actually `NavigableMap`). JSimpleDB includes explicit support for these types, including indexing, change notification, etc. The complex types support any simple type as their elment or key/value type.
+The complex types are `Set` (actually `NavigableSet`), `List`, and `Map` (actually `NavigableMap`). JSimpleDB includes explicit support for these types, including indexing, change notification, etc. The complex types support any simple type as their element or key/value type.
 
 You can define your own simple types by providing a class annotated with `@JFieldType`.
 
