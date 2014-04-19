@@ -37,7 +37,7 @@ public interface JObject {
      *
      * @return true if instance was deleted, false if it did not exist
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
-     * @throws org.jsimpledb.StaleTransactionException
+     * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction associated with the current thread is no longer usable
      */
     boolean delete();
@@ -48,7 +48,7 @@ public interface JObject {
      *
      * @return true if instance exists, otherwise false
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
-     * @throws org.jsimpledb.StaleTransactionException
+     * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction associated with the current thread is no longer usable
      */
     boolean exists();
@@ -60,7 +60,7 @@ public interface JObject {
      *
      * @return true if instance was recreated, false if it already existed
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
-     * @throws org.jsimpledb.StaleTransactionException
+     * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction associated with the current thread is no longer usable
      */
     boolean recreate();
@@ -76,7 +76,7 @@ public interface JObject {
      *
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
-     * @throws org.jsimpledb.StaleTransactionException
+     * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction associated with the current thread is no longer usable
      */
     void revalidate();
@@ -91,7 +91,7 @@ public interface JObject {
      * </p>
      *
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
-     * @throws org.jsimpledb.StaleTransactionException
+     * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction associated with the current thread is no longer usable
      */
     void upgrade();
