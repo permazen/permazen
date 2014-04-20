@@ -12,8 +12,8 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.jsimpledb.core.DeleteAction;
+import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.InvalidSchemaException;
-import org.jsimpledb.core.ReferenceType;
 
 /**
  * A reference field in a {@link SchemaObject}.
@@ -23,7 +23,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     private DeleteAction onDelete;
 
     public ReferenceSchemaField() {
-        this.setType(ReferenceType.NAME);
+        this.setType(FieldType.REFERENCE_TYPE_NAME);
         this.setIndexed(true);
     }
 
@@ -40,8 +40,10 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     @Override
     public void validate() {
         super.validate();
-        if (!ReferenceType.NAME.equals(this.getType()))
-            throw new InvalidSchemaException("invalid " + this + ": reference fields must have type `" + ReferenceType.NAME + "'");
+        if (!FieldType.REFERENCE_TYPE_NAME.equals(this.getType())) {
+            throw new InvalidSchemaException("invalid " + this + ": reference fields must have type `"
+              + FieldType.REFERENCE_TYPE_NAME + "'");
+        }
         if (!this.isIndexed())
             throw new IllegalArgumentException("invalid " + this + ": reference fields must always be indexed");
         if (this.onDelete == null)
