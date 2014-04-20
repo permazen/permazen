@@ -2217,5 +2217,31 @@ public class Transaction {
          */
         void afterCompletion(boolean committed);
     }
+
+    /**
+     * Adapter class for {@link Callback}.
+     *
+     * <p>
+     * All the implementations in this class do nothing.
+     * </p>
+     */
+    public class CallbackAdapter implements Callback {
+
+        @Override
+        public void beforeCommit(boolean readOnly) {
+        }
+
+        @Override
+        public void beforeCompletion() {
+        }
+
+        @Override
+        public void afterCommit() {
+        }
+
+        @Override
+        public void afterCompletion(boolean committed) {
+        }
+    }
 }
 
