@@ -8,10 +8,12 @@
 package org.jsimpledb.core;
 
 import java.util.Date;
+import java.util.UUID;
 
 import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.util.ByteReader;
+import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -33,13 +35,15 @@ public class FieldTypeTest extends TestSupport {
     }
 
     private <T> void testFieldType3(FieldType<T> fieldType, T[] values) throws Exception {
+        final byte[][] encodings = new byte[values.length][];
         for (int i = 0; i < values.length; i++) {
             final T value = values[i];
 
             // Binary encoding
             final ByteWriter writer = new ByteWriter();
             fieldType.write(writer, value);
-            final T value2 = fieldType.read(new ByteReader(writer));
+            encodings[i] = writer.getBytes();
+            final T value2 = fieldType.read(new ByteReader(encodings[i]));
             this.assertEquals(value2, value);
             this.assertEquals(fieldType.toString(value2), fieldType.toString(value));
 
@@ -51,8 +55,10 @@ public class FieldTypeTest extends TestSupport {
             // Check sort order
             if (i > 0) {
                 final T previous = values[i - 1];
+                Assert.assertTrue(ByteUtil.compare(encodings[i - 1], encodings[i]) < 0,
+                  "binary sort failure: " + fieldType.toString(previous) + " < " + fieldType.toString(value));
                 Assert.assertTrue(fieldType.compare(previous, value) < 0,
-                  "sort failure: " + fieldType.toString(previous) + " < " + fieldType.toString(value));
+                  "Java sort failure: " + fieldType.toString(previous) + " < " + fieldType.toString(value));
             }
         }
     }
@@ -194,6 +200,21 @@ public class FieldTypeTest extends TestSupport {
                 { Double.MAX_VALUE },
                 { Double.POSITIVE_INFINITY },
                 { Double.longBitsToDouble(0xffffffffffffffffL) },   // NaN
+                null
+            }},
+
+            {   "java.util.UUID", new UUID[] {
+                UUID.fromString("89b3ed7f-5a7e-4604-9d42-2072248c91e7"),
+                UUID.fromString("b9c069d9-8b09-445e-ad99-9f4b89a14779"),
+                UUID.fromString("e82fd154-7027-479c-ba47-3d01374d82ad"),
+                UUID.fromString("0e38c34f-eb22-4f6b-a6e7-8d910242a31a"),
+                UUID.fromString("1ed9b4e3-766d-4b5f-864f-43fac6f869f6"),
+                UUID.fromString("3bc5c507-06b0-40eb-9d1e-f1e704dd1461"),
+                UUID.fromString("43940997-db56-4c66-9f11-1b6981eb2efe"),
+                UUID.fromString("79b3ed7f-5a7e-9d42-8000-2072248c91e7"),
+                UUID.fromString("79b3ed7f-5a7e-9d42-ffff-2072248c91e7"),
+                UUID.fromString("79b3ed7f-5a7e-9d42-0000-2072248c91e7"),
+                UUID.fromString("79b3ed7f-5a7e-9d42-7fff-2072248c91e7"),
                 null
             }},
 

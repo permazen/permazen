@@ -13,7 +13,7 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Method;
 
 import org.jsimpledb.core.DeleteAction;
-import org.jsimpledb.core.ReferenceType;
+import org.jsimpledb.core.FieldType;
 import org.jsimpledb.schema.ReferenceSchemaField;
 
 /**
@@ -25,7 +25,7 @@ public class JReferenceField extends JSimpleField {
 
     JReferenceField(String name, int storageId, String description,
       TypeToken<?> typeToken, DeleteAction onDelete, Method getter, Method setter) {
-        super(name, storageId, typeToken, ReferenceType.NAME, true, description, getter, setter);
+        super(name, storageId, typeToken, FieldType.REFERENCE_TYPE_NAME, true, description, getter, setter);
         this.onDelete = onDelete;
     }
 

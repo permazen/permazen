@@ -16,12 +16,10 @@ import org.jsimpledb.util.ByteWriter;
 /**
  * Non-null type for fields that contain a reference to an object. Null values are not supported by this class.
  */
-public class ReferenceType extends FieldType<ObjId> {
-
-    public static final String NAME = "reference";
+class ReferenceType extends FieldType<ObjId> {
 
     ReferenceType() {
-        super(NAME, TypeToken.of(ObjId.class));
+        super(FieldType.REFERENCE_TYPE_NAME, TypeToken.of(ObjId.class));
     }
 
 // FieldType

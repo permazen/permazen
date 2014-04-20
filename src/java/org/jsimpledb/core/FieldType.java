@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.UUID;
 
 import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.util.ByteReader;
@@ -53,6 +54,11 @@ import org.jsimpledb.util.ByteWriter;
  * @see FieldTypeRegistry
  */
 public abstract class FieldType<T> implements Comparator<T> {
+
+    /**
+     * Type name for reference types.
+     */
+    public static final String REFERENCE_TYPE_NAME = "reference";
 
     /**
      * {@code void} primitive wrapper type (null values not allowed).
@@ -168,6 +174,11 @@ public abstract class FieldType<T> implements Comparator<T> {
      * Type for {@link EnumValue}s.
      */
     static final NullSafeType<EnumValue> ENUM_VALUE = new NullSafeType<>(new EnumValueType());
+
+    /**
+     * Type for {@link UUID}s.
+     */
+    static final NullSafeType<UUID> UUID = new NullSafeType<>(new UUIDType());
 
     final String name;
     final TypeToken<T> typeToken;

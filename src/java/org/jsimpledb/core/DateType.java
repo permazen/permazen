@@ -18,7 +18,7 @@ import org.jsimpledb.util.LongEncoder;
 /**
  * Non-null {@link Date} type. Null values are not supported by this class.
  */
-public class DateType extends FieldType<Date> {
+class DateType extends FieldType<Date> {
 
     private static final byte[] DEFAULT_VALUE = new byte[] { (byte)LongEncoder.ZERO_ADJUST };
 
