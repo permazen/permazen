@@ -11,6 +11,7 @@ import com.foundationdb.FDBException;
 import com.foundationdb.KeyValue;
 import com.foundationdb.MutationType;
 import com.foundationdb.Range;
+import com.foundationdb.ReadTransaction;
 import com.foundationdb.Transaction;
 import com.foundationdb.async.AsyncIterator;
 import com.google.common.primitives.Bytes;
@@ -96,7 +97,8 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
 
     private KVPair getFirstInRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         try {
-            final AsyncIterator<KeyValue> i = this.tx.getRange(this.addPrefix(minKey, maxKey), 1, reverse).iterator();
+            final AsyncIterator<KeyValue> i = this.tx.getRange(this.addPrefix(minKey, maxKey),
+              ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator();
             if (!i.hasNext())
                 return null;
             final KeyValue kv = i.next();
