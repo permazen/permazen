@@ -14,7 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for methods that are to be invoked whenever a target field in some target object changes,
+ * Annotation for methods that are to be invoked whenever a target field in some target object changes during a transaction,
  * where the target object containing the changed field is found at the end of a path of references
  * starting from the object to be notified.
  * See {@link org.jsimpledb.ReferencePath} for more information about reference paths.
@@ -40,18 +40,29 @@ import java.lang.annotation.Target;
  *
  * <p>
  * For an instance method, the method will be invoked on <i>each object</i> for which the changed field is
- * found at the end of the specified reference path <i>starting from that object</i>. Notifications are delivered from
- * within the thread the made the change, after the change is made and just prior to returning to the original caller.
- * Additional changes made within an {@link OnChange &#64;OnChange} handler that themselves result in new notifications
+ * found at the end of the specified reference path <i>starting from that object</i>.
+ * </p>
+ *
+ * <p>
+ * If the annotated method is a static method, the method is invoked <i>once</i> if any instance exists for which the
+ * changed field is found at the end of the specified reference path, no matter how many such instances there are.
+ * Otherwise the behavior is the same.
+ * </p>
+ *
+ * <p><b>Notification Delivery</b></p>
+ *
+ * <p>
+ * Notifications are delivered synchronously within the thread the made the change, after the change is made and just
+ * prior to returning to the original caller.
+ * Additional changes made within an {@link OnChange &#64;OnChange} handler that themselves result in notifications
  * are also handled prior to returning to the original caller. Therefore, infinite loops are possible if an
  * {@link OnChange &#64;OnChange} handler method modifies the field it's monitoring (directly, or indirectly via
  * other {@link OnChange &#64;OnChange} handler methods).
  * </p>
  *
  * <p>
- * If the annotated method is a static method, the method is invoked <i>once</i> if any instance exists for which the
- * changed field is found at the end of the specified reference path (no matter how many such instances there are).
- * Otherwise the behavior is the same.
+ * {@link OnChange &#64;OnChange} functions within a single transaction; it does not notify about changes that
+ * may have occurred in a different transaction.
  * </p>
  *
  * <p><b>Other Notes</b></p>
