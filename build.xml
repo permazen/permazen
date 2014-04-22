@@ -295,7 +295,11 @@
             <fileset dir="src/java/org/dellroad/stuff/spring" includes="spring.*"/>
         </copy>
         <copy file="src/xml/log4j-build.xml" tofile="build/test/log4j.xml"/>
-        <dellroad:unit-tests/>
+        <dellroad:unit-tests>
+            <addclasspath>
+                <path refid="javac.classpath"/>
+            </addclasspath>
+        </dellroad:unit-tests>
         <property name="tests.completed" value="true"/>
     </target>
 
