@@ -11,9 +11,29 @@ In other words, for the most part JSimpleDB is not trying to create solutions wh
 
 <wiki:toc max_depth="5"/>
 
-== Quick Example ==
+== A Persistence Layer ==
 
-JSimpleDB runs on top of a transactional key/value database that you supply. The JSimpleDB code includes adapters for some existing databases, as well as in-memory and flat file key/value stores for testing and prototyping.
+JSimpleDB is a _Persistence Layer_. It runs on top of a transactional key/value database that you supply.
+
+JSimpleDB includes adapters for some existing databases, such as [https://foundationdb.org/ FoundationDB] (recommended) and SQL databases, as well as in-memory and flat file key/value stores for testing and prototyping.
+
+=== "Normal" Java vs. "Persistence" Java ===
+
+JSimpleDB attempts to minimize the distinction between "normal Java" and "persistence Java".
+
+JSimpleDB does not have or need a "query language". All data access is done through normal Java code, using objects and method calls.
+
+As you can see in the example below, in some cases JSimpleDB provides method _implementations_. But your code that invokes those methods is normal Java.
+
+Your "database schema", as such, is defined by your Java classes and their fields. These implicitly define your one-to-one, many-to-one, and many-to-many relationships.
+
+However, there is one important caveat: JSimpleDB avoids design choices that would limit _scalability_. Some JSimpleDB design choices that support scalability are:
+ * JSimpleDB runs on top of any database that can look like a transactional key/value store
+ * JSimpleDB avoids the use of "bottleneck" keys (e.g., auto-increment counters) that can cause high contention between transactions
+ * JSimpleDB provides support not only for indexing fields, but also tools to support building your own custom indexes, so that virtually anything you frequently query can be indexed
+ * JSimpleDB provides explicit support for rolling, no-downtime software updates that involve running different versions of your code (with different schemas) on different nodes at the same time
+
+== Quick Example ==
 
 JSimpleDB itself is configured entirely using Java annotations. For example:
 <code language="java">
@@ -604,4 +624,3 @@ JSimpleDB includes a simple key/value store that can be backed by memory or by a
 JSimpleDB also includes key/value adapters for the following database technologies (so far):
  * [http://foundationdb.com/ FoundationDB]
  * Any SQL database - using a single table with two columns
-
