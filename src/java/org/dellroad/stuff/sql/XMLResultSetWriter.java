@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.dellroad.stuff.xml;
+package org.dellroad.stuff.sql;
 
 import java.io.IOException;
 import java.io.InputStream;
