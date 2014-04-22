@@ -1,6 +1,9 @@
 Version Next
 
+    - Moved XMLResultSetWriter from xml -> sql sub-package
     - Remove HardLink; obsoleted by Files.createLink()
+      NOTE: the above are backward-incompatible changes
+    - Added StreamWriterAction
     - Minor bug fixes
 
 Version 1.0.850 Released March 19, 2014
