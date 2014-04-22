@@ -18,7 +18,7 @@
     <dependencies>
         <dependency force="true" org="com.google.guava" name="guava" rev="16.0" conf="javac->default"/>
         <dependency force="true" org="com.tonicsystems" name="jarjar" rev="1.4" conf="build->default"/>
-        <dependency force="true" org="com.foundationdb" name="fdb-java" rev="2.0.4" conf="javac->default"/>
+        <dependency force="true" org="com.foundationdb" name="fdb-java" rev="2.+" conf="javac->default"/>
         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="javac->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="javac->default"/>
         <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1+" conf="javac->default"/>
