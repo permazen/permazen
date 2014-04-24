@@ -23,102 +23,88 @@ import org.jsimpledb.util.ByteUtil;
  * {@link KVTransaction} implementation for {@link SimpleKVDatabase}.
  *
  * <p>
- * Note lock order: first {@link SimpleKVTransaction}, then {@link SimpleKVDatabase}.
+ * Locking note: all fields in this class are protected by the Java monitor of the associated {@link SimpleKVDatabase},
+ * not the Java monitor of this instance.
  * </p>
  */
-class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTransaction {
+public class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTransaction {
 
-    final SimpleKVDatabase kvstore;
+    final SimpleKVDatabase kvdb;
     final TreeSet<Mutation> mutations = new TreeSet<>(KeyRange.SORT_BY_MIN);
     final LockOwner lockOwner = new LockOwner();
 
     boolean stale;
     long waitTimeout;
 
-    SimpleKVTransaction(SimpleKVDatabase kvstore, long waitTimeout) {
-        if (kvstore == null)
-            throw new IllegalArgumentException("null kvstore");
-        this.kvstore = kvstore;
-        this.waitTimeout = waitTimeout;
+    /**
+     * Constructor.
+     *
+     * @param kvdb associated database
+     * @param waitTimeout wait timeout for this transaction
+     * @throws IllegalArgumentException if {@code kvdb} is null
+     * @throws IllegalArgumentException if {@code waitTimeout} is negative
+     */
+    protected SimpleKVTransaction(SimpleKVDatabase kvdb, long waitTimeout) {
+        if (kvdb == null)
+            throw new IllegalArgumentException("null kvdb");
+        this.kvdb = kvdb;
+        this.setTimeout(waitTimeout);
     }
 
     @Override
     public KVDatabase getKVDatabase() {
-        return this.kvstore;
+        return this.kvdb;
     }
 
     @Override
     public void setTimeout(long timeout) {
         if (timeout < 0)
             throw new IllegalArgumentException("timeout < 0");
-        this.checkState(false);
         this.waitTimeout = timeout;
     }
 
     @Override
-    public synchronized byte[] get(byte[] key) {
-        this.checkState(false);
-        return this.kvstore.get(this, key);
+    public byte[] get(byte[] key) {
+        return this.kvdb.get(this, key);
     }
 
     @Override
-    public synchronized KVPair getAtLeast(byte[] key) {
-        this.checkState(false);
-        return this.kvstore.getAtLeast(this, key);
+    public KVPair getAtLeast(byte[] key) {
+        return this.kvdb.getAtLeast(this, key);
     }
 
     @Override
-    public synchronized KVPair getAtMost(byte[] key) {
-        this.checkState(false);
-        return this.kvstore.getAtMost(this, key);
+    public KVPair getAtMost(byte[] key) {
+        return this.kvdb.getAtMost(this, key);
     }
 
     @Override
-    public synchronized void put(byte[] key, byte[] value) {
-        this.checkState(false);
-        this.kvstore.put(this, key, value);
+    public void put(byte[] key, byte[] value) {
+        this.kvdb.put(this, key, value);
     }
 
     @Override
-    public synchronized void remove(byte[] key) {
-        this.checkState(false);
-        this.kvstore.remove(this, key);
+    public void remove(byte[] key) {
+        this.kvdb.remove(this, key);
     }
 
     @Override
-    public synchronized void removeRange(byte[] minKey, byte[] maxKey) {
-        this.checkState(false);
-        this.kvstore.removeRange(this, minKey, maxKey);
+    public void removeRange(byte[] minKey, byte[] maxKey) {
+        this.kvdb.removeRange(this, minKey, maxKey);
     }
 
     @Override
-    public synchronized void commit() {
-        this.checkState(false);
-        this.stale = true;
-        this.kvstore.commit(this);
+    public void commit() {
+        this.kvdb.commit(this);
     }
 
     @Override
-    public synchronized void rollback() {
-        this.checkState(true);
-        this.stale = true;
-        this.kvstore.rollback(this);
-    }
-
-    /**
-     * Verify that this instance is still usable, etc.
-     *
-     * @param rollback true if this method is being invoked during a {@link #rollback}, otherwise false
-     * @throws StaleTransactionException if this instance is no longer usable
-     * @throws RetryTransactionException if {@code rollback} is false and this transaction should be retried
-     */
-    protected void checkState(boolean rollback) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
+    public void rollback() {
+        this.kvdb.rollback(this);
     }
 
     // Find the mutation that overlaps with the given key, if any.
-    // This method assumes we are already synchronized.
+    // This method assumes we are already synchronized on the associated database.
     Mutation findMutation(byte[] key) {
         final SortedSet<Mutation> left = this.mutations.headSet(Mutation.key(ByteUtil.getNextKey(key)));
         if (!left.isEmpty()) {
@@ -127,6 +113,21 @@ class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTransactio
                 return last;
         }
         return null;
+    }
+
+    /**
+     * Ensure transaction is eventually rolled back if leaked due to an application bug.
+     */
+    protected void finalize() throws Throwable {
+        try {
+            try {
+                this.rollback();
+            } catch (StaleTransactionException e) {
+                // ignore
+            }
+        } finally {
+            super.finalize();
+        }
     }
 }
 

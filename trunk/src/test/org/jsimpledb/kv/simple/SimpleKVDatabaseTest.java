@@ -15,13 +15,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
+import org.jsimpledb.kv.TransactionTimeoutException;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ConvertedNavigableMap;
@@ -34,6 +34,8 @@ public class SimpleKVDatabaseTest extends TestSupport {
 
     private ExecutorService executor;
 
+    private long timeoutTestStartTime;
+
     @BeforeClass
     public void setup() {
         this.executor = Executors.newFixedThreadPool(33);
@@ -45,8 +47,8 @@ public class SimpleKVDatabaseTest extends TestSupport {
     }
 
     @Test
-    public void test1() throws Exception {
-        final SimpleKVDatabase store = new SimpleKVDatabase(5, 10);
+    public void testSimpleKV1() throws Exception {
+        final SimpleKVDatabase store = new SimpleKVDatabase(50, 100);
 
         // tx 1
         KVTransaction tx = store.createTransaction();
@@ -107,7 +109,7 @@ public class SimpleKVDatabaseTest extends TestSupport {
     }
 
     @Test
-    public void test2() throws Exception {
+    public void testSimpleKV2() throws Exception {
         final SimpleKVDatabase store = new SimpleKVDatabase(5, 10);
         for (int count = 0; count < 25; count++) {
             final RandomTask[] tasks = new RandomTask[25];
@@ -126,7 +128,7 @@ public class SimpleKVDatabaseTest extends TestSupport {
     }
 
     @Test
-    public void test3() throws Exception {
+    public void testSimpleKV3() throws Exception {
         final TreeMap<byte[], byte[]> storeData = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
         final NavigableMapKVStore kv = new NavigableMapKVStore(storeData);
         final SimpleKVDatabase store = new SimpleKVDatabase(kv, 5, 10);
@@ -139,8 +141,149 @@ public class SimpleKVDatabaseTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testSimpleKVTimeouts() throws Exception {
+
+        // Test hold and wait timeouts both not attained
+        this.timeoutTestStartTime = System.currentTimeMillis();
+        SimpleKVDatabase store = new SimpleKVDatabase(200, 400);
+        HolderThread holderThread = new HolderThread(store, 100);
+        WaiterThread waiterThread = new WaiterThread(store, holderThread);
+        holderThread.start();
+        waiterThread.start();
+        holderThread.join();
+        waiterThread.join();
+        Assert.assertEquals(holderThread.getResult(), "success");
+        Assert.assertEquals(waiterThread.getResult(), "success");
+
+        // Test wait but not hold timeout attained
+        this.timeoutTestStartTime = System.currentTimeMillis();
+        store = new SimpleKVDatabase(200, 400);
+        holderThread = new HolderThread(store, 300);
+        waiterThread = new WaiterThread(store, holderThread);
+        holderThread.start();
+        waiterThread.start();
+        holderThread.join();
+        waiterThread.join();
+        Assert.assertEquals(holderThread.getResult(), "success");
+        Assert.assertEquals(waiterThread.getResult(), "RetryTransactionException");
+
+        // Test hold timeout by itself - no exception because nobody is waiting
+        this.timeoutTestStartTime = System.currentTimeMillis();
+        store = new SimpleKVDatabase(100, 100);
+        holderThread = new HolderThread(store, 200);
+        holderThread.start();
+        holderThread.join();
+        Assert.assertEquals(holderThread.getResult(), "success");
+
+        // Test hold but not wait timeout attained - exception because somebody is waiting
+        this.timeoutTestStartTime = System.currentTimeMillis();
+        store = new SimpleKVDatabase(400, 200);
+        holderThread = new HolderThread(store, 300);
+        waiterThread = new WaiterThread(store, holderThread);
+        holderThread.start();
+        waiterThread.start();
+        holderThread.join();
+        waiterThread.join();
+        Assert.assertEquals(holderThread.getResult(), "TransactionTimeoutException");
+        Assert.assertEquals(waiterThread.getResult(), "success");
+    }
+
     public static byte[] b(String s) {
-        return ByteArrayEncoder.decode(s);
+        return ByteUtil.parse(s);
+    }
+
+// TestThread
+
+    public abstract class TestThread extends Thread {
+
+        protected final SimpleKVDatabase store;
+
+        protected String result;
+
+        protected TestThread(SimpleKVDatabase store) {
+            this.store = store;
+        }
+
+        public String getResult() {
+            return this.result;
+        }
+
+        @Override
+        public final void run() {
+            try {
+                this.doTest();
+                this.result = "success";
+            } catch (Throwable t) {
+                this.result = t.getClass().getSimpleName();
+            } finally {
+                this.log("result = " + this.result);
+            }
+        }
+
+        protected abstract void doTest() throws Exception;
+
+        protected void log(String message) {
+//            final long offset = System.currentTimeMillis() - SimpleKVDatabaseTest.this.timeoutTestStartTime;
+//            SimpleKVDatabaseTest.this.log.info(String.format("[%04d]: ", offset)
+//              + this.getClass().getSimpleName() + ": " + message);
+        }
+    }
+
+    public class HolderThread extends TestThread {
+
+        protected final long delay;
+
+        private boolean ready;
+
+        public HolderThread(SimpleKVDatabase store, long delay) {
+            super(store);
+            this.delay = delay;
+        }
+
+        @Override
+        public void doTest() throws Exception {
+            this.log("creating transaction");
+            final KVTransaction tx = this.store.createTransaction();
+            this.log("-> put()");
+            tx.put(new byte[0], new byte[0]);
+            this.log("<- put()");
+            synchronized (this) {
+                this.ready = true;
+                this.notifyAll();
+            }
+            this.log("-> sleep(" + this.delay + ")");
+            Thread.sleep(this.delay);
+            this.log("<- sleep(" + this.delay + ")");
+            tx.commit();
+        }
+
+        public synchronized void waitUntilReady() throws InterruptedException {
+            while (!this.ready)
+                this.wait();
+        }
+    }
+
+    public class WaiterThread extends TestThread {
+
+        private final HolderThread holderThread;
+
+        public WaiterThread(SimpleKVDatabase store, HolderThread holderThread) {
+            super(store);
+            this.holderThread = holderThread;
+        }
+
+        @Override
+        public void doTest() throws Exception {
+            this.log("waiting for holder");
+            this.holderThread.waitUntilReady();
+            this.log("creating transaction");
+            final KVTransaction tx = this.store.createTransaction();
+            this.log("-> get()");
+            tx.get(new byte[0]);
+            this.log("<- get()");
+            tx.commit();
+        }
     }
 
 // RandomTask
@@ -309,6 +452,8 @@ public class SimpleKVDatabaseTest extends TestSupport {
                       "\n*** ACTUAL:\n" + storeDataView + "\n*** EXPECTED:\n" + knownValuesView + "\n");
                 }
 
+            } catch (TransactionTimeoutException e) {
+                this.log("got " + e);
             } catch (RetryTransactionException e) {
                 this.log("got " + e);
             }

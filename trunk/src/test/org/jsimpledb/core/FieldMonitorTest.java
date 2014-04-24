@@ -27,7 +27,7 @@ public class FieldMonitorTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testFieldMonitors() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
         final String schemaXML =

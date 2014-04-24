@@ -28,7 +28,7 @@ public class OnDeleteTest extends TestSupport {
     @SuppressWarnings("unchecked")
     public void testOnDelete() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
         final String xmlTemplate =

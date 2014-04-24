@@ -19,7 +19,6 @@ import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.dellroad.stuff.io.FileStreamRepository;
 import org.dellroad.stuff.io.StreamRepository;
 import org.jsimpledb.kv.KVDatabaseException;
-import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.util.XMLSerializer;
 
 /**
@@ -64,7 +63,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
     }
 
     @Override
-    protected void postCommit(KVStore kv, boolean successful) {
+    protected void postCommit(SimpleKVTransaction tx, boolean successful) {
 
         // If something weird happened, reload from storage
         if (!successful) {
