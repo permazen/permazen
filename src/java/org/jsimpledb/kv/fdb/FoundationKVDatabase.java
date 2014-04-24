@@ -99,11 +99,14 @@ public class FoundationKVDatabase implements KVDatabase {
      * </p>
      *
      * @param keyPrefix new prefix, or null for none
+     * @throws IllegalArgumentException if {@code keyPrefix} starts with {@code 0xff}
      * @throws IllegalStateException if this instance has already been {@linkplain #start started}
      */
     public void setKeyPrefix(byte[] keyPrefix) {
         if (this.database != null)
             throw new IllegalStateException("already started");
+        if (keyPrefix != null && keyPrefix.length > 0 && keyPrefix[0] == (byte)0xff)
+            throw new IllegalArgumentException("prefix starts with 0xff");
         this.keyPrefix = keyPrefix != null && keyPrefix.length > 0 ? keyPrefix.clone() : null;
     }
 
