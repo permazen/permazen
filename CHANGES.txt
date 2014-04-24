@@ -1,4 +1,9 @@
 
+Version Next
+
+    - Add built-in support for java.util.UUID
+    - Miscellaneous bug fixes
+
 Version 1.0.86 Released April 18, 2014
 
     - Initial release
