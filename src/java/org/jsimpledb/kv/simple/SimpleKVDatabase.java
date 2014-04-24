@@ -20,6 +20,8 @@ import org.jsimpledb.kv.TransactionTimeoutException;
 import org.jsimpledb.kv.util.LockManager;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple implementation of the {@link KVDatabase} interface that provides a concurrent, transactional view
@@ -52,6 +54,8 @@ public class SimpleKVDatabase implements KVDatabase {
      * The {@link KVStore} for the committed data.
      */
     protected final KVStore kv;
+
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final LockManager lockManager = new LockManager();
     private long waitTimeout;
