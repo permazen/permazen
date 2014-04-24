@@ -35,7 +35,6 @@ class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTransactio
     boolean stale;
     long waitTimeout;
 
-    @SuppressWarnings("unchecked")
     SimpleKVTransaction(SimpleKVDatabase kvstore, long waitTimeout) {
         if (kvstore == null)
             throw new IllegalArgumentException("null kvstore");
@@ -52,67 +51,70 @@ class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTransactio
     public void setTimeout(long timeout) {
         if (timeout < 0)
             throw new IllegalArgumentException("timeout < 0");
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkState(false);
         this.waitTimeout = timeout;
     }
 
     @Override
     public synchronized byte[] get(byte[] key) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkState(false);
         return this.kvstore.get(this, key);
     }
 
     @Override
     public synchronized KVPair getAtLeast(byte[] key) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkState(false);
         return this.kvstore.getAtLeast(this, key);
     }
 
     @Override
     public synchronized KVPair getAtMost(byte[] key) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkState(false);
         return this.kvstore.getAtMost(this, key);
     }
 
     @Override
     public synchronized void put(byte[] key, byte[] value) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkState(false);
         this.kvstore.put(this, key, value);
     }
 
     @Override
     public synchronized void remove(byte[] key) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkState(false);
         this.kvstore.remove(this, key);
     }
 
     @Override
     public synchronized void removeRange(byte[] minKey, byte[] maxKey) {
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkState(false);
         this.kvstore.removeRange(this, minKey, maxKey);
     }
 
     @Override
     public synchronized void commit() {
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkState(false);
         this.stale = true;
         this.kvstore.commit(this);
     }
 
     @Override
     public synchronized void rollback() {
-        if (this.stale)
-            throw new StaleTransactionException(this);
+        this.checkState(true);
         this.stale = true;
         this.kvstore.rollback(this);
+    }
+
+    /**
+     * Verify that this instance is still usable, etc.
+     *
+     * @param rollback true if this method is being invoked during a {@link #rollback}, otherwise false
+     * @throws StaleTransactionException if this instance is no longer usable
+     * @throws RetryTransactionException if {@code rollback} is false and this transaction should be retried
+     */
+    protected void checkState(boolean rollback) {
+        if (this.stale)
+            throw new StaleTransactionException(this);
     }
 
     // Find the mutation that overlaps with the given key, if any.
