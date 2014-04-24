@@ -28,7 +28,7 @@ public class IndexTest1 extends TestSupport {
     @Test
     public void testSimpleFieldIndexes() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
@@ -163,7 +163,7 @@ public class IndexTest1 extends TestSupport {
     @Test
     public void testComplexFieldIndexes() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((

@@ -25,7 +25,7 @@ public class VersionChangeListenerTest extends TestSupport {
     @Test
     public void testVersionChangeListener() throws Exception {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

@@ -229,7 +229,7 @@ public class BasicTest extends TestSupport {
     }
 
     public static JSimpleDB getJSimpleDB(Class<?>... classes) {
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
         return new JSimpleDB(db, 1, Arrays.<Class<?>>asList(classes));
     }

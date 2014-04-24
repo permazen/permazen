@@ -13,9 +13,9 @@ import java.util.SortedSet;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
-import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.RetryTransactionException;
+import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
 import org.jsimpledb.kv.util.LockManager;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
@@ -25,15 +25,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Simple implementation of the {@link KVDatabase} interface that provides a concurrent, transactional view
- * of an underlying {@link KVStore} with full isolation and serializable semantics.
- * The latter properties are provided by a {@link LockManager}.
+ * of an underlying {@link KVStore} with strong ACID semantics (<b>D</b>urability must be provided by the {@link KVStore}).
  *
  * <p>
- * Instances wrap an underlying {@link KVStore}, from which committed data is read and written.
- * During a transaction, all mutations are recorded internally; if/when the transaction is committed,
- * the mutations are applied to the underlying {@link KVStore}. This operation is bracketed by calls
- * to {@link #preCommit preCommit()} and {@link #postCommit postCommit()}.
+ * The ACID semantics, as well as {@linkplain #getWaitTimeout wait timeouts} and {@linkplain #getHoldTimeout hold timeouts},
+ * are provided by the {@link LockManager} class. If the wait timeout is exceeded, a {@link RetryTransactionException}
+ * is thrown. If the hold timeout is exceeded, a {@link TransactionTimeoutException} is thrown.
  * </p>
+ *
+ * <p>
+ * Instances wrap an underlying {@link KVStore} which provides persistence and from which committed data is read and written.
+ * During a transaction, all mutations are recorded internally; if/when the transaction is committed, those mutations are
+ * applied to the underlying {@link KVStore} all at once, and this operation is bracketed by calls to
+ * {@link #preCommit preCommit()} and {@link #postCommit postCommit()}.
+ * </p>
+ *
+ * @see LockManager
  */
 public class SimpleKVDatabase implements KVDatabase {
 
@@ -48,8 +55,6 @@ public class SimpleKVDatabase implements KVDatabase {
      */
     public static final long DEFAULT_HOLD_TIMEOUT = 5000;
 
-    // NOTE: The lock order here is first the SimpleKVTransaction, then the SimpleKVDatabase
-
     /**
      * The {@link KVStore} for the committed data.
      */
@@ -57,7 +62,8 @@ public class SimpleKVDatabase implements KVDatabase {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final LockManager lockManager = new LockManager();
+    private final LockManager lockManager = new LockManager(this);
+
     private long waitTimeout;
 
     /**
@@ -115,7 +121,7 @@ public class SimpleKVDatabase implements KVDatabase {
      *
      * @return wait timeout in milliseconds
      */
-    public long getWaitTimeout() {
+    public synchronized long getWaitTimeout() {
         return this.waitTimeout;
     }
 
@@ -126,7 +132,7 @@ public class SimpleKVDatabase implements KVDatabase {
      *  in milliseconds (default), or zero for unlimited
      * @throws IllegalArgumentException if {@code waitTimeout} is negative
      */
-    public void setWaitTimeout(long waitTimeout) {
+    public synchronized void setWaitTimeout(long waitTimeout) {
         if (waitTimeout < 0)
             throw new IllegalArgumentException("waitTimeout < 0");
         this.waitTimeout = waitTimeout;
@@ -158,15 +164,95 @@ public class SimpleKVDatabase implements KVDatabase {
     }
 
     @Override
-    public synchronized KVTransaction createTransaction() {
+    public synchronized SimpleKVTransaction createTransaction() {
         return new SimpleKVTransaction(this, this.waitTimeout);
     }
+
+// Subclass hooks
+
+    /**
+     * Invoked during transaction commit just prior to writing changes to the underlying {@link KVStore}.
+     *
+     * <p>
+     * {@link SimpleKVDatabase} guarantees this method and {@link #postCommit postCommit()} will be invoked in matching pairs,
+     * and that this instance will be locked when these methods are invoked.
+     * </p>
+     *
+     * <p>
+     * The implementation in {@link SimpleKVDatabase} does nothing.
+     * </p>
+     *
+     * @param tx the transaction about to be committed
+     * @throws RetryTransactionException if this transaction must be retried and is no longer usable
+     */
+    protected void preCommit(SimpleKVTransaction tx) {
+    }
+
+    /**
+     * Invoked during transaction commit just after writing changes to the underlying {@link KVStore}.
+     *
+     * <p>
+     * {@link SimpleKVDatabase} guarantees this method and {@link #preCommit preCommit()} will be invoked in matching pairs,
+     * and that this instance will be locked when these methods are invoked.
+     * </p>
+     *
+     * <p>
+     * This method is invoked even if the underlying {@link KVStore} throws an exception while changes were being written to it.
+     * In that case, {@code successful} will be false.
+     * </p>
+     *
+     * <p>
+     * The implementation in {@link SimpleKVDatabase} does nothing.
+     * </p>
+     *
+     * @param tx the transaction that was committed
+     * @param successful true if all changes were written back successfully,
+     *  false if the underlying {@link KVStore} threw an exception during commit update
+     */
+    protected void postCommit(SimpleKVTransaction tx, boolean successful) {
+    }
+
+    /**
+     * Verify that the given transaction is still usable.
+     *
+     * <p>
+     * This method is invoked at the start of the {@link KVStore} data access and {@link SimpleKVTransaction#commit commit()}
+     * methods of the {@link SimpleKVTransaction} associated with this instance. This allows for any checks which depend on
+     * a consistent view of the transaction and database together. This instance's lock will be held when this method is invoked.
+     * Note: transaction state is also protected by this instance's lock.
+     * </p>
+     *
+     * <p>
+     * The implementation in {@link SimpleKVDatabase} does nothing.
+     * </p>
+     *
+     * @param tx the transaction being accessed
+     * @throws StaleTransactionException if this instance is no longer usable
+     * @throws RetryTransactionException if this transaction should be retried
+     * @throws TransactionTimeoutException if the transaction has timed out
+     */
+    protected void checkState(SimpleKVTransaction tx) {
+    }
+
+    private void checkUsable(SimpleKVTransaction tx) {
+        if (tx.stale)
+            throw new StaleTransactionException(tx);
+        if (this.lockManager.checkHoldTimeout(tx.lockOwner) == -1) {
+            this.rollback(tx);
+            throw new TransactionTimeoutException(tx,
+              "transaction taking too long: hold timeout of " + this.lockManager.getHoldTimeout() + "ms has expired");
+        }
+    }
+
+// SimpleKVTransaction hooks
 
     synchronized byte[] get(SimpleKVTransaction tx, byte[] key) {
 
         // Sanity check
         if (key.length > 0 && key[0] == (byte)0xff)
             throw new IllegalArgumentException("key starts with 0xff");
+        this.checkUsable(tx);
+        this.checkState(tx);
 
         // Check transaction mutations
         final Mutation mutation = tx.findMutation(key);
@@ -179,6 +265,10 @@ public class SimpleKVDatabase implements KVDatabase {
     }
 
     synchronized KVPair getAtLeast(SimpleKVTransaction tx, byte[] minKey) {
+
+        // Sanity check
+        this.checkUsable(tx);
+        this.checkState(tx);
 
         // Save original min key for locking purposes
         final byte[] originalMinKey = minKey;
@@ -233,6 +323,10 @@ public class SimpleKVDatabase implements KVDatabase {
 
     synchronized KVPair getAtMost(SimpleKVTransaction tx, byte[] maxKey) {
 
+        // Sanity check
+        this.checkUsable(tx);
+        this.checkState(tx);
+
         // Save original max key for locking purposes
         final byte[] originalMaxKey = maxKey;
 
@@ -278,6 +372,8 @@ public class SimpleKVDatabase implements KVDatabase {
             throw new NullPointerException();
         if (key.length > 0 && key[0] == (byte)0xff)
             throw new IllegalArgumentException("key starts with 0xff");
+        this.checkUsable(tx);
+        this.checkState(tx);
         final byte[] keyNext = ByteUtil.getNextKey(key);
 
         // Check transaction mutations
@@ -312,6 +408,8 @@ public class SimpleKVDatabase implements KVDatabase {
         // Sanity check
         if (key.length > 0 && key[0] == (byte)0xff)
             throw new IllegalArgumentException("key starts with 0xff");
+        this.checkUsable(tx);
+        this.checkState(tx);
         final byte[] keyNext = ByteUtil.getNextKey(key);
 
         // Check transaction mutations
@@ -335,6 +433,8 @@ public class SimpleKVDatabase implements KVDatabase {
         int diff = KeyRange.compare(minKey, KeyRange.MIN, maxKey, KeyRange.MAX);
         if (diff > 0)
             throw new IllegalArgumentException("minKey > maxKey");
+        this.checkUsable(tx);
+        this.checkState(tx);
         if (diff == 0)                                                          // range is empty
             return;
         final byte[] originalMinKey = minKey;
@@ -390,17 +490,23 @@ public class SimpleKVDatabase implements KVDatabase {
     }
 
     synchronized void commit(SimpleKVTransaction tx) {
-        switch (this.lockManager.release(tx.lockOwner)) {
-        case SUCCESS:
-            break;
-        case HOLD_TIMEOUT_EXPIRED:
-            this.rollback(tx);
+
+        // Prevent use after commit() or rollback() invoked
+        if (tx.stale)
+            throw new StaleTransactionException(tx);
+        tx.stale = true;
+
+        // Release all locks
+        if (!this.lockManager.release(tx.lockOwner)) {
             throw new TransactionTimeoutException(tx,
               "transaction taking too long: hold timeout of " + this.lockManager.getHoldTimeout() + "ms has expired");
-        default:
-            throw new RuntimeException("internal error");
         }
-        this.preCommit(this.kv);
+
+        // Check subclass state
+        this.checkState(tx);
+
+        // Commit mutations
+        this.preCommit(tx);
         boolean successful = false;
         try {
             for (Mutation mutation : tx.mutations)
@@ -408,53 +514,24 @@ public class SimpleKVDatabase implements KVDatabase {
             successful = true;
         } finally {
             tx.mutations.clear();
-            this.postCommit(this.kv, successful);
+            this.postCommit(tx, successful);
         }
     }
 
     synchronized void rollback(SimpleKVTransaction tx) {
+
+        // Prevent use after commit() or rollback() invoked
+        if (tx.stale)
+            throw new StaleTransactionException(tx);
+        tx.stale = true;
+
+        // Release all locks
         this.lockManager.release(tx.lockOwner);
-    }
-
-    /**
-     * Invoked during transaction commit just prior to writing changes to the underlying {@link KVStore}.
-     *
-     * <p>
-     * {@link SimpleKVDatabase} guarantees this method and {@link #postCommit postCommit()} will be invoked in matching pairs.
-     * </p>
-     *
-     * <p>
-     * The implementation in {@link SimpleKVDatabase} does nothing.
-     * </p>
-     *
-     * @param kv underlying data store for committed data
-     */
-    protected void preCommit(KVStore kv) {
-    }
-
-    /**
-     * Invoked during transaction commit just after writing changes to the underlying {@link KVStore}.
-     *
-     * <p>
-     * {@link SimpleKVDatabase} guarantees this method and {@link #preCommit preCommit()} will be invoked in matching pairs.
-     * This method is invoked even if the underlying {@link KVStore} throws an exception while changes were being written to it.
-     * In that case, {@code successful} will be false.
-     * </p>
-     *
-     * <p>
-     * The implementation in {@link SimpleKVDatabase} does nothing.
-     * </p>
-     *
-     * @param kv underlying data store for committed data
-     * @param successful true if all changes were written back successfully,
-     *  false if the underlying {@link KVStore} threw an exception
-     */
-    protected void postCommit(KVStore kv, boolean successful) {
     }
 
 // Internal methods
 
-    private synchronized void getLock(SimpleKVTransaction tx, byte[] minKey, byte[] maxKey, boolean write) {
+    private /*synchronized*/ void getLock(SimpleKVTransaction tx, byte[] minKey, byte[] maxKey, boolean write) {
 
         // Attempt to get the lock
         LockManager.LockResult lockResult;

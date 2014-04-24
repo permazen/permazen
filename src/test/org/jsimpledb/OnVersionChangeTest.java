@@ -27,7 +27,7 @@ public class OnVersionChangeTest extends TestSupport {
     @Test
     public void testOnVersionChange() {
 
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase(100, 200);
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
         ObjId id1;
