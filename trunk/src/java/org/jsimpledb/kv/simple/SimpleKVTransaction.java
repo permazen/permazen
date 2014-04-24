@@ -52,7 +52,7 @@ public class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTra
     }
 
     @Override
-    public KVDatabase getKVDatabase() {
+    public SimpleKVDatabase getKVDatabase() {
         return this.kvdb;
     }
 
