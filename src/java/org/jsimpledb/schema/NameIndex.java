@@ -10,6 +10,7 @@ package org.jsimpledb.schema;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 
 /**
@@ -106,6 +107,15 @@ public class NameIndex {
     }
 
     /**
+     * Get all of the names of {@link SchemaObject}s.
+     *
+     * @return unmodifiable set of {@link SchemaObject} names
+     */
+    public SortedSet<String> getSchemaObjectNames() {
+        return Collections.unmodifiableSortedSet(this.typeMap.navigableKeySet());
+    }
+
+    /**
      * Get all {@link SchemaField}(s) with the given name in the given {@link SchemaObject}.
      *
      * @param type object type
@@ -146,6 +156,22 @@ public class NameIndex {
         default:
             throw new IllegalArgumentException("mulitple fields exist with name `" + name + "' in type `" + type.getName() + "'");
         }
+    }
+
+    /**
+     * Get all of the names of {@link SchemaField}s in the given {@link SchemaObject}.
+     *
+     * @param type schema object
+     * @return unmodifiable set of {@link SchemaField} names in {@code type}
+     * @throws IllegalArgumentException if {@code type} is not indexed by this instance
+     */
+    public SortedSet<String> getSchemaFieldNames(SchemaObject type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        final TreeMap<String, HashSet<SchemaField>> fieldMap = this.typeFieldMap.get(type.getStorageId());
+        if (fieldMap == null)
+            throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
+        return Collections.unmodifiableSortedSet(fieldMap.navigableKeySet());
     }
 }
 
