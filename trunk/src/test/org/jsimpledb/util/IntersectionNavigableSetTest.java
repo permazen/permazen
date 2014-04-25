@@ -81,6 +81,7 @@ public class IntersectionNavigableSetTest extends TestSupport {
 
     @Test
     public void testSubSet() {
+
         NavigableSet<Integer> set1 = new TreeSet<>();
         set1.add(12);
         set1.add(13);
@@ -88,8 +89,8 @@ public class IntersectionNavigableSetTest extends TestSupport {
         set1.add(18);
         set1.add(20);
         set1.add(21);
-        set1 = set1.subSet(16, true, 20, false);
         NavigableSet<Integer> set2 = new TreeSet<>();
+        set2.add(12);
         set2.add(14);
         set2.add(16);
         set2.add(17);
@@ -97,10 +98,33 @@ public class IntersectionNavigableSetTest extends TestSupport {
         set2.add(21);
         set2.add(23);
         set2.add(27);
-        set2 = set1.subSet(16, true, 20, false);
+
+        final NavigableSet<Integer> intersect = NavigableSets.intersection(set1, set2);
+        Assert.assertEquals(intersect, buildSet(12, 16, 18, 21));
+
+        Assert.assertEquals(intersect.headSet(18, true), buildSet(12, 16, 18));
+        Assert.assertEquals(intersect.headSet(18, false), buildSet(12, 16));
+        Assert.assertEquals(intersect.tailSet(16, true), buildSet(16, 18, 21));
+        Assert.assertEquals(intersect.tailSet(16, false), buildSet(18, 21));
+        Assert.assertEquals(intersect.subSet(16, true, 21, false), buildSet(16, 18));
+        Assert.assertEquals(intersect.subSet(16, false, 21, true), buildSet(18, 21));
+
         NavigableSet<Integer> i = NavigableSets.intersection(set1, set2);
-        i = i.subSet(15, true, 25, true);
-        Assert.assertEquals(i, buildSet(16, 18));
+        Assert.assertEquals(i.subSet(15, true, 25, true), buildSet(16, 18, 21));
+
+        set1 = set1.subSet(15, true, 21, false);        // 16, 18, 20
+        set2 = set2.subSet(16, true, 23, true);         // 16, 17, 18, 21, 23
+
+        final NavigableSet<Integer> intersect2 = NavigableSets.intersection(set1, set2);
+        Assert.assertEquals(intersect2, buildSet(16, 18));
+
+        Assert.assertEquals(intersect2.headSet(18, true), buildSet(16, 18));
+        Assert.assertEquals(intersect2.headSet(18, false), buildSet(16));
+        Assert.assertEquals(intersect2.tailSet(16, true), buildSet(16, 18));
+        Assert.assertEquals(intersect2.tailSet(16, false), buildSet(18));
+        Assert.assertEquals(intersect2.subSet(16, true, 21, false), buildSet(16, 18));
+        Assert.assertEquals(intersect2.subSet(16, false, 21, true), buildSet(18));
+
     }
 
     private void verifyIntersection(List<NavigableSet<Integer>> sets) {
