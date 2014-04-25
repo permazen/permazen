@@ -79,6 +79,30 @@ public class IntersectionNavigableSetTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testSubSet() {
+        NavigableSet<Integer> set1 = new TreeSet<>();
+        set1.add(12);
+        set1.add(13);
+        set1.add(16);
+        set1.add(18);
+        set1.add(20);
+        set1.add(21);
+        set1 = set1.subSet(16, true, 20, false);
+        NavigableSet<Integer> set2 = new TreeSet<>();
+        set2.add(14);
+        set2.add(16);
+        set2.add(17);
+        set2.add(18);
+        set2.add(21);
+        set2.add(23);
+        set2.add(27);
+        set2 = set1.subSet(16, true, 20, false);
+        NavigableSet<Integer> i = NavigableSets.intersection(set1, set2);
+        i = i.subSet(15, true, 25, true);
+        Assert.assertEquals(i, buildSet(16, 18));
+    }
+
     private void verifyIntersection(List<NavigableSet<Integer>> sets) {
         final NavigableSet<Integer> expected = this.calculateIntersection(sets);
         final IntersectionNavigableSet<Integer> actual = new IntersectionNavigableSet<Integer>(sets);
