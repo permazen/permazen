@@ -79,16 +79,20 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
     protected final NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds) {
         final ArrayList<NavigableSet<E>> newList = new ArrayList<NavigableSet<E>>(this.list.size());
         for (NavigableSet<E> set : this.list) {
-            final NavigableSet<E> newSet;
-            if (newBounds.getLowerBoundType() != BoundType.NONE && newBounds.getUpperBoundType() == BoundType.NONE)
-                newSet = set.tailSet(newBounds.getLowerBound(), newBounds.getLowerBoundType().isInclusive());
-            else if (newBounds.getLowerBoundType() == BoundType.NONE && newBounds.getUpperBoundType() != BoundType.NONE)
-                newSet = set.headSet(newBounds.getUpperBound(), newBounds.getUpperBoundType().isInclusive());
-            else if (newBounds.getLowerBoundType() != BoundType.NONE && newBounds.getUpperBoundType() != BoundType.NONE) {
-                newSet = set.subSet(newBounds.getLowerBound(), newBounds.getLowerBoundType().isInclusive(),
-                  newBounds.getUpperBound(), newBounds.getUpperBoundType().isInclusive());
-            } else
-                newSet = set;
+            if (newBounds.getLowerBoundType() != BoundType.NONE) {
+                try {
+                    set = set.tailSet(newBounds.getLowerBound(), newBounds.getLowerBoundType().isInclusive());
+                } catch (IllegalArgumentException e) {
+                    // ignore - lower bound is out of range
+                }
+            }
+            if (newBounds.getUpperBoundType() != BoundType.NONE) {
+                try {
+                    set = set.headSet(newBounds.getUpperBound(), newBounds.getUpperBoundType().isInclusive());
+                } catch (IllegalArgumentException e) {
+                    // ignore - upper bound is out of range
+                }
+            }
             newList.add(set);
         }
         return this.createSubSet(reverse, newBounds, newList);
