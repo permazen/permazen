@@ -10,7 +10,6 @@ package org.jsimpledb.kv.simple;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
