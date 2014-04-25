@@ -123,9 +123,11 @@ public class XMLKVDatabase extends SimpleKVDatabase {
         final long fileTime = this.file.lastModified();
         if (fileTime == 0)
             return false;
-        if (this.timestamp != 0 && fileTime <= this.timestamp)
-            return false;
-        this.log.info("detected out-of-band update of XMLKVDatabase file `" + this.file + "'; reloading");
+        if (this.timestamp != 0) {
+            if (fileTime <= this.timestamp)
+                return false;
+            this.log.info("detected out-of-band update of XMLKVDatabase file `" + this.file + "'; reloading");
+        }
         this.readXML();
         return true;
     }
