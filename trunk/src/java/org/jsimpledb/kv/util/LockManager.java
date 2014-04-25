@@ -54,11 +54,11 @@ public class LockManager {
 
     private final Object lockObject;
 
-    // Contains each owner's hold time deadline, or null if hold timeout has expired.
+    // Contains each owner's lock time, or null if hold timeout has expired.
     // Invariant: if owner has any locks, then owner is a key in this map and value is not null.
     // In the case owner's hold timeout expired and another owner forced it to release all of its locks, the expired
     // owner will own no locks but still exist in this map (with a null value), until its next lock() or release().
-    private final HashMap<LockOwner, Long> holdDeadlines = new HashMap<>();
+    private final HashMap<LockOwner, Long> lockTimes = new HashMap<>();
 
     private final TreeSet<Lock> locksByMin = new TreeSet<>(Lock.MIN_COMPARATOR);            // locks ordered by minimum
     private final TreeSet<Lock> locksByMax = new TreeSet<>(Lock.MAX_COMPARATOR);            // locks ordered by maximum
@@ -157,17 +157,29 @@ public class LockManager {
             waitTimeout = Math.min(waitTimeout, TEN_YEARS_MILLIS);                  // limit to 10 years to avoid overflow
 
             // Check hold timeout
-            if (this.checkHoldTimeout(owner) == -1)
+            final long lockerRemaining = this.checkHoldTimeout(owner);
+            if (lockerRemaining == -1)
                 return LockResult.HOLD_TIMEOUT_EXPIRED;
 
             // Create lock
             Lock lock = new Lock(owner, minKey, maxKey, write);
 
-            // Wait for lockability
+            // Wait for lockability, until the first one of:
+            //  - Wait timeout
+            //  - Locker's hold timeout
+            //  - Lock owner's hold timeout
             final LockChecker lockChecker = new LockChecker(lock);
-            if (!lockChecker.test()
-              && !TimedWait.wait(this.lockObject, Math.min(waitTimeout, lockChecker.getTimeRemaining()), lockChecker))
-                return LockResult.WAIT_TIMEOUT_EXPIRED;
+            if (!lockChecker.test()) {
+                long timeToWait = Math.min(waitTimeout, lockChecker.getTimeRemaining());
+                if (lockerRemaining != 0)
+                    timeToWait = Math.min(timeToWait, lockerRemaining);
+                if (!TimedWait.wait(this.lockObject, timeToWait, lockChecker))
+                    return LockResult.WAIT_TIMEOUT_EXPIRED;
+            }
+
+            // Check hold timeout again
+            if (this.checkHoldTimeout(owner) == -1)
+                return LockResult.HOLD_TIMEOUT_EXPIRED;
 
             // Merge the lock with other locks it can merge with, removing those locks in the process
             for (Lock that : lockChecker.getMergers()) {
@@ -186,10 +198,11 @@ public class LockManager {
             owner.locks.add(lock);
 
             // Set hold timeout (if not already set)
-            if (!this.holdDeadlines.containsKey(owner)) {
+            if (!this.lockTimes.containsKey(owner)) {
                 final long currentTime = System.nanoTime() - this.nanoBasis;
-                this.holdDeadlines.put(owner, currentTime + this.holdTimeout * 1000000L);
-            }
+                this.lockTimes.put(owner, currentTime);
+            } else
+                assert this.lockTimes.get(owner) != null;
 
             // Done
             return LockResult.SUCCESS;
@@ -219,10 +232,10 @@ public class LockManager {
             if (owner == null)
                 throw new IllegalArgumentException("null owner");
 
-            // Check if hold timeout has alread expired; if not, remove deadline
-            if (this.holdDeadlines.containsKey(owner)) {
-                final Long holdDeadline = this.holdDeadlines.remove(owner);
-                if (holdDeadline == null)
+            // Check if hold timeout has alread expired; in any case, remove lock time
+            if (this.lockTimes.containsKey(owner)) {
+                final Long lockTime = this.lockTimes.remove(owner);
+                if (lockTime == null)
                     return false;
             }
 
@@ -239,28 +252,29 @@ public class LockManager {
      * and if not return the amount of time remaining.
      *
      * <p>
-     * If the owner's hold timeout has expired, then zero is returned and any locks previously held by {@code owner}
+     * If the owner's hold timeout has expired, then {@code -1} is returned and any locks previously held by {@code owner}
      * will have been automatically released.
      * </p>
      *
      * @param owner lock owner
      * @return milliseconds until {@code owner}'s hold timeout expires, zero if {@code owner} has no hold timeout
-     *  (e.g., nothing is locked), or -1 if {@code owner}'s hold timeout has expired
+     *  (e.g., nothing is locked or hold timeout disabled), or -1 if {@code owner}'s hold timeout has expired
      * @throws IllegalArgumentException if {@code owner} is null
      */
     public long checkHoldTimeout(LockOwner owner) {
         synchronized (this.lockObject) {
             if (this.holdTimeout == 0)
                 return 0;
-            if (!this.holdDeadlines.containsKey(owner))
+            if (!this.lockTimes.containsKey(owner))
                 return 0;
-            final Long holdDeadline = this.holdDeadlines.get(owner);
-            if (holdDeadline == null)
+            final Long lockTime = this.lockTimes.get(owner);
+            if (lockTime == null)
                 return -1;
             final long currentTime = System.nanoTime() - this.nanoBasis;
+            final long holdDeadline = lockTime + this.holdTimeout * 1000000L;
             final long remaining = holdDeadline - currentTime;
             if (remaining <= 0) {
-                this.holdDeadlines.put(owner, null);
+                this.lockTimes.put(owner, null);
                 this.doRelease(owner);
                 return -1;
             }
@@ -309,6 +323,7 @@ public class LockManager {
                 if (lock.conflictsWith(other)) {
 
                     // See if other lock's owner's hold timeout has expired
+                    assert this.lockTimes.containsKey(other.owner);
                     final long remaining = this.checkHoldTimeout(other.owner);
                     if (remaining == -1)
                         continue startOver;
