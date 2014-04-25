@@ -109,7 +109,13 @@ public class ObjId implements Comparable<ObjId> {
         ByteUtil.writeLong(writer, this.value);
     }
 
-    static ObjId getMin(int storageId) {
+    /**
+     * Get the smallest (i.e., first) instance having the given storage ID.
+     *
+     * @param storageId storage ID, must be greater than zero
+     * @throws IllegalArgumentException if {@code storageId} is zero or negative
+     */
+    public static ObjId getMin(int storageId) {
         if (storageId <= 0)
             throw new IllegalArgumentException("invalid storage ID " + storageId);
         final ByteWriter writer = new ByteWriter(NUM_BYTES);
