@@ -395,7 +395,7 @@ Of course, `@OnChange` notifications are handy for lots of other purposes beside
 
 Notice in the example we are tracking the size of the `friends` set manually. Why not just use `this.getFriends().size()`?
 
-In JSimpleDB invoking `size()` on any collection type requires an _O(n)_ time interation through the collection, which can be a slow operation.
+In JSimpleDB invoking `size()` on a `Set` or `Map` requires an _O(n)_ time interation through the collection, which for very large collections can be a slow operation (invoking `size()` on a list is constant time, because list elements are explicitly indexed; lists have performance characteristics similar to `ArrayList`).
 
 This may seem dumb - why not just keep track of the size? There is an important reason: allowing for reduced contention in distributed databases.
 
