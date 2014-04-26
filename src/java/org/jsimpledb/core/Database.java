@@ -132,7 +132,7 @@ public class Database {
     }
 
     /**
-     * Create a new {@link Transaction} on this database and use the given schema version to access objects and fields.
+     * Create a new {@link Transaction} on this database and use the specified schema version to access objects and fields.
      *
      * <p>
      * <b>Schema Versions</b>
@@ -140,20 +140,26 @@ public class Database {
      *
      * <p>
      * Within each {@link Database} is stored a record of all schema versions previously used with the database.
-     * When creating a new transaction, the following checks are applied:
+     * When creating a new transaction, the caller provides an expected schema version and corresponding {@link SchemaModel}.
+     * Both of these are optional: a schema version of zero means "use the highest version recorded in the
+     * database", and a null {@link SchemaModel} measn "use the {@link SchemaModel} already recorded in the database under
+     * {@code version}". When this method is invoked, the following checks are applied:
      * <ul>
-     *  <li>If a schema with version number {@code version} is recorded in the database, and the given schema
-     *      matches it, then this method succeeds, and the {@link Transaction} will use schema version {@code version}.</li>
-     *  <li>If a schema with version number {@code version} is recorded in the database, and the given schema does not
-     *      match it, then this method fails and throws {@link InvalidSchemaException}.</li>
-     *  <li>If {@code allowNewSchema} is false, and no schema with version number {@code version} has yet been
-     *      recorded in the database, then this method fails and throws {@link InvalidSchemaException}.</li>
-     *  <li>If {@code allowNewSchema} is true, and no schema with version number {@code version} has yet been
-     *      recorded in the database, then {@code schemaModel} is checked for compabitility with all of the other
-     *      schemas recorded in the database; if so, this method succeeds, {@code schema} is recorded in the database
-     *      with version number {@code version}, and the {@link Transaction} will use schema version {@code version}.</li>
-     *  <li>If the schema compatibility check in the previous step fails, an {@link InvalidSchemaException} is thrown.
-     *      This can happen the same storage ID is used inconsistently in two schema versions.</li>
+     *  <li>If a schema with version number {@code version != 0} is recorded in the database, and {@code schemaModel} is null or
+     *      matches it, then this method succeeds, and the {@link Transaction} will use that schema.</li>
+     *  <li>If a schema with version number {@code version} (or the highest numbered schema if {@code version == 0})
+     *      is recorded in the database, and {@code schemaModel} is not null and does not match it, then this method fails
+     *      and throws {@link SchemaMismatchException}.</li>
+     *  <li>If {@code allowNewSchema} is false, and no schema with version number {@code version != 0} has yet been
+     *      recorded in the database, then this method fails and throws {@link SchemaMismatchException}.</li>
+     *  <li>If {@code allowNewSchema} is true, and no schema with version number {@code version != 0} has yet been
+     *      recorded in the database, then if {@code schemaModel} is null an {@link SchemaMismatchException} is thrown;
+     *      otherwise {@code schemaModel} is checked for compabitility with all of the other schemas recorded in the database;
+     *      if compatible, this method succeeds, {@code schema} is recorded in the database with version number {@code version},
+     *      and the {@link Transaction} will use schema version {@code version}; otherwise an {@link SchemaMismatchException}
+     *      is thrown.</li>
+     *  <li>If the database is uninitialized and {@code version == 0} or {@code schemaModel} is null,
+     *      a {@link SchemaMismatchException} is thrown.</li>
      * </ul>
      * </p>
      *
@@ -178,11 +184,12 @@ public class Database {
      * </p>
      *
      * <p>
-     * If the object has a version {@code oldVersion} different from {@code version}, then the object version is changed
-     * to {@code version}. This may cause fields to be added or removed, as follows:
+     * If the object has a version {@code oldVersion} different from {@code version}, then depending on which {@link Transaction}
+     * method is invoked, the object version may be automatically updated to {@code version}. This will cause fields to be added
+     * or removed, as follows:
      * <ul>
      *  <li>Compatible fields that are common to both schema versions remain unchanged; fields are compatible
-     *      if they have the same storage ID and type (for complex fields, sub-fields must also be compatible).</li>
+     *      if they have the same storage ID and type. For complex fields, sub-fields must also be compatible.</li>
      *  <li>Fields that exist in {@code oldVersion} but not in {@code version} are removed.</li>
      *  <li>Fields that exist in {@code version} but not in {@code oldVersion} are initialized to their default values.</li>
      *  <li>All {@link VersionChangeListener}s registered with the {@link Transaction} are notified.</li>
@@ -198,35 +205,36 @@ public class Database {
      *
      * <p>
      * Note that an object's current schema version can go up as well as down, and may change by any amount.
+     * Also, nothing requires schema version numbers to be consecutive.
      * </p>
      *
-     * @param schemaModel schema to use with the new transaction
-     * @param version the schema version number corresponding to {@code schemaModel}; must be greater than zero
+     * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
+     * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
      * @param allowNewSchema whether creating a new schema version is allowed
-     * @throws IllegalArgumentException if {@code schemaModel} is null
-     * @throws IllegalArgumentException if {@code version} is not greater than zero
+     * @throws IllegalArgumentException if {@code version} is less than zero
      * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
-     * @throws InvalidSchemaException if {@code schemaModel} does not match schema version {@code version}
+     * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
      *  as recorded in the database
-     * @throws InvalidSchemaException if schema version {@code version} is not recorded in the database
+     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database
      *  and {@code allowNewSchema} is false
-     * @throws InvalidSchemaException if schema version {@code version} is not recorded in the database,
+     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database,
      *  {@code allowNewSchema} is true, but {@code schemaModel} is incompatible with one or more other schemas
-     *  alread recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)
+     *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)
+     * @throws SchemaMismatchException
+     *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null
      * @throws InconsistentDatabaseException if inconsistent or invalid schema information is detected in the database
      * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
      * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance
      */
-    public Transaction createTransaction(final SchemaModel schemaModel, final int version, final boolean allowNewSchema) {
+    public Transaction createTransaction(final SchemaModel schemaModel, int version, final boolean allowNewSchema) {
 
         // Sanity check
-        if (schemaModel == null)
-            throw new IllegalArgumentException("null schemaModel");
-        if (version <= 0)
+        if (version < 0)
             throw new IllegalArgumentException("invalid schema version: " + version);
 
         // Validate schema
-        schemaModel.validate();
+        if (schemaModel != null)
+            schemaModel.validate();
 
         // Open KV transaction
         final KVTransaction kvt;
@@ -236,30 +244,38 @@ public class Database {
             kvt = this.kvdb.createTransaction();
         }
         boolean success = false;
-        this.log.debug("creating transaction using schema version " + version);
+        this.log.debug("creating transaction using "
+          + (version != 0 ? "schema version " + version : "highest recorded schema version"));
         try {
             Schema schema = null;
             boolean firstAttempt = true;
             while (true) {
 
-                // Check for uninitialized database
+                // Check for an uninitialized database
                 boolean uninitialized = false;
-                if (kvt.getAtLeast(null) == null) {
+                byte[] encodingBytes = kvt.get(ENCODING_KEY);
+                if (encodingBytes == null) {
+
+                    // Sanity checks
+                    if (kvt.getAtLeast(new byte[0]) != null)
+                        throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
+                    if (kvt.getAtMost(new byte[] { (byte)0xff }) != null)
+                        throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
+
+                    // Initialize database
                     this.log.info("detected an uninitialized database; initializing");
                     final ByteWriter writer = new ByteWriter();
                     UnsignedIntEncoder.write(writer, ENCODING_VERSION);
                     kvt.put(ENCODING_KEY, writer.getBytes());
                     uninitialized = true;
+
+                    // Sanity check again
+                    encodingBytes = kvt.get(ENCODING_KEY);
+                    if (encodingBytes == null || ByteUtil.compare(encodingBytes, writer.getBytes()) != 0)
+                        throw new InconsistentDatabaseException("database failed basic read/write test");
                 }
 
                 // Verify encoding version
-                final byte[] encodingBytes = kvt.get(ENCODING_KEY);
-                if (encodingBytes == null) {
-                    if (uninitialized)
-                        throw new InconsistentDatabaseException("database failed basic read/write test");
-                    else
-                        throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
-                }
                 final int encodingVersion;
                 try {
                     encodingVersion = UnsignedIntEncoder.read(new ByteReader(encodingBytes));
@@ -299,6 +315,10 @@ public class Database {
                     }
                 }
 
+                // If no version specified, assume the highest recorded version
+                if (version == 0 && !bytesMap.isEmpty())
+                    version = bytesMap.lastKey();
+
                 // If transaction schema was not found in the database, add it and retry
                 if (!bytesMap.containsKey(version)) {
 
@@ -313,8 +333,20 @@ public class Database {
 
                     // Check whether we can add a new schema version
                     if (!allowNewSchema) {
-                        throw new IllegalArgumentException("schema version " + version
-                          + " not found in database and allowNewSchema is false");
+                        if (version == 0)
+                            throw new SchemaMismatchException("uninitialized database and no schema version was provided");
+                        else {
+                            throw new SchemaMismatchException("schema version " + version
+                              + " not found in database and allowNewSchema is false");
+                        }
+                    }
+                    if (schemaModel == null) {
+                        if (version == 0)
+                            throw new SchemaMismatchException("uninitialized database and no schema model was provided");
+                        else {
+                            throw new SchemaMismatchException("no schema model was provided but database does not contain"
+                              + " a recorded schema version " + version);
+                        }
                     }
 
                     // Record new schema in database
@@ -330,7 +362,7 @@ public class Database {
                 // Compare transaction schema with the schema of the same version found in the database
                 this.log.debug("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
                 final SchemaModel dbSchemaModel = schema.getVersion(version).getSchemaModel();
-                if (!schemaModel.equals(schema.getVersion(version).getSchemaModel())) {
+                if (schemaModel != null && !schemaModel.equals(schema.getVersion(version).getSchemaModel())) {
                     this.log.error("schema mismatch:\n  database schema:\n{}  provided schema:\n{}", dbSchemaModel, schemaModel);
                     throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "
                       + version + " that is already recorded in the database");
