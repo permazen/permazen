@@ -8,8 +8,7 @@
 package org.jsimpledb.core;
 
 /**
- * Thrown by {@link Database#createTransaction} when the given schema is invalid, cannot be matched with the
- * schema of the same version already recorded in the database, or cannot be added to the database.
+ * Thrown by {@link Database#createTransaction} when the provided schema is invalid.
  */
 @SuppressWarnings("serial")
 public class InvalidSchemaException extends DatabaseException {
