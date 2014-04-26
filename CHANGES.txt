@@ -1,6 +1,7 @@
 
 Version Next
 
+    - Added command line interface
     - Add built-in support for java.util.UUID
     - Miscellaneous bug fixes
 
