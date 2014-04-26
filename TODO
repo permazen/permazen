@@ -1,12 +1,12 @@
 
 - Ant task for easy validation of JLayer annotations during a build
 
-- Command line tool
-    - JPQL (?) parser and executor
-
 - Only record new schema version in database on first mutation
 
-- Allow reference paths to contain backwards steps
-
 - More built-in field types
+
+- KVStore extension supporting FDB watches
+
+- @IndexQuery taking min & max values and returning Iterable
+    - Doesn't require result to all fit into memory
 

@@ -61,6 +61,7 @@
         <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
         <jarjar destfile="build/dist/${ant.project.name}-${full.version}.jar">
             <zipfileset src="build/asm.jar"/>
+            <zipfileset src="build/jline.jar"/>
         <!-- for ClassGenerator debug
             <zipfileset src="build/asm-util.jar"/>
         -->
@@ -69,6 +70,7 @@
             </zipfileset>
             <rule pattern="org.objectweb.asm.**" result="org.jsimpledb.asm.@1"/>
             <rule pattern="org.dellroad.stuff.**" result="org.jsimpledb.drstuff.@1"/>
+            <rule pattern="jline.**" result="org.jsimpledb.jline.@1"/>
             <fileset dir="build/classes"/>
             <fileset dir="build/resources"/>
             <manifest>
