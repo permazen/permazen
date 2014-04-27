@@ -47,7 +47,7 @@ class ClassGenerator<T> {
     static final String GET_TX_METHOD_NAME = "$getTx";
 
     // JObject method handles
-    static final Method GET_OBJ_ID_METHOD;
+    static final Method JOBJECT_GET_OBJ_ID_METHOD;
     static final Method JOBJECT_DELETE_METHOD;
     static final Method JOBJECT_EXISTS_METHOD;
     static final Method JOBJECT_RECREATE_METHOD;
@@ -77,7 +77,7 @@ class ClassGenerator<T> {
         try {
 
             // JObject methods
-            GET_OBJ_ID_METHOD = JObject.class.getMethod("getObjId");
+            JOBJECT_GET_OBJ_ID_METHOD = JObject.class.getMethod("getObjId");
             JOBJECT_DELETE_METHOD = JObject.class.getMethod("delete");
             JOBJECT_EXISTS_METHOD = JObject.class.getMethod("exists");
             JOBJECT_RECREATE_METHOD = JObject.class.getMethod("recreate");
@@ -223,8 +223,8 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Add JObject.getObjId()
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, GET_OBJ_ID_METHOD.getName(),
-          Type.getMethodDescriptor(GET_OBJ_ID_METHOD), null, null);
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JOBJECT_GET_OBJ_ID_METHOD.getName(),
+          Type.getMethodDescriptor(JOBJECT_GET_OBJ_ID_METHOD), null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
