@@ -16,6 +16,7 @@ import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.ObjId;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -46,6 +47,10 @@ class ClassGenerator<T> {
     // Names of generated methods
     static final String GET_TX_METHOD_NAME = "$getTx";
 
+    // Object method handles
+    static final Method OBJECT_EQUALS_METHOD;
+    static final Method OBJECT_HASH_CODE_METHOD;
+
     // JObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
     static final Method JOBJECT_DELETE_METHOD;
@@ -75,6 +80,10 @@ class ClassGenerator<T> {
 
     static {
         try {
+
+            // Object methods
+            OBJECT_EQUALS_METHOD = Object.class.getMethod("equals", Object.class);
+            OBJECT_HASH_CODE_METHOD = Object.class.getMethod("hashCode");
 
             // JObject methods
             JOBJECT_GET_OBJ_ID_METHOD = JObject.class.getMethod("getObjId");
@@ -294,6 +303,46 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, UPDATE_SCHEMA_VERSION_METHOD);
         mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Add Object.equals()
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, OBJECT_EQUALS_METHOD.getName(),
+          Type.getMethodDescriptor(OBJECT_EQUALS_METHOD), null, null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);                      // if (obj == this) return true;
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        final Label label1 = new Label();
+        mv.visitJumpInsn(Opcodes.IF_ACMPNE, label1);
+        mv.visitInsn(Opcodes.ICONST_1);
+        mv.visitInsn(Opcodes.IRETURN);
+        mv.visitLabel(label1);
+        mv.visitVarInsn(Opcodes.ALOAD, 1);                      // if (!(obj instanceof JObject)) return false;
+        mv.visitTypeInsn(Opcodes.INSTANCEOF, Type.getInternalName(JObject.class));
+        mv.visitLdcInsn(0);
+        final Label label2 = new Label();
+        mv.visitJumpInsn(Opcodes.IFNE, label2);
+        mv.visitInsn(Opcodes.ICONST_0);
+        mv.visitInsn(Opcodes.IRETURN);
+        mv.visitLabel(label2);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);                      // return this.id.equals(((JObject)that).getObjId())
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(JObject.class));
+        this.emitInvoke(mv, JOBJECT_GET_OBJ_ID_METHOD);
+        this.emitInvoke(mv, OBJECT_EQUALS_METHOD);
+        mv.visitInsn(Opcodes.IRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Add Object.hashCode()
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, OBJECT_HASH_CODE_METHOD.getName(),
+          Type.getMethodDescriptor(OBJECT_HASH_CODE_METHOD), null, null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);                      // return this.id.hashCode()
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
+        this.emitInvoke(mv, OBJECT_HASH_CODE_METHOD);
+        mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
