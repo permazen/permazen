@@ -39,7 +39,7 @@ class ScanClassPathClassScanner extends ClassPathScanningCandidateComponentProvi
     }
 
     /**
-     * Overridden to change the default filters. {@link JSimpleDBClassScanner} wants to match
+     * Overridden to change the default filters. {@link ScanClassPathClassScanner} wants to match
      * {@link &#64;JSimpleClass} and {@link &#64;JFieldType} annotated classes.
      */
     @Override
