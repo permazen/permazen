@@ -15,7 +15,7 @@ In other words, for the most part JSimpleDB is not trying to create solutions wh
 
 JSimpleDB is a _Persistence Layer_. It runs on top of a transactional key/value database that you supply.
 
-JSimpleDB includes adapters for some existing databases, such as [https://foundationdb.org/ FoundationDB] (recommended) and SQL databases, as well as in-memory and flat file key/value stores for testing and prototyping.
+JSimpleDB includes adapters for some existing databases, such as [https://foundationdb.com/ FoundationDB] (recommended) and SQL databases, as well as in-memory and flat file key/value stores for testing and prototyping.
 
 === "Normal" Java vs. "Persistence" Java ===
 
