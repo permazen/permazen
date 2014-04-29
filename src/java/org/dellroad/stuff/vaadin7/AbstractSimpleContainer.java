@@ -53,7 +53,7 @@ import java.util.Set;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryContainer<I, String, BackedItem<T>>
-  implements PropertyExtractor<T>, Container.Filterable, Container.SimpleFilterable, Container.Sortable {
+  implements PropertyExtractor<T>, Container.Filterable, Container.SimpleFilterable, Container.Sortable, Connectable {
 
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
     private PropertyExtractor<? super T> propertyExtractor;
@@ -337,6 +337,34 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         return null;
     }
 
+// Connectable
+
+    /**
+     * Connect this instance to non-Vaadin resources.
+     *
+     * <p>
+     * The implementation in {@link AbstractSimpleContainer} does nothing.
+     * </p>
+     *
+     * @throws IllegalStateException if there is no {@link com.vaadin.server.VaadinSession} associated with the current thread
+     */
+    @Override
+    public void connect() {
+    }
+
+    /**
+     * Disconnect this instance from non-Vaadin resources.
+     *
+     * <p>
+     * The implementation in {@link AbstractSimpleContainer} does nothing.
+     * </p>
+     *
+     * @throws IllegalStateException if there is no {@link com.vaadin.server.VaadinSession} associated with the current thread
+     */
+    @Override
+    public void disconnect() {
+    }
+
 // Container and superclass required methods
 
     // Workaround for http://dev.vaadin.com/ticket/8856
@@ -407,6 +435,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      *
      * <p>
      * The implementation in {@link AbstractSimpleContainer} does nothing.
+     * </p>
      */
     protected void afterReload() {
     }

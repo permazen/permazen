@@ -5,6 +5,7 @@ Version Next
       NOTE: the above are backward-incompatible changes
     - Added ExternalPropertyRegistry and related classes
     - Added StreamWriterAction
+    - Added Connectable
     - Minor bug fixes
 
 Version 1.0.850 Released March 19, 2014

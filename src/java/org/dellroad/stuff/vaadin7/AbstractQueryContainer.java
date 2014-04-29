@@ -89,7 +89,7 @@ import java.util.Set;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractQueryContainer<T> extends AbstractContainer implements PropertyExtractor<T>,
-  Container.Ordered, Container.Indexed, Container.PropertySetChangeNotifier, Container.ItemSetChangeNotifier {
+  Container.Ordered, Container.Indexed, Container.PropertySetChangeNotifier, Container.ItemSetChangeNotifier, Connectable {
 
     private QueryList<? extends T> queryList;
     private long totalSize = -1;
@@ -270,6 +270,34 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     public void reload() {
         this.invalidate();
         this.fireItemSetChange();
+    }
+
+// Connectable
+
+    /**
+     * Connect this instance to non-Vaadin resources.
+     *
+     * <p>
+     * The implementation in {@link AbstractQueryContainer} does nothing.
+     * </p>
+     *
+     * @throws IllegalStateException if there is no {@link com.vaadin.server.VaadinSession} associated with the current thread
+     */
+    @Override
+    public void connect() {
+    }
+
+    /**
+     * Disconnect this instance from non-Vaadin resources.
+     *
+     * <p>
+     * The implementation in {@link AbstractQueryContainer} does nothing.
+     * </p>
+     *
+     * @throws IllegalStateException if there is no {@link com.vaadin.server.VaadinSession} associated with the current thread
+     */
+    @Override
+    public void disconnect() {
     }
 
 // Subclass hooks and methods

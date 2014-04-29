@@ -108,7 +108,9 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
     /**
      * Connect this container and start tracking sessions.
      */
+    @Override
     public void connect() {
+        super.connect();
         this.listener.register();
         this.reload();
     }
@@ -116,8 +118,10 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
     /**
      * Disconnect this container and stop tracking sessions.
      */
+    @Override
     public void disconnect() {
         this.listener.unregister();
+        super.disconnect();
     }
 
     /**
