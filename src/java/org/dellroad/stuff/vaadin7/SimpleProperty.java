@@ -7,14 +7,11 @@
 
 package org.dellroad.stuff.vaadin7;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.util.AbstractProperty;
-
 /**
- * Simple read-only {@link Property} implementation backed by a Java object.
+ * Simple read-only {@link com.vaadin.data.Property} implementation backed by a Java object.
  *
  * <p>
- * The {@link Property}s is defined using a {@link PropertyDef} along with a {@link PropertyExtractor}
+ * The {@link com.vaadin.data.Property} is defined using a {@link PropertyDef} along with a {@link PropertyExtractor}
  * that is capable of reading the property's value from the underlying Java object.
  * </p>
  *
@@ -24,7 +21,7 @@ import com.vaadin.data.util.AbstractProperty;
  * @see SimpleItem
  */
 @SuppressWarnings("serial")
-public class SimpleProperty<T, V> extends AbstractProperty<V> implements BackedProperty<T, V> {
+public class SimpleProperty<T, V> extends ReadOnlyProperty<V> implements BackedProperty<T, V> {
 
     private final T object;
     private final PropertyDef<V> propertyDef;
@@ -48,7 +45,6 @@ public class SimpleProperty<T, V> extends AbstractProperty<V> implements BackedP
         this.object = object;
         this.propertyDef = propertyDef;
         this.propertyExtractor = propertyExtractor;
-        this.setReadOnly(true);
     }
 
     @Override
@@ -64,24 +60,6 @@ public class SimpleProperty<T, V> extends AbstractProperty<V> implements BackedP
     @Override
     public V getValue() {
         return this.propertyExtractor.getPropertyValue(this.object, this.propertyDef);
-    }
-
-    /**
-     * @throws Property.ReadOnlyException always
-     */
-    @Override
-    public void setValue(V value) {
-        throw new Property.ReadOnlyException();
-    }
-
-    /**
-     * @throws UnsupportedOperationException if {@code readOnly} is true
-     */
-    @Override
-    public void setReadOnly(boolean readOnly) {
-        if (!readOnly)
-            throw new UnsupportedOperationException();
-        super.setReadOnly(readOnly);
     }
 }
 

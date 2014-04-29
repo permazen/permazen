@@ -20,6 +20,7 @@ import java.util.Set;
  *
  * <p>
  * Item {@link Property}s are defined by {@link PropertyDef}s and retrieved by a {@link PropertyExtractor}.
+ * </p>
  *
  * @param <T> the type of the underlying Java object
  * @see SimpleContainer
