@@ -46,7 +46,7 @@ import java.util.Set;
  * @see SimpleProperty
  */
 @SuppressWarnings("serial")
-public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryContainer<I, String, SimpleItem<T>>
+public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryContainer<I, String, BackedItem<T>>
   implements PropertyExtractor<T>, Container.Filterable, Container.SimpleFilterable, Container.Sortable {
 
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
@@ -234,7 +234,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         for (T obj : contents) {
             if (obj == null)
                 throw new IllegalArgumentException("null item in contents at index " + index);
-            final SimpleItem<T> item = this.createSimpleItem(obj, this.propertyMap, this);
+            final BackedItem<T> item = this.createBackedItem(obj, this.propertyMap, this);
             this.internalAddItemAtEnd(this.generateItemId(obj), item, false);
             index++;
         }
@@ -329,7 +329,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 
     @Override
     public Property<?> getContainerProperty(Object itemId, Object propertyId) {
-        SimpleItem<T> entityItem = this.getItem(itemId);
+        final BackedItem<T> entityItem = this.getItem(itemId);
         if (entityItem == null)
             return null;
         return entityItem.getItemProperty(propertyId);
@@ -337,16 +337,16 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 
     @Override
     public Class<?> getType(Object propertyId) {
-        PropertyDef<?> propertyDef = this.propertyMap.get(propertyId);
+        final PropertyDef<?> propertyDef = this.propertyMap.get(propertyId);
         return propertyDef != null ? propertyDef.getType() : null;
     }
 
     @Override
-    public SimpleItem<T> getUnfilteredItem(Object itemId) {
-        T obj = this.getJavaObject(itemId);
+    public BackedItem<T> getUnfilteredItem(Object itemId) {
+        final T obj = this.getJavaObject(itemId);
         if (obj == null)
             return null;
-        return this.createSimpleItem(obj, this.propertyMap, this);
+        return this.createBackedItem(obj, this.propertyMap, this);
     }
 
 // Subclass methods
@@ -388,7 +388,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
     }
 
     /**
-     * Create a {@link SimpleItem} for the given backing Java object.
+     * Create a {@link BackedItem} for the given backing Java object.
      *
      * <p>
      * The implementation in {@link AbstractSimpleContainer} returns
@@ -400,7 +400,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      * @param propertyExtractor extracts the property value from {@code object}
      * @throws IllegalArgumentException if any parameter is null
      */
-    protected SimpleItem<T> createSimpleItem(T object, Map<String, PropertyDef<?>> propertyMap,
+    protected BackedItem<T> createBackedItem(T object, Map<String, PropertyDef<?>> propertyMap,
       PropertyExtractor<? super T> propertyExtractor) {
         return new SimpleItem<T>(object, propertyMap, propertyExtractor);
     }
@@ -486,8 +486,8 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
                 final SortingPropertyExtractor<? super T> sortingPropertyExtractor
                   = (SortingPropertyExtractor<? super T>)AbstractSimpleContainer.this.propertyExtractor;
                 if (sortingPropertyExtractor.canSort(propertyDef)) {
-                    final T obj1 = ((SimpleItem<T>)item1).getObject();
-                    final T obj2 = ((SimpleItem<T>)item2).getObject();
+                    final T obj1 = ((BackedItem<T>)item1).getObject();
+                    final T obj2 = ((BackedItem<T>)item2).getObject();
                     final int diff = sortingPropertyExtractor.sort(propertyDef, obj1, obj2);
                     return ascending ? diff : -diff;
                 }

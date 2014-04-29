@@ -355,7 +355,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     }
 
     /**
-     * Create a {@link SimpleItem} for the given backing Java object.
+     * Create a {@link BackedItem} for the given backing Java object.
      *
      * <p>
      * The implementation in {@link AbstractQueryContainer} returns
@@ -367,7 +367,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      * @param propertyExtractor extracts the property value from {@code object}
      * @throws IllegalArgumentException if any parameter is null
      */
-    protected SimpleItem<T> createSimpleItem(T object, Map<String, PropertyDef<?>> propertyMap,
+    protected BackedItem<T> createBackedItem(T object, Map<String, PropertyDef<?>> propertyMap,
       PropertyExtractor<? super T> propertyExtractor) {
         return new SimpleItem<T>(object, propertyMap, propertyExtractor);
     }
@@ -375,14 +375,14 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
 // Container
 
     @Override
-    public SimpleItem<T> getItem(Object itemId) {
+    public BackedItem<T> getItem(Object itemId) {
         if (!(itemId instanceof Integer))
             return null;
         int index = ((Integer)itemId).intValue();
         T obj = this.getJavaObject(index);
         if (obj == null)
             return null;
-        return this.createSimpleItem(obj, this.propertyMap, this);
+        return this.createBackedItem(obj, this.propertyMap, this);
     }
 
     @Override
@@ -398,7 +398,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     @Override
     @SuppressWarnings("rawtypes")
     public Property/*<?>*/ getContainerProperty(Object itemId, Object propertyId) {
-        SimpleItem<T> item = this.getItem(itemId);
+        final BackedItem<T> item = this.getItem(itemId);
         return item != null ? item.getItemProperty(propertyId) : null;
     }
 

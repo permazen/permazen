@@ -7,7 +7,6 @@
 
 package org.dellroad.stuff.vaadin7;
 
-import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 
 import java.util.Collection;
@@ -17,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Simple read-only {@link Item} implementation backed by a Java object.
+ * Simple read-only {@link com.vaadin.data.Item} implementation backed by a Java object.
  *
  * <p>
  * Item {@link Property}s are defined by {@link PropertyDef}s and retrieved by a {@link PropertyExtractor}.
@@ -27,7 +26,7 @@ import java.util.Set;
  * @see SimpleProperty
  */
 @SuppressWarnings("serial")
-public class SimpleItem<T> implements Item {
+public class SimpleItem<T> implements BackedItem<T> {
 
     private final T object;
     private final Map<String, ? extends PropertyDef<?>> propertyMap;
@@ -65,21 +64,17 @@ public class SimpleItem<T> implements Item {
         this.propertyExtractor = propertyExtractor;
     }
 
-    /**
-     * Retrieve the underlying Java object.
-     *
-     * @return underlying Java object, never null
-     */
+    @Override
     public T getObject() {
         return this.object;
     }
 
     @Override
-    public SimpleProperty<T, ?> getItemProperty(Object id) {
+    public Property<?> getItemProperty(Object id) {
         final PropertyDef<?> propertyDef = this.propertyMap.get(id);
         if (propertyDef == null)
             return null;
-        return this.createSimpleProperty(this.object, propertyDef, this.propertyExtractor);
+        return this.createProperty(this.object, propertyDef, this.propertyExtractor);
     }
 
     @Override
@@ -105,7 +100,7 @@ public class SimpleItem<T> implements Item {
     }
 
     /**
-     * Create a {@link SimpleProperty} for the given property definition.
+     * Create a {@link Property} for the given property definition.
      *
      * <p>
      * The implementation in {@link SimpleItem} returns
@@ -117,7 +112,7 @@ public class SimpleItem<T> implements Item {
      * @param propertyExtractor extracts the property value from {@code object}
      * @throws IllegalArgumentException if any parameter is null
      */
-    protected <V> SimpleProperty<T, V> createSimpleProperty(T object,
+    protected <V> Property<V> createProperty(T object,
       PropertyDef<V> propertyDef, PropertyExtractor<? super T> propertyExtractor) {
         return new SimpleProperty<T, V>(object, propertyDef, propertyExtractor);
     }

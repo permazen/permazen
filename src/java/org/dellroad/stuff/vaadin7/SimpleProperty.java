@@ -16,6 +16,7 @@ import com.vaadin.data.util.AbstractProperty;
  * <p>
  * The {@link Property}s is defined using a {@link PropertyDef} along with a {@link PropertyExtractor}
  * that is capable of reading the property's value from the underlying Java object.
+ * </p>
  *
  * @param <T> the type of the underlying Java object
  * @param <V> the type of the property
@@ -23,7 +24,7 @@ import com.vaadin.data.util.AbstractProperty;
  * @see SimpleItem
  */
 @SuppressWarnings("serial")
-public class SimpleProperty<T, V> extends AbstractProperty<V> {
+public class SimpleProperty<T, V> extends AbstractProperty<V> implements BackedProperty<T, V> {
 
     private final T object;
     private final PropertyDef<V> propertyDef;
@@ -50,11 +51,7 @@ public class SimpleProperty<T, V> extends AbstractProperty<V> {
         this.setReadOnly(true);
     }
 
-    /**
-     * Retrieve the underlying Java object.
-     *
-     * @return underlying Java object, never null
-     */
+    @Override
     public T getObject() {
         return this.object;
     }
