@@ -10,8 +10,8 @@ package org.dellroad.stuff.vaadin7;
 import com.vaadin.server.VaadinSession;
 
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationEventMulticaster;
-import org.springframework.context.event.SmartApplicationListener;
 
 /**
  * A Spring {@link org.springframework.context.ApplicationListener} support superclass customized for use by
@@ -19,8 +19,8 @@ import org.springframework.context.event.SmartApplicationListener;
  *
  * <p>
  * Listeners that are part of a Vaadin application should use this superclass if they are going to be registered
- * with non-Vaadin event multicasters. This will ensure that events are delivered
- * in the proper Vaadin application context and memory leaks are avoided.
+ * with non-Vaadin event sources. This will ensure that events are delivered in the proper Vaadin application context
+ * and memory leaks are avoided when the session closes.
  * </p>
  *
  * @param <E> The type of the event
@@ -30,90 +30,50 @@ import org.springframework.context.event.SmartApplicationListener;
  * @see SpringVaadinSessionListener
  */
 public abstract class VaadinApplicationListener<E extends ApplicationEvent>
-  extends VaadinExternalListener<ApplicationEventMulticaster> implements SmartApplicationListener {
-
-    private final Class<E> eventType;
+  extends VaadinExternalListener<ApplicationEventMulticaster> implements ApplicationListener<E> {
 
     /**
      * Convenience constructor. Equivalent to:
      * <blockquote>
-     *  {@link #VaadinApplicationListener(ApplicationEventMulticaster, Class, VaadinSession)
-     *      VaadinApplicationListener(multicaster, eventType, VaadinUtil.getCurrentSession())}
+     *  {@link #VaadinApplicationListener(ApplicationEventMulticaster, VaadinSession)
+     *      VaadinApplicationListener(multicaster, VaadinUtil.getCurrentSession())}
      * </blockquote>
      *
      * @param multicaster the application event multicaster on which this listener will register
-     * @param eventType type of events this instance should receive (others will be ignored)
-     * @throws IllegalArgumentException if {@code eventType} is null
+     * @throws IllegalArgumentException if {@code multicaster} is null
      * @throws IllegalArgumentException if there is no {@link VaadinSession} associated with the current thread
      */
-    public VaadinApplicationListener(ApplicationEventMulticaster multicaster, Class<E> eventType) {
-        this(multicaster, eventType, VaadinUtil.getCurrentSession());
+    public VaadinApplicationListener(ApplicationEventMulticaster multicaster) {
+        this(multicaster, VaadinUtil.getCurrentSession());
     }
 
     /**
      * Primary constructor.
      *
      * @param multicaster the application event multicaster on which this listener will register
-     * @param eventType type of events this instance should receive (others will be ignored)
      * @param session the associated Vaadin application
      * @throws IllegalArgumentException if either parameter is null
      */
-    public VaadinApplicationListener(ApplicationEventMulticaster multicaster, Class<E> eventType, VaadinSession session) {
+    public VaadinApplicationListener(ApplicationEventMulticaster multicaster, VaadinSession session) {
         super(multicaster, session);
-        if (eventType == null)
-            throw new IllegalArgumentException("null eventType");
-        this.eventType = eventType;
     }
 
-    /**
-     * Get the event type that this listener listens for.
-     */
-    public final Class<E> getEventType() {
-        return this.eventType;
-    }
-
-    /**
-     * Register as a listener on the given event source.
-     *
-     * <p>
-     * The implementation in {@link VaadinApplicationListener} registers this instance as a listener on {@code multicaster}.
-     * </p>
-     *
-     * @param multicaster event multicaster; will be same as provided to the constructor
-     */
     @Override
     protected void register(ApplicationEventMulticaster multicaster) {
         multicaster.addApplicationListener(this);
     }
 
-    /**
-     * Unregister as a listener on the given event source.
-     *
-     * <p>
-     * The implementation in {@link VaadinApplicationListener} unregisters this instance as a listener from {@code multicaster}.
-     * </p>
-     *
-     * @param multicaster event multicaster; will be same as provided to the constructor
-     */
     @Override
     protected void unregister(ApplicationEventMulticaster multicaster) {
         multicaster.removeApplicationListener(this);
     }
 
     @Override
-    public final void onApplicationEvent(ApplicationEvent event) {
-        E castEvent;
-        try {
-            castEvent = this.eventType.cast(event);
-        } catch (ClassCastException e) {
-            // should not happen
-            return;
-        }
-        final E castEvent2 = castEvent;
+    public final void onApplicationEvent(final E event) {
         this.handleEvent(new Runnable() {
             @Override
             public void run() {
-                VaadinApplicationListener.this.onApplicationEventInternal(castEvent2);
+                VaadinApplicationListener.this.onApplicationEventInternal(event);
             }
         });
     }
@@ -126,39 +86,5 @@ public abstract class VaadinApplicationListener<E extends ApplicationEvent>
      * @see VaadinUtil#getCurrentSession
      */
     protected abstract void onApplicationEventInternal(E event);
-
-    /**
-     * Determine whether this listener actually supports the given event type.
-     *
-     * <p>
-     * The implementation in {@link VaadinApplicationListener} tests whether {@code eventType}
-     * is assignable to the type given in the constructor. Subclasses may override as desired.
-     */
-    @Override
-    public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
-        return this.eventType.isAssignableFrom(eventType);
-    }
-
-    /**
-     * Determine whether this listener actually supports the given source type.
-     *
-     * <p>
-     * The implementation in {@link VaadinApplicationListener} always returns true. Subclasses may override as desired.
-     */
-    @Override
-    public boolean supportsSourceType(Class<?> sourceType) {
-        return true;
-    }
-
-    /**
-     * Get ordering value.
-     *
-     * <p>
-     * The implementation in {@link VaadinApplicationListener} always returns zero. Subclasses may override as desired.
-     */
-    @Override
-    public int getOrder() {
-        return 0;
-    }
 }
 
