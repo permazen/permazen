@@ -37,8 +37,8 @@ Here's an example setup with Spring that uses a simple flat file for persistence
   xmlns:p="http://www.springframework.org/schema/p"
   xmlns:c="http://www.springframework.org/schema/c"
   xsi:schemaLocation="
-     http://jsimpledb.googlecode.com/schema/jsimpledb http://jsimpledb.googlecode.com/svn/schemas/jsimpledb-1.0.xsd
-     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://jsimpledb.googlecode.com/schema/jsimpledb http://jsimpledb.googlecode.com/svn/schemas/jsimpledb-1.0.xsd 
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
  
     <!-- Define the underlying key/value store -->
@@ -269,4 +269,3 @@ To use [http://foundationdb.com/ FoundationDB] as the key/value store, replace t
     fdb.setClusterFilePath("fdb.cluster");
     fdb.start();
     final Database coreDb = new Database(fdb);</code>
-
