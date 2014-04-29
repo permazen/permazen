@@ -412,7 +412,7 @@ public class Transaction {
 
     /**
      * Register a transaction {@link Callback} to be invoked when this transaction completes.
-     * Callbacks will be invoked in the order they are registered.
+     * Callbacks will be invoked in the order they are registered, but <i>duplicate registrations are ignored</i>.
      *
      * @throws IllegalArgumentException if {@code callback} is null
      * @throws StaleTransactionException if this transaction is no longer usable
