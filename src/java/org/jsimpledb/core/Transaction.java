@@ -2225,7 +2225,7 @@ public class Transaction {
      * All the implementations in this class do nothing.
      * </p>
      */
-    public class CallbackAdapter implements Callback {
+    public static class CallbackAdapter implements Callback {
 
         @Override
         public void beforeCommit(boolean readOnly) {
