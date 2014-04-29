@@ -3,6 +3,7 @@ Version Next
     - Moved XMLResultSetWriter from xml -> sql sub-package
     - Remove HardLink; obsoleted by Files.createLink()
       NOTE: the above are backward-incompatible changes
+    - Added ExternalPropertyRegistry and related classes
     - Added StreamWriterAction
     - Minor bug fixes
 

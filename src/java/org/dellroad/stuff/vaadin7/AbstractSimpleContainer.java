@@ -36,6 +36,12 @@ import java.util.Set;
  * </p>
  *
  * <p>
+ * May be optionally configured with an {@link ExternalPropertyRegistry}; if so, this container's {@link Item} properties
+ * will be {@link ExternalProperty}s and they will be registered with it. Subclasses can control this behavior by
+ * overriding {@link #createBackedItem createBackedItem()}.
+ * </p>
+ *
+ * <p>
  * Use {@link #load load()} to load or reload the container.
  * </p>
  *
@@ -51,6 +57,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
     private PropertyExtractor<? super T> propertyExtractor;
+    private ExternalPropertyRegistry registry;
 
 // Constructors
 
@@ -211,6 +218,23 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
             throw new IllegalArgumentException("null propertyDef");
         this.propertyMap.put(propertyDef.getName(), propertyDef);
         this.fireContainerPropertySetChange();
+    }
+
+    /**
+     * Get the {@link ExternalPropertyRegistry} associated with this instance, if any.
+     */
+    public ExternalPropertyRegistry getExternalPropertyRegistry() {
+        return this.registry;
+    }
+
+    /**
+     * Configure a {@link ExternalPropertyRegistry} for this instance. This will cause {@link #createBackedItem createBackedItem()}
+     * to create {@link BackedExternalItem}s associated with {@code registry}.
+     *
+     * @param registry registry for item properties, or null for none
+     */
+    public void setExternalPropertyRegistry(ExternalPropertyRegistry registry) {
+        this.registry = registry;
     }
 
     /**
@@ -392,7 +416,8 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      *
      * <p>
      * The implementation in {@link AbstractSimpleContainer} returns
-     * {@code new SimpleItem<T>(object, propertyMap, propertyExtractor)}.
+     * {@code new BackedExternalItem<T>(this.registry, object, propertyMap, propertyExtractor)} if this instance has a
+     * configured {@link ExternalPropertyRegistry}, otherwise {@code new SimpleItem<T>(object, propertyMap, propertyExtractor)}.
      * </p>
      *
      * @param object underlying Java object
@@ -402,7 +427,9 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
      */
     protected BackedItem<T> createBackedItem(T object, Map<String, PropertyDef<?>> propertyMap,
       PropertyExtractor<? super T> propertyExtractor) {
-        return new SimpleItem<T>(object, propertyMap, propertyExtractor);
+        return this.registry != null ?
+          new BackedExternalItem<T>(this.registry, object, propertyMap, propertyExtractor) :
+          new SimpleItem<T>(object, propertyMap, propertyExtractor);
     }
 
  // Container methods
