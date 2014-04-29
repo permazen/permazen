@@ -50,8 +50,11 @@ public class ExternalPropertyRegistry {
      * @param id external identity
      * @param recalculate if true, go ahead and {@linkplain ExternalProperty#calculateValue recalculate}
      *  new property values as well
+     * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized void notifyValueChanged(Object id, final boolean recalculate) {
+        if (id == null)
+            throw new IllegalArgumentException("null id");
         for (Map.Entry<VaadinSession, HashMap<Object, HashSet<ExternalProperty<?>>>> entry : this.sessionMap.entrySet()) {
             final HashMap<Object, HashSet<ExternalProperty<?>>> propertyMap = entry.getValue();
             final HashSet<ExternalProperty<?>> properties = entry.getValue().get(id);
@@ -117,6 +120,8 @@ public class ExternalPropertyRegistry {
         if (property == null)
             throw new IllegalArgumentException("null property");
         final Object id = property.getExternalIdentity();
+        if (id == null)
+            throw new IllegalArgumentException("null returned from getExternalIdentity() by " + property);
         final VaadinSession session = VaadinUtil.getCurrentSession();
         HashMap<Object, HashSet<ExternalProperty<?>>> propertyMap = this.sessionMap.get(session);
         if (propertyMap == null) {
@@ -145,6 +150,8 @@ public class ExternalPropertyRegistry {
         if (property == null)
             throw new IllegalArgumentException("null property");
         final Object id = property.getExternalIdentity();
+        if (id == null)
+            throw new IllegalArgumentException("null returned from getExternalIdentity() by " + property);
         final VaadinSession session = VaadinUtil.getCurrentSession();
         final HashMap<Object, HashSet<ExternalProperty<?>>> propertyMap = this.sessionMap.get(session);
         if (propertyMap == null)
