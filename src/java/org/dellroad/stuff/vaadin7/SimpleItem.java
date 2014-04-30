@@ -86,7 +86,7 @@ public class SimpleItem<T> implements BackedItem<T> {
     @Override
     @SuppressWarnings("unchecked")
     public Set<String> getItemPropertyIds() {
-        final HashSet<String> names = new HashSet<String>(this.propertyList.length);
+        final HashSet<String> names = new HashSet<>(this.propertyList.length);
         for (int i = 0; i < this.propertyList.length; i++) {
             final Object value = this.propertyList[i];
             if (value instanceof PropertyDef) {
