@@ -186,6 +186,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
             throw new TransactionUsageException("the provided transaction object contains the wrong JTransaction");
 
         // Suspend it
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("suspending current JSimpleDB transaction" + jtx);
         JTransaction.setCurrent(null);
 
         // Done
@@ -204,6 +206,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
         // Resume transaction
         final JTransaction jtx = (JTransaction)suspendedResources;
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("resuming JSimpleDB transaction" + jtx);
         JTransaction.setCurrent(jtx);
     }
 
@@ -230,7 +234,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
             try {
                 jtx.getTransaction().setTimeout(timeout * 1000L);
             } catch (UnsupportedOperationException e) {
-                this.logger.debug("setting non-default timeout of " + timeout + "sec not supported by underlying transaction");
+                if (this.logger.isDebugEnabled())
+                    this.logger.debug("setting non-default timeout of " + timeout + "sec not supported by underlying transaction");
             }
         }
     }
@@ -244,8 +249,11 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
             throw new NoTransactionException("no current JTransaction exists");
 
         // Validate
-        if (this.validateBeforeCommit)
+        if (this.validateBeforeCommit) {
+            if (this.logger.isTraceEnabled())
+                this.logger.trace("triggering validation prior to commit of JSimpleDB transaction " + jtx);
             jtx.validate();
+        }
     }
 
     @Override
@@ -258,6 +266,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
         // Commit
         try {
+            if (this.logger.isTraceEnabled())
+                this.logger.trace("committing JSimpleDB transaction " + jtx);
             jtx.commit();
         } catch (RetryTransactionException e) {
             throw new PessimisticLockingFailureException("transaction must be retried", e);
@@ -265,6 +275,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
             throw new TransactionTimedOutException("transaction is no longer usable", e);
         } catch (DatabaseException e) {
             throw new TransactionSystemException("error committing transaction", e);
+        } finally {
+            JTransaction.setCurrent(null);          // transaction is no longer usable
         }
     }
 
@@ -278,11 +290,15 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
         // Rollback
         try {
+            if (this.logger.isTraceEnabled())
+                this.logger.trace("rolling back JSimpleDB transaction " + jtx);
             jtx.rollback();
         } catch (StaleTransactionException e) {
             throw new TransactionTimedOutException("transaction is no longer usable", e);
         } catch (DatabaseException e) {
             throw new TransactionSystemException("error committing transaction", e);
+        } finally {
+            JTransaction.setCurrent(null);          // transaction is no longer usable
         }
     }
 
@@ -295,6 +311,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
             throw new NoTransactionException("no current JTransaction exists");
 
         // Set rollback only
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("marking JSimpleDB transaction " + jtx + " for rollback-only");
         jtx.getTransaction().setRollbackOnly();
     }
 
