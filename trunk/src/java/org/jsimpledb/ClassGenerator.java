@@ -262,7 +262,7 @@ class ClassGenerator<T> {
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
           Type.getMethodDescriptor(Type.getType(JTransaction.class)));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, RECREATE_METHOD);
+        this.emitInvoke(mv, EXISTS_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
