@@ -84,11 +84,12 @@ import java.util.Set;
 public abstract class AbstractQueryContainer<T> extends AbstractContainer implements PropertyExtractor<T>,
   Container.Ordered, Container.Indexed, Container.PropertySetChangeNotifier, Container.ItemSetChangeNotifier, Connectable {
 
-    private QueryList<? extends T> queryList;
-    private long totalSize = -1;
-
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<>();
     private PropertyExtractor<? super T> propertyExtractor;
+
+    private final HashMap<Integer, BackedItem<T>> itemMap = new HashMap<>();
+    private QueryList<? extends T> queryList;
+    private long totalSize = -1;
 
 // Constructors
 
@@ -304,6 +305,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
      */
     protected void invalidate() {
         this.queryList = null;
+        this.itemMap.clear();
     }
 
     /**
@@ -409,7 +411,12 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
         T obj = this.getJavaObject(index);
         if (obj == null)
             return null;
-        return this.createBackedItem(obj, this.propertyMap.values(), this);
+        BackedItem<T> item = this.itemMap.get(index);
+        if (item == null) {
+            item = this.createBackedItem(obj, this.propertyMap.values(), this);
+            this.itemMap.put(index, item);
+        }
+        return item;
     }
 
     @Override
