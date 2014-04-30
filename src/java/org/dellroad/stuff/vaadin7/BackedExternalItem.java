@@ -73,5 +73,13 @@ public class BackedExternalItem<T> extends SimpleItem<T> {
       PropertyDef<V> propertyDef, PropertyExtractor<? super T> propertyExtractor) {
         return new BackedExternalProperty<T, V>(this.registry, object, propertyDef, propertyExtractor);
     }
+
+    /**
+     * {@linkplain ExternalProperty#getValue Access} all properties in this item so the property values are cached and ready.
+     */
+    public void loadPropertyValues() {
+        for (Object propertyId : this.getItemPropertyIds())
+            this.getItemProperty(propertyId).getValue();
+    }
 }
 
