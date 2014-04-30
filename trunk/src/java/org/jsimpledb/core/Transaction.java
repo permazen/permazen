@@ -2172,7 +2172,7 @@ public class Transaction {
     public interface Callback {
 
         /**
-         * Invoked before transaction commit (and before any {@link #beforeCompletion}).
+         * Invoked before transaction commit (and before {@link #beforeCompletion}).
          * This method is invoked when a transaction is intended to be committed; it may however still be rolled back.
          *
          * <p>
@@ -2196,7 +2196,7 @@ public class Transaction {
         void beforeCompletion();
 
         /**
-         * Invoked after successful transaction commit (and before any {@link #afterCompletion #afterCompletion()}).
+         * Invoked after successful transaction commit (and before {@link #afterCompletion afterCompletion()}).
          *
          * <p>
          * Any exceptions thrown will propagate to the caller.
