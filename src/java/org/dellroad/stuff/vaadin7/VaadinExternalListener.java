@@ -11,6 +11,8 @@ import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.VaadinSession;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * Support superclass customized for use by listeners that are part of a Vaadin application when listening
  * to non-Vaadin ("external") event sources.
@@ -171,10 +173,21 @@ public abstract class VaadinExternalListener<S> {
      * @param action action to perform
      * @see VaadinUtil#invoke
      */
-    protected void handleEvent(Runnable action) {
-        if (this.asynchronous)
-            VaadinUtil.invokeLater(this.getSession(), action);
-        else
+    protected void handleEvent(final Runnable action) {
+        if (this.asynchronous) {
+            VaadinUtil.invokeLater(this.getSession(), new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        action.run();
+                    } catch (RuntimeException e) {
+                        LoggerFactory.getLogger(VaadinExternalListener.this.getClass()).error(
+                          "exception in asynchrnous listener", e);
+                        throw e;
+                    }
+                }
+            });
+        } else
             VaadinUtil.invoke(this.getSession(), action);
     }
 
