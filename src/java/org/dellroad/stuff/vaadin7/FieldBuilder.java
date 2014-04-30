@@ -169,7 +169,21 @@ public class FieldBuilder {
         final ArrayList<Method> getterList = new ArrayList<>();
         final HashMap<String, Method> getterMap = new HashMap<>();
         for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
-            final Method method = propertyDescriptor.getReadMethod();
+            Method method = propertyDescriptor.getReadMethod();
+
+            // Work around Introspector stupidity where it returns overridden superclass' getter method
+            if (method.getClass() != bean.getClass()) {
+                for (Class<?> c = bean.getClass(); c != null && c != method.getClass(); c = c.getSuperclass()) {
+                    try {
+                        method = c.getDeclaredMethod(method.getName(), method.getParameterTypes());
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    break;
+                }
+            }
+
+            // Add getter, if appropriate
             if (method != null && method.getReturnType() != void.class && method.getParameterTypes().length == 0)
                 getterMap.put(propertyDescriptor.getName(), method);
         }
