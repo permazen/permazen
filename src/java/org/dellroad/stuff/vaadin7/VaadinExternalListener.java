@@ -53,6 +53,8 @@ public abstract class VaadinExternalListener<S> {
     private final VaadinSession session;
     private final CloseListener closeListener = new CloseListener();
 
+    private volatile boolean asynchronous;
+
     /**
      * Convenience constructor. Equivalent to:
      * <blockquote>
@@ -100,6 +102,23 @@ public abstract class VaadinExternalListener<S> {
     }
 
     /**
+     * Determine whether this instance is configured for asynchronous notification. Default false.
+     */
+    public boolean isAsynchronous() {
+        return this.asynchronous;
+    }
+
+    /**
+     * Set whether to notify asynchronously. If set, {@link VaadinUtil#invokeLater VaadinUtil.invokeLater()} will
+     * be used for notifications, so that these occur on a different thread from the original notifying thread.
+     *
+     * @see #handleEvent(Runnable) handleEvent()
+     */
+    public void setAsynchronous(boolean asynchronous) {
+        this.asynchronous = asynchronous;
+    }
+
+    /**
      * Register as a listener on configured event source.
      *
      * <p>
@@ -140,13 +159,23 @@ public abstract class VaadinExternalListener<S> {
      * Execute the given listener action using the {@link VaadinSession} with which this instance is associated.
      *
      * <p>
-     * Subclass listener methods should handle events using this method to ensure proper locking to avoid race conditions.
+     * Subclass listener methods should handle events by invoking this method to ensure proper locking to avoid race conditions.
+     * </p>
+     *
+     * <p>
+     * This method delegates to {@link VaadinUtil#invoke VaadinUtil.invoke()}, or
+     * {@link VaadinUtil#invokeLater VaadinUtil.invokeLater()} if this instance is configured to be
+     * {@linkplain #setAsynchronous asynchronous}.
+     * </p>
      *
      * @param action action to perform
      * @see VaadinUtil#invoke
      */
     protected void handleEvent(Runnable action) {
-        VaadinUtil.invoke(this.getSession(), action);
+        if (this.asynchronous)
+            VaadinUtil.invokeLater(this.getSession(), action);
+        else
+            VaadinUtil.invoke(this.getSession(), action);
     }
 
     /**
