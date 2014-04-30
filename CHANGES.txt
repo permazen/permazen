@@ -4,7 +4,7 @@ Version Next
     - Remove HardLink; obsoleted by Files.createLink()
     - Remove unnecessary parameter to VaadinApplicationListener
       NOTE: the above are backward-incompatible changes
-    - Added ExternalPropertyRegistry and related classes
+    - Allow container SimpleItem's to be modified from "below"
     - Added StreamWriterAction
     - Added Connectable
     - Minor bug fixes

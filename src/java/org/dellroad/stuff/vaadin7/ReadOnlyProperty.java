@@ -171,10 +171,12 @@ public abstract class ReadOnlyProperty<V> implements
 
     @Override
     public void addReadOnlyStatusChangeListener(Property.ReadOnlyStatusChangeListener listener) {
+        // nothing to do - read-only status never changes
     }
 
     @Override
     public void removeReadOnlyStatusChangeListener(Property.ReadOnlyStatusChangeListener listener) {
+        // nothing to do - read-only status never changes
     }
 
     @Override
