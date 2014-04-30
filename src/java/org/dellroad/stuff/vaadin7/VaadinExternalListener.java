@@ -24,7 +24,7 @@ import com.vaadin.server.VaadinSession;
  * <p>
  * Use of this class will ensure two things:
  * <ul>
- *  <li>Events can be delivered {@linkplain VaadinUtil#invoke in the proper Vaadin application context}; and</li>
+ *  <li>Events are delivered {@linkplain VaadinUtil#invoke in the proper Vaadin application context}; and</li>
  *  <li>The listener is automatically unregistered from the external event source when the Vaadin application is closed,
  *      avoiding a memory leak</li>
  * </ul>
