@@ -160,7 +160,7 @@ public class SpringVaadinServlet extends VaadinServlet {
     public static final String MAX_SESSIONS_PARAMETER = "maxSessions";
 
     // We use weak references to avoid leaks caused by exceptions in SessionInitListeners; see http://dev.vaadin.com/ticket/12915
-    private final WeakHashMap<VaadinSession, Void> liveSessions = new WeakHashMap<VaadinSession, Void>();
+    private final WeakHashMap<VaadinSession, Void> liveSessions = new WeakHashMap<>();
 
     private String servletName;
 

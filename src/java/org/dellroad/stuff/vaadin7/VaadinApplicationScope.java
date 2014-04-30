@@ -49,7 +49,7 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
      */
     public static final String SCOPE_NAME = "vaadinApplication";
 
-    private final HashMap<VaadinSession, SessionBeanHolder> beanHolders = new HashMap<VaadinSession, SessionBeanHolder>();
+    private final HashMap<VaadinSession, SessionBeanHolder> beanHolders = new HashMap<>();
 
 // BeanFactoryPostProcessor methods
 
@@ -121,8 +121,8 @@ public class VaadinApplicationScope implements Scope, BeanFactoryPostProcessor, 
 
     private static class SessionBeanHolder {
 
-        private final HashMap<String, Object> beans = new HashMap<String, Object>();
-        private final HashMap<String, Runnable> destructionCallbacks = new HashMap<String, Runnable>();
+        private final HashMap<String, Object> beans = new HashMap<>();
+        private final HashMap<String, Runnable> destructionCallbacks = new HashMap<>();
 
         public Object getBean(String name, ObjectFactory<?> objectFactory) {
             Object bean = this.beans.get(name);

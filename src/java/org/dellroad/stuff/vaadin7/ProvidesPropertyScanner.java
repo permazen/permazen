@@ -31,7 +31,7 @@ import org.dellroad.stuff.java.Primitive;
  */
 public class ProvidesPropertyScanner<T> {
 
-    private final ArrayList<PropertyDef<?>> propertyList = new ArrayList<PropertyDef<?>>();
+    private final ArrayList<PropertyDef<?>> propertyList = new ArrayList<>();
     private final SortingPropertyExtractor<T> propertyExtractor;
 
     /**
@@ -57,8 +57,7 @@ public class ProvidesPropertyScanner<T> {
           = new MethodAnnotationScanner<T, ProvidesPropertySort>(type, ProvidesPropertySort.class).findAnnotatedMethods();
 
         // Check for duplicate @ProvidesProperty names
-        final HashMap<String, MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo> providesPropertyNameMap
-          = new HashMap<String, MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo>();
+        final HashMap<String, MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo> providesPropertyNameMap = new HashMap<>();
         for (MethodAnnotationScanner<T, ProvidesProperty>.MethodInfo methodInfo : providesPropertyMethods) {
             final String propertyName = this.getPropertyName(methodInfo);
 
@@ -85,7 +84,7 @@ public class ProvidesPropertyScanner<T> {
 
         // Check for duplicate @ProvidesPropertySort names, etc.
         final HashMap<String, MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo> providesPropertySortNameMap
-          = new HashMap<String, MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo>();
+          = new HashMap<>();
         for (MethodAnnotationScanner<T, ProvidesPropertySort>.MethodInfo methodInfo : providesPropertySortMethods) {
             final String propertyName = this.getSortPropertyName(methodInfo);
 

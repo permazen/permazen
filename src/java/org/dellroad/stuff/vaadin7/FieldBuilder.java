@@ -166,8 +166,8 @@ public class FieldBuilder {
         } catch (IntrospectionException e) {
             throw new RuntimeException("unexpected exception", e);
         }
-        final ArrayList<Method> getterList = new ArrayList<Method>();
-        final HashMap<String, Method> getterMap = new HashMap<String, Method>();
+        final ArrayList<Method> getterList = new ArrayList<>();
+        final HashMap<String, Method> getterMap = new HashMap<>();
         for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
             final Method method = propertyDescriptor.getReadMethod();
             if (method != null && method.getReturnType() != void.class && method.getParameterTypes().length == 0)
@@ -175,7 +175,7 @@ public class FieldBuilder {
         }
 
         // Scan getters for FieldBuilder.* annotations other than FieldBuidler.ProvidesField
-        final HashMap<String, com.vaadin.ui.AbstractField<?>> map = new HashMap<String, com.vaadin.ui.AbstractField<?>>();
+        final HashMap<String, com.vaadin.ui.AbstractField<?>> map = new HashMap<>();
         for (Map.Entry<String, Method> entry : getterMap.entrySet()) {
             final String propertyName = entry.getKey();
             final Method method = entry.getValue();
@@ -190,7 +190,7 @@ public class FieldBuilder {
         }
 
         // Scan all methods for @FieldBuidler.ProvidesField annotations
-        final HashMap<String, Method> providerMap = new HashMap<String, Method>();
+        final HashMap<String, Method> providerMap = new HashMap<>();
         for (Method method : bean.getClass().getDeclaredMethods()) {
             if (method.getReturnType() == void.class || method.getParameterTypes().length > 0)
                 continue;
@@ -299,7 +299,7 @@ public class FieldBuilder {
             throw new IllegalArgumentException("null bean");
 
         // Create field group
-        final BeanFieldGroup<T> fieldGroup = new BeanFieldGroup<T>((Class<T>)bean.getClass());
+        final BeanFieldGroup<T> fieldGroup = new BeanFieldGroup<>((Class<T>)bean.getClass());
         fieldGroup.setItemDataSource(bean);
         new FieldBuilder().buildAndBind(fieldGroup);
         return fieldGroup;
@@ -328,7 +328,7 @@ public class FieldBuilder {
         };
 
         // Sanity check for duplicates and conflicts
-        final ArrayList<AnnotationApplier<?, ?>> applierList = new ArrayList<AnnotationApplier<?, ?>>(appliers);
+        final ArrayList<AnnotationApplier<?, ?>> applierList = new ArrayList<>(appliers);
         Collections.sort(applierList, comparator);
         for (int i = 0; i < applierList.size() - 1; ) {
             final AnnotationApplier<?, ?> a1 = applierList.get(i);
@@ -427,7 +427,7 @@ public class FieldBuilder {
             throw new IllegalArgumentException("method takes parameters");
 
         // Recurse
-        final ArrayList<AnnotationApplier<?, ?>> list = new ArrayList<AnnotationApplier<?, ?>>();
+        final ArrayList<AnnotationApplier<?, ?>> list = new ArrayList<>();
         this.buildApplierList(method.getDeclaringClass(), method.getName(), list);
         return list;
     }
@@ -468,7 +468,7 @@ public class FieldBuilder {
             throw new IllegalArgumentException("null member");
 
         // Build list
-        final ArrayList<AnnotationApplier<?, ?>> list = new ArrayList<AnnotationApplier<?, ?>>();
+        final ArrayList<AnnotationApplier<?, ?>> list = new ArrayList<>();
         for (Annotation annotation : member.getDeclaredAnnotations()) {
             final AnnotationApplier<? extends Annotation, ?> applier = this.getAnnotationApplier(annotation);
             if (applier != null)

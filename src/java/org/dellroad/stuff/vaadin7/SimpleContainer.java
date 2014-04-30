@@ -23,7 +23,7 @@ import java.util.Collection;
 @SuppressWarnings("serial")
 public class SimpleContainer<T> extends AbstractSimpleContainer<Integer, T> {
 
-    private ArrayList<T> items = new ArrayList<T>(0);
+    private ArrayList<T> items = new ArrayList<>(0);
 
     /**
      * Constructor.
@@ -113,7 +113,7 @@ public class SimpleContainer<T> extends AbstractSimpleContainer<Integer, T> {
 
     @Override
     protected void resetItemIds() {
-        this.items = new ArrayList<T>();
+        this.items = new ArrayList<>();
     }
 
     @Override

@@ -48,7 +48,7 @@ import java.util.Set;
 public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryContainer<I, String, BackedItem<T>>
   implements PropertyExtractor<T>, Container.Filterable, Container.SimpleFilterable, Container.Sortable, Connectable {
 
-    private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
+    private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<>();
     private PropertyExtractor<? super T> propertyExtractor;
 
 // Constructors
@@ -477,7 +477,7 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 
     @Override
     public Collection<?> getSortableContainerPropertyIds() {
-        final ArrayList<String> propertyIds = new ArrayList<String>(this.propertyMap.size());
+        final ArrayList<String> propertyIds = new ArrayList<>(this.propertyMap.size());
         for (Map.Entry<String, PropertyDef<?>> entry : this.propertyMap.entrySet()) {
             if (this.propertyExtractor instanceof SortingPropertyExtractor) {
                 final SortingPropertyExtractor<? super T> sortingPropertyExtractor

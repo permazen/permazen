@@ -36,11 +36,11 @@ public class EnumContainer<T extends Enum<T>> extends SelfKeyedContainer<T> {
     public static final String ORDINAL_PROPERTY = "ordinal";
     public static final String TO_STRING_PROPERTY = "toString";
 
-    private static final PropertyDef<String> NAME_PROPERTY_DEF = new PropertyDef<String>(NAME_PROPERTY, String.class);
+    private static final PropertyDef<String> NAME_PROPERTY_DEF = new PropertyDef<>(NAME_PROPERTY, String.class);
     @SuppressWarnings("rawtypes")
-    private static final PropertyDef<Enum> VALUE_PROPERTY_DEF = new PropertyDef<Enum>(VALUE_PROPERTY, Enum.class);
-    private static final PropertyDef<Integer> ORDINAL_PROPERTY_DEF = new PropertyDef<Integer>(ORDINAL_PROPERTY, Integer.class);
-    private static final PropertyDef<String> TO_STRING_PROPERTY_DEF = new PropertyDef<String>(TO_STRING_PROPERTY, String.class);
+    private static final PropertyDef<Enum> VALUE_PROPERTY_DEF = new PropertyDef<>(VALUE_PROPERTY, Enum.class);
+    private static final PropertyDef<Integer> ORDINAL_PROPERTY_DEF = new PropertyDef<>(ORDINAL_PROPERTY, Integer.class);
+    private static final PropertyDef<String> TO_STRING_PROPERTY_DEF = new PropertyDef<>(TO_STRING_PROPERTY, String.class);
 
     /**
      * Constructor.

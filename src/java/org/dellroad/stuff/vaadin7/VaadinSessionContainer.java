@@ -196,7 +196,7 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
             throw new IllegalStateException("inside locked VaadinSession");
 
         // Snapshot the set of sessions in this container while holding the lock to this container's session
-        final ArrayList<T> sessionInfoList = new ArrayList<T>();
+        final ArrayList<T> sessionInfoList = new ArrayList<>();
         VaadinSessionContainer.this.session.accessSynchronously(new Runnable() {
             @Override
             public void run() {
@@ -242,7 +242,7 @@ public abstract class VaadinSessionContainer<T extends VaadinSessionInfo> extend
             throw new IllegalStateException("inside locked VaadinSession");
 
         // Create a VaadinSessionInfo object for each session, but doing so while that session is locked
-        final ArrayList<T> sessionInfoList = new ArrayList<T>();
+        final ArrayList<T> sessionInfoList = new ArrayList<>();
         for (VaadinSession otherSession : SpringVaadinServlet.getServlet(this.session).getSessions()) {
             otherSession.accessSynchronously(new Runnable() {
                 @Override

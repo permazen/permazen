@@ -25,7 +25,7 @@ import java.util.HashMap;
 @SuppressWarnings("serial")
 public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer<I, T> {
 
-    private HashMap<I, T> objectMap = new HashMap<I, T>(0);
+    private HashMap<I, T> objectMap = new HashMap<>(0);
 
     /**
      * Constructor.
@@ -167,7 +167,7 @@ public abstract class SimpleKeyedContainer<I, T> extends AbstractSimpleContainer
 
     @Override
     protected void resetItemIds() {
-        this.objectMap = new HashMap<I, T>();
+        this.objectMap = new HashMap<>();
     }
 
     @Override

@@ -87,7 +87,7 @@ public abstract class AbstractQueryContainer<T> extends AbstractContainer implem
     private QueryList<? extends T> queryList;
     private long totalSize = -1;
 
-    private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<String, PropertyDef<?>>();
+    private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<>();
     private PropertyExtractor<? super T> propertyExtractor;
 
 // Constructors
