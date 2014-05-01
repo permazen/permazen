@@ -7,6 +7,5 @@
 
 - KVStore extension supporting FDB watches
 
-- @IndexQuery taking min & max values and returning Iterable
-    - Doesn't require result to all fit into memory
+- Add iterator to KV API
 
