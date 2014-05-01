@@ -49,6 +49,8 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
   implements PropertyExtractor<T>, Container.Filterable, Container.SimpleFilterable, Container.Sortable, Connectable {
 
     private final HashMap<String, PropertyDef<?>> propertyMap = new HashMap<>();
+    private final HashMap<Object, BackedItem<T>> itemMap = new HashMap<>();
+
     private PropertyExtractor<? super T> propertyExtractor;
 
 // Constructors
@@ -248,6 +250,12 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         this.fireItemSetChange();
     }
 
+    @Override
+    protected void internalRemoveAllItems() {
+        super.internalRemoveAllItems();
+        this.itemMap.clear();
+    }
+
     /**
      * Get the container item ID corresponding to the given underlying Java object which is wrapped by this container.
      * Objects are tested for equality using {@link Object#equals Object.equals()}.
@@ -379,7 +387,12 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
         final T obj = this.getJavaObject(itemId);
         if (obj == null)
             return null;
-        return this.createBackedItem(obj, this.propertyMap.values(), this);
+        BackedItem<T> item = this.itemMap.get(itemId);
+        if (item == null) {
+            item = this.createBackedItem(obj, this.propertyMap.values(), this);
+            this.itemMap.put(itemId, item);
+        }
+        return item;
     }
 
 // Subclass methods
