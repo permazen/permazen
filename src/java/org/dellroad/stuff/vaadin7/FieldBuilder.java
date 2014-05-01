@@ -34,7 +34,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -460,7 +459,7 @@ public class FieldBuilder {
             method = null;
         }
         if (method != null)
-            list.addAll(this.buildApplierList((AccessibleObject)method));
+            list.addAll(this.buildDirectApplierList(method));
 
         // Recurse on interfaces
         for (Class<?> iface : type.getInterfaces())
@@ -471,20 +470,21 @@ public class FieldBuilder {
     }
 
     /**
-     * Find all relevant annotations declared directly on the given {@link AccessibleObject}.
+     * Find all relevant annotations declared directly on the given {@link Method}.
      *
-     * @throws IllegalArgumentException if {@code member} is null
+     * @param method method to inspect
+     * @throws IllegalArgumentException if {@code method} is null
      */
-    protected List<AnnotationApplier<?, ?>> buildApplierList(AccessibleObject member) {
+    protected List<AnnotationApplier<?, ?>> buildDirectApplierList(Method method) {
 
         // Sanity check
-        if (member == null)
-            throw new IllegalArgumentException("null member");
+        if (method == null)
+            throw new IllegalArgumentException("null method");
 
         // Build list
         final ArrayList<AnnotationApplier<?, ?>> list = new ArrayList<>();
-        for (Annotation annotation : member.getDeclaredAnnotations()) {
-            final AnnotationApplier<? extends Annotation, ?> applier = this.getAnnotationApplier(annotation);
+        for (Annotation annotation : method.getDeclaredAnnotations()) {
+            final AnnotationApplier<? extends Annotation, ?> applier = this.getAnnotationApplier(method, annotation);
             if (applier != null)
                 list.add(applier);
         }
@@ -497,29 +497,29 @@ public class FieldBuilder {
      *
      * @return corresponding {@link AnnotationApplier}, or null if annotation is unknown
      */
-    protected AnnotationApplier<?, ?> getAnnotationApplier(Annotation annotation) {
+    protected AnnotationApplier<?, ?> getAnnotationApplier(Method method, Annotation annotation) {
         if (annotation instanceof FieldBuilder.AbstractField)
-            return new AbstractFieldApplier((FieldBuilder.AbstractField)annotation);
+            return new AbstractFieldApplier(method, (FieldBuilder.AbstractField)annotation);
         if (annotation instanceof FieldBuilder.AbstractSelect)
-            return new AbstractSelectApplier((FieldBuilder.AbstractSelect)annotation);
+            return new AbstractSelectApplier(method, (FieldBuilder.AbstractSelect)annotation);
         if (annotation instanceof FieldBuilder.CheckBox)
-            return new CheckBoxApplier((FieldBuilder.CheckBox)annotation);
+            return new CheckBoxApplier(method, (FieldBuilder.CheckBox)annotation);
         if (annotation instanceof FieldBuilder.ComboBox)
-            return new ComboBoxApplier((FieldBuilder.ComboBox)annotation);
+            return new ComboBoxApplier(method, (FieldBuilder.ComboBox)annotation);
         if (annotation instanceof FieldBuilder.EnumComboBox)
-            return new EnumComboBoxApplier((FieldBuilder.EnumComboBox)annotation);
+            return new EnumComboBoxApplier(method, (FieldBuilder.EnumComboBox)annotation);
         if (annotation instanceof FieldBuilder.ListSelect)
-            return new ListSelectApplier((FieldBuilder.ListSelect)annotation);
+            return new ListSelectApplier(method, (FieldBuilder.ListSelect)annotation);
         if (annotation instanceof FieldBuilder.DateField)
-            return new DateFieldApplier((FieldBuilder.DateField)annotation);
+            return new DateFieldApplier(method, (FieldBuilder.DateField)annotation);
         if (annotation instanceof FieldBuilder.AbstractTextField)
-            return new AbstractTextFieldApplier((FieldBuilder.AbstractTextField)annotation);
+            return new AbstractTextFieldApplier(method, (FieldBuilder.AbstractTextField)annotation);
         if (annotation instanceof FieldBuilder.TextField)
-            return new TextFieldApplier((FieldBuilder.TextField)annotation);
+            return new TextFieldApplier(method, (FieldBuilder.TextField)annotation);
         if (annotation instanceof FieldBuilder.TextArea)
-            return new TextAreaApplier((FieldBuilder.TextArea)annotation);
+            return new TextAreaApplier(method, (FieldBuilder.TextArea)annotation);
         if (annotation instanceof FieldBuilder.PasswordField)
-            return new PasswordFieldApplier((FieldBuilder.PasswordField)annotation);
+            return new PasswordFieldApplier(method, (FieldBuilder.PasswordField)annotation);
         return null;
     }
 
@@ -530,16 +530,24 @@ public class FieldBuilder {
      */
     protected abstract static class AnnotationApplier<A extends Annotation, F extends com.vaadin.ui.AbstractField<?>> {
 
+        protected final Method method;
         protected final A annotation;
         protected final Class<F> fieldType;
 
-        protected AnnotationApplier(A annotation, Class<F> fieldType) {
+        protected AnnotationApplier(Method method, A annotation, Class<F> fieldType) {
+            if (method == null)
+                throw new IllegalArgumentException("null method");
             if (annotation == null)
                 throw new IllegalArgumentException("null annotation");
             if (fieldType == null)
                 throw new IllegalArgumentException("null fieldType");
+            this.method = method;
             this.annotation = annotation;
             this.fieldType = fieldType;
+        }
+
+        public final Method getMethod() {
+            return this.method;
         }
 
         public final A getAnnotation() {
@@ -562,8 +570,8 @@ public class FieldBuilder {
       extends AnnotationApplier<FieldBuilder.AbstractField, com.vaadin.ui.AbstractField<?>> {
 
         @SuppressWarnings("unchecked")
-        public AbstractFieldApplier(FieldBuilder.AbstractField annotation) {
-            super(annotation, (Class<com.vaadin.ui.AbstractField<?>>)(Object)com.vaadin.ui.AbstractField.class);
+        public AbstractFieldApplier(Method method, FieldBuilder.AbstractField annotation) {
+            super(method, annotation, (Class<com.vaadin.ui.AbstractField<?>>)(Object)com.vaadin.ui.AbstractField.class);
         }
 
         @Override
@@ -612,8 +620,8 @@ public class FieldBuilder {
     private static class AbstractSelectApplier
       extends AnnotationApplier<FieldBuilder.AbstractSelect, com.vaadin.ui.AbstractSelect> {
 
-        public AbstractSelectApplier(FieldBuilder.AbstractSelect annotation) {
-            super(annotation, com.vaadin.ui.AbstractSelect.class);
+        public AbstractSelectApplier(Method method, FieldBuilder.AbstractSelect annotation) {
+            super(method, annotation, com.vaadin.ui.AbstractSelect.class);
         }
 
         @Override
@@ -641,8 +649,8 @@ public class FieldBuilder {
      */
     private static class CheckBoxApplier extends AnnotationApplier<FieldBuilder.CheckBox, com.vaadin.ui.CheckBox> {
 
-        public CheckBoxApplier(FieldBuilder.CheckBox annotation) {
-            super(annotation, com.vaadin.ui.CheckBox.class);
+        public CheckBoxApplier(Method method, FieldBuilder.CheckBox annotation) {
+            super(method, annotation, com.vaadin.ui.CheckBox.class);
         }
 
         @Override
@@ -660,8 +668,8 @@ public class FieldBuilder {
      */
     private static class ComboBoxApplier extends AnnotationApplier<FieldBuilder.ComboBox, com.vaadin.ui.ComboBox> {
 
-        public ComboBoxApplier(FieldBuilder.ComboBox annotation) {
-            super(annotation, com.vaadin.ui.ComboBox.class);
+        public ComboBoxApplier(Method method, FieldBuilder.ComboBox annotation) {
+            super(method, annotation, com.vaadin.ui.ComboBox.class);
         }
 
         @Override
@@ -687,8 +695,8 @@ public class FieldBuilder {
     private static class EnumComboBoxApplier
       extends AnnotationApplier<FieldBuilder.EnumComboBox, org.dellroad.stuff.vaadin7.EnumComboBox> {
 
-        public EnumComboBoxApplier(FieldBuilder.EnumComboBox annotation) {
-            super(annotation, org.dellroad.stuff.vaadin7.EnumComboBox.class);
+        public EnumComboBoxApplier(Method method, FieldBuilder.EnumComboBox annotation) {
+            super(method, annotation, org.dellroad.stuff.vaadin7.EnumComboBox.class);
         }
 
         @Override
@@ -697,10 +705,17 @@ public class FieldBuilder {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         public void applyTo(org.dellroad.stuff.vaadin7.EnumComboBox field) {
-            if (this.annotation.enumClass() != Enum.class)
-                field.setEnumDataSource(this.annotation.enumClass());
+            Class<? extends Enum> enumClass = this.annotation.enumClass();
+            if (enumClass == Enum.class) {
+                try {
+                    enumClass = this.method.getReturnType().asSubclass(Enum.class);
+                } catch (ClassCastException e) {
+                    throw new IllegalArgumentException("invalid @EnumComboBox annotation on non-Enum method " + this.getMethod());
+                }
+            }
+            field.setEnumDataSource(enumClass);
         }
     }
 
@@ -709,8 +724,8 @@ public class FieldBuilder {
      */
     private static class ListSelectApplier extends AnnotationApplier<FieldBuilder.ListSelect, com.vaadin.ui.ListSelect> {
 
-        public ListSelectApplier(FieldBuilder.ListSelect annotation) {
-            super(annotation, com.vaadin.ui.ListSelect.class);
+        public ListSelectApplier(Method method, FieldBuilder.ListSelect annotation) {
+            super(method, annotation, com.vaadin.ui.ListSelect.class);
         }
 
         @Override
@@ -730,8 +745,8 @@ public class FieldBuilder {
      */
     private static class DateFieldApplier extends AnnotationApplier<FieldBuilder.DateField, com.vaadin.ui.DateField> {
 
-        public DateFieldApplier(FieldBuilder.DateField annotation) {
-            super(annotation, com.vaadin.ui.DateField.class);
+        public DateFieldApplier(Method method, FieldBuilder.DateField annotation) {
+            super(method, annotation, com.vaadin.ui.DateField.class);
         }
 
         @Override
@@ -761,8 +776,8 @@ public class FieldBuilder {
     private static class AbstractTextFieldApplier
       extends AnnotationApplier<FieldBuilder.AbstractTextField, com.vaadin.ui.AbstractTextField> {
 
-        public AbstractTextFieldApplier(FieldBuilder.AbstractTextField annotation) {
-            super(annotation, com.vaadin.ui.AbstractTextField.class);
+        public AbstractTextFieldApplier(Method method, FieldBuilder.AbstractTextField annotation) {
+            super(method, annotation, com.vaadin.ui.AbstractTextField.class);
         }
 
         @Override
@@ -787,8 +802,8 @@ public class FieldBuilder {
      */
     private static class TextFieldApplier extends AnnotationApplier<FieldBuilder.TextField, com.vaadin.ui.TextField> {
 
-        public TextFieldApplier(FieldBuilder.TextField annotation) {
-            super(annotation, com.vaadin.ui.TextField.class);
+        public TextFieldApplier(Method method, FieldBuilder.TextField annotation) {
+            super(method, annotation, com.vaadin.ui.TextField.class);
         }
 
         @Override
@@ -806,8 +821,8 @@ public class FieldBuilder {
      */
     private static class TextAreaApplier extends AnnotationApplier<FieldBuilder.TextArea, com.vaadin.ui.TextArea> {
 
-        public TextAreaApplier(FieldBuilder.TextArea annotation) {
-            super(annotation, com.vaadin.ui.TextArea.class);
+        public TextAreaApplier(Method method, FieldBuilder.TextArea annotation) {
+            super(method, annotation, com.vaadin.ui.TextArea.class);
         }
 
         @Override
@@ -829,8 +844,8 @@ public class FieldBuilder {
      */
     private static class PasswordFieldApplier extends AnnotationApplier<FieldBuilder.PasswordField, com.vaadin.ui.PasswordField> {
 
-        public PasswordFieldApplier(FieldBuilder.PasswordField annotation) {
-            super(annotation, com.vaadin.ui.PasswordField.class);
+        public PasswordFieldApplier(Method method, FieldBuilder.PasswordField annotation) {
+            super(method, annotation, com.vaadin.ui.PasswordField.class);
         }
 
         @Override
@@ -1179,15 +1194,12 @@ public class FieldBuilder {
         /**
          * Get the {@link org.dellroad.stuff.vaadin7.EnumComboBox} type that will edit the property.
          * Type must have a no-arg constructor.
-         *
-         * <p>
-         * Although this property has a default value, it must be overridden in this annotation.
-         * </p>
          */
         Class<? extends org.dellroad.stuff.vaadin7.EnumComboBox> type() default org.dellroad.stuff.vaadin7.EnumComboBox.class;
 
         /**
-         * Get the {@link Enum} type to choose from.
+         * Get the {@link Enum} type to choose from. If left as default, the type will be inferred from
+         * the getter method return type, which must be an {@link Enum} type.
          *
          * @see org.dellroad.stuff.vaadin7.EnumComboBox#setEnumDataSource
          */
