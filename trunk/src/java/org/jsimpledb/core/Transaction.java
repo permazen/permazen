@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.jsimpledb.kv.CountingKVStore;
+import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -64,6 +66,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #create(int) create()} - Create a database object</li>
  *  <li>{@link #delete delete()} - Delete a database object</li>
  *  <li>{@link #exists exists()} - Test whether a database object exists</li>
+ *  <li>{@link #snapshot snapshot()} - Snapshot an object by copying it into a different transaction</li>
  *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects</li>
  *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}</li>
  *  <li>{@link #addDeleteListener addDeleteListener()} - Register a {@link DeleteListener} for notifications
@@ -681,6 +684,75 @@ public class Transaction {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Snapshot the specified object by copying it into a different transaction. This only copies the object
+     * and its fields; any other objects it references are not copied. The object must not exist in {@code dest}.
+     * The copy is done by copying key/value pairs directly, so no field encoding/decoding is required.
+     *
+     * <p>
+     * Note: if two threads attempt to snapshot objects between the same two transactions in opposite directions,
+     * deadlock may result.
+     * </p>
+     *
+     * @param id object ID of the object to copy
+     * @param dest destination for the snapshot
+     * @return true if object was copied, false if object already existed in {@code dest}, in which case no changes were made
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
+     * @throws IllegalArgumentException if {@code id} is null
+     * @throws SchemaMismatchException if the schema version corresponding to the object is not identical in both transactions
+     */
+    public synchronized boolean snapshot(ObjId id, Transaction dest) {
+        synchronized (dest) {
+
+            // Get object info
+            final ObjInfo info = this.getObjectInfo(id, false);
+            final int objectVersion = info.getVersionNumber();
+
+            // Verify object's schema version in dest exists and is identical
+            final SchemaVersion destSchema;
+            try {
+                destSchema = dest.schema.getVersion(objectVersion);
+            } catch (IllegalArgumentException e) {
+                throw new SchemaMismatchException("destination transaction has no schema version " + objectVersion);
+            }
+            if (!Arrays.equals(this.version.encodedXML, dest.version.encodedXML))
+                throw new SchemaMismatchException("destination transaction schema version " + objectVersion + " does not match");
+
+            // Does object already exists in dest?
+            final byte[] minKey = id.getBytes();
+            if (dest.kvt.get(minKey) != null)
+                return false;
+
+            // Copy object meta-data and all simple field and counter content
+            final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
+            for (Iterator<KVPair> i = this.kvt.getRange(minKey, maxKey, false); i.hasNext(); ) {
+                final KVPair kv = i.next();
+                dest.kvt.put(kv.getKey(), kv.getValue());
+            }
+
+            // Copy object's simple field index entries
+            final ObjType type = info.getObjType();
+            for (SimpleField<?> field : type.simpleFields.values()) {
+                if (field.indexed) {
+                    final byte[] fieldValue = dest.kvt.get(field.buildKey(id));    // might be null (if field has default value)
+                    final byte[] indexKey = field.buildIndexKey(id, fieldValue);
+                    dest.kvt.put(indexKey, ByteUtil.EMPTY);
+                }
+            }
+
+            // Copy object's complex field index entries
+            for (ComplexField<?> field : type.complexFields.values()) {
+                for (SimpleField<?> subField : field.getSubFields()) {
+                    if (subField.indexed)
+                        field.addIndexEntries(dest, id, subField);
+                }
+            }
+
+            // Done
+            return true;
+        }
     }
 
     /**
