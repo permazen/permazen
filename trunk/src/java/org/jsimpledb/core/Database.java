@@ -10,13 +10,13 @@ package org.jsimpledb.core;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ByteReader;
@@ -293,7 +293,8 @@ public class Database {
 
                 // Read existing database schema versions
                 final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
-                for (KVPairIterator i = new KVPairIterator(kvt, SCHEMA_KEY_PREFIX); i.hasNext(); ) {
+                for (Iterator<KVPair> i = kvt.getRange(SCHEMA_KEY_PREFIX, ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);
+                  i.hasNext(); ) {
                     final KVPair pair = i.next();
                     final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
                     bytesMap.put(vers, pair.getValue());

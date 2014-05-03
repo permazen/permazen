@@ -7,8 +7,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Converter;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +36,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.util.XMLSerializer;
@@ -212,24 +209,5 @@ public abstract class TestSupport {
         pw.flush();
         return buf.toString();
     }
-
-// StringToByteArrayConverter
-
-    public static class StringToByteArrayConverter extends Converter<String, byte[]> {
-
-        @Override
-        public byte[] doForward(String s) {
-            if (s == null)
-                return null;
-            return ByteArrayEncoder.decode(s);
-        }
-
-        @Override
-        public String doBackward(byte[] b) {
-            if (b == null)
-                return null;
-            return ByteArrayEncoder.encode(b);
-        }
-    };
 }
 

@@ -7,6 +7,10 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
+
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -83,6 +87,25 @@ public class NavigableMapKVStore extends CountingKVStoreAdapter {
     public KVPair getAtMost(byte[] maxKey) {
         final Map.Entry<byte[], byte[]> entry = maxKey != null ? this.map.lowerEntry(maxKey) : this.map.lastEntry();
         return entry != null ? new KVPair(entry) : null;
+    }
+
+    @Override
+    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        NavigableMap<byte[], byte[]> rangeMap = this.map;
+        if (minKey != null && maxKey != null)
+            rangeMap = rangeMap.subMap(minKey, true, maxKey, false);
+        else if (minKey != null)
+            rangeMap = rangeMap.tailMap(minKey, true);
+        else if (maxKey != null)
+            rangeMap = rangeMap.headMap(maxKey, false);
+        if (reverse)
+            rangeMap = rangeMap.descendingMap();
+        return Iterators.transform(rangeMap.entrySet().iterator(), new Function<Map.Entry<byte[], byte[]>, KVPair>() {
+            @Override
+            public KVPair apply(Map.Entry<byte[], byte[]> entry) {
+                return new KVPair(entry.getKey(), entry.getValue());
+            }
+        });
     }
 
     @Override

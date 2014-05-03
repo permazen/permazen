@@ -7,12 +7,13 @@
 
 package org.jsimpledb.kv;
 
+import java.util.Iterator;
+
 /**
  * General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.
  *
  * <p>
- * For some implementations, accessing keys that start with {@code 0xff} is not supported and doing so
- * will result in {@link IllegalArgumentException}.
+ * Implementations of this interface are not required to support accessing keys that start with {@code 0xff}.
  * </p>
  */
 public interface KVStore {
@@ -52,6 +53,27 @@ public interface KVStore {
      * @return largest key/value pair with {@code key < maxKey}, or null if none exists
      */
     KVPair getAtMost(byte[] maxKey);
+
+    /**
+     * Iterate the key/value pairs in the specified range. The returned {@link Iterator}'s {@link Iterator#remove remove()}
+     * must be supported and should have the same effect as invoking {@link #remove remove()} on the corresponding key.
+     *
+     * <p>
+     * If keys starting with {@code 0xff} are not supported by this instance, and {@code minKey} starts with {@code 0xff},
+     * then this method returns an empty iteration.
+     * </p>
+     *
+     * <p>
+     * If keys starting with {@code 0xff} are not supported by this instance, and {@code maxKey} starts with {@code 0xff},
+     * then this method behaves as if {@code maxKey} were null.
+     * </p>
+     *
+     * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
+     * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
+     * @param reverse true to return key/value pairs in reverse order (i.e., keys descending)
+     * @return iteration of key/value pairs in the range {@code minKey} (inclusive) to {@code maxKey} (exclusive)
+     */
+    Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse);
 
     /**
      * Set the value associated with the given key.

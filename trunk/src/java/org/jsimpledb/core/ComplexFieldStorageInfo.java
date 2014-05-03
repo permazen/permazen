@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.util.ByteReader;
+import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
@@ -62,7 +62,8 @@ abstract class ComplexFieldStorageInfo extends FieldStorageInfo {
         target.writeTo(prefixWriter);
         final byte[] prefix = prefixWriter.getBytes();
         final int prefixLen = prefix.length;
-        for (Iterator<KVPair> i = new KVPairIterator(tx.kvt, prefix); i.hasNext(); ) {
+        final byte[] prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);
+        for (Iterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd, false); i.hasNext(); ) {
             final KVPair pair = i.next();
             final ByteReader indexEntryReader = new ByteReader(pair.getKey());
             indexEntryReader.skip(prefixLen);

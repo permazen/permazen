@@ -3,9 +3,23 @@
 
 - Only record new schema version in database on first mutation
 
-- More built-in field types
+- More built-in field types:
+    - Class
+    - File
+    - URI
+    - Pattern
+    - BigInteger, BigDecimal
+    - SimpleDateFormat
+    - BitSet
+    - InetAddress, Inet4Address, Inet6Address
+    - {Gregorian}Calendar?
+    - {Simple}TimeZone?
 
 - KVStore extension supporting FDB watches
 
-- Add iterator to KV API
+- Add "snapshot" functionality:
+    - Create transient in-memory database
+    - Only some part of object graph is copied
+
+- Add Vaadin GUI editor generator
 

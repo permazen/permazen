@@ -9,6 +9,7 @@ package org.jsimpledb.kv.util;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -19,7 +20,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.AbstractXMLStreaming;
 import org.jsimpledb.util.ByteUtil;
@@ -141,7 +141,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
     public void write(XMLStreamWriter writer, byte[] minKey, byte[] maxKey) throws XMLStreamException {
         writer.setDefaultNamespace(ENTRIES_TAG.getNamespaceURI());
         writer.writeStartElement(ENTRIES_TAG.getNamespaceURI(), ENTRIES_TAG.getLocalPart());
-        for (KVPairIterator i = new KVPairIterator(this.kv, minKey, maxKey); i.hasNext(); ) {
+        for (Iterator<KVPair> i = this.kv.getRange(minKey, maxKey, false); i.hasNext(); ) {
             writer.writeStartElement(ENTRY_TAG.getNamespaceURI(), ENTRY_TAG.getLocalPart());
             final KVPair pair = i.next();
             this.writeElement(writer, KEY_TAG, pair.getKey());
