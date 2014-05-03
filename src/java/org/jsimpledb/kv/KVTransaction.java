@@ -18,12 +18,14 @@ package org.jsimpledb.kv;
  * Instances may throw {@link KVTransactionException} during any operation if the transaction cannot be continued.
  * In particular, {@link StaleTransactionException} is thrown by a transaction that is no longer open, and
  * {@link RetryTransactionException} is thrown when the transaction should be retried due to a transient
- * problem (such as a write conflict with another transaction). Note that when {@link RetryTransactionException} is thrown by
+ * problem (such as a write conflict with another transaction). When {@link RetryTransactionException} is thrown by
  * {@link #commit}, the transaction may have actually been committed. Therefore, transactions should be written to be idempotent.
+ * When any {@link KVTransactionException} is thrown, the transaction must still support invoking {@link #rollback},
+ * but all other operations may throw {@link StaleTransactionException}.
  * </p>
  *
  * <p>
- * Implementations must throw {@link KVTransactionException} if {@link #commit} or {@link #rollback} has already
+ * Implementations must throw {@link StaleTransactionException} if {@link #commit} or {@link #rollback} has already
  * been invoked, or if the {@link KVTransaction} instance is no longer usable for some other reason. In particular,
  * implementations should throw {@link TransactionTimeoutException} if an operation is attempted on a transaction
  * that has been held open past some maximum allowed time limit.

@@ -7,6 +7,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Converter;
+
 import java.util.Comparator;
 
 /**
@@ -26,6 +28,22 @@ public final class ByteUtil {
         @Override
         public int compare(byte[] b1, byte[] b2) {
             return ByteUtil.compare(b1, b2);
+        }
+    };
+
+    /**
+     * A {@link Converter} that converts between {@code byte[]} arrays and hexadecimal {@link String}s.
+     */
+    public static final Converter<byte[], String> STRING_CONVERTER = new Converter<byte[], String>() {
+
+        @Override
+        public String doForward(byte[] b) {
+            return b != null ? ByteUtil.toString(b) : null;
+        }
+
+        @Override
+        public byte[] doBackward(String s) {
+            return s != null ? ByteUtil.parse(s) : null;
         }
     };
 

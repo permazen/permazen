@@ -5,9 +5,14 @@
  * $Id$
  */
 
-package org.jsimpledb.kv.simple;
+package org.jsimpledb.kv;
 
+import com.google.common.base.Converter;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
@@ -16,21 +21,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.jsimpledb.TestSupport;
-import org.jsimpledb.kv.KVDatabase;
-import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVTransaction;
-import org.jsimpledb.kv.RetryTransactionException;
-import org.jsimpledb.kv.StaleTransactionException;
-import org.jsimpledb.kv.TransactionTimeoutException;
+import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class SimpleKVDatabaseTest extends TestSupport {
+public class KVDatabaseTest extends TestSupport {
 
     private ExecutorService executor;
 
@@ -46,12 +47,56 @@ public class SimpleKVDatabaseTest extends TestSupport {
         this.executor.shutdown();
     }
 
-    @Test
-    public void testSimpleKV1() throws Exception {
-        final SimpleKVDatabase store = new SimpleKVDatabase(50, 100);
+    @DataProvider(name = "kvdbs")
+    private Object[][] getDBs() throws Exception {
+        final ArrayList<Object[]> list = new ArrayList<>();
+
+        // SimpleKVDatabase
+        final TreeMap<byte[], byte[]> storeData = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+        final NavigableMapKVStore kv = new NavigableMapKVStore(storeData);
+        final SimpleKVDatabase store = new SimpleKVDatabase(kv, 25, 50);
+        list.add(new Object[] { store, storeData });
+
+        // FoundationDB
+//        final org.jsimpledb.kv.fdb.FoundationKVDatabase fdb = new org.jsimpledb.kv.fdb.FoundationKVDatabase();
+//        fdb.setClusterFilePath("fdb.cluster");
+//        fdb.start();
+//        list.add(new Object[] { fdb, null });
+
+        // MySQL
+//        final org.jsimpledb.kv.sql.MySQLKVDatabase mysql = new org.jsimpledb.kv.sql.MySQLKVDatabase();
+//        final com.mysql.jdbc.jdbc2.optional.MysqlDataSource dataSource = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
+//        dataSource.setUrl("jdbc:mysql://127.0.0.1:3306/jsimpledb?logger=com.mysql.jdbc.log.Slf4JLogger");
+//        dataSource.setUser("jsimpledb");
+//        dataSource.setPassword("jsimpledb");
+//        mysql.setDataSource(dataSource);
+//        list.add(new Object[] { mysql, null });
+
+        // Done
+        return list.toArray(new Object[list.size()][]);
+    }
+
+    @Test(dataProvider = "kvdbs")
+    public void testKV1(KVDatabase store, NavigableMap<byte[], byte[]> storeData) throws Exception {
+        this.log.info("starting testKV1() on " + store);
+
+        // Clear database
+        KVTransaction tx = store.createTransaction();
+        tx.removeRange(null, null);
+        tx.commit();
+
+        // Verify database is empty
+        tx = store.createTransaction();
+        KVPair p = tx.getAtLeast(null);
+        Assert.assertNull(p);
+        p = tx.getAtMost(null);
+        Assert.assertNull(p);
+        Iterator<KVPair> it = tx.getRange(null, null, false);
+        Assert.assertFalse(it.hasNext());
+        tx.commit();
 
         // tx 1
-        KVTransaction tx = store.createTransaction();
+        tx = store.createTransaction();
         byte[] x = tx.get(b("01"));
         Assert.assertNull(x);
         tx.put(b("01"), b("02"));
@@ -70,7 +115,7 @@ public class SimpleKVDatabaseTest extends TestSupport {
         tx = store.createTransaction();
         x = tx.get(b("01"));
         Assert.assertEquals(x, b("03"));
-        tx.put(b("10"), b("20"));
+        tx.put(b("10"), b("01"));
         tx.commit();
         try {
             x = tx.get(b("01"));
@@ -82,35 +127,71 @@ public class SimpleKVDatabaseTest extends TestSupport {
         // One transaction deadlocking on another
         final KVTransaction tx2 = store.createTransaction();
         final KVTransaction tx3 = store.createTransaction();
-        this.executor.submit(new Writer(tx2, b("01"), b("04"))).get();
-        final Reader tx3reader = new Reader(tx3, b("01"));
+        this.executor.submit(new Reader(tx2, b("10"))).get();                   // both read same key
+        this.executor.submit(new Reader(tx3, b("10"))).get();
         try {
-            this.executor.submit(tx3reader).get();
+            this.executor.submit(new Writer(tx2, b("10"), b("02"))).get();      // both write different values
+            this.executor.submit(new Writer(tx3, b("10"), b("03"))).get();
+            tx2.commit();                                                       // both try to commit
+            tx3.commit();
             assert false;
-        } catch (ExecutionException e) {
-            Assert.assertEquals(e.getCause().getClass(), RetryTransactionException.class);
+        } catch (Exception e) {
+            if (e instanceof ExecutionException)
+                e = (Exception)e.getCause();
+            Assert.assertTrue(e instanceof RetryTransactionException, "exception is " + e);
+            final RetryTransactionException retry = (RetryTransactionException)e;
+            Assert.assertTrue(retry.getTransaction() == tx2 || retry.getTransaction() == tx3,
+              "tx is " + retry.getTransaction() + " not " + tx2 + " or " + tx3);
         }
-        tx2.commit();
+        try {
+            tx2.rollback();
+        } catch (StaleTransactionException e) {
+            // ignore
+        }
+        try {
+            tx3.rollback();
+        } catch (StaleTransactionException e) {
+            // ignore
+        }
         final KVTransaction tx4 = store.createTransaction();
         x = this.executor.submit(new Reader(tx4, b("01"))).get();
-        Assert.assertEquals(x, b("04"));
+        Assert.assertEquals(x, b("03"));
         tx4.rollback();
 
         // Multiple concurrent read-only transactions with overlapping read ranges and non-intersecting write ranges
+        int done = 0;
         KVTransaction[] txs = new KVTransaction[10];
         for (int i = 0; i < txs.length; i++)
             txs[i] = store.createTransaction();
-        for (int i = 0; i < txs.length; i++) {
-            this.executor.submit(new Reader(txs[i], new byte[] { (byte)i }, true)).get();
-            this.executor.submit(new Writer(txs[i], new byte[] { (byte)(i + 128) }, b("02"))).get();
+        while (true) {
+            boolean finished = true;
+            for (int i = 0; i < txs.length; i++) {
+                if (txs[i] == null)
+                    continue;
+                finished = false;
+                this.executor.submit(new Reader(txs[i], new byte[] { (byte)i }, true)).get();
+                this.executor.submit(new Writer(txs[i], new byte[] { (byte)(i + 128) }, b("02"))).get();
+            }
+            if (finished)
+                break;
+            for (int i = 0; i < txs.length; i++) {
+                if (txs[i] == null)
+                    continue;
+                try {
+                    txs[i].commit();
+                } catch (RetryTransactionException e) {
+                    txs[i] = store.createTransaction();
+                    continue;
+                }
+                txs[i] = null;
+            }
         }
-        for (int i = 0; i < txs.length; i++)
-            txs[i].commit();
+        this.log.info("finished testKV1() on " + store);
     }
 
-    @Test
-    public void testSimpleKV2() throws Exception {
-        final SimpleKVDatabase store = new SimpleKVDatabase(5, 10);
+    @Test(dataProvider = "kvdbs")
+    public void testKV2(KVDatabase store, NavigableMap<byte[], byte[]> storeData) throws Exception {
+        this.log.info("starting testKV2() on " + store);
         for (int count = 0; count < 25; count++) {
             final RandomTask[] tasks = new RandomTask[25];
             for (int i = 0; i < tasks.length; i++) {
@@ -125,13 +206,12 @@ public class SimpleKVDatabaseTest extends TestSupport {
                     throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
             }
         }
+        this.log.info("finished testKV2() on " + store);
     }
 
-    @Test
-    public void testSimpleKV3() throws Exception {
-        final TreeMap<byte[], byte[]> storeData = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
-        final NavigableMapKVStore kv = new NavigableMapKVStore(storeData);
-        final SimpleKVDatabase store = new SimpleKVDatabase(kv, 5, 10);
+    @Test(dataProvider = "kvdbs")
+    public void testKV3(KVDatabase store, NavigableMap<byte[], byte[]> storeData) throws Exception {
+        this.log.info("starting testKV3() on " + store);
         for (int i = 0; i < 50; i++) {
             final RandomTask task = new RandomTask(i, store, storeData, this.random.nextLong());
             task.run();
@@ -139,6 +219,7 @@ public class SimpleKVDatabaseTest extends TestSupport {
             if (fail != null)
                 throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
         }
+        this.log.info("finished testKV3() on " + store);
     }
 
     @Test
@@ -293,8 +374,8 @@ public class SimpleKVDatabaseTest extends TestSupport {
         private final int id;
         private final KVDatabase store;
         private final Random random;
-        private final TreeMap<byte[], byte[]> storeData;
-        private final StringToByteArrayConverter converter = new StringToByteArrayConverter();
+        private final NavigableMap<byte[], byte[]> storeData;
+        private final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
 
         private Throwable fail;
 
@@ -302,7 +383,7 @@ public class SimpleKVDatabaseTest extends TestSupport {
             this(id, store, null, seed);
         }
 
-        public RandomTask(int id, KVDatabase store, TreeMap<byte[], byte[]> storeData, long seed) {
+        public RandomTask(int id, KVDatabase store, NavigableMap<byte[], byte[]> storeData, long seed) {
             super("Random[" + id + "]");
             this.log("seed = " + seed);
             this.id = id;

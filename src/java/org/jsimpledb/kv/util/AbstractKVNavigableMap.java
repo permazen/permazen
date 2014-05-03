@@ -448,12 +448,17 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
 
     private class EntrySetIterator implements Iterator<Map.Entry<K, V>> {
 
-        private final KVPairIterator pairIterator;
+        private final Iterator<KVPair> pairIterator;
         private Map.Entry<K, V> removeEntry;
 
         public EntrySetIterator() {
-            this.pairIterator = new KVPairIterator(AbstractKVNavigableMap.this.kv,
-              AbstractKVNavigableMap.this.minKey, AbstractKVNavigableMap.this.maxKey, !AbstractKVNavigableMap.this.reversed);
+            if (AbstractKVNavigableMap.this.prefixMode) {
+                this.pairIterator = new KVPairIterator(AbstractKVNavigableMap.this.kv,
+                  AbstractKVNavigableMap.this.minKey, AbstractKVNavigableMap.this.maxKey, AbstractKVNavigableMap.this.reversed);
+            } else {
+                this.pairIterator = AbstractKVNavigableMap.this.kv.getRange(
+                  AbstractKVNavigableMap.this.minKey, AbstractKVNavigableMap.this.maxKey, AbstractKVNavigableMap.this.reversed);
+            }
         }
 
         @Override
@@ -474,8 +479,9 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
 
             // In prefix mode, skip over any additional keys having the same prefix as what we just decoded
             if (AbstractKVNavigableMap.this.prefixMode) {
+                final KVPairIterator kvPairIterator = (KVPairIterator)this.pairIterator;
                 final byte[] prefix = reader.getBytes(0, reader.getOffset());
-                this.pairIterator.setNextTarget(this.pairIterator.isForward() ? ByteUtil.getKeyAfterPrefix(prefix) : prefix);
+                kvPairIterator.setNextTarget(kvPairIterator.isReverse() ? prefix : ByteUtil.getKeyAfterPrefix(prefix));
             }
 
             // Save elment for possible remove()

@@ -13,13 +13,20 @@ import java.util.NoSuchElementException;
 import org.jsimpledb.util.ByteUtil;
 
 /**
- * An {@link Iterator} that iterates over all key/value pairs in a {@link KVStore} within a contiguous range of keys.
- * Instances support {@linkplain #setNextTarget skipping ahead}, forward or reverse iteration, and {@link #remove removal}.
+ * An {@link Iterator} that iterates over all key/value pairs in a {@link KVStore} within a contiguous range of keys,
+ * without using the {@link KVStore#getRange KVStore.getRange()} method. Therefore, it can be used to implement
+ * {@link KVStore#getRange KVStore.getRange()} in {@link KVStore} implementaions that don't natively support iteration.
+ *
+ * <p>
+ * The iteration is instead implemented using {@link KVStore#getAtLeast KVStore.getAtLeast()},
+ * {@link KVStore#getAtMost KVStore.getAtMost()}, and {@link KVStore#remove KVStore.remove()}.
+ * Instances support {@linkplain #setNextTarget repositioning}, forward or reverse iteration, and {@link #remove removal}.
+ * </p>
  */
 public class KVPairIterator implements Iterator<KVPair> {
 
     protected final KVStore kv;
-    protected final boolean forward;
+    protected final boolean reverse;
 
     private final byte[] prefix;
     private final byte[] minKey;
@@ -66,12 +73,12 @@ public class KVPairIterator implements Iterator<KVPair> {
      * @param kv underlying {@link KVStore}
      * @param minKey minimum key (inclusive), or null for no minimum
      * @param maxKey maximum key (exclusive), or null for no maximum
-     * @param forward true to iterate in a forward direction, false to iterate in a reverse direction
+     * @param reverse true to iterate in a reverse direction, false to iterate in a forward direction
      * @throws IllegalArgumentException if {@code kv} is null
      * @throws IllegalArgumentException if {@code minKey > maxKey}
      */
-    public KVPairIterator(KVStore kv, byte[] minKey, byte[] maxKey, boolean forward) {
-        this(kv, minKey, maxKey, null, forward);
+    public KVPairIterator(KVStore kv, byte[] minKey, byte[] maxKey, boolean reverse) {
+        this(kv, minKey, maxKey, null, reverse);
     }
 
     /**
@@ -79,14 +86,14 @@ public class KVPairIterator implements Iterator<KVPair> {
      *
      * @param kv underlying {@link KVStore}
      * @param prefix range prefix
-     * @param forward true to iterate in a forward direction, false to iterate in a reverse direction
+     * @param reverse true to iterate in a reverse direction, false to iterate in a forward direction
      * @throws IllegalArgumentException if any parameter is null
      */
-    public KVPairIterator(KVStore kv, byte[] prefix, boolean forward) {
-        this(kv, prefix, KVPairIterator.getMaxKey(prefix), prefix, forward);
+    public KVPairIterator(KVStore kv, byte[] prefix, boolean reverse) {
+        this(kv, prefix, KVPairIterator.getMaxKey(prefix), prefix, reverse);
     }
 
-    private KVPairIterator(KVStore kv, byte[] minKey, byte[] maxKey, byte[] prefix, boolean forward) {
+    private KVPairIterator(KVStore kv, byte[] minKey, byte[] maxKey, byte[] prefix, boolean reverse) {
         if (kv == null)
             throw new IllegalArgumentException("null kv");
         if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
@@ -95,8 +102,8 @@ public class KVPairIterator implements Iterator<KVPair> {
         this.minKey = minKey != null ? minKey.clone() : null;
         this.maxKey = maxKey != null ? maxKey.clone() : null;
         this.prefix = prefix != null ? prefix.clone() : null;
-        this.forward = forward;
-        this.nextKey = forward ? this.minKey : this.maxKey;
+        this.reverse = reverse;
+        this.nextKey = reverse ? this.maxKey : this.minKey;
     }
 
     /**
@@ -120,8 +127,8 @@ public class KVPairIterator implements Iterator<KVPair> {
     /**
      * Determine if this instance is going forward or backward.
      */
-    public boolean isForward() {
-        return this.forward;
+    public boolean isReverse() {
+        return this.reverse;
     }
 
     /**
@@ -165,8 +172,8 @@ public class KVPairIterator implements Iterator<KVPair> {
             return false;
 
         // Find next element
-        final KVPair pair = this.forward ?
-          this.kv.getAtLeast(this.nextKey != null ? this.nextKey : ByteUtil.EMPTY) : this.kv.getAtMost(this.nextKey);
+        final KVPair pair = this.reverse ?
+          this.kv.getAtMost(this.nextKey) : this.kv.getAtLeast(this.nextKey != null ? this.nextKey : ByteUtil.EMPTY);
         if (pair == null) {
             this.finished = true;
             return false;
@@ -194,7 +201,7 @@ public class KVPairIterator implements Iterator<KVPair> {
         this.removeKey = key;
 
         // Set up next advance
-        this.nextKey = this.forward ? ByteUtil.getNextKey(key) : key;
+        this.nextKey = this.reverse ? key : ByteUtil.getNextKey(key);
         this.currPair = null;
 
         // Done

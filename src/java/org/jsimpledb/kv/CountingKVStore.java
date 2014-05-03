@@ -36,6 +36,8 @@ public interface CountingKVStore extends KVStore {
      * @param value encoded counter value
      * @return decoded counter value
      * @throws IllegalArgumentException if {@code value} is not a valid counter value
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws RetryTransactionException if this transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code value} is null
      */
     long decodeCounter(byte[] value);
@@ -57,6 +59,8 @@ public interface CountingKVStore extends KVStore {
      *
      * @param key key
      * @param amount amount to adjust counter value by
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws RetryTransactionException if this transaction must be retried and is no longer usable
      * @throws NullPointerException if {@code key} is null
      */
     void adjustCounter(byte[] key, long amount);

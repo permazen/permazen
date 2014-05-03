@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
@@ -202,7 +201,9 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param subField sub-field of this field
      */
     void addIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField) {
-        for (KVPairIterator i = new KVPairIterator(tx.kvt, this.buildKey(id)); i.hasNext(); ) {
+        final byte[] prefix = this.buildKey(id);
+        final byte[] prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);
+        for (Iterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd, false); i.hasNext(); ) {
             final KVPair pair = i.next();
             this.addIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
         }
@@ -228,7 +229,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param subField sub-field of this field
      */
     void removeIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField, byte[] minKey, byte[] maxKey) {
-        for (KVPairIterator i = new KVPairIterator(tx.kvt, minKey, maxKey); i.hasNext(); ) {
+        for (Iterator<KVPair> i = tx.kvt.getRange(minKey, maxKey, false); i.hasNext(); ) {
             final KVPair pair = i.next();
             this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
         }

@@ -7,9 +7,14 @@
 
 package org.jsimpledb.kv.sql;
 
+import com.mysql.jdbc.MysqlErrorNumbers;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import org.jsimpledb.kv.KVTransactionException;
+import org.jsimpledb.kv.RetryTransactionException;
 
 /**
  * MySQL variant of {@link SQLKVDatabase}.
@@ -31,32 +36,32 @@ public class MySQLKVDatabase extends SQLKVDatabase {
         return connection;
     }
 
-    @Override
-    public String createGetAtMostStatement() {
-        return super.createGetAtMostStatement() + " LIMIT 1";
-    }
-
-    @Override
-    public String createGetFirstStatement() {
-        return super.createGetFirstStatement() + " LIMIT 1";
-    }
-
-    @Override
-    public String createGetAtLeastStatement() {
-        return super.createGetAtLeastStatement() + " LIMIT 1";
-    }
-
-    @Override
-    public String createGetLastStatement() {
-        return super.createGetLastStatement() + " LIMIT 1";
-    }
-
     /**
      * Encloses the given {@code name} in backticks.
      */
     @Override
     public String quote(String name) {
         return "`" + name + "`";
+    }
+
+    /**
+     * Appends {@code LIMIT 1} to the statement.
+     */
+    @Override
+    public String limitSingleRow(String sql) {
+        return sql + " LIMIT 1";
+    }
+
+    @Override
+    public KVTransactionException wrapException(SQLKVTransaction tx, SQLException e) {
+        switch (e.getErrorCode()) {
+        case MysqlErrorNumbers.ER_LOCK_WAIT_TIMEOUT:
+            return new RetryTransactionException(tx, e);
+        case MysqlErrorNumbers.ER_LOCK_DEADLOCK:
+            return new RetryTransactionException(tx, e);
+        default:
+            return super.wrapException(tx, e);
+        }
     }
 }
 
