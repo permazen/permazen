@@ -469,7 +469,7 @@ public class Database {
         // Encode as XML
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         try {
-            schema.toXML(buf);
+            schema.toXML(buf, false);
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
         }
