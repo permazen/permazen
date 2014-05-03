@@ -23,6 +23,7 @@ import java.util.TreeSet;
 import org.jsimpledb.kv.CountingKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
@@ -280,7 +281,11 @@ public class Transaction {
             this.triggerBeforeCompletion();
             if (failedCallback != null) {
                 try {
-                    this.kvt.rollback();
+                    try {
+                        this.kvt.rollback();
+                    } catch (KVTransactionException e) {
+                        // ignore
+                    }
                 } finally {
                     this.triggerAfterCompletion(false);
                 }
@@ -694,6 +699,10 @@ public class Transaction {
      * <p>
      * Note: if two threads attempt to snapshot objects between the same two transactions in opposite directions,
      * deadlock may result.
+     * </p>
+     *
+     * <p>
+     * If {@code dest} is this instance, no changes are made and false is returned.
      * </p>
      *
      * @param id object ID of the object to copy
