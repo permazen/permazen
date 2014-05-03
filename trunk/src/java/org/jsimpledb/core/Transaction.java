@@ -39,63 +39,64 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Transaction Meta-Data</b>
  * <ul>
- *  <li>{@link #getDatabase getDatabase()} - Get the associated {@link Database}
- *  <li>{@link #getSchema getSchema()} - Get the database {@link Schema}, as seen by this transaction
- *  <li>{@link #getSchemaVersion() getSchemaVersion()} - Get the {@link SchemaVersion} that will be used by this transaction
+ *  <li>{@link #getDatabase getDatabase()} - Get the associated {@link Database}</li>
+ *  <li>{@link #getSchema getSchema()} - Get the database {@link Schema}, as seen by this transaction</li>
+ *  <li>{@link #getSchemaVersion() getSchemaVersion()} - Get the {@link SchemaVersion} that will be used by this transaction</li>
  * </ul>
  * </p>
  *
  * <p>
  * <b>Transaction Lifecycle</b>
  * <ul>
- *  <li>{@link #commit commit()} - Commit transaction
- *  <li>{@link #rollback rollback()} - Roll back transaction
- *  <li>{@link #isValid isValid()} - Test transaction validity
- *  <li>{@link #setTimeout setTimeout()} - Set transaction timeout
- *  <li>{@link #setReadOnly setReadOnly()} - Set transaction to read-only
- *  <li>{@link #setRollbackOnly setRollbackOnly()} - Set transaction for rollack only
- *  <li>{@link #addCallback addCallback()} - Register a {@link Callback} on transaction completion
+ *  <li>{@link #commit commit()} - Commit transaction</li>
+ *  <li>{@link #rollback rollback()} - Roll back transaction</li>
+ *  <li>{@link #isValid isValid()} - Test transaction validity</li>
+ *  <li>{@link #setTimeout setTimeout()} - Set transaction timeout</li>
+ *  <li>{@link #setReadOnly setReadOnly()} - Set transaction to read-only</li>
+ *  <li>{@link #setRollbackOnly setRollbackOnly()} - Set transaction for rollack only</li>
+ *  <li>{@link #addCallback addCallback()} - Register a {@link Callback} on transaction completion</li>
  * </ul>
  * </p>
  *
  * <p>
  * <b>Object Lifecycle</b>
  * <ul>
- *  <li>{@link #create(int) create()} - Create a database object
- *  <li>{@link #delete delete()} - Delete a database object
- *  <li>{@link #exists exists()} - Test whether a database object exists
- *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects
- *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}
- *  <li>{@link #addDeleteListener addDeleteListener()} - Register a {@link DeleteListener} for notifications about object deletions
- *  <li>{@link #removeDeleteListener removeDeleteListener()} - Unregister a {@link DeleteListener}
+ *  <li>{@link #create(int) create()} - Create a database object</li>
+ *  <li>{@link #delete delete()} - Delete a database object</li>
+ *  <li>{@link #exists exists()} - Test whether a database object exists</li>
+ *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects</li>
+ *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}</li>
+ *  <li>{@link #addDeleteListener addDeleteListener()} - Register a {@link DeleteListener} for notifications
+ *      about object deletions</li>
+ *  <li>{@link #removeDeleteListener removeDeleteListener()} - Unregister a {@link DeleteListener}</li>
  * </ul>
  * </p>
  *
  * <p>
  * <b>Object Versioning</b>
  * <ul>
- *  <li>{@link #getSchemaVersion(ObjId) getSchemaVersion()} - Inspect an object's schema version
- *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version to match this transaction
- *  <li>{@link #addVersionChangeListener addVersionChangeListener()} - Register a {@link VersionChangeListener} for notifications
- *      about object version changes
- *  <li>{@link #removeVersionChangeListener removeVersionChangeListener()} - Unregister a {@link VersionChangeListener}
+ *  <li>{@link #getSchemaVersion(ObjId) getSchemaVersion()} - Inspect an object's schema version</li>
+ *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version to match this transaction</li>
+ *  <li>{@link #addVersionChangeListener addVersionChangeListener()} - Register a {@link VersionChangeListener}
+ *      for notifications about object version changes</li>
+ *  <li>{@link #removeVersionChangeListener removeVersionChangeListener()} - Unregister a {@link VersionChangeListener}</li>
  * </ul>
  *
  * <p>
  * <b>Object and Field Access</b>
  * <ul>
- *  <li>{@link #getAll getAll()} - Get all objects of a specific type
- *  <li>{@link #readSimpleField readSimpleField()} - Read the value of a {@link SimpleField} in an object
- *  <li>{@link #writeSimpleField writeSimpleField()} - Write the value of a {@link SimpleField} in an object
- *  <li>{@link #readCounterField readCounterField()} - Read the value of a {@link CounterField} in an object
- *  <li>{@link #writeCounterField writeCounterField()} - Write the value of a {@link CounterField} in an object
- *  <li>{@link #adjustCounterField adjustCounterField()} - Adjust the value of a {@link CounterField} in an object
- *  <li>{@link #readSetField readSetField()} - Access a {@link SetField} in an object as a {@link NavigableSet}
- *  <li>{@link #readListField readListField()} - Access a {@link ListField} in an object as a {@link List}
- *  <li>{@link #readMapField readMapField()} - Access a {@link MapField} in an object as a {@link NavigableMap}
- *  <li>{@link #getKey getKey(ObjId)} - Get the {@link org.jsimpledb.kv.KVDatabase} key corresponding to an object
+ *  <li>{@link #getAll getAll()} - Get all objects of a specific type</li>
+ *  <li>{@link #readSimpleField readSimpleField()} - Read the value of a {@link SimpleField} in an object</li>
+ *  <li>{@link #writeSimpleField writeSimpleField()} - Write the value of a {@link SimpleField} in an object</li>
+ *  <li>{@link #readCounterField readCounterField()} - Read the value of a {@link CounterField} in an object</li>
+ *  <li>{@link #writeCounterField writeCounterField()} - Write the value of a {@link CounterField} in an object</li>
+ *  <li>{@link #adjustCounterField adjustCounterField()} - Adjust the value of a {@link CounterField} in an object</li>
+ *  <li>{@link #readSetField readSetField()} - Access a {@link SetField} in an object as a {@link NavigableSet}</li>
+ *  <li>{@link #readListField readListField()} - Access a {@link ListField} in an object as a {@link List}</li>
+ *  <li>{@link #readMapField readMapField()} - Access a {@link MapField} in an object as a {@link NavigableMap}</li>
+ *  <li>{@link #getKey getKey(ObjId)} - Get the {@link org.jsimpledb.kv.KVDatabase} key corresponding to an object</li>
  *  <li>{@link #getKey getKey(ObjId, int)} - Get the {@link org.jsimpledb.kv.KVDatabase}
- *      key corresponding to a field in an object
+ *      key corresponding to a field in an object</li>
  * </ul>
  * </p>
  *
@@ -103,21 +104,21 @@ import org.slf4j.LoggerFactory;
  * <b>Field Change Notifications</b>
  * <ul>
  *  <li>{@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} - Register a {@link SimpleFieldChangeListener} for
- *      notifications of changes in a {@link SimpleField}, as seen through a path of object references
+ *      notifications of changes in a {@link SimpleField}, as seen through a path of object references</li>
  *  <li>{@link #addSetFieldChangeListener addSetFieldChangeListener()} - Register a {@link SetFieldChangeListener} for
- *      notifications of changes in a {@link SetField}, as seen through a path of object references
+ *      notifications of changes in a {@link SetField}, as seen through a path of object references</li>
  *  <li>{@link #addListFieldChangeListener addListFieldChangeListener()} - Register a {@link ListFieldChangeListener} for
- *      notifications of changes in a {@link ListField}, as seen through a path of object references
+ *      notifications of changes in a {@link ListField}, as seen through a path of object references</li>
  *  <li>{@link #addMapFieldChangeListener addMapFieldChangeListener()} - Register a {@link MapFieldChangeListener} for
- *      notifications of changes in a {@link MapField}, as seen through a path of object references
+ *      notifications of changes in a {@link MapField}, as seen through a path of object references</li>
  *  <li>{@link #removeSimpleFieldChangeListener removeSimpleFieldChangeListener()} - Unregister a previously registered
- *      {@link SimpleFieldChangeListener}
+ *      {@link SimpleFieldChangeListener}</li>
  *  <li>{@link #removeSetFieldChangeListener removeSetFieldChangeListener()} - Unregister a previously registered
- *      {@link SetFieldChangeListener}
+ *      {@link SetFieldChangeListener}</li>
  *  <li>{@link #removeListFieldChangeListener removeListFieldChangeListener()} - Unregister a previously registered
- *      {@link ListFieldChangeListener}
+ *      {@link ListFieldChangeListener}</li>
  *  <li>{@link #removeMapFieldChangeListener removeMapFieldChangeListener()} - Unregister a previously registered
- *      {@link MapFieldChangeListener}
+ *      {@link MapFieldChangeListener}</li>
  * </ul>
  * </p>
  *
@@ -125,7 +126,7 @@ import org.slf4j.LoggerFactory;
  * <b>Reference Path Queries</b>
  * <ul>
  *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects that refer to any element in a given set
- *      of objects through a specified reference path
+ *      of objects through a specified reference path</li>
  *  </li>
  * </ul>
  * </p>
@@ -134,21 +135,21 @@ import org.slf4j.LoggerFactory;
  * <b>Index Queries</b>
  * <ul>
  *  <li>{@link #querySimpleField querySimpleField()} - Query the index associated with a {@link SimpleField}
- *      to identify all values and all objects having those values
+ *      to identify all values and all objects having those values</li>
  *  <li>{@link #querySetField querySetField()} - Query the index associated with a {@link SetField}
- *      to identify all set elements and all objects having those elements in the set
+ *      to identify all set elements and all objects having those elements in the set</li>
  *  <li>{@link #queryListField queryListField()} - Query the index associated with a {@link ListField}
- *      to identify all list elements and all objects having those elements in the list
+ *      to identify all list elements and all objects having those elements in the list</li>
  *  <li>{@link #queryListFieldEntries queryListFieldEntries()} - Query the index associated with a {@link ListField}
- *      to identify all list elements and all objects with those elements in the list, as well as the associated list indicies
+ *      to identify all list elements and all objects with those elements in the list, as well as the associated list indicies</li>
  *  <li>{@link #queryMapFieldKey queryMapFieldKey()} - Query the index associated with a {@link MapField}
- *      to identify all map keys and all objects having those keys in the map
+ *      to identify all map keys and all objects having those keys in the map</li>
  *  <li>{@link #queryMapFieldKeyEntries queryMapFieldKeyEntries()} - Query the index associated with a {@link MapField}
- *      to identify all map keys and all objects having those keys in the map, as well as the associated map values
+ *      to identify all map keys and all objects having those keys in the map, as well as the associated map values</li>
  *  <li>{@link #queryMapFieldValue queryMapFieldValue()} - Query the index associated with a {@link MapField}
- *      to identify all map values and all objects having those values in the map
+ *      to identify all map values and all objects having those values in the map</li>
  *  <li>{@link #queryMapFieldValueEntries queryMapFieldValueEntries()} - Query the index associated with a {@link MapField}
- *      to identify all map values and all objects having those values in the map, as well as the associated map keys
+ *      to identify all map values and all objects having those values in the map, as well as the associated map keys</li>
  * </ul>
  * </p>
  *
@@ -621,7 +622,7 @@ public class Transaction {
             }
         }
 
-        // Delete object version and all field content
+        // Delete object meta-data and all field content
         final byte[] minKey = info.getId().getBytes();
         final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
         this.kvt.removeRange(minKey, maxKey);
