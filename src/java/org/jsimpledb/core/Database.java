@@ -18,6 +18,7 @@ import java.util.TreeMap;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -381,8 +382,13 @@ public class Database {
             success = true;
             return tx;
         } finally {
-            if (!success)
-                kvt.rollback();
+            if (!success) {
+                try {
+                    kvt.rollback();
+                } catch (KVTransactionException e) {
+                    // ignore
+                }
+            }
         }
     }
 
