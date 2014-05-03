@@ -615,25 +615,8 @@ public class Transaction {
                 listener.onDelete(this, id);
         }
 
-        // Delete object's simple field index entries
-        final ObjType type = info.getObjType();
-        for (SimpleField<?> field : type.simpleFields.values()) {
-            if (field.indexed)
-                this.kvt.remove(field.buildIndexKey(id, this.kvt.get(field.buildKey(id))));
-        }
-
-        // Delete object's complex field index entries
-        for (ComplexField<?> field : type.complexFields.values()) {
-            for (SimpleField<?> subField : field.getSubFields()) {
-                if (subField.indexed)
-                    field.removeIndexEntries(this, id, subField);
-            }
-        }
-
-        // Delete object meta-data and all field content
-        final byte[] minKey = info.getId().getBytes();
-        final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
-        this.kvt.removeRange(minKey, maxKey);
+        // Actually delete the object
+        this.deleteObject(info);
 
         // Find all references to this object and deal with them
         for (ReferenceFieldStorageInfo fieldInfo : this.schema.referenceFieldStorageInfos) {
@@ -670,6 +653,31 @@ public class Transaction {
         return true;
     }
 
+    // Delete all of an object's data
+    private void deleteObject(ObjInfo info) {
+
+        // Delete object's simple field index entries
+        final ObjId id = info.getId();
+        final ObjType type = info.getObjType();
+        for (SimpleField<?> field : type.simpleFields.values()) {
+            if (field.indexed)
+                this.kvt.remove(field.buildIndexKey(id, this.kvt.get(field.buildKey(id))));
+        }
+
+        // Delete object's complex field index entries
+        for (ComplexField<?> field : type.complexFields.values()) {
+            for (SimpleField<?> subField : field.getSubFields()) {
+                if (subField.indexed)
+                    field.removeIndexEntries(this, id, subField);
+            }
+        }
+
+        // Delete object meta-data and all field content
+        final byte[] minKey = info.getId().getBytes();
+        final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
+        this.kvt.removeRange(minKey, maxKey);
+    }
+
     /**
      * Determine if an object exists.
      *
@@ -693,8 +701,8 @@ public class Transaction {
 
     /**
      * Snapshot the specified object by copying it into a different transaction. This only copies the object
-     * and its fields; any other objects it references are not copied. The object must not exist in {@code dest}.
-     * The copy is done by copying key/value pairs directly, so no field encoding/decoding is required.
+     * and all of its fields; any other objects it references are not copied. If the object already exists in {@code dest},
+     * the old copy will be overwritten. The copy is done by copying key/value pairs directly for efficiency.
      *
      * <p>
      * Note: if two threads attempt to snapshot objects between the same two transactions in opposite directions,
@@ -707,12 +715,19 @@ public class Transaction {
      *
      * @param id object ID of the object to copy
      * @param dest destination for the snapshot
-     * @return true if object was copied, false if object already existed in {@code dest}, in which case no changes were made
+     * @return false if object existed in {@code dest} and was overwritten, true if object did not exist in {@code dest}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
      * @throws IllegalArgumentException if {@code id} is null
-     * @throws SchemaMismatchException if the schema version corresponding to the object is not identical in both transactions
+     * @throws SchemaMismatchException if the schema version corresponding to the object's version is not identical
+     *  in both transactions
      */
     public synchronized boolean snapshot(ObjId id, Transaction dest) {
+
+        // Sanity check
+        if (this == dest)
+            return false;
+
+        // Do the copy while both transactions are locked
         synchronized (dest) {
 
             // Get object info
@@ -729,10 +744,11 @@ public class Transaction {
             if (!Arrays.equals(this.version.encodedXML, dest.version.encodedXML))
                 throw new SchemaMismatchException("destination transaction schema version " + objectVersion + " does not match");
 
-            // Does object already exists in dest?
+            // Does object already exists in dest? If so delete it first
             final byte[] minKey = id.getBytes();
-            if (dest.kvt.get(minKey) != null)
-                return false;
+            final boolean existed = dest.kvt.get(minKey) != null;
+            if (existed)
+                dest.deleteObject(info);
 
             // Copy object meta-data and all simple field and counter content
             final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
@@ -760,7 +776,7 @@ public class Transaction {
             }
 
             // Done
-            return true;
+            return !existed;
         }
     }
 
@@ -1586,7 +1602,7 @@ public class Transaction {
     private ObjInfo getObjectInfo(ObjId id, boolean update) {
 
         // Check schema version
-        ObjInfo info = new ObjInfo(this, id);
+        final ObjInfo info = new ObjInfo(this, id);
         if (!update || info.getSchemaVersion() == this.version)
             return info;
 
