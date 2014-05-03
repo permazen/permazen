@@ -133,6 +133,13 @@ public class SnapshotTest extends TestSupport {
         // Check indexes
         Assert.assertEquals(tx2.querySimpleField(3), buildMap(id1, buildSet(id3), id2, buildSet(id1), id3, buildSet(id2)));
 
+        // Change id1 and then overwrite copy
+        tx1.writeSimpleField(id1, 2, 456.78f);
+        tx1.readSetField(id1, 4).clear();
+        Assert.assertFalse(tx1.snapshot(id1, tx2));
+        Assert.assertEquals(tx2.readSimpleField(id1, 2), 456.78f);
+        Assert.assertTrue(tx2.readSetField(id1, 4).isEmpty());
+
         // Commit transactions and verify identical key/value stores
         tx1.commit();
         tx2.commit();
