@@ -43,12 +43,14 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * Serialize an instance to the given XML output.
      *
      * @param output XML output
+     * @param indent true to pretty print the XML
      * @throws IOException if an I/O error occurs
      */
-    public void toXML(OutputStream output) throws IOException {
+    public void toXML(OutputStream output, boolean indent) throws IOException {
         try {
-            final XMLStreamWriter writer = new IndentXMLStreamWriter(
-              XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8"));
+            XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
+            if (indent)
+                writer = new IndentXMLStreamWriter(writer);
             writer.writeStartDocument("UTF-8", "1.0");
             this.writeXML(writer);
             writer.writeEndDocument();
@@ -118,7 +120,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
     public String toString() {
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         try {
-            this.toXML(buf);
+            this.toXML(buf, true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
