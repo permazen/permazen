@@ -139,5 +139,74 @@ public class SnapshotTest extends TestSupport {
 
         Assert.assertEquals(data1, data2);
     }
+
+    @Test
+    public void testSnapshotConflict() throws Exception {
+
+        // Setup databases
+        final Database db1 = new Database(new SimpleKVDatabase());
+        final Database db2 = new Database(new SimpleKVDatabase());
+
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema>\n"
+          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "    <SimpleField name=\"bar\" type=\"int\" storageId=\"7\" indexed=\"true\"/>\n"
+          + "  </Object>\n"
+          + "</Schema>\n"
+          ).getBytes("UTF-8")));
+
+        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema>\n"
+          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "    <SimpleField name=\"bar\" type=\"int\" storageId=\"7\" indexed=\"false\"/>\n"
+          + "  </Object>\n"
+          + "</Schema>\n"
+          ).getBytes("UTF-8")));
+
+        Transaction tx1 = db1.createTransaction(schema1, 1, true);
+        Transaction tx2 = db2.createTransaction(schema2, 1, true);
+
+        final ObjId id1 = tx1.create(1);
+
+        try {
+            tx1.snapshot(id1, tx2);
+            assert false;
+        } catch (SchemaMismatchException e) {
+            // expected
+        }
+
+        tx1.delete(id1);
+
+        try {
+            tx1.snapshot(id1, tx2);
+            assert false;
+        } catch (DeletedObjectException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testSnapshotSame() throws Exception {
+
+        // Setup databases
+        final Database db1 = new Database(new SimpleKVDatabase());
+
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema>\n"
+          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "    <SimpleField name=\"bar\" type=\"int\" storageId=\"7\" indexed=\"true\"/>\n"
+          + "  </Object>\n"
+          + "</Schema>\n"
+          ).getBytes("UTF-8")));
+
+        Transaction tx1 = db1.createTransaction(schema1, 1, true);
+
+        final ObjId id1 = tx1.create(1);
+
+        Assert.assertFalse(tx1.snapshot(id1, tx1));
+    }
 }
 
