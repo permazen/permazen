@@ -13,7 +13,7 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
@@ -27,19 +27,19 @@ public class NavigableMapKVStore extends CountingKVStoreAdapter {
     private final NavigableMap<byte[], byte[]> map;
 
     /**
-     * Convenience constructor. Uses an internally constructed {@link TreeMap}.
+     * Convenience constructor. Uses an internally constructed {@link ConcurrentSkipListMap}.
      *
      * <p>
      * Equivalent to:
      * <blockquote><code>
-     * NavigableMapKVStore(new TreeMap&lt;byte[], byte[]&gt;(ByteUtil.COMPARATOR)
+     * NavigableMapKVStore(new ConcurrentSkipListMap&lt;byte[], byte[]&gt;(ByteUtil.COMPARATOR)
      * </code></blockquote>
      * </p>
      *
      * @see org.jsimpledb.util.ByteUtil#COMPARATOR
      */
     public NavigableMapKVStore() {
-        this(new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR));
+        this(new ConcurrentSkipListMap<byte[], byte[]>(ByteUtil.COMPARATOR));
     }
 
     /**
@@ -47,6 +47,11 @@ public class NavigableMapKVStore extends CountingKVStoreAdapter {
      *
      * <p>
      * The underlying map <b>must</b> sort keys lexicographically as unsigned bytes; otherwise, behavior is undefined.
+     * </p>
+     *
+     * <p>
+     * The underlying map's iterator <b>must not</b> throw {@link java.util.ConcurrentModificationException}. For example,
+     * {@link java.util.TreeMap} does not satisfy this constraint.
      * </p>
      *
      * @param map underlying map
