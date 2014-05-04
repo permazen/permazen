@@ -54,7 +54,7 @@ public class KVDatabaseTest extends TestSupport {
         // SimpleKVDatabase
         final TreeMap<byte[], byte[]> storeData = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
         final NavigableMapKVStore kv = new NavigableMapKVStore(storeData);
-        final SimpleKVDatabase store = new SimpleKVDatabase(kv, 25, 50);
+        final SimpleKVDatabase store = new SimpleKVDatabase(kv, 100, 250);
         list.add(new Object[] { store, storeData });
 
         // FoundationDB
@@ -138,7 +138,10 @@ public class KVDatabaseTest extends TestSupport {
         } catch (Exception e) {
             if (e instanceof ExecutionException)
                 e = (Exception)e.getCause();
-            Assert.assertTrue(e instanceof RetryTransactionException, "exception is " + e);
+            if (!(e instanceof RetryTransactionException)) {
+                this.log.error("wrong exception type", e);
+                assert false;
+            }
             final RetryTransactionException retry = (RetryTransactionException)e;
             Assert.assertTrue(retry.getTransaction() == tx2 || retry.getTransaction() == tx3,
               "tx is " + retry.getTransaction() + " not " + tx2 + " or " + tx3);
