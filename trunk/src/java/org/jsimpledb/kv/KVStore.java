@@ -68,6 +68,11 @@ public interface KVStore {
      * then this method behaves as if {@code maxKey} were null.
      * </p>
      *
+     * <p>
+     * The returned {@link Iterator} must not throw {@link java.util.ConcurrentModificationException};
+     * however, it is undefined whether or not the {@link Iterator} reflects any modifications made after its creation.
+     * </p>
+     *
      * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
      * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
      * @param reverse true to return key/value pairs in reverse order (i.e., keys descending)
