@@ -7,8 +7,6 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.collect.Lists;
-
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.NavigableMap;
@@ -16,7 +14,6 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 
 import org.jsimpledb.TestSupport;
-import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.schema.SchemaModel;
@@ -30,11 +27,15 @@ public class SnapshotTest extends TestSupport {
     @Test
     public void testSnapshot() throws Exception {
 
-        // Setup database
+        // Setup databases
         final TreeMap<byte[], byte[]> data1 = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
         final NavigableMapKVStore kvstore1 = new NavigableMapKVStore(data1);
         final SimpleKVDatabase kv1 = new SimpleKVDatabase(kvstore1, 100, 500);
         final Database db1 = new Database(kv1);
+        final TreeMap<byte[], byte[]> data2 = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+        final NavigableMapKVStore kvstore2 = new NavigableMapKVStore(data2);
+        final SimpleKVDatabase kv2 = new SimpleKVDatabase(kvstore2, 100, 500);
+        final Database db2 = new Database(kv2);
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -88,7 +89,7 @@ public class SnapshotTest extends TestSupport {
 
     // Setup tx2
 
-        Transaction tx2 = tx1.createSnapshotTransaction();
+        Transaction tx2 = db2.createTransaction(schema, 1, true);
 
     // Snapshot
 
@@ -139,14 +140,11 @@ public class SnapshotTest extends TestSupport {
         Assert.assertEquals(tx2.readSimpleField(id1, 2), 456.78f);
         Assert.assertTrue(tx2.readSetField(id1, 4).isEmpty());
 
-        // Commit transaction and verify identical key/value stores
+        // Commit transactions and verify identical key/value stores
         tx1.commit();
+        tx2.commit();
 
-        Transaction tx3 = db1.createTransaction(schema, 1, true);
-
-        Assert.assertEquals(
-          Lists.<KVPair>newArrayList(tx3.getKVTransaction().getRange(null, null, false)),
-          Lists.<KVPair>newArrayList(kvstore1.getRange(null, null, false)));
+        Assert.assertEquals(data1, data2);
     }
 
     @Test
