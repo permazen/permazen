@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #setReadOnly setReadOnly()} - Set transaction to read-only</li>
  *  <li>{@link #setRollbackOnly setRollbackOnly()} - Set transaction for rollack only</li>
  *  <li>{@link #addCallback addCallback()} - Register a {@link Callback} on transaction completion</li>
+ *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create a empty, in-memory copy of this transaction</li>
  * </ul>
  * </p>
  *
@@ -188,10 +189,14 @@ public class Transaction {
     private final LinkedHashSet<Callback> callbacks = new LinkedHashSet<>();
 
     Transaction(Database db, KVTransaction kvt, Schema schema, int versionNumber) {
+        this(db, kvt, schema, schema.getVersion(versionNumber));
+    }
+
+    Transaction(Database db, KVTransaction kvt, Schema schema, SchemaVersion version) {
         this.db = db;
         this.kvt = kvt;
         this.schema = schema;
-        this.version = this.schema.getVersion(versionNumber);
+        this.version = version;
     }
 
 // Transaction Meta-Data
@@ -432,6 +437,21 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         this.callbacks.add(callback);
+    }
+
+    /**
+     * Create an empty, in-memory transaction initialized with the same schema history as this transaction.
+     * The result can be used as a destination for {@linkplain #snapshot snapshot} copies of objects.
+     *
+     * <p>
+     * The returned transaction does not support {@link #commit}, {@link #rollback}, {@link #setRollbackOnly},
+     * or {@link #addCallback addCallback()}. However, it can be used indefinitely after this transaction closes.
+     * </p>
+     *
+     * @return uncloseable, empty, in-memory transaction with compatible schema information
+     */
+    public Transaction createSnapshotTransaction() {
+        return new SnapshotTransaction(this);
     }
 
 // Object Lifecycle

@@ -17,6 +17,7 @@ import java.util.TreeMap;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.schema.SchemaModel;
@@ -422,6 +423,15 @@ public class Database {
             new SchemaVersion(1, new byte[0], schemaModel, this.fieldTypeRegistry);
         } catch (IllegalArgumentException e) {
             throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);
+        }
+    }
+
+    void copyMetaData(Transaction src, KVStore dst) {
+        dst.put(ENCODING_KEY, src.kvt.get(ENCODING_KEY));
+        for (Iterator<KVPair> i = src.kvt.getRange(SCHEMA_KEY_PREFIX, ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);
+          i.hasNext(); ) {
+            final KVPair pair = i.next();
+            dst.put(pair.getKey(), pair.getValue());
         }
     }
 
