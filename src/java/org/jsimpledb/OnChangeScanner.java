@@ -238,7 +238,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         }
 
         private String getFieldName(int storageId) {
-            return OnChangeScanner.this.jclass.jfields.get(storageId).name;
+            return OnChangeScanner.this.jclass.jdb.jfields.get(storageId).name;
         }
 
         private void invoke(NavigableSet<ObjId> referrers, FieldChange<JObject> change) {
