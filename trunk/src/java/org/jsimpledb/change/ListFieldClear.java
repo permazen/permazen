@@ -19,10 +19,11 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that was cleared
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @param fieldName the name of the field that changed
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldClear(T jobj) {
-        super(jobj);
+    public ListFieldClear(T jobj, String fieldName) {
+        super(jobj, fieldName);
     }
 
     @Override

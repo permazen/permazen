@@ -23,12 +23,13 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
+     * @param fieldName the name of the field that changed
      * @param index index at which the removal occurred
      * @param element the element that was removed
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldRemove(T jobj, int index, E element) {
-        super(jobj);
+    public ListFieldRemove(T jobj, String fieldName, int index, E element) {
+        super(jobj, fieldName);
         this.index = index;
         this.element = element;
     }

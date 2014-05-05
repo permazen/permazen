@@ -23,12 +23,13 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the field that changed
+     * @param fieldName the name of the field that changed
      * @param oldValue the old field value
      * @param newValue the new field value
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public SimpleFieldChange(T jobj, V oldValue, V newValue) {
-        super(jobj);
+    public SimpleFieldChange(T jobj, String fieldName, V oldValue, V newValue) {
+        super(jobj, fieldName);
         this.oldValue = oldValue;
         this.newValue = newValue;
     }

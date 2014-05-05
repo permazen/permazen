@@ -19,10 +19,11 @@ public class SetFieldClear<T> extends SetFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the set field that was cleared
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @param fieldName the name of the field that changed
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public SetFieldClear(T jobj) {
-        super(jobj);
+    public SetFieldClear(T jobj, String fieldName) {
+        super(jobj, fieldName);
     }
 
     @Override

@@ -24,13 +24,14 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
+     * @param fieldName the name of the field that changed
      * @param index the index at which the replacement occurred
      * @param oldValue the old value in the list
      * @param newValue the new value in the list
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldReplace(T jobj, int index, E oldValue, E newValue) {
-        super(jobj);
+    public ListFieldReplace(T jobj, String fieldName, int index, E oldValue, E newValue) {
+        super(jobj, fieldName);
         this.index = index;
         this.oldValue = oldValue;
         this.newValue = newValue;
