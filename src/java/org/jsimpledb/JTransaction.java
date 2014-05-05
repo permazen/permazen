@@ -209,7 +209,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
         final TypeToken<?> startType = this.jdb.getJClass(jobj.getObjId().getStorageId()).typeToken;
-        final ReferencePath refPath = new ReferencePath(this.jdb, startType, path, false);
+        final ReferencePath refPath = this.jdb.parseReferencePath(startType, path, false);
         if (refPath.getReferenceFields().length > 0)
             throw new IllegalArgumentException("path `" + path + "' contains one or more reference fields");
         if (!refPath.targetType.getRawType().isInstance(jobj))
@@ -432,7 +432,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     public <T> NavigableSet<T> invertReferencePath(Class<T> startType, String path, Iterable<? extends JObject> targetObjects) {
         if (targetObjects == null)
             throw new IllegalArgumentException("null targetObjects");
-        final ReferencePath refPath = new ReferencePath(this.jdb, TypeToken.of(startType), path, true);
+        final ReferencePath refPath = this.jdb.parseReferencePath(TypeToken.of(startType), path, true);
         final int targetField = refPath.getTargetField();
         if (!(this.jdb.jfields.get(targetField) instanceof JReferenceField)) {
             final String fieldName = path.substring(path.lastIndexOf('.') + 1);
