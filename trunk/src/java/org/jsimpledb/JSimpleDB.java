@@ -74,6 +74,7 @@ public class JSimpleDB {
     final HashMap<TypeToken<?>, JClass<?>> jclassesByType = new HashMap<>();
     final HashMap<Integer, JField> jfields = new HashMap<>();
     final ReferenceConverter referenceConverter = new ReferenceConverter(this);
+    final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final Database db;
     final int version;
 
@@ -392,7 +393,11 @@ public class JSimpleDB {
      * @see ReferencePath
      */
     public ReferencePath parseReferencePath(TypeToken<?> startType, String path) {
-        return new ReferencePath(this, startType, path, null);
+        return this.parseReferencePath(startType, path, null);
+    }
+
+    ReferencePath parseReferencePath(TypeToken<?> startType, String path, Boolean lastIsSubField) {
+        return this.referencePathCache.get(startType, path, lastIsSubField);
     }
 
 // Internal Stuff

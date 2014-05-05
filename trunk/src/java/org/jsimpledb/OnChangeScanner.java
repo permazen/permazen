@@ -80,7 +80,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
             // Parse reference path
             try {
-                this.path = new ReferencePath(OnChangeScanner.this.jclass.jdb, startType, annotation.value(), false);
+                this.path = OnChangeScanner.this.jclass.jdb.parseReferencePath(startType, annotation.value(), false);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
             }
