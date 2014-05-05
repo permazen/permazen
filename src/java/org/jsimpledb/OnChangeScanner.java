@@ -126,7 +126,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           int storageId, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
             if (this.changeType.isAssignableFrom(SimpleFieldChange.class)) {
                 this.invoke(referrers, new SimpleFieldChange(this.getJObject(id),
-                  this.convert(-1, oldValue), this.convert(-1, newValue)));
+                  this.getFieldName(storageId), this.convert(-1, oldValue), this.convert(-1, newValue)));
             }
         }
 
@@ -136,21 +136,23 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onSetFieldAdd(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers, E value) {
             if (this.changeType.isAssignableFrom(SetFieldAdd.class))
-                this.invoke(referrers, new SetFieldAdd(this.getJObject(id), this.convert(0, value)));
+                this.invoke(referrers, new SetFieldAdd(this.getJObject(id), this.getFieldName(storageId), this.convert(0, value)));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onSetFieldRemove(Transaction tx, ObjId id, int storageId, int[] path,
           NavigableSet<ObjId> referrers, E value) {
-            if (this.changeType.isAssignableFrom(SetFieldRemove.class))
-                this.invoke(referrers, new SetFieldRemove(this.getJObject(id), this.convert(0, value)));
+            if (this.changeType.isAssignableFrom(SetFieldRemove.class)) {
+                this.invoke(referrers, new SetFieldRemove(this.getJObject(id),
+                  this.getFieldName(storageId), this.convert(0, value)));
+            }
         }
 
         @Override
         public void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             if (this.changeType.isAssignableFrom(SetFieldClear.class))
-                this.invoke(referrers, new SetFieldClear<JObject>(this.getJObject(id)));
+                this.invoke(referrers, new SetFieldClear<JObject>(this.getJObject(id), this.getFieldName(storageId)));
         }
 
     // ListFieldChangeListener
@@ -159,16 +161,20 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldAdd(Transaction tx, ObjId id, int storageId, int[] path,
           NavigableSet<ObjId> referrers, int index, E value) {
-            if (this.changeType.isAssignableFrom(ListFieldAdd.class))
-                this.invoke(referrers, new ListFieldAdd(this.getJObject(id), index, this.convert(0, value)));
+            if (this.changeType.isAssignableFrom(ListFieldAdd.class)) {
+                this.invoke(referrers, new ListFieldAdd(this.getJObject(id),
+                  this.getFieldName(storageId), index, this.convert(0, value)));
+            }
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldRemove(Transaction tx, ObjId id, int storageId, int[] path,
           NavigableSet<ObjId> referrers, int index, E value) {
-            if (this.changeType.isAssignableFrom(ListFieldRemove.class))
-                this.invoke(referrers, new ListFieldRemove(this.getJObject(id), index, this.convert(0, value)));
+            if (this.changeType.isAssignableFrom(ListFieldRemove.class)) {
+                this.invoke(referrers, new ListFieldRemove(this.getJObject(id),
+                  this.getFieldName(storageId), index, this.convert(0, value)));
+            }
         }
 
         @Override
@@ -177,14 +183,14 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
             if (this.changeType.isAssignableFrom(ListFieldReplace.class)) {
                 this.invoke(referrers, new ListFieldReplace(this.getJObject(id),
-                  index, this.convert(0, oldValue), this.convert(0, newValue)));
+                  this.getFieldName(storageId), index, this.convert(0, oldValue), this.convert(0, newValue)));
             }
         }
 
         @Override
         public void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             if (this.changeType.isAssignableFrom(ListFieldClear.class))
-                this.invoke(referrers, new ListFieldClear<JObject>(this.getJObject(id)));
+                this.invoke(referrers, new ListFieldClear<JObject>(this.getJObject(id), this.getFieldName(storageId)));
         }
 
     // MapFieldChangeListener
@@ -193,16 +199,20 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldAdd(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
           K key, V value) {
-            if (this.changeType.isAssignableFrom(MapFieldAdd.class))
-                this.invoke(referrers, new MapFieldAdd(this.getJObject(id), this.convert(0, key), this.convert(1, value)));
+            if (this.changeType.isAssignableFrom(MapFieldAdd.class)) {
+                this.invoke(referrers, new MapFieldAdd(this.getJObject(id),
+                  this.getFieldName(storageId), this.convert(0, key), this.convert(1, value)));
+            }
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldRemove(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
           K key, V value) {
-            if (this.changeType.isAssignableFrom(MapFieldRemove.class))
-                this.invoke(referrers, new MapFieldRemove(this.getJObject(id), this.convert(0, key), this.convert(1, value)));
+            if (this.changeType.isAssignableFrom(MapFieldRemove.class)) {
+                this.invoke(referrers, new MapFieldRemove(this.getJObject(id),
+                  this.getFieldName(storageId), this.convert(0, key), this.convert(1, value)));
+            }
         }
 
         @Override
@@ -211,20 +221,24 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           K key, V oldValue, V newValue) {
             if (this.changeType.isAssignableFrom(MapFieldReplace.class)) {
                 this.invoke(referrers, new MapFieldReplace(this.getJObject(id),
-                  this.convert(0, key), this.convert(1, oldValue), this.convert(1, newValue)));
+                  this.getFieldName(storageId), this.convert(0, key), this.convert(1, oldValue), this.convert(1, newValue)));
             }
         }
 
         @Override
         public void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
             if (this.changeType.isAssignableFrom(MapFieldClear.class))
-                this.invoke(referrers, new MapFieldClear<JObject>(this.getJObject(id)));
+                this.invoke(referrers, new MapFieldClear<JObject>(this.getJObject(id), this.getFieldName(storageId)));
         }
 
     // Internal methods
 
         private JObject getJObject(ObjId id) {
             return JTransaction.getCurrent().jdb.getJObject(id);
+        }
+
+        private String getFieldName(int storageId) {
+            return OnChangeScanner.this.jclass.jfields.get(storageId).name;
         }
 
         private void invoke(NavigableSet<ObjId> referrers, FieldChange<JObject> change) {

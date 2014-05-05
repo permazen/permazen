@@ -23,12 +23,13 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
+     * @param fieldName the name of the field that changed
      * @param index index at which the addition occurred
      * @param element the element that was added
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldAdd(T jobj, int index, E element) {
-        super(jobj);
+    public ListFieldAdd(T jobj, String fieldName, int index, E element) {
+        super(jobj, fieldName);
         this.index = index;
         this.element = element;
     }

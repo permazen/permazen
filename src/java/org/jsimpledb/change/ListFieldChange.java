@@ -19,10 +19,11 @@ public abstract class ListFieldChange<T> extends FieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @param fieldName the name of the field that changed
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    protected ListFieldChange(T jobj) {
-        super(jobj);
+    protected ListFieldChange(T jobj, String fieldName) {
+        super(jobj, fieldName);
     }
 }
 

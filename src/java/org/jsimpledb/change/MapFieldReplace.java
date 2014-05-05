@@ -25,13 +25,14 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the map field that changed
+     * @param fieldName the name of the field that changed
      * @param key the key whose value was changed
      * @param oldValue the old value associated with {@code key}
      * @param newValue the new value associated with {@code key}
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public MapFieldReplace(T jobj, K key, V oldValue, V newValue) {
-        super(jobj);
+    public MapFieldReplace(T jobj, String fieldName, K key, V oldValue, V newValue) {
+        super(jobj, fieldName);
         this.key = key;
         this.oldValue = oldValue;
         this.newValue = newValue;

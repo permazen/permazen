@@ -24,12 +24,13 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the map field that changed
+     * @param fieldName the name of the field that changed
      * @param key the key of the removed key/value pair
      * @param value the value of the removed key/value pair
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public MapFieldRemove(T jobj, K key, V value) {
-        super(jobj);
+    public MapFieldRemove(T jobj, String fieldName, K key, V value) {
+        super(jobj, fieldName);
         this.key = key;
         this.value = value;
     }

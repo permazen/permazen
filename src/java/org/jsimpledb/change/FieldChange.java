@@ -16,17 +16,22 @@ package org.jsimpledb.change;
 public abstract class FieldChange<T> {
 
     private final T jobj;
+    private final String fieldName;
 
     /**
      * Constructor.
      *
      * @param jobj Java object containing the field that changed
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @param fieldName the name of the field that changed
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    protected FieldChange(T jobj) {
+    protected FieldChange(T jobj, String fieldName) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
+        if (fieldName == null)
+            throw new IllegalArgumentException("null fieldName");
         this.jobj = jobj;
+        this.fieldName = fieldName;
     }
 
     /**
@@ -36,6 +41,13 @@ public abstract class FieldChange<T> {
         return this.jobj;
     }
 
+    /**
+     * Get the name of the field that changed.
+     */
+    public String getFieldName() {
+        return this.fieldName;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this)
@@ -43,12 +55,12 @@ public abstract class FieldChange<T> {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final FieldChange<?> that = (FieldChange<?>)obj;
-        return this.jobj.equals(that.jobj);
+        return this.jobj.equals(that.jobj) && this.fieldName.equals(that.fieldName);
     }
 
     @Override
     public int hashCode() {
-        return this.jobj.hashCode();
+        return this.jobj.hashCode() ^ this.fieldName.hashCode();
     }
 }
 

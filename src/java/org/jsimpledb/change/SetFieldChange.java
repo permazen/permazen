@@ -19,10 +19,11 @@ public abstract class SetFieldChange<T> extends FieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the set field that changed
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @param fieldName the name of the field that changed
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    protected SetFieldChange(T jobj) {
-        super(jobj);
+    protected SetFieldChange(T jobj, String fieldName) {
+        super(jobj, fieldName);
     }
 }
 

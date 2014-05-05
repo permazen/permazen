@@ -22,11 +22,12 @@ public class SetFieldAdd<T, E> extends SetFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the set field that changed
+     * @param fieldName the name of the field that changed
      * @param element the element that was added
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public SetFieldAdd(T jobj, E element) {
-        super(jobj);
+    public SetFieldAdd(T jobj, String fieldName, E element) {
+        super(jobj, fieldName);
         this.element = element;
     }
 

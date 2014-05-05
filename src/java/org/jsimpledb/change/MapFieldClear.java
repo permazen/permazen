@@ -19,10 +19,11 @@ public class MapFieldClear<T> extends MapFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the map field that was cleared
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @param fieldName the name of the field that changed
+     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public MapFieldClear(T jobj) {
-        super(jobj);
+    public MapFieldClear(T jobj, String fieldName) {
+        super(jobj, fieldName);
     }
 
     @Override
