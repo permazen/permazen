@@ -344,7 +344,7 @@ public class JSimpleDB {
 // Object Cache
 
     /**
-     * Get the Java object used to represent the given object ID.
+     * Get the Java model object with the given object ID.
      *
      * <p>
      * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.
@@ -352,8 +352,12 @@ public class JSimpleDB {
      *
      * @param id object ID
      * @return Java model object
+     * @throws IllegalArgumentException if {@code id} is null
+     * @see JTransaction#getJObject JTransaction.getJObject()
      */
     public JObject getJObject(ObjId id) {
+        if (id == null)
+            throw new IllegalArgumentException("null id");
         Throwable cause;
         try {
             return this.objectMap.get(id);
