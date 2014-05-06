@@ -65,7 +65,8 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
 
     @Override
     public String toString() {
-        return "ListFieldAdd[object=" + this.getObject() + ",index=" + this.index + ",element=" + this.element + "]";
+        return "ListFieldAdd[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",index="
+          + this.index + ",element=" + this.element + "]";
     }
 }
 

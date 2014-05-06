@@ -67,7 +67,8 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
 
     @Override
     public String toString() {
-        return "MapFieldRemove[object=" + this.getObject() + ",key=" + this.key + ",value=" + this.value + "]";
+        return "MapFieldRemove[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",key="
+          + this.key + ",value=" + this.value + "]";
     }
 }
 

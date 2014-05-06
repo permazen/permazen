@@ -55,7 +55,7 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
 
     @Override
     public String toString() {
-        return "SetFieldRemove[object=" + this.getObject() + ",element=" + this.element + "]";
+        return "SetFieldRemove[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",element=" + this.element + "]";
     }
 }
 

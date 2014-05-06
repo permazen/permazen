@@ -55,7 +55,7 @@ public class SetFieldAdd<T, E> extends SetFieldChange<T> {
 
     @Override
     public String toString() {
-        return "SetFieldAdd[object=" + this.getObject() + ",element=" + this.element + "]";
+        return "SetFieldAdd[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",element=" + this.element + "]";
     }
 }
 

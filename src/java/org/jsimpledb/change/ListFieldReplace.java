@@ -80,7 +80,7 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
 
     @Override
     public String toString() {
-        return "ListFieldReplace[object=" + this.getObject() + ",index=" + this.index
+        return "ListFieldReplace[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",index=" + this.index
           + ",oldValue=" + this.oldValue + ",newValue=" + this.newValue + "]";
     }
 }

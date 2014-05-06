@@ -28,7 +28,7 @@ public class MapFieldClear<T> extends MapFieldChange<T> {
 
     @Override
     public String toString() {
-        return "MapFieldClear[object=" + this.getObject() + "]";
+        return "MapFieldClear[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\"]";
     }
 }
 

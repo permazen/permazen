@@ -81,7 +81,7 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
 
     @Override
     public String toString() {
-        return "MapFieldReplace[object=" + this.getObject() + ",key=" + this.key
+        return "MapFieldReplace[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",key=" + this.key
           + ",oldValue=" + this.oldValue + ",newValue=" + this.newValue + "]";
     }
 }

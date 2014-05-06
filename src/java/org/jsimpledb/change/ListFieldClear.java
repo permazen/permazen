@@ -28,7 +28,7 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
 
     @Override
     public String toString() {
-        return "ListFieldClear[object=" + this.getObject() + "]";
+        return "ListFieldClear[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\"]";
     }
 }
 

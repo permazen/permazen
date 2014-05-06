@@ -68,8 +68,8 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
 
     @Override
     public String toString() {
-        return "SimpleFieldChange[object=" + this.getObject()
-          + ",oldValue=" + this.oldValue + ",newValue=" + this.newValue + "]";
+        return "SimpleFieldChange[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",oldValue="
+          + this.oldValue + ",newValue=" + this.newValue + "]";
     }
 }
 
