@@ -93,7 +93,7 @@ public class SnapshotTest extends TestSupport {
     // Snapshot
 
         // Copy id1
-        Assert.assertTrue(tx1.snapshot(id1, tx2));
+        Assert.assertTrue(tx1.copyTo(id1, tx2));
 
         // Verify copy
         Assert.assertTrue(tx2.exists(id1));
@@ -114,11 +114,11 @@ public class SnapshotTest extends TestSupport {
         Assert.assertEquals(tx2.queryMapFieldValue(8), buildMap("foo", buildSet(id1), "bar", buildSet(id1)));
 
         // Copy id2 and id3
-        Assert.assertTrue(tx1.snapshot(id2, tx2));
-        Assert.assertTrue(tx1.snapshot(id3, tx2));
+        Assert.assertTrue(tx1.copyTo(id2, tx2));
+        Assert.assertTrue(tx1.copyTo(id3, tx2));
 
         // Verify non-copy of id1 - already copied
-        Assert.assertFalse(tx1.snapshot(id1, tx2));
+        Assert.assertFalse(tx1.copyTo(id1, tx2));
 
         // Check fields
         Assert.assertEquals(tx2.getAll(1), buildSet(id1, id2, id3));
@@ -135,7 +135,7 @@ public class SnapshotTest extends TestSupport {
         // Change id1 and then overwrite copy
         tx1.writeSimpleField(id1, 2, 456.78f);
         tx1.readSetField(id1, 4).clear();
-        Assert.assertFalse(tx1.snapshot(id1, tx2));
+        Assert.assertFalse(tx1.copyTo(id1, tx2));
         Assert.assertEquals(tx2.readSimpleField(id1, 2), 456.78f);
         Assert.assertTrue(tx2.readSetField(id1, 4).isEmpty());
 
@@ -180,7 +180,7 @@ public class SnapshotTest extends TestSupport {
         final ObjId id1 = tx1.create(1);
 
         try {
-            tx1.snapshot(id1, tx2);
+            tx1.copyTo(id1, tx2);
             assert false;
         } catch (SchemaMismatchException e) {
             // expected
@@ -189,7 +189,7 @@ public class SnapshotTest extends TestSupport {
         tx1.delete(id1);
 
         try {
-            tx1.snapshot(id1, tx2);
+            tx1.copyTo(id1, tx2);
             assert false;
         } catch (DeletedObjectException e) {
             // expected
@@ -215,7 +215,7 @@ public class SnapshotTest extends TestSupport {
 
         final ObjId id1 = tx1.create(1);
 
-        Assert.assertFalse(tx1.snapshot(id1, tx1));
+        Assert.assertFalse(tx1.copyTo(id1, tx1));
     }
 }
 
