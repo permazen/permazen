@@ -86,5 +86,22 @@ class ReferencePathCache {
         public Boolean isLastIsSubField() {
             return this.lastIsSubField;
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this)
+                return true;
+            if (obj == null || obj.getClass() != this.getClass())
+                return false;
+            final Key that = (Key)obj;
+            return this.startType.equals(that.startType) && this.path.equals(that.path)
+              && (this.lastIsSubField != null ? this.lastIsSubField.equals(that.lastIsSubField) : that.lastIsSubField == null);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.startType.hashCode() ^ this.path.hashCode()
+              ^ (this.lastIsSubField != null ? this.lastIsSubField.hashCode() : -1);
+        }
     }
 }
