@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #create(int) create()} - Create a database object</li>
  *  <li>{@link #delete delete()} - Delete a database object</li>
  *  <li>{@link #exists exists()} - Test whether a database object exists</li>
- *  <li>{@link #snapshot snapshot()} - Snapshot an object by copying it into a different transaction</li>
+ *  <li>{@link #copyTo copyTo()} - "Snapshot" an object by copying it into a different transaction</li>
  *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects</li>
  *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}</li>
  *  <li>{@link #addDeleteListener addDeleteListener()} - Register a {@link DeleteListener} for notifications
@@ -441,7 +441,7 @@ public class Transaction {
 
     /**
      * Create an empty, in-memory transaction initialized with the same schema history as this transaction.
-     * The result can be used as a destination for {@linkplain #snapshot snapshot} copies of objects.
+     * The result can be used as a destination for {@linkplain #copyTo copyTo} "snapshot" copies of objects.
      *
      * <p>
      * The returned transaction does not support {@link #commit}, {@link #rollback}, {@link #setRollbackOnly},
@@ -720,12 +720,12 @@ public class Transaction {
     }
 
     /**
-     * Snapshot the specified object by copying it into a different transaction. This only copies the object
+     * "Snapshot" the specified object by copying it into a different transaction. This method copies the object
      * and all of its fields; any other objects it references are not copied. If the object already exists in {@code dest},
      * the old copy will be overwritten. The copy is done by copying key/value pairs directly for efficiency.
      *
      * <p>
-     * Note: if two threads attempt to snapshot objects between the same two transactions in opposite directions,
+     * Note: if two threads attempt to copy objects between the same two transactions in opposite directions,
      * deadlock may result.
      * </p>
      *
@@ -734,14 +734,14 @@ public class Transaction {
      * </p>
      *
      * @param id object ID of the object to copy
-     * @param dest destination for the snapshot
+     * @param dest destination for the copy
      * @return false if object existed in {@code dest} and was overwritten, true if object did not exist in {@code dest}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
      * @throws IllegalArgumentException if {@code id} is null
      * @throws SchemaMismatchException if the schema version corresponding to the object's version is not identical
      *  in both transactions
      */
-    public synchronized boolean snapshot(ObjId id, Transaction dest) {
+    public synchronized boolean copyTo(ObjId id, Transaction dest) {
 
         // Sanity check
         if (this == dest)
