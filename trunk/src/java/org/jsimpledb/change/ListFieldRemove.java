@@ -65,7 +65,8 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
 
     @Override
     public String toString() {
-        return "ListFieldRemove[object=" + this.getObject() + ",index=" + this.index + ",element=" + this.element + "]";
+        return "ListFieldRemove[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",index="
+          + this.index + ",element=" + this.element + "]";
     }
 }
 

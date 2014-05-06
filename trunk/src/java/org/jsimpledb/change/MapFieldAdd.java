@@ -67,7 +67,8 @@ public class MapFieldAdd<T, K, V> extends MapFieldChange<T> {
 
     @Override
     public String toString() {
-        return "MapFieldAdd[object=" + this.getObject() + ",key=" + this.key + ",value=" + this.value + "]";
+        return "MapFieldAdd[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",key="
+          + this.key + ",value=" + this.value + "]";
     }
 }
 

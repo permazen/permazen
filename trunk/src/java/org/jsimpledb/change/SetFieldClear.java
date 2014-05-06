@@ -28,7 +28,7 @@ public class SetFieldClear<T> extends SetFieldChange<T> {
 
     @Override
     public String toString() {
-        return "SetFieldClear[object=" + this.getObject() + "]";
+        return "SetFieldClear[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\"]";
     }
 }
 
