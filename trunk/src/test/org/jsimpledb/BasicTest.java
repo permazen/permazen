@@ -228,10 +228,14 @@ public class BasicTest extends TestSupport {
         return BasicTest.getJSimpleDB(MeanPerson.class, Person.class, Indexer.class);
     }
 
-    public static JSimpleDB getJSimpleDB(Class<?>... classes) {
+    public static JSimpleDB getJSimpleDB(Class... classes) {
+        return getJSimpleDB(Arrays.<Class<?>>asList(classes));
+    }
+
+    public static JSimpleDB getJSimpleDB(Iterable<Class<?>> classes) {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
-        return new JSimpleDB(db, 1, Arrays.<Class<?>>asList(classes));
+        return new JSimpleDB(db, 1, classes);
     }
 
 // Model Classes

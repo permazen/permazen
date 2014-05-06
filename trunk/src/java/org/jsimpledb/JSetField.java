@@ -14,10 +14,8 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.jsimpledb.change.FieldChange;
 import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.change.SetFieldAdd;
-import org.jsimpledb.change.SetFieldChange;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
 import org.jsimpledb.core.Transaction;
@@ -58,10 +56,6 @@ public class JSetField extends JCollectionField {
     // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
     private <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<E> elementType) {
-        types.add(new TypeToken<FieldChange<T>>() { }
-          .where(new TypeParameter<T>() { }, targetType));
-        types.add(new TypeToken<SetFieldChange<T>>() { }
-          .where(new TypeParameter<T>() { }, targetType));
         types.add(new TypeToken<SetFieldAdd<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));

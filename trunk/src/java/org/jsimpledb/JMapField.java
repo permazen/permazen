@@ -17,9 +17,7 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
-import org.jsimpledb.change.FieldChange;
 import org.jsimpledb.change.MapFieldAdd;
-import org.jsimpledb.change.MapFieldChange;
 import org.jsimpledb.change.MapFieldClear;
 import org.jsimpledb.change.MapFieldRemove;
 import org.jsimpledb.change.MapFieldReplace;
@@ -101,10 +99,6 @@ public class JMapField extends JComplexField {
     @SuppressWarnings("serial")
     private <T, K, V> void addChangeParameterTypes(List<TypeToken<?>> types,
       TypeToken<T> targetType, TypeToken<K> keyType, TypeToken<V> valueType) {
-        types.add(new TypeToken<FieldChange<T>>() { }
-          .where(new TypeParameter<T>() { }, targetType));
-        types.add(new TypeToken<MapFieldChange<T>>() { }
-          .where(new TypeParameter<T>() { }, targetType));
         types.add(new TypeToken<MapFieldAdd<T, K, V>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<K>() { }, keyType.wrap())
