@@ -17,7 +17,6 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.dellroad.stuff.java.Primitive;
-import org.jsimpledb.change.FieldChange;
 import org.jsimpledb.change.SimpleFieldChange;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SimpleSchemaField;
@@ -124,8 +123,6 @@ public class JSimpleField extends JField {
     // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
     private <T, V> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<V> fieldType) {
-        types.add(new TypeToken<FieldChange<T>>() { }
-          .where(new TypeParameter<T>() { }, targetType));
         types.add(new TypeToken<SimpleFieldChange<T, V>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<V>() { }, fieldType.wrap()));

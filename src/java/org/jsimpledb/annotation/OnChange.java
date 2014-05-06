@@ -22,12 +22,26 @@ import java.lang.annotation.Target;
  * <p><b>Method Parameter Types</b></p>
  *
  * <p>
- * In all cases the annotated method must return void and take a single parameter, which is a
- * sub-type of {@link org.jsimpledb.change.FieldChange} suitable for the field being watched.
+ * In all cases the annotated method must return void and take a single parameter, which is compatible with one or more
+ * of the {@link org.jsimpledb.change.FieldChange} sub-types appropriate for the field being watched.
  * The parameter type can be used to restrict which notifications are delivered. For example, an annotated method
  * taking a {@link org.jsimpledb.change.SetFieldChange} will receive notifications about all changes to a set field,
  * while a method taking a {@link org.jsimpledb.change.SetFieldAdd} will receive notification only when an element
  * is added to the set.
+ * </p>
+ *
+ * <p>
+ * Multiple reference paths may be specified; if so, all of the specified paths are monitored together, and they all
+ * must emit {@link org.jsimpledb.change.FieldChange}s compatible with the method's parameter type. Therefore, when
+ * mutiple fields are monitored, the method's parameter type may need to be widened (either in raw type, generic type
+ * parameters, or both).
+ * </p>
+ *
+ * <p>
+ * As a special case, if zero fields are specified, then "wildcard" monitoring of every field in the local object occurs.
+ * However in this case, only fields that emit changes compatible with the method's parameter type will be monitored.
+ * So for example, a method taking a {@link org.jsimpledb.change.SetFieldChange} would receive notifications about
+ * changes to all {@code Set} fields in the class, but not any other fields.
  * </p>
  *
  * <p><b>Instance vs. Static Methods</b></p>
@@ -73,8 +87,8 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <p>
- * For any given field change, only one notification will be delivered per recipient object, even if the changed field is seen
- * through the path in multiple ways (e.g., via reference path {@code "mylist.element.myfield"} where the changed object
+ * For any given field change and path, only one notification will be delivered per recipient object, even if the changed field
+ * is seen through the path in multiple ways (e.g., via reference path {@code "mylist.element.myfield"} where the changed object
  * containing {@code myfield} appears multiple times in {@code mylist}).
  * </p>
  *
@@ -95,9 +109,16 @@ public @interface OnChange {
      * Specifies the path to the target field to watch for changes.
      * See {@link org.jsimpledb.ReferencePath} for information on the proper syntax.
      *
+     * <p>
+     * Multiple paths may be specified; if so, each path is handled as a separate independent listener registration,
+     * and the method's parameter type must be compatible with at least one of the {@link org.jsimpledb.change.FieldChange}
+     * sub-types emitted by each field. If zero paths are specified, every field in the class (including superclasses)
+     * that emits {@link org.jsimpledb.change.FieldChange}s compatible with the method parameter will be monitored for changes.
+     * </p>
+     *
      * @see org.jsimpledb.ReferencePath
      */
-    String value();
+    String[] value() default { };
 
     /**
      * Specifies the starting type for the {@link org.jsimpledb.ReferencePath} specified by {@code #value}.

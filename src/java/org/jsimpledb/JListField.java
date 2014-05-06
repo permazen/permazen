@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
-import org.jsimpledb.change.FieldChange;
 import org.jsimpledb.change.ListFieldAdd;
-import org.jsimpledb.change.ListFieldChange;
 import org.jsimpledb.change.ListFieldClear;
 import org.jsimpledb.change.ListFieldRemove;
 import org.jsimpledb.change.ListFieldReplace;
@@ -62,10 +60,6 @@ public class JListField extends JCollectionField {
     // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
     private <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<E> elementType) {
-        types.add(new TypeToken<FieldChange<T>>() { }
-          .where(new TypeParameter<T>() { }, targetType));
-        types.add(new TypeToken<ListFieldChange<T>>() { }
-          .where(new TypeParameter<T>() { }, targetType));
         types.add(new TypeToken<ListFieldAdd<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));
