@@ -15,7 +15,12 @@ public class DeletedObjectException extends DatabaseException {
 
     private final ObjId id;
 
-    DeletedObjectException(ObjId id) {
+    /**
+     * Constructor.
+     *
+     * @param id the ID of the object that was not found
+     */
+    public DeletedObjectException(ObjId id) {
         super("object with ID " + id + " not found");
         this.id = id;
     }
