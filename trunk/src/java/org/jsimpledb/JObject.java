@@ -24,7 +24,7 @@ public interface JObject {
      * Get this instance's unique JSimpleDB object identifier.
      *
      * <p>
-     * This method will always succeed even if there is no transaction associated with the current thread.
+     * This method always succeeds.
      * </p>
      *
      * @return unique database identifier for this instance
@@ -74,6 +74,8 @@ public interface JObject {
      * or at the next invocation of {@link JTransaction#validate}, whichever occurs first.
      * </p>
      *
+     * @throws org.jsimpledb.core.DeletedObjectException
+     *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
      * @throws org.jsimpledb.core.StaleTransactionException
@@ -90,6 +92,8 @@ public interface JObject {
      * methods will be invoked prior to this method returning.
      * </p>
      *
+     * @throws org.jsimpledb.core.DeletedObjectException
+     *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
      * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction associated with the current thread is no longer usable

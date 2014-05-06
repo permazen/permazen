@@ -32,6 +32,7 @@ import org.dellroad.stuff.validation.ValidationUtil;
 import org.jsimpledb.annotation.OnVersionChange;
 import org.jsimpledb.core.CreateListener;
 import org.jsimpledb.core.DeleteListener;
+import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.Field;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
@@ -220,6 +221,27 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
 // Object/Field Access
 
     /**
+     * Get the Java model object with the given object ID.
+     *
+     * <p>
+     * Note that while a non-null object is always returned, the corresponding object may not exist in this transaction.
+     * If not, attempts to access its fields will throw {@link DeletedObjectException}.
+     * </p>
+     *
+     * <p>
+     * This is a convenience method, equivalent to <code>getJSimpleDB().getJObject(id)</code>.
+     * </p>
+     *
+     * @param id object ID
+     * @return Java model object
+     * @throws IllegalArgumentException if {@code id} is null
+     * @see JSimpleDB#getJObject JSimpleDB.getJObject()
+     */
+    public JObject getJObject(ObjId id) {
+        return this.jdb.getJObject(id);
+    }
+
+    /**
      * Create a new instance of the given model class in this transaction.
      *
      * @param type an annotated Java object model type
@@ -239,12 +261,12 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * This method is typically only used by generated classes; normally, {@link JObject#delete} would be used instead.
      * </p>
      *
-     * @param jobj Java model object
+     * @param id Object ID
      * @return true if the object was deleted, false if {@code obj} is null or did not exist
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws IllegalArgumentException if {@code id} is null
      */
-    public boolean delete(JObject jobj) {
-        return this.tx.delete(jobj.getObjId());
+    public boolean delete(ObjId id) {
+        return this.tx.delete(id);
     }
 
     /**
@@ -254,12 +276,12 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * This method is typically only used by generated classes; normally, {@link JObject#exists} would be used instead.
      * </p>
      *
-     * @param jobj Java model object
-     * @return true if the object exists, false if {@code obj} is null or does not exist
-     * @throws NullPointerException if {@code jobj} is null
+     * @param id Object ID
+     * @return true if the object exists, false if not
+     * @throws IllegalArgumentException if {@code id} is null
      */
-    public boolean exists(JObject jobj) {
-        return this.tx.exists(jobj.getObjId());
+    public boolean exists(ObjId id) {
+        return this.tx.exists(id);
     }
 
     /**
@@ -269,12 +291,12 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * This method is typically only used by generated classes; normally, {@link JObject#recreate} would be used instead.
      * </p>
      *
-     * @param jobj Java model object
-     * @return true if the object was recreated, false if {@code obj} already existed
-     * @throws NullPointerException if {@code jobj} is null
+     * @param id Object ID
+     * @return true if the object was recreated, false if the object already existed
+     * @throws IllegalArgumentException if {@code id} is null
      */
-    public boolean recreate(JObject jobj) {
-        return this.tx.create(jobj.getObjId());
+    public boolean recreate(ObjId id) {
+        return this.tx.create(id);
     }
 
     /**
@@ -285,13 +307,16 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * This method is typically only used by generated classes; normally, {@link JObject#revalidate} would be used instead.
      * </p>
      *
-     * @param jobj Java model object
+     * @param id Object ID
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalStateException if transaction commit is already in progress
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws DeletedObjectException if the object does not exist in this transaction
+     * @throws IllegalArgumentException if {@code id} is null
      */
-    public void revalidate(JObject jobj) {
-        this.revalidate(Collections.singleton(jobj.getObjId()));
+    public void revalidate(ObjId id) {
+        if (!this.tx.exists(id))
+            throw new DeletedObjectException(id);
+        this.revalidate(Collections.singleton(id));
     }
 
     void revalidate(Collection<? extends ObjId> ids) {
@@ -315,20 +340,14 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * to this method returning.
      * </p>
      *
-     * @param jobj Java model object
+     * @param id Object ID
      * @return true if the object's schema version was changed, false if it was already updated
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws org.jsimpledb.core.DeletedObjectException if the object does not exist in this transaction
-     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws DeletedObjectException if the object does not exist in this transaction
+     * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized boolean updateSchemaVersion(JObject jobj) {
-
-        // Sanity check
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
-
-        // Update version
-        return this.tx.updateSchemaVersion(jobj.getObjId());
+    public boolean updateSchemaVersion(ObjId id) {
+        return this.tx.updateSchemaVersion(id);
     }
 
     /**

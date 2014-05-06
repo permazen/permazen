@@ -102,11 +102,11 @@ class ClassGenerator<T> {
             READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", ObjId.class, int.class);
             READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", ObjId.class, int.class);
             READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, int.class);
-            DELETE_METHOD = JTransaction.class.getMethod("delete", JObject.class);
-            EXISTS_METHOD = JTransaction.class.getMethod("exists", JObject.class);
-            RECREATE_METHOD = JTransaction.class.getMethod("recreate", JObject.class);
-            UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
-            REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", JObject.class);
+            DELETE_METHOD = JTransaction.class.getMethod("delete", ObjId.class);
+            EXISTS_METHOD = JTransaction.class.getMethod("exists", ObjId.class);
+            RECREATE_METHOD = JTransaction.class.getMethod("recreate", ObjId.class);
+            UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", ObjId.class);
+            REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", ObjId.class);
             QUERY_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("querySimpleField", int.class);
             QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class);
             QUERY_MAP_FIELD_KEY_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldKeyEntries", int.class);
@@ -249,6 +249,7 @@ class ClassGenerator<T> {
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
           Type.getMethodDescriptor(Type.getType(JTransaction.class)));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, DELETE_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -262,6 +263,7 @@ class ClassGenerator<T> {
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
           Type.getMethodDescriptor(Type.getType(JTransaction.class)));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, EXISTS_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -275,6 +277,7 @@ class ClassGenerator<T> {
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
           Type.getMethodDescriptor(Type.getType(JTransaction.class)));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, RECREATE_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -288,6 +291,7 @@ class ClassGenerator<T> {
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
           Type.getMethodDescriptor(Type.getType(JTransaction.class)));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, REVALIDATE_METHOD);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
@@ -301,6 +305,7 @@ class ClassGenerator<T> {
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
           Type.getMethodDescriptor(Type.getType(JTransaction.class)));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, UPDATE_SCHEMA_VERSION_METHOD);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
