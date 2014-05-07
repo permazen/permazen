@@ -7,8 +7,11 @@
 
 package org.jsimpledb.core;
 
+import java.io.File;
+import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.TestSupport;
@@ -26,6 +29,7 @@ public class FieldTypeTest extends TestSupport {
     @Test(dataProvider = "cases")
     public void testFieldType(String typeName, Object[] values) throws Exception {
         final FieldType<?> fieldType = registry.getFieldType(typeName);
+        assert fieldType != null : "didn't find `" + typeName + "'";
         this.testFieldType2(fieldType, values);
     }
 
@@ -44,13 +48,13 @@ public class FieldTypeTest extends TestSupport {
             fieldType.write(writer, value);
             encodings[i] = writer.getBytes();
             final T value2 = fieldType.read(new ByteReader(encodings[i]));
-            this.assertEquals(value2, value);
-            this.assertEquals(fieldType.toString(value2), fieldType.toString(value));
+            this.assertEquals(fieldType, value2, value);
+            Assert.assertEquals(fieldType.toString(value2), fieldType.toString(value));
 
             // String encoding
             final String s = fieldType.toString(value);
             final T value3 = fieldType.fromString(new ParseContext(s));
-            this.assertEquals(value3, value);
+            this.assertEquals(fieldType, value3, value);
 
             // Check sort order
             if (i > 0) {
@@ -63,7 +67,8 @@ public class FieldTypeTest extends TestSupport {
         }
     }
 
-    private void assertEquals(Object actual, Object expected) {
+    private <T> void assertEquals(FieldType<T> fieldType, T actual, T expected) {
+        Assert.assertEquals(fieldType.compare(actual, expected), 0);
         if (actual instanceof boolean[])
             Assert.assertEquals((boolean[])expected, (boolean[])actual);
         else if (actual instanceof byte[])
@@ -80,9 +85,6 @@ public class FieldTypeTest extends TestSupport {
             Assert.assertEquals((long[])expected, (long[])actual);
         else if (actual instanceof double[])
             Assert.assertEquals((double[])expected, (double[])actual);
-        else if (actual instanceof Object[])
-            Assert.assertEquals((Object[])expected, (Object[])actual);
-        Assert.assertEquals(expected, actual);
     }
 
     @DataProvider(name = "cases")
@@ -203,7 +205,7 @@ public class FieldTypeTest extends TestSupport {
                 null
             }},
 
-            {   "java.util.UUID", new UUID[] {
+            {   UUID.class.getName(), new UUID[] {
                 UUID.fromString("89b3ed7f-5a7e-4604-9d42-2072248c91e7"),
                 UUID.fromString("b9c069d9-8b09-445e-ad99-9f4b89a14779"),
                 UUID.fromString("e82fd154-7027-479c-ba47-3d01374d82ad"),
@@ -215,6 +217,27 @@ public class FieldTypeTest extends TestSupport {
                 UUID.fromString("79b3ed7f-5a7e-9d42-ffff-2072248c91e7"),
                 UUID.fromString("79b3ed7f-5a7e-9d42-0000-2072248c91e7"),
                 UUID.fromString("79b3ed7f-5a7e-9d42-7fff-2072248c91e7"),
+                null
+            }},
+
+            {   URI.class.getName(), new URI[] {
+                new URI("/foobar"),
+                new URI("http://www.google.com/"),
+                new URI("http://www.google.com/?q=jsimpledb"),
+                null
+            }},
+
+            {   File.class.getName(), new File[] {
+                new File(".profile"),
+                new File("/lost+found"),
+                new File("/tmp/foo"),
+                null
+            }},
+
+            {   Pattern.class.getName(), new Pattern[] {
+                Pattern.compile("(foo)?(bar)?"),
+                Pattern.compile("^.*([\\s@]+)$"),
+                Pattern.compile("ab*c"),
                 null
             }},
 
