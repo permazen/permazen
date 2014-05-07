@@ -7,6 +7,7 @@
 
 package org.jsimpledb;
 
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.ObjId;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -40,27 +40,25 @@ class ClassGenerator<T> {
 
      // Class name suffix for generated classes
     static final String CLASSNAME_SUFFIX = "$$JSimpleDB";
+    static final String SNAPSHOT_CLASSNAME_SUFFIX = "Snapshot";
 
     // Names of generated fields
     static final String ID_FIELD_NAME = "$id";
-
-    // Names of generated methods
-    static final String GET_TX_METHOD_NAME = "$getTx";
-
-    // Object method handles
-    static final Method OBJECT_EQUALS_METHOD;
-    static final Method OBJECT_HASH_CODE_METHOD;
+    static final String SNAPSHOT_TRANSACTION_FIELD_NAME = "$snapshot";
 
     // JObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
+    static final Method JOBJECT_GET_TRANSACTION;
     static final Method JOBJECT_DELETE_METHOD;
     static final Method JOBJECT_EXISTS_METHOD;
     static final Method JOBJECT_RECREATE_METHOD;
     static final Method JOBJECT_UPGRADE_METHOD;
     static final Method JOBJECT_REVALIDATE_METHOD;
+    static final Method JOBJECT_COPY_OUT_METHOD;
+    static final Method JOBJECT_COPY_IN_METHOD;
+    static final Method JOBJECT_COPY_TO_METHOD;
 
     // JTransaction method handles
-    static final Method GET_TRANSACTION_METHOD;
     static final Method GET_CURRENT_METHOD;
     static final Method READ_SIMPLE_FIELD_METHOD;
     static final Method WRITE_SIMPLE_FIELD_METHOD;
@@ -77,24 +75,25 @@ class ClassGenerator<T> {
     static final Method QUERY_LIST_FIELD_ENTRIES_METHOD;
     static final Method QUERY_MAP_FIELD_KEY_ENTRIES_METHOD;
     static final Method QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD;
+    static final Method COPY_TO_METHOD;
+    static final Method GET_SNAPSHOT_TRANSACTION_METHOD;
 
     static {
         try {
 
-            // Object methods
-            OBJECT_EQUALS_METHOD = Object.class.getMethod("equals", Object.class);
-            OBJECT_HASH_CODE_METHOD = Object.class.getMethod("hashCode");
-
             // JObject methods
             JOBJECT_GET_OBJ_ID_METHOD = JObject.class.getMethod("getObjId");
+            JOBJECT_GET_TRANSACTION = JObject.class.getMethod("getTransaction");
             JOBJECT_DELETE_METHOD = JObject.class.getMethod("delete");
             JOBJECT_EXISTS_METHOD = JObject.class.getMethod("exists");
             JOBJECT_RECREATE_METHOD = JObject.class.getMethod("recreate");
             JOBJECT_UPGRADE_METHOD = JObject.class.getMethod("upgrade");
             JOBJECT_REVALIDATE_METHOD = JObject.class.getMethod("revalidate");
+            JOBJECT_COPY_TO_METHOD = JObject.class.getMethod("copyTo", JTransaction.class, String[].class);
+            JOBJECT_COPY_OUT_METHOD = JObject.class.getMethod("copyOut", String[].class);
+            JOBJECT_COPY_IN_METHOD = JObject.class.getMethod("copyIn", String[].class);
 
             // JTransaction methods
-            GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
             GET_CURRENT_METHOD = JTransaction.class.getMethod("getCurrent");
             READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", ObjId.class, int.class);
             WRITE_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("writeSimpleField", ObjId.class, int.class, Object.class);
@@ -111,6 +110,8 @@ class ClassGenerator<T> {
             QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class);
             QUERY_MAP_FIELD_KEY_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldKeyEntries", int.class);
             QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldValueEntries", int.class);
+            COPY_TO_METHOD = JTransaction.class.getMethod("copyTo", JTransaction.class, JObject.class, String[].class);
+            GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("internal error", e);
         }
@@ -131,10 +132,14 @@ class ClassGenerator<T> {
         this.loader = new ClassLoader(this.jclass.typeToken.getRawType().getClassLoader()) {
             @Override
             protected Class<?> findClass(String name) throws ClassNotFoundException {
-                if (!name.replace('.', '/').equals(ClassGenerator.this.getClassName()))
+                final byte[] bytes;
+                if (name.replace('.', '/').equals(ClassGenerator.this.getClassName()))
+                    bytes = ClassGenerator.this.generateBytecode();
+                else if (name.replace('.', '/').equals(ClassGenerator.this.getSnapshotClassName()))
+                    bytes = ClassGenerator.this.generateSnapshotBytecode();
+                else
                     return super.findClass(name);
                 ClassGenerator.this.log.debug("generating class " + name);
-                final byte[] bytes = ClassGenerator.this.generateBytecode();
                 return this.defineClass(null, bytes, 0, bytes.length);
             }
         };
@@ -153,33 +158,15 @@ class ClassGenerator<T> {
     }
 
     /**
-     * Generate the Java class bytecode for this instance's {@link JClass}.
+     * Generate the Java class for this instance's snapshot class.
      */
-    protected byte[] generateBytecode() {
-
-        // Generate class
-        final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_FINAL | Opcodes.ACC_SYNTHETIC,
-          this.getClassName(), null, this.getSuperclassName(), new String[] { Type.getInternalName(JObject.class) });
-        cw.visitSource(GEN_SOURCE, null);
-        this.outputFields(cw);
-        this.outputConstructors(cw);
-        this.outputMethods(cw);
-        cw.visitEnd();
-        final byte[] classfile = cw.toByteArray();
-
-        // Debug dump - requires asm-util
-        // CHECKSTYLE OFF: GenericIllegalRegexp
-        // System.out.println("***************** BEGIN " + this.getClassName() + " ******************");
-        // org.objectweb.asm.ClassReader cr = new org.objectweb.asm.ClassReader(classfile);
-        // java.io.PrintWriter pw = new java.io.PrintWriter(System.out, true);
-        // cr.accept(new org.objectweb.asm.util.TraceClassVisitor(pw), 0);
-        // pw.flush();
-        // System.out.println("***************** END " + this.getClassName() + " ******************");
-        // CHECKSTYLE ON: GenericIllegalRegexp
-
-        // Done
-        return classfile;
+    @SuppressWarnings("unchecked")
+    public Class<? extends T> generateSnapshotClass() {
+        try {
+            return (Class<? extends T>)this.loader.loadClass(this.getSnapshotClassName());
+        } catch (ClassNotFoundException e) {
+            throw new DatabaseException("internal error", e);
+        }
     }
 
     /**
@@ -190,30 +177,60 @@ class ClassGenerator<T> {
     }
 
     /**
+     * Get snapshot class internal name.
+     */
+    private String getSnapshotClassName() {
+        return this.getClassName() + SNAPSHOT_CLASSNAME_SUFFIX;
+    }
+
+    /**
      * Get superclass internal name.
      */
     private String getSuperclassName() {
         return Type.getInternalName(this.jclass.typeToken.getRawType());
     }
 
+// Database class
+
+    /**
+     * Generate the Java class bytecode for this instance's {@link JClass}.
+     */
+    protected byte[] generateBytecode() {
+
+        // Generate class
+        final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_SYNTHETIC,
+          this.getClassName(), null, this.getSuperclassName(), new String[] { Type.getInternalName(JObject.class) });
+        cw.visitSource(GEN_SOURCE, null);
+        this.outputFields(cw);
+        this.outputConstructors(cw);
+        this.outputMethods(cw);
+        cw.visitEnd();
+        final byte[] classfile = cw.toByteArray();
+        this.debugDump(System.out, classfile);
+
+        // Done
+        return classfile;
+    }
+
     private void outputFields(ClassWriter cw) {
 
         // Output "id" field
-        final FieldVisitor idField = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL,
+        final FieldVisitor idField = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
           ID_FIELD_NAME, Type.getDescriptor(ObjId.class), null, null);
         idField.visitEnd();
     }
 
     private void outputConstructors(ClassWriter cw) {
 
-        // Foo(ObjId id, Transaction tx)
-        final String primaryDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(ObjId.class));
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", primaryDescriptor, null, null);
+        // Foo(ObjId id)
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
+          Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(ObjId.class)), null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);                                                          // this.id = id
+        mv.visitInsn(Opcodes.DUP);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 0);                                                          // this.id = id
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getSuperclassName(), "<init>", "()V");
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
@@ -222,9 +239,8 @@ class ClassGenerator<T> {
 
     private void outputMethods(ClassWriter cw) {
 
-        // Output getTx() method
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PRIVATE, GET_TX_METHOD_NAME,
-          Type.getMethodDescriptor(Type.getType(JTransaction.class)), null, null);
+        // Output JObject.getTransaction()
+        MethodVisitor mv = this.startMethod(cw, JOBJECT_GET_TRANSACTION);
         mv.visitCode();
         this.emitInvoke(mv, GET_CURRENT_METHOD);                                                // JTransaction.getCurrent()
         mv.visitInsn(Opcodes.ARETURN);
@@ -232,8 +248,7 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Add JObject.getObjId()
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JOBJECT_GET_OBJ_ID_METHOD.getName(),
-          Type.getMethodDescriptor(JOBJECT_GET_OBJ_ID_METHOD), null, null);
+        mv = this.startMethod(cw, JOBJECT_GET_OBJ_ID_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
@@ -242,12 +257,10 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Add JObject.delete()
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JOBJECT_DELETE_METHOD.getName(),
-          Type.getMethodDescriptor(JOBJECT_DELETE_METHOD), null, null);
+        mv = this.startMethod(cw, JOBJECT_DELETE_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
-          Type.getMethodDescriptor(Type.getType(JTransaction.class)));
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, DELETE_METHOD);
@@ -256,12 +269,10 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Add JObject.exists()
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JOBJECT_EXISTS_METHOD.getName(),
-          Type.getMethodDescriptor(JOBJECT_EXISTS_METHOD), null, null);
+        mv = this.startMethod(cw, JOBJECT_EXISTS_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
-          Type.getMethodDescriptor(Type.getType(JTransaction.class)));
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, EXISTS_METHOD);
@@ -270,12 +281,10 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Add JObject.recreate()
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JOBJECT_RECREATE_METHOD.getName(),
-          Type.getMethodDescriptor(JOBJECT_RECREATE_METHOD), null, null);
+        mv = this.startMethod(cw, JOBJECT_RECREATE_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
-          Type.getMethodDescriptor(Type.getType(JTransaction.class)));
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, RECREATE_METHOD);
@@ -284,12 +293,10 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Add JObject.revalidate()
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JOBJECT_REVALIDATE_METHOD.getName(),
-          Type.getMethodDescriptor(JOBJECT_REVALIDATE_METHOD), null, null);
+        mv = this.startMethod(cw, JOBJECT_REVALIDATE_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
-          Type.getMethodDescriptor(Type.getType(JTransaction.class)));
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, REVALIDATE_METHOD);
@@ -298,12 +305,10 @@ class ClassGenerator<T> {
         mv.visitEnd();
 
         // Add JObject.upgrade()
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JOBJECT_UPGRADE_METHOD.getName(),
-          Type.getMethodDescriptor(JOBJECT_UPGRADE_METHOD), null, null);
+        mv = this.startMethod(cw, JOBJECT_UPGRADE_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,
-          Type.getMethodDescriptor(Type.getType(JTransaction.class)));
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, UPDATE_SCHEMA_VERSION_METHOD);
@@ -311,43 +316,43 @@ class ClassGenerator<T> {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // Add Object.equals()
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, OBJECT_EQUALS_METHOD.getName(),
-          Type.getMethodDescriptor(OBJECT_EQUALS_METHOD), null, null);
+        // Add JObject.copyTo()
+        mv = this.startMethod(cw, JOBJECT_COPY_TO_METHOD);
         mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);                      // if (obj == this) return true;
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
-        final Label label1 = new Label();
-        mv.visitJumpInsn(Opcodes.IF_ACMPNE, label1);
-        mv.visitInsn(Opcodes.ICONST_1);
-        mv.visitInsn(Opcodes.IRETURN);
-        mv.visitLabel(label1);
-        mv.visitVarInsn(Opcodes.ALOAD, 1);                      // if (!(obj instanceof JObject)) return false;
-        mv.visitTypeInsn(Opcodes.INSTANCEOF, Type.getInternalName(JObject.class));
-        mv.visitLdcInsn(0);
-        final Label label2 = new Label();
-        mv.visitJumpInsn(Opcodes.IFNE, label2);
-        mv.visitInsn(Opcodes.ICONST_0);
-        mv.visitInsn(Opcodes.IRETURN);
-        mv.visitLabel(label2);
-        mv.visitVarInsn(Opcodes.ALOAD, 0);                      // return this.id.equals(((JObject)that).getObjId())
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(JObject.class));
-        this.emitInvoke(mv, JOBJECT_GET_OBJ_ID_METHOD);
-        this.emitInvoke(mv, OBJECT_EQUALS_METHOD);
-        mv.visitInsn(Opcodes.IRETURN);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitVarInsn(Opcodes.ALOAD, 2);
+        this.emitInvoke(mv, COPY_TO_METHOD);
+        mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // Add Object.hashCode()
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, OBJECT_HASH_CODE_METHOD.getName(),
-          Type.getMethodDescriptor(OBJECT_HASH_CODE_METHOD), null, null);
+        // Add JObject.copyOut()
+        mv = this.startMethod(cw, JOBJECT_COPY_OUT_METHOD);
         mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);                      // return this.id.hashCode()
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        this.emitInvoke(mv, OBJECT_HASH_CODE_METHOD);
-        mv.visitInsn(Opcodes.IRETURN);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitInsn(Opcodes.DUP);
+        this.emitInvoke(mv, GET_SNAPSHOT_TRANSACTION_METHOD);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        this.emitInvoke(mv, COPY_TO_METHOD);
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Add JObject.copyIn()
+        mv = this.startMethod(cw, JOBJECT_COPY_IN_METHOD);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        this.emitInvoke(mv, GET_CURRENT_METHOD);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        this.emitInvoke(mv, COPY_TO_METHOD);
+        mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
@@ -364,10 +369,9 @@ class ClassGenerator<T> {
             mv = cw.visitMethod(method.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PRIVATE | Opcodes.ACC_PROTECTED),
               method.getName(), Type.getMethodDescriptor(method), null, this.getExceptionNames(method));
 
-            // Invoke this.getTx().queryXXX()
+            // Invoke this.getTransaction().queryXXX()
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,  // Transaction tx = this.getTx()
-              Type.getMethodDescriptor(Type.getType(JTransaction.class)));
+            this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
             final boolean isEntryQuery = info.targetSuperField != null && info.queryType != 0;
             mv.visitLdcInsn(isEntryQuery ? info.targetSuperField.storageId : info.targetField.storageId);
             this.emitInvoke(mv, isEntryQuery ?
@@ -376,6 +380,84 @@ class ClassGenerator<T> {
             mv.visitMaxs(0, 0);
             mv.visitEnd();
         }
+    }
+
+// Snaptshot Class
+
+    /**
+     * Generate the Java class bytecode for this instance's snapshot class.
+     */
+    protected byte[] generateSnapshotBytecode() {
+
+        // Generate class
+        final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_SYNTHETIC,
+          this.getSnapshotClassName(), null, this.getClassName(), null);
+        cw.visitSource(GEN_SOURCE, null);
+        this.outputSnapshotFields(cw);
+        this.outputSnapshotConstructors(cw);
+        this.outputSnapshotMethods(cw);
+        cw.visitEnd();
+        final byte[] classfile = cw.toByteArray();
+        this.debugDump(System.out, classfile);
+
+        // Done
+        return classfile;
+    }
+
+    private void outputSnapshotFields(ClassWriter cw) {
+
+        // Output "snapshot" field
+        final FieldVisitor fv = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
+          SNAPSHOT_TRANSACTION_FIELD_NAME, Type.getDescriptor(SnapshotJTransaction.class), null, null);
+        fv.visitEnd();
+    }
+
+    private void outputSnapshotConstructors(ClassWriter cw) {
+
+        // Foo(ObjId id, SnapshotJTransaction snapshot)
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
+          Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(ObjId.class), Type.getType(SnapshotJTransaction.class)),
+          null, null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);                                                          // this.$snapshot = snapshot
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitVarInsn(Opcodes.ALOAD, 2);
+        mv.visitFieldInsn(Opcodes.PUTFIELD, this.getSnapshotClassName(),
+          SNAPSHOT_TRANSACTION_FIELD_NAME, Type.getDescriptor(SnapshotJTransaction.class));
+        mv.visitVarInsn(Opcodes.ALOAD, 1);                                                          // super(id)
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(),
+          "<init>", Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(ObjId.class)));
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void outputSnapshotMethods(ClassWriter cw) {
+
+        // Output getTransaction() (override)
+        MethodVisitor mv = this.startMethod(cw, JOBJECT_GET_TRANSACTION);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);                                                          // return this.$snapshot
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getSnapshotClassName(),
+          SNAPSHOT_TRANSACTION_FIELD_NAME, Type.getDescriptor(SnapshotJTransaction.class));
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+// Helper Methods
+
+    // Debug dump - requires asm-util
+    protected void debugDump(PrintStream out, byte[] classfile) {
+        // CHECKSTYLE OFF: GenericIllegalRegexp
+        // java.io.PrintWriter pw = new java.io.PrintWriter(out, true);
+        // pw.println("***************** BEGIN CLASSFILE ******************");
+        // org.objectweb.asm.ClassReader cr = new org.objectweb.asm.ClassReader(classfile);
+        // cr.accept(new org.objectweb.asm.util.TraceClassVisitor(pw), 0);
+        // pw.flush();
+        // pw.println("***************** END CLASSFILE ******************");
+        // CHECKSTYLE ON: GenericIllegalRegexp
     }
 
     /**
@@ -388,9 +470,10 @@ class ClassGenerator<T> {
         final MethodVisitor mv = cw.visitMethod(
           method.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PRIVATE | Opcodes.ACC_PROTECTED),
           method.getName(), Type.getMethodDescriptor(method), null, this.getExceptionNames(method));
+
+        // Push this.getTransaction(), this.id
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(), GET_TX_METHOD_NAME,          // Transaction tx = this.getTx()
-          Type.getMethodDescriptor(Type.getType(JTransaction.class)));
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         mv.visitLdcInsn(storageId);
@@ -428,8 +511,24 @@ class ClassGenerator<T> {
      * Emit code to invoke a method. This assumes the stack is loaded.
      */
     void emitInvoke(MethodVisitor mv, Method method) {
-        mv.visitMethodInsn((method.getModifiers() & Modifier.STATIC) != 0 ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL,
+        mv.visitMethodInsn(method.getDeclaringClass().isInterface() ? Opcodes.INVOKEINTERFACE :
+         (method.getModifiers() & Modifier.STATIC) != 0 ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL,
           Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method));
+    }
+
+    /**
+     * Emit code to INVOKEVIRTUAL a method using the specified class. This assumes the stack is loaded.
+     */
+    void emitInvoke(MethodVisitor mv, String className, Method method) {
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, method.getName(), Type.getMethodDescriptor(method));
+    }
+
+    /**
+     * Create {@link MethodVisitor} to implement or override the given method.
+     */
+    MethodVisitor startMethod(ClassWriter cw, Method method) {
+        return cw.visitMethod(Opcodes.ACC_PUBLIC, method.getName(),
+          Type.getMethodDescriptor(method), null, null);
     }
 
     private String[] getExceptionNames(Method method) {

@@ -56,13 +56,23 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * This class guarantees that for each {@link ObjId} it will only create a single, globally unique, Java model object.
+ * Not counting "snapshot" objects (see below), this class guarantees that for each {@link ObjId}
+ * it will only create a single, globally unique, {@link JObject} Java model object.
  * Therefore, the same Java model objects can be used in and out of any transaction, and can serve as
  * unique database object identifiers (if you have not overridden {@link #equals equals()} in your model clases).
  * Except for their associated {@link ObjId}s, the generated Java model objects are stateless; all database field state
  * is contained within whichever transaction is {@linkplain JTransaction#getCurrent associated with the current thread}.
- * All generated Java model classes will implement the {@link JObject} interface.
  * </p>
+ *
+ * <p>
+ * "Snapshot" objects are in-memory copies of regular database objects that may be imported/exported to/from transactions.
+ * Snapshot {@link JObject}s are distinct from regular database {@link JObject}s; their state is contained in an in-memory
+ * {@link SnapshotJTransaction}. See {@link JObject#copyOut JObject.copyOut} and {@link JObject#copyIn JObject.copyIn}.
+ * </p>
+ *
+ * @see JObject
+ * @see JTransaction
+ * @see org.jsimpledb.annotation
  */
 public class JSimpleDB {
 
@@ -341,7 +351,9 @@ public class JSimpleDB {
 // Object Cache
 
     /**
-     * Get the Java model object with the given object ID.
+     * Get the Java model object with the given object ID. The {@link JTransaction} {@linkplain JObject#getTransaction associated}
+     * with the returned {@link JObject} will whatever {@link JTransaction} is
+     * {@linkplain JTransaction#getCurrent associated with the current thread}.
      *
      * <p>
      * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.

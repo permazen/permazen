@@ -52,7 +52,9 @@ public class JClass<T> extends JSchemaObject {
 
     int[] subtypeStorageIds;
     Class<? extends T> subclass;
+    Class<? extends T> snapshotSubclass;
     Constructor<? extends T> constructor;
+    Constructor<? extends T> snapshotConstructor;
 
     /**
      * Constructor.
@@ -87,11 +89,31 @@ public class JClass<T> extends JSchemaObject {
         return this.constructor;
     }
 
+    // Get generated snapshot subclass' constructor
+    Constructor<? extends T> getSnapshotConstructor() {
+        if (this.snapshotConstructor == null) {
+            try {
+                this.snapshotConstructor = this.getSnapshotSubclass().getConstructor(ObjId.class, SnapshotJTransaction.class);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("internal error", e);
+            }
+            this.snapshotConstructor.setAccessible(true);
+        }
+        return this.snapshotConstructor;
+    }
+
     // Get generated subclass
     Class<? extends T> getSubclass() {
         if (this.subclass == null)
             this.subclass = new ClassGenerator<T>(this).generateClass();
         return this.subclass;
+    }
+
+    // Get generated snapshot subclass
+    Class<? extends T> getSnapshotSubclass() {
+        if (this.snapshotSubclass == null)
+            this.snapshotSubclass = new ClassGenerator<T>(this).generateSnapshotClass();
+        return this.snapshotSubclass;
     }
 
 // Public API

@@ -17,9 +17,5 @@
 
 - KVStore extension supporting FDB watches
 
-- Add "snapshot" functionality:
-    - Create transient in-memory database
-    - Only some part of object graph is copied
-
 - Add Vaadin GUI editor generator
 

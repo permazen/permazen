@@ -12,12 +12,15 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
+import java.util.Deque;
 import java.util.List;
+import java.util.Set;
 
 import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SetSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -95,6 +98,13 @@ public class JSetField extends JCollectionField {
     // This method exists solely to bind the generic type parameters
     private <X, Y> NavigableSetConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
         return new NavigableSetConverter<X, Y>(elementConverter);
+    }
+
+    @Override
+    void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest,
+      ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
+        assert subField == this.elementField;
+        this.copyRecurse(seen, src, dest, src.tx.readSetField(id, this.storageId, false), nextFields);
     }
 }
 

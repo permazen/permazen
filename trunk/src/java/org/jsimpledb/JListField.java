@@ -12,14 +12,17 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
+import java.util.Deque;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Set;
 
 import org.jsimpledb.change.ListFieldAdd;
 import org.jsimpledb.change.ListFieldClear;
 import org.jsimpledb.change.ListFieldRemove;
 import org.jsimpledb.change.ListFieldReplace;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.ListSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -113,6 +116,13 @@ public class JListField extends JCollectionField {
     // This method exists solely to bind the generic type parameters
     private <X, Y> ListConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
         return new ListConverter<X, Y>(elementConverter);
+    }
+
+    @Override
+    void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest,
+      ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
+        assert subField == this.elementField;
+        this.copyRecurse(seen, src, dest, src.tx.readListField(id, this.storageId, false), nextFields);
     }
 }
 

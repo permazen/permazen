@@ -10,8 +10,11 @@ package org.jsimpledb;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
+import java.util.Deque;
 import java.util.List;
+import java.util.Set;
 
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.ComplexSchemaField;
 
 /**
@@ -63,5 +66,18 @@ public abstract class JComplexField extends JField {
      * Get the {@link JTransaction} method to invoke from generated classes for the given index entry query type.
      */
     abstract Method getIndexEntryQueryMethod(int queryType);
+
+    /**
+     * Recurse for copying between transactions.
+     */
+    abstract void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest,
+      ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields);
+
+    void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest, Iterable<?> it, Deque<JReferenceField> nextFields) {
+        for (Object obj : it) {
+            if (obj != null)
+                src.copyTo(seen, dest, (ObjId)obj, nextFields);
+        }
+    }
 }
 
