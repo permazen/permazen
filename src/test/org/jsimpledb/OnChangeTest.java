@@ -131,7 +131,8 @@ public class OnChangeTest extends TestSupport {
     }
 
     private void verify(FieldChange<?>... changes) {
-        Assert.assertEquals(EVENTS.get(), Arrays.asList(changes));
+        Assert.assertEquals(EVENTS.get(), Arrays.asList(changes), "\nACTUAL: " + EVENTS.get()
+          + "\nEXPECTED: " + Arrays.asList(changes));
         EVENTS.get().clear();
     }
 

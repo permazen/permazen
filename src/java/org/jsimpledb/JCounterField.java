@@ -51,7 +51,7 @@ public class JCounterField extends JField {
     }
 
     @Override
-    Converter<?, ?> getConverter(JSimpleDB jdb) {
+    Converter<?, ?> getConverter(JTransaction jtx) {
         return null;
     }
 }

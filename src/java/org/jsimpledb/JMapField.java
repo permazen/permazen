@@ -164,9 +164,9 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    NavigableMapConverter<?, ?, ?, ?> getConverter(JSimpleDB jdb) {
-        final Converter<?, ?> keyConverter = this.keyField.getConverter(jdb);
-        final Converter<?, ?> valueConverter = this.valueField.getConverter(jdb);
+    NavigableMapConverter<?, ?, ?, ?> getConverter(JTransaction jtx) {
+        final Converter<?, ?> keyConverter = this.keyField.getConverter(jtx);
+        final Converter<?, ?> valueConverter = this.valueField.getConverter(jtx);
         if (keyConverter == null && valueConverter == null)
             return null;
         return this.createConverter(keyConverter != null ? keyConverter : Converter.identity(),

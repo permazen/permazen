@@ -85,8 +85,8 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    NavigableSetConverter<?, ?> getConverter(JSimpleDB jdb) {
-        final Converter<?, ?> elementConverter = this.elementField.getConverter(jdb);
+    NavigableSetConverter<?, ?> getConverter(JTransaction jtx) {
+        final Converter<?, ?> elementConverter = this.elementField.getConverter(jtx);
         if (elementConverter == null)
             return null;
         return this.createConverter(elementConverter);

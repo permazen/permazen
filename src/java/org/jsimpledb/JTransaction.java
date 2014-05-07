@@ -57,6 +57,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     private static final ThreadLocal<JTransaction> CURRENT = new ThreadLocal<>();
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
+    final ReferenceConverter referenceConverter = new ReferenceConverter(this);
 
     final JSimpleDB jdb;
     final Transaction tx;
@@ -94,7 +95,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
-                changeInfo.registerChangeListener(this.tx);
+                changeInfo.registerChangeListener(this);
             }
         }
         if (validationMode == ValidationMode.AUTOMATIC) {
@@ -162,7 +163,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
                 sets.add(this.tx.getAll(jclass.storageId));
         }
         return sets.isEmpty() ? NavigableSets.<T>empty() :
-          (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(NavigableSets.union(sets), this.jdb.referenceConverter);
+          (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(NavigableSets.union(sets), this.referenceConverter);
     }
 
     /**
@@ -251,7 +252,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     public <T> T create(Class<T> type) {
         final JClass<T> jclass = this.jdb.getJClass(TypeToken.of(type));
         final ObjId id = this.tx.create(jclass.storageId);
-        return type.cast(this.jdb.getJObject(id));
+        return type.cast(this.getJObject(id));
     }
 
     /**
@@ -360,7 +361,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * </p>
      */
     public Object readSimpleField(ObjId id, int storageId) {
-        return this.convert(this.jdb.getJField(storageId, JSimpleField.class).getConverter(this.jdb),
+        return this.convert(this.jdb.getJField(storageId, JSimpleField.class).getConverter(this),
           this.tx.readSimpleField(id, storageId));
     }
 
@@ -374,7 +375,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * </p>
      */
     public void writeSimpleField(ObjId id, int storageId, Object value) {
-        final Converter<?, ?> converter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this.jdb);
+        final Converter<?, ?> converter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
         if (converter != null)
             value = this.convert(converter.reverse(), value);
         this.tx.writeSimpleField(id, storageId, value);
@@ -403,7 +404,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * </p>
      */
     public NavigableSet<?> readSetField(ObjId id, int storageId) {
-        return this.convert(this.jdb.getJField(storageId, JSetField.class).getConverter(this.jdb),
+        return this.convert(this.jdb.getJField(storageId, JSetField.class).getConverter(this),
           this.tx.readSetField(id, storageId));
     }
 
@@ -417,7 +418,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * </p>
      */
     public List<?> readListField(ObjId id, int storageId) {
-        return this.convert(this.jdb.getJField(storageId, JListField.class).getConverter(this.jdb),
+        return this.convert(this.jdb.getJField(storageId, JListField.class).getConverter(this),
           this.tx.readListField(id, storageId));
     }
 
@@ -431,7 +432,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * </p>
      */
     public NavigableMap<?, ?> readMapField(ObjId id, int storageId) {
-        return this.convert(this.jdb.getJField(storageId, JMapField.class).getConverter(this.jdb),
+        return this.convert(this.jdb.getJField(storageId, JMapField.class).getConverter(this),
           this.tx.readMapField(id, storageId));
     }
 
@@ -459,8 +460,8 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         }
         final int[] refs = Ints.concat(refPath.getReferenceFields(), new int[] { targetField });
         final NavigableSet<ObjId> ids = this.tx.invertReferencePath(refs,
-          Iterables.transform(targetObjects, this.jdb.referenceConverter));
-        return (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(ids, this.jdb.referenceConverter);
+          Iterables.transform(targetObjects, this.referenceConverter));
+        return (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(ids, this.referenceConverter);
     }
 
 // Index Access
@@ -479,9 +480,9 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<?>> querySimpleField(int storageId) {
-        Converter<?, ?> keyConverter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this.jdb);
+        Converter<?, ?> keyConverter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        final NavigableSetConverter<JObject, ObjId> valueConverter = new NavigableSetConverter(this.jdb.referenceConverter);
+        final NavigableSetConverter<JObject, ObjId> valueConverter = new NavigableSetConverter(this.referenceConverter);
         final NavigableMap<?, NavigableSet<ObjId>> map = this.tx.querySimpleField(storageId);
         return new ConvertedNavigableMap(map, keyConverter, valueConverter);
     }
@@ -502,10 +503,10 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<?>> queryListFieldEntries(int storageId) {
         final JListField setField = this.jdb.getJField(storageId, JListField.class);
-        Converter<?, ?> keyConverter = setField.elementField.getConverter(this.jdb);
+        Converter<?, ?> keyConverter = setField.elementField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
         final NavigableSetConverter valueConverter = new NavigableSetConverter(
-          new ListIndexEntryConverter(this.jdb.referenceConverter));
+          new ListIndexEntryConverter(this.referenceConverter));
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.ListIndexEntry>> map = this.tx.queryListFieldEntries(storageId);
         return new ConvertedNavigableMap(map, keyConverter, valueConverter);
     }
@@ -526,14 +527,14 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<?>> queryMapFieldKeyEntries(int storageId) {
         final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
-        Converter<?, ?> keyConverter = mapField.keyField.getConverter(this.jdb);
+        Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        Converter<?, ?> valueConverter = mapField.valueField.getConverter(this.jdb);
+        Converter<?, ?> valueConverter = mapField.valueField.getConverter(this);
         valueConverter = valueConverter != null ? valueConverter.reverse() : Converter.identity();
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapKeyIndexEntry<?>>> map
           = this.tx.queryMapFieldKeyEntries(storageId);
         return new ConvertedNavigableMap(map, keyConverter,
-          new NavigableSetConverter(new MapKeyIndexEntryConverter(this.jdb.referenceConverter, valueConverter)));
+          new NavigableSetConverter(new MapKeyIndexEntryConverter(this.referenceConverter, valueConverter)));
     }
 
     /**
@@ -552,14 +553,14 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<?>> queryMapFieldValueEntries(int storageId) {
         final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
-        Converter<?, ?> keyConverter = mapField.keyField.getConverter(this.jdb);
+        Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        Converter<?, ?> valueConverter = mapField.valueField.getConverter(this.jdb);
+        Converter<?, ?> valueConverter = mapField.valueField.getConverter(this);
         valueConverter = valueConverter != null ? valueConverter.reverse() : Converter.identity();
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapValueIndexEntry<?>>> map
           = this.tx.queryMapFieldValueEntries(storageId);
         return new ConvertedNavigableMap(map, valueConverter,
-          new NavigableSetConverter(new MapValueIndexEntryConverter(this.jdb.referenceConverter, keyConverter)));
+          new NavigableSetConverter(new MapValueIndexEntryConverter(this.referenceConverter, keyConverter)));
     }
 
 // Transaction Lifecycle
@@ -685,7 +686,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
                 continue;
 
             // Do JSR 303 validation
-            final JObject jobj = this.jdb.getJObject(id);
+            final JObject jobj = this.getJObject(id);
             final Set<ConstraintViolation<JObject>> violations = ValidationUtil.validate(jobj);
             if (!violations.isEmpty()) {
                 throw new ValidationException(jobj, violations, "validation error for object " + id + " of type `"
@@ -722,7 +723,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     // This method exists solely to bind the generic type parameters
     private <T> void doOnCreate(JClass<T> jclass, ObjId id) {
         for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods)
-            Util.invoke(info.getMethod(), this.jdb.getJObject(id));
+            Util.invoke(info.getMethod(), this.getJObject(id));
     }
 
 // DeleteListener
@@ -738,7 +739,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     // This method exists solely to bind the generic type parameters
     private <T> void doOnDelete(JClass<T> jclass, ObjId id) {
         for (OnDeleteScanner<T>.MethodInfo info : jclass.onDeleteMethods)
-            Util.invoke(info.getMethod(), this.jdb.getJObject(id));
+            Util.invoke(info.getMethod(), this.getJObject(id));
     }
 
 // VersionChangeListener
@@ -767,7 +768,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
 
             // Get Java model object
             if (jobj == null)
-                jobj = this.jdb.getJObject(id);
+                jobj = this.getJObject(id);
 
             // Convert old field values so ObjId's become JObjects
             final TreeMap<Integer, Object> convertedValues = new TreeMap<>();
@@ -819,19 +820,19 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
             return null;
         Converter converter = null;
         if (field instanceof ReferenceField)
-            converter = this.jdb.referenceConverter;
+            converter = this.referenceConverter;
         else if (field instanceof SetField && ((SetField)field).getElementField() instanceof ReferenceField)
-            converter = new NavigableSetConverter(this.jdb.referenceConverter);
+            converter = new NavigableSetConverter(this.referenceConverter);
         else if (field instanceof ListField && ((SetField)field).getElementField() instanceof ReferenceField)
-            converter = new ListConverter(this.jdb.referenceConverter);
+            converter = new ListConverter(this.referenceConverter);
         else if (field instanceof MapField
           && (((MapField)field).getKeyField() instanceof ReferenceField
            || ((MapField)field).getValueField() instanceof ReferenceField)) {
             final MapField<?, ?> mapField = (MapField<?, ?>)field;
             final Converter keyConverter = mapField.getKeyField() instanceof ReferenceField ?
-              this.jdb.referenceConverter : Converter.identity();
+              this.referenceConverter : Converter.identity();
             final Converter valueConverter = mapField.getValueField() instanceof ReferenceField ?
-              this.jdb.referenceConverter : Converter.identity();
+              this.referenceConverter : Converter.identity();
             converter = new NavigableMapConverter(keyConverter, valueConverter);
         }
         if (converter != null)

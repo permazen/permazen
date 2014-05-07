@@ -45,8 +45,8 @@ public class JReferenceField extends JSimpleField {
     }
 
     @Override
-    Converter<?, ?> getConverter(JSimpleDB jdb) {
-        return jdb.referenceConverter.reverse();
+    Converter<?, ?> getConverter(JTransaction jtx) {
+        return jtx.referenceConverter.reverse();
     }
 }
 

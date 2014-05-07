@@ -7,7 +7,9 @@
 
 package org.jsimpledb;
 
+import com.google.common.cache.LoadingCache;
 import com.google.common.reflect.TypeToken;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -15,10 +17,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.concurrent.ExecutionException;
 
 import javax.validation.Constraint;
 
 import org.jsimpledb.core.DatabaseException;
+import org.jsimpledb.core.ObjId;
 
 /**
  * Utility routines;
@@ -75,6 +79,30 @@ final class Util {
         } catch (Exception e) {
             throw new DatabaseException("unexpected error invoking method " + method + " on " + target, e);
         }
+    }
+
+    /**
+     * Get the Java model object corresponding to the given object ID from the given object cache.
+     *
+     * @param cache object cache
+     * @param id object ID
+     * @return Java model object
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public static JObject getJObject(LoadingCache<ObjId, JObject> cache, ObjId id) {
+        if (id == null)
+            throw new IllegalArgumentException("null id");
+        Throwable cause;
+        try {
+            return cache.get(id);
+        } catch (ExecutionException e) {
+            cause = e.getCause() != null ? e.getCause() : e;
+        } catch (UncheckedExecutionException e) {
+            cause = e.getCause() != null ? e.getCause() : e;
+        }
+        if (cause instanceof Error)
+            throw (Error)cause;
+        throw new DatabaseException("can't instantiate object for ID " + id, cause);
     }
 }
 

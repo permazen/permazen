@@ -145,7 +145,7 @@ public class JSimpleField extends JField {
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    Converter<?, ?> getConverter(JSimpleDB jdb) {
+    Converter<?, ?> getConverter(JTransaction jtx) {
         if (Enum.class.isAssignableFrom(this.typeToken.getRawType()))
             return this.createEnumConverter((TypeToken<Enum>)this.typeToken);
         return null;
