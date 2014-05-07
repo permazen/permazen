@@ -361,10 +361,25 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      * @param id object ID
      * @return Java model object
      * @throws IllegalArgumentException if {@code id} is null
+     * @see #getJObject(ObjId, Class)
      * @see JSimpleDB#getJObject JSimpleDB.getJObject()
      */
     public JObject getJObject(ObjId id) {
         return this.jdb.getJObject(id);
+    }
+
+    /**
+     * Get the Java model object with the given object ID and whose state derives from this transaction, cast to the given type.
+     *
+     * @param id object ID
+     * @return Java model object
+     * @see #getJObject(ObjId)
+     * @throws IllegalArgumentException if {@code id} or {@code type} is null
+     */
+    public <T> T getJObject(ObjId id, Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        return type.cast(this.getJObject(id));
     }
 
     /**
