@@ -1,10 +1,12 @@
 
-Version Next
+Version 1.0.161 Released May 6, 2014
 
     - Added command line interface
     - Added snapshot capability
     - Added additional built-in field types
-    - Miscellaneous bug fixes
+    - Added out-of-band change detection to XMLKVDatabase
+    - Allow specifying multiple (or zero) paths in @OnChange
+    - Bug fixes and improvements
 
 Version 1.0.86 Released April 18, 2014
 
