@@ -50,14 +50,15 @@
 <span class="sourceLineNo">042</span>     * atomically updated with the newly written content.<a name="line.42"></a>
 <span class="sourceLineNo">043</span>     *<a name="line.43"></a>
 <span class="sourceLineNo">044</span>     * &lt;p&gt;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     * If the returned stread throws an {@link IOException} at any time, including during {@link OutputStream#close close()},<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     * then no update to the underlying storage occurs.<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     *<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     * @throws IOException if an error occurs<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     */<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    OutputStream getOutputStream() throws IOException;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>}<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">045</span>     * If the returned stream throws an {@link IOException} at any time, including during {@link OutputStream#close close()},<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * or if {@link OutputStream#close close()} is never invoked, then no update to the underlying storage occurs.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * &lt;/p&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     *<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * @throws IOException if an error occurs<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    OutputStream getOutputStream() throws IOException;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>}<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
 
 
 

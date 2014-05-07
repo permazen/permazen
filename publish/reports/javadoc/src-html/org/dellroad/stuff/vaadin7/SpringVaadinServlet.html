@@ -168,7 +168,7 @@
 <span class="sourceLineNo">160</span>    public static final String MAX_SESSIONS_PARAMETER = "maxSessions";<a name="line.160"></a>
 <span class="sourceLineNo">161</span><a name="line.161"></a>
 <span class="sourceLineNo">162</span>    // We use weak references to avoid leaks caused by exceptions in SessionInitListeners; see http://dev.vaadin.com/ticket/12915<a name="line.162"></a>
-<span class="sourceLineNo">163</span>    private final WeakHashMap&lt;VaadinSession, Void&gt; liveSessions = new WeakHashMap&lt;VaadinSession, Void&gt;();<a name="line.163"></a>
+<span class="sourceLineNo">163</span>    private final WeakHashMap&lt;VaadinSession, Void&gt; liveSessions = new WeakHashMap&lt;&gt;();<a name="line.163"></a>
 <span class="sourceLineNo">164</span><a name="line.164"></a>
 <span class="sourceLineNo">165</span>    private String servletName;<a name="line.165"></a>
 <span class="sourceLineNo">166</span><a name="line.166"></a>
@@ -251,51 +251,58 @@
 <span class="sourceLineNo">243</span><a name="line.243"></a>
 <span class="sourceLineNo">244</span>            @Override<a name="line.244"></a>
 <span class="sourceLineNo">245</span>            protected VaadinSession createVaadinSession(VaadinRequest request) throws ServiceException {<a name="line.245"></a>
-<span class="sourceLineNo">246</span>                if (maxSessions &gt; 0 &amp;&amp; SpringVaadinServlet.this.liveSessions.size() &gt;= maxSessions)<a name="line.246"></a>
-<span class="sourceLineNo">247</span>                    throw new ServiceException("The maximum number of active sessions has been reached");<a name="line.247"></a>
-<span class="sourceLineNo">248</span>                final VaadinSession session = super.createVaadinSession(request);<a name="line.248"></a>
-<span class="sourceLineNo">249</span>                SpringVaadinServlet.this.liveSessions.put(session, null);<a name="line.249"></a>
-<span class="sourceLineNo">250</span>                return session;<a name="line.250"></a>
-<span class="sourceLineNo">251</span>            }<a name="line.251"></a>
-<span class="sourceLineNo">252</span><a name="line.252"></a>
-<span class="sourceLineNo">253</span>            @Override<a name="line.253"></a>
-<span class="sourceLineNo">254</span>            public void fireSessionDestroy(VaadinSession session) {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>                SpringVaadinServlet.this.liveSessions.remove(session);<a name="line.255"></a>
-<span class="sourceLineNo">256</span>                super.fireSessionDestroy(session);<a name="line.256"></a>
-<span class="sourceLineNo">257</span>            }<a name="line.257"></a>
-<span class="sourceLineNo">258</span>        };<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        service.init();<a name="line.259"></a>
-<span class="sourceLineNo">260</span>        return service;<a name="line.260"></a>
-<span class="sourceLineNo">261</span>    }<a name="line.261"></a>
-<span class="sourceLineNo">262</span><a name="line.262"></a>
-<span class="sourceLineNo">263</span>    /**<a name="line.263"></a>
-<span class="sourceLineNo">264</span>     * Get all live {@link VaadinSession}s associated with this instance.<a name="line.264"></a>
-<span class="sourceLineNo">265</span>     *<a name="line.265"></a>
-<span class="sourceLineNo">266</span>     * @return live tracked sessions, or an empty collection if session tracking is not enabled<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     * @see VaadinSessionContainer<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     */<a name="line.268"></a>
-<span class="sourceLineNo">269</span>    public synchronized List&lt;VaadinSession&gt; getSessions() {<a name="line.269"></a>
-<span class="sourceLineNo">270</span>        return new ArrayList&lt;VaadinSession&gt;(this.liveSessions.keySet());<a name="line.270"></a>
-<span class="sourceLineNo">271</span>    }<a name="line.271"></a>
-<span class="sourceLineNo">272</span><a name="line.272"></a>
-<span class="sourceLineNo">273</span>    /**<a name="line.273"></a>
-<span class="sourceLineNo">274</span>     * Get the {@link SpringVaadinServlet} that is associated with the given {@link VaadinSession}.<a name="line.274"></a>
-<span class="sourceLineNo">275</span>     *<a name="line.275"></a>
-<span class="sourceLineNo">276</span>     * @throws IllegalStateException if the {@link VaadinServlet} associated with {@code session} is not a<a name="line.276"></a>
-<span class="sourceLineNo">277</span>     *  {@link SpringVaadinServlet}<a name="line.277"></a>
-<span class="sourceLineNo">278</span>     */<a name="line.278"></a>
-<span class="sourceLineNo">279</span>    public static SpringVaadinServlet getServlet(VaadinSession session) {<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        if (session == null)<a name="line.280"></a>
-<span class="sourceLineNo">281</span>            throw new IllegalArgumentException("null session");<a name="line.281"></a>
-<span class="sourceLineNo">282</span>        if (!(session.getService() instanceof VaadinServletService))<a name="line.282"></a>
-<span class="sourceLineNo">283</span>            throw new IllegalStateException("the VaadinService associated with the session is not a VaadinServletService instance");<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        final VaadinServletService service = (VaadinServletService)session.getService();<a name="line.284"></a>
-<span class="sourceLineNo">285</span>        if (!(service.getServlet() instanceof SpringVaadinServlet))<a name="line.285"></a>
-<span class="sourceLineNo">286</span>            throw new IllegalStateException("the VaadinServlet associated with the session is not a SpringVaadinServlet instance");<a name="line.286"></a>
-<span class="sourceLineNo">287</span>        return (SpringVaadinServlet)service.getServlet();<a name="line.287"></a>
-<span class="sourceLineNo">288</span>    }<a name="line.288"></a>
-<span class="sourceLineNo">289</span>}<a name="line.289"></a>
-<span class="sourceLineNo">290</span><a name="line.290"></a>
+<span class="sourceLineNo">246</span>                final VaadinSession session;<a name="line.246"></a>
+<span class="sourceLineNo">247</span>                synchronized (SpringVaadinServlet.this.liveSessions) {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                    if (maxSessions &gt; 0 &amp;&amp; SpringVaadinServlet.this.liveSessions.size() &gt;= maxSessions)<a name="line.248"></a>
+<span class="sourceLineNo">249</span>                        throw new ServiceException("The maximum number of active sessions has been reached");<a name="line.249"></a>
+<span class="sourceLineNo">250</span>                    session = super.createVaadinSession(request);<a name="line.250"></a>
+<span class="sourceLineNo">251</span>                    SpringVaadinServlet.this.liveSessions.put(session, null);<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                }<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                return session;<a name="line.253"></a>
+<span class="sourceLineNo">254</span>            }<a name="line.254"></a>
+<span class="sourceLineNo">255</span><a name="line.255"></a>
+<span class="sourceLineNo">256</span>            @Override<a name="line.256"></a>
+<span class="sourceLineNo">257</span>            public void fireSessionDestroy(VaadinSession session) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                synchronized (SpringVaadinServlet.this.liveSessions) {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                    SpringVaadinServlet.this.liveSessions.remove(session);<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                }<a name="line.260"></a>
+<span class="sourceLineNo">261</span>                super.fireSessionDestroy(session);<a name="line.261"></a>
+<span class="sourceLineNo">262</span>            }<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        };<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        service.init();<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        return service;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    }<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>    /**<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * Get all live {@link VaadinSession}s associated with this instance.<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     *<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     * @return live tracked sessions, or an empty collection if session tracking is not enabled<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * @see VaadinSessionContainer<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     */<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    public List&lt;VaadinSession&gt; getSessions() {<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        synchronized (this.liveSessions) {<a name="line.275"></a>
+<span class="sourceLineNo">276</span>            return new ArrayList&lt;VaadinSession&gt;(this.liveSessions.keySet());<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        }<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    }<a name="line.278"></a>
+<span class="sourceLineNo">279</span><a name="line.279"></a>
+<span class="sourceLineNo">280</span>    /**<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * Get the {@link SpringVaadinServlet} that is associated with the given {@link VaadinSession}.<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     *<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * @throws IllegalStateException if the {@link VaadinServlet} associated with {@code session} is not a<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     *  {@link SpringVaadinServlet}<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     */<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    public static SpringVaadinServlet getServlet(VaadinSession session) {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        if (session == null)<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            throw new IllegalArgumentException("null session");<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        if (!(session.getService() instanceof VaadinServletService))<a name="line.289"></a>
+<span class="sourceLineNo">290</span>            throw new IllegalStateException("the VaadinService associated with the session is not a VaadinServletService instance");<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        final VaadinServletService service = (VaadinServletService)session.getService();<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        if (!(service.getServlet() instanceof SpringVaadinServlet))<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            throw new IllegalStateException("the VaadinServlet associated with the session is not a SpringVaadinServlet instance");<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        return (SpringVaadinServlet)service.getServlet();<a name="line.294"></a>
+<span class="sourceLineNo">295</span>    }<a name="line.295"></a>
+<span class="sourceLineNo">296</span>}<a name="line.296"></a>
+<span class="sourceLineNo">297</span><a name="line.297"></a>
 
 
 
