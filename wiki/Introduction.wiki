@@ -306,7 +306,7 @@ Reference paths are also the basis of the powerful `@OnChange` annotation, descr
 
 === Snapshot Transactions ===
 
-JSimpleDB transactions can be thought of as containers for the state of objects. is closed? As with any other transactional database, when the transaction closes that state is no longer available.
+JSimpleDB transactions can be thought of as containers for the state of objects. As with any other transactional database, when the transaction closes that state is no longer available.
 
 In the case of JPA, some state may be available after a transaction (detached objects), but exactly which state is often difficult to determine.
 
