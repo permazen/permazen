@@ -13,9 +13,11 @@ import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -66,6 +68,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
     private final ValidationListener validationListener = new ValidationListener();
     private final HashSet<ObjId> validationQueue = new HashSet<ObjId>(); // TODO: use a more efficient data structure for longs
 
+    private SnapshotJTransaction snapshotTransaction;
     private boolean committing;
 
 // Constructor
@@ -219,18 +222,140 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         return this.tx.getKey(jobj.getObjId(), refPath.targetField.storageId);
     }
 
+// Snapshots
+
+    /**
+     * Get the default {@link SnapshotJTransaction} associated with this instance.
+     *
+     * @see JObject#copyOut JObject.copyOut()
+     */
+    public synchronized SnapshotJTransaction getSnapshotTransaction() {
+        if (this.snapshotTransaction == null)
+            this.snapshotTransaction = new SnapshotJTransaction(this, ValidationMode.AUTOMATIC);
+        return this.snapshotTransaction;
+    }
+
+    /**
+     * Copy the specified object into the specified destination transaction.
+     *
+     * <p>
+     * This method is typically only used by generated classes.
+     * </p>
+     *
+     * @param dest destination transaction
+     * @param jobj object to copy
+     * @param refPaths zero or more reference paths that refer to additional objects to be copied
+     * @return the copied version of this instance
+     * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
+     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
+     * @throws IllegalArgumentException if any parameter is null
+     * @see JObject#copyOut JObject.copyOut()
+     * @see JObject#copyIn JObject.copyIn()
+     * @see JObject#copyTo JObject.copyTo()
+     */
+    public JObject copyTo(JTransaction dest, JObject jobj, String... refPaths) {
+
+        // Sanity check
+        if (dest == null)
+            throw new IllegalArgumentException("null destination transaction");
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        if (refPaths == null)
+            throw new IllegalArgumentException("null refPaths");
+        if (this.tx == dest.tx)
+            return jobj;
+        final ObjId id = jobj.getObjId();
+
+        // Parse paths
+        final TypeToken<?> startType = this.jdb.getJClass(id.getStorageId()).typeToken;
+        final HashSet<ReferencePath> paths = new HashSet<>(refPaths.length);
+        for (String refPath : refPaths) {
+
+            // Parse refernce path
+            if (refPath == null)
+                throw new IllegalArgumentException("null refPath");
+            final ReferencePath path = this.jdb.parseReferencePath(startType, refPath, null);
+
+            // Verify target field is a reference field; convert a complex target field into its reference sub-field(s)
+            final String lastFieldName = refPath.substring(refPath.lastIndexOf('.') + 1);
+            final JField targetField = this.jdb.jfields.get(path.getTargetField());
+            if (targetField instanceof JComplexField) {
+                final JComplexField superField = (JComplexField)targetField;
+                boolean foundReferenceSubField = false;
+                for (JSimpleField subField : superField.getSubFields()) {
+                    if (subField instanceof JReferenceField) {
+                        paths.add(this.jdb.parseReferencePath(startType,
+                          refPath + "." + superField.getSubFieldName(subField), true));
+                        foundReferenceSubField = true;
+                    }
+                }
+                if (!foundReferenceSubField) {
+                    throw new IllegalArgumentException("the last field `" + lastFieldName
+                      + "' of path `" + refPath + "' does not contain any reference sub-fields");
+                }
+            } else {
+                if (!(targetField instanceof JReferenceField)) {
+                    throw new IllegalArgumentException("the last field `" + lastFieldName
+                      + "' of path `" + path + "' is not a reference field");
+                }
+                paths.add(path);
+            }
+        }
+
+        // Ensure object is copied when there are zero reference paths
+        final HashSet<ObjId> seen = new HashSet<>();
+        if (paths.isEmpty())
+            this.copyTo(seen, dest, id, new ArrayDeque<JReferenceField>());
+
+        // Recurse over each reference path
+        for (ReferencePath path : paths) {
+            final int[] storageIds = path.getReferenceFields();
+
+            // Convert reference path, including final target field, into a list of JReferenceFields
+            final ArrayDeque<JReferenceField> fields = new ArrayDeque<>(storageIds.length + 1);
+            for (int storageId : storageIds)
+                fields.add((JReferenceField)this.jdb.jfields.get(storageId));
+            fields.add((JReferenceField)this.jdb.jfields.get(path.getTargetField()));
+
+            // Recurse over this path
+            this.copyTo(seen, dest, id, fields);
+        }
+
+        // Done
+        return dest.getJObject(id);
+    }
+
+    void copyTo(Set<ObjId> seen, JTransaction dest, ObjId id, Deque<JReferenceField> fields) {
+
+        // Already copied this object?
+        if (!seen.add(id))
+            return;
+
+        // Copy current instance
+        this.tx.copyTo(id, dest.tx);
+
+        // Recurse through the next reference field in the path
+        if (fields.isEmpty())
+            return;
+        final JReferenceField jfield = fields.removeFirst();
+        if (jfield.parent instanceof JComplexField) {
+            final JComplexField superField = (JComplexField)jfield.parent;
+            superField.copyRecurse(seen, this, dest, id, jfield, fields);
+        } else {
+            final ObjId referrent = (ObjId)this.tx.readSimpleField(id, jfield.storageId, false);
+            if (referrent != null)
+                this.copyTo(seen, dest, referrent, fields);
+        }
+    }
+
 // Object/Field Access
 
     /**
-     * Get the Java model object with the given object ID.
+     * Get the Java model object with the given object ID and whose state derives from this transaction.
      *
      * <p>
      * Note that while a non-null object is always returned, the corresponding object may not exist in this transaction.
      * If not, attempts to access its fields will throw {@link DeletedObjectException}.
-     * </p>
-     *
-     * <p>
-     * This is a convenience method, equivalent to <code>getJSimpleDB().getJObject(id)</code>.
      * </p>
      *
      * @param id object ID

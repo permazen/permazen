@@ -13,15 +13,18 @@ import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Set;
 
 import org.jsimpledb.change.MapFieldAdd;
 import org.jsimpledb.change.MapFieldClear;
 import org.jsimpledb.change.MapFieldRemove;
 import org.jsimpledb.change.MapFieldReplace;
 import org.jsimpledb.core.MapField;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.MapSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -177,6 +180,18 @@ public class JMapField extends JComplexField {
     private <K, V, WK, WV> NavigableMapConverter<K, V, WK, WV> createConverter(
       Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
         return new NavigableMapConverter<K, V, WK, WV>(keyConverter, valueConverter);
+    }
+
+    @Override
+    void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest,
+      ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
+        final NavigableMap<?, ?> map = src.tx.readMapField(id, this.storageId, false);
+        if (subField == this.keyField)
+            this.copyRecurse(seen, src, dest, map.keySet(), nextFields);
+        else if (subField == this.valueField)
+            this.copyRecurse(seen, src, dest, map.values(), nextFields);
+        else
+            throw new RuntimeException();
     }
 }
 

@@ -2,7 +2,8 @@
 Version Next
 
     - Added command line interface
-    - Add built-in support for java.util.UUID
+    - Added snapshot capability
+    - Added additional built-in field types
     - Miscellaneous bug fixes
 
 Version 1.0.86 Released April 18, 2014
