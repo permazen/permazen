@@ -16,12 +16,12 @@ import org.jsimpledb.core.ObjId;
  */
 class ReferenceConverter extends Converter<JObject, ObjId> {
 
-    private final JSimpleDB jdb;
+    private final JTransaction jtx;
 
-    ReferenceConverter(JSimpleDB jdb) {
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
-        this.jdb = jdb;
+    ReferenceConverter(JTransaction jtx) {
+        if (jtx == null)
+            throw new IllegalArgumentException("null jtx");
+        this.jtx = jtx;
     }
 
     @Override
@@ -35,7 +35,7 @@ class ReferenceConverter extends Converter<JObject, ObjId> {
     protected JObject doBackward(ObjId id) {
         if (id == null)
             return null;
-        return this.jdb.getJObject(id);
+        return this.jtx.getJObject(id);
     }
 }
 

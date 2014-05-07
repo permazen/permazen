@@ -104,8 +104,8 @@ public abstract class JField extends JSchemaObject {
      * Get a {@link Converter} that converts this field's value from what the core database returns
      * to what the Java application expects, or null if no conversion is needed.
      *
-     * @param jdb associated database
+     * @param jtx transaction
      */
-    abstract Converter<?, ?> getConverter(JSimpleDB jdb);
+    abstract Converter<?, ?> getConverter(JTransaction jtx);
 }
 

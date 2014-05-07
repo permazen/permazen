@@ -11,7 +11,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.reflect.TypeToken;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +18,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
 
 import org.jsimpledb.annotation.JFieldType;
 import org.jsimpledb.annotation.JSimpleClass;
@@ -42,14 +40,14 @@ import org.slf4j.LoggerFactory;
  * This class provides a natural, Java-centric view on top of the core {@link Database} class. This is done via two main
  * enhancements to the functionality provided by {@link Database}:
  * <ul>
- *  <li>Java annotations are used to define all {@link Database} objects and fields, to automatically
- *      register various listeners, and to define methods that access indexed fields.</li>
+ *  <li>{@linkplain org.jsimpledb.annotation Java annotations} are used to define all {@link Database} objects and fields,
+ *      to automatically register various listeners, to access indexed fields, etc.</li>
  *  <li>{@link Database} objects and fields are represented using actual Java model objects, where the Java model classes
  *      are automatically generated subclasses of the user-supplied Java bean model classes. That is, in the view that
  *      a {@link JSimpleDB} provides, all {@link Database} object references (which are all {@link ObjId} objects)
  *      are replaced by normal Java model objects of the appropriate type, and all {@link Database} fields are accessible
  *      through the corresponding model objects' Java bean getter and setter methods, instead of directly through
- *      a {@link Transaction} object.</li>
+ *      a {@link Transaction} object. All Java model classes implement the {@link JObject} interface.</li>
  * </ul>
  * </p>
  *
@@ -73,21 +71,20 @@ public class JSimpleDB {
     final TreeMap<Integer, JClass<?>> jclasses = new TreeMap<>();
     final HashMap<TypeToken<?>, JClass<?>> jclassesByType = new HashMap<>();
     final HashMap<Integer, JField> jfields = new HashMap<>();
-    final ReferenceConverter referenceConverter = new ReferenceConverter(this);
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final Database db;
     final int version;
 
-    private SchemaModel schemaModel;
-    private NameIndex nameIndex;
-
-    private final LoadingCache<ObjId, JObject> objectMap = CacheBuilder.newBuilder().weakValues().build(
+    private final LoadingCache<ObjId, JObject> objectCache = CacheBuilder.newBuilder().weakValues().build(
       new CacheLoader<ObjId, JObject>() {
         @Override
         public JObject load(ObjId id) throws Exception {
             return (JObject)JSimpleDB.this.getJClass(id.getStorageId()).getConstructor().newInstance(id);
         }
     });
+
+    private SchemaModel schemaModel;
+    private NameIndex nameIndex;
 
     /**
      * Create an instance using an initially empty, in-memory {@link SimpleKVDatabase}.
@@ -356,19 +353,7 @@ public class JSimpleDB {
      * @see JTransaction#getJObject JTransaction.getJObject()
      */
     public JObject getJObject(ObjId id) {
-        if (id == null)
-            throw new IllegalArgumentException("null id");
-        Throwable cause;
-        try {
-            return this.objectMap.get(id);
-        } catch (ExecutionException e) {
-            cause = e.getCause() != null ? e.getCause() : e;
-        } catch (UncheckedExecutionException e) {
-            cause = e.getCause() != null ? e.getCause() : e;
-        }
-        if (cause instanceof Error)
-            throw (Error)cause;
-        throw new DatabaseException("can't instantiate object for ID " + id, cause);
+        return Util.getJObject(this.objectCache, id);
     }
 
     /**

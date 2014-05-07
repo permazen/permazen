@@ -103,8 +103,8 @@ public class JListField extends JCollectionField {
     }
 
     @Override
-    ListConverter<?, ?> getConverter(JSimpleDB jdb) {
-        final Converter<?, ?> elementConverter = this.elementField.getConverter(jdb);
+    ListConverter<?, ?> getConverter(JTransaction jtx) {
+        final Converter<?, ?> elementConverter = this.elementField.getConverter(jtx);
         if (elementConverter == null)
             return null;
         return this.createConverter(elementConverter);
