@@ -16,24 +16,30 @@ parent.getChildren().add(child)
 }}}
 ...or both?
 
-However, there are also lots of other issues, some more subtle than others. For example:
+And why are some fields of an object available after the transaction closes but not others? How can I know which ones?
+
+There are also lots of other issues, some more subtle than others. For example:
  * Databases have a limited range of column types that don't exactly match normal and/or custom Java types.
- * You can't tell if a database query will be fast or slow just by looking at it; you have to know which columns are indexed, how smart the query optimizer is, and whether the database keeps a "secret" index for any aggregate functions.
+ * Lack of visibility into how Java queries are translated into actual database queries:
+   * You can't tell if a database query will be fast or slow just by looking at it; you have to know which columns are indexed, how smart the query optimizer is, and whether the database keeps a "secret" index for any aggregate functions.
+   * You can't tell whether a database query is going to introduce locking problems (e.g., inter-transaction deadlocks caused by reversed locking order) by looking at it, because without (a) deducing how your ORM layer is going to convert your query into SQL, and (b) examining the database's query plan for that SQL, you don't know what order tables and rows are going to be accessed.
  * Database queries just look ugly nested inside Java code, even with recent improvements such as JPA criteria queries. There's no way to make them look "natural".
+ * ORM layers often have murky areas of unspecified or unpredictable behavior, largely due to their inherent complexity. Instead, there should be no ambiguity what is going to happen in any particular situation.
+ * ORM layers attempt to hide the complexity of converting everything into SQL, but they do so incompletely and imperfectly, resulting in a layer of abstraction for which you still must expend mental energy understanding and paying attention to lower level details
 
 Moreover, Java applications have a few common requirements that normal databases don't provide support for, such as: how do you update your database schema without bringing down every node while you run `ALTER TABLE FOO` statements?
 
 Many of these problems have solutions, but traditionally they have necessarily been "roll your own" solutions.
 
-A Java-centric persistence layer should make these problems trivial to solve, in a Java-centric way.
+A Java-centric persistence layer should make these problems straightforward to solve, in a Java-centric way.
 
 == JSimpleDB Goals ==
 
 The goal of JSimpleDB is to take what's good about databases, and what's good about programming in Java, and bring the two closer together.
 
-At it's core, any database is just a bunch of functionality wrapped around a sorted key/value technology of some kind: the database can efficiently find, add and remove keys, and iterate over keys in order.
+At it's core, any database is just a bunch of functionality wrapped around a core sorted key/value technology of some kind. At its heart, the database can efficiently find, add and remove keys, and iterate over keys in order. On top of this is added indexing, data types, table and column structures, foreign keys, joins, and SQL.
 
-However, traditionally the wrapped functionality stuff has never been optimized for Java programmers, and in fact often serves to create additional obstacles.
+However, that "wrapped functionality" has never been optimized for Java programmers, and in fact often serves to create additional obstacles.
 
 JSimpleDB's attitude toward databases is, "You do the key/value store part, I'll do the rest".
 
@@ -56,16 +62,17 @@ JSimpleDB's Java-centric persistence model is designed to:
    * Since they are always indexed, expose that "invert reference" capability to the application
    * Delete cascade behavior should be configurable just like in SQL
  * Make it easy to monitor for changes through arbitrary reference paths
-   * E.g., notify me when `"parent.friend.age"` changes
+   * Notify my `@OnChange` method when `"parent.friend.age"` changes
    * Maintain any custom indexes (derived information) in one place
- * Incremental validation support
+ * Provide incremental validation support
    * Automatically run JSR 303 validation, but only on what's changed
    * Allow me to run pending validations at any time
  * Support painless "on-line" schema changes without downtime
    * Track object versions automatically
    * Invoke my `@OnVersionChange` method with old & new field values
- * Object lifecycle notifications
+ * Support object lifecycle notifications
    * `@OnCreate`
    * `@OnDelete`
-   * `@OnVersionChange`
+ * Support copying object state into and out of transactions
+   * "Snapshot" transactions retain a portion of transaction state indefinitely
 
