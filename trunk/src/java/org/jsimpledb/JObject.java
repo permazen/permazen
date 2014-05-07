@@ -194,8 +194,7 @@ public interface JObject {
      * </p>
      *
      * <p>
-     * This is a convenience method, equivalent to {@code copyIn(JTransaction.getCurrent(), refPaths)}, but
-     * returning the narrower type {@link JObject}.
+     * This is a convenience method, equivalent to {@code copyIn(JTransaction.getCurrent(), refPaths)}.
      * </p>
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
