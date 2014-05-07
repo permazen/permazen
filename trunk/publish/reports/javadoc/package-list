@@ -1,6 +1,7 @@
 org.jsimpledb
 org.jsimpledb.annotation
 org.jsimpledb.change
+org.jsimpledb.cli
 org.jsimpledb.core
 org.jsimpledb.kv
 org.jsimpledb.kv.fdb

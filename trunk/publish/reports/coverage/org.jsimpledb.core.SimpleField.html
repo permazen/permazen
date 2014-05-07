@@ -109,10 +109,10 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;46</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    SimpleField(String name, <span class="keyword">int</span> storageId, SchemaVersion version, FieldType&lt;T&gt; fieldType, <span class="keyword">boolean</span> indexed) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;529</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(name, storageId, version, fieldType.getTypeToken());</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;529</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.fieldType = fieldType;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;529</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indexed = indexed;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;529</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;581</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(name, storageId, version, fieldType.getTypeToken());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;581</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.fieldType = fieldType;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;581</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indexed = indexed;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;581</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;51</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;52</td>  <td class="nbHits">&nbsp;</td>
@@ -165,7 +165,7 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;77</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    SimpleFieldStorageInfo toStorageInfo(<span class="keyword">int</span> superFieldStorageId) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered">&nbsp;347</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> SimpleFieldStorageInfo(<span class="keyword">this</span>, superFieldStorageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered">&nbsp;378</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> SimpleFieldStorageInfo(<span class="keyword">this</span>, superFieldStorageId);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;79</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;80</td>  <td class="nbHits">&nbsp;</td>
@@ -174,10 +174,10 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;82</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">boolean</span> isEquivalent(Field&lt;?&gt; field) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;83</td>  <td class="nbHitsUncovered"><a title="Line 83: Conditional coverage 50% (1/2).">&nbsp;218</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 83: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (field.getClass() != <span class="keyword">this</span>.getClass())</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;83</td>  <td class="nbHitsUncovered"><a title="Line 83: Conditional coverage 50% (1/2).">&nbsp;224</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 83: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (field.getClass() != <span class="keyword">this</span>.getClass())</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;84</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span> <span class="keyword">false</span>;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;85</td>  <td class="nbHitsCovered">&nbsp;218</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleField&lt;?&gt; that = (SimpleField&lt;?&gt;)field;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;86</td>  <td class="nbHitsUncovered"><a title="Line 86: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;218</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 86: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        <span class="keyword">return</span> <span class="keyword">this</span>.fieldType.equals(that.fieldType) &amp;&amp; <span class="keyword">this</span>.indexed == that.indexed;</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;85</td>  <td class="nbHitsCovered">&nbsp;224</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleField&lt;?&gt; that = (SimpleField&lt;?&gt;)field;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;86</td>  <td class="nbHitsUncovered"><a title="Line 86: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;224</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 86: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        <span class="keyword">return</span> <span class="keyword">this</span>.fieldType.equals(that.fieldType) &amp;&amp; <span class="keyword">this</span>.indexed == that.indexed;</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;87</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;88</td>  <td class="nbHits">&nbsp;</td>
@@ -224,14 +224,14 @@
   <td class="src"><pre class="src">&nbsp;        T value;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;110</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">try</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;111</td>  <td class="nbHitsCovered">&nbsp;364</td>  <td class="src"><pre class="src">&nbsp;            value = <span class="keyword">this</span>.fieldType.validate(obj);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;111</td>  <td class="nbHitsCovered">&nbsp;378</td>  <td class="src"><pre class="src">&nbsp;            value = <span class="keyword">this</span>.fieldType.validate(obj);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;112</td>  <td class="nbHitsCovered">&nbsp;8</td>  <td class="src"><pre class="src">&nbsp;        } <span class="keyword">catch</span> (IllegalArgumentException e) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;113</td>  <td class="nbHitsCovered">&nbsp;8</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"can't set "</span> + <span class="keyword">this</span> + <span class="string">" to value "</span> + obj + <span class="string">": "</span> + e.getMessage(), e);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;114</td>  <td class="nbHitsCovered">&nbsp;356</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;115</td>  <td class="nbHitsCovered">&nbsp;356</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter writer = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;116</td>  <td class="nbHitsCovered">&nbsp;356</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.fieldType.write(writer, value);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;117</td>  <td class="nbHitsCovered">&nbsp;356</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] result = writer.getBytes();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;118</td>  <td class="nbHitsCovered"><a title="Line 118: Conditional coverage 100% (2/2).">&nbsp;356</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 118: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> Arrays.equals(result, <span class="keyword">this</span>.fieldType.getDefaultValue()) ? <span class="keyword">null</span> : result;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;114</td>  <td class="nbHitsCovered">&nbsp;370</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;115</td>  <td class="nbHitsCovered">&nbsp;370</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter writer = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;116</td>  <td class="nbHitsCovered">&nbsp;370</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.fieldType.write(writer, value);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;117</td>  <td class="nbHitsCovered">&nbsp;370</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] result = writer.getBytes();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;118</td>  <td class="nbHitsCovered"><a title="Line 118: Conditional coverage 100% (2/2).">&nbsp;370</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 118: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> Arrays.equals(result, <span class="keyword">this</span>.fieldType.getDefaultValue()) ? <span class="keyword">null</span> : result;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;119</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;120</td>  <td class="nbHits">&nbsp;</td>
@@ -258,27 +258,27 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;131</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;132</td>  <td class="nbHitsUncovered"><a title="Line 132: Conditional coverage 50% (1/2).">&nbsp;912</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 132: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.indexed)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;132</td>  <td class="nbHitsUncovered"><a title="Line 132: Conditional coverage 50% (1/2).">&nbsp;927</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 132: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.indexed)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;133</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="keyword">this</span> + <span class="string">" is not indexed"</span>);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;134</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;135</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Get default value if necessary</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;136</td>  <td class="nbHitsCovered"><a title="Line 136: Conditional coverage 100% (2/2).">&nbsp;912</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 136: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (value == <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;137</td>  <td class="nbHitsCovered">&nbsp;638</td>  <td class="src"><pre class="src">&nbsp;            value = <span class="keyword">this</span>.fieldType.getDefaultValue();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;136</td>  <td class="nbHitsCovered"><a title="Line 136: Conditional coverage 100% (2/2).">&nbsp;927</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 136: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (value == <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;137</td>  <td class="nbHitsCovered">&nbsp;645</td>  <td class="src"><pre class="src">&nbsp;            value = <span class="keyword">this</span>.fieldType.getDefaultValue();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;138</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;139</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Build index entry</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;140</td>  <td class="nbHitsCovered">&nbsp;912</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter writer = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;141</td>  <td class="nbHitsCovered">&nbsp;912</td>  <td class="src"><pre class="src">&nbsp;        UnsignedIntEncoder.write(writer, <span class="keyword">this</span>.storageId);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;142</td>  <td class="nbHitsCovered">&nbsp;912</td>  <td class="src"><pre class="src">&nbsp;        writer.write(value);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;143</td>  <td class="nbHitsCovered">&nbsp;912</td>  <td class="src"><pre class="src">&nbsp;        id.writeTo(writer);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;140</td>  <td class="nbHitsCovered">&nbsp;927</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter writer = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;141</td>  <td class="nbHitsCovered">&nbsp;927</td>  <td class="src"><pre class="src">&nbsp;        UnsignedIntEncoder.write(writer, <span class="keyword">this</span>.storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;142</td>  <td class="nbHitsCovered">&nbsp;927</td>  <td class="src"><pre class="src">&nbsp;        writer.write(value);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;143</td>  <td class="nbHitsCovered">&nbsp;927</td>  <td class="src"><pre class="src">&nbsp;        id.writeTo(writer);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;144</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;145</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Return index entry</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;146</td>  <td class="nbHitsCovered">&nbsp;912</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> writer.getBytes();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;146</td>  <td class="nbHitsCovered">&nbsp;927</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> writer.getBytes();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;147</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;148</td>  <td class="nbHits">&nbsp;</td>
@@ -287,6 +287,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/18/14 4:57 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/6/14 9:32 PM.</div>
 </body>
 </html>

@@ -59,7 +59,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * @param &lt;WV&gt; value type of wrapped map</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;21</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;22</td>  <td class="nbHitsCovered">&nbsp;54747</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">class</span> MapEntryConverter&lt;K, V, WK, WV&gt; <span class="keyword">extends</span> Converter&lt;Map.Entry&lt;K, V&gt;, Map.Entry&lt;WK, WV&gt;&gt; {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;22</td>  <td class="nbHitsCovered">&nbsp;39325</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">class</span> MapEntryConverter&lt;K, V, WK, WV&gt; <span class="keyword">extends</span> Converter&lt;Map.Entry&lt;K, V&gt;, Map.Entry&lt;WK, WV&gt;&gt; {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;23</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;24</td>  <td class="nbHits">&nbsp;</td>
@@ -68,10 +68,10 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> Converter&lt;V, WV&gt; valueConverter;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;26</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsCovered">&nbsp;5249</td>  <td class="src"><pre class="src">&nbsp;    MapEntryConverter(Converter&lt;K, WK&gt; keyConverter, Converter&lt;V, WV&gt; valueConverter) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered">&nbsp;5249</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyConverter = keyConverter;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;5249</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.valueConverter = valueConverter;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsCovered">&nbsp;5249</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsCovered">&nbsp;5265</td>  <td class="src"><pre class="src">&nbsp;    MapEntryConverter(Converter&lt;K, WK&gt; keyConverter, Converter&lt;V, WV&gt; valueConverter) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered">&nbsp;5266</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyConverter = keyConverter;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;5265</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.valueConverter = valueConverter;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsCovered">&nbsp;5265</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;31</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;32</td>  <td class="nbHits">&nbsp;</td>
@@ -89,9 +89,9 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;40</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> Map.Entry&lt;K, V&gt; doBackward(Map.Entry&lt;WK, WV&gt; wentry) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;41</td>  <td class="nbHitsUncovered"><a title="Line 41: Conditional coverage 50% (1/2).">&nbsp;54747</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 41: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (wentry == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;41</td>  <td class="nbHitsUncovered"><a title="Line 41: Conditional coverage 50% (1/2).">&nbsp;39325</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 41: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (wentry == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;42</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span> <span class="keyword">null</span>;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;43</td>  <td class="nbHitsCovered">&nbsp;54746</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> ConvertedMapEntry&lt;K, V, WK, WV&gt;(<span class="keyword">this</span>.keyConverter, <span class="keyword">this</span>.valueConverter, wentry);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;43</td>  <td class="nbHitsCovered">&nbsp;39327</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> ConvertedMapEntry&lt;K, V, WK, WV&gt;(<span class="keyword">this</span>.keyConverter, <span class="keyword">this</span>.valueConverter, wentry);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;44</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;45</td>  <td class="nbHits">&nbsp;</td>
@@ -100,6 +100,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/18/14 4:57 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/6/14 9:32 PM.</div>
 </body>
 </html>
