@@ -5,7 +5,7 @@
 
 JSimpleDB is designed to make powerful persistence easy for Java programmers. It does this by relegating the database to the simplest role possible - storing data as key/value pairs - and reimplementing and enhancing all of the usual database supporting features, such as indexes and notifications, in a Java-centric way. JSimpleDB also adds a few new features that traditional databases don't provide.
 
-In other words, for the most part JSimpleDB is not trying to create solutions where none existed before. Rather, it's trying to reimplement many of the same, well-tested ideas and algorithms used in traditional databases in a way that is more natural for Java programmers. So convenience and maintainability are primary benefits, but as it happens, new solutions to some problems that traditional databases _don't_ solve for you also become easy and natural.
+In other words, for the most part JSimpleDB is not trying to create solutions where none existed before. Rather, it's trying to reimplement many of the same, well-tested ideas and algorithms used in traditional databases in a way that is simpler and more natural for Java programmers. So simplicity and maintainability are primary benefits, but as it happens, new solutions to some problems that traditional databases _don't_ solve for you also become easy and natural.
 
 === Table of Contents ===
 
@@ -15,7 +15,7 @@ In other words, for the most part JSimpleDB is not trying to create solutions wh
 
 JSimpleDB is a _Persistence Layer_. It runs on top of a transactional key/value database that you supply.
 
-JSimpleDB includes adapters for some existing databases, such as [https://foundationdb.com/ FoundationDB] (recommended) and SQL databases, as well as in-memory and flat file key/value stores for testing and prototyping.
+JSimpleDB includes adapters for some existing databases, such as [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/fdb/FoundationKVDatabase.html FoundationDB] (recommended) and [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/sql/package-summary.html SQL] databases, as well as [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/SimpleKVDatabase.html in-memory] and [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/XMLKVDatabase.html XML flat file] key/value stores for testing and prototyping.
 
 === "Normal" Java vs. "Persistence" Java ===
 
@@ -28,14 +28,14 @@ As you can see in the example below, in some cases JSimpleDB provides method _im
 Your "database schema", as such, is defined by your Java classes and their fields. These implicitly define your one-to-one, many-to-one, and many-to-many relationships.
 
 However, there is one important caveat: JSimpleDB avoids design choices that would limit _scalability_. Some JSimpleDB design choices that support scalability are:
- * JSimpleDB runs on top of any database that can look like a transactional key/value store
+ * JSimpleDB runs on top of any database that can [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/KVDatabase.html look like] a transactional key/value store
  * JSimpleDB avoids the use of "bottleneck" keys (e.g., auto-increment counters) that can cause high contention between transactions
- * JSimpleDB provides support not only for indexing fields, but also tools to support building your own custom indexes, so that virtually anything you frequently query can be indexed
+ * JSimpleDB provides support not only for indexing fields, but also tools to support building your own [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/IndexQuery.html custom indexes], so that virtually anything you frequently query can be indexed
  * JSimpleDB provides explicit support for rolling, no-downtime software updates that involve running different versions of your code (with different schemas) on different nodes at the same time
 
 == Quick Example ==
 
-JSimpleDB itself is configured entirely using Java annotations. For example:
+JSimpleDB itself is <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/package-summary.html">configured entirely using Java annotations</a>. For example:
 <code language="java">
 @JSimpleClass(storageId = 100)
 public abstract class Person implements JObject {
@@ -56,7 +56,7 @@ Of note:
    * A `Set` field named `friends` with element type `Person`
  * The getter methods for `age` and `friends` may be declared `abstract`
    * JSimpleDB overrides these methods in an auto-generated subclass at runtime
-   * The generated subclass will implement the `JObject` interface
+   * The generated subclass will implement the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a> interface
  * There is no setter method for the `friends` set
    * The set will always exist
 
@@ -76,7 +76,7 @@ Array types are also supported. Array types are simple types and are read and wr
 
 The complex types are `Set` (actually `NavigableSet`), `List`, and `Map` (actually `NavigableMap`). JSimpleDB includes explicit support for these types, including indexing, change notification, etc. The complex types support any simple type as their element or key/value type.
 
-You can define your own simple types by providing a class annotated with `@JFieldType`.
+You can define your own simple types by providing a class annotated with <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/JFieldType.html">`@JFieldType`</a>.
 
 == Accessing Data ==
 
@@ -84,7 +84,7 @@ Once you have defined your classes, programming with JSimpleDB is just normal Ja
 
 === Object Lifecycle ===
 
-To create a persistent `Person` instance, invoke `create()` on a `JTransaction` object, e.g.:
+To create a persistent `Person` instance, invoke `create()` on a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> object, e.g.:
 
 <code language="java">
     // Create a Person
@@ -92,7 +92,7 @@ To create a persistent `Person` instance, invoke `create()` on a `JTransaction` 
         return JTransaction.getCurrent().create(Person.class);
     }</code>
 
-`JTransaction` represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`, which returns the instance associated with the current thread.
+<a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`, which returns the instance associated with the current thread.
 
 All state associated with JSimpleDB objects lives in the `JTransaction`. The model objects themselves are stateless, except for their internal object ID. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no such `JTransaction`, an `IllegalStateException` is thrown.
 
@@ -113,13 +113,13 @@ To delete a persistent `Person`:
 <code language="java">
     person.delete();</code>
 
-The `exists()`, `delete()`, and `recreate()` methods are part of the `JObject` interface, which all generated model subclasses implement. Your classes don't have to to be declared to implement `JObject`, but life is a little easier if they are.
+The `exists()`, `delete()`, and `recreate()` methods are part of the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a> interface, which all generated model subclasses implement. Your classes don't have to to be declared to implement `JObject`, but life is a little easier if they are.
 
 === Delete Cascade ===
 
 JSimpleDB provides an equivalent of SQL `ON DELETE ...` for reference fields. This applies to the situation where an object is deleted, but that object still has one or more other objects referencing it.
 
-You have four choices, represented by the constants in the `DeleteAction` enum class:
+You have four choices, represented by the constants in the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/DeleteAction.html">`DeleteAction`</a> enum class:
 
  * `EXCEPTION` - Disallow deletion of such an object; instead, throw `ReferencedObjectException`.
  * `UNREFERENCE` - Set all references to the object to null (in the case of simple reference fields) or remove the corresponding collection entry (in the case of sets, lists, and maps).
@@ -156,7 +156,7 @@ Of course this is the perfect situation for an *index* on the `age` field. Here 
     public abstract int getAge();
     public abstract void setAge(int age);</code>
 
-To read that index, you declare a new abstract method and annotate it with `@IndexQuery`:
+To read that index, you declare a new abstract method and annotate it with <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/IndexQuery.html">`@IndexQuery`</a>:
 
 <code language="java">
     @IndexQuery("age")
@@ -268,7 +268,7 @@ Then we just do the "join" via set intersection:
         return peopleOfAge != null && !NavigableSets.intersect(peopleOfAge, this.getFriends()).isEmpty();
     }</code>
 
-The `NavigableSets` utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements and a consistent sort order for those elements (which is what allows the intersection operation to be efficient). JSimpleDB provides (and verifies) this consistent ordering for you.
+The <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/util/NavigableSets.html">`NavigableSets`</a> utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements and a consistent sort order for those elements (which is what allows the intersection operation to be efficient). JSimpleDB provides (and verifies) this consistent ordering for you.
 
 === Reference Inversion ===
 
@@ -310,7 +310,7 @@ JSimpleDB transactions can be thought of as containers for the state of objects.
 
 In the case of JPA, some state may be available after a transaction (detached objects), but exactly which state is often difficult to determine.
 
-To allow you to keep a "snapshot" of some portion of the transaction state after that transaction has closed, each JSimpleDB transaction has an associated _snapshot transaction_. Snapshot transactions are initially empty, in-memory transactions that persist indefinitely. You can easily copy an object into and out of a database transaction using the `JObject` methods `copyIn()` and `copyOut()`.
+To allow you to keep a "snapshot" of some portion of the transaction state after that transaction has closed, each JSimpleDB transaction has an associated <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/SnapshotJTransaction.html">snapshot transaction</a>. Snapshot transactions are initially empty, in-memory transactions that persist indefinitely. You can easily copy an object into and out of a database transaction using the `JObject` methods `copyIn()` and `copyOut()`.
 
 These methods allow you to specify precisely how much information you want to copy, as a list of reference paths. Other than disallowing `commit()`, snapshot transaction retain all of the usual functionality such as indexes, reference inversion, validation, change notification, etc., so you code can work the same inside or outside of a "real" transaction. You can also create multiple independent snapshot transactions if needed.
 
@@ -339,7 +339,7 @@ In our present example, you would have to track down any code that either (a) al
 
 === `@OnChange` ===
 
-With JSimpleDB, you can index virtually anything, based on any reachable information, using the `@OnChange` annotation. The `@OnChange` annotation allows you to monitor arbitrarily distant changes by specifying the reference path to the change you want to monitor.
+With JSimpleDB, you can index virtually anything, based on any reachable information, using the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnChange.html">`@OnChange`</a> annotation. The `@OnChange` annotation allows you to monitor arbitrarily distant changes by specifying the reference path to the change you want to monitor.
 
 To maintain an index in JSimpleDB:
  # Detect relevant changes via `@OnChange`-annotated methods
@@ -417,7 +417,7 @@ To support such usage, JSimpleDB provides the `Counter` field type, which holds 
 
 === Lifecycle Notifications ===
 
-JSimpleDB provides notifications whenever a database object is created or deleted via the `@OnCreate` and `@OnDelete` annotations:
+JSimpleDB provides notifications whenever a database object is created or deleted via the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnCreate.html">`@OnCreate`</a> and <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnDelete.html">`@OnDelete`</a> annotations:
 
 <code language="java">
     @OnCreate 
@@ -450,7 +450,7 @@ JSimpleDB databases have an explicit notion of a *schema* as well as schema *ver
 
 A schema is defined as a set of object types and the fields in those object types. Each object type and field is identified by its unique storage ID. Therefore, changes to the names of objects or fields do not constitute a schema change.
 
-Internally, schemas are represented by `SchemaModel` objects. This object type has an XML representation which is used to serialize the schema into the database. Normally, you don't need to mess with `SchemaModel`s - they are generated for you from your annotated classes and handled automatically. But methods exist to allow you to access and introspect the current and all previously recorded database schemas if necessary.
+Internally, schemas are represented by <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/schema/SchemaModel.html">`SchemaModel`</a> objects. This object type has an XML representation which is used to serialize the schema into the database. Normally, you don't need to mess with `SchemaModel`s - they are generated for you from your annotated classes and handled automatically. But methods exist to allow you to access and introspect the current and all previously recorded database schemas if necessary.
 
 === Schema Verification ===
 
@@ -473,7 +473,7 @@ What happens when an object with version X is read by the application server usi
     * Removed fields are removed (pending step #2)
     * New fields are initialized to their default values
     * All other fields stay the same
- # Any `@OnVersionChange`-annotated methods in the affected object are invoked, with these parameters:
+ # Any <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a>-annotated methods in the affected object are invoked, with these parameters:
     * The old schema version
     * The new schema version
     * A `Map<Integer, Object>` containing all of the old field values indexed by storage ID
@@ -585,9 +585,15 @@ Here's an example:
             throw new ValidationException(this, "we don't allow frenemies");
     }</code>
 
+== Spring Integration ==
+
+JSimpleDB includes support for use with the <a href="http://projects.spring.io/spring-framework/">Spring Framework</a>, including a transaction manager that integrates with Spring's `@Transactional` annotation.
+
+See the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/spring/package-summary.html">API Javadocs</a> for more info.
+
 == Core Database Model ==
 
-JSimpleDB is normally used and configured via annotated Java classes, but this is not actually required. The Java model/annotation layer sits on top of the *core database* layer, which we describe here.
+JSimpleDB is normally used and configured via annotated Java classes, but this is not actually required. The Java model/annotation layer sits on top of the *core database* layer, which we describe here for completeness. Feel free to skip this section.
 
 The core database layer has the following notions:
  * *Schema*
@@ -627,10 +633,3 @@ There is one exception, however: simple fields may change whether they are index
 
 JSimpleDB validates all of this for you, and will throw an exception if you try to do anything invalid.
 
-== Key/Value Stores ==
-
-JSimpleDB includes a simple key/value store that can be backed by memory or by a flat XML file, handy for testing or simple projects. It supports concurrent ACID transactions using read/write locks.
-
-JSimpleDB also includes key/value adapters for the following database technologies (so far):
- * [http://foundationdb.com/ FoundationDB]
- * Any SQL database - using a single table with two columns
