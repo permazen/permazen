@@ -9,9 +9,12 @@ package org.jsimpledb.core;
 
 import com.google.common.reflect.TypeToken;
 
+import java.io.File;
+import java.net.URI;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.util.ByteReader;
@@ -25,14 +28,11 @@ import org.jsimpledb.util.ByteWriter;
  * <ul>
  *  <li>They have a unique {@linkplain #getName name}; typically the same as their {@linkplain #getTypeToken supported type}.</li>
  *  <li>All possible values can be represented in Java as an instance of the associated Java type (possibly including null).</li>
- *  <li>The associated Java type correctly implements {@link #equals equals()} and {@link #hashCode hashCode()}.</li>
- *  <li>Instances {@linkplain #compare totally order} the Java values, and does so consistently with {@link #equals equals()}.
- *      If the associated Java type also implements {@link Comparable}, then the two orderings do not necessarily have to match,
- *      but normally they should.</li>
+ *  <li>Instances {@linkplain #compare totally order} the Java values. If the associated Java type implements {@link Comparable},
+ *      then the two orderings do not necessarily have to match, but they should if possible.</li>
  *  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)
- *      without losing information, and these binary strings, when sorted lexicographically (using unsigned comparison),
- *      sort consistently with the {@linkplain #compare total ordering} of the corresponding Java values, and are equal
- *      if and only if the corresponding Java values are equal.</li>
+ *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
+ *      sort consistently with the {@linkplain #compare total ordering} of the corresponding Java values.</li>
  *  <li>All possible values can be encoded/decoded to/from {@link String}s without losing information,
  *      using a self-delimiting syntax.</li>
  *  <li>{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare} and
@@ -179,6 +179,21 @@ public abstract class FieldType<T> implements Comparator<T> {
      * Type for {@link UUID}s.
      */
     static final NullSafeType<UUID> UUID = new NullSafeType<>(new UUIDType());
+
+    /**
+     * Type for {@link URI}s.
+     */
+    static final NullSafeType<URI> URI = new NullSafeType<>(new URIType());
+
+    /**
+     * Type for {@link File}s.
+     */
+    static final NullSafeType<File> FILE = new NullSafeType<>(new FileType());
+
+    /**
+     * Type for {@link Pattern}s.
+     */
+    static final NullSafeType<Pattern> PATTERN = new NullSafeType<>(new PatternType());
 
     final String name;
     final TypeToken<T> typeToken;

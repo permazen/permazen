@@ -52,6 +52,9 @@ public class FieldTypeRegistry {
         this.add(FieldType.DATE);
         this.add(FieldType.ENUM_VALUE);
         this.add(FieldType.UUID);
+        this.add(FieldType.URI);
+        this.add(FieldType.FILE);
+        this.add(FieldType.PATTERN);
     }
 
     /**
