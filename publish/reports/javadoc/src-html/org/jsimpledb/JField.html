@@ -112,9 +112,9 @@
 <span class="sourceLineNo">104</span>     * Get a {@link Converter} that converts this field's value from what the core database returns<a name="line.104"></a>
 <span class="sourceLineNo">105</span>     * to what the Java application expects, or null if no conversion is needed.<a name="line.105"></a>
 <span class="sourceLineNo">106</span>     *<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * @param jdb associated database<a name="line.107"></a>
+<span class="sourceLineNo">107</span>     * @param jtx transaction<a name="line.107"></a>
 <span class="sourceLineNo">108</span>     */<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    abstract Converter&lt;?, ?&gt; getConverter(JSimpleDB jdb);<a name="line.109"></a>
+<span class="sourceLineNo">109</span>    abstract Converter&lt;?, ?&gt; getConverter(JTransaction jtx);<a name="line.109"></a>
 <span class="sourceLineNo">110</span>}<a name="line.110"></a>
 <span class="sourceLineNo">111</span><a name="line.111"></a>
 
