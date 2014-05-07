@@ -1,4 +1,4 @@
-Version Next
+Version 1.0.882 Released May 6, 2014
 
     - Moved XMLResultSetWriter from xml -> sql sub-package
     - Remove HardLink; obsoleted by Files.createLink()
