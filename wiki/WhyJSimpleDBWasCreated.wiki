@@ -21,7 +21,7 @@ And why are some fields of an object available after the transaction closes but 
 There are also lots of other issues, some more subtle than others. For example:
  * Databases have a limited range of column types that don't exactly match normal and/or custom Java types.
  * Lack of visibility into how Java queries are translated into actual database queries:
-   * You can't tell if a database query will be fast or slow just by looking at it; you have to know which columns are indexed, how smart the query optimizer is, and whether the database keeps a "secret" index for any aggregate functions.
+   * You can't tell if a database query will be fast or slow just by looking at it; you have to know how your ORM layer converts it into SQL, which columns are indexed, how smart the query optimizer is, and whether the database keeps a "secret" index for any aggregate functions.
    * You can't tell whether a database query is going to introduce locking problems (e.g., inter-transaction deadlocks caused by reversed locking order) by looking at it, because without (a) deducing how your ORM layer is going to convert your query into SQL, and (b) examining the database's query plan for that SQL, you don't know what order tables and rows are going to be accessed.
  * Database queries just look ugly nested inside Java code, even with recent improvements such as JPA criteria queries. There's no way to make them look "natural".
  * ORM layers often have murky areas of unspecified or unpredictable behavior, largely due to their inherent complexity. Instead, there should be no ambiguity what is going to happen in any particular situation.
