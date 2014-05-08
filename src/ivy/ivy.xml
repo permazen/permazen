@@ -23,11 +23,11 @@
         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="javac->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="javac->default"/>
         <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1+" conf="javac->default"/>
-        <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.850" conf="javac->default; jarjars->default"/>
+        <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.882" conf="javac->default; jarjars->default"/>
         <dependency force="true" org="org.objectweb.asm" name="asm" rev="4.+" conf="javac,build->default; jarjars->core,util"/>
         <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7.2" conf="javac->default;test->log4j"/>
         <dependency force="true" org="org.sonatype.jline" name="jline" rev="2.11" conf="javac->default; jarjars->default"/>
-        <dependency force="true" org="org.springframework" name="spring" rev="4.0.3"
+        <dependency force="true" org="org.springframework" name="spring" rev="4.0+"
           conf="javac->aop,aspects,beans,context,tx"/>
         <dependency force="true" org="org.testng" name="testng" rev="6.8+" conf="test->default"/>
     </dependencies>
