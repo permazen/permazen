@@ -64,24 +64,24 @@ public class SnapshotTest extends TestSupport {
         final ObjId id2 = tx1.create(1);
         final ObjId id3 = tx1.create(1);
 
-        tx1.writeSimpleField(id1, 2, 123.45f);
-        tx1.writeSimpleField(id2, 2, Float.NEGATIVE_INFINITY);
-        tx1.writeSimpleField(id3, 2, Float.NaN);
+        tx1.writeSimpleField(id1, 2, 123.45f, true);
+        tx1.writeSimpleField(id2, 2, Float.NEGATIVE_INFINITY, true);
+        tx1.writeSimpleField(id3, 2, Float.NaN, true);
 
-        tx1.writeSimpleField(id1, 3, id2);
-        tx1.writeSimpleField(id2, 3, id3);
-        tx1.writeSimpleField(id3, 3, id1);
+        tx1.writeSimpleField(id1, 3, id2, true);
+        tx1.writeSimpleField(id2, 3, id3, true);
+        tx1.writeSimpleField(id3, 3, id1, true);
 
-        NavigableSet<Integer> set1 = (NavigableSet<Integer>)tx1.readSetField(id1, 4);
+        NavigableSet<Integer> set1 = (NavigableSet<Integer>)tx1.readSetField(id1, 4, true);
         set1.add(123);
         set1.add(456);
 
-        List<Integer> list1 = (List<Integer>)tx1.readListField(id1, 6);
+        List<Integer> list1 = (List<Integer>)tx1.readListField(id1, 6, true);
         list1.add(234);
         list1.add(567);
         list1.add(234);
 
-        NavigableMap<Integer, String> map1 = (NavigableMap<Integer, String>)tx1.readMapField(id1, 8);
+        NavigableMap<Integer, String> map1 = (NavigableMap<Integer, String>)tx1.readMapField(id1, 8, true);
         map1.put(987, "foo");
         map1.put(654, "bar");
         map1.put(321, "foo");
@@ -102,11 +102,11 @@ public class SnapshotTest extends TestSupport {
 
         // Check fields
         Assert.assertEquals(tx2.getAll(1), buildSet(id1));
-        Assert.assertEquals(tx2.readSimpleField(id1, 2), 123.45f);
-        Assert.assertEquals(tx2.readSimpleField(id1, 3), id2);
-        Assert.assertEquals(tx2.readSetField(id1, 4), buildSet(123, 456));
-        Assert.assertEquals(tx2.readListField(id1, 6), buildList(234, 567, 234));
-        Assert.assertEquals(tx2.readMapField(id1, 8), buildSortedMap(321, "foo", 654, "bar", 987, "foo"));
+        Assert.assertEquals(tx2.readSimpleField(id1, 2, true), 123.45f);
+        Assert.assertEquals(tx2.readSimpleField(id1, 3, true), id2);
+        Assert.assertEquals(tx2.readSetField(id1, 4, true), buildSet(123, 456));
+        Assert.assertEquals(tx2.readListField(id1, 6, true), buildList(234, 567, 234));
+        Assert.assertEquals(tx2.readMapField(id1, 8, true), buildSortedMap(321, "foo", 654, "bar", 987, "foo"));
 
         // Check indexes
         Assert.assertEquals(tx2.querySimpleField(3), buildMap(id2, buildSet(id1)));
@@ -122,22 +122,22 @@ public class SnapshotTest extends TestSupport {
 
         // Check fields
         Assert.assertEquals(tx2.getAll(1), buildSet(id1, id2, id3));
-        Assert.assertEquals(tx2.readSimpleField(id2, 2), Float.NEGATIVE_INFINITY);
-        Assert.assertTrue(Float.isNaN((Float)tx2.readSimpleField(id3, 2)));
+        Assert.assertEquals(tx2.readSimpleField(id2, 2, true), Float.NEGATIVE_INFINITY);
+        Assert.assertTrue(Float.isNaN((Float)tx2.readSimpleField(id3, 2, true)));
 
-        Assert.assertEquals(tx2.readSimpleField(id1, 3), id2);
-        Assert.assertEquals(tx2.readSimpleField(id2, 3), id3);
-        Assert.assertEquals(tx2.readSimpleField(id3, 3), id1);
+        Assert.assertEquals(tx2.readSimpleField(id1, 3, true), id2);
+        Assert.assertEquals(tx2.readSimpleField(id2, 3, true), id3);
+        Assert.assertEquals(tx2.readSimpleField(id3, 3, true), id1);
 
         // Check indexes
         Assert.assertEquals(tx2.querySimpleField(3), buildMap(id1, buildSet(id3), id2, buildSet(id1), id3, buildSet(id2)));
 
         // Change id1 and then overwrite copy
-        tx1.writeSimpleField(id1, 2, 456.78f);
-        tx1.readSetField(id1, 4).clear();
+        tx1.writeSimpleField(id1, 2, 456.78f, true);
+        tx1.readSetField(id1, 4, true).clear();
         Assert.assertFalse(tx1.copyTo(id1, tx2));
-        Assert.assertEquals(tx2.readSimpleField(id1, 2), 456.78f);
-        Assert.assertTrue(tx2.readSetField(id1, 4).isEmpty());
+        Assert.assertEquals(tx2.readSimpleField(id1, 2, true), 456.78f);
+        Assert.assertTrue(tx2.readSetField(id1, 4, true).isEmpty());
 
         // Commit transaction and verify identical key/value stores
         tx1.commit();

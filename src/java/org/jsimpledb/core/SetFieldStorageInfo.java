@@ -17,7 +17,7 @@ class SetFieldStorageInfo extends CollectionFieldStorageInfo {
 
     @Override
     void unreference(Transaction tx, int storageId, ObjId target, ObjId referrer, ByteReader reader) {
-        tx.readSetField(referrer, this.storageId).remove(target);
+        tx.readSetField(referrer, this.storageId, false).remove(target);
     }
 
     @Override

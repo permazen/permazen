@@ -70,12 +70,12 @@ public class OnDeleteTest extends TestSupport {
             id2 = tx.create(1);
             id3 = tx.create(1);
 
-            tx.writeSimpleField(id1, 2, id2);
-            tx.writeSimpleField(id2, 2, id3);
-            tx.writeSimpleField(id3, 2, id1);
-            Assert.assertEquals(tx.readSimpleField(id1, 2), id2);
-            Assert.assertEquals(tx.readSimpleField(id2, 2), id3);
-            Assert.assertEquals(tx.readSimpleField(id3, 2), id1);
+            tx.writeSimpleField(id1, 2, id2, true);
+            tx.writeSimpleField(id2, 2, id3, true);
+            tx.writeSimpleField(id3, 2, id1, true);
+            Assert.assertEquals(tx.readSimpleField(id1, 2, true), id2);
+            Assert.assertEquals(tx.readSimpleField(id2, 2, true), id3);
+            Assert.assertEquals(tx.readSimpleField(id3, 2, true), id1);
 
             try {
                 tx.delete(id2);
@@ -88,23 +88,23 @@ public class OnDeleteTest extends TestSupport {
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(tx.readSimpleField(id1, 2), id2);
-                Assert.assertEquals(tx.readSimpleField(id3, 2), id1);
+                Assert.assertEquals(tx.readSimpleField(id1, 2, true), id2);
+                Assert.assertEquals(tx.readSimpleField(id3, 2, true), id1);
                 break;
             case EXCEPTION:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertTrue(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(tx.readSimpleField(id1, 2), id2);
-                Assert.assertEquals(tx.readSimpleField(id2, 2), id3);
-                Assert.assertEquals(tx.readSimpleField(id3, 2), id1);
+                Assert.assertEquals(tx.readSimpleField(id1, 2, true), id2);
+                Assert.assertEquals(tx.readSimpleField(id2, 2, true), id3);
+                Assert.assertEquals(tx.readSimpleField(id3, 2, true), id1);
                 break;
             case UNREFERENCE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(tx.readSimpleField(id1, 2), null);
-                Assert.assertEquals(tx.readSimpleField(id3, 2), id1);
+                Assert.assertEquals(tx.readSimpleField(id1, 2, true), null);
+                Assert.assertEquals(tx.readSimpleField(id3, 2, true), id1);
                 break;
             case DELETE:
                 Assert.assertFalse(tx.exists(id1));
@@ -126,7 +126,7 @@ public class OnDeleteTest extends TestSupport {
             id2 = tx.create(1);
             id3 = tx.create(1);
 
-            NavigableSet<ObjId> set = (NavigableSet<ObjId>)tx.readSetField(id1, 10);
+            NavigableSet<ObjId> set = (NavigableSet<ObjId>)tx.readSetField(id1, 10, true);
             set.add(id1);
             set.add(id2);
             set.add(id3);
@@ -177,7 +177,7 @@ public class OnDeleteTest extends TestSupport {
             id2 = tx.create(1);
             id3 = tx.create(1);
 
-            List<ObjId> list = (List<ObjId>)tx.readListField(id1, 11);
+            List<ObjId> list = (List<ObjId>)tx.readListField(id1, 11, true);
             list.add(id1);
             list.add(id2);
             list.add(id3);
@@ -228,7 +228,7 @@ public class OnDeleteTest extends TestSupport {
             id2 = tx.create(1);
             id3 = tx.create(1);
 
-            NavigableMap<ObjId, Integer> map1 = (NavigableMap<ObjId, Integer>)tx.readMapField(id1, 12);
+            NavigableMap<ObjId, Integer> map1 = (NavigableMap<ObjId, Integer>)tx.readMapField(id1, 12, true);
             map1.put(id1, 123);
             map1.put(id2, 456);
             map1.put(id3, 789);
@@ -284,7 +284,7 @@ public class OnDeleteTest extends TestSupport {
             id2 = tx.create(1);
             id3 = tx.create(1);
 
-            NavigableMap<Integer, ObjId> map2 = (NavigableMap<Integer, ObjId>)tx.readMapField(id1, 13);
+            NavigableMap<Integer, ObjId> map2 = (NavigableMap<Integer, ObjId>)tx.readMapField(id1, 13, true);
             map2.put(123, id1);
             map2.put(456, id2);
             map2.put(789, id3);

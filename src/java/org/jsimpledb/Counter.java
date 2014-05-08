@@ -55,7 +55,7 @@ public class Counter {
      * @throws DeletedObjectException if the object from which this instance was read no longer exists
      */
     public long get() {
-        return this.tx.readCounterField(this.id, this.storageId);
+        return this.tx.readCounterField(this.id, this.storageId, true);
     }
 
     /**
@@ -68,7 +68,7 @@ public class Counter {
      * @throws DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void set(long value) {
-        this.tx.writeCounterField(this.id, this.storageId, value);
+        this.tx.writeCounterField(this.id, this.storageId, value, true);
     }
 
     /**
@@ -80,7 +80,7 @@ public class Counter {
      * @throws DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void adjust(long offset) {
-        this.tx.adjustCounterField(this.id, this.storageId, offset);
+        this.tx.adjustCounterField(this.id, this.storageId, offset, true);
     }
 }
 

@@ -76,7 +76,7 @@ public class PrintCommand extends Command {
                 final SimpleField<?> elementField = ((SetField<?>)field).getElementField();
                 session.getConsole().println("{");
                 int count = 0;
-                for (Object elem : tx.readSetField(id, field.getStorageId())) {
+                for (Object elem : tx.readSetField(id, field.getStorageId(), false)) {
                     if (count >= session.getLineLimit()) {
                         session.getConsole().println(eindent + "...");
                         break;
@@ -89,7 +89,7 @@ public class PrintCommand extends Command {
                 final SimpleField<?> elementField = ((ListField<?>)field).getElementField();
                 session.getConsole().println("{");
                 int count = 0;
-                for (Object elem : tx.readListField(id, field.getStorageId())) {
+                for (Object elem : tx.readListField(id, field.getStorageId(), false)) {
                     if (count >= session.getLineLimit()) {
                         session.getConsole().println(eindent + "...");
                         break;
@@ -103,7 +103,7 @@ public class PrintCommand extends Command {
                 final SimpleField<?> valueField = ((MapField<?, ?>)field).getValueField();
                 session.getConsole().println("{");
                 int count = 0;
-                for (Map.Entry<?, ?> entry : tx.readMapField(id, field.getStorageId()).entrySet()) {
+                for (Map.Entry<?, ?> entry : tx.readMapField(id, field.getStorageId(), false).entrySet()) {
                     if (count >= session.getLineLimit()) {
                         session.getConsole().println(eindent + "...");
                         break;

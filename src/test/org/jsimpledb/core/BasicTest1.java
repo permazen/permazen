@@ -59,23 +59,23 @@ public class BasicTest1 extends TestSupport {
         Assert.assertEquals(tx.getSchemaVersion(id), 1);
         Assert.assertEquals(tx.getAll(1), Collections.singleton(id));
         Assert.assertEquals(tx.getAll(20), Collections.singleton(id2));
-        Assert.assertEquals(tx.readSimpleField(id, 2), 0);
-        tx.writeSimpleField(id, 2, 123456);
+        Assert.assertEquals(tx.readSimpleField(id, 2, true), 0);
+        tx.writeSimpleField(id, 2, 123456, true);
         //this.showKV(tx, "testPrimitiveFields: 3");
-        Assert.assertEquals(tx.readSimpleField(id, 2), 123456);
+        Assert.assertEquals(tx.readSimpleField(id, 2, true), 123456);
         tx.commit();
 
         tx = db.createTransaction(schema1, 1, true);
         Assert.assertTrue(tx.getAll(1).equals(Collections.singleton(id)), tx.getAll(1) + " != " + Collections.singleton(id));
-        Assert.assertEquals(tx.readSimpleField(id, 2), 123456);
+        Assert.assertEquals(tx.readSimpleField(id, 2, true), 123456);
         tx.commit();
 
         tx = db.createTransaction(schema1, 1, true);
-        tx.writeSimpleField(id, 2, 987654);
+        tx.writeSimpleField(id, 2, 987654, true);
         tx.rollback();
 
         tx = db.createTransaction(schema1, 1, true);
-        Assert.assertEquals(tx.readSimpleField(id, 2), 123456);
+        Assert.assertEquals(tx.readSimpleField(id, 2, true), 123456);
         tx.commit();
 
         tx = db.createTransaction(schema1, 1, true);
@@ -126,29 +126,29 @@ public class BasicTest1 extends TestSupport {
               int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
                 //log.info("version change: " + oldVersion + " -> " + newVersion + " oldFields=" + oldFieldValues);
                 oldValue[0] = (Integer)oldFieldValues.get(2);
-                tx.writeSimpleField(id, 6, (short)4444);
+                tx.writeSimpleField(id, 6, (short)4444, true);
             }
         });
 
-        Assert.assertEquals(tx.readSimpleField(id, 3), false);
+        Assert.assertEquals(tx.readSimpleField(id, 3, true), false);
         //this.showKV(tx, "testPrimitiveFields[2]: 2");
-        Assert.assertEquals(tx.readSimpleField(id, 4), (byte)0);
-        Assert.assertEquals(tx.readSimpleField(id, 5), (char)0);
-        Assert.assertEquals(tx.readSimpleField(id, 6), (short)4444);
-        Assert.assertEquals(tx.readSimpleField(id, 7), (float)0);
-        Assert.assertEquals(tx.readSimpleField(id, 8), (long)0);
-        Assert.assertEquals(tx.readSimpleField(id, 9), (double)0);
-        Assert.assertEquals(tx.readSimpleField(id, 10), null);
-        Assert.assertEquals(tx.readSimpleField(id, 11), null);
-        Assert.assertEquals(tx.readSimpleField(id, 12), null);
-        Assert.assertEquals(tx.readSimpleField(id, 13), null);
+        Assert.assertEquals(tx.readSimpleField(id, 4, true), (byte)0);
+        Assert.assertEquals(tx.readSimpleField(id, 5, true), (char)0);
+        Assert.assertEquals(tx.readSimpleField(id, 6, true), (short)4444);
+        Assert.assertEquals(tx.readSimpleField(id, 7, true), (float)0);
+        Assert.assertEquals(tx.readSimpleField(id, 8, true), (long)0);
+        Assert.assertEquals(tx.readSimpleField(id, 9, true), (double)0);
+        Assert.assertEquals(tx.readSimpleField(id, 10, true), null);
+        Assert.assertEquals(tx.readSimpleField(id, 11, true), null);
+        Assert.assertEquals(tx.readSimpleField(id, 12, true), null);
+        Assert.assertEquals(tx.readSimpleField(id, 13, true), null);
 
         Assert.assertEquals(tx.getSchemaVersion(id), 2);
         Assert.assertEquals(oldValue[0], 123456);
 
         for (int sid = 2; sid <= 9; sid++) {
             try {
-                tx.writeSimpleField(id, sid, null);
+                tx.writeSimpleField(id, sid, null, true);
                 assert false;
             } catch (IllegalArgumentException e) {
                 // expected
@@ -156,8 +156,8 @@ public class BasicTest1 extends TestSupport {
         }
 
         final Date now = new Date();
-        tx.writeSimpleField(id, 13, now);
-        Assert.assertEquals(tx.readSimpleField(id, 13), now);
+        tx.writeSimpleField(id, 13, now, true);
+        Assert.assertEquals(tx.readSimpleField(id, 13, true), now);
 
         tx.rollback();
     }
@@ -191,17 +191,17 @@ public class BasicTest1 extends TestSupport {
 
         ObjId id = tx.create(1);
 
-        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10);
+        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10, true);
         set.add(123);
         set.add(456);
         set.add(789);
 
-        List<Integer> list = (List<Integer>)tx.readListField(id, 11);
+        List<Integer> list = (List<Integer>)tx.readListField(id, 11, true);
         list.add(234);
         list.add(567);
         list.add(890);
 
-        NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 12);
+        NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 12, true);
         map.put(987, "foo");
         map.put(654, "bar");
         map.put(321, "jan");
@@ -298,8 +298,8 @@ public class BasicTest1 extends TestSupport {
         Transaction tx = db.createTransaction(schema, 1, true);
 
         ObjId id = tx.create(1);
-        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10);
-        Assert.assertEquals(tx.readSetField(id, 10), Collections.emptySet());
+        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10, true);
+        Assert.assertEquals(tx.readSetField(id, 10, true), Collections.emptySet());
         set.add(456);
         set.add(123);
         set.add(789);
@@ -312,13 +312,13 @@ public class BasicTest1 extends TestSupport {
         }
 
         try {
-            tx.readListField(id, 10);
+            tx.readListField(id, 10, true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {
-            tx.readMapField(id, 10);
+            tx.readMapField(id, 10, true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
@@ -660,7 +660,7 @@ public class BasicTest1 extends TestSupport {
         Transaction tx = db.createTransaction(schema, 1, true);
 
         ObjId id = tx.create(1);
-        List<String> list = (List<String>)tx.readListField(id, 11);
+        List<String> list = (List<String>)tx.readListField(id, 11, true);
         Assert.assertEquals(list, Collections.emptySet());
         Assert.assertEquals(Collections.emptyList(), list);
         Assert.assertEquals(Collections.emptyList().hashCode(), list.hashCode());
@@ -669,13 +669,13 @@ public class BasicTest1 extends TestSupport {
         Assert.assertTrue(Lists.newArrayList(list.iterator()).isEmpty());
 
         try {
-            tx.readSetField(id, 11);
+            tx.readSetField(id, 11, true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {
-            tx.readMapField(id, 11);
+            tx.readMapField(id, 11, true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
@@ -814,7 +814,7 @@ public class BasicTest1 extends TestSupport {
         Transaction tx = db.createTransaction(schema, 1, true);
 
         ObjId id = tx.create(1);
-        NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 12);
+        NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 12, true);
         Assert.assertEquals(map, Collections.emptyMap());
         Assert.assertEquals(Collections.emptyMap(), map);
         Assert.assertEquals(Collections.emptyMap().hashCode(), map.hashCode());
@@ -825,13 +825,13 @@ public class BasicTest1 extends TestSupport {
         }
 
         try {
-            tx.readSetField(id, 12);
+            tx.readSetField(id, 12, true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {
-            tx.readListField(id, 12);
+            tx.readListField(id, 12, true);
             assert false;
         } catch (UnknownFieldException e) {
             // expected

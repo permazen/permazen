@@ -35,7 +35,7 @@ class MapFieldStorageInfo extends ComplexFieldStorageInfo {
 
     @Override
     void unreference(Transaction tx, int storageId, ObjId target, ObjId referrer, ByteReader reader) {
-        final FieldTypeMap<?, ?> fieldMap = (FieldTypeMap<?, ?>)tx.readMapField(referrer, this.storageId);
+        final FieldTypeMap<?, ?> fieldMap = (FieldTypeMap<?, ?>)tx.readMapField(referrer, this.storageId, false);
         if (storageId == this.keyField.storageId)
             fieldMap.remove(target);
         else if (storageId == this.valueField.storageId)

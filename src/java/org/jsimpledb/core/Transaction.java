@@ -218,8 +218,7 @@ public class Transaction {
 
     /**
      * Get the database schema version associated with this transaction.
-     * This is the target version when updating objects' schema versions.
-     * Reads of fields (optionally) and writes to fields (always) result in updating the schema version of the object.
+     * This is default schema version used and the target version when updating objects' schema versions.
      */
     public SchemaVersion getSchemaVersion() {
         return this.version;
@@ -657,7 +656,7 @@ public class Transaction {
                     superFieldInfo.unreferenceAll(this, storageId, id);
                 } else {
                     for (ObjId referrer : referrers)
-                        this.writeSimpleField(referrer, storageId, null);
+                        this.writeSimpleField(referrer, storageId, null, false);
                 }
                 break;
             }
@@ -1121,33 +1120,12 @@ public class Transaction {
     }
 
     /**
-     * Read the value of a {@link SimpleField} from an object, automatically updating the object's schema version if necessary.
-     *
-     * <p>
-     * Equivalent to:
-     * <blockquote>
-     *  {@link #readSimpleField(ObjId, int, boolean) readSimpleField}{@code (id, storageId, true)}
-     * </blockquote>
-     * </p>
-     *
-     * @param id object ID of the object
-     * @param storageId storage ID of the {@link SimpleField}
-     * @return value of the field in the object
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
-     * @throws IllegalArgumentException if {@code id} is null
-     */
-    public Object readSimpleField(ObjId id, int storageId) {
-        return this.readSimpleField(id, storageId, true);
-    }
-
-    /**
      * Read the value of a {@link SimpleField} from an object, optionally updating the object's schema version.
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * reading the field.
      * </p>
      *
      * @param id object ID of the object
@@ -1169,12 +1147,11 @@ public class Transaction {
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
-        final ObjType type = info.getObjType();
 
         // Find field
-        final SimpleField<?> field = type.simpleFields.get(storageId);
+        final SimpleField<?> field = info.getObjType().simpleFields.get(storageId);
         if (field == null)
-            throw new UnknownFieldException(type, storageId, "simple field");
+            throw new UnknownFieldException(info.getObjType(), storageId, "simple field");
 
         // Read field
         final byte[] key = field.buildKey(id);
@@ -1185,42 +1162,44 @@ public class Transaction {
     }
 
     /**
-     * Change the value of a {@link SimpleField} in an object.
+     * Change the value of a {@link SimpleField} in an object, optionally updating the object's schema version.
      *
      * <p>
-     * The schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
+     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * writing the field.
      * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SimpleField}
      * @param value new value for the field
+     * @param updateVersion true to automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized void writeSimpleField(final ObjId id, final int storageId, final Object value) {
+    public synchronized void writeSimpleField(final ObjId id,
+      final int storageId, final Object value, final boolean updateVersion) {
         this.mutateAndNotify(id, new Mutation<Void>() {
             @Override
             public Void mutate() {
-                Transaction.this.doWriteSimpleField(id, storageId, value);
+                Transaction.this.doWriteSimpleField(id, storageId, value, updateVersion);
                 return null;
             }
         });
     }
 
-    private synchronized void doWriteSimpleField(ObjId id, int storageId, final Object newObj) {
+    private synchronized void doWriteSimpleField(ObjId id, int storageId, final Object newObj, boolean updateVersion) {
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, true);
-        final ObjType type = info.getObjType();
+        final ObjInfo info = this.getObjectInfo(id, updateVersion);
 
         // Find field
-        final SimpleField<?> field = type.simpleFields.get(storageId);
+        final SimpleField<?> field = info.getObjType().simpleFields.get(storageId);
         if (field == null)
-            throw new UnknownFieldException(type, storageId, "simple field");
+            throw new UnknownFieldException(info.getObjType(), storageId, "simple field");
 
         // Get old and new values
         final byte[] key = field.buildKey(id);
@@ -1254,33 +1233,12 @@ public class Transaction {
     }
 
     /**
-     * Read the value of a {@link CounterField} from an object, automatically updating the object's schema version if necessary.
-     *
-     * <p>
-     * Equivalent to:
-     * <blockquote>
-     *  {@link #readCounterField(ObjId, int, boolean) readCounterField}{@code (id, storageId, true)}
-     * </blockquote>
-     * </p>
-     *
-     * @param id object ID of the object
-     * @param storageId storage ID of the {@link CounterField}
-     * @return value of the counter in the object
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
-     * @throws IllegalArgumentException if {@code id} is null
-     */
-    public long readCounterField(ObjId id, int storageId) {
-        return this.readCounterField(id, storageId, true);
-    }
-
-    /**
      * Read the value of a {@link CounterField} from an object, optionally updating the object's schema version.
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * reading the field.
      * </p>
      *
      * @param id object ID of the object
@@ -1302,12 +1260,11 @@ public class Transaction {
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
-        final ObjType type = info.getObjType();
 
         // Find field
-        final CounterField field = type.counterFields.get(storageId);
+        final CounterField field = info.getObjType().counterFields.get(storageId);
         if (field == null)
-            throw new UnknownFieldException(type, storageId, "counter field");
+            throw new UnknownFieldException(info.getObjType(), storageId, "counter field");
 
         // Read field
         final byte[] key = field.buildKey(id);
@@ -1318,41 +1275,42 @@ public class Transaction {
     }
 
     /**
-     * Set the value of a {@link CounterField} in an object.
+     * Set the value of a {@link CounterField} in an object, optionally updating the object's schema version.
      *
      * <p>
-     * The schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
+     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * writing the field.
      * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link CounterField}
      * @param value new counter value
+     * @param updateVersion true to automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized void writeCounterField(final ObjId id, final int storageId, final long value) {
+    public synchronized void writeCounterField(final ObjId id, final int storageId, final long value, final boolean updateVersion) {
         this.mutateAndNotify(id, new Mutation<Void>() {
             @Override
             public Void mutate() {
-                Transaction.this.doWriteCounterField(id, storageId, value);
+                Transaction.this.doWriteCounterField(id, storageId, value, updateVersion);
                 return null;
             }
         });
     }
 
-    private synchronized void doWriteCounterField(ObjId id, int storageId, long value) {
+    private synchronized void doWriteCounterField(ObjId id, int storageId, long value, boolean updateVersion) {
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, true);
-        final ObjType type = info.getObjType();
+        final ObjInfo info = this.getObjectInfo(id, updateVersion);
 
         // Find field
-        final CounterField field = type.counterFields.get(storageId);
+        final CounterField field = info.getObjType().counterFields.get(storageId);
         if (field == null)
-            throw new UnknownFieldException(type, storageId, "counter field");
+            throw new UnknownFieldException(info.getObjType(), storageId, "counter field");
 
         // Set value
         final byte[] key = field.buildKey(id);
@@ -1361,69 +1319,50 @@ public class Transaction {
     }
 
     /**
-     * Adjust the value of a {@link CounterField} in an object by some amount.
+     * Adjust the value of a {@link CounterField} in an object by some amount, optionally updating the object's schema version.
      *
      * <p>
-     * The schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
+     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * writing the field.
      * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link CounterField}
      * @param offset offset value to add to counter value
+     * @param updateVersion true to automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized void adjustCounterField(final ObjId id, final int storageId, final long offset) {
+    public synchronized void adjustCounterField(final ObjId id,
+      final int storageId, final long offset, final boolean updateVersion) {
         if (offset == 0)
             return;
         this.mutateAndNotify(id, new Mutation<Void>() {
             @Override
             public Void mutate() {
-                Transaction.this.doAdjustCounterField(id, storageId, offset);
+                Transaction.this.doAdjustCounterField(id, storageId, offset, updateVersion);
                 return null;
             }
         });
     }
 
-    private synchronized void doAdjustCounterField(ObjId id, int storageId, long offset) {
+    private synchronized void doAdjustCounterField(ObjId id, int storageId, long offset, boolean updateVersion) {
 
         // Get object info
-        final ObjInfo info = this.getObjectInfo(id, true);
-        final ObjType type = info.getObjType();
+        final ObjInfo info = this.getObjectInfo(id, updateVersion);
 
         // Find field
-        final CounterField field = type.counterFields.get(storageId);
+        final CounterField field = info.getObjType().counterFields.get(storageId);
         if (field == null)
-            throw new UnknownFieldException(type, storageId, "counter field");
+            throw new UnknownFieldException(info.getObjType(), storageId, "counter field");
 
         // Adjust value
         final byte[] key = field.buildKey(id);
         final CountingKVStore ckv = this.getCountingKVTransaction();
         ckv.adjustCounter(key, offset);
-    }
-
-    /**
-     * Access a {@link SetField} associated with an object, automatically updating the object's schema version if necessary.
-     *
-     * <p>
-     * Equivalent to:
-     * <blockquote>
-     *  {@link #readSetField(ObjId, int, boolean) readSetField}{@code (id, storageId, true)}
-     * </blockquote>
-     * </p>
-     *
-     * @param id object ID of the object
-     * @param storageId storage ID of the {@link SetField}
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists in the object
-     * @throws IllegalArgumentException if {@code id} is null
-     */
-    public NavigableSet<?> readSetField(ObjId id, int storageId) {
-        return this.readSetField(id, storageId, true);
     }
 
     /**
@@ -1447,27 +1386,6 @@ public class Transaction {
     }
 
     /**
-     * Access a {@link ListField} associated with an object, automatically updating the object's schema version if necessary.
-     *
-     * <p>
-     * Equivalent to:
-     * <blockquote>
-     *  {@link #readListField(ObjId, int, boolean) readListField}{@code (id, storageId, true)}
-     * </blockquote>
-     * </p>
-     *
-     * @param id object ID of the object
-     * @param storageId storage ID of the {@link ListField}
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists in the object
-     * @throws IllegalArgumentException if {@code id} is null
-     */
-    public List<?> readListField(ObjId id, int storageId) {
-        return this.readListField(id, storageId, true);
-    }
-
-    /**
      * Access a {@link ListField} associated with an object, optionally updating the object's schema version.
      *
      * <p>
@@ -1485,27 +1403,6 @@ public class Transaction {
      */
     public List<?> readListField(ObjId id, int storageId, boolean updateVersion) {
         return this.readComplexField(id, storageId, updateVersion, ListField.class, List.class);
-    }
-
-    /**
-     * Access a {@link MapField} associated with an object, automatically updating the object's schema version if necessary.
-     *
-     * <p>
-     * Equivalent to:
-     * <blockquote>
-     *  {@link #readMapField(ObjId, int, boolean) readMapField}{@code (id, storageId, true)}
-     * </blockquote>
-     * </p>
-     *
-     * @param id object ID of the object
-     * @param storageId storage ID of the {@link MapField}
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists in the object
-     * @throws IllegalArgumentException if {@code id} is null
-     */
-    public NavigableMap<?, ?> readMapField(ObjId id, int storageId) {
-        return this.readMapField(id, storageId, true);
     }
 
     /**
@@ -1599,12 +1496,11 @@ public class Transaction {
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
-        final ObjType type = info.getObjType();
 
         // Get field
-        final ComplexField<?> field = type.complexFields.get(storageId);
+        final ComplexField<?> field = info.getObjType().complexFields.get(storageId);
         if (!fieldClass.isInstance(field))
-            throw new UnknownFieldException(type, storageId, fieldClass.getSimpleName());
+            throw new UnknownFieldException(info.getObjType(), storageId, fieldClass.getSimpleName());
 
         // Return view
         return valueType.cast(field.getValue(this, id));
