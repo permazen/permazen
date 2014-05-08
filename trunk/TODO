@@ -1,4 +1,16 @@
 
+- Define "object XML"
+
+- Improvements to CLI
+    - UNIX-like command pipe architecture (input/output list or iterable)
+    - Commands for:
+        - Modifying fields
+        - Inverting references
+        - Evaluating reference paths
+    - Import/export using object XML
+
+- Add Vaadin GUI editor generator
+
 - Ant task for easy validation of JLayer annotations during a build
 
 - Only record new schema version in database on first mutation
@@ -11,8 +23,4 @@
     - InetAddress, Inet4Address, Inet6Address
     - {Gregorian}Calendar?
     - {Simple}TimeZone?
-
-- KVStore extension supporting FDB watches
-
-- Add Vaadin GUI editor generator
 
