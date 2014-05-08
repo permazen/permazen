@@ -86,10 +86,10 @@ public class IndexTest1 extends TestSupport {
         for (int i = 0; i < ids.length; i++) {
             for (int j = 0; j < valueMatrix.length; j++) {
                 final Object[] fieldValues = valueMatrix[j];
-                tx.writeSimpleField(ids[i], 10 + j, fieldValues[i % fieldValues.length]);
+                tx.writeSimpleField(ids[i], 10 + j, fieldValues[i % fieldValues.length], true);
             }
             final int r = this.random.nextInt(refMax + 1);
-            tx.writeSimpleField(ids[i], 19, refMap.get(ids[i]));
+            tx.writeSimpleField(ids[i], 19, refMap.get(ids[i]), true);
         }
         //this.showKV(tx, "testSimpleFieldIndexes: 2");
 
@@ -190,17 +190,17 @@ public class IndexTest1 extends TestSupport {
         for (int i = 1; i <= 3; i++) {
             final ObjId id = ids[i];
 
-            NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10);
+            NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id, 10, true);
             set.add(100 + i);
             set.add(200 + i);
             set.add(300);
 
-            List<String> list = (List<String>)tx.readListField(id, 11);
+            List<String> list = (List<String>)tx.readListField(id, 11, true);
             list.add("foo" + i);
             list.add("bar" + i);
             list.add("jam");
 
-            NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 12);
+            NavigableMap<Integer, String> map = (NavigableMap<Integer, String>)tx.readMapField(id, 12, true);
             map.put(1000 + i, "valueA" + i);
             map.put(2000 + i, "valueB");
             map.put(3000, "valueC" + i);

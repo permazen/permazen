@@ -502,7 +502,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      */
     public Object readSimpleField(ObjId id, int storageId) {
         return this.convert(this.jdb.getJField(storageId, JSimpleField.class).getConverter(this),
-          this.tx.readSimpleField(id, storageId));
+          this.tx.readSimpleField(id, storageId, true));
     }
 
     /**
@@ -518,7 +518,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         final Converter<?, ?> converter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
         if (converter != null)
             value = this.convert(converter.reverse(), value);
-        this.tx.writeSimpleField(id, storageId, value);
+        this.tx.writeSimpleField(id, storageId, value, true);
     }
 
     /**
@@ -545,7 +545,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      */
     public NavigableSet<?> readSetField(ObjId id, int storageId) {
         return this.convert(this.jdb.getJField(storageId, JSetField.class).getConverter(this),
-          this.tx.readSetField(id, storageId));
+          this.tx.readSetField(id, storageId, true));
     }
 
     /**
@@ -559,7 +559,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      */
     public List<?> readListField(ObjId id, int storageId) {
         return this.convert(this.jdb.getJField(storageId, JListField.class).getConverter(this),
-          this.tx.readListField(id, storageId));
+          this.tx.readListField(id, storageId, true));
     }
 
     /**
@@ -573,7 +573,7 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
      */
     public NavigableMap<?, ?> readMapField(ObjId id, int storageId) {
         return this.convert(this.jdb.getJField(storageId, JMapField.class).getConverter(this),
-          this.tx.readMapField(id, storageId));
+          this.tx.readMapField(id, storageId, true));
     }
 
 // Reference Path Access

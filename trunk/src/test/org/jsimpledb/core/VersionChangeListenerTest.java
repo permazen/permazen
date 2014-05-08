@@ -65,7 +65,7 @@ public class VersionChangeListenerTest extends TestSupport {
         Transaction tx = db.createTransaction(schema1, 1, true);
 
         ObjId id1 = tx.create(100);
-        tx.writeSimpleField(id1, 101, 100);
+        tx.writeSimpleField(id1, 101, 100, true);
         Assert.assertEquals(tx.getSchemaVersion(id1), 1);
 
         tx.commit();
@@ -94,7 +94,7 @@ public class VersionChangeListenerTest extends TestSupport {
         Assert.assertEquals(tx.getSchemaVersion(id1), 1);
         Assert.assertFalse(notified[0]);
 
-        Assert.assertEquals(tx.readSimpleField(id1, 101), 100);
+        Assert.assertEquals(tx.readSimpleField(id1, 101, true), 100);
         Assert.assertEquals(tx.getSchemaVersion(id1), 2);
         Assert.assertTrue(notified[0]);
 
@@ -102,9 +102,9 @@ public class VersionChangeListenerTest extends TestSupport {
         Assert.assertEquals(tx.getSchemaVersion(id1), 2);
         Assert.assertTrue(notified[0]);
 
-        tx.writeSimpleField(id1, 102, "foobar");
+        tx.writeSimpleField(id1, 102, "foobar", true);
 
-        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id1, 103);
+        NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id1, 103, true);
         Assert.assertTrue(set.isEmpty());
 
         set.add(123);

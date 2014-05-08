@@ -18,7 +18,7 @@ class ListFieldStorageInfo extends CollectionFieldStorageInfo {
 
     @Override
     void unreference(Transaction tx, int storageId, ObjId target, ObjId referrer, ByteReader reader) {
-        tx.readListField(referrer, this.storageId).remove(UnsignedIntEncoder.read(reader));
+        tx.readListField(referrer, this.storageId, false).remove(UnsignedIntEncoder.read(reader));
     }
 
     @Override

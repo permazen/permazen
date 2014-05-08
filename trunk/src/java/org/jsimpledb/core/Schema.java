@@ -123,7 +123,7 @@ public class Schema {
      * Get the {@link Version} corresponding to the given version number.
      *
      * @param versionNumber schema version number
-     * @throws IllegalArgumentException if {@code version} is not known
+     * @throws IllegalArgumentException if {@code versionNumber} is not known
      */
     public SchemaVersion getVersion(int versionNumber) {
         final SchemaVersion version = this.versions.get(versionNumber);

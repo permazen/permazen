@@ -70,21 +70,21 @@ public class FieldMonitorTest extends TestSupport {
         Assert.assertTrue(tx.create(id3));
         Assert.assertTrue(tx.create(id4));
 
-        final NavigableSet<ObjId> set1 = (NavigableSet<ObjId>)tx.readSetField(id1, 120);
-        final List<ObjId> list1 = (List<ObjId>)tx.readListField(id1, 130);
-        final NavigableMap<ObjId, ObjId> map1 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id1, 140);
+        final NavigableSet<ObjId> set1 = (NavigableSet<ObjId>)tx.readSetField(id1, 120, true);
+        final List<ObjId> list1 = (List<ObjId>)tx.readListField(id1, 130, true);
+        final NavigableMap<ObjId, ObjId> map1 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id1, 140, true);
 
-        final NavigableSet<ObjId> set2 = (NavigableSet<ObjId>)tx.readSetField(id2, 120);
-        final List<ObjId> list2 = (List<ObjId>)tx.readListField(id2, 130);
-        final NavigableMap<ObjId, ObjId> map2 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id2, 140);
+        final NavigableSet<ObjId> set2 = (NavigableSet<ObjId>)tx.readSetField(id2, 120, true);
+        final List<ObjId> list2 = (List<ObjId>)tx.readListField(id2, 130, true);
+        final NavigableMap<ObjId, ObjId> map2 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id2, 140, true);
 
-        final NavigableSet<ObjId> set3 = (NavigableSet<ObjId>)tx.readSetField(id3, 120);
-        final List<ObjId> list3 = (List<ObjId>)tx.readListField(id3, 130);
-        final NavigableMap<ObjId, ObjId> map3 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id3, 140);
+        final NavigableSet<ObjId> set3 = (NavigableSet<ObjId>)tx.readSetField(id3, 120, true);
+        final List<ObjId> list3 = (List<ObjId>)tx.readListField(id3, 130, true);
+        final NavigableMap<ObjId, ObjId> map3 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id3, 140, true);
 
-        final NavigableSet<ObjId> set4 = (NavigableSet<ObjId>)tx.readSetField(id4, 120);
-        final List<ObjId> list4 = (List<ObjId>)tx.readListField(id4, 130);
-        final NavigableMap<ObjId, ObjId> map4 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id4, 140);
+        final NavigableSet<ObjId> set4 = (NavigableSet<ObjId>)tx.readSetField(id4, 120, true);
+        final List<ObjId> list4 = (List<ObjId>)tx.readListField(id4, 130, true);
+        final NavigableMap<ObjId, ObjId> map4 = (NavigableMap<ObjId, ObjId>)tx.readMapField(id4, 140, true);
 
     /*
 
@@ -119,9 +119,9 @@ public class FieldMonitorTest extends TestSupport {
         ref: 109    set: 121    list: 131   map.key: 141    map.value: 142
     */
 
-        tx.writeSimpleField(id1, 109, id2);
-        tx.writeSimpleField(id2, 109, id3);
-        tx.writeSimpleField(id3, 109, id2);
+        tx.writeSimpleField(id1, 109, id2, true);
+        tx.writeSimpleField(id2, 109, id3, true);
+        tx.writeSimpleField(id3, 109, id2, true);
 
         set1.addAll(Arrays.asList(id1, id3));
         set2.addAll(Arrays.asList(id2, id4));
@@ -200,61 +200,61 @@ public class FieldMonitorTest extends TestSupport {
 
         // ref -> set -> id4 : { id1, id3 }
         tx.addSimpleFieldChangeListener(105, new int[] { 109, 121 }, listener);
-        tx.writeSimpleField(id4, 105, 4001);
+        tx.writeSimpleField(id4, 105, 4001, true);
         listener.verify(new Notify("SimpleChange", id4, 105, new int[] { 109, 121 }, Arrays.asList(id1, id3), 0, 4001));
         tx.removeSimpleFieldChangeListener(105, new int[] { 109, 121 }, listener);
 
-        tx.writeSimpleField(id4, 105, 4002);
+        tx.writeSimpleField(id4, 105, 4002, true);
         listener.verify();
 
-        tx.writeSimpleField(id4, 106, 4.0f);
+        tx.writeSimpleField(id4, 106, 4.0f, true);
         listener.verify();
 
         // id4 : { id4 }
         tx.addSimpleFieldChangeListener(105, new int[0], listener);
-        tx.writeSimpleField(id4, 105, 4003);
+        tx.writeSimpleField(id4, 105, 4003, true);
         listener.verify(new Notify("SimpleChange", id4, 105, new int[0], Arrays.asList(id4), 4002, 4003));
         tx.removeSimpleFieldChangeListener(105, new int[0], listener);
 
         // ref -> id1 : { }
         tx.addSimpleFieldChangeListener(105, new int[] { 109 }, listener);
-        tx.writeSimpleField(id1, 105, 1001);
+        tx.writeSimpleField(id1, 105, 1001, true);
         listener.verify();
         tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, listener);
 
         // ref -> set -> list -> map.value -> id4 : { id1, id3 }
         tx.addSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 142 }, listener);
-        tx.writeSimpleField(id4, 105, 4004);
+        tx.writeSimpleField(id4, 105, 4004, true);
         listener.verify(
           new Notify("SimpleChange", id4, 105, new int[] { 109, 121, 131, 142 }, Arrays.asList(id1, id3), 4003, 4004));
 
         // ref -> set -> list -> map.value -> id3 : { id1, id2, id3 }
-        tx.writeSimpleField(id3, 105, 3001);
+        tx.writeSimpleField(id3, 105, 3001, true);
         listener.verify(
           new Notify("SimpleChange", id3, 105, new int[] { 109, 121, 131, 142 }, Arrays.asList(id1, id2, id3), 0, 3001));
         tx.removeSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 142 }, listener);
 
         // ref -> set -> list -> map.key -> id4 : { id1, id3 }
         tx.addSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 141 }, listener);
-        tx.writeSimpleField(id4, 105, 4005);
+        tx.writeSimpleField(id4, 105, 4005, true);
         listener.verify(
           new Notify("SimpleChange", id4, 105, new int[] { 109, 121, 131, 141 }, Arrays.asList(id1, id3), 4004, 4005));
 
         // ref -> set -> list -> map.key -> id3 : { id1, id2, id3 }
-        tx.writeSimpleField(id3, 105, 3002);
+        tx.writeSimpleField(id3, 105, 3002, true);
         listener.verify(
           new Notify("SimpleChange", id3, 105, new int[] { 109, 121, 131, 141 }, Arrays.asList(id1, id2, id3), 3001, 3002));
         tx.removeSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 141 }, listener);
 
         // list -> list -> id3 : { id1, id2, id3 }
         tx.addSimpleFieldChangeListener(105, new int[] { 131, 131 }, listener);
-        tx.writeSimpleField(id3, 105, 3003);
+        tx.writeSimpleField(id3, 105, 3003, true);
         listener.verify(new Notify("SimpleChange", id3, 105, new int[] { 131, 131 }, Arrays.asList(id1, id2, id3), 3002, 3003));
         tx.removeSimpleFieldChangeListener(105, new int[] { 131, 131 }, listener);
 
         // list -> id3 : { id1, id3 }
         tx.addSimpleFieldChangeListener(105, new int[] { 131 }, listener);
-        tx.writeSimpleField(id3, 105, 3004);
+        tx.writeSimpleField(id3, 105, 3004, true);
         listener.verify(new Notify("SimpleChange", id3, 105, new int[] { 131 }, Arrays.asList(id1, id3), 3003, 3004));
         tx.removeSimpleFieldChangeListener(105, new int[] { 131 }, listener);
 
