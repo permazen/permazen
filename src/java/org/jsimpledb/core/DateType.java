@@ -52,15 +52,12 @@ class DateType extends FieldType<Date> {
 
     @Override
     public Date fromString(ParseContext ctx) {
-        ctx.expect('"');
-        final Date date = DateEncoder.decode(ctx.matchPrefix(DateEncoder.PATTERN).group());
-        ctx.expect('"');
-        return date;
+        return DateEncoder.decode(ctx.matchPrefix(DateEncoder.PATTERN).group());
     }
 
     @Override
     public String toString(Date date) {
-        return "\"" + DateEncoder.encode(date) + "\"";
+        return DateEncoder.encode(date);
     }
 
     @Override
