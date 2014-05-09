@@ -555,7 +555,7 @@ public class Transaction {
         final ObjType objType = this.schema.getVersion(versionNumber).getSchemaItem(storageId, ObjType.class);
 
         // Generate object ID
-        final ObjId id = this.generateId(objType.storageId);
+        final ObjId id = this.generateIdValidated(objType.storageId);
 
         // Initialize object
         this.initialize(id, objType);
@@ -574,6 +574,17 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized ObjId generateId(int storageId) {
+
+        // Sanity check
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        final ObjTypeStorageInfo info = this.schema.verifyStorageInfo(storageId, ObjTypeStorageInfo.class);
+
+        // Generate ID
+        return this.generateIdValidated(info.storageId);
+    }
+
+    private /*synchronized*/ ObjId generateIdValidated(int storageId) {
 
         // Create a new, unique key
         final ByteWriter keyWriter = new ByteWriter();
