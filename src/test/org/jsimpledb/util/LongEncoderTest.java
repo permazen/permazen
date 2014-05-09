@@ -9,7 +9,6 @@ package org.jsimpledb.util;
 
 import java.util.ArrayList;
 
-import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.jsimpledb.TestSupport;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,7 +30,7 @@ public class LongEncoderTest extends TestSupport {
     public void testLongEncoding(long value, String string) {
 
         // Get expected encoding
-        byte[] expected = ByteArrayEncoder.decode(string);
+        byte[] expected = ByteUtil.parse(string);
 
         // Test encoding
         byte[] actual = this.encode(value);
@@ -58,7 +57,7 @@ public class LongEncoderTest extends TestSupport {
     }
 
     private long decode(String string) {
-        byte[] b = ByteArrayEncoder.decode(string);
+        byte[] b = ByteUtil.parse(string);
         long value = 0;
         for (int i = 0; i < b.length; i++)
             value = (value << 8) | (b[i] & 0xff);

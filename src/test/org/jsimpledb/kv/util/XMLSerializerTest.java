@@ -13,7 +13,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.NavigableMap;
 
-import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ConvertedNavigableMap;
@@ -75,7 +74,7 @@ public class XMLSerializerTest extends TestSupport {
     }
 
     private static byte[] b(String s) {
-        return ByteArrayEncoder.decode(s);
+        return ByteUtil.parse(s);
     }
 
     private static NavigableMap<String, String> s(NavigableMap<byte[], byte[]> map) {
