@@ -168,7 +168,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Transaction {
 
-    private static final int MAX_UNIQUE_KEY_ATTEMPTS = 1000;
+    private static final int MAX_GENERATED_KEY_ATTEMPTS = 1000;
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -471,22 +471,42 @@ public class Transaction {
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized boolean create(ObjId id) {
+    public boolean create(ObjId id) {
+        return this.create(id, this.version.versionNumber);
+    }
+
+    /**
+     * Create a new object with the given object ID, if it doesn't already exist. If it does exist, nothing happens.
+     *
+     * <p>
+     * If the object doesn't already exist, all fields are set to their default values and the object's
+     * schema version is set to the specified version.
+     * </p>
+     *
+     * @param id object ID
+     * @param versionNumber schema version number to use for newly created object
+     * @return true if the object did not exist and was created, false if the object already existed
+     * @throws IllegalArgumentException if the storage ID associated with {@code id}
+     *  does not correspond to a known object type in schema version {@code versionNumber}
+     * @throws IllegalArgumentException if {@code id} is null
+     * @throws IllegalArgumentException if {@code versionNumber} is invalid or unknown
+     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    public synchronized boolean create(ObjId id, int versionNumber) {
 
         // Sanity check
         if (id == null)
             throw new IllegalArgumentException("null id");
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
 
         // Does object already exist?
         if (this.exists(id))
             return false;
 
         // Initialize object
-        this.initialize(id, this.version.getSchemaItem(id.getStorageId(), ObjType.class));
+        this.initialize(id, this.schema.getVersion(versionNumber).getSchemaItem(id.getStorageId(), ObjType.class));
 
         // Done
         return true;
@@ -506,30 +526,36 @@ public class Transaction {
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized ObjId create(int storageId) {
+    public ObjId create(int storageId) {
+        return this.create(storageId, this.version.versionNumber);
+    }
+
+    /**
+     * Create a new object with a randomly assigned object ID and having the given type and schema version.
+     *
+     * <p>
+     * All fields will be set to their default values.
+     * The object's schema version will be set to the specified version.
+     * </p>
+     *
+     * @param storageId object type storage ID
+     * @param versionNumber schema version number to use for newly created object
+     * @return object id of newly created object
+     * @throws IllegalArgumentException if {@code storageId} does not correspond to a known object type
+     *  in the specified schema version
+     * @throws IllegalArgumentException if {@code versionNumber} is invalid or unknown
+     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    public synchronized ObjId create(int storageId, int versionNumber) {
 
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
-        final ObjType objType = this.version.getSchemaItem(storageId, ObjType.class);
+        final ObjType objType = this.schema.getVersion(versionNumber).getSchemaItem(storageId, ObjType.class);
 
-        // Create a new, unique key
-        ObjId id;
-        final ByteWriter keyWriter = new ByteWriter();
-        int attempts = 0;
-        while (true) {
-            id = new ObjId(objType.storageId);
-            id.writeTo(keyWriter);
-            if (this.kvt.get(keyWriter.getBytes()) == null)
-                break;
-            if (++attempts == MAX_UNIQUE_KEY_ATTEMPTS) {
-                throw new DatabaseException("could not find a new, unused object ID after "
-                  + attempts + " attempts; is our source of randomness truly random?");
-            }
-            keyWriter.reset(0);
-        }
+        // Generate object ID
+        final ObjId id = this.generateId(objType.storageId);
 
         // Initialize object
         this.initialize(id, objType);
@@ -538,7 +564,39 @@ public class Transaction {
         return id;
     }
 
+    /**
+     * Generate a random, unused {@link ObjId} for the given storage ID.
+     *
+     * @param storageId object type storage ID
+     * @return random unassigned object id
+     * @throws IllegalArgumentException if {@code storageId} does not correspond to a known object type
+     *  in the specified schema version
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    public synchronized ObjId generateId(int storageId) {
+
+        // Create a new, unique key
+        final ByteWriter keyWriter = new ByteWriter();
+        for (int attempts = 0; attempts < MAX_GENERATED_KEY_ATTEMPTS; attempts++) {
+            final ObjId id = new ObjId(storageId);
+            id.writeTo(keyWriter);
+            if (this.kvt.get(keyWriter.getBytes()) == null)
+                return id;
+            keyWriter.reset(0);
+        }
+
+        // Give up
+        throw new DatabaseException("could not find a new, unused object ID after "
+          + MAX_GENERATED_KEY_ATTEMPTS + " attempts; is our source of randomness truly random?");
+    }
+
     private synchronized void initialize(ObjId id, ObjType objType) {
+
+        // Sanity check
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        if (this.readOnly)
+            throw new ReadOnlyTransactionException(this);
 
         // Write object meta-data
         ObjInfo.write(this, id, objType.version.versionNumber, false);
