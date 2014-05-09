@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+    <Foo id="0100000000000001" version="1">
+        <i>123</i>
+        <z>true</z>
+        <b>-7</b>
+        <c>"e"</c>
+        <f>123.45</f>
+        <j>99999999999</j>
+        <d>1.2345E39</d>
+        <str>"hello dolly"</str>
+        <r>0100000000000001</r>
+        <date>2014-05-09T03:02:48Z</date>
+    </Foo>
+</objects>
