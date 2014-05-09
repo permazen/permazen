@@ -44,6 +44,13 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     }
 
     @Override
+    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return tx.readSetField(id, this.storageId, false).isEmpty();
+    }
+
+    @Override
     SetFieldStorageInfo toStorageInfo() {
         return new SetFieldStorageInfo(this);
     }

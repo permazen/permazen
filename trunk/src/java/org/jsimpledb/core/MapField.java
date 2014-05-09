@@ -84,6 +84,13 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
         return "map field `" + this.name + "' of " + this.keyField.fieldType + ", " + this.valueField.fieldType;
     }
 
+    @Override
+    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return tx.readMapField(id, this.storageId, false).isEmpty();
+    }
+
 // Subclass methods
 
     @Override
