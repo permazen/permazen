@@ -98,6 +98,13 @@ public class SimpleField<T> extends Field<T> {
         return this.indexed;
     }
 
+    @Override
+    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return tx.kvt.get(this.buildKey(id)) == null;
+    }
+
     /**
      * Encode the given value.
      *

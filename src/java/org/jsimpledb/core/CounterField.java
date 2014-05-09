@@ -52,6 +52,13 @@ public class CounterField extends Field<Long> {
     }
 
     @Override
+    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return tx.readCounterField(id, this.storageId, false) == 0;
+    }
+
+    @Override
     boolean isEquivalent(Field<?> field) {
         return field.getClass() == this.getClass();
     }

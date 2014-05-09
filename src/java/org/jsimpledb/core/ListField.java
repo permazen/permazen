@@ -44,6 +44,13 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     }
 
     @Override
+    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return tx.readListField(id, this.storageId, false).isEmpty();
+    }
+
+    @Override
     ListFieldStorageInfo toStorageInfo() {
         return new ListFieldStorageInfo(this);
     }

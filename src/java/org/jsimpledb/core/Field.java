@@ -47,6 +47,16 @@ public abstract class Field<T> extends SchemaItem {
     }
 
     /**
+     * Determine if this field in the specified object has its default value in the specified {@link Transaction}.
+     *
+     * @param tx {@link Transaction} containing field state
+     * @param id object ID
+     * @return true if this field is set to its initial default value in object {@code id}, otherwise false
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public abstract boolean hasDefaultValue(Transaction tx, ObjId id);
+
+    /**
      * Build the key (or key prefix) for this field in the given object.
      */
     byte[] buildKey(ObjId id) {
