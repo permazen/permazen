@@ -9,7 +9,6 @@ package org.jsimpledb.util;
 
 import java.util.ArrayList;
 
-import org.dellroad.stuff.string.ByteArrayEncoder;
 import org.jsimpledb.TestSupport;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -59,7 +58,7 @@ public class UnsignedIntEncoderTest extends TestSupport {
     }
 
     private int decode(String string) {
-        byte[] b = ByteArrayEncoder.decode(string);
+        byte[] b = ByteUtil.parse(string);
         int value = 0;
         for (int i = 0; i < b.length; i++)
             value = (value << 8) | (b[i] & 0xff);
