@@ -1,6 +1,4 @@
 
-- Define "object XML"
-
 - Improvements to CLI
     - UNIX-like command pipe architecture (input/output list or iterable)
     - Commands for:
