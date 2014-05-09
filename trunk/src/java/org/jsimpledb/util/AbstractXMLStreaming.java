@@ -72,5 +72,23 @@ public abstract class AbstractXMLStreaming {
         writer.writeCharacters(content);
         writer.writeEndElement();
     }
+
+    /**
+     * Get an attribute from the current element.
+     *
+     * @param reader XML input
+     * @param name attribute name
+     * @param required whether attribute must be present
+     * @throws IllegalStateException if the current event is not a start element event
+     * @throws IllegalArgumentException if {@code required} is true and no such attribute is found
+     */
+    protected String getAttr(XMLStreamReader reader, QName name, boolean required) {
+        final String value = reader.getAttributeValue(name.getNamespaceURI(), name.getLocalPart());
+        if (value == null && required) {
+            throw new IllegalArgumentException("<" + reader.getName().getLocalPart() + "> element has no \"" + name
+              + "\" attribute at " + reader.getLocation());
+        }
+        return value;
+    }
 }
 

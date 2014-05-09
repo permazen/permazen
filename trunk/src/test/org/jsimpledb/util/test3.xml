@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+    <object storageId="1" id="0100000000000001" version="1">
+        <field storageId="2">123</field>
+        <field storageId="3">true</field>
+        <field storageId="4">-7</field>
+        <field storageId="5">"e"</field>
+        <field storageId="7">123.45</field>
+        <field storageId="8">99999999999</field>
+        <field storageId="9">1.2345E39</field>
+        <field storageId="10">"hello dolly"</field>
+        <field storageId="11">0100000000000001</field>
+        <field storageId="13">2014-05-09T03:02:48Z</field>
+    </object>
+    <object storageId="20" id="1400000000000001" version="2">
+        <field storageId="21">
+            <element>123</element>
+            <element>456</element>
+        </field>
+        <field storageId="23">
+            <element>789</element>
+            <element>101112</element>
+        </field>
+        <field storageId="25">
+            <entry>
+                <key>55</key>
+                <value>"fifty five"</value>
+            </entry>
+            <entry>
+                <key>73</key>
+                <value>"seventy three"</value>
+            </entry>
+        </field>
+    </object>
+</objects>
