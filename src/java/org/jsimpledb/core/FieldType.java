@@ -273,9 +273,15 @@ public abstract class FieldType<T> implements Comparator<T> {
      * The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by
      * arbitrary additional characters, and must not start with whitespace or closing square bracket ({@code "]"}).
      *
+     * <p>
+     * In addition, each of the characters in the returned {@link String} must be one of the valid XML characters
+     * (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
+     * </p>
+     *
      * @param value actual value (possibly null)
      * @return string encoding of {@code value}
      * @throws IllegalArgumentException if {@code value} is null and this type does not support null
+     * @see <a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a>
      */
     public abstract String toString(T value);
 
