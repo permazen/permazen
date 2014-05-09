@@ -9,6 +9,7 @@ package org.jsimpledb.kv.util;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.util.Iterator;
 
 import javax.xml.namespace.QName;
@@ -58,6 +59,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * Constructor.
      *
      * @param kv key/value store on which to operate
+     * @throws IllegalArgumentException if {@code kv} is null
      */
     public XMLSerializer(KVStore kv) {
         if (kv == null)
@@ -70,8 +72,11 @@ public class XMLSerializer extends AbstractXMLStreaming {
      *
      * @param input XML input
      * @throws XMLStreamException if an error occurs
+     * @throws IllegalArgumentException if {@code input} is null
      */
     public void read(InputStream input) throws XMLStreamException {
+        if (input == null)
+            throw new IllegalArgumentException("null input");
         this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
     }
 
@@ -83,8 +88,11 @@ public class XMLSerializer extends AbstractXMLStreaming {
      *
      * @param reader XML reader
      * @throws XMLStreamException if an error occurs
+     * @throws IllegalArgumentException if {@code reader} is null
      */
     public void read(XMLStreamReader reader) throws XMLStreamException {
+        if (reader == null)
+            throw new IllegalArgumentException("null reader");
         this.expect(reader, false, ENTRIES_TAG);
         while (this.expect(reader, true, ENTRY_TAG)) {
             this.expect(reader, false, KEY_TAG);
@@ -110,18 +118,39 @@ public class XMLSerializer extends AbstractXMLStreaming {
     }
 
     /**
-     * Export all key/value pairs from the {@link KVStore} associated with this instance to the given XML output.
+     * Export all key/value pairs from the {@link KVStore} associated with this instance to the given output.
      *
      * @param output XML output; will not be closed by this method
      * @param indent true to indent output, false for all on one line
      * @throws XMLStreamException if an error occurs
+     * @throws IllegalArgumentException if {@code output} is null
      */
     public void write(OutputStream output, boolean indent) throws XMLStreamException {
-        XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
+        if (output == null)
+            throw new IllegalArgumentException("null output");
+        XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
         if (indent)
-            writer = new IndentXMLStreamWriter(writer);
-        writer.writeStartDocument("UTF-8", "1.0");
-        this.write(writer, null, null);
+            xmlWriter = new IndentXMLStreamWriter(xmlWriter);
+        xmlWriter.writeStartDocument("UTF-8", "1.0");
+        this.write(xmlWriter, null, null);
+    }
+
+    /**
+     * Export all key/value pairs from the {@link KVStore} associated with this instance to the given writer.
+     *
+     * @param writer XML output; will not be closed by this method
+     * @param indent true to indent output, false for all on one line
+     * @throws XMLStreamException if an error occurs
+     * @throws IllegalArgumentException if {@code writer} is null
+     */
+    public void write(Writer writer, boolean indent) throws XMLStreamException {
+        if (writer == null)
+            throw new IllegalArgumentException("null writer");
+        XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
+        if (indent)
+            xmlWriter = new IndentXMLStreamWriter(xmlWriter);
+        xmlWriter.writeStartDocument("1.0");
+        this.write(xmlWriter, null, null);
     }
 
     /**
@@ -137,8 +166,11 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @param minKey minimum key (inclusive), or null for none
      * @param maxKey maximum key (exclusive), or null for none
      * @throws XMLStreamException if an error occurs
+     * @throws IllegalArgumentException if {@code writer} is null
      */
     public void write(XMLStreamWriter writer, byte[] minKey, byte[] maxKey) throws XMLStreamException {
+        if (writer == null)
+            throw new IllegalArgumentException("null writer");
         writer.setDefaultNamespace(ENTRIES_TAG.getNamespaceURI());
         writer.writeStartElement(ENTRIES_TAG.getNamespaceURI(), ENTRIES_TAG.getLocalPart());
         for (Iterator<KVPair> i = this.kv.getRange(minKey, maxKey, false); i.hasNext(); ) {
