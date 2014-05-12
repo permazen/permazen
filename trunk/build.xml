@@ -148,6 +148,7 @@
         <copy file="src/xml/log4j-build.xml" tofile="build/test/log4j.xml"/>
         <dellroad:unit-tests>
             <addclasspath>
+                <path refid="build.classpath"/>
                 <path refid="javac.classpath"/>
             </addclasspath>
         </dellroad:unit-tests>
