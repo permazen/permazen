@@ -16,8 +16,6 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
-import org.dellroad.stuff.string.ParseContext;
-
 /**
  * Recreates {@link TypeToken}s from the output of {@link TypeToken#toString}.
  * Requires that no type variables or wildcards appear.

@@ -13,7 +13,7 @@ import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dellroad.stuff.string.ParseContext;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * A command that consists of sub-commands.

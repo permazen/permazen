@@ -10,8 +10,8 @@ package org.jsimpledb.core;
 import com.google.common.reflect.TypeToken;
 
 import org.dellroad.stuff.java.Primitive;
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * Support superclass for primitive types.

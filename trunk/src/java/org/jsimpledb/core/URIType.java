@@ -10,7 +10,7 @@ package org.jsimpledb.core;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.dellroad.stuff.string.ParseContext;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * Non-null {@link URI} type. Null values are not supported by this class.

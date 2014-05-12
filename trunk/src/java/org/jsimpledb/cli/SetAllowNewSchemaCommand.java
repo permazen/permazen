@@ -11,7 +11,7 @@ import com.google.common.collect.Iterables;
 
 import java.util.Arrays;
 
-import org.dellroad.stuff.string.ParseContext;
+import org.jsimpledb.util.ParseContext;
 
 public class SetAllowNewSchemaCommand extends Command {
 

@@ -9,7 +9,7 @@ package org.jsimpledb.core;
 
 import java.io.File;
 
-import org.dellroad.stuff.string.ParseContext;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * Non-null {@link File} type. Null values are not supported by this class.

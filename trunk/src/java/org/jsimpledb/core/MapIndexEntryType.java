@@ -9,9 +9,9 @@ package org.jsimpledb.core;
 
 import com.google.common.reflect.TypeToken;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * Support superclass for {@link FieldType}s of {@link MapIndexEntry} subclassess.

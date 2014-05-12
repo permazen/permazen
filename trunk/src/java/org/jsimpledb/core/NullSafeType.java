@@ -7,9 +7,9 @@
 
 package org.jsimpledb.core;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * A {@link FieldType} that wraps any other {@link FieldType} not supporting null values and adds support for null values

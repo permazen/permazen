@@ -9,7 +9,7 @@ package org.jsimpledb.cli;
 
 import java.io.PrintWriter;
 
-import org.dellroad.stuff.string.ParseContext;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * Help command for a "leaf" (non-aggregate) command.

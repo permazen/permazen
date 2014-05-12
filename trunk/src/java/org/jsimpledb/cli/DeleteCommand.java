@@ -7,9 +7,9 @@
 
 package org.jsimpledb.cli;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.util.ParseContext;
 
 public class DeleteCommand extends Command {
 

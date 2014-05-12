@@ -13,8 +13,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.util.ParseContext;
 
 import jline.console.ConsoleReader;
 import jline.console.UserInterruptException;
