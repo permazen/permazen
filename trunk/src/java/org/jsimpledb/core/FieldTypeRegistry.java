@@ -13,6 +13,7 @@ import com.google.common.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.dellroad.stuff.java.Primitive;
@@ -20,6 +21,22 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
 
 /**
  * A registry of {@link FieldType}s.
+ *
+ * <b>Arrays</b>
+ *
+ * <p>
+ * Array types will be automatically created and registered on demand, assuming the base element
+ * type is already registered.
+ * </p>
+ *
+ * <p>
+ * Arrays are passed by value: i.e., the entire array is copied. Therefore, changes to array elements after
+ * getting or setting a field have no effect on the field's value.
+ * </p>
+ *
+ * <p>
+ * Arrays of references are not currently supported.
+ * </p>
  */
 public class FieldTypeRegistry {
 
@@ -112,7 +129,8 @@ public class FieldTypeRegistry {
      * @throws IllegalArgumentException if the resulting array type has too many dimensions
      * @return array type with element type {@code elementType}
      */
-    public FieldType<?> getArrayType(final FieldType<?> elementType) {
+    @SuppressWarnings("unchecked")
+    public <E> FieldType<E[]> getArrayType(final FieldType<E> elementType) {
 
         // Sanity check
         if (elementType == null)
@@ -159,37 +177,19 @@ public class FieldTypeRegistry {
                 return new DoubleArrayType();
             }
         });
-        return this.createNullSafeType(notNullType);
+        return (FieldType<E[]>)this.createNullSafeType(notNullType);
     }
 
     /**
-     * Get the (unique) {@link FieldType} in this registry that supports values of the given Java type, which must
+     * Get all {@link FieldType}s in this registry that supports values of the given Java type, which must
      * exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.
-     * If there is no such {@link FieldType}, null is returned; if there is more than one such {@link FieldType},
-     * an {@link IllegalArgumentException} is thrown.
      *
-     * <b>Arrays</b>
-     *
-     * <p>
-     * Array types will be automatically created and registered on demand, assuming the base element
-     * type is already registered.
-     * </p>
-     *
-     * <p>
-     * Arrays are passed by value: i.e., the entire array is copied. Therefore, changes to array elements after
-     * getting or setting a field have no effect on the field's value.
-     * </p>
-     *
-     * <p>
-     * Arrays of references are not currently supported.
-     * </p>
-     *
-     * @param typeToken supported Java value type
-     * @return {@link FieldType} supporting Java values of type {@code typeToken}, or null if no such {@link FieldType} exists
+     * @param typeToken Java value type
+     * @return unmodifiable list of {@link FieldType}s supporting Java values of type {@code typeToken}
      * @throws IllegalArgumentException if {@code typeToken} is null
-     * @throws IllegalArgumentException if more than one {@link FieldType} supports {@code typeToken}
      */
-    public synchronized FieldType<?> getFieldType(TypeToken<?> typeToken) {
+    @SuppressWarnings("unchecked")
+    public synchronized <T> List<FieldType<T>> getFieldTypes(TypeToken<T> typeToken) {
 
         // Sanity check
         if (typeToken == null)
@@ -197,24 +197,39 @@ public class FieldTypeRegistry {
 
         // Handle array types
         final TypeToken<?> elementTypeToken = typeToken.getComponentType();
-        if (elementTypeToken != null)
-            return this.getArrayType(this.getFieldType(elementTypeToken));
-
-        // Handle non-array types
-        final ArrayList<FieldType<?>> types = this.typesByType.get(typeToken);
-        if (types != null) {
-            switch (types.size()) {
-            case 0:
-                break;
-            case 1:
-                return types.get(0);
-            default:
-                throw new IllegalArgumentException("multiple registered types support values of type " + typeToken + ": " + types);
-            }
+        if (elementTypeToken != null) {
+            final ArrayList<FieldType<T>> fieldTypes = new ArrayList<FieldType<T>>();
+            for (FieldType<?> elementFieldType : this.getFieldTypes(elementTypeToken))
+                fieldTypes.add((FieldType<T>)this.getArrayType(this.getFieldType(elementTypeToken)));
+            return Collections.unmodifiableList(fieldTypes);
         }
 
-        // None found
-        return null;
+        // Handle non-array types
+        final ArrayList<FieldType<T>> fieldTypes = (ArrayList<FieldType<T>>)(Object)this.typesByType.get(typeToken);
+        return fieldTypes != null ? Collections.unmodifiableList(fieldTypes) : Collections.<FieldType<T>>emptyList();
+    }
+
+    /**
+     * Get the unique {@link FieldType} in this registry that supports values of the given Java type, which must
+     * exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.
+     * There must be exactly one such {@link FieldType}, otherwise an {@link IllegalArgumentException} is thrown.
+     *
+     * @param typeToken supported Java value type
+     * @return {@link FieldType} supporting Java values of type {@code typeToken}
+     * @throws IllegalArgumentException if {@code typeToken} is null
+     * @throws IllegalArgumentException if no registered {@link FieldType}s supports {@code typeToken}
+     * @throws IllegalArgumentException if more than one registered {@link FieldType} supports {@code typeToken}
+     */
+    public <T> FieldType<T> getFieldType(TypeToken<T> typeToken) {
+        final List<FieldType<T>> fieldTypes = this.getFieldTypes(typeToken);
+        switch (fieldTypes.size()) {
+        case 0:
+            throw new IllegalArgumentException("no registered types support values of type " + typeToken);
+        case 1:
+            return fieldTypes.get(0);
+        default:
+            throw new IllegalArgumentException("multiple registered types support values of type " + typeToken + ": " + fieldTypes);
+        }
     }
 
     /**
