@@ -16,9 +16,9 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * Defines the encoding, ordering, and range of possible values for a {@link SimpleField}.

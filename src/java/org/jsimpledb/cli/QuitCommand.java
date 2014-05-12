@@ -7,7 +7,7 @@
 
 package org.jsimpledb.cli;
 
-import org.dellroad.stuff.string.ParseContext;
+import org.jsimpledb.util.ParseContext;
 
 public class QuitCommand extends Command implements Action {
 

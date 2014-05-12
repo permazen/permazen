@@ -9,8 +9,8 @@ package org.jsimpledb.cli;
 
 import java.util.Map;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.core.SchemaVersion;
+import org.jsimpledb.util.ParseContext;
 
 public class ShowAllSchemasCommand extends Command implements TransactionAction {
 

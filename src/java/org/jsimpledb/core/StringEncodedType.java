@@ -7,9 +7,9 @@
 
 package org.jsimpledb.core;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * Superclass for non-null types that are encoded and ordered as {@link String}s. Null values are not supported by this class.

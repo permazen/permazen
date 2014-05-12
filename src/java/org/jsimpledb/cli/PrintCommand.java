@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.core.CounterField;
 import org.jsimpledb.core.Field;
 import org.jsimpledb.core.ListField;
@@ -20,6 +19,7 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.util.ParseContext;
 
 public class PrintCommand extends Command {
 

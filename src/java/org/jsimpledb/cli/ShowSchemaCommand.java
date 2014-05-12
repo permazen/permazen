@@ -7,8 +7,8 @@
 
 package org.jsimpledb.cli;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.schema.SchemaModel;
+import org.jsimpledb.util.ParseContext;
 
 public class ShowSchemaCommand extends Command implements Action {
 

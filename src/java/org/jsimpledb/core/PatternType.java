@@ -9,7 +9,7 @@ package org.jsimpledb.core;
 
 import java.util.regex.Pattern;
 
-import org.dellroad.stuff.string.ParseContext;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * Non-null {@link Pattern} type. Null values are not supported by this class.

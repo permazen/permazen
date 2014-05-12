@@ -9,7 +9,7 @@ package org.jsimpledb.cli;
 
 import com.google.common.base.Function;
 
-import org.dellroad.stuff.string.ParseContext;
+import org.jsimpledb.util.ParseContext;
 
 /**
  * CLI command.

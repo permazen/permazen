@@ -16,7 +16,6 @@ import java.util.NavigableSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.dellroad.stuff.string.ParseContext;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
@@ -26,6 +25,7 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaObject;
 import org.jsimpledb.util.NavigableSets;
+import org.jsimpledb.util.ParseContext;
 
 public final class Util {
 
