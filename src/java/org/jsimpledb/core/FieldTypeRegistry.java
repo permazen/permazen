@@ -65,7 +65,7 @@ public class FieldTypeRegistry {
         this.add(FieldType.LONG_WRAPPER);
         this.add(FieldType.DOUBLE);
         this.add(FieldType.DOUBLE_WRAPPER);
-        this.add(FieldType.REFERENCE);
+        this.add(FieldType.OBJ_ID);
         this.add(FieldType.STRING);
         this.add(FieldType.DATE);
         this.add(FieldType.ENUM_VALUE);

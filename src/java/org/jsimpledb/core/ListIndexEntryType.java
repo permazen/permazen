@@ -25,7 +25,7 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
 
     @Override
     public ListIndexEntry read(ByteReader reader) {
-        final ObjId id = FieldType.REFERENCE.read(reader);
+        final ObjId id = FieldType.OBJ_ID.read(reader);
         final int index = UnsignedIntEncoder.read(reader);
         return new ListIndexEntry(id, index);
     }
@@ -34,13 +34,13 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
     public void write(ByteWriter writer, ListIndexEntry entry) {
         if (entry == null)
             throw new IllegalArgumentException("null entry");
-        FieldType.REFERENCE.write(writer, entry.getObjId());
+        FieldType.OBJ_ID.write(writer, entry.getObjId());
         UnsignedIntEncoder.write(writer, entry.getIndex());
     }
 
     @Override
     public byte[] getDefaultValue() {
-        final byte[] b1 = FieldType.REFERENCE.getDefaultValue();
+        final byte[] b1 = FieldType.OBJ_ID.getDefaultValue();
         final byte[] b2 = UnsignedIntEncoder.encode(0);
         final byte[] result = new byte[b1.length + b2.length];
         System.arraycopy(b1, 0, result, 0, b1.length);
@@ -50,7 +50,7 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
 
     @Override
     public void skip(ByteReader reader) {
-        FieldType.REFERENCE.skip(reader);
+        FieldType.OBJ_ID.skip(reader);
         UnsignedIntEncoder.skip(reader);
     }
 
@@ -65,14 +65,14 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
     public String toString(ListIndexEntry entry) {
         if (entry == null)
             throw new IllegalArgumentException("null entry");
-        return "[" + FieldType.REFERENCE.toString(entry.getObjId()) + "," + entry.index + "]";
+        return "[" + FieldType.OBJ_ID.toString(entry.getObjId()) + "," + entry.index + "]";
     }
 
     @Override
     public int compare(ListIndexEntry entry1, ListIndexEntry entry2) {
         if (entry1 == null || entry2 == null)
             throw new IllegalArgumentException("null entry");
-        int diff = FieldType.REFERENCE.compare(entry1.id, entry2.id);
+        int diff = FieldType.OBJ_ID.compare(entry1.id, entry2.id);
         if (diff != 0)
             return diff;
         diff = Integer.compare(entry1.index, entry2.index);
@@ -84,7 +84,7 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
     @Override
     public ListIndexEntry fromString(ParseContext context) {
         context.expect('[');
-        final ObjId id = FieldType.REFERENCE.fromString(context);
+        final ObjId id = FieldType.OBJ_ID.fromString(context);
         context.expect(',');
         final int index = FieldType.INTEGER.fromString(context);
         context.expect(']');
@@ -93,12 +93,12 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
 
     @Override
     public boolean hasPrefix0xff() {
-        return FieldType.REFERENCE.hasPrefix0xff();
+        return FieldType.OBJ_ID.hasPrefix0xff();
     }
 
     @Override
     public boolean hasPrefix0x00() {
-        return FieldType.REFERENCE.hasPrefix0x00();
+        return FieldType.OBJ_ID.hasPrefix0x00();
     }
 }
 

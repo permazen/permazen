@@ -24,7 +24,7 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param storageId object type storage ID
      */
     ObjTypeSet(Transaction tx, int storageId) {
-        super(tx, FieldType.REFERENCE, true, false, null, ObjId.getMin(storageId).getBytes(),
+        super(tx, FieldType.OBJ_ID, true, false, null, ObjId.getMin(storageId).getBytes(),
           ObjId.getMin(storageId + 1).getBytes(), new Bounds<ObjId>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
     }
 
@@ -38,7 +38,7 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param bounds range restriction
      */
     private ObjTypeSet(Transaction tx, boolean reversed, byte[] prefix, byte[] minKey, byte[] maxKey, Bounds<ObjId> bounds) {
-        super(tx, FieldType.REFERENCE, true, reversed, prefix, minKey, maxKey, bounds);
+        super(tx, FieldType.OBJ_ID, true, reversed, prefix, minKey, maxKey, bounds);
     }
 
     @Override
