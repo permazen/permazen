@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
  *
  * <p>
  * Instances of this class are not thread safe.
+ * </p>
  */
 public class ParseContext implements Cloneable {
 
@@ -28,8 +29,11 @@ public class ParseContext implements Cloneable {
      * Constructor.
      *
      * @param input the input string to parse
+     * @throws IllegalArgumentException if {@code input} is null
      */
     public ParseContext(String input) {
+        if (input == null)
+            throw new IllegalArgumentException("null input");
         this.input = input;
     }
 
@@ -103,11 +107,9 @@ public class ParseContext implements Cloneable {
      * @throws IllegalArgumentException if the current input does not match
      */
     public Matcher matchPrefix(Pattern regex) {
-        String s = this.getInput();
-        Matcher matcher = regex.matcher(s);
-        if (!matcher.lookingAt())
+        final Matcher matcher = this.tryPattern(regex);
+        if (matcher == null)
             throw buildException("expected input matching pattern `" + regex + "'");
-        this.index += matcher.end();
         return matcher;
     }
 
@@ -119,10 +121,36 @@ public class ParseContext implements Cloneable {
      * @return whether the current input matched {@code prefix}
      */
     public boolean tryLiteral(String prefix) {
-        boolean match = this.input.startsWith(prefix, this.index);
+        final boolean match = this.input.startsWith(prefix, this.index);
         if (match)
             this.index += prefix.length();
         return match;
+    }
+
+    /**
+     * Determine if the current input starts with the given regular expression.
+     * If so, advance past it and return a successful {@link Matcher}; otherwise, return null.
+     *
+     * @param pattern regular expression to match against input
+     * @return match if successful, null if not
+     */
+    public Matcher tryPattern(String pattern) {
+        return this.tryPattern(Pattern.compile(pattern));
+    }
+
+    /**
+     * Determine if the current input starts with the given regular expression.
+     * If so, advance past it and return a successful {@link Matcher}; otherwise, return null.
+     *
+     * @param regex regular expression to match against input
+     * @return match if successful, null if not
+     */
+    public Matcher tryPattern(Pattern regex) {
+        final Matcher matcher = regex.matcher(this.getInput());
+        if (!matcher.lookingAt())
+            return null;
+        this.index += matcher.end();
+        return matcher;
     }
 
     /**
@@ -224,7 +252,7 @@ public class ParseContext implements Cloneable {
         else {
             if (bogus.length() > MAX_REJECT_QUOTE)
                 bogus = bogus.substring(0, MAX_REJECT_QUOTE - 3) + "...";
-            text += "staring with `" + bogus + "'";
+            text += "starting with `" + bogus + "'";
         }
         if (message != null)
             text += ": " + message;
