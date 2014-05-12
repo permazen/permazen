@@ -13,6 +13,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -426,13 +427,20 @@ public class JClass<T> extends JSchemaObject {
         } else {
 
             // Try to find a field type supporting getter method return type
-            try {
-                nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(fieldTypeToken);
-            } catch (IllegalArgumentException e) {
+            final List<? extends FieldType<?>> fieldTypes = this.jdb.db.getFieldTypeRegistry().getFieldTypes(fieldTypeToken);
+            switch (fieldTypes.size()) {
+            case 0:
+                nonReferenceType = null;
+                break;
+            case 1:
+                nonReferenceType = fieldTypes.get(0);
+                break;
+            default:
                 if (!isReferenceType) {
                     throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"
-                      + " because type " + fieldTypeToken + " is supported by more than one registered simple field type", e);
+                      + " because type " + fieldTypeToken + " is supported by more than one registered simple field type");
                 }
+                break;
             }
 
             // Check for enum types
