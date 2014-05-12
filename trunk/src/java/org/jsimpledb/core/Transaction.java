@@ -1931,7 +1931,7 @@ public class Transaction {
             // Gather all objects that refer to any object in our current "objects" set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId object : objects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(storageId, FieldType.REFERENCE, FieldType.REFERENCE).get(object);
+                final NavigableSet<ObjId> refs = this.queryIndex(storageId, FieldType.OBJ_ID, FieldType.OBJ_ID).get(object);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -1977,7 +1977,7 @@ public class Transaction {
             // Gather all objects that refer to any object in our current target objects set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId id : targetObjects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(storageId, FieldType.REFERENCE, FieldType.REFERENCE).get(id);
+                final NavigableSet<ObjId> refs = this.queryIndex(storageId, FieldType.OBJ_ID, FieldType.OBJ_ID).get(id);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -2015,7 +2015,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId) {
         final SimpleFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        return this.queryIndex(storageInfo, FieldType.REFERENCE);
+        return this.queryIndex(storageInfo, FieldType.OBJ_ID);
     }
 
     /**
@@ -2039,7 +2039,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId) {
         final SetFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.elementField, FieldType.REFERENCE);
+        return this.queryIndex(storageInfo.elementField, FieldType.OBJ_ID);
     }
 
     /**
@@ -2063,7 +2063,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId) {
         final ListFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.elementField, FieldType.REFERENCE);
+        return this.queryIndex(storageInfo.elementField, FieldType.OBJ_ID);
     }
 
     /**
@@ -2087,7 +2087,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId) {
         final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.keyField, FieldType.REFERENCE);
+        return this.queryIndex(storageInfo.keyField, FieldType.OBJ_ID);
     }
 
     /**
@@ -2111,7 +2111,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId) {
         final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.valueField, FieldType.REFERENCE);
+        return this.queryIndex(storageInfo.valueField, FieldType.OBJ_ID);
     }
 
     /**
@@ -2204,7 +2204,7 @@ public class Transaction {
 
     // Convenience method for querying a reference field index for all referring objects
     private NavigableSet<ObjId> findReferences(ReferenceFieldStorageInfo fieldInfo, ObjId id) {
-        return this.queryIndex(fieldInfo, FieldType.REFERENCE).get(id);
+        return this.queryIndex(fieldInfo, FieldType.OBJ_ID).get(id);
     }
 
 // Mutation

@@ -31,7 +31,7 @@ abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldTyp
 
     @Override
     public E read(ByteReader reader) {
-        final ObjId id = FieldType.REFERENCE.read(reader);
+        final ObjId id = FieldType.OBJ_ID.read(reader);
         final T other = this.otherType.read(reader);
         return this.createMapIndexEntry(id, other);
     }
@@ -40,13 +40,13 @@ abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldTyp
     public void write(ByteWriter writer, E entry) {
         if (entry == null)
             throw new IllegalArgumentException("null entry");
-        FieldType.REFERENCE.write(writer, entry.getObjId());
+        FieldType.OBJ_ID.write(writer, entry.getObjId());
         this.otherType.write(writer, entry.other);
     }
 
     @Override
     public byte[] getDefaultValue() {
-        final byte[] b1 = FieldType.REFERENCE.getDefaultValue();
+        final byte[] b1 = FieldType.OBJ_ID.getDefaultValue();
         final byte[] b2 = this.otherType.getDefaultValue();
         final byte[] result = new byte[b1.length + b2.length];
         System.arraycopy(b1, 0, result, 0, b1.length);
@@ -56,7 +56,7 @@ abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldTyp
 
     @Override
     public void skip(ByteReader reader) {
-        FieldType.REFERENCE.skip(reader);
+        FieldType.OBJ_ID.skip(reader);
         this.otherType.skip(reader);
     }
 
@@ -69,25 +69,25 @@ abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldTyp
 
     @Override
     public boolean hasPrefix0xff() {
-        return FieldType.REFERENCE.hasPrefix0xff();
+        return FieldType.OBJ_ID.hasPrefix0xff();
     }
 
     @Override
     public boolean hasPrefix0x00() {
-        return FieldType.REFERENCE.hasPrefix0x00();
+        return FieldType.OBJ_ID.hasPrefix0x00();
     }
 
     @Override
     public String toString(E entry) {
         if (entry == null)
             throw new IllegalArgumentException("null entry");
-        return "[" + FieldType.REFERENCE.toString(entry.id) + "," + this.otherType.toString(entry.other) + "]";
+        return "[" + FieldType.OBJ_ID.toString(entry.id) + "," + this.otherType.toString(entry.other) + "]";
     }
 
     @Override
     public E fromString(ParseContext ctx) {
         ctx.expect('[');
-        final ObjId id = FieldType.REFERENCE.fromString(ctx);
+        final ObjId id = FieldType.OBJ_ID.fromString(ctx);
         ctx.expect(',');
         final T other = this.otherType.fromString(ctx);
         ctx.expect(']');
@@ -100,7 +100,7 @@ abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldTyp
     public int compare(E entry1, E entry2) {
         if (entry1 == null || entry2 == null)
             throw new IllegalArgumentException("null entry");
-        int diff = FieldType.REFERENCE.compare(entry1.id, entry2.id);
+        int diff = FieldType.OBJ_ID.compare(entry1.id, entry2.id);
         if (diff != 0)
             return diff;
         diff = this.otherType.compare(entry1.other, entry2.other);

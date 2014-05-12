@@ -7,8 +7,6 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.reflect.TypeToken;
-
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.ParseContext;
@@ -16,10 +14,10 @@ import org.jsimpledb.util.ParseContext;
 /**
  * Non-null type for fields that contain a reference to an object. Null values are not supported by this class.
  */
-class ReferenceType extends FieldType<ObjId> {
+class ObjIdType extends FieldType<ObjId> {
 
-    ReferenceType() {
-        super(FieldType.REFERENCE_TYPE_NAME, TypeToken.of(ObjId.class));
+    ObjIdType() {
+        super(ObjId.class);
     }
 
 // FieldType

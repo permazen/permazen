@@ -151,9 +151,9 @@ public abstract class FieldType<T> implements Comparator<T> {
     static final PrimitiveWrapperType<Double> DOUBLE_WRAPPER = new PrimitiveWrapperType<>(FieldType.DOUBLE);
 
     /**
-     * Type for object references.
+     * Type for {@link ObjId}s.
      */
-    static final NullSafeType<ObjId> REFERENCE = new NullSafeType<>(new ReferenceType());
+    static final NullSafeType<ObjId> OBJ_ID = new NullSafeType<>(new ObjIdType());
 
     /**
      * Type for {@link String}s.
