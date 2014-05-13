@@ -443,13 +443,13 @@ public class Transaction {
      * The result can be used as a destination for {@linkplain #copyTo copyTo} "snapshot" copies of objects.
      *
      * <p>
-     * The returned transaction does not support {@link #commit}, {@link #rollback}, {@link #setRollbackOnly},
+     * The returned {@link SnapshotTransaction} does not support {@link #commit}, {@link #rollback}, {@link #setRollbackOnly},
      * or {@link #addCallback addCallback()}. However, it can be used indefinitely after this transaction closes.
      * </p>
      *
      * @return uncloseable, empty, in-memory transaction with compatible schema information
      */
-    public Transaction createSnapshotTransaction() {
+    public SnapshotTransaction createSnapshotTransaction() {
         return new SnapshotTransaction(this);
     }
 

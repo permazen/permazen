@@ -435,6 +435,12 @@ public class Database {
         }
     }
 
+    void reset(SnapshotTransaction tx) {
+        final byte[] metaDataPrefix = new byte[] { JSIMPLEDB_KEY_PREFIX };
+        tx.kvt.removeRange(null, metaDataPrefix);
+        tx.kvt.removeRange(ByteUtil.getKeyAfterPrefix(metaDataPrefix), null);
+    }
+
     /**
      * Build {@link Schema} object from a schema version XMLs.
      *

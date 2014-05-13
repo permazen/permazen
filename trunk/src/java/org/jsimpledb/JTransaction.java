@@ -460,6 +460,21 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         this.revalidate(Collections.singleton(id));
     }
 
+    /**
+     * Clear the validation queue associated with this transaction. Any previously enqueued objects that have not
+     * yet been validated will no longer receive validation.
+     *
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalStateException if transaction commit is already in progress
+     */
+    public synchronized void resetValidationQueue() {
+        if (!this.tx.isValid())
+            throw new StaleTransactionException(this.tx);
+        if (this.committing)
+            throw new IllegalStateException("commit() has already been invoked");
+        this.validationQueue.clear();
+    }
+
     void revalidate(Collection<? extends ObjId> ids) {
         if (!this.tx.isValid())
             throw new StaleTransactionException(this.tx);

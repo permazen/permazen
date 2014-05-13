@@ -44,6 +44,7 @@ import org.jsimpledb.core.ReferenceField;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
+import org.jsimpledb.core.SnapshotTransaction;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaField;
@@ -169,13 +170,14 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * </p>
      *
      * @param input XML input
+     * @return the number of objects read
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code input} is null
      */
-    public void read(InputStream input) throws XMLStreamException {
+    public int read(InputStream input) throws XMLStreamException {
         if (input == null)
             throw new IllegalArgumentException("null input");
-        this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
+        return this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
     }
 
     /**
@@ -189,11 +191,12 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * </p>
      *
      * @param reader XML reader
+     * @return the number of objects read
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code reader} is null
      */
     @SuppressWarnings("unchecked")
-    public void read(XMLStreamReader reader) throws XMLStreamException {
+    public int read(XMLStreamReader reader) throws XMLStreamException {
         if (reader == null)
             throw new IllegalArgumentException("null reader");
         this.expect(reader, false, OBJECTS_TAG);
@@ -203,9 +206,13 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         for (SchemaVersion schemaVersion : this.tx.getSchema().getSchemaVersions().values())
             nameIndexMap.put(schemaVersion.getVersionNumber(), new NameIndex(schemaVersion.getSchemaModel()));
 
+        // Create a snapshot transaction so we can replace objects without triggering DeleteAction's
+        final SnapshotTransaction snapshot = this.tx.createSnapshotTransaction();
+
         // Iterate over objects
         QName name;
-        while ((name = this.next(reader)) != null) {
+        int count;
+        for (count = 0; (name = this.next(reader)) != null; count++) {
 
             // Determine schema version
             final String versionAttr = this.getAttr(reader, VERSION_ATTR, false);
@@ -260,11 +267,14 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             }
             final SchemaObject schemaObject = schemaModel.getSchemaObjects().get(objType.getStorageId());
 
-            // Determine object ID
+            // Reset snapshot
+            snapshot.reset();
+
+            // Determine object ID and create object in snapshot
             final String idAttr = this.getAttr(reader, ID_ATTR, true);
             ObjId id;
             if (idAttr == null)
-                id = this.tx.create(objType.getStorageId(), schemaVersion.getVersionNumber());
+                id = snapshot.create(objType.getStorageId(), schemaVersion.getVersionNumber());
             else {
                 try {
                     id = new ObjId(idAttr);
@@ -282,11 +292,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     id = this.generatedIdCache.getGeneratedId(this.tx, objType.getStorageId(), suffix);
                 }
 
-                // Delete existing object, if any
-                this.tx.delete(id);
-
                 // Create new object
-                this.tx.create(id, schemaVersion.getVersionNumber());
+                snapshot.create(id, schemaVersion.getVersionNumber());
             }
 
             // Iterate over fields
@@ -333,7 +340,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
                 // Parse the field
                 if (field instanceof SimpleField)
-                    this.tx.writeSimpleField(id, field.getStorageId(), this.readSimpleField(reader, (SimpleField<?>)field), false);
+                    snapshot.writeSimpleField(id, field.getStorageId(), this.readSimpleField(reader, (SimpleField<?>)field), false);
                 else if (field instanceof CounterField) {
                     final long value;
                     try {
@@ -342,14 +349,14 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                         throw new XMLStreamException("invalid counter value for field `" + field.getName() + "': " + e,
                           reader.getLocation(), e);
                     }
-                    this.tx.writeCounterField(id, field.getStorageId(), value, false);
+                    snapshot.writeCounterField(id, field.getStorageId(), value, false);
                 } else if (field instanceof CollectionField) {
                     final SimpleField<?> elementField = ((CollectionField<?, ?>)field).getElementField();
                     final Collection<?> collection;
                     if (field instanceof SetField)
-                        collection = this.tx.readSetField(id, field.getStorageId(), false);
+                        collection = snapshot.readSetField(id, field.getStorageId(), false);
                     else if (field instanceof ListField)
-                        collection = this.tx.readListField(id, field.getStorageId(), false);
+                        collection = snapshot.readListField(id, field.getStorageId(), false);
                     else
                         throw new RuntimeException("internal error: " + field);
                     while ((name = this.next(reader)) != null) {
@@ -362,7 +369,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 } else if (field instanceof MapField) {
                     final SimpleField<?> keyField = ((MapField<?, ?>)field).getKeyField();
                     final SimpleField<?> valueField = ((MapField<?, ?>)field).getValueField();
-                    final Map<?, ?> map = this.tx.readMapField(id, field.getStorageId(), false);
+                    final Map<?, ?> map = snapshot.readMapField(id, field.getStorageId(), false);
                     while ((name = this.next(reader)) != null) {
                         if (!ENTRY_TAG.equals(name)) {
                             throw new XMLStreamException("invalid map field entry; expected <" + ENTRY_TAG.getLocalPart()
@@ -387,7 +394,13 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 } else
                     throw new RuntimeException("internal error: " + field);
             }
+
+            // Copy over object, replacing any previous
+            snapshot.copyTo(id, this.tx);
         }
+
+        // Done
+        return count;
     }
 
     /**
@@ -396,17 +409,18 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @param output XML output; will not be closed by this method
      * @param nameFormat true for Name Format, false for Storage ID Format
      * @param indent true to indent output, false for all on one line
+     * @return the number of objects written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code output} is null
      */
-    public void write(OutputStream output, boolean nameFormat, boolean indent) throws XMLStreamException {
+    public int write(OutputStream output, boolean nameFormat, boolean indent) throws XMLStreamException {
         if (output == null)
             throw new IllegalArgumentException("null output");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
         if (indent)
             xmlWriter = new IndentXMLStreamWriter(xmlWriter);
         xmlWriter.writeStartDocument("UTF-8", "1.0");
-        this.write(xmlWriter, nameFormat);
+        return this.write(xmlWriter, nameFormat);
     }
 
     /**
@@ -415,20 +429,21 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @param writer XML output; will not be closed by this method
      * @param nameFormat true for Name Format, false for Storage ID Format
      * @param indent true to indent output, false for all on one line
+     * @return the number of objects written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code writer} is null
      */
-    public void write(Writer writer, boolean nameFormat, boolean indent) throws XMLStreamException {
+    public int write(Writer writer, boolean nameFormat, boolean indent) throws XMLStreamException {
         if (writer == null)
             throw new IllegalArgumentException("null writer");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         if (indent)
             xmlWriter = new IndentXMLStreamWriter(xmlWriter);
         xmlWriter.writeStartDocument("1.0");
-        this.write(xmlWriter, nameFormat);
+        return this.write(xmlWriter, nameFormat);
     }
 
-    private void write(XMLStreamWriter writer, boolean nameFormat) throws XMLStreamException {
+    private int write(XMLStreamWriter writer, boolean nameFormat) throws XMLStreamException {
 
         // Gather all known object storage IDs
         final TreeSet<Integer> storageIds = new TreeSet<>();
@@ -441,7 +456,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             iterators.add(this.tx.getAll(storageId).iterator());
 
         // Output all objects
-        this.write(writer, nameFormat, Iterators.concat(iterators.iterator()));
+        return this.write(writer, nameFormat, Iterators.concat(iterators.iterator()));
     }
 
     /**
@@ -456,17 +471,19 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @param writer XML writer; will not be closed by this method
      * @param nameFormat true for Name Format, false for Storage ID Format
      * @param iterator iterator of object IDs
+     * @return the number of objects written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code writer} is null
      */
-    public void write(XMLStreamWriter writer, boolean nameFormat, Iterator<ObjId> iterator) throws XMLStreamException {
+    public int write(XMLStreamWriter writer, boolean nameFormat, Iterator<ObjId> iterator) throws XMLStreamException {
         if (writer == null)
             throw new IllegalArgumentException("null writer");
         if (iterator == null)
             throw new IllegalArgumentException("null iterator");
         writer.setDefaultNamespace(OBJECTS_TAG.getNamespaceURI());
         writer.writeStartElement(OBJECTS_TAG.getNamespaceURI(), OBJECTS_TAG.getLocalPart());
-        while (iterator.hasNext()) {
+        int count;
+        for (count = 0; iterator.hasNext(); count++) {
             final ObjId id = iterator.next();
 
             // Get object info
@@ -546,8 +563,11 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             else
                 writer.writeEndElement();
         }
+
+        // Done
         writer.writeEndElement();
         writer.flush();
+        return count;
     }
 
 // Internal methods

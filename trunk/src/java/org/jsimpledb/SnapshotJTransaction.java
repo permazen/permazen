@@ -12,6 +12,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.SnapshotTransaction;
 
 /**
  * An initially empty, in-memory {@link JTransaction} that persists indefinitely.
@@ -90,6 +91,18 @@ public class SnapshotJTransaction extends JTransaction {
     }
 
     /**
+     * Delete all objects contained in this snapshot transaction and reset it back to its initial state.
+     *
+     * <p>
+     * It will contain schema meta-data but no objects.
+     * </p>
+     */
+    public void reset() {
+        this.resetValidationQueue();
+        ((SnapshotTransaction)this.tx).reset();
+    }
+
+    /**
      * Commit this transaction.
      *
      * <p>
@@ -118,7 +131,7 @@ public class SnapshotJTransaction extends JTransaction {
     }
 
     /**
-     * Determin whether this transaction is still valid.
+     * Determine whether this transaction is still valid.
      *
      * <p>
      * {@link SnapshotJTransaction}s are always valid.

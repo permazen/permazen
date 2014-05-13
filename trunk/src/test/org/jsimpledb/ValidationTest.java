@@ -185,6 +185,27 @@ public class ValidationTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
+        // Test clearing validation queue
+        tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(tx);
+        try {
+
+            p1.setChecks(-1);
+            p1.setAge(-99);
+            p1.revalidate();
+
+            // Reset validation queue
+            tx.resetValidationQueue();
+
+            // Attempt validation - request should be ignored
+            tx.validate();
+
+            tx.rollback();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
     }
 
 // Model Classes
