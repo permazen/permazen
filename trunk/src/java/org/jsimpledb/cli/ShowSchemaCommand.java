@@ -7,20 +7,15 @@
 
 package org.jsimpledb.cli;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.util.ParseContext;
 
-public class ShowSchemaCommand extends Command implements Action {
+public class ShowSchemaCommand extends AbstractSimpleCommand<Void> {
 
-    public ShowSchemaCommand(AggregateCommand parent) {
-        super(parent, "schema");
-    }
-
-    @Override
-    public Action parse(Session session, ParseContext ctx) throws ParseException {
-        if (ctx.getInput().length() != 0)
-            throw new ParseException(ctx, "the `" + this.getFullName() + "' command does not take any parameters");
-        return this;
+    public ShowSchemaCommand() {
+        super("show-schema");
     }
 
     @Override
@@ -28,18 +23,24 @@ public class ShowSchemaCommand extends Command implements Action {
         return "Shows the currently active database schema";
     }
 
-// Action
-
     @Override
-    public void run(Session session) throws Exception {
+    protected String getResult(Session session, Channels channels, Void params) {
+
+        // Get schema model
         final SchemaModel schemaModel = session.getSchemaModel();
-        if (schemaModel == null) {
-            session.getConsole().println("No schema is defined yet");
-            return;
-        }
+        if (schemaModel == null)
+            return "No schema is defined yet";
+
+        // Print it out
+        final StringWriter buf = new StringWriter();
+        final PrintWriter writer = new PrintWriter(buf);
         if (session.getSchemaVersion() != 0)
-            session.getConsole().println("=== Schema version " + session.getSchemaVersion() + " ===");
-        session.getConsole().println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
+            writer.println("=== Schema version " + session.getSchemaVersion() + " ===");
+        writer.println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
+
+        // Done
+        writer.flush();
+        return buf.toString();
     }
 }
 

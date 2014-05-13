@@ -14,10 +14,14 @@ import java.util.List;
 import org.jsimpledb.util.ParseContext;
 
 @SuppressWarnings("serial")
-public class ParseException extends Exception {
+public class ParseException extends RuntimeException {
 
     private final ArrayList<String> completions = new ArrayList<>();
     private final ParseContext ctx;
+
+    public ParseException(ParseContext ctx) {
+        this(ctx, null, null);
+    }
 
     public ParseException(ParseContext ctx, String message) {
         this(ctx, message, null);

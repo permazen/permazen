@@ -7,9 +7,11 @@
 
 package org.jsimpledb.cli;
 
-/**
- * Tagging interface that marks an {@link Action} as needing to run within a transaction.
- */
-public interface TransactionAction extends Action {
+public interface TransactionAction {
+
+    /**
+     * Perform some action while a transaction is open.
+     */
+    void run(Session session) throws Exception;
 }
 

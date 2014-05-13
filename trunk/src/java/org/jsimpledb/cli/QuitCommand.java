@@ -7,19 +7,10 @@
 
 package org.jsimpledb.cli;
 
-import org.jsimpledb.util.ParseContext;
+public class QuitCommand extends AbstractSimpleCommand<Void> {
 
-public class QuitCommand extends Command implements Action {
-
-    public QuitCommand(AggregateCommand parent) {
-        super(parent, "quit");
-    }
-
-    @Override
-    public Action parse(Session session, ParseContext ctx) throws ParseException {
-        if (ctx.getInput().length() != 0)
-            throw new ParseException(ctx, "the `" + this.getName() + "' command does not take any parameters");
-        return this;
+    public QuitCommand() {
+        super("quit");
     }
 
     @Override
@@ -27,12 +18,10 @@ public class QuitCommand extends Command implements Action {
         return "Quits out of the JSimpleDB command line";
     }
 
-// Action
-
     @Override
-    public void run(Session session) throws Exception {
-        session.getConsole().println("Bye");
+    protected String getResult(Session session, Channels channels, Void params) {
         session.setDone(true);
+        return "Bye";
     }
 }
 

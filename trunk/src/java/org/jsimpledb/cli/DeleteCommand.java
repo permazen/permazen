@@ -11,30 +11,48 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
 
-public class DeleteCommand extends Command {
+public class DeleteCommand extends AbstractTransformChannelCommand<Void> {
 
-    public DeleteCommand(AggregateCommand parent) {
-        super(parent, "delete");
+    public DeleteCommand() {
+        super("delete");
     }
 
     @Override
-    public Action parse(Session session, ParseContext ctx) throws ParseException {
-        final ObjId id = Util.parseObjId(session, ctx, this.getFullName() + " object-id");
-        return new TransactionAction() {
-            @Override
-            public void run(Session session) throws Exception {
-                final Transaction tx = session.getTransaction();
-                if (tx.delete(id))
-                    session.getConsole().println("Deleted object " + id);
-                else
-                    session.getConsole().println("Object " + id + " does not exist");
-            }
-        };
+    public String getUsage() {
+        return this.name;
     }
 
     @Override
     public String getHelpSummary() {
-        return "Deletes an object instance";
+        return "delete objects";
+    }
+
+    @Override
+    public String getHelpDetail() {
+        return "Deletes all objects found on any input channel.";
+    }
+
+    protected Void getParameters(Session session, Channels channels, ParseContext ctx) {
+        this.checkItemType(channels, ctx, ObjId.class);
+        return super.getParameters(session, channels, ctx);
+    }
+
+    @Override
+    protected <T> Channel<?> transformChannel(Session session, final Channel<T> input, Void params) {
+
+        // Delete objects
+        return new EmptyChannel() {
+            @Override
+            protected void process(Session session) {
+                final Transaction tx = session.getTransaction();
+                int count = 0;
+                for (T obj : input.getItems(session)) {
+                    tx.delete((ObjId)obj);
+                    count++;
+                }
+                session.getWriter().println("Deleted " + count + " object" + (count != 1 ? "s" : ""));
+            }
+        };
     }
 }
 
