@@ -7,6 +7,8 @@
 
 package org.jsimpledb.cli;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,20 +78,25 @@ public class Console {
         final StringBuilder lineBuffer = new StringBuilder();
 
         // Set up commands
-        final RootCommand rootCommand = new RootCommand();
+        final Pipeline pipeline = new Pipeline();
         console.addCompleter(new Completer() {
             @Override
             public int complete(String buffer, int cursor, List<CharSequence> candidates) {
                 final ParseContext ctx = new ParseContext(lineBuffer + buffer.substring(0, cursor));
                 try {
-                    rootCommand.parse(session, ctx);
+                    pipeline.parse(session, new Channels(), ctx);
                 } catch (ParseException e) {
-                    candidates.addAll(e.getCompletions());
-                    return e.getParseContext().getIndex();
+                    String prefix = "";
+                    int index = ctx.getIndex();
+                    while (index > 0 && !Character.isWhitespace(ctx.getOriginalInput().charAt(index - 1)))
+                        prefix = ctx.getOriginalInput().charAt(--index) + prefix;
+                    candidates.addAll(Lists.transform(e.getCompletions(), new AddPrefixFunction(prefix)));
+                    return index;
                 } catch (Exception e) {
                     try {
                         Console.this.console.println();
-                        Console.this.console.println("ERROR: " + e.getMessage());
+                        Console.this.console.println("ERROR: error calculating command line completions");
+                        e.printStackTrace(session.getWriter());
                     } catch (IOException e2) {
                         // ignore
                     }
@@ -101,7 +108,7 @@ public class Console {
         // Open a transaction to verify database schema
         this.session.perform(new TransactionAction() {
             @Override
-            public void run(Session session) throws Exception { }
+            public void run(Session session) { }
         });
 
         // Main command loop
@@ -146,17 +153,10 @@ public class Console {
                 if (ctx.getInput().length() == 0)
                     continue;
 
-                // Parse command line
-                Action action;
-                try {
-                    action = rootCommand.parse(session, ctx);
-                } catch (Exception e) {
-                    this.console.println("ERROR: " + e.getMessage());
-                    continue;
-                }
+                // Parse and execute command line pipeline output result to console
+                this.session.perform(new PipelineAction(ctx));
 
-                // Execute command
-                session.perform(action);
+                // Proceed
                 this.console.flush();
             }
         } finally {
@@ -164,6 +164,34 @@ public class Console {
                 this.history.flush();
             this.console.flush();
             this.console.shutdown();
+        }
+    }
+
+// PipelineAction
+
+    private static class PipelineAction implements TransactionAction {
+
+        private final ParseContext ctx;
+
+        PipelineAction(ParseContext ctx) {
+            this.ctx = ctx;
+        }
+
+        @Override
+        public void run(Session session) throws Exception {
+            final Channels channels = new Pipeline().parse(session, new Channels(), this.ctx);
+            this.ctx.skipWhitespace();
+            if (!this.ctx.isEOF())
+                throw new ParseException(this.ctx, "trailing garbage `" + this.ctx.getInput() + "'");
+            for (Channel<?> channel : channels)
+                this.printChannel(session, channel);
+        }
+
+        // This method exists solely to bind the generic type parameters
+        private <T> void printChannel(Session session, Channel<T> channel) throws IOException {
+            final ItemType<T> itemType = channel.getItemType();
+            for (T item : channel.getItems(session))
+                itemType.print(session, item);
         }
     }
 }

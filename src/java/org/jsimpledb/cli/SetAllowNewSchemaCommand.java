@@ -7,39 +7,38 @@
 
 package org.jsimpledb.cli;
 
-import com.google.common.collect.Iterables;
-
-import java.util.Arrays;
-
 import org.jsimpledb.util.ParseContext;
 
-public class SetAllowNewSchemaCommand extends Command {
+public class SetAllowNewSchemaCommand extends AbstractSimpleCommand<Boolean> {
 
-    public SetAllowNewSchemaCommand(AggregateCommand parent) {
-        super(parent, "allow-new-schema");
+    public SetAllowNewSchemaCommand() {
+        super("set-allow-new-schema");
     }
 
     @Override
-    public Action parse(Session session, ParseContext ctx) throws ParseException {
-        final String usage = "Usage: " + this.getFullName() + " [ true | false ]";
-        final boolean value;
-        try {
-            value = Boolean.valueOf(ctx.matchPrefix("(true|false)\\s*$").group(1));
-        } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, usage).addCompletions(
-              Iterables.filter(Arrays.asList("true", "false"), new PrefixPredicate(ctx.getInput())));
-        }
-        return new Action() {
-            @Override
-            public void run(Session session) throws Exception {
-                session.setAllowNewSchema(value);
-            }
-        };
+    public String getUsage() {
+        return this.name + " [ true | false ]";
     }
 
     @Override
     public String getHelpSummary() {
         return "Sets whether recording a new schema version into the database is allowed";
+    }
+
+    @Override
+    protected Boolean getParameters(Session session, Channels input, ParseContext ctx) {
+        final String value = new CommandParser(1, 1, this.getUsage()).parse(ctx).getParams().get(0);
+        if (value.equalsIgnoreCase("true"))
+            return true;
+        if (value.equalsIgnoreCase("false"))
+            return false;
+        throw new ParseException(ctx, "invalid value `" + value + "' for `" + this.name + "' command");
+    }
+
+    @Override
+    protected String getResult(Session session, Channels channels, Boolean allow) {
+        session.setAllowNewSchema(allow);
+        return null;
     }
 }
 

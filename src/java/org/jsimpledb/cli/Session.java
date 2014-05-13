@@ -25,6 +25,7 @@ public class Session {
 
     private final Database db;
     private final ConsoleReader console;
+    private final PrintWriter writer;
 
     private Transaction tx;
     private SchemaModel schemaModel;
@@ -39,10 +40,19 @@ public class Session {
     public Session(Database db, ConsoleReader console) {
         this.db = db;
         this.console = console;
+        this.writer = new PrintWriter(console.getOutput(), true);
+    }
+
+    public Database getDatabase() {
+        return this.db;
     }
 
     public ConsoleReader getConsole() {
         return this.console;
+    }
+
+    public PrintWriter getWriter() {
+        return this.writer;
     }
 
     public Transaction getTransaction() {
@@ -58,7 +68,7 @@ public class Session {
     }
 
     public NameIndex getNameIndex() {
-        return this.nameIndex;
+        return this.nameIndex != null ? this.nameIndex : new NameIndex(new SchemaModel());
     }
 
     public int getSchemaVersion() {
@@ -106,18 +116,21 @@ public class Session {
     public void report(Exception e) {
         final String message = e.getLocalizedMessage();
         try {
-            this.console.println("ERROR: " + e.getClass().getSimpleName() + (message != null ? ": " + message : ""));
+            if (e instanceof ParseException)
+                this.console.println("Error: " + message);
+            else
+                this.console.println("Error: " + e.getClass().getSimpleName() + (message != null ? ": " + message : ""));
             if (this.verbose)
-                e.printStackTrace(new PrintWriter(this.console.getOutput()));
+                e.printStackTrace(this.writer);
         } catch (IOException ioe) {
             this.setDone(true);
         }
     }
 
-    public void perform(Action action) {
+    public void perform(TransactionAction action) {
         try {
-            final boolean temporaryTransaction = this.tx == null && action instanceof TransactionAction;
-            if (temporaryTransaction) {
+            final boolean newTransaction = this.tx == null;
+            if (newTransaction) {
                 if (!this.openTransaction())
                     return;
             }
@@ -126,7 +139,7 @@ public class Session {
                 action.run(this);
                 success = true;
             } finally {
-                if (temporaryTransaction && this.tx != null) {
+                if (newTransaction && this.tx != null) {
                     if (success)
                         this.commitTransaction();
                     else

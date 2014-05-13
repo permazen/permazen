@@ -8,73 +8,72 @@
 package org.jsimpledb.cli;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.SortedMap;
 
 import org.jsimpledb.util.ParseContext;
 
-/**
- * Help command for an {@link AggregateCommand}.
- */
-public class HelpCommand extends AggregateCommand implements Action {
+public class HelpCommand extends AbstractSimpleCommand<String> {
 
-    private final AggregateCommand target;
-
-    public HelpCommand(RootCommand target) {
+    public HelpCommand() {
         super("help");
-        this.target = target;
-    }
-
-    public HelpCommand(AggregateCommand target) {
-        super("help" + (target.getPrefix() != null ? " " + target.getPrefix() : ""), target.getName());
-        this.target = target;
-    }
-
-    public void addSubCommands() {
-        this.getSubCommands().clear();
-        for (Command command : this.target.getSubCommands()) {
-            final Command helpCommand;
-            if (command instanceof HelpCommand)
-                continue;
-            if (command instanceof AggregateCommand)
-                helpCommand = new HelpCommand((AggregateCommand)command);
-            else if (!command.getHelpDetail().equals(command.getHelpSummary()))
-                helpCommand = new HelpCommandCommand(command);
-            else
-                continue;
-            this.getSubCommands().add(helpCommand);
-        }
-        for (Command command : this.getSubCommands()) {
-            if (command instanceof HelpCommand)
-                ((HelpCommand)command).addSubCommands();
-        }
     }
 
     @Override
-    public Action parse(Session session, ParseContext ctx) throws ParseException {
-        if (ctx.getInput().length() != 0)
-            return super.parse(session, ctx);
-        return this;
+    public String getUsage() {
+        return this.name + " [command]";
     }
 
     @Override
     public String getHelpSummary() {
-        return this.getPrefix() == null ?
-          "Displays information about the specified command" :
-          "Displays information about the `" + this.getName() + "' command";
+        return "display help information";
     }
 
-// Action
+    @Override
+    public String getHelpDetail() {
+        return "Displays help information about a command.";
+    }
 
     @Override
-    public void run(Session session) throws Exception {
-        final PrintWriter out = new PrintWriter(session.getConsole().getOutput());
-        out.println("Available commands:");
-        for (Command command : this.target.getSubCommands())
-            out.println(String.format("%8s - %s", command.getFullName(), command.getHelpSummary()));
-        if (!this.getSubCommands().isEmpty()) {
-            out.println("Additional topics available under `" + this.getFullName() + "':");
-            for (Command command : this.getSubCommands())
-                out.println("    " + command.getFullName());
+    protected String getParameters(Session session, Channels input, ParseContext ctx) {
+        this.checkChannelCount(input, ctx, 0);
+
+        // Parse help command
+        final CommandParser parser = new CommandParser(0, 1, this.getUsage()).parse(ctx);
+
+        // Get commands
+        final SortedMap<String, AbstractCommand> commandMap = Command.getCommands();
+
+        // Setup buffer
+        final StringWriter buf = new StringWriter();
+        final PrintWriter writer = new PrintWriter(buf);
+
+        // Get command name param, if any
+        if (parser.getParams().isEmpty()) {
+            writer.println("Available commands:");
+            for (AbstractCommand command : commandMap.values())
+                writer.println(String.format("%24s - %s", command.getName(), command.getHelpSummary()));
+        } else {
+
+            // Find specified command
+            final String commandName = parser.getParam(0);
+            final AbstractCommand command = commandMap.get(commandName);
+            if (command == null) {
+                throw new ParseException(ctx, "unknown command `" + commandName + "'")
+                  .addCompletions(Util.complete(commandMap.keySet(), commandName, false));
+            }
+            writer.println("Usage: " + command.getUsage());
+            writer.println(command.getHelpDetail());
         }
+
+        // Done
+        writer.flush();
+        return buf.toString().trim();
+    }
+
+    @Override
+    protected String getResult(Session session, Channels channels, String text) {
+        return text;
     }
 }
 
