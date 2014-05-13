@@ -22,3 +22,11 @@
     - {Gregorian}Calendar?
     - {Simple}TimeZone?
 
+- Graceful recovery mode
+    - If any inconsistent information encountered
+        - Log an error
+        - Return reasonable default
+
+- <ReferenceField> restriction that limits storage ID of
+  referenced object to the specified list ?
+
