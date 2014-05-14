@@ -115,7 +115,7 @@ public final class Util {
             min0 = new ObjId(minString);
         } catch (IllegalArgumentException e) {
             if (!minString.startsWith("00"))
-                throw new ParseException(ctx, usage);
+                throw new ParseException(ctx, "Usage: " + usage);
             min0 = null;
         }
         Arrays.fill(idChars, paramChars.length, idChars.length, 'f');

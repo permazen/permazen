@@ -475,7 +475,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code writer} is null
      */
-    public int write(XMLStreamWriter writer, boolean nameFormat, Iterator<ObjId> iterator) throws XMLStreamException {
+    public int write(XMLStreamWriter writer, boolean nameFormat, Iterator<? extends ObjId> iterator) throws XMLStreamException {
         if (writer == null)
             throw new IllegalArgumentException("null writer");
         if (iterator == null)

@@ -7,8 +7,6 @@
 
 package org.jsimpledb.cli;
 
-import java.util.NavigableSet;
-
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.ParseContext;
 
@@ -47,7 +45,7 @@ public class IterateCommand extends AbstractCommand {
             public void run(Session session) throws Exception {
                 IterateCommand.this.push(session, new ObjectChannel(session) {
                     @Override
-                    public NavigableSet<ObjId> getItems(Session session) {
+                    public Iterable<ObjId> getItems(Session session) {
                         return session.getTransaction().getAll(storageId);
                     }
                 });

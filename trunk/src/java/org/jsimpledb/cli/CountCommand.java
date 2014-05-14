@@ -29,7 +29,8 @@ public class CountCommand extends AbstractCommand implements Action {
 
     @Override
     public String getHelpDetail() {
-        return "The 'count' command replace the input channel on the top of the stack with the the number of items in the channel";
+        return "The `" + this.name + "' command replaces the input channel on the top of the stack"
+        + " with the the number of items in that channel.";
     }
 
     @Override
