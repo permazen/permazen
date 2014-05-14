@@ -8,14 +8,13 @@
 package org.jsimpledb.cli;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.NavigableSet;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
@@ -31,13 +30,6 @@ import org.jsimpledb.util.ParseContext;
 public final class Util {
 
     private Util() {
-    }
-
-    /**
-     * Determine any more command line parameters exist in the given {@link ParseContext}.
-     */
-    public static boolean hasMoreParameters(ParseContext ctx) {
-        return ctx.getInput().matches("\\s*[^\\s,|)]");
     }
 
     /**
@@ -62,26 +54,6 @@ public final class Util {
            Iterables.transform(Iterables.filter(choices, new PrefixPredicate(prefix)), new StripPrefixFunction(prefix)),
           new AddPrefixFunction(spacePrefix ? " " : "")),
         new AddSuffixFunction(" "));
-    }
-
-    /**
-     * Parse an object type name.
-     */
-    public static SchemaObject parseSchemaObject(Session session, ParseContext ctx, String usage) {
-        final NameIndex nameIndex = session.getNameIndex();
-        SortedSet<String> typeNames = nameIndex != null ? nameIndex.getSchemaObjectNames() : new TreeSet<String>();
-        String typeName = null;
-        try {
-            typeName = ctx.matchPrefix("([^\\s]+)\\s*$").group(1);
-            if (!typeNames.contains(typeName))
-                throw new IllegalArgumentException();
-        } catch (IllegalArgumentException e) {
-            if (typeName != null)
-                typeNames = Sets.filter(typeNames, new PrefixPredicate(typeName));
-            throw new ParseException(ctx, "Usage: " + usage).addCompletions(
-              Iterables.transform(typeNames, new AddSuffixFunction(" ")));
-        }
-        return nameIndex.getSchemaObject(typeName);
     }
 
     /**
@@ -120,18 +92,17 @@ public final class Util {
     public static ObjId parseObjId(Session session, ParseContext ctx, String usage) {
 
         // Get parameter
-        final String param = ctx.getInput().trim();
+        final Matcher matcher = ctx.tryPattern("\\s*([0-9A-Fa-f]{0,16})(\\s.*)?$");
+        if (matcher == null)
+            throw new ParseException(ctx, "Usage: " + usage);
+        final String param = matcher.group(1);
 
-        // Attempt to parse it whole
+        // Attempt to parse id
         try {
             return new ObjId(param);
         } catch (IllegalArgumentException e) {
-            // parse failed
+            // parse failed - must be a partial ID
         }
-
-        // Param must look like a hex ID
-        if (!param.matches("[0-9A-Fa-f]{0,16}"))
-            throw new ParseException(ctx, usage);
 
         // Get corresponding min & max ObjId (both inclusive)
         final char[] paramChars = param.toCharArray();
@@ -139,62 +110,69 @@ public final class Util {
         System.arraycopy(paramChars, 0, idChars, 0, paramChars.length);
         Arrays.fill(idChars, paramChars.length, idChars.length, '0');
         final String minString = new String(idChars);
-        ObjId min;
+        ObjId min0;
         try {
-            min = new ObjId(minString);
+            min0 = new ObjId(minString);
         } catch (IllegalArgumentException e) {
             if (!minString.startsWith("00"))
                 throw new ParseException(ctx, usage);
-            min = null;
+            min0 = null;
         }
         Arrays.fill(idChars, paramChars.length, idChars.length, 'f');
-        ObjId max;
+        ObjId max0;
         try {
-            max = new ObjId(new String(idChars));
+            max0 = new ObjId(new String(idChars));
         } catch (IllegalArgumentException e) {
-            max = null;
+            max0 = null;
         }
 
         // Find object IDs in the range
         final ArrayList<String> completions = new ArrayList<>();
-        final Transaction tx = session.getTransaction();
-        final TreeSet<Integer> storageIds = new TreeSet<>();
-        final ArrayList<NavigableSet<ObjId>> idSets = new ArrayList<>();
-        for (SchemaVersion schemaVersion : tx.getSchema().getSchemaVersions().values()) {
-            for (SchemaItem schemaItem : schemaVersion.getSchemaItemMap().values()) {
-                if (!(schemaItem instanceof ObjType))
-                    continue;
-                final int storageId = schemaItem.getStorageId();
-                if ((min != null && storageId < min.getStorageId()) || (max != null && storageId > max.getStorageId()))
-                    continue;
-                NavigableSet<ObjId> idSet = tx.getAll(storageId);
-                if (min != null) {
-                    try {
-                        idSet = idSet.tailSet(min, true);
-                    } catch (IllegalArgumentException e) {
-                        // ignore
+        final ObjId min = min0;
+        final ObjId max = max0;
+        session.perform(new Action() {
+            @Override
+            public void run(Session session) throws Exception {
+                final Transaction tx = session.getTransaction();
+                final TreeSet<Integer> storageIds = new TreeSet<>();
+                final ArrayList<NavigableSet<ObjId>> idSets = new ArrayList<>();
+                for (SchemaVersion schemaVersion : tx.getSchema().getSchemaVersions().values()) {
+                    for (SchemaItem schemaItem : schemaVersion.getSchemaItemMap().values()) {
+                        if (!(schemaItem instanceof ObjType))
+                            continue;
+                        final int storageId = schemaItem.getStorageId();
+                        if ((min != null && storageId < min.getStorageId()) || (max != null && storageId > max.getStorageId()))
+                            continue;
+                        NavigableSet<ObjId> idSet = tx.getAll(storageId);
+                        if (min != null) {
+                            try {
+                                idSet = idSet.tailSet(min, true);
+                            } catch (IllegalArgumentException e) {
+                                // ignore
+                            }
+                        }
+                        if (max != null) {
+                            try {
+                                idSet = idSet.headSet(max, true);
+                            } catch (IllegalArgumentException e) {
+                                // ignore
+                            }
+                        }
+                        idSets.add(idSet);
                     }
                 }
-                if (max != null) {
-                    try {
-                        idSet = idSet.headSet(max, true);
-                    } catch (IllegalArgumentException e) {
-                        // ignore
-                    }
+                int count = 0;
+                for (ObjId id : NavigableSets.union(idSets)) {
+                    completions.add(id + " ");
+                    count++;
+                    if (count >= session.getLineLimit() + 1)
+                        break;
                 }
-                idSets.add(idSet);
             }
-        }
-        int count = 0;
-        for (ObjId id : NavigableSets.union(idSets)) {
-            completions.add(id + " ");
-            count++;
-            if (count >= session.getLineLimit() + 1)
-                break;
-        }
+        });
 
         // Throw exception with completions
-        throw new ParseException(ctx, usage).addCompletions(completions);
+        throw new ParseException(ctx, usage).addCompletions(Util.complete(completions, param, false));
     }
 
 // ObjInfo

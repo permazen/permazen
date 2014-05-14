@@ -31,24 +31,28 @@ public class IterateCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "The 'iterate' command takes one argument which is the name of an object type."
-          + " All instances of that type are then iterated.";
+          + " All instances of that type are then iterated in a new channel pushed on the stack.";
     }
 
     @Override
-    public Channels parseParameters(Session session, Channels input, ParseContext ctx) {
-        this.checkChannelCount(input, ctx, 0);
-        final CommandParser parser = new CommandParser(1, 1, this.getUsage()).parse(ctx);
+    public Action parseParameters(Session session, ParseContext ctx) {
 
         // Parse type
+        final ParamParser parser = new ParamParser(1, 1, this.getUsage()).parse(ctx);
         final int storageId = Util.parseTypeName(session, ctx, parser.getParam(0));
 
         // Return all instances
-        return new Channels(new AbstractChannel<ObjId>(new ObjectItemType()) {
+        return new Action() {
             @Override
-            public NavigableSet<ObjId> getItems(Session session) {
-                return session.getTransaction().getAll(storageId);
+            public void run(Session session) throws Exception {
+                IterateCommand.this.push(session, new ObjectChannel(session) {
+                    @Override
+                    public NavigableSet<ObjId> getItems(Session session) {
+                        return session.getTransaction().getAll(storageId);
+                    }
+                });
             }
-        });
+        };
     }
 }
 

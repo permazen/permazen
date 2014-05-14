@@ -7,7 +7,9 @@
 
 package org.jsimpledb.cli;
 
-public class QuitCommand extends AbstractSimpleCommand<Void> {
+import org.jsimpledb.util.ParseContext;
+
+public class QuitCommand extends AbstractCommand implements Action {
 
     public QuitCommand() {
         super("quit");
@@ -19,9 +21,17 @@ public class QuitCommand extends AbstractSimpleCommand<Void> {
     }
 
     @Override
-    protected String getResult(Session session, Channels channels, Void params) {
+    public Action parseParameters(Session session, ParseContext ctx) {
+        new ParamParser(0, 0, this.getUsage()).parse(ctx);
+        return this;
+    }
+
+// Action
+
+    @Override
+    public void run(Session session) throws Exception {
         session.setDone(true);
-        return "Bye";
+        session.getWriter().println("Bye");
     }
 }
 

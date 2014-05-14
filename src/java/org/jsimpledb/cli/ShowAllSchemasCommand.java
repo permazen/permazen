@@ -7,13 +7,12 @@
 
 package org.jsimpledb.cli;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Map;
 
 import org.jsimpledb.core.SchemaVersion;
+import org.jsimpledb.util.ParseContext;
 
-public class ShowAllSchemasCommand extends AbstractSimpleCommand<Void> {
+public class ShowAllSchemasCommand extends AbstractCommand implements Action {
 
     public ShowAllSchemasCommand() {
         super("show-all-schemas");
@@ -25,15 +24,19 @@ public class ShowAllSchemasCommand extends AbstractSimpleCommand<Void> {
     }
 
     @Override
-    protected String getResult(Session session, Channels channels, Void params) {
-        final StringWriter buf = new StringWriter();
-        final PrintWriter writer = new PrintWriter(buf);
+    public Action parseParameters(Session session, ParseContext ctx) {
+        new ParamParser(0, 0, this.getUsage()).parse(ctx);
+        return this;
+    }
+
+// Action
+
+    @Override
+    public void run(Session session) throws Exception {
         for (Map.Entry<Integer, SchemaVersion> entry : session.getTransaction().getSchema().getSchemaVersions().entrySet()) {
-            writer.println("=== Schema version " + entry.getKey() + " ===\n"
+            session.getWriter().println("=== Schema version " + entry.getKey() + " ===\n"
               + entry.getValue().getSchemaModel().toString().replaceAll("^<.xml[^>]+>\\n", ""));
         }
-        writer.flush();
-        return buf.toString();
     }
 }
 

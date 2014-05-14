@@ -8,12 +8,11 @@
 package org.jsimpledb.cli;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.SortedMap;
 
 import org.jsimpledb.util.ParseContext;
 
-public class HelpCommand extends AbstractSimpleCommand<String> {
+public class HelpCommand extends AbstractCommand {
 
     public HelpCommand() {
         super("help");
@@ -35,45 +34,39 @@ public class HelpCommand extends AbstractSimpleCommand<String> {
     }
 
     @Override
-    protected String getParameters(Session session, Channels input, ParseContext ctx) {
-        this.checkChannelCount(input, ctx, 0);
+    public Action parseParameters(Session session, ParseContext ctx) {
+        final ParamParser parser = new ParamParser(0, 1, this.getUsage()).parse(ctx);
 
-        // Parse help command
-        final CommandParser parser = new CommandParser(0, 1, this.getUsage()).parse(ctx);
+        // Get all commands
+        final SortedMap<String, AbstractCommand> commandMap = CommandParser.getCommands();
 
-        // Get commands
-        final SortedMap<String, AbstractCommand> commandMap = Command.getCommands();
-
-        // Setup buffer
-        final StringWriter buf = new StringWriter();
-        final PrintWriter writer = new PrintWriter(buf);
-
-        // Get command name param, if any
-        if (parser.getParams().isEmpty()) {
-            writer.println("Available commands:");
-            for (AbstractCommand command : commandMap.values())
-                writer.println(String.format("%24s - %s", command.getName(), command.getHelpSummary()));
-        } else {
-
-            // Find specified command
+        // Find command specified, if any
+        final AbstractCommand command;
+        if (parser.getParams().isEmpty())
+            command = null;
+        else {
             final String commandName = parser.getParam(0);
-            final AbstractCommand command = commandMap.get(commandName);
-            if (command == null) {
+            if ((command = commandMap.get(commandName)) == null) {
                 throw new ParseException(ctx, "unknown command `" + commandName + "'")
                   .addCompletions(Util.complete(commandMap.keySet(), commandName, false));
             }
-            writer.println("Usage: " + command.getUsage());
-            writer.println(command.getHelpDetail());
         }
 
-        // Done
-        writer.flush();
-        return buf.toString().trim();
-    }
-
-    @Override
-    protected String getResult(Session session, Channels channels, String text) {
-        return text;
+        // Return help action
+        return new Action() {
+            @Override
+            public void run(Session session) throws Exception {
+                final PrintWriter writer = session.getWriter();
+                if (command == null) {
+                    writer.println("Available commands:");
+                    for (AbstractCommand c : commandMap.values())
+                        writer.println(String.format("%24s - %s", c.getName(), c.getHelpSummary()));
+                } else {
+                    writer.println("Usage: " + command.getUsage());
+                    writer.println(command.getHelpDetail());
+                }
+            }
+        };
     }
 }
 

@@ -9,6 +9,7 @@ package org.jsimpledb.cli;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayDeque;
 
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.SchemaVersion;
@@ -26,6 +27,7 @@ public class Session {
     private final Database db;
     private final ConsoleReader console;
     private final PrintWriter writer;
+    private final ArrayDeque<Channel<?>> stack = new ArrayDeque<>();
 
     private Transaction tx;
     private SchemaModel schemaModel;
@@ -37,11 +39,15 @@ public class Session {
     private boolean readOnly;
     private int lineLimit = 16;
 
+// Constructors
+
     public Session(Database db, ConsoleReader console) {
         this.db = db;
         this.console = console;
         this.writer = new PrintWriter(console.getOutput(), true);
     }
+
+// Accessors
 
     public Database getDatabase() {
         return this.db;
@@ -55,7 +61,13 @@ public class Session {
         return this.writer;
     }
 
+    public ArrayDeque<Channel<?>> getStack() {
+        return this.stack;
+    }
+
     public Transaction getTransaction() {
+        if (this.tx == null)
+            throw new IllegalStateException("no transaction associated with session");
         return this.tx;
     }
 
@@ -113,6 +125,8 @@ public class Session {
         this.done = done;
     }
 
+// Errors
+
     public void report(Exception e) {
         final String message = e.getLocalizedMessage();
         try {
@@ -127,12 +141,14 @@ public class Session {
         }
     }
 
-    public void perform(TransactionAction action) {
+// Transactions
+
+    public boolean perform(Action action) {
         try {
             final boolean newTransaction = this.tx == null;
             if (newTransaction) {
                 if (!this.openTransaction())
-                    return;
+                    return false;
             }
             boolean success = false;
             try {
@@ -146,8 +162,10 @@ public class Session {
                         this.rollbackTransaction();
                 }
             }
+            return success;
         } catch (Exception e) {
             this.report(e);
+            return false;
         }
     }
 

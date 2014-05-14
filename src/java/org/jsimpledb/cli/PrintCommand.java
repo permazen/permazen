@@ -7,26 +7,9 @@
 
 package org.jsimpledb.cli;
 
-import com.google.common.reflect.TypeToken;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import org.jsimpledb.core.CounterField;
-import org.jsimpledb.core.Field;
-import org.jsimpledb.core.FieldType;
-import org.jsimpledb.core.ListField;
-import org.jsimpledb.core.MapField;
-import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.SetField;
-import org.jsimpledb.core.SimpleField;
-import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
 
-public class PrintCommand extends AbstractTransformChannelCommand<CommandParser> {
+public class PrintCommand extends AbstractCommand {
 
     public PrintCommand() {
         super("print");
@@ -34,155 +17,52 @@ public class PrintCommand extends AbstractTransformChannelCommand<CommandParser>
 
     @Override
     public String getUsage() {
-        return this.name + " [-v]";
+        return this.name + " [-v] [-n] [depth]";
     }
 
     @Override
     public String getHelpSummary() {
-        return "prints data items to the console";
+        return "prints data items in channel";
     }
 
     @Override
     public String getHelpDetail() {
-        return "Prints data items to the console. This is the default final action.";
+        return "The `print' command prints the contents of the specified channel to the console and removes it from the stack."
+          + " A stack depth may be specified; the default is zero (top of stack). If the `-n' flag is given, the channel"
+          + " is not removed from the stack.";
     }
 
     @Override
-    protected CommandParser getParameters(Session session, Channels channels, ParseContext ctx) {
-        return new CommandParser(0, 0, this.getUsage(), "-v").parse(ctx);
-    }
-
-    @Override
-    protected <T> Channel<String> transformChannel(Session session, Channel<T> channel, final CommandParser parser) {
-
-        // Handle objects
-        final TypeToken<T> typeToken = channel.getItemType().getTypeToken();
-        if (typeToken.equals(TypeToken.of(ObjId.class))) {
-            return new TransformItemsChannel<T, String>(channel, String.class) {
-                @Override
-                protected String transformItem(Session session, T value) {
-                    return PrintCommand.this.printObject(session, (ObjId)value, parser.hasFlag("-v"));
-                }
-            };
-        }
-
-        // Handle field types
-        final List<FieldType<T>> fieldTypes = session.getDatabase().getFieldTypeRegistry().getFieldTypes(typeToken);
-        if (!fieldTypes.isEmpty()) {
-            final FieldType<T> fieldType = fieldTypes.get(0);
-            return new TransformItemsChannel<T, String>(channel, String.class) {
-                @Override
-                protected String transformItem(Session session, T value) {
-                    return fieldType.toString(value);
-                }
-            };
-        }
-
-        // Handle whatever else
-        return new TransformItemsChannel<T, String>(channel, String.class) {
+    public Action parseParameters(Session session, ParseContext ctx) {
+        final ParamParser parser = new ParamParser(0, 1, this.getUsage(), "-v", "-n").parse(ctx);
+        final boolean verbose = parser.hasFlag("-v");
+        final boolean noRemove = parser.hasFlag("-n");
+        final int depth;
+        if (parser.getParams().size() > 0) {
+            final String depthParam = parser.getParam(0);
+            try {
+                depth = Integer.parseInt(depthParam);
+                if (depth < 0)
+                    throw new IllegalArgumentException("depth is negative");
+            } catch (IllegalArgumentException e) {
+                throw new ParseException(ctx, "invalid depth `" + depthParam + "'");
+            }
+        } else
+            depth = 0;
+        return new Action() {
             @Override
-            protected String transformItem(Session session, T value) {
-                return "" + value;
+            public void run(Session session) throws Exception {
+                final Channel<?> channel = noRemove ?
+                  PrintCommand.this.get(session, depth) : PrintCommand.this.remove(session, depth);
+                PrintCommand.this.print(session, channel, verbose);
             }
         };
     }
 
-    private String printObject(Session session, ObjId id, boolean verbose) {
-
-        // Verify object exists
-        final Transaction tx = session.getTransaction();
-        final Util.ObjInfo info = Util.getObjInfo(session, id);
-        if (info == null)
-            return "object " + id + " does not exist";
-
-        // Get headline
-        final String headline = "object " + info;
-
-        // Quiet mode?
-        if (!verbose)
-            return headline;
-
-        // Setup buffer
-        final StringWriter buf = new StringWriter();
-        final PrintWriter writer = new PrintWriter(buf);
-        writer.println(headline);
-
-        // Calculate indent amount
-        int nameFieldSize = 0;
-        for (Field<?> field : info.getObjType().getFields().values())
-            nameFieldSize = Math.max(nameFieldSize, field.getName().length());
-        final char[] ichars = new char[nameFieldSize + 3];
-        Arrays.fill(ichars, ' ');
-        final String indent = new String(ichars);
-        final String eindent = indent + "  ";
-
-        // Display fields
-        for (Field<?> field : info.getObjType().getFields().values()) {
-            writer.print(String.format("%" + nameFieldSize + "s = ", field.getName()));
-            if (field instanceof SimpleField)
-                writer.println(this.readSimpleFieldStringValue(tx, (SimpleField<?>)field, id));
-            else if (field instanceof CounterField)
-                writer.println("" + tx.readCounterField(id, field.getStorageId(), false));
-            else if (field instanceof SetField) {
-                final SimpleField<?> elementField = ((SetField<?>)field).getElementField();
-                writer.println("{");
-                int count = 0;
-                for (Object elem : tx.readSetField(id, field.getStorageId(), false)) {
-                    if (count >= session.getLineLimit()) {
-                        writer.println(eindent + "...");
-                        break;
-                    }
-                    writer.println(eindent + this.getSimpleFieldStringValue(elementField, elem));
-                    count++;
-                }
-                writer.println(indent + "}");
-            } else if (field instanceof ListField) {
-                final SimpleField<?> elementField = ((ListField<?>)field).getElementField();
-                writer.println("{");
-                int count = 0;
-                for (Object elem : tx.readListField(id, field.getStorageId(), false)) {
-                    if (count >= session.getLineLimit()) {
-                        writer.println(eindent + "...");
-                        break;
-                    }
-                    writer.println(eindent + "[" + count + "]" + this.getSimpleFieldStringValue(elementField, elem));
-                    count++;
-                }
-                writer.println(indent + "}");
-            } else if (field instanceof MapField) {
-                final SimpleField<?> keyField = ((MapField<?, ?>)field).getKeyField();
-                final SimpleField<?> valueField = ((MapField<?, ?>)field).getValueField();
-                writer.println("{");
-                int count = 0;
-                for (Map.Entry<?, ?> entry : tx.readMapField(id, field.getStorageId(), false).entrySet()) {
-                    if (count >= session.getLineLimit()) {
-                        writer.println(eindent + "...");
-                        break;
-                    }
-                    writer.println(eindent + this.getSimpleFieldStringValue(keyField, entry.getKey())
-                      + " -> " + this.getSimpleFieldStringValue(valueField, entry.getValue()));
-                    count++;
-                }
-                writer.println(indent + "}");
-            } else
-                throw new RuntimeException("internal error");
-        }
-
-        // Done - trim trailing whitespace
-        writer.flush();
-        return buf.toString().replaceAll("\\s+$", "");
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings("unchecked")
-    private <T> String readSimpleFieldStringValue(Transaction tx, SimpleField<T> field, ObjId id) {
-        return field.getFieldType().toString((T)tx.readSimpleField(id, field.getStorageId(), false));
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings("unchecked")
-    private <T> String getSimpleFieldStringValue(SimpleField<T> field, Object value) {
-        return field.getFieldType().toString((T)value);
+    private <T> void print(Session session, Channel<T> channel, boolean verbose) {
+        final ItemType<T> itemType = channel.getItemType();
+        for (T value : channel.getItems(session))
+            itemType.print(session, value, verbose);
     }
 }
 

@@ -9,9 +9,9 @@ package org.jsimpledb.cli;
 
 import com.google.common.reflect.TypeToken;
 
-import java.io.IOException;
-
 import org.jsimpledb.core.FieldType;
+import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.ByteWriter;
 
 public class FieldTypeItemType<T> implements ItemType<T> {
 
@@ -37,8 +37,16 @@ public class FieldTypeItemType<T> implements ItemType<T> {
     }
 
     @Override
-    public void print(Session session, T value) throws IOException {
-        session.getWriter().println(this.fieldType.toString(value));
+    public void print(Session session, T value, boolean verbose) {
+        final String string = this.fieldType.toString(value);
+        if (!verbose) {
+            session.getWriter().println(string);
+            return;
+        }
+        final ByteWriter writer = new ByteWriter();
+        this.fieldType.write(writer, value);
+        final String encoding = ByteUtil.toString(writer.getBytes());
+        session.getWriter().println("value " + string + " encoding " + encoding);
     }
 
     @Override

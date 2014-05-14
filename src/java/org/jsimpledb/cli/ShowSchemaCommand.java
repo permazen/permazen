@@ -7,12 +7,10 @@
 
 package org.jsimpledb.cli;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import org.jsimpledb.schema.SchemaModel;
+import org.jsimpledb.util.ParseContext;
 
-public class ShowSchemaCommand extends AbstractSimpleCommand<Void> {
+public class ShowSchemaCommand extends AbstractCommand implements Action {
 
     public ShowSchemaCommand() {
         super("show-schema");
@@ -24,23 +22,27 @@ public class ShowSchemaCommand extends AbstractSimpleCommand<Void> {
     }
 
     @Override
-    protected String getResult(Session session, Channels channels, Void params) {
+    public Action parseParameters(Session session, ParseContext ctx) {
+        new ParamParser(0, 0, this.getUsage()).parse(ctx);
+        return this;
+    }
+
+// Action
+
+    @Override
+    public void run(Session session) throws Exception {
 
         // Get schema model
         final SchemaModel schemaModel = session.getSchemaModel();
-        if (schemaModel == null)
-            return "No schema is defined yet";
+        if (schemaModel == null) {
+            session.getWriter().println("No schema is defined yet");
+            return;
+        }
 
         // Print it out
-        final StringWriter buf = new StringWriter();
-        final PrintWriter writer = new PrintWriter(buf);
         if (session.getSchemaVersion() != 0)
-            writer.println("=== Schema version " + session.getSchemaVersion() + " ===");
-        writer.println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
-
-        // Done
-        writer.flush();
-        return buf.toString();
+            session.getWriter().println("=== Schema version " + session.getSchemaVersion() + " ===");
+        session.getWriter().println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
     }
 }
 

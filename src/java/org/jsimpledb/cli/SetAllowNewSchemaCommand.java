@@ -7,9 +7,11 @@
 
 package org.jsimpledb.cli;
 
+import java.util.Arrays;
+
 import org.jsimpledb.util.ParseContext;
 
-public class SetAllowNewSchemaCommand extends AbstractSimpleCommand<Boolean> {
+public class SetAllowNewSchemaCommand extends AbstractCommand {
 
     public SetAllowNewSchemaCommand() {
         super("set-allow-new-schema");
@@ -26,19 +28,20 @@ public class SetAllowNewSchemaCommand extends AbstractSimpleCommand<Boolean> {
     }
 
     @Override
-    protected Boolean getParameters(Session session, Channels input, ParseContext ctx) {
-        final String value = new CommandParser(1, 1, this.getUsage()).parse(ctx).getParams().get(0);
-        if (value.equalsIgnoreCase("true"))
-            return true;
-        if (value.equalsIgnoreCase("false"))
-            return false;
-        throw new ParseException(ctx, "invalid value `" + value + "' for `" + this.name + "' command");
-    }
-
-    @Override
-    protected String getResult(Session session, Channels channels, Boolean allow) {
-        session.setAllowNewSchema(allow);
-        return null;
+    public Action parseParameters(Session session, ParseContext ctx) {
+        final String value = new ParamParser(1, 1, this.getUsage()).parse(ctx).getParams().get(0);
+        if (!value.matches("(?i)true|false")) {
+            throw new ParseException(ctx, "invalid value `" + value + "'; specify either `true' or `false'")
+              .addCompletions(Util.complete(Arrays.asList("true", "false"), value, false));
+        }
+        final boolean allow = Boolean.valueOf(value);
+        return new Action() {
+            @Override
+            public void run(Session session) throws Exception {
+                session.setAllowNewSchema(allow);
+                session.getWriter().println("Set allow new schema to " + allow);
+            }
+        };
     }
 }
 
