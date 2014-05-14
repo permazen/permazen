@@ -452,6 +452,12 @@ A schema is defined as a set of object types and the fields in those object type
 
 Internally, schemas are represented by <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/schema/SchemaModel.html">`SchemaModel`</a> objects. This object type has an XML representation which is used to serialize the schema into the database. Normally, you don't need to mess with `SchemaModel`s - they are generated for you from your annotated classes and handled automatically. But methods exist to allow you to access and introspect the current and all previously recorded database schemas if necessary.
 
+JSimpleDB allows the following schema changes:
+  * Adding and removing object types
+  * Adding and removing fields
+  * Adding or removing indexing from a field
+The thing you can't do is re-use a storage ID in a different way. For example, if storage ID `72` is used to identify a `String` field in schema version X, then any other schema version Y that uses storage ID `72` must also use it to identify a `String` field; the field does not have to be in the same object type however.
+
 === Schema Verification ===
 
 Within each JSimpleDB database is recorded the version and associated `SchemaModel` of every schema that has ever been used to write new objects into that database in the past. When a JSimpleDB database is initialized, a schema is generated from your annotated classes, but you must specify the version number of that schema, and the first thing that occurs in each new transaction is a (quick) verification that the provided schema matches the schema with that version number recorded in the database.
