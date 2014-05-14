@@ -7,7 +7,6 @@
 
 package org.jsimpledb.cli;
 
-import java.util.NavigableSet;
 import java.util.TreeSet;
 
 import org.jsimpledb.core.ObjId;
@@ -75,7 +74,7 @@ public class CreateCommand extends AbstractCommand {
             public void run(Session session) throws Exception {
                 CreateCommand.this.push(session, new ObjectChannel(session) {
                     @Override
-                    public NavigableSet<ObjId> getItems(Session session) {
+                    public TreeSet<ObjId> getItems(Session session) {
                         final Transaction tx = session.getTransaction();
                         final TreeSet<ObjId> set = new TreeSet<ObjId>();
                         for (int i = 0; i < count; i++)

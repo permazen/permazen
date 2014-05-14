@@ -134,11 +134,15 @@ public class Session {
                 this.console.println("Error: " + message);
             else
                 this.console.println("Error: " + e.getClass().getSimpleName() + (message != null ? ": " + message : ""));
-            if (this.verbose)
+            if (this.verbose || this.showStackTrace(e))
                 e.printStackTrace(this.writer);
         } catch (IOException ioe) {
             this.setDone(true);
         }
+    }
+
+    protected boolean showStackTrace(Exception e) {
+        return e instanceof NullPointerException;
     }
 
 // Transactions
