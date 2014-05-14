@@ -1,11 +1,9 @@
 
 - Improvements to CLI
-    - UNIX-like command pipe architecture (input/output list or iterable)
     - Commands for:
         - Modifying fields
         - Inverting references
         - Evaluating reference paths
-    - Import/export using object XML
 
 - Add Vaadin GUI editor generator
 
