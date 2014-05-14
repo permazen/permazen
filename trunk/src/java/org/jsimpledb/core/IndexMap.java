@@ -17,43 +17,44 @@ import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
- * Implements the {@link NavigableMap} view of a simple field index.
+ * Implements the {@link NavigableMap} view of an index.
  *
- * @param <V> type of the simple field's values being indexed
+ * @param <V> type of the values being indexed
  * @param <E> type of the index entries associated with each indexed value
  */
 class IndexMap<V, E> extends FieldTypeMap<V, NavigableSet<E>> {
 
-    private final int storageId;
-    private final FieldType<V> valueType;
     private final FieldType<E> entryType;
+
+    /**
+     * Constructor for field indexes.
+     */
+    IndexMap(Transaction tx, int storageId, FieldType<V> valueType, FieldType<E> entryType) {
+        this(tx, UnsignedIntEncoder.encode(storageId), valueType, entryType);
+    }
 
     /**
      * Primary constructor.
      */
-    IndexMap(Transaction tx, int storageId, FieldType<V> valueType, FieldType<E> entryType) {
-        super(tx, valueType, true, UnsignedIntEncoder.encode(storageId));
-        this.storageId = storageId;
-        this.valueType = valueType;
+    IndexMap(Transaction tx, byte[] prefix, FieldType<V> valueType, FieldType<E> entryType) {
+        super(tx, valueType, true, prefix);
         this.entryType = entryType;
     }
 
     /**
      * Internal constructor.
      */
-    IndexMap(Transaction tx, int storageId, FieldType<V> valueType, FieldType<E> entryType,
+    IndexMap(Transaction tx, byte[] prefix, FieldType<V> valueType, FieldType<E> entryType,
       boolean reversed, byte[] minKey, byte[] maxKey, Bounds<V> bounds) {
-        super(tx, valueType, true, reversed, UnsignedIntEncoder.encode(storageId), minKey, maxKey, bounds);
-        this.storageId = storageId;
-        this.valueType = valueType;
+        super(tx, valueType, true, reversed, prefix, minKey, maxKey, bounds);
         this.entryType = entryType;
     }
 
     @Override
     protected NavigableMap<V, NavigableSet<E>> createSubMap(boolean newReversed,
       byte[] newMinKey, byte[] newMaxKey, Bounds<V> newBounds) {
-        return new IndexMap<V, E>(this.tx, this.storageId,
-          this.valueType, this.entryType, newReversed, newMinKey, newMaxKey, newBounds);
+        return new IndexMap<V, E>(this.tx, this.prefix,
+          this.keyFieldType, this.entryType, newReversed, newMinKey, newMaxKey, newBounds);
     }
 
     @Override
@@ -61,7 +62,7 @@ class IndexMap<V, E> extends FieldTypeMap<V, NavigableSet<E>> {
         final ByteReader reader = new ByteReader(pair.getKey());
         assert ByteUtil.isPrefixOf(this.prefix, reader.getBytes());
         reader.skip(this.prefix.length);
-        this.valueType.skip(reader);
+        this.keyFieldType.skip(reader);
         return new IndexSet(this.tx, reader.getBytes(0, reader.getOffset()));
     }
 
