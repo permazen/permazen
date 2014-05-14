@@ -29,24 +29,27 @@ public class LimitCommand extends AbstractCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Truncates incoming data items after the specified number have been copied. If an offset is specified,"
-          + " data items prior to the offset are skipped.";
+        return "Truncates data items in the top channel after the specified number have been copied. If an offset is specified,"
+          + " that many data items are skipped over first.";
     }
 
     @Override
-    public Channels parseParameters(Session session, Channels channels, ParseContext ctx) {
-        final CommandParser parser = new CommandParser(1, 2, this.getUsage()).parse(ctx);
+    public Action parseParameters(Session session, ParseContext ctx) {
+
+        // Parse parameters
+        final ParamParser parser = new ParamParser(1, 2, this.getUsage()).parse(ctx);
         final String offsetParam = parser.getParam(0);
-        int offset = 0;
+        final int offset;
         if (parser.getParams().size() > 1) {
             try {
-                offset = Integer.parseInt(parser.getParam(0));
+                offset = Integer.parseInt(offsetParam);
                 if (offset < 0)
                     throw new IllegalArgumentException("offset is negative");
             } catch (IllegalArgumentException e) {
                 throw new ParseException(ctx, "invalid offset `" + offsetParam + "'");
             }
-        }
+        } else
+            offset = 0;
         final String limitParam = parser.getParam(parser.getParams().size() == 1 ? 0 : 1);
         final int limit;
         try {
@@ -56,19 +59,24 @@ public class LimitCommand extends AbstractCommand {
         } catch (IllegalArgumentException e) {
             throw new ParseException(ctx, "invalid limit `" + limitParam + "'");
         }
-        final Channels output = new Channels();
-        for (Channel<?> channel : channels)
-            output.add(this.limitChannel(session, channel, offset, limit));
-        return output;
+
+        // Return action
+        return new Action() {
+            @Override
+            public void run(Session session) throws Exception {
+                LimitCommand.this.limit(session, LimitCommand.this.pop(session), offset, limit);
+            }
+        };
     }
 
-    private <T> Channel<T> limitChannel(Session session, final Channel<T> channel, final int offset, final int limit) {
-        return new AbstractChannel<T>(channel.getItemType()) {
+    // This method exists solely to bind the generic type parameters
+    private <T> void limit(Session session, final Channel<T> channel, final int offset, final int limit) throws Exception {
+        LimitCommand.this.push(session, new AbstractChannel<T>(channel.getItemType()) {
             @Override
             public Iterable<T> getItems(Session session) {
                 return Iterables.limit(Iterables.skip(channel.getItems(session), offset), limit);
             }
-        };
+        });
     }
 }
 

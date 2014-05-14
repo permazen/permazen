@@ -7,7 +7,6 @@
 
 package org.jsimpledb.cli;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import java.io.BufferedInputStream;
@@ -21,7 +20,7 @@ import org.jsimpledb.util.XMLObjectSerializer;
 
 import jline.console.completer.FileNameCompleter;
 
-public class ImportCommand extends AbstractSimpleCommand<File> {
+public class ImportCommand extends AbstractCommand {
 
     public ImportCommand() {
         super("import");
@@ -38,42 +37,36 @@ public class ImportCommand extends AbstractSimpleCommand<File> {
     }
 
     @Override
-    protected File getParameters(Session session, Channels input, ParseContext ctx) {
-        this.checkChannelCount(input, ctx, 0);
-        final String path = new CommandParser(1, 1, this.getUsage()).parse(ctx).getParams().get(0);
-        final File file = new File(path);
-        if (file.exists() && !file.isDirectory() && file.canRead())
-            return file;
-        final ArrayList<CharSequence> list = new ArrayList<>();
-        new FileNameCompleter().complete(path, ctx.getIndex(), list);
-        throw new ParseException(ctx, "can't read file `" + file + "'")
-          .addCompletions(Lists.transform(list, new Function<CharSequence, String>() {
-            @Override
-            public String apply(CharSequence seq) {
-                return ((String)seq).substring(path.length());
-            }
-        }));
-    }
+    public Action parseParameters(Session session, ParseContext ctx) {
+        final String path = new ParamParser(1, 1, this.getUsage()).parse(ctx).getParam(0);
 
-    @Override
-    protected String getResult(Session session, Channels channels, File file) {
-        try {
-            final BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
-            final int count;
-            try {
-                count = new XMLObjectSerializer(session.getTransaction()).read(input);
-            } finally {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-            session.getWriter().println("Read " + count + " objects from `" + file + "'");
-        } catch (Exception e) {
-            session.report(e);
+        // Check file
+        final File file = new File(path);
+        if (!file.exists() || file.isDirectory() || !file.canRead()) {
+            final ArrayList<CharSequence> list = new ArrayList<>();
+            new FileNameCompleter().complete(path, ctx.getIndex(), list);
+            throw new ParseException(ctx, "can't read file `" + file + "'").addCompletions(
+              Lists.transform(Lists.transform(list, new CastFunction<String>(String.class)), new StripPrefixFunction(path)));
         }
-        return null;
+
+        // Return import action
+        return new Action() {
+            @Override
+            public void run(Session session) throws Exception {
+                final BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
+                final int count;
+                try {
+                    count = new XMLObjectSerializer(session.getTransaction()).read(input);
+                } finally {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+                session.getWriter().println("Read " + count + " objects from `" + file + "'");
+            }
+        };
     }
 }
 

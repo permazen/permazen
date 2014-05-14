@@ -7,108 +7,71 @@
 
 package org.jsimpledb.cli;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.jsimpledb.util.ParseContext;
 
-/**
- * Parses a command with optional flags.
- */
-public class CommandParser {
+public final class CommandParser {
 
-    private final int minParams;
-    private final int maxParams;
-    private final String name;
-    private final String usage;
-    private final List<String> options = new ArrayList<>();
-    private final HashSet<String> takesArgument = new HashSet<>();
+    private static final TreeMap<String, AbstractCommand> COMMANDS = new TreeMap<>();
 
-    private final HashMap<String, String> flags = new HashMap<>();
-    private final List<String> params = new ArrayList<>();
-
-    public CommandParser(int minParams, int maxParams, String usage, String... options) {
-        this.minParams = minParams;
-        this.maxParams = maxParams;
-        this.usage = usage;
-        final int space = usage.indexOf(' ');
-        this.name = space != -1 ? usage.substring(0, space) : usage;
-        for (String option : options) {
-            if (option.endsWith("@")) {
-                option = option.substring(0, option.length() - 1);
-                this.takesArgument.add(option);
-            }
-            this.options.add(option);
-        }
+    static {
+        CommandParser.registerCommand(new CountCommand());
+        CommandParser.registerCommand(new CreateCommand());
+        CommandParser.registerCommand(new DeleteCommand());
+        CommandParser.registerCommand(new DupCommand());
+        CommandParser.registerCommand(new ExportCommand());
+        CommandParser.registerCommand(new GetCommand());
+        CommandParser.registerCommand(new HelpCommand());
+        CommandParser.registerCommand(new ImportCommand());
+        CommandParser.registerCommand(new IterateCommand());
+        CommandParser.registerCommand(new LimitCommand());
+        CommandParser.registerCommand(new ObjectCommand());
+        CommandParser.registerCommand(new PrintCommand());
+        CommandParser.registerCommand(new PopCommand());
+        CommandParser.registerCommand(new SetAllowNewSchemaCommand());
+        CommandParser.registerCommand(new SetSchemaVersionCommand());
+        CommandParser.registerCommand(new ShowAllSchemasCommand());
+        CommandParser.registerCommand(new ShowSchemaCommand());
+        CommandParser.registerCommand(new StackCommand());
+        CommandParser.registerCommand(new SwapCommand());
     }
 
-    public CommandParser parse(ParseContext ctx) {
-
-        // Parse option flags
-        this.parseOptions(ctx);
-
-        // Parse parameters
-        this.parseParams(ctx);
-        if (this.params.size() < this.minParams || this.params.size() > this.maxParams)
-            throw new ParseException(ctx, "Usage: " + this.usage);
-
-        // Done
-        return this;
+    private CommandParser() {
     }
 
-    protected void parseOptions(ParseContext ctx) {
-        this.flags.clear();
+    public static SortedMap<String, AbstractCommand> getCommands() {
+        return COMMANDS;
+    }
+
+    public static void registerCommand(AbstractCommand command) {
+        COMMANDS.put(command.getName(), command);
+    }
+
+    public static Action parse(Session session, ParseContext ctx) {
         while (true) {
-            final Matcher matcher = ctx.tryPattern("(\\s*)(-[^\\s,|@]+)");
-            if (matcher == null)
-                break;
-            final String whitespace = matcher.group(1);
-            final String flag = matcher.group(2);
-            if (flag.equals("--"))
-                break;
-            if (!this.options.contains(flag)) {
-                throw new ParseException(ctx, "unknown flag `" + flag + "' given to the `" + this.name + "' command")
-                  .addCompletions(Util.complete(this.options, flag, whitespace != null));
+
+            // Skip whitespace and empty commands
+            ctx.skipWhitespace();
+            if (ctx.tryLiteral(";"))
+                continue;
+            if (ctx.isEOF())
+                return null;
+
+            // Get command name
+            final String commandName = ctx.matchPrefix("[^\\s;]+").group();
+
+            // Get matching command
+            final AbstractCommand command = COMMANDS.get(commandName);
+            if (command == null) {
+                throw new ParseException(ctx, "unknown command `" + commandName + "'")
+                  .addCompletions(Util.complete(COMMANDS.keySet(), commandName, false));
             }
-            String arg = "";
-            if (this.takesArgument.contains(flag)) {
-                final Matcher argMatcher = ctx.tryPattern("\\s*([^\\s,|)]+)");
-                if (argMatcher == null)
-                    throw new ParseException(ctx, "flag `" + flag + "' for command `"
-                      + this.name + "' requires an argument but none was given");
-                arg = argMatcher.group(1);
-            }
-            this.flags.put(flag, arg);
+
+            // Try to parse command parameters
+            return command.parseParameters(session, ctx);
         }
-    }
-
-    protected void parseParams(ParseContext ctx) {
-        this.params.clear();
-        while (true) {
-            final Matcher matcher = ctx.tryPattern("\\s*([^\\s,|)]+)");
-            if (matcher == null)
-                break;
-            this.params.add(matcher.group(1));
-        }
-    }
-
-    public boolean hasFlag(String flag) {
-        return this.flags.containsKey(flag);
-    }
-
-    public String getFlag(String flag) {
-        return this.flags.get(flag);
-    }
-
-    public List<String> getParams() {
-        return this.params;
-    }
-
-    public String getParam(int index) {
-        return this.params.get(index);
     }
 }
 

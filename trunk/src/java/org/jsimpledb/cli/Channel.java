@@ -8,7 +8,7 @@
 package org.jsimpledb.cli;
 
 /**
- * Data channel. Instances are not allowed to make any changes until {@link #getItems()} is invoked.
+ * Data channel. Instances are not allowed to make any changes until {@link #getItems getItems()} is invoked.
  */
 public interface Channel<T> {
 

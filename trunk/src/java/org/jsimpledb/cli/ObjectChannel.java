@@ -7,16 +7,17 @@
 
 package org.jsimpledb.cli;
 
-import java.util.List;
+import java.util.NavigableSet;
 
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjType;
 
-public interface ObjectChannel extends Channel<ObjId> {
+public abstract class ObjectChannel extends AbstractChannel<ObjId> {
 
-    /**
-     * Get the set of object types which can possibly appear in this channel.
-     */
-    List<ObjType> getObjTypes();
+    protected ObjectChannel(Session session) {
+        super(new ObjectItemType(session));
+    }
+
+    @Override
+    public abstract NavigableSet<ObjId> getItems(Session session);
 }
 

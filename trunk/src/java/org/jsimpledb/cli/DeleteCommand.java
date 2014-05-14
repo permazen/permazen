@@ -11,7 +11,7 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
 
-public class DeleteCommand extends AbstractTransformChannelCommand<Void> {
+public class DeleteCommand extends AbstractCommand {
 
     public DeleteCommand() {
         super("delete");
@@ -29,25 +29,20 @@ public class DeleteCommand extends AbstractTransformChannelCommand<Void> {
 
     @Override
     public String getHelpDetail() {
-        return "Deletes all objects found on any input channel.";
-    }
-
-    protected Void getParameters(Session session, Channels channels, ParseContext ctx) {
-        this.checkItemType(channels, ctx, ObjId.class);
-        return super.getParameters(session, channels, ctx);
+        return "Deletes all objects in the input channel on top of the stack.";
     }
 
     @Override
-    protected <T> Channel<?> transformChannel(Session session, final Channel<T> input, Void params) {
-
-        // Delete objects
-        return new EmptyChannel() {
+    public Action parseParameters(Session session, ParseContext ctx) {
+        final ParamParser parser = new ParamParser(0, 0, this.getUsage()).parse(ctx);
+        return new Action() {
             @Override
-            protected void process(Session session) {
+            public void run(Session session) throws Exception {
+                final Channel<? extends ObjId> channel = DeleteCommand.this.pop(session, ObjId.class);
                 final Transaction tx = session.getTransaction();
                 int count = 0;
-                for (T obj : input.getItems(session)) {
-                    tx.delete((ObjId)obj);
+                for (ObjId id : channel.getItems(session)) {
+                    tx.delete(id);
                     count++;
                 }
                 session.getWriter().println("Deleted " + count + " object" + (count != 1 ? "s" : ""));

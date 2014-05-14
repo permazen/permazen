@@ -16,18 +16,17 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.util.ParseContext;
 
-public class ObjectPredicate implements Parser<Predicate<ObjId>> {
+public class ObjectPredicate {
 
     public ObjectPredicate(List<ObjType> objTypes) {
     }
 
     public NavigableSet<ObjId> getIndexSet() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
-    @Override
-    public Predicate<ObjId> parse(Session session, Channels channels, ParseContext ctx) {
-        return null;
+    public Predicate<ObjId> parse(Session session, ParseContext ctx) {
+        throw new UnsupportedOperationException();
     }
 }
 

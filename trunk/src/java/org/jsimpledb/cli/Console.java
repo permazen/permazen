@@ -78,13 +78,12 @@ public class Console {
         final StringBuilder lineBuffer = new StringBuilder();
 
         // Set up commands
-        final Pipeline pipeline = new Pipeline();
         console.addCompleter(new Completer() {
             @Override
             public int complete(String buffer, int cursor, List<CharSequence> candidates) {
                 final ParseContext ctx = new ParseContext(lineBuffer + buffer.substring(0, cursor));
                 try {
-                    pipeline.parse(session, new Channels(), ctx);
+                    new CommandListParser().parse(session, ctx);
                 } catch (ParseException e) {
                     String prefix = "";
                     int index = ctx.getIndex();
@@ -105,8 +104,8 @@ public class Console {
             }
         });
 
-        // Open a transaction to verify database schema
-        this.session.perform(new TransactionAction() {
+        // Open a transaction to load and verify database schema
+        this.session.perform(new Action() {
             @Override
             public void run(Session session) { }
         });
@@ -153,8 +152,20 @@ public class Console {
                 if (ctx.getInput().length() == 0)
                     continue;
 
-                // Parse and execute command line pipeline output result to console
-                this.session.perform(new PipelineAction(ctx));
+                // Parse command(s)
+                final List<Action> actions;
+                try {
+                    actions = new CommandListParser().parse(this.session, ctx);
+                } catch (Exception e) {
+                    this.session.report(e);             // "should never happen"
+                    continue;
+                }
+
+                // Execute commands
+                for (Action action : actions) {
+                    if (!this.session.perform(action))
+                        break;
+                }
 
                 // Proceed
                 this.console.flush();
@@ -164,34 +175,6 @@ public class Console {
                 this.history.flush();
             this.console.flush();
             this.console.shutdown();
-        }
-    }
-
-// PipelineAction
-
-    private static class PipelineAction implements TransactionAction {
-
-        private final ParseContext ctx;
-
-        PipelineAction(ParseContext ctx) {
-            this.ctx = ctx;
-        }
-
-        @Override
-        public void run(Session session) throws Exception {
-            final Channels channels = new Pipeline().parse(session, new Channels(), this.ctx);
-            this.ctx.skipWhitespace();
-            if (!this.ctx.isEOF())
-                throw new ParseException(this.ctx, "trailing garbage `" + this.ctx.getInput() + "'");
-            for (Channel<?> channel : channels)
-                this.printChannel(session, channel);
-        }
-
-        // This method exists solely to bind the generic type parameters
-        private <T> void printChannel(Session session, Channel<T> channel) throws IOException {
-            final ItemType<T> itemType = channel.getItemType();
-            for (T item : channel.getItems(session))
-                itemType.print(session, item);
         }
     }
 }

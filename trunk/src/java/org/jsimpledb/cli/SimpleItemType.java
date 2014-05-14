@@ -9,8 +9,6 @@ package org.jsimpledb.cli;
 
 import com.google.common.reflect.TypeToken;
 
-import java.io.IOException;
-
 public class SimpleItemType<T> implements ItemType<T> {
 
     private final TypeToken<T> typeToken;
@@ -31,8 +29,10 @@ public class SimpleItemType<T> implements ItemType<T> {
     }
 
     @Override
-    public void print(Session session, T value) throws IOException {
-        session.getWriter().println("" + value);
+    public void print(Session session, T value, boolean verbose) {
+        final String prefix = verbose && value != null ?
+          "[" + (value.getClass().getName() + "@" + String.format("%08x", System.identityHashCode(value))) + "] " : "";
+        session.getWriter().println(prefix + value);
     }
 
     @Override

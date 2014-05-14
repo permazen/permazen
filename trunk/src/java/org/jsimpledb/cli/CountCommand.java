@@ -9,7 +9,9 @@ package org.jsimpledb.cli;
 
 import java.util.Collection;
 
-public class CountCommand extends AbstractTransformChannelCommand<Void> {
+import org.jsimpledb.util.ParseContext;
+
+public class CountCommand extends AbstractCommand implements Action {
 
     public CountCommand() {
         super("count");
@@ -22,34 +24,40 @@ public class CountCommand extends AbstractTransformChannelCommand<Void> {
 
     @Override
     public String getHelpSummary() {
-        return "counts the number of items each each input channel";
+        return "counts the number of items in the top input channel";
     }
 
     @Override
     public String getHelpDetail() {
-        return "The 'count' command counts the number of items each each input channel and outputs each sum as an integer.";
+        return "The 'count' command replace the input channel on the top of the stack with the the number of items in the channel";
     }
 
     @Override
-    protected <T> Channel<?> transformChannel(final Session session, final Channel<T> channel, Void params) {
-        return new SingletonChannel<Integer>(Integer.class) {
-            @Override
-            public Integer getItem(Session session) {
+    public Action parseParameters(Session session, ParseContext ctx) {
+        new ParamParser(0, 0, this.name).parse(ctx);
+        return this;
+    }
 
-                // Get items
-                final Iterable<? extends T> items = channel.getItems(session);
+// Action
 
-                // Use Collection.size() if possible
-                if (items instanceof Collection)
-                    return ((Collection<?>)items).size();
+    @Override
+    public void run(Session session) throws Exception {
 
-                // Otherwise count items manually
-                int count = 0;
-                for (T item : items)
-                    count++;
-                return count;
-            }
-        };
+        // Get items
+        final Iterable<?> items = this.pop(session).getItems(session);
+
+        // Use Collection.size() if possible, ptherwise count items manually
+        int count;
+        if (items instanceof Collection)
+            count = ((Collection<?>)items).size();
+        else {
+            count = 0;
+            for (Object item : items)
+                count++;
+        }
+
+        // Push result
+        this.push(session, Integer.class, count);
     }
 }
 

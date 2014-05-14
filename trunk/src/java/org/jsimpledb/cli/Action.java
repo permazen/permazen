@@ -7,10 +7,10 @@
 
 package org.jsimpledb.cli;
 
-public interface TransactionAction {
+public interface Action {
 
     /**
-     * Perform some action while a transaction is open.
+     * Perform some action on the session while a transaction is open.
      */
     void run(Session session) throws Exception;
 }
