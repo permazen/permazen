@@ -39,6 +39,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.util.XMLSerializer;
+import org.jsimpledb.util.XMLObjectSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -196,6 +197,19 @@ public abstract class TestSupport {
             final XMLStreamWriter writer = new IndentXMLStreamWriter(
               XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
             new XMLSerializer(tx.getKVTransaction()).write(writer, minKey, maxKey);
+            this.log.info("{}\n{}", label, new String(buf.toByteArray(), Charset.forName("UTF-8")));
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Dump object contents to the log.
+     */
+    protected void showObjects(Transaction tx, String label) {
+        try {
+            final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            new XMLObjectSerializer(tx).write(buf, true, true);
             this.log.info("{}\n{}", label, new String(buf.toByteArray(), Charset.forName("UTF-8")));
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);
