@@ -36,6 +36,12 @@ import org.slf4j.LoggerFactory;
  * A JSimpleDB {@link Database} transaction.
  *
  * <p>
+ * Note: this is the lower level, core API for {@link org.jsimpledb.JSimpleDB}. In most cases this API
+ * will only be used indirectly through the higher level {@link org.jsimpledb.JSimpleDB}, {@link org.jsimpledb.JTransaction},
+ * and {@link org.jsimpledb.JObject} APIs.
+ * </p>
+ *
+ * <p>
  * Methods in this class can be divided into the following categories:
  * </p>
  *
