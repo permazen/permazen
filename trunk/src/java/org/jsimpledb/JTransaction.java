@@ -53,8 +53,69 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A transaction associated with a {@link JSimpleDB} instance.
+ *
+ * <p>
+ * Commonly used methods in this class can be divided into the following categories:
+ * </p>
+ *
+ * <p>
+ * <b>Transaction Meta-Data</b>
+ * <ul>
+ *  <li>{@link #getJSimpleDB getJSimpleDB()} - Get the associated {@link JSimpleDB} instance</li>
+ *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default {@link SnapshotJTransaction}</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * <b>Transaction Lifecycle</b>
+ * <ul>
+ *  <li>{@link #commit commit()} - Commit transaction</li>
+ *  <li>{@link #rollback rollback()} - Roll back transaction</li>
+ *  <li>{@link #getCurrent getCurrent()} - Get the {@link JTransaction} instance associated with the current thread</li>
+ *  <li>{@link #setCurrent setCurrent()} - Set the {@link JTransaction} instance associated with the current thread</li>
+ *  <li>{@link #isValid isValid()} - Test transaction validity</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * <b>Object Access</b>
+ * <ul>
+ *  <li>{@link #create create()} - Create a new database object</li>
+ *  <li>{@link #getAll getAll()} - Get all database objects that are instances of a given Java type</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * <b>Validation</b>
+ * <ul>
+ *  <li>{@link #validate validate()} - Validate all objects in the validation queue</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * <b>Reference Path Queries</b>
+ * <ul>
+ *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects that refer to any element in a given set
+ *      of objects through a specified reference path</li>
+ *  </li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * <b>Lower Layer Access</b>
+ * <ul>
+ *  <li>{@link #getTransaction()} - Get the lower level {@link Transaction} underlying this instance</li>
+ *  <li>{@link #getJObject getJObject()} - Get the Java model object for a specific database object</li>
+ *  <li>{@link #getKey getKey()} - Get the key/value database key for a specific object and/or field</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * The remaining methods in this class not mentioned above are normally used only indirectly via the {@link JObject} interface,
+ * which all Java model objects implement.
+ * </p>
  */
-public class JTransaction implements VersionChangeListener, CreateListener, DeleteListener {
+public class JTransaction {
 
     private static final ThreadLocal<JTransaction> CURRENT = new ThreadLocal<>();
 
@@ -66,6 +127,9 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
 
     private final ValidationMode validationMode;
     private final ValidationListener validationListener = new ValidationListener();
+    private final InternalCreateListener internalCreateListener = new InternalCreateListener();
+    private final InternalDeleteListener internalDeleteListener = new InternalDeleteListener();
+    private final InternalVersionChangeListener internalVersionChangeListener = new InternalVersionChangeListener();
     private final HashSet<ObjId> validationQueue = new HashSet<ObjId>(); // TODO: use a more efficient data structure for longs
 
     private SnapshotJTransaction snapshotTransaction;
@@ -92,9 +156,9 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         this.validationMode = validationMode;
 
         // Register listeners
-        this.tx.addCreateListener(this);
-        this.tx.addDeleteListener(this);
-        this.tx.addVersionChangeListener(this);
+        this.tx.addCreateListener(this.internalCreateListener);
+        this.tx.addDeleteListener(this.internalDeleteListener);
+        this.tx.addVersionChangeListener(this.internalVersionChangeListener);
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
@@ -865,98 +929,100 @@ public class JTransaction implements VersionChangeListener, CreateListener, Dele
         }
     }
 
-// CreateListener
+// InternalCreateListener
 
-    @Override
-    public void onCreate(Transaction tx, ObjId id) {
-        if (tx != this.tx)
-            throw new IllegalArgumentException("wrong tx");
-        final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
-        this.doOnCreate(jclass, id);
+    private class InternalCreateListener implements CreateListener {
+
+        @Override
+        public void onCreate(Transaction tx, ObjId id) {
+            this.doOnCreate(JTransaction.this.jdb.getJClass(id.getStorageId()), id);
+        }
+
+        // This method exists solely to bind the generic type parameters
+        private <T> void doOnCreate(JClass<T> jclass, ObjId id) {
+            for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods)
+                Util.invoke(info.getMethod(), JTransaction.this.getJObject(id));
+        }
     }
 
-    // This method exists solely to bind the generic type parameters
-    private <T> void doOnCreate(JClass<T> jclass, ObjId id) {
-        for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods)
-            Util.invoke(info.getMethod(), this.getJObject(id));
+// InternalDeleteListener
+
+    private class InternalDeleteListener implements DeleteListener {
+
+        @Override
+        public void onDelete(Transaction tx, ObjId id) {
+            this.doOnDelete(JTransaction.this.jdb.getJClass(id.getStorageId()), id);
+        }
+
+        // This method exists solely to bind the generic type parameters
+        private <T> void doOnDelete(JClass<T> jclass, ObjId id) {
+            for (OnDeleteScanner<T>.MethodInfo info : jclass.onDeleteMethods)
+                Util.invoke(info.getMethod(), JTransaction.this.getJObject(id));
+        }
     }
 
-// DeleteListener
+// InternalVersionChangeListener
 
-    @Override
-    public void onDelete(Transaction tx, ObjId id) {
-        if (tx != this.tx)
-            throw new IllegalArgumentException("wrong tx");
-        final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
-        this.doOnDelete(jclass, id);
-    }
+    private class InternalVersionChangeListener implements VersionChangeListener {
 
-    // This method exists solely to bind the generic type parameters
-    private <T> void doOnDelete(JClass<T> jclass, ObjId id) {
-        for (OnDeleteScanner<T>.MethodInfo info : jclass.onDeleteMethods)
-            Util.invoke(info.getMethod(), this.getJObject(id));
-    }
+        @Override
+        public void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
+            this.doOnVersionChange(JTransaction.this.jdb.getJClass(id.getStorageId()), id, oldVersion, newVersion, oldFieldValues);
+        }
 
-// VersionChangeListener
+        // This method exists solely to bind the generic type parameters
+        private <T> void doOnVersionChange(JClass<T> jclass, ObjId id,
+          int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
+            Object jobj = null;
+            final SchemaVersion oldSchema = JTransaction.this.tx.getSchema().getVersion(oldVersion);
+            for (OnVersionChangeScanner<T>.MethodInfo info : jclass.onVersionChangeMethods) {
+                final OnVersionChange annotation = info.getAnnotation();
+                final Method method = info.getMethod();
 
-    @Override
-    public void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-        if (tx != this.tx)
-            throw new IllegalArgumentException("wrong tx");
-        final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
-        this.doOnVersionChange(jclass, id, oldVersion, newVersion, oldFieldValues);
-    }
+                // Check old & new version numbers
+                if ((annotation.oldVersion() != 0 && annotation.oldVersion() != oldVersion)
+                  || (annotation.newVersion() != 0 && annotation.newVersion() != newVersion))
+                    continue;
 
-    // This method exists solely to bind the generic type parameters
-    private <T> void doOnVersionChange(JClass<T> jclass, ObjId id,
-      int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-        Object jobj = null;
-        final SchemaVersion oldSchema = this.tx.getSchema().getVersion(oldVersion);
-        for (OnVersionChangeScanner<T>.MethodInfo info : jclass.onVersionChangeMethods) {
-            final OnVersionChange annotation = info.getAnnotation();
-            final Method method = info.getMethod();
+                // Get Java model object
+                if (jobj == null)
+                    jobj = JTransaction.this.getJObject(id);
 
-            // Check old & new version numbers
-            if ((annotation.oldVersion() != 0 && annotation.oldVersion() != oldVersion)
-              || (annotation.newVersion() != 0 && annotation.newVersion() != newVersion))
-                continue;
+                // Convert old field values so ObjId's become JObjects
+                final TreeMap<Integer, Object> convertedValues = new TreeMap<>();
+                for (Map.Entry<Integer, Object> entry : oldFieldValues.entrySet()) {
+                    final int storageId = entry.getKey();
+                    Object oldValue = entry.getValue();
 
-            // Get Java model object
-            if (jobj == null)
-                jobj = this.getJObject(id);
+                    // Convert old field value as needed; we only convert ObjId -> JObject
+                    final Field<?> field = oldSchema.getSchemaItem(storageId, Field.class);
+                    oldValue = JTransaction.this.convertOldValue(field, oldValue);
 
-            // Convert old field values so ObjId's become JObjects
-            final TreeMap<Integer, Object> convertedValues = new TreeMap<>();
-            for (Map.Entry<Integer, Object> entry : oldFieldValues.entrySet()) {
-                final int storageId = entry.getKey();
-                Object oldValue = entry.getValue();
+                    // Update value
+                    convertedValues.put(storageId, oldValue);
+                }
 
-                // Convert old field value as needed; we only convert ObjId -> JObject
-                final Field<?> field = oldSchema.getSchemaItem(storageId, Field.class);
-                oldValue = this.convertOldValue(field, oldValue);
-
-                // Update value
-                convertedValues.put(storageId, oldValue);
-            }
-
-            // Invoke method
-            switch ((annotation.oldVersion() != 0 ? 2 : 0) + (annotation.newVersion() != 0 ? 1 : 0)) {
-            case 0:
-                Util.invoke(method, jobj, oldVersion, newVersion, convertedValues);
-                break;
-            case 1:
-                Util.invoke(method, jobj, oldVersion, convertedValues);
-                break;
-            case 2:
-                Util.invoke(method, jobj, newVersion, convertedValues);
-                break;
-            case 3:
-            default:
-                Util.invoke(method, jobj, convertedValues);
-                break;
+                // Invoke method
+                switch ((annotation.oldVersion() != 0 ? 2 : 0) + (annotation.newVersion() != 0 ? 1 : 0)) {
+                case 0:
+                    Util.invoke(method, jobj, oldVersion, newVersion, convertedValues);
+                    break;
+                case 1:
+                    Util.invoke(method, jobj, oldVersion, convertedValues);
+                    break;
+                case 2:
+                    Util.invoke(method, jobj, newVersion, convertedValues);
+                    break;
+                case 3:
+                default:
+                    Util.invoke(method, jobj, convertedValues);
+                    break;
+                }
             }
         }
     }
+
+// Convert methods
 
     @SuppressWarnings("unchecked")
     private <X, Y> Y convert(Converter<X, Y> converter, Object value) {
