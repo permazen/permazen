@@ -41,6 +41,25 @@ public class SchemaTest extends TestSupport {
         }
     }
 
+    @Test(dataProvider = "upgradeCases")
+    private void testUpgradeSchema(boolean valid, String xml1, String xml2) throws Exception {
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+
+        xml1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml1 + "</Schema>\n";
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream(xml1.getBytes("UTF-8")));
+        db.createTransaction(schema1, 1, true).commit();
+
+        xml2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema>\n" + xml2 + "</Schema>\n";
+        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream(xml2.getBytes("UTF-8")));
+        try {
+            db.createTransaction(schema2, 2, true);
+            assert valid : "upgrade schema was supposed to be invalid";
+        } catch (InvalidSchemaException e) {
+            assert !valid : "upgrade schema was supposed to be valid: " + this.show(e);
+        }
+    }
+
     @DataProvider(name = "cases")
     public Object[][] cases() {
         return new Object[][] {
@@ -271,6 +290,55 @@ public class SchemaTest extends TestSupport {
           + "<Object name=\"Bar\" storageId=\"20\">\n"
           + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
           + "</Object>\n"
+          },
+
+        };
+    }
+
+    @DataProvider(name = "upgradeCases")
+    public Object[][] upgradeCases() {
+        return new Object[][] {
+
+          { false,
+            "<!-- test 1a -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <CounterField name=\"counter\" storageId=\"20\"/>\n"
+          + "</Object>\n",
+
+            "<!-- test 1b -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"20\"/>\n"
+          + "</Object>\n",
+          },
+
+          // Change reference field onDelete
+          { false,
+            "<!-- test 2a -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"20\" onDelete=\"EXCEPTION\"/>\n"
+          + "</Object>\n",
+
+            "<!-- test 2b -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"20\" onDelete=\"UNREFERENCE\"/>\n"
+          + "</Object>\n",
+          },
+
+          // Move a field
+          { true,
+            "<!-- test 3a -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"11\"/>\n"
+          + "</Object>\n"
+          + "<Object name=\"Bar\" storageId=\"20\">\n"
+          + "</Object>\n",
+
+            "<!-- test 3b -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "</Object>\n"
+          + "<Object name=\"Bar\" storageId=\"20\">\n"
+          + "  <ReferenceField name=\"ref1\" storageId=\"11\"/>\n"
+          + "</Object>\n",
           },
 
         };
