@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -68,19 +70,23 @@ import org.slf4j.LoggerFactory;
 public class Database {
 
     // Prefix of all meta-data keys
-    private static final byte JSIMPLEDB_METADATA_PREFIX = (byte)0x00;
+    private static final byte METADATA_PREFIX = (byte)0x00;
 
     // Meta-data keys and key prefixes
-    private static final byte[] ENCODING_KEY = new byte[] {
-      JSIMPLEDB_METADATA_PREFIX, (byte)0x00,
+    private static final byte[] FORMAT_VERSION_KEY = new byte[] {
+      METADATA_PREFIX, (byte)0x00,
         (byte)'J', (byte)'S', (byte)'i', (byte)'m', (byte)'p', (byte)'l', (byte)'e', (byte)'D', (byte)'B'
     };
     private static final byte[] SCHEMA_KEY_PREFIX = new byte[] {
-      JSIMPLEDB_METADATA_PREFIX, (byte)0x01
+      METADATA_PREFIX, (byte)0x01
+    };
+    private static final byte[] VERSION_INDEX_PREFIX = new byte[] {
+      METADATA_PREFIX, (byte)0x80
     };
 
-    // Current JSimpleDB encoding version number
-    private static final int ENCODING_VERSION = 1;
+    // JSimpleDB format version numbers
+    private static final int FORMAT_VERSION_1 = 1;
+    private static final int CURRENT_FORMAT_VERSION = FORMAT_VERSION_1;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
@@ -230,15 +236,15 @@ public class Database {
             while (true) {
 
                 // Get iterator over meta-data key/value pairs
-                final byte[] metaDataPrefix = new byte[] { JSIMPLEDB_METADATA_PREFIX };
+                final byte[] metaDataPrefix = new byte[] { METADATA_PREFIX };
                 final Iterator<KVPair> metaDataIterator = kvt.getRange(metaDataPrefix,
                   ByteUtil.getKeyAfterPrefix(metaDataPrefix), false);
 
-                // Get encoding key; it should be first; if not found, database is uninitialized (and should be empty)
-                byte[] encodingBytes = null;
+                // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
+                byte[] formatVersionBytes = null;
                 if (metaDataIterator.hasNext()) {
                     final KVPair pair = metaDataIterator.next();
-                    if (!Arrays.equals(pair.getKey(), ENCODING_KEY)) {
+                    if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {
 
                         // Check for old incompatible format
                         if (kvt.get(ByteUtil.parse("008fb53fe9da1cc9")) != null)
@@ -248,11 +254,11 @@ public class Database {
                         throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
                           + ByteUtil.toString(pair.getKey()) + ")");
                     }
-                    encodingBytes = pair.getValue();
+                    formatVersionBytes = pair.getValue();
                 }
 
                 // Check for an uninitialized database
-                final boolean uninitialized = encodingBytes == null;
+                final boolean uninitialized = formatVersionBytes == null;
                 if (uninitialized) {
 
                     // Sanity checks
@@ -266,38 +272,38 @@ public class Database {
                     // Initialize database
                     this.log.info("detected an uninitialized database; initializing");
                     final ByteWriter writer = new ByteWriter();
-                    UnsignedIntEncoder.write(writer, ENCODING_VERSION);
-                    kvt.put(ENCODING_KEY.clone(), writer.getBytes());
+                    UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);
+                    kvt.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
 
                     // Sanity check again
-                    encodingBytes = kvt.get(ENCODING_KEY.clone());
-                    if (encodingBytes == null || ByteUtil.compare(encodingBytes, writer.getBytes()) != 0)
+                    formatVersionBytes = kvt.get(FORMAT_VERSION_KEY.clone());
+                    if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)
                         throw new InconsistentDatabaseException("database failed basic read/write test");
                     final KVPair lower = kvt.getAtLeast(new byte[0]);
-                    if (lower == null || !lower.equals(new KVPair(ENCODING_KEY, writer.getBytes())))
+                    if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
                         throw new InconsistentDatabaseException("database failed basic read/write test");
                     final KVPair upper = kvt.getAtMost(new byte[] { (byte)0xff });
-                    if (upper == null || !upper.equals(new KVPair(ENCODING_KEY, writer.getBytes())))
+                    if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
                         throw new InconsistentDatabaseException("database failed basic read/write test");
                 }
 
-                // Verify encoding version
-                final int encodingVersion;
+                // Verify format version
+                final int formatVersion;
                 try {
-                    encodingVersion = UnsignedIntEncoder.read(new ByteReader(encodingBytes));
+                    formatVersion = UnsignedIntEncoder.read(new ByteReader(formatVersionBytes));
                 } catch (IllegalArgumentException e) {
-                    throw new InconsistentDatabaseException("database contains invalid encoding version "
-                      + ByteUtil.toString(encodingBytes) + " under key " + ByteUtil.toString(ENCODING_KEY));
+                    throw new InconsistentDatabaseException("database contains invalid encoded format version "
+                      + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
                 }
-                switch (encodingVersion) {
-                case ENCODING_VERSION:
+                switch (formatVersion) {
+                case FORMAT_VERSION_1:
                     break;
                 default:
-                    throw new InconsistentDatabaseException("database contains unrecognized encoding version "
-                      + encodingVersion + " under key " + ByteUtil.toString(encodingBytes));
+                    throw new InconsistentDatabaseException("database contains unrecognized format version "
+                      + formatVersion + " != " + CURRENT_FORMAT_VERSION + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
                 }
 
-                // Read recorded database schema versions - should immediately follow ENCODING_KEY
+                // Read recorded database schema versions - should immediately follow FORMAT_VERSION_KEY
                 final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
                 while (metaDataIterator.hasNext()) {
                     final KVPair pair = metaDataIterator.next();
@@ -439,8 +445,7 @@ public class Database {
     }
 
     void copyMetaData(Transaction src, KVStore dst) {
-        dst.put(ENCODING_KEY, src.kvt.get(ENCODING_KEY.clone()));
-        for (Iterator<KVPair> i = src.kvt.getRange(SCHEMA_KEY_PREFIX.clone(), ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);
+        for (Iterator<KVPair> i = src.kvt.getRange(new byte[] { METADATA_PREFIX }, VERSION_INDEX_PREFIX.clone(), false);
           i.hasNext(); ) {
             final KVPair pair = i.next();
             dst.put(pair.getKey(), pair.getValue());
@@ -448,9 +453,19 @@ public class Database {
     }
 
     void reset(SnapshotTransaction tx) {
-        final byte[] metaDataPrefix = new byte[] { JSIMPLEDB_METADATA_PREFIX };
-        tx.kvt.removeRange(null, metaDataPrefix);
-        tx.kvt.removeRange(ByteUtil.getKeyAfterPrefix(metaDataPrefix), null);
+        tx.kvt.removeRange(VERSION_INDEX_PREFIX.clone(), null);
+    }
+
+    static byte[] buildVersionIndexKey(ObjId id, int version) {
+        final ByteWriter writer = new ByteWriter(VERSION_INDEX_PREFIX.length + 1 + ObjId.NUM_BYTES);
+        writer.write(VERSION_INDEX_PREFIX);
+        UnsignedIntEncoder.write(writer, version);
+        id.writeTo(writer);
+        return writer.getBytes();
+    }
+
+    static NavigableMap<Integer, NavigableSet<ObjId>> getVersionIndex(Transaction tx) {
+        return new IndexMap<Integer, ObjId>(tx, VERSION_INDEX_PREFIX, new UnsignedIntType(), FieldType.OBJ_ID, false);
     }
 
     /**

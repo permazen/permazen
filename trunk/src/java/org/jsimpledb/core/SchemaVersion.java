@@ -25,6 +25,7 @@ public class SchemaVersion {
     final SchemaModel schemaModel;
     final TreeMap<Integer, SchemaItem> schemaItemMap = new TreeMap<>();
     final TreeMap<Integer, StorageInfo> storageInfoMap = new TreeMap<>();
+    final TreeMap<Integer, ReferenceField> referenceFields = new TreeMap<>();
 
     /**
      * Constructor.
@@ -47,8 +48,11 @@ public class SchemaVersion {
         for (SchemaObject schemaObject : this.schemaModel.getSchemaObjects().values()) {
             final ObjType objType = new ObjType(schemaObject, this, fieldTypeRegistry);
             this.addSchemaItem(objType);
-            for (Field<?> field : objType.getFieldsAndSubFields())
+            for (Field<?> field : objType.getFieldsAndSubFields()) {
                 this.addSchemaItem(field);
+                if (field instanceof ReferenceField)
+                    this.referenceFields.put(field.storageId, (ReferenceField)field);
+            }
             this.addStorageInfo(objType);
         }
     }

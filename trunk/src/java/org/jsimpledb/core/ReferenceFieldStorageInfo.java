@@ -9,31 +9,13 @@ package org.jsimpledb.core;
 
 class ReferenceFieldStorageInfo extends SimpleFieldStorageInfo {
 
-    final DeleteAction onDelete;
-
     ReferenceFieldStorageInfo(ReferenceField field, int superFieldStorageId, boolean hasComplexIndex) {
         super(field, superFieldStorageId, hasComplexIndex);
-        this.onDelete = field.onDelete;
-    }
-
-    /**
-     * Get the {@link DeleteAction} associated with the {@link ReferenceField}.
-     */
-    public DeleteAction getOnDelete() {
-        return this.onDelete;
-    }
-
-    @Override
-    public boolean canShareStorageId(StorageInfo obj) {
-        if (!super.canShareStorageId(obj))
-            return false;
-        final ReferenceFieldStorageInfo that = (ReferenceFieldStorageInfo)obj;
-        return this.onDelete == that.onDelete;
     }
 
     @Override
     public String toString() {
-        return "reference field with onDelete=" + this.onDelete;
+        return "reference field";
     }
 }
 

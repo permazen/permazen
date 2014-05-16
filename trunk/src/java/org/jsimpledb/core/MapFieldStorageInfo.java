@@ -10,6 +10,7 @@ package org.jsimpledb.core;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.util.ByteReader;
 
 class MapFieldStorageInfo extends ComplexFieldStorageInfo {
@@ -34,14 +35,18 @@ class MapFieldStorageInfo extends ComplexFieldStorageInfo {
     }
 
     @Override
-    void unreference(Transaction tx, int storageId, ObjId target, ObjId referrer, ByteReader reader) {
+    void unreference(Transaction tx, int storageId, ObjId target, ObjId referrer, byte[] prefix) {
         final FieldTypeMap<?, ?> fieldMap = (FieldTypeMap<?, ?>)tx.readMapField(referrer, this.storageId, false);
         if (storageId == this.keyField.storageId)
             fieldMap.remove(target);
-        else if (storageId == this.valueField.storageId)
-            fieldMap.remove(fieldMap.keyFieldType.read(reader));
-        else
-            throw new RuntimeException("internal error: storage ID " + storageId + " not found in " + this);
+        else {
+            assert storageId == this.valueField.storageId;
+            for (KVPairIterator i = new KVPairIterator(tx.kvt, prefix); i.hasNext(); ) {
+                final ByteReader reader = new ByteReader(i.next().getKey());
+                reader.skip(prefix.length);
+                fieldMap.remove(fieldMap.keyFieldType.read(reader));
+            }
+        }
     }
 
     public SimpleFieldStorageInfo getKeyField() {

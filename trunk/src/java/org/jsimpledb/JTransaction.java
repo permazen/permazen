@@ -82,6 +82,7 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>{@link #create create()} - Create a new database object</li>
  *  <li>{@link #getAll getAll()} - Get all database objects that are instances of a given Java type</li>
+ *  <li>{@link #queryVersion queryVersion()} - Get database objects grouped according to their schema versions</li>
  * </ul>
  * </p>
  *
@@ -231,6 +232,15 @@ public class JTransaction {
         }
         return sets.isEmpty() ? NavigableSets.<T>empty() :
           (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(NavigableSets.union(sets), this.referenceConverter);
+    }
+
+    /**
+     * Get all database objects grouped according to their schema versions.
+     */
+    public NavigableMap<Integer, NavigableSet<JObject>> queryVersion() {
+        final NavigableMap<Integer, NavigableSet<ObjId>> map = this.tx.queryVersion();
+        return new ConvertedNavigableMap<Integer, NavigableSet<JObject>, Integer, NavigableSet<ObjId>>(this.tx.queryVersion(),
+          Converter.<Integer>identity(), new NavigableSetConverter<JObject, ObjId>(this.referenceConverter));
     }
 
     /**

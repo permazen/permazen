@@ -47,12 +47,6 @@ public class ReferenceField extends SimpleField<ObjId> {
         return this.onDelete;
     }
 
-    // Must have same onDelete behavior, otherwise an upgrade from e.g. NOTHING to DELETE could leave a dangling reference XXX?
-    @Override
-    boolean isSchemaChangeCompatible(SimpleField<?> that) {
-        return super.isSchemaChangeCompatible(that) && this.onDelete == ((ReferenceField)that).onDelete;
-    }
-
     @Override
     ReferenceFieldStorageInfo toStorageInfo(int superFieldStorageId) {
         return new ReferenceFieldStorageInfo(this, superFieldStorageId, this.parent != null && this.parent.hasComplexIndex(this));

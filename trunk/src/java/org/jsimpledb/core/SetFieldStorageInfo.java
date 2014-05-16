@@ -7,8 +7,6 @@
 
 package org.jsimpledb.core;
 
-import org.jsimpledb.util.ByteReader;
-
 class SetFieldStorageInfo extends CollectionFieldStorageInfo {
 
     SetFieldStorageInfo(SetField<?> field) {
@@ -16,7 +14,8 @@ class SetFieldStorageInfo extends CollectionFieldStorageInfo {
     }
 
     @Override
-    void unreference(Transaction tx, int storageId, ObjId target, ObjId referrer, ByteReader reader) {
+    void unreference(Transaction tx, int storageId, ObjId target, ObjId referrer, byte[] prefix) {
+        assert storageId == this.elementField.storageId;
         tx.readSetField(referrer, this.storageId, false).remove(target);
     }
 
