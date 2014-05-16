@@ -74,6 +74,9 @@ public class OnVersionChangeTest extends TestSupport {
             p4.setEnum1(Enum1.DDD);
             p5.setEnum1(Enum1.EEE);
 
+            Assert.assertEquals(tx.queryVersion(), buildMap(
+              1, buildSet(p1, p2, p3, p4, p5)));
+
             tx.commit();
 
         } finally {
@@ -93,10 +96,23 @@ public class OnVersionChangeTest extends TestSupport {
             final Person2 p4 = jdb.getJObject(id4, Person2.class);
             final Person2 p5 = jdb.getJObject(id5, Person2.class);
 
+            Assert.assertEquals(tx.queryVersion(), buildMap(
+              1, buildSet(p1, p2, p3, p4, p5)));
+
+            p1.upgrade();
+            p2.upgrade();
+            p3.upgrade();
+
             Assert.assertEquals(p1.getLastName(), "Smith");
             Assert.assertEquals(p1.getFirstName(), "Joe");
+
+            Assert.assertEquals(tx.queryVersion(), buildMap(
+              1, buildSet(p4, p5),
+              2, buildSet(p1, p2, p3)));
+
             Assert.assertEquals(p2.getLastName(), "Jones");
             Assert.assertEquals(p2.getFirstName(), "Fred");
+
             Assert.assertEquals(p3.getLastName(), "Brown");
             Assert.assertEquals(p3.getFirstName(), "Kelly");
 
@@ -109,6 +125,9 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertSame(p3.getEnum2(), Enum2.CCC);
             Assert.assertSame(p4.getEnum2(), Enum2.DDD);
             Assert.assertSame(p5.getEnum2(), null);
+
+            Assert.assertEquals(tx.queryVersion(), buildMap(
+              2, buildSet(p1, p2, p3, p4, p5)));
 
             p1.setAge(10);
             p2.setAge(20);
@@ -130,10 +149,19 @@ public class OnVersionChangeTest extends TestSupport {
             final Person3 p1 = jdb.getJObject(id1, Person3.class);
             final Person3 p2 = jdb.getJObject(id2, Person3.class);
             final Person3 p3 = jdb.getJObject(id3, Person3.class);
+            final Person3 p4 = jdb.getJObject(id4, Person3.class);
+            final Person3 p5 = jdb.getJObject(id5, Person3.class);
+
+            Assert.assertEquals(tx.queryVersion(), buildMap(
+              2, buildSet(p1, p2, p3, p4, p5)));
 
             Assert.assertEquals(p1.getAge(), 10.0f);
             Assert.assertEquals(p2.getAge(), 20.0f);
             Assert.assertEquals(p3.getAge(), 30.0f);
+
+            Assert.assertEquals(tx.queryVersion(), buildMap(
+              2, buildSet(p4, p5),
+              3, buildSet(p1, p2, p3)));
 
             tx.commit();
 
@@ -151,6 +179,12 @@ public class OnVersionChangeTest extends TestSupport {
             final Person4 p1 = jdb.getJObject(id1, Person4.class);
             final Person4 p2 = jdb.getJObject(id2, Person4.class);
             final Person4 p3 = jdb.getJObject(id3, Person4.class);
+            final Person4 p4 = jdb.getJObject(id4, Person4.class);
+            final Person4 p5 = jdb.getJObject(id5, Person4.class);
+
+            Assert.assertEquals(tx.queryVersion(), buildMap(
+              2, buildSet(p4, p5),
+              3, buildSet(p1, p2, p3)));
 
             Assert.assertEquals(p1.getName().getLastName(), "Smith");
             Assert.assertEquals(p1.getName().getFirstName(), "Joe");
@@ -162,6 +196,10 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertEquals(p1.getAge(), 10.0f);
             Assert.assertEquals(p2.getAge(), 20.0f);
             Assert.assertEquals(p3.getAge(), 30.0f);
+
+            Assert.assertEquals(tx.queryVersion(), buildMap(
+              2, buildSet(p4, p5),
+              4, buildSet(p1, p2, p3, p1.getName(), p2.getName(), p3.getName())));
 
             tx.commit();
 

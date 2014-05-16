@@ -24,6 +24,29 @@ import org.testng.annotations.Test;
 
 public class OnDeleteTest extends TestSupport {
 
+    private static final String XML_TEMPLATE =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      + "<Schema>\n"
+      + "  <Object name=\"Foo\" storageId=\"1\">\n"
+      + "    <ReferenceField name=\"ref\" storageId=\"2\" onDelete=\"@ONDELETE@\"/>\n"
+      + "    <SimpleField name=\"name\" storageId=\"3\" type=\"java.lang.String\"/>\n"
+      + "    <SetField name=\"set\" storageId=\"10\">\n"
+      + "        <ReferenceField storageId=\"20\" onDelete=\"@ONDELETE@\"/>\n"
+      + "    </SetField>"
+      + "    <ListField name=\"list\" storageId=\"11\">\n"
+      + "        <ReferenceField storageId=\"21\" onDelete=\"@ONDELETE@\"/>\n"
+      + "    </ListField>"
+      + "    <MapField name=\"map1\" storageId=\"12\">\n"
+      + "        <ReferenceField storageId=\"22\" onDelete=\"@ONDELETE@\"/>\n"
+      + "        <SimpleField type=\"int\" storageId=\"23\"/>\n"
+      + "    </MapField>"
+      + "    <MapField name=\"map2\" storageId=\"13\">\n"
+      + "        <SimpleField type=\"int\" storageId=\"24\"/>\n"
+      + "        <ReferenceField storageId=\"25\" onDelete=\"@ONDELETE@\"/>\n"
+      + "    </MapField>"
+      + "  </Object>\n"
+      + "</Schema>\n";
+
     @Test
     @SuppressWarnings("unchecked")
     public void testOnDelete() throws Exception {
@@ -31,30 +54,8 @@ public class OnDeleteTest extends TestSupport {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
-        final String xmlTemplate =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
-          + "    <ReferenceField name=\"ref\" storageId=\"2\" onDelete=\"@ONDELETE@\"/>\n"
-          + "    <SetField name=\"set\" storageId=\"10\">\n"
-          + "        <ReferenceField storageId=\"20\" onDelete=\"@ONDELETE@\"/>\n"
-          + "    </SetField>"
-          + "    <ListField name=\"list\" storageId=\"11\">\n"
-          + "        <ReferenceField storageId=\"21\" onDelete=\"@ONDELETE@\"/>\n"
-          + "    </ListField>"
-          + "    <MapField name=\"map1\" storageId=\"12\">\n"
-          + "        <ReferenceField storageId=\"22\" onDelete=\"@ONDELETE@\"/>\n"
-          + "        <SimpleField type=\"int\" storageId=\"23\"/>\n"
-          + "    </MapField>"
-          + "    <MapField name=\"map2\" storageId=\"13\">\n"
-          + "        <SimpleField type=\"int\" storageId=\"24\"/>\n"
-          + "        <ReferenceField storageId=\"25\" onDelete=\"@ONDELETE@\"/>\n"
-          + "    </MapField>"
-          + "  </Object>\n"
-          + "</Schema>\n";
-
         for (DeleteAction onDelete : DeleteAction.values()) {
-            final String xml = xmlTemplate.replaceAll("@ONDELETE@", onDelete.name());
+            final String xml = XML_TEMPLATE.replaceAll("@ONDELETE@", onDelete.name());
             final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(xml.getBytes("UTF-8")));
 
             ObjId id1;
@@ -334,6 +335,119 @@ public class OnDeleteTest extends TestSupport {
 
             tx.rollback();
         }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testOnDeleteUpdate() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+
+        assert DeleteAction.NOTHING.ordinal() == 0;
+        assert DeleteAction.EXCEPTION.ordinal() == 1;
+        assert DeleteAction.UNREFERENCE.ordinal() == 2;
+        assert DeleteAction.DELETE.ordinal() == 3;
+
+        final SchemaModel[] schemas = new SchemaModel[4];
+        for (DeleteAction onDelete : DeleteAction.values()) {
+            schemas[onDelete.ordinal()] = SchemaModel.fromXML(
+              new ByteArrayInputStream(XML_TEMPLATE.replaceAll("@ONDELETE@", onDelete.name()).getBytes("UTF-8")));
+        }
+
+        // Create target object and friends, with all references set to onDelete=NOTHING
+        //  - other1 and other2 have various references to target and each other
+        //  - target has only references to itself
+        ObjId target;
+        ObjId other1;
+        ObjId other2;
+        Transaction tx = db.createTransaction(schemas[0], 1, true);
+        target = tx.create(1);
+        tx.writeSimpleField(target, 3, "target", false);
+        other1 = tx.create(1);
+        tx.writeSimpleField(other1, 3, "other1", false);
+        tx.writeSimpleField(other1, 2, target, false);
+        other2 = tx.create(1);
+        tx.writeSimpleField(other2, 3, "other2", false);
+        ((NavigableSet<ObjId>)tx.readSetField(target, 10, true)).add(target);
+        ((NavigableSet<ObjId>)tx.readSetField(other2, 10, true)).add(target);
+        ((NavigableSet<ObjId>)tx.readSetField(other2, 10, true)).add(other1);
+        ((List<ObjId>)tx.readListField(target, 11, false)).add(target);
+        ((List<ObjId>)tx.readListField(target, 11, false)).add(target);
+        ((List<ObjId>)tx.readListField(other1, 11, false)).add(target);
+        ((List<ObjId>)tx.readListField(other1, 11, false)).add(other2);
+        ((List<ObjId>)tx.readListField(other1, 11, false)).add(target);
+        ((NavigableMap<ObjId, Integer>)tx.readMapField(target, 12, false)).put(target, 99);
+        ((NavigableMap<ObjId, Integer>)tx.readMapField(other2, 12, false)).put(other1, 123);
+        ((NavigableMap<ObjId, Integer>)tx.readMapField(other2, 12, false)).put(target, 456);
+        ((NavigableMap<Integer, ObjId>)tx.readMapField(target, 13, false)).put(88, target);
+        ((NavigableMap<Integer, ObjId>)tx.readMapField(other1, 13, false)).put(789, target);
+        ((NavigableMap<Integer, ObjId>)tx.readMapField(other1, 13, false)).put(123, other2);
+        ((NavigableMap<Integer, ObjId>)tx.readMapField(other1, 13, false)).put(636, target);
+        tx.commit();
+
+        // Create referring objects and schema versions
+        //  - Each referring objects refers to target in every field
+        ObjId[] referrers = new ObjId[4];
+        for (DeleteAction onDelete : DeleteAction.values()) {
+            final int i = onDelete.ordinal();
+            tx = db.createTransaction(schemas[i], i + 1, true);
+            referrers[i] = tx.create(1);
+            tx.writeSimpleField(referrers[i], 3, "referrers[" + i + "]", false);
+            tx.writeSimpleField(referrers[i], 2, target, false);
+            ((NavigableSet<ObjId>)tx.readSetField(referrers[i], 10, true)).add(target);
+            ((List<ObjId>)tx.readListField(referrers[i], 11, false)).add(target);
+            ((List<ObjId>)tx.readListField(referrers[i], 11, false)).add(referrers[i]);
+            ((List<ObjId>)tx.readListField(referrers[i], 11, false)).add(target);
+            ((NavigableMap<ObjId, Integer>)tx.readMapField(referrers[i], 12, false)).put(target, 343);
+            ((NavigableMap<Integer, ObjId>)tx.readMapField(referrers[i], 13, false)).put(452, target);
+            ((NavigableMap<Integer, ObjId>)tx.readMapField(referrers[i], 13, false)).put(453, referrers[i]);
+            ((NavigableMap<Integer, ObjId>)tx.readMapField(referrers[i], 13, false)).put(454, target);
+            tx.commit();
+        }
+
+        // Try to delete target - should fail due to referrers[1] onDelete=EXCEPTION
+        tx = db.createTransaction(schemas[0], 1, false);
+        try {
+            tx.delete(target);
+            assert false : "expected ReferencedObjectException";
+        } catch (ReferencedObjectException e) {
+            this.log.info("got expected " + e);
+        }
+
+        // Delete referrers[1] and try again - this time it should succeed
+        tx.delete(referrers[DeleteAction.EXCEPTION.ordinal()]);
+        tx.delete(target);
+
+        // Verify all indexes were updated properly
+        Assert.assertEquals(tx.queryVersion(), buildMap(
+          1, buildSet(other1, other2, referrers[0]),
+          3, buildSet(referrers[2])));
+        Assert.assertEquals(tx.querySimpleField(2), buildMap(
+          target, buildSet(referrers[0], other1),
+          null, buildSet(other2, referrers[2])));
+        Assert.assertEquals(tx.querySetField(10), buildMap(
+          target, buildSet(referrers[0], other2),
+          other1, buildSet(other2)));
+        Assert.assertEquals(tx.queryListFieldEntries(11), buildMap(
+          target, buildSet(
+            new ListIndexEntry(other1, 0), new ListIndexEntry(other1, 2),
+            new ListIndexEntry(referrers[0], 0), new ListIndexEntry(referrers[0], 2)),
+          other2, buildSet(new ListIndexEntry(other1, 1)),
+          referrers[0], buildSet(new ListIndexEntry(referrers[0], 1)),
+          referrers[2], buildSet(new ListIndexEntry(referrers[2], 0))));
+        Assert.assertEquals(tx.queryMapFieldKeyEntries(12), buildMap(
+          target, buildSet(new MapKeyIndexEntry<Integer>(other2, 456), new MapKeyIndexEntry<Integer>(referrers[0], 343)),
+          other1, buildSet(new MapKeyIndexEntry<Integer>(other2, 123))));
+        Assert.assertEquals(tx.queryMapFieldValueEntries(13), buildMap(
+          target, buildSet(
+            new MapValueIndexEntry<Integer>(other1, 789), new MapValueIndexEntry<Integer>(other1, 636),
+            new MapValueIndexEntry<Integer>(referrers[0], 452), new MapValueIndexEntry<Integer>(referrers[0], 454)),
+          other2, buildSet(new MapValueIndexEntry<Integer>(other1, 123)),
+          referrers[0], buildSet(new MapValueIndexEntry<Integer>(referrers[0], 453)),
+          referrers[2], buildSet(new MapValueIndexEntry<Integer>(referrers[2], 453))));
+
+        tx.commit();
     }
 }
 

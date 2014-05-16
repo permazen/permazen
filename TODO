@@ -7,10 +7,6 @@
 
 - Add Vaadin GUI editor generator
 
-- Index object versions
-    - Remove restriction that onDelete can't change between schema versions
-    - Add new API method: NavigableMap<Integer, NavigableSet<ObjId>> queryVersion();
-
 - Ant task for easy validation of JLayer annotations during a build
 
 - Only record new schema version in database on first mutation

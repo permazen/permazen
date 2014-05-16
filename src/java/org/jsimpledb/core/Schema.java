@@ -12,11 +12,12 @@ import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * Contains the set of all {@link SchemaVersion}s of objects visible in a {@link Transaction}.
@@ -32,9 +33,8 @@ public class Schema {
 
     final TreeMap<Integer, SchemaVersion> versions = new TreeMap<>();
     final TreeMap<Integer, StorageInfo> storageInfos = new TreeMap<>();
-    final TreeMap<Integer, Boolean> hasComplexIndexMap = new TreeMap<>();
-    final TreeSet<ReferenceFieldStorageInfo> referenceFieldStorageInfos = new TreeSet<>(StorageInfo.SORT_BY_STORAGE_ID);
-    final TreeSet<ReferenceFieldStorageInfo> exceptionReferenceFieldStorageInfos = new TreeSet<>(StorageInfo.SORT_BY_STORAGE_ID);
+    final HashSet<Integer> hasComplexIndex = new HashSet<>();
+    final LinkedHashMap<ReferenceFieldStorageInfo, DeleteAction> referenceFieldOnDeletes = new LinkedHashMap<>();
 
     Schema(SortedMap<Integer, SchemaVersion> versions) {
 
@@ -71,15 +71,35 @@ public class Schema {
             }
         }
 
-        // Derived info
-        for (ReferenceFieldStorageInfo storageInfo :
-          Iterables.filter(this.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
-            this.referenceFieldStorageInfos.add(storageInfo);
-            if (storageInfo.getOnDelete() == DeleteAction.EXCEPTION)
-                this.exceptionReferenceFieldStorageInfos.add(storageInfo);
+        // Record the reference fields' onDelete values if consistent across all versions, or null otherwise
+        for (ReferenceFieldStorageInfo storageInfo : Iterables.filter(this.storageInfos.values(),
+          ReferenceFieldStorageInfo.class)) {
+            for (SchemaVersion version : this.versions.values()) {
+
+                // Get the reference field as it appears in this schema version
+                final ReferenceField field = version.referenceFields.get(storageInfo.storageId);
+                if (field == null)
+                    continue;
+
+                // Compare to other schema versions of this field
+                if (!this.referenceFieldOnDeletes.containsKey(storageInfo)) {                   // first encounter of field
+                    this.referenceFieldOnDeletes.put(storageInfo, field.onDelete);
+                    continue;
+                }
+                final DeleteAction previous = this.referenceFieldOnDeletes.get(storageInfo);    // subsequent encounter of field
+                assert previous != null;
+                if (previous != field.onDelete) {
+                    this.referenceFieldOnDeletes.put(storageInfo, null);        // field not consistent across all schema versions
+                    break;
+                }
+            }
         }
-        for (SimpleFieldStorageInfo storageInfo : Iterables.filter(this.storageInfos.values(), SimpleFieldStorageInfo.class))
-            this.hasComplexIndexMap.put(storageInfo.storageId, storageInfo.hasComplexIndex);
+
+        // Record for each simple field whether its index is simple (object ID only) or complex (object ID plus other junk)
+        for (SimpleFieldStorageInfo storageInfo : Iterables.filter(this.storageInfos.values(), SimpleFieldStorageInfo.class)) {
+            if (storageInfo.hasComplexIndex)
+                this.hasComplexIndex.add(storageInfo.storageId);
+        }
     }
 
     /**

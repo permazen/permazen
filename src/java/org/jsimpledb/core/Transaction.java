@@ -88,6 +88,7 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>{@link #getSchemaVersion(ObjId) getSchemaVersion()} - Inspect an object's schema version</li>
  *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version to match this transaction</li>
+ *  <li>{@link #queryVersion queryVersion()} - Locate objects by schema version</li>
  *  <li>{@link #addVersionChangeListener addVersionChangeListener()} - Register a {@link VersionChangeListener}
  *      for notifications about object version changes</li>
  *  <li>{@link #removeVersionChangeListener removeVersionChangeListener()} - Unregister a {@link VersionChangeListener}</li>
@@ -618,6 +619,9 @@ public class Transaction {
         // Write object meta-data
         ObjInfo.write(this, id, objType.version.versionNumber, false);
 
+        // Write object version index entry
+        this.kvt.put(Database.buildVersionIndexKey(id, objType.version.versionNumber), ByteUtil.EMPTY);
+
         // Initialize counters to zero
         if (!objType.counterFields.isEmpty()) {
             final CountingKVStore ckv = this.getCountingKVTransaction();
@@ -689,13 +693,18 @@ public class Transaction {
             }
 
             // Determine if any EXCEPTION reference fields refer to the object (from some other object); if so, throw exception
-            for (ReferenceFieldStorageInfo fieldInfo : this.schema.exceptionReferenceFieldStorageInfos) {
-                final NavigableSet<ObjId> referrers = this.findReferences(fieldInfo, id);
-                if (referrers == null)
-                    continue;
-                for (ObjId referrer : referrers) {
-                    if (!referrer.equals(id))
-                        throw new ReferencedObjectException(id, referrer, fieldInfo.storageId);
+            for (Map.Entry<ReferenceFieldStorageInfo, DeleteAction> entry : this.schema.referenceFieldOnDeletes.entrySet()) {
+                final ReferenceFieldStorageInfo fieldInfo = entry.getKey();
+                final DeleteAction onDelete = entry.getValue();
+                if (onDelete != null) {                             // field's onDelete is consistent across schema versions
+                    if (onDelete == DeleteAction.EXCEPTION)
+                        this.scanDeleteException(fieldInfo, id, this.findReferrers(fieldInfo, id));
+                } else {                                            // field's onDelete differs across schema versions
+                    for (SchemaVersion schemaVersion : this.schema.versions.values()) {
+                        final ReferenceField field = schemaVersion.referenceFields.get(fieldInfo.storageId);
+                        if (field != null && field.onDelete == DeleteAction.EXCEPTION)
+                            this.scanDeleteException(fieldInfo, id, this.findReferrers(fieldInfo, id, schemaVersion.versionNumber));
+                    }
                 }
             }
 
@@ -712,39 +721,69 @@ public class Transaction {
         // Actually delete the object
         this.deleteObject(info);
 
-        // Find all references to this object and deal with them
-        for (ReferenceFieldStorageInfo fieldInfo : this.schema.referenceFieldStorageInfos) {
-            if (fieldInfo.onDelete == DeleteAction.EXCEPTION)           // we already checked these
-                continue;
-            final NavigableSet<ObjId> referrers = this.findReferences(fieldInfo, id);
-            if (referrers == null)
-                continue;
-            switch (fieldInfo.onDelete) {
-            case NOTHING:
-                break;
-            case UNREFERENCE:
-            {
-                final int storageId = fieldInfo.storageId;
-                if (fieldInfo.isSubField()) {
-                    final ComplexFieldStorageInfo superFieldInfo = this.schema.verifyStorageInfo(
-                      fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
-                    superFieldInfo.unreferenceAll(this, storageId, id);
-                } else {
-                    for (ObjId referrer : referrers)
-                        this.writeSimpleField(referrer, storageId, null, false);
+        // Find all UNREFERENCE references and unreference them
+        for (Map.Entry<ReferenceFieldStorageInfo, DeleteAction> entry : this.schema.referenceFieldOnDeletes.entrySet()) {
+            final ReferenceFieldStorageInfo fieldInfo = entry.getKey();
+            final DeleteAction onDelete = entry.getValue();
+            if (onDelete != null) {                             // field's onDelete is consistent across schema versions
+                if (onDelete == DeleteAction.UNREFERENCE)
+                    this.scanDeleteUnreference(fieldInfo, id, this.findReferrers(fieldInfo, id));
+            } else {                                            // field's onDelete differs across schema versions
+                for (SchemaVersion schemaVersion : this.schema.versions.values()) {
+                    final ReferenceField field = schemaVersion.referenceFields.get(fieldInfo.storageId);
+                    if (field != null && field.onDelete == DeleteAction.UNREFERENCE)
+                        this.scanDeleteUnreference(fieldInfo, id, this.findReferrers(fieldInfo, id, schemaVersion.versionNumber));
                 }
-                break;
             }
-            case DELETE:
-                deletables.addAll(referrers);
-                break;
-            default:
-                throw new RuntimeException("unexpected case");
+        }
+
+        // Find all DELETE references and mark the containing object for deletion (caller will call us back to actually delete)
+        for (Map.Entry<ReferenceFieldStorageInfo, DeleteAction> entry : this.schema.referenceFieldOnDeletes.entrySet()) {
+            final ReferenceFieldStorageInfo fieldInfo = entry.getKey();
+            final DeleteAction onDelete = entry.getValue();
+            if (onDelete != null) {                             // field's onDelete is consistent across schema versions
+                if (onDelete == DeleteAction.DELETE)
+                    this.scanDeleteDelete(fieldInfo, this.findReferrers(fieldInfo, id), deletables);
+            } else {                                            // field's onDelete differs across schema versions
+                for (SchemaVersion schemaVersion : this.schema.versions.values()) {
+                    final ReferenceField field = schemaVersion.referenceFields.get(fieldInfo.storageId);
+                    if (field != null && field.onDelete == DeleteAction.DELETE) {
+                        this.scanDeleteDelete(fieldInfo,
+                          this.findReferrers(fieldInfo, id, schemaVersion.versionNumber), deletables);
+                    }
+                }
             }
         }
 
         // Done
         return true;
+    }
+
+    // Scan referrers for DeleteAction.EXCEPTION
+    private void scanDeleteException(ReferenceFieldStorageInfo fieldInfo, ObjId id, NavigableSet<ObjId> referrers) {
+        for (ObjId referrer : referrers) {
+            if (!referrer.equals(id))
+                throw new ReferencedObjectException(id, referrer, fieldInfo.storageId);
+        }
+    }
+
+    // Scan referrers for DeleteAction.UNREFERENCE
+    private void scanDeleteUnreference(ReferenceFieldStorageInfo fieldInfo, ObjId id, NavigableSet<ObjId> referrers) {
+        if (fieldInfo.isSubField()) {
+            final ComplexFieldStorageInfo superFieldInfo = this.schema.verifyStorageInfo(
+              fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
+            superFieldInfo.unreferenceAll(this, fieldInfo.storageId, id, referrers);
+        } else {
+            final int storageId = fieldInfo.storageId;
+            for (ObjId referrer : referrers)
+                this.writeSimpleField(referrer, storageId, null, false);
+        }
+    }
+
+    // Scan referrers for DeleteAction.DELETE
+    private void scanDeleteDelete(ReferenceFieldStorageInfo fieldInfo, NavigableSet<ObjId> referrers, List<ObjId> deletables) {
+        for (ObjId referrer : referrers)        // avoid list.addAll() to avoid invoking size() on 'referrers'
+            deletables.add(referrer);
     }
 
     // Delete all of an object's data
@@ -770,6 +809,9 @@ public class Transaction {
         final byte[] minKey = info.getId().getBytes();
         final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
         this.kvt.removeRange(minKey, maxKey);
+
+        // Delete object schema version entry
+        this.kvt.remove(Database.buildVersionIndexKey(id, info.getVersionNumber()));
     }
 
     /**
@@ -850,6 +892,9 @@ public class Transaction {
                 final KVPair kv = i.next();
                 dest.kvt.put(kv.getKey(), kv.getValue());
             }
+
+            // Add object schema version index entry
+            dest.kvt.put(Database.buildVersionIndexKey(id, objectVersion), ByteUtil.EMPTY);
 
             // Copy object's simple field index entries
             final ObjType type = info.getObjType();
@@ -1005,9 +1050,13 @@ public class Transaction {
      */
     private synchronized void updateVersion(ObjId id, ObjInfo info) {
 
+        // Get version numbers
+        final int oldVersion = info.getVersionNumber();
+        final int newVersion = this.version.versionNumber;
+
         // Sanity check
-        if (info.getVersionNumber() == this.version.versionNumber)
-            throw new IllegalArgumentException("object already at version " + this.version.versionNumber);
+        if (newVersion == oldVersion)
+            throw new IllegalArgumentException("object already at version " + newVersion);
         if (this.readOnly)
             throw new ReadOnlyTransactionException(this);
 
@@ -1126,16 +1175,36 @@ public class Transaction {
         }
 
         // Update object version
-        ObjInfo.write(this, id, this.version.versionNumber, info.isDeleteNotified());
+        ObjInfo.write(this, id, newVersion, info.isDeleteNotified());
+
+        // Update object version index entry
+        this.kvt.remove(Database.buildVersionIndexKey(id, oldVersion));
+        this.kvt.put(Database.buildVersionIndexKey(id, newVersion), ByteUtil.EMPTY);
 
         // Notify about version update
         try {
             for (VersionChangeListener listener : this.versionChangeListeners)
-                listener.onVersionChange(this, id, info.getVersionNumber(), this.version.versionNumber, oldFieldValues);
+                listener.onVersionChange(this, id, oldVersion, newVersion, oldFieldValues);
         } finally {
             for (ComplexField<?> oldField : cleanupList)
                 oldField.deleteContent(this, id);
         }
+    }
+
+    /**
+     * Query objects by schema version.
+     *
+     * @return read-only, real-time view of all database objects grouped by schema version
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    public synchronized NavigableMap<Integer, NavigableSet<ObjId>> queryVersion() {
+
+        // Sanity check
+        if (this.stale)
+            throw new StaleTransactionException(this);
+
+        // Create index map view
+        return Database.getVersionIndex(this);
     }
 
     /**
@@ -1276,14 +1345,24 @@ public class Transaction {
         if (field == null)
             throw new UnknownFieldException(info.getObjType(), storageId, "simple field");
 
-        // Get old and new values
+        // Get new value
         final byte[] key = field.buildKey(id);
-        final byte[] oldValue = this.kvt.get(key);
         final byte[] newValue = field.encode(newObj);
 
-        // Optimization: check if the value has not changed
-        if (oldValue != null ? newValue != null && Arrays.equals(oldValue, newValue) : newValue == null)
-            return;
+        // Before setting the new value, read the old value if one of the following is true:
+        //  - The field is being monitored -> we need to detect "changes" that don't actuallly change anything
+        //  - The field is indexed -> we need the old value so we can remove the old index entry
+        // If neither of the above is true, then there's no need to read the old value.
+        byte[] oldValue = null;
+        if (field.indexed || this.hasFieldMonitor(field)) {
+
+            // Get old value
+            oldValue = this.kvt.get(key);
+
+            // Compare new to old value
+            if (oldValue != null ? newValue != null && Arrays.equals(oldValue, newValue) : newValue == null)
+                return;
+        }
 
         // Update value
         if (newValue != null)
@@ -1933,7 +2012,7 @@ public class Transaction {
         // Invert references for each group of remaining monitors and recurse
         for (Map.Entry<Integer, ArrayList<FieldMonitor>> entry : remainingMonitorsMap.entrySet()) {
             final int storageId = entry.getKey();
-            final boolean hasComplexIndex = this.schema.hasComplexIndexMap.get(storageId);
+            final boolean hasComplexIndex = this.schema.hasComplexIndex.contains(storageId);
 
             // Gather all objects that refer to any object in our current "objects" set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
@@ -1974,19 +2053,18 @@ public class Transaction {
             throw new IllegalArgumentException("empty path");
 
         // Verify all fields in the path are reference fields, and reverse their order
-        final ArrayList<ReferenceFieldStorageInfo> storageInfos = new ArrayList<>(path.length);
+        final ArrayList<ReferenceFieldStorageInfo> fieldInfos = new ArrayList<>(path.length);
         for (int i = path.length - 1; i >= 0; i--)
-            storageInfos.add(this.schema.verifyStorageInfo(path[i], ReferenceFieldStorageInfo.class));
+            fieldInfos.add(this.schema.verifyStorageInfo(path[i], ReferenceFieldStorageInfo.class));
 
         // Now invert references in reverse order
         NavigableSet<ObjId> result = null;
-        for (ReferenceFieldStorageInfo storageInfo : storageInfos) {
+        for (ReferenceFieldStorageInfo fieldInfo : fieldInfos) {
 
             // Gather all objects that refer to any object in our current target objects set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId id : targetObjects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(storageInfo,
-                  FieldType.OBJ_ID, storageInfo.hasComplexIndex).get(id);
+                final NavigableSet<ObjId> refs = this.queryIndex(fieldInfo, FieldType.OBJ_ID, fieldInfo.hasComplexIndex).get(id);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -2023,8 +2101,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId) {
-        final SimpleFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        return this.queryIndex(storageInfo, FieldType.OBJ_ID, storageInfo.hasComplexIndex);
+        final SimpleFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
+        return this.queryIndex(fieldInfo, FieldType.OBJ_ID, fieldInfo.hasComplexIndex);
     }
 
     /**
@@ -2047,8 +2125,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId) {
-        final SetFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.elementField, FieldType.OBJ_ID, false);
+        final SetFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
+        return this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID, false);
     }
 
     /**
@@ -2071,8 +2149,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId) {
-        final ListFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.elementField, FieldType.OBJ_ID, true);
+        final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
+        return this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID, true);
     }
 
     /**
@@ -2095,8 +2173,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId) {
-        final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.keyField, FieldType.OBJ_ID, true);
+        final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
+        return this.queryIndex(fieldInfo.keyField, FieldType.OBJ_ID, true);
     }
 
     /**
@@ -2119,8 +2197,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId) {
-        final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.valueField, FieldType.OBJ_ID, true);
+        final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
+        return this.queryIndex(fieldInfo.valueField, FieldType.OBJ_ID, true);
     }
 
     /**
@@ -2138,8 +2216,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public NavigableMap<?, NavigableSet<ListIndexEntry>> queryListFieldEntries(int storageId) {
-        final ListFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.elementField, FieldType.LIST_INDEX_ENTRY, false);
+        final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
+        return this.queryIndex(fieldInfo.elementField, FieldType.LIST_INDEX_ENTRY, false);
     }
 
     /**
@@ -2158,9 +2236,9 @@ public class Transaction {
      */
     @SuppressWarnings("unchecked")
     public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>> queryMapFieldKeyEntries(int storageId) {
-        final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
+        final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return (NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>>)this.queryIndex(
-          storageInfo.keyField, this.createMapKeyIndexEntryType(storageInfo.valueField.fieldType), false);
+          fieldInfo.keyField, this.createMapKeyIndexEntryType(fieldInfo.valueField.fieldType), false);
     }
 
     // This method exists solely to bind the generic type parameters
@@ -2185,9 +2263,9 @@ public class Transaction {
      */
     @SuppressWarnings("unchecked")
     public NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>> queryMapFieldValueEntries(int storageId) {
-        final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
+        final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return (NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>>)this.queryIndex(
-          storageInfo.valueField, this.createMapValueIndexEntryType(storageInfo.keyField.fieldType), false);
+          fieldInfo.valueField, this.createMapValueIndexEntryType(fieldInfo.keyField.fieldType), false);
     }
 
     // This method exists solely to bind the generic type parameters
@@ -2196,8 +2274,8 @@ public class Transaction {
     }
 
     // Query an index associated with a simple field assuming the given index entry type
-    private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo storageInfo, FieldType<E> entryType, boolean trailingGarbage) {
-        return queryIndex(storageInfo.storageId, storageInfo.fieldType, entryType, trailingGarbage);
+    private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo fieldInfo, FieldType<E> entryType, boolean trailingGarbage) {
+        return queryIndex(fieldInfo.storageId, fieldInfo.fieldType, entryType, trailingGarbage);
     }
 
     // Query an index associated with a simple field assuming the given field type, index entry type, and index trailing garbage
@@ -2212,9 +2290,28 @@ public class Transaction {
         return new IndexMap<V, E>(this, storageId, fieldType, entryType, trailingGarbage);
     }
 
-    // Convenience method for querying a reference field index for all referring objects
-    private NavigableSet<ObjId> findReferences(ReferenceFieldStorageInfo fieldInfo, ObjId id) {
-        return this.queryIndex(fieldInfo, FieldType.OBJ_ID, fieldInfo.hasComplexIndex).get(id);
+    // Find objects with the given schema version referring to the given target through the specified reference field
+    private NavigableSet<ObjId> findReferrers(ReferenceFieldStorageInfo fieldInfo, ObjId target, int versionNumber) {
+
+        // Find objects (having any schema version) wherein the field refers to the target
+        final NavigableSet<ObjId> referringObjects = this.queryIndex(fieldInfo,
+          FieldType.OBJ_ID, fieldInfo.hasComplexIndex).get(target);
+        if (referringObjects == null)
+            return NavigableSets.<ObjId>empty(FieldType.OBJ_ID);
+
+        // Find all objects with the specified schema version
+        final NavigableSet<ObjId> versionObjects = this.queryVersion().get(versionNumber);
+        if (versionObjects == null)
+            return NavigableSets.<ObjId>empty(FieldType.OBJ_ID);
+
+        // Return the intersection of the two sets
+        return NavigableSets.intersection(versionObjects, referringObjects);
+    }
+
+    // Find objects with any schema version referring to the given target through the specified reference field
+    private NavigableSet<ObjId> findReferrers(ReferenceFieldStorageInfo fieldInfo, ObjId target) {
+        final NavigableSet<ObjId> referrers = this.queryIndex(fieldInfo, FieldType.OBJ_ID, fieldInfo.hasComplexIndex).get(target);
+        return referrers != null ? referrers : NavigableSets.<ObjId>empty(FieldType.OBJ_ID);
     }
 
 // Mutation

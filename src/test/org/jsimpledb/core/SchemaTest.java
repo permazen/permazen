@@ -312,7 +312,7 @@ public class SchemaTest extends TestSupport {
           },
 
           // Change reference field onDelete
-          { false,
+          { true,
             "<!-- test 2a -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
           + "  <ReferenceField name=\"ref1\" storageId=\"20\" onDelete=\"EXCEPTION\"/>\n"
