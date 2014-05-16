@@ -10,7 +10,6 @@ Here's a quick comparison between JSimpleDB and JPA, the most common Java persis
 || Query language || JPQL, SQL, Criteria || Regular Java ||
 || Configuration || Java Annotations + XML || Java Annotations ||
 || Number of annotation classes || 89 || 12 ||
-|| Type Safety || Fail at commit || Fail immediately ||
 || Simple data types || SQL data types || Primitives, etc. + user-definable ||
 || Array types || `byte[]` only || Any simple type || 
 || Indexable data types || SQL data types || Any simple or array type ||
