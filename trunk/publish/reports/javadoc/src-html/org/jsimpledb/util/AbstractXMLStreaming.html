@@ -80,8 +80,26 @@
 <span class="sourceLineNo">072</span>        writer.writeCharacters(content);<a name="line.72"></a>
 <span class="sourceLineNo">073</span>        writer.writeEndElement();<a name="line.73"></a>
 <span class="sourceLineNo">074</span>    }<a name="line.74"></a>
-<span class="sourceLineNo">075</span>}<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>    /**<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * Get an attribute from the current element.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     *<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * @param reader XML input<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @param name attribute name<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * @param required whether attribute must be present<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * @throws IllegalArgumentException if {@code required} is true and no such attribute is found<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    protected String getAttr(XMLStreamReader reader, QName name, boolean required) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        final String value = reader.getAttributeValue(name.getNamespaceURI(), name.getLocalPart());<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        if (value == null &amp;&amp; required) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            throw new IllegalArgumentException("&lt;" + reader.getName().getLocalPart() + "&gt; element has no \"" + name<a name="line.88"></a>
+<span class="sourceLineNo">089</span>              + "\" attribute at " + reader.getLocation());<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        return value;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span>}<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
 
 
 

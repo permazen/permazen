@@ -16,76 +16,68 @@
 <span class="sourceLineNo">008</span>package org.jsimpledb.cli;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
 <span class="sourceLineNo">010</span>import java.io.PrintWriter;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.dellroad.stuff.string.ParseContext;<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>/**<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * Help command for an {@link AggregateCommand}.<a name="line.15"></a>
-<span class="sourceLineNo">016</span> */<a name="line.16"></a>
-<span class="sourceLineNo">017</span>public class HelpCommand extends AggregateCommand implements Action {<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>    private final AggregateCommand target;<a name="line.19"></a>
+<span class="sourceLineNo">011</span>import java.util.SortedMap;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.jsimpledb.util.ParseContext;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>public class HelpCommand extends AbstractCommand {<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>    public HelpCommand() {<a name="line.17"></a>
+<span class="sourceLineNo">018</span>        super("help");<a name="line.18"></a>
+<span class="sourceLineNo">019</span>    }<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>    public HelpCommand(RootCommand target) {<a name="line.21"></a>
-<span class="sourceLineNo">022</span>        super("help");<a name="line.22"></a>
-<span class="sourceLineNo">023</span>        this.target = target;<a name="line.23"></a>
+<span class="sourceLineNo">021</span>    @Override<a name="line.21"></a>
+<span class="sourceLineNo">022</span>    public String getUsage() {<a name="line.22"></a>
+<span class="sourceLineNo">023</span>        return this.name + " [command]";<a name="line.23"></a>
 <span class="sourceLineNo">024</span>    }<a name="line.24"></a>
 <span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>    public HelpCommand(AggregateCommand target) {<a name="line.26"></a>
-<span class="sourceLineNo">027</span>        super("help" + (target.getPrefix() != null ? " " + target.getPrefix() : ""), target.getName());<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        this.target = target;<a name="line.28"></a>
+<span class="sourceLineNo">026</span>    @Override<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    public String getHelpSummary() {<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        return "display help information";<a name="line.28"></a>
 <span class="sourceLineNo">029</span>    }<a name="line.29"></a>
 <span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    public void addSubCommands() {<a name="line.31"></a>
-<span class="sourceLineNo">032</span>        this.getSubCommands().clear();<a name="line.32"></a>
-<span class="sourceLineNo">033</span>        for (Command command : this.target.getSubCommands()) {<a name="line.33"></a>
-<span class="sourceLineNo">034</span>            final Command helpCommand;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>            if (command instanceof HelpCommand)<a name="line.35"></a>
-<span class="sourceLineNo">036</span>                continue;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>            if (command instanceof AggregateCommand)<a name="line.37"></a>
-<span class="sourceLineNo">038</span>                helpCommand = new HelpCommand((AggregateCommand)command);<a name="line.38"></a>
-<span class="sourceLineNo">039</span>            else if (!command.getHelpDetail().equals(command.getHelpSummary()))<a name="line.39"></a>
-<span class="sourceLineNo">040</span>                helpCommand = new HelpCommandCommand(command);<a name="line.40"></a>
-<span class="sourceLineNo">041</span>            else<a name="line.41"></a>
-<span class="sourceLineNo">042</span>                continue;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>            this.getSubCommands().add(helpCommand);<a name="line.43"></a>
-<span class="sourceLineNo">044</span>        }<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        for (Command command : this.getSubCommands()) {<a name="line.45"></a>
-<span class="sourceLineNo">046</span>            if (command instanceof HelpCommand)<a name="line.46"></a>
-<span class="sourceLineNo">047</span>                ((HelpCommand)command).addSubCommands();<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        }<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
-<span class="sourceLineNo">050</span><a name="line.50"></a>
-<span class="sourceLineNo">051</span>    @Override<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    public Action parse(Session session, ParseContext ctx) throws ParseException {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        if (ctx.getInput().length() != 0)<a name="line.53"></a>
-<span class="sourceLineNo">054</span>            return super.parse(session, ctx);<a name="line.54"></a>
-<span class="sourceLineNo">055</span>        return this;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    }<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>    @Override<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    public String getHelpSummary() {<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        return this.getPrefix() == null ?<a name="line.60"></a>
-<span class="sourceLineNo">061</span>          "Displays information about the specified command" :<a name="line.61"></a>
-<span class="sourceLineNo">062</span>          "Displays information about the `" + this.getName() + "' command";<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>// Action<a name="line.65"></a>
-<span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>    @Override<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    public void run(Session session) throws Exception {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        final PrintWriter out = new PrintWriter(session.getConsole().getOutput());<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        out.println("Available commands:");<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        for (Command command : this.target.getSubCommands())<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            out.println(String.format("%8s - %s", command.getFullName(), command.getHelpSummary()));<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        if (!this.getSubCommands().isEmpty()) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            out.println("Additional topics available under `" + this.getFullName() + "':");<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            for (Command command : this.getSubCommands())<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                out.println("    " + command.getFullName());<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        }<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
-<span class="sourceLineNo">079</span>}<a name="line.79"></a>
-<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">031</span>    @Override<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    public String getHelpDetail() {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        return "Displays help information about a command.";<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    }<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    @Override<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    public Action parseParameters(Session session, ParseContext ctx) {<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        final ParamParser parser = new ParamParser(0, 1, this.getUsage()).parse(ctx);<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>        // Get all commands<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        final SortedMap&lt;String, AbstractCommand&gt; commandMap = CommandParser.getCommands();<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>        // Find command specified, if any<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        final AbstractCommand command;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        if (parser.getParams().isEmpty())<a name="line.45"></a>
+<span class="sourceLineNo">046</span>            command = null;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        else {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            final String commandName = parser.getParam(0);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>            if ((command = commandMap.get(commandName)) == null) {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>                throw new ParseException(ctx, "unknown command `" + commandName + "'")<a name="line.50"></a>
+<span class="sourceLineNo">051</span>                  .addCompletions(Util.complete(commandMap.keySet(), commandName, false));<a name="line.51"></a>
+<span class="sourceLineNo">052</span>            }<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>        // Return help action<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        return new Action() {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            @Override<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            public void run(Session session) throws Exception {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                final PrintWriter writer = session.getWriter();<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                if (command == null) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                    writer.println("Available commands:");<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                    for (AbstractCommand c : commandMap.values())<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                        writer.println(String.format("%24s - %s", c.getName(), c.getHelpSummary()));<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                } else {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                    writer.println("Usage: " + command.getUsage());<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                    writer.println(command.getHelpDetail());<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                }<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            }<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        };<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
+<span class="sourceLineNo">071</span>}<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
 
 
 

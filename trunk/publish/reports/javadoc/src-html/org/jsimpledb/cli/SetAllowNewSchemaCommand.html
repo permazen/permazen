@@ -15,42 +15,44 @@
 <span class="sourceLineNo">007</span><a name="line.7"></a>
 <span class="sourceLineNo">008</span>package org.jsimpledb.cli;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.collect.Iterables;<a name="line.10"></a>
+<span class="sourceLineNo">010</span>import java.util.Arrays;<a name="line.10"></a>
 <span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.Arrays;<a name="line.12"></a>
+<span class="sourceLineNo">012</span>import org.jsimpledb.util.ParseContext;<a name="line.12"></a>
 <span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>import org.dellroad.stuff.string.ParseContext;<a name="line.14"></a>
+<span class="sourceLineNo">014</span>public class SetAllowNewSchemaCommand extends AbstractCommand {<a name="line.14"></a>
 <span class="sourceLineNo">015</span><a name="line.15"></a>
-<span class="sourceLineNo">016</span>public class SetAllowNewSchemaCommand extends Command {<a name="line.16"></a>
-<span class="sourceLineNo">017</span><a name="line.17"></a>
-<span class="sourceLineNo">018</span>    public SetAllowNewSchemaCommand(AggregateCommand parent) {<a name="line.18"></a>
-<span class="sourceLineNo">019</span>        super(parent, "allow-new-schema");<a name="line.19"></a>
-<span class="sourceLineNo">020</span>    }<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>    @Override<a name="line.22"></a>
-<span class="sourceLineNo">023</span>    public Action parse(Session session, ParseContext ctx) throws ParseException {<a name="line.23"></a>
-<span class="sourceLineNo">024</span>        final String usage = "Usage: " + this.getFullName() + " [ true | false ]";<a name="line.24"></a>
-<span class="sourceLineNo">025</span>        final boolean value;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>        try {<a name="line.26"></a>
-<span class="sourceLineNo">027</span>            value = Boolean.valueOf(ctx.matchPrefix("(true|false)\\s*$").group(1));<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        } catch (IllegalArgumentException e) {<a name="line.28"></a>
-<span class="sourceLineNo">029</span>            throw new ParseException(ctx, usage).addCompletions(<a name="line.29"></a>
-<span class="sourceLineNo">030</span>              Iterables.filter(Arrays.asList("true", "false"), new PrefixPredicate(ctx.getInput())));<a name="line.30"></a>
-<span class="sourceLineNo">031</span>        }<a name="line.31"></a>
-<span class="sourceLineNo">032</span>        return new Action() {<a name="line.32"></a>
-<span class="sourceLineNo">033</span>            @Override<a name="line.33"></a>
-<span class="sourceLineNo">034</span>            public void run(Session session) throws Exception {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>                session.setAllowNewSchema(value);<a name="line.35"></a>
-<span class="sourceLineNo">036</span>            }<a name="line.36"></a>
-<span class="sourceLineNo">037</span>        };<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
-<span class="sourceLineNo">039</span><a name="line.39"></a>
-<span class="sourceLineNo">040</span>    @Override<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    public String getHelpSummary() {<a name="line.41"></a>
-<span class="sourceLineNo">042</span>        return "Sets whether recording a new schema version into the database is allowed";<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    }<a name="line.43"></a>
-<span class="sourceLineNo">044</span>}<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">016</span>    public SetAllowNewSchemaCommand() {<a name="line.16"></a>
+<span class="sourceLineNo">017</span>        super("set-allow-new-schema");<a name="line.17"></a>
+<span class="sourceLineNo">018</span>    }<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>    @Override<a name="line.20"></a>
+<span class="sourceLineNo">021</span>    public String getUsage() {<a name="line.21"></a>
+<span class="sourceLineNo">022</span>        return this.name + " [ true | false ]";<a name="line.22"></a>
+<span class="sourceLineNo">023</span>    }<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>    @Override<a name="line.25"></a>
+<span class="sourceLineNo">026</span>    public String getHelpSummary() {<a name="line.26"></a>
+<span class="sourceLineNo">027</span>        return "Sets whether recording a new schema version into the database is allowed";<a name="line.27"></a>
+<span class="sourceLineNo">028</span>    }<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>    @Override<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    public Action parseParameters(Session session, ParseContext ctx) {<a name="line.31"></a>
+<span class="sourceLineNo">032</span>        final String value = new ParamParser(1, 1, this.getUsage()).parse(ctx).getParams().get(0);<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        if (!value.matches("(?i)true|false")) {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>            throw new ParseException(ctx, "invalid value `" + value + "'; specify either `true' or `false'")<a name="line.34"></a>
+<span class="sourceLineNo">035</span>              .addCompletions(Util.complete(Arrays.asList("true", "false"), value, false));<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        }<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        final boolean allow = Boolean.valueOf(value);<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        return new Action() {<a name="line.38"></a>
+<span class="sourceLineNo">039</span>            @Override<a name="line.39"></a>
+<span class="sourceLineNo">040</span>            public void run(Session session) throws Exception {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>                session.setAllowNewSchema(allow);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>                session.getWriter().println("Set allow new schema to " + allow);<a name="line.42"></a>
+<span class="sourceLineNo">043</span>            }<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        };<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    }<a name="line.45"></a>
+<span class="sourceLineNo">046</span>}<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
 
 
 

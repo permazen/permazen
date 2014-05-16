@@ -63,7 +63,7 @@
 <span class="sourceLineNo">055</span>     * @throws DeletedObjectException if the object from which this instance was read no longer exists<a name="line.55"></a>
 <span class="sourceLineNo">056</span>     */<a name="line.56"></a>
 <span class="sourceLineNo">057</span>    public long get() {<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        return this.tx.readCounterField(this.id, this.storageId);<a name="line.58"></a>
+<span class="sourceLineNo">058</span>        return this.tx.readCounterField(this.id, this.storageId, true);<a name="line.58"></a>
 <span class="sourceLineNo">059</span>    }<a name="line.59"></a>
 <span class="sourceLineNo">060</span><a name="line.60"></a>
 <span class="sourceLineNo">061</span>    /**<a name="line.61"></a>
@@ -76,7 +76,7 @@
 <span class="sourceLineNo">068</span>     * @throws DeletedObjectException if the object from which this instance was read no longer exists<a name="line.68"></a>
 <span class="sourceLineNo">069</span>     */<a name="line.69"></a>
 <span class="sourceLineNo">070</span>    public void set(long value) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        this.tx.writeCounterField(this.id, this.storageId, value);<a name="line.71"></a>
+<span class="sourceLineNo">071</span>        this.tx.writeCounterField(this.id, this.storageId, value, true);<a name="line.71"></a>
 <span class="sourceLineNo">072</span>    }<a name="line.72"></a>
 <span class="sourceLineNo">073</span><a name="line.73"></a>
 <span class="sourceLineNo">074</span>    /**<a name="line.74"></a>
@@ -88,7 +88,7 @@
 <span class="sourceLineNo">080</span>     * @throws DeletedObjectException if the object from which this instance was read no longer exists<a name="line.80"></a>
 <span class="sourceLineNo">081</span>     */<a name="line.81"></a>
 <span class="sourceLineNo">082</span>    public void adjust(long offset) {<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        this.tx.adjustCounterField(this.id, this.storageId, offset);<a name="line.83"></a>
+<span class="sourceLineNo">083</span>        this.tx.adjustCounterField(this.id, this.storageId, offset, true);<a name="line.83"></a>
 <span class="sourceLineNo">084</span>    }<a name="line.84"></a>
 <span class="sourceLineNo">085</span>}<a name="line.85"></a>
 <span class="sourceLineNo">086</span><a name="line.86"></a>
