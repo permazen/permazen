@@ -11,8 +11,8 @@ class ReferenceFieldStorageInfo extends SimpleFieldStorageInfo {
 
     final DeleteAction onDelete;
 
-    ReferenceFieldStorageInfo(ReferenceField field, int superFieldStorageId) {
-        super(field, superFieldStorageId);
+    ReferenceFieldStorageInfo(ReferenceField field, int superFieldStorageId, boolean hasComplexIndex) {
+        super(field, superFieldStorageId, hasComplexIndex);
         this.onDelete = field.onDelete;
     }
 
@@ -33,7 +33,7 @@ class ReferenceFieldStorageInfo extends SimpleFieldStorageInfo {
 
     @Override
     public String toString() {
-        return "reference field with onDelete " + this.onDelete;
+        return "reference field with onDelete=" + this.onDelete;
     }
 }
 

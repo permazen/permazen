@@ -61,6 +61,11 @@ public abstract class ComplexField<T> extends Field<T> {
     abstract ComplexFieldStorageInfo toStorageInfo();
 
     /**
+     * Determine whether an index on the given sub-field will have complex values or just plain object IDs.
+     */
+    abstract boolean hasComplexIndex(SimpleField<?> subField);
+
+    /**
      * Check compatibility with another {@link ComplexField} across a schema change.
      * To be compatible, the two enties must be exactly the same in terms of data layouts and Java representations.
      * This is in effect an {@code #equals equals()} test with respect to those aspects. Note that compatibililty

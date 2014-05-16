@@ -55,7 +55,7 @@ public class ReferenceField extends SimpleField<ObjId> {
 
     @Override
     ReferenceFieldStorageInfo toStorageInfo(int superFieldStorageId) {
-        return new ReferenceFieldStorageInfo(this, superFieldStorageId);
+        return new ReferenceFieldStorageInfo(this, superFieldStorageId, this.parent != null && this.parent.hasComplexIndex(this));
     }
 
     @Override

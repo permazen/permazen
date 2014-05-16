@@ -56,6 +56,11 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     }
 
     @Override
+    boolean hasComplexIndex(SimpleField<?> subField) {
+        return true;        // index value = object ID + index
+    }
+
+    @Override
     public String toString() {
         return "list field `" + this.name + "' of " + this.elementField.fieldType;
     }
