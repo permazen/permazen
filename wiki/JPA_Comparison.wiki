@@ -1,0 +1,18 @@
+#summary Comparison of JSimpleDB with JPA
+
+== Introduction ==
+
+Here's a quick comparison between JSimpleDB and JPA, the most common Java persistence technology:
+
+|| *Feature/Issue* || *JPA* || *JSimpleDB* ||
+|| Underlying database || SQL only || Any key/value store (including SQL) ||
+|| Query language || JPQL, SQL, Criteria || Regular Java ||
+|| Configuration || Java Annotations + XML || Java Annotations ||
+|| Indexable data yypes || SQL data types || Usual Java types + user-defined ||
+|| Field change notifications || Partial || Supported ||
+|| Field change via reference path || Not supported || Supported ||
+|| Reference inversion || Requires query || Supported ||
+|| Object versioning || Not supported || Supported ||
+|| Rolling online schema changes || Not supported || Supported ||
+|| Spring integration || Yes || Yes ||
+|| Delete actions || Supported via DDL || Supported ||
