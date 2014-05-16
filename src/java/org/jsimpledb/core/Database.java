@@ -82,15 +82,9 @@ public class Database {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
+    private final KVDatabase kvdb;
 
-    private KVDatabase kvdb;
-    private Schema lastSchema;
-
-    /**
-     * Default Constructor. Caller must separately configure the {@link KVDatabase} to use via {@link #setKVDatabase}.
-     */
-    public Database() {
-    }
+    private volatile Schema lastSchema;
 
     /**
      * Constructor.
@@ -114,23 +108,8 @@ public class Database {
     /**
      * Get the {@link KVDatabase} underlying this instance.
      */
-    public synchronized KVDatabase getKVDatabase() {
+    public KVDatabase getKVDatabase() {
         return this.kvdb;
-    }
-
-    /**
-     * Set the {@link KVDatabase} underlying this instance.
-     *
-     * <p>
-     * Transactions that have already been created are not affected, but new ones will be.
-     * </p>
-     *
-     * @throws IllegalArgumentException if {@code kvdb} is null
-     */
-    public synchronized void setKVDatabase(KVDatabase kvdb) {
-        if (kvdb == null)
-            throw new IllegalArgumentException("null kvdb");
-        this.kvdb = kvdb;
     }
 
     /**
@@ -239,12 +218,7 @@ public class Database {
             schemaModel.validate();
 
         // Open KV transaction
-        final KVTransaction kvt;
-        synchronized (this) {
-            if (this.kvdb == null)
-                throw new IllegalStateException("no KVDatabase configured");
-            kvt = this.kvdb.createTransaction();
-        }
+        final KVTransaction kvt = this.kvdb.createTransaction();
         boolean success = false;
         this.log.debug("creating transaction using "
           + (version != 0 ? "schema version " + version : "highest recorded schema version"));
@@ -303,10 +277,9 @@ public class Database {
                 }
 
                 // Read and decode database schemas, avoiding rebuild if possible
-                synchronized (this) {
-                    if (this.lastSchema != null && this.lastSchema.isSameVersions(bytesMap))
-                        schema = this.lastSchema;
-                }
+                schema = this.lastSchema;
+                if (schema != null && !schema.isSameVersions(bytesMap))
+                    schema = null;
                 if (schema == null) {
                     try {
                         schema = this.buildSchema(bytesMap);
@@ -374,9 +347,7 @@ public class Database {
             }
 
             // Save schema for next time
-            synchronized (this) {
-                this.lastSchema = schema;
-            }
+            this.lastSchema = schema;
 
             // Create transaction
             final Transaction tx = new Transaction(this, kvt, schema, version);
