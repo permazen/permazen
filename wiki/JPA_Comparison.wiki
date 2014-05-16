@@ -8,6 +8,7 @@ Here's a quick comparison between JSimpleDB and JPA, the most common Java persis
 || Underlying database || SQL only || Any key/value store (including SQL) ||
 || Query language || JPQL, SQL, Criteria || Regular Java ||
 || Configuration || Java Annotations + XML || Java Annotations ||
+|| Number of annotation classes || 89 || 12 ||
 || Indexable data types || SQL data types || Any Java type ||
 || Field change notifications || Partial || Supported ||
 || Notification via reference path || Not supported || Supported ||
