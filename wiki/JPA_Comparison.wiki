@@ -5,17 +5,26 @@
 Here's a quick comparison between JSimpleDB and JPA, the most common Java persistence technology:
 
 || *Feature/Issue* || *JPA* || *JSimpleDB* ||
-|| Underlying database || SQL only || Any key/value store (including SQL) ||
+|| Underlying database || SQL only || Key/value store (including SQL) ||
 || Query language || JPQL, SQL, Criteria || Regular Java ||
 || Configuration || Java Annotations + XML || Java Annotations ||
-|| Number of annotation classes || [http://docs.oracle.com/javaee/7/api/javax/persistence/package-summary.html 89] || [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/org/jsimpledb/annotation/package-summary.html 12] ||
-|| Indexable data types || SQL data types || Any Java type ||
-|| Field change notifications || Partial || Supported ||
+|| Number of annotation classes || 89 || 12 ||
+|| Type Safety || Fail at commit || Fail immediately ||
+|| Simple data types || SQL data types || Primitives, etc. + user-definable ||
+|| Array types || `byte[]` only || Any simple type || 
+|| Indexable data types || SQL data types || Any simple or array type ||
+|| Collection types || Sets, lists, maps || Sets, lists, maps ||
+|| Lockless counter type || Not supported || Supported ||
+|| Snapshot Transactions || Partial/implicit || Supported ||
+|| Field change notifications || Simple types only || Supported ||
 || Notification via reference path || Not supported || Supported ||
 || Notification with old/new value || Not supported || Supported ||
-|| Reference inversion || Requires query || Supported ||
-|| Object versioning || Not supported || Supported ||
+|| Reference inversion || Implicit; via query || Supported ||
+|| Versioned objects || Not supported || Supported ||
 || Version updates provide old/new fields || Not supported || Supported ||
 || Rolling online schema changes || Not supported || Supported ||
 || Spring integration || Supported || Supported ||
 || Delete actions || Supported via DDL || Supported ||
+|| XML import/export objects || Not supported || Supported ||
+|| Command-line client || Via SQL database || Supported ||
+|| Vaadin GUI auto-generator || Not supported || Coming soon ||
