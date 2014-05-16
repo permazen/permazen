@@ -18,7 +18,7 @@ import org.jsimpledb.core.ObjId;
  * {@linkplain JTransaction#getCurrent associated} with the current thread, and "snapshot" instances that reflect
  * the state of their associated {@link SnapshotJTransaction}.
  * Therefore every {@link JObject} instance has an {@linkplain #getTransaction associated transaction}
- * which, in the case of regular database objects only, may not exist.
+ * which, in the case of regular instances only, may not exist if there's no transaction open in the current thread.
  * </p>
  */
 public interface JObject {
