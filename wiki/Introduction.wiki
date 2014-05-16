@@ -512,6 +512,8 @@ But in application release 1.2 you decided you needed separate last and first na
 
 The `splitNameField()` method will be invoked just prior to the first field access of the `Person` object being upgraded. It ensures that the field is forward-migrated properly, and none of your other release 1.2 code will ever need to know anything about prior schema versions.
 
+Object versions are automatically indexed. This makes it easy to if you want to implement a one time process that proactively visits every object that needs to be upgraded.
+
 === Schema Migration ===
 
 The astue reader may notice that in a "no downtime" world, even adding the above `@OnVersionChange` handler is insufficient. That's because _backward_ migration may also occur, for example, when you have upgraded some (but not all) of your servers to release 1.2, and a yet-to-be-upgraded release 1.1 server needs to read an object written by an already-upgraded release 1.2 server.
