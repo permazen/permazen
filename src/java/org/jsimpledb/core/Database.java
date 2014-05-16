@@ -267,10 +267,10 @@ public class Database {
                     this.log.info("detected an uninitialized database; initializing");
                     final ByteWriter writer = new ByteWriter();
                     UnsignedIntEncoder.write(writer, ENCODING_VERSION);
-                    kvt.put(ENCODING_KEY, writer.getBytes());
+                    kvt.put(ENCODING_KEY.clone(), writer.getBytes());
 
                     // Sanity check again
-                    encodingBytes = kvt.get(ENCODING_KEY);
+                    encodingBytes = kvt.get(ENCODING_KEY.clone());
                     if (encodingBytes == null || ByteUtil.compare(encodingBytes, writer.getBytes()) != 0)
                         throw new InconsistentDatabaseException("database failed basic read/write test");
                     final KVPair lower = kvt.getAtLeast(new byte[0]);
@@ -439,8 +439,8 @@ public class Database {
     }
 
     void copyMetaData(Transaction src, KVStore dst) {
-        dst.put(ENCODING_KEY, src.kvt.get(ENCODING_KEY));
-        for (Iterator<KVPair> i = src.kvt.getRange(SCHEMA_KEY_PREFIX, ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);
+        dst.put(ENCODING_KEY, src.kvt.get(ENCODING_KEY.clone()));
+        for (Iterator<KVPair> i = src.kvt.getRange(SCHEMA_KEY_PREFIX.clone(), ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);
           i.hasNext(); ) {
             final KVPair pair = i.next();
             dst.put(pair.getKey(), pair.getValue());
