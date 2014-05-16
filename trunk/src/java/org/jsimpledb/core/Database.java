@@ -10,6 +10,7 @@ package org.jsimpledb.core;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
@@ -66,15 +67,16 @@ import org.slf4j.LoggerFactory;
  */
 public class Database {
 
-    // Special key prefix reserved for JSimpleDB
-    private static final byte JSIMPLEDB_KEY_PREFIX = (byte)0x00;
+    // Prefix of all meta-data keys
+    private static final byte JSIMPLEDB_METADATA_PREFIX = (byte)0x00;
 
-    // Special JSimpleDB keys
+    // Meta-data keys and key prefixes
     private static final byte[] ENCODING_KEY = new byte[] {
-      JSIMPLEDB_KEY_PREFIX, (byte)0x8f, (byte)0xb5, (byte)0x3f, (byte)0xe9, (byte)0xda, (byte)0x1c, (byte)0xc9
+      JSIMPLEDB_METADATA_PREFIX, (byte)0x00,
+        (byte)'J', (byte)'S', (byte)'i', (byte)'m', (byte)'p', (byte)'l', (byte)'e', (byte)'D', (byte)'B'
     };
     private static final byte[] SCHEMA_KEY_PREFIX = new byte[] {
-      JSIMPLEDB_KEY_PREFIX, (byte)0x01
+      JSIMPLEDB_METADATA_PREFIX, (byte)0x01
     };
 
     // Current JSimpleDB encoding version number
@@ -227,27 +229,55 @@ public class Database {
             boolean firstAttempt = true;
             while (true) {
 
+                // Get iterator over meta-data key/value pairs
+                final byte[] metaDataPrefix = new byte[] { JSIMPLEDB_METADATA_PREFIX };
+                final Iterator<KVPair> metaDataIterator = kvt.getRange(metaDataPrefix,
+                  ByteUtil.getKeyAfterPrefix(metaDataPrefix), false);
+
+                // Get encoding key; it should be first; if not found, database is uninitialized (and should be empty)
+                byte[] encodingBytes = null;
+                if (metaDataIterator.hasNext()) {
+                    final KVPair pair = metaDataIterator.next();
+                    if (!Arrays.equals(pair.getKey(), ENCODING_KEY)) {
+
+                        // Check for old incompatible format
+                        if (kvt.get(ByteUtil.parse("008fb53fe9da1cc9")) != null)
+                            throw new InconsistentDatabaseException("old/incompatible database format; perform upgrade manually");
+
+                        // Unknown garbage
+                        throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
+                          + ByteUtil.toString(pair.getKey()) + ")");
+                    }
+                    encodingBytes = pair.getValue();
+                }
+
                 // Check for an uninitialized database
-                boolean uninitialized = false;
-                byte[] encodingBytes = kvt.get(ENCODING_KEY);
-                if (encodingBytes == null) {
+                final boolean uninitialized = encodingBytes == null;
+                if (uninitialized) {
 
                     // Sanity checks
                     if (kvt.getAtLeast(new byte[0]) != null)
                         throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
                     if (kvt.getAtMost(new byte[] { (byte)0xff }) != null)
                         throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
+                    if (kvt.getRange(new byte[0], new byte[] { (byte)0xff }, false).hasNext())
+                        throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
 
                     // Initialize database
                     this.log.info("detected an uninitialized database; initializing");
                     final ByteWriter writer = new ByteWriter();
                     UnsignedIntEncoder.write(writer, ENCODING_VERSION);
                     kvt.put(ENCODING_KEY, writer.getBytes());
-                    uninitialized = true;
 
                     // Sanity check again
                     encodingBytes = kvt.get(ENCODING_KEY);
                     if (encodingBytes == null || ByteUtil.compare(encodingBytes, writer.getBytes()) != 0)
+                        throw new InconsistentDatabaseException("database failed basic read/write test");
+                    final KVPair lower = kvt.getAtLeast(new byte[0]);
+                    if (lower == null || !lower.equals(new KVPair(ENCODING_KEY, writer.getBytes())))
+                        throw new InconsistentDatabaseException("database failed basic read/write test");
+                    final KVPair upper = kvt.getAtMost(new byte[] { (byte)0xff });
+                    if (upper == null || !upper.equals(new KVPair(ENCODING_KEY, writer.getBytes())))
                         throw new InconsistentDatabaseException("database failed basic read/write test");
                 }
 
@@ -256,8 +286,8 @@ public class Database {
                 try {
                     encodingVersion = UnsignedIntEncoder.read(new ByteReader(encodingBytes));
                 } catch (IllegalArgumentException e) {
-                    throw new InconsistentDatabaseException("database contains invalid encoding version under key "
-                      + ByteUtil.toString(encodingBytes));
+                    throw new InconsistentDatabaseException("database contains invalid encoding version "
+                      + ByteUtil.toString(encodingBytes) + " under key " + ByteUtil.toString(ENCODING_KEY));
                 }
                 switch (encodingVersion) {
                 case ENCODING_VERSION:
@@ -267,11 +297,22 @@ public class Database {
                       + encodingVersion + " under key " + ByteUtil.toString(encodingBytes));
                 }
 
-                // Read existing database schema versions
+                // Read recorded database schema versions - should immediately follow ENCODING_KEY
                 final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
-                for (Iterator<KVPair> i = kvt.getRange(SCHEMA_KEY_PREFIX, ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);
-                  i.hasNext(); ) {
-                    final KVPair pair = i.next();
+                while (metaDataIterator.hasNext()) {
+                    final KVPair pair = metaDataIterator.next();
+
+                    // Sanity check
+                    if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) < 0) {
+                        throw new InconsistentDatabaseException("database contains unrecognized garbage key "
+                          + ByteUtil.toString(pair.getKey()));
+                    }
+
+                    // Stop at end of recorded schemas
+                    if (!ByteUtil.isPrefixOf(SCHEMA_KEY_PREFIX, pair.getKey()))
+                        break;
+
+                    // Decode schema version and get XML
                     final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
                     bytesMap.put(vers, pair.getValue());
                 }
@@ -407,7 +448,7 @@ public class Database {
     }
 
     void reset(SnapshotTransaction tx) {
-        final byte[] metaDataPrefix = new byte[] { JSIMPLEDB_KEY_PREFIX };
+        final byte[] metaDataPrefix = new byte[] { JSIMPLEDB_METADATA_PREFIX };
         tx.kvt.removeRange(null, metaDataPrefix);
         tx.kvt.removeRange(ByteUtil.getKeyAfterPrefix(metaDataPrefix), null);
     }
