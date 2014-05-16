@@ -20,7 +20,7 @@
 
     <bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/>
 
-    <bean id="database" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvdb"/>
+    <bean id="database" class="org.jsimpledb.core.Database" c:kvdb-ref="kvdb"/>
 
     <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1">
         <constructor-arg>

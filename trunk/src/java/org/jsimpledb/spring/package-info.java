@@ -41,7 +41,7 @@
  *     &lt;bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/&gt;
  *
  *     &lt;!-- Define the core Database layer on top of that --&gt;
- *     &lt;bean id="database" class="org.jsimpledb.core.Database" p:KVDatabase-ref="kvdb"/&gt;
+ *     &lt;bean id="database" class="org.jsimpledb.core.Database" c:kvdb-ref="kvdb"/&gt;
  *
  *     &lt;!-- Define the Java "JSimpleDB" on top of the core database --&gt;
  *     &lt;bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1"&gt;
