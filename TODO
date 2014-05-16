@@ -9,8 +9,6 @@
 
 - Ant task for easy validation of JLayer annotations during a build
 
-- Only record new schema version in database on first mutation
-
 - More built-in field types:
     - Class
     - BigInteger, BigDecimal
