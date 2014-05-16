@@ -16,5 +16,5 @@ Here's a quick comparison between JSimpleDB and JPA, the most common Java persis
 || Object versioning || Not supported || Supported ||
 || Version updates provide old/new fields || Not supported || Supported ||
 || Rolling online schema changes || Not supported || Supported ||
-|| Spring integration || Yes || Yes ||
+|| Spring integration || Supported || Supported ||
 || Delete actions || Supported via DDL || Supported ||
