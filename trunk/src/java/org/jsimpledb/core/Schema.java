@@ -32,6 +32,7 @@ public class Schema {
 
     final TreeMap<Integer, SchemaVersion> versions = new TreeMap<>();
     final TreeMap<Integer, StorageInfo> storageInfos = new TreeMap<>();
+    final TreeMap<Integer, Boolean> hasComplexIndexMap = new TreeMap<>();
     final TreeSet<ReferenceFieldStorageInfo> referenceFieldStorageInfos = new TreeSet<>(StorageInfo.SORT_BY_STORAGE_ID);
     final TreeSet<ReferenceFieldStorageInfo> exceptionReferenceFieldStorageInfos = new TreeSet<>(StorageInfo.SORT_BY_STORAGE_ID);
 
@@ -77,6 +78,8 @@ public class Schema {
             if (storageInfo.getOnDelete() == DeleteAction.EXCEPTION)
                 this.exceptionReferenceFieldStorageInfos.add(storageInfo);
         }
+        for (SimpleFieldStorageInfo storageInfo : Iterables.filter(this.storageInfos.values(), SimpleFieldStorageInfo.class))
+            this.hasComplexIndexMap.put(storageInfo.storageId, storageInfo.hasComplexIndex);
     }
 
     /**

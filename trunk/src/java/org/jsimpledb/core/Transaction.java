@@ -1933,11 +1933,13 @@ public class Transaction {
         // Invert references for each group of remaining monitors and recurse
         for (Map.Entry<Integer, ArrayList<FieldMonitor>> entry : remainingMonitorsMap.entrySet()) {
             final int storageId = entry.getKey();
+            final boolean hasComplexIndex = this.schema.hasComplexIndexMap.get(storageId);
 
             // Gather all objects that refer to any object in our current "objects" set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId object : objects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(storageId, FieldType.OBJ_ID, FieldType.OBJ_ID).get(object);
+                final NavigableSet<ObjId> refs = this.queryIndex(storageId,
+                  FieldType.OBJ_ID, FieldType.OBJ_ID, hasComplexIndex).get(object);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -1971,19 +1973,20 @@ public class Transaction {
         if (path.length == 0)
             throw new IllegalArgumentException("empty path");
 
-        // Verify all fields in the path are reference fields
-        for (int pathStorageId : path)
-            this.schema.verifyStorageInfo(pathStorageId, ReferenceFieldStorageInfo.class);
+        // Verify all fields in the path are reference fields, and reverse their order
+        final ArrayList<ReferenceFieldStorageInfo> storageInfos = new ArrayList<>(path.length);
+        for (int i = path.length - 1; i >= 0; i--)
+            storageInfos.add(this.schema.verifyStorageInfo(path[i], ReferenceFieldStorageInfo.class));
 
-        // Invert references
+        // Now invert references in reverse order
         NavigableSet<ObjId> result = null;
-        for (int i = path.length - 1; i >= 0; i--) {
-            final int storageId = path[i];
+        for (ReferenceFieldStorageInfo storageInfo : storageInfos) {
 
             // Gather all objects that refer to any object in our current target objects set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId id : targetObjects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(storageId, FieldType.OBJ_ID, FieldType.OBJ_ID).get(id);
+                final NavigableSet<ObjId> refs = this.queryIndex(storageInfo,
+                  FieldType.OBJ_ID, storageInfo.hasComplexIndex).get(id);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -2021,7 +2024,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId) {
         final SimpleFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        return this.queryIndex(storageInfo, FieldType.OBJ_ID);
+        return this.queryIndex(storageInfo, FieldType.OBJ_ID, storageInfo.hasComplexIndex);
     }
 
     /**
@@ -2045,7 +2048,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId) {
         final SetFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.elementField, FieldType.OBJ_ID);
+        return this.queryIndex(storageInfo.elementField, FieldType.OBJ_ID, false);
     }
 
     /**
@@ -2069,7 +2072,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId) {
         final ListFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.elementField, FieldType.OBJ_ID);
+        return this.queryIndex(storageInfo.elementField, FieldType.OBJ_ID, true);
     }
 
     /**
@@ -2093,7 +2096,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId) {
         final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.keyField, FieldType.OBJ_ID);
+        return this.queryIndex(storageInfo.keyField, FieldType.OBJ_ID, true);
     }
 
     /**
@@ -2117,7 +2120,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId) {
         final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.valueField, FieldType.OBJ_ID);
+        return this.queryIndex(storageInfo.valueField, FieldType.OBJ_ID, true);
     }
 
     /**
@@ -2136,7 +2139,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ListIndexEntry>> queryListFieldEntries(int storageId) {
         final ListFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.queryIndex(storageInfo.elementField, FieldType.LIST_INDEX_ENTRY);
+        return this.queryIndex(storageInfo.elementField, FieldType.LIST_INDEX_ENTRY, false);
     }
 
     /**
@@ -2157,7 +2160,7 @@ public class Transaction {
     public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>> queryMapFieldKeyEntries(int storageId) {
         final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return (NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>>)this.queryIndex(
-          storageInfo.keyField, this.createMapKeyIndexEntryType(storageInfo.valueField.fieldType));
+          storageInfo.keyField, this.createMapKeyIndexEntryType(storageInfo.valueField.fieldType), false);
     }
 
     // This method exists solely to bind the generic type parameters
@@ -2184,7 +2187,7 @@ public class Transaction {
     public NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>> queryMapFieldValueEntries(int storageId) {
         final MapFieldStorageInfo storageInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return (NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>>)this.queryIndex(
-          storageInfo.valueField, this.createMapValueIndexEntryType(storageInfo.keyField.fieldType));
+          storageInfo.valueField, this.createMapValueIndexEntryType(storageInfo.keyField.fieldType), false);
     }
 
     // This method exists solely to bind the generic type parameters
@@ -2193,24 +2196,25 @@ public class Transaction {
     }
 
     // Query an index associated with a simple field assuming the given index entry type
-    private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo storageInfo, FieldType<E> entryType) {
-        return queryIndex(storageInfo.storageId, storageInfo.fieldType, entryType);
+    private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo storageInfo, FieldType<E> entryType, boolean trailingGarbage) {
+        return queryIndex(storageInfo.storageId, storageInfo.fieldType, entryType, trailingGarbage);
     }
 
-    // Query an index associated with a simple field assuming the given field type and index entry type
-    private synchronized <V, E> IndexMap<?, E> queryIndex(int storageId, FieldType<V> fieldType, FieldType<E> entryType) {
+    // Query an index associated with a simple field assuming the given field type, index entry type, and index trailing garbage
+    private synchronized <V, E> IndexMap<?, E> queryIndex(int storageId,
+      FieldType<V> fieldType, FieldType<E> entryType, boolean trailingGarbage) {
 
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
 
         // Create index map view
-        return new IndexMap<V, E>(this, storageId, fieldType, entryType);
+        return new IndexMap<V, E>(this, storageId, fieldType, entryType, trailingGarbage);
     }
 
     // Convenience method for querying a reference field index for all referring objects
     private NavigableSet<ObjId> findReferences(ReferenceFieldStorageInfo fieldInfo, ObjId id) {
-        return this.queryIndex(fieldInfo, FieldType.OBJ_ID).get(id);
+        return this.queryIndex(fieldInfo, FieldType.OBJ_ID, fieldInfo.hasComplexIndex).get(id);
     }
 
 // Mutation

@@ -31,6 +31,8 @@ public class SimpleField<T> extends Field<T> {
     final FieldType<T> fieldType;
     final boolean indexed;
 
+    ComplexField<?> parent;
+
     /**
      * Constructor.
      *
@@ -75,7 +77,7 @@ public class SimpleField<T> extends Field<T> {
     }
 
     SimpleFieldStorageInfo toStorageInfo(int superFieldStorageId) {
-        return new SimpleFieldStorageInfo(this, superFieldStorageId);
+        return new SimpleFieldStorageInfo(this, superFieldStorageId, this.parent != null && this.parent.hasComplexIndex(this));
     }
 
     @Override

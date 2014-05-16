@@ -18,6 +18,7 @@ import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link java.util.NavigableSet} support superclass for sets backed by elements encoded as {@code byte[]}
@@ -40,6 +41,7 @@ import org.jsimpledb.util.ByteWriter;
  * Instances support "prefix mode" where the {@code byte[]} keys may have arbitrary trailing garbage, which is ignored,
  * and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
  * number of bytes produced by {@link #encode encode()} or consumed by {@link #decode decode()}.
+ * When <b>not</b> in prefix mode, {@link #decode decode()} must consume the entire key (an error is logged if not).
  * </p>
  *
  * <p>
@@ -337,6 +339,11 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             // Decode key
             final ByteReader reader = new ByteReader(pair.getKey());
             final E value = AbstractKVNavigableSet.this.decode(reader);
+            if (!AbstractKVNavigableSet.this.prefixMode && reader.remain() > 0) {
+                LoggerFactory.getLogger(this.getClass()).error(AbstractKVNavigableSet.this.getClass().getName()
+                  + "@" + Integer.toHexString(System.identityHashCode(AbstractKVNavigableSet.this))
+                  + ": " + reader.remain() + " undecoded bytes remain in key " + ByteUtil.toString(pair.getKey()) + " -> " + value);
+            }
 
             // In prefix mode, skip over any additional keys having the same prefix as what we just decoded
             if (AbstractKVNavigableSet.this.prefixMode) {

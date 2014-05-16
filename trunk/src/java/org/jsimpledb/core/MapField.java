@@ -50,6 +50,10 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
           .where(new TypeParameter<V>() { }, valueField.typeToken.wrap()));
         this.keyField = keyField;
         this.valueField = valueField;
+        assert this.keyField.parent == null;
+        assert this.valueField.parent == null;
+        this.keyField.parent = this;
+        this.valueField.parent = this;
     }
 
     /**
@@ -77,6 +81,11 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     @Override
     MapFieldStorageInfo toStorageInfo() {
         return new MapFieldStorageInfo(this);
+    }
+
+    @Override
+    boolean hasComplexIndex(SimpleField<?> subField) {
+        return true;        // index value = object ID + (key or value)
     }
 
     @Override

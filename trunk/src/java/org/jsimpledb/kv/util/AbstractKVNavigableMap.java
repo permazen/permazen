@@ -24,6 +24,7 @@ import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link java.util.NavigableMap} support superclass for maps backed by keys and values encoded as {@code byte[]}
@@ -45,6 +46,7 @@ import org.jsimpledb.util.ByteWriter;
  * Instances support "prefix mode" where the {@code byte[]} keys may have arbitrary trailing garbage, which is ignored,
  * and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
  * number of bytes produced by {@link #encodeKey encodeKey()} or consumed by {@link #decodeKey decodeKey()}.
+ * When <b>not</b> in prefix mode, {@link #decodeKey decodeKey()} must consume the entire key (an error is logged if not).
  * </p>
  *
  * <p>
@@ -473,6 +475,11 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             // Decode key
             final ByteReader reader = new ByteReader(pair.getKey());
             final K key = AbstractKVNavigableMap.this.decodeKey(reader);
+            if (!AbstractKVNavigableMap.this.prefixMode && reader.remain() > 0) {
+                LoggerFactory.getLogger(this.getClass()).error(AbstractKVNavigableMap.this.getClass().getName()
+                  + "@" + Integer.toHexString(System.identityHashCode(AbstractKVNavigableMap.this))
+                  + ": " + reader.remain() + " undecoded bytes remain in key " + ByteUtil.toString(pair.getKey()) + " -> " + key);
+            }
 
             // Decode value
             final V value = AbstractKVNavigableMap.this.decodeValue(pair);

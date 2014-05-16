@@ -41,6 +41,8 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
         if (elementField == null)
             throw new IllegalArgumentException("null elementField");
         this.elementField = elementField;
+        assert this.elementField.parent == null;
+        this.elementField.parent = this;
     }
 
     /**

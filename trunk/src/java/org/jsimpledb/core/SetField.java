@@ -56,6 +56,11 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     }
 
     @Override
+    boolean hasComplexIndex(SimpleField<?> subField) {
+        return false;       // index value = object ID
+    }
+
+    @Override
     public String toString() {
         return "set field `" + this.name + "' of " + this.elementField.fieldType;
     }
