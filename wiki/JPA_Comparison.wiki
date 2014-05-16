@@ -5,6 +5,7 @@
 Here's a quick comparison between JSimpleDB and JPA, the most common Java persistence technology:
 
 || *Feature/Issue* || *JPA* || *JSimpleDB* ||
+|| Maturity level || Mature; since 2006 || New; since 2014 ||
 || Underlying database || SQL only || Key/value store (including SQL) ||
 || Query language || JPQL, SQL, Criteria || Regular Java ||
 || Configuration || Java Annotations + XML || Java Annotations ||
