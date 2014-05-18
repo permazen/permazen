@@ -797,6 +797,7 @@
     -->
     <macrodef uri="urn:org.dellroad.ant" name="unit-tests">
         <attribute name="testngfile" default="${basedir}/src/test/testng.xml" description="TestNG control file"/>
+        <attribute name="cobertura" default="true" description="Instrument class files with Cobertura"/>
         <element name="excludes" optional="yes"/>
         <element name="addclasspath" optional="yes"/>
         <element name="testng" optional="yes"/>
@@ -809,20 +810,25 @@
               resource="tasks.properties" classpathref="cobertura.classpath"/>
 
             <!-- Instrument Classes -->
-            <delete dir="${basedir}/build/cobertura"/>
-            <delete dir="${basedir}/build/reports/coverage"/>
-            <mkdir dir="${basedir}/build/cobertura/classes"/>
-            <mkdir dir="${basedir}/build/reports/coverage"/>
-            <cobertura:cobertura-instrument todir="${basedir}/build/cobertura/classes"
-              datafile="${basedir}/build/cobertura/cobertura.ser">
-                <fileset dir="${basedir}/build/classes">
-                    <include name="**/*.class"/>
-                    <excludes/>
-                </fileset>
-                <auxClasspath>
-                    <addclasspath/>
-                </auxClasspath>
-            </cobertura:cobertura-instrument>
+            <antcontrib:if>
+                <equals arg1="@{cobertura}" arg2="true"/>
+                <antcontrib:then>
+                    <delete dir="${basedir}/build/cobertura"/>
+                    <delete dir="${basedir}/build/reports/coverage"/>
+                    <mkdir dir="${basedir}/build/cobertura/classes"/>
+                    <mkdir dir="${basedir}/build/reports/coverage"/>
+                    <cobertura:cobertura-instrument todir="${basedir}/build/cobertura/classes"
+                      datafile="${basedir}/build/cobertura/cobertura.ser">
+                        <fileset dir="${basedir}/build/classes">
+                            <include name="**/*.class"/>
+                            <excludes/>
+                        </fileset>
+                        <auxClasspath>
+                            <addclasspath/>
+                        </auxClasspath>
+                    </cobertura:cobertura-instrument>
+                </antcontrib:then>
+            </antcontrib:if>
 
             <!-- Run tests -->
             <testng:testng outputDir="${basedir}/build/reports/tests" haltOnfailure="true">
@@ -843,8 +849,13 @@
             </testng:testng>
 
             <!-- Generate coverage report -->
-            <cobertura:cobertura-report format="html" destdir="${basedir}/build/reports/coverage"
-              srcdir="${basedir}/src/java" datafile="${basedir}/build/cobertura/cobertura.ser"/>
+            <antcontrib:if>
+                <equals arg1="@{cobertura}" arg2="true"/>
+                <antcontrib:then>
+                    <cobertura:cobertura-report format="html" destdir="${basedir}/build/reports/coverage"
+                      srcdir="${basedir}/src/java" datafile="${basedir}/build/cobertura/cobertura.ser"/>
+                </antcontrib:then>
+            </antcontrib:if>
         </sequential>
     </macrodef>
 
