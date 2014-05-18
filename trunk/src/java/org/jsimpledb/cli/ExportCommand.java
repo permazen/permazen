@@ -13,6 +13,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -25,7 +26,7 @@ import org.jsimpledb.util.XMLObjectSerializer;
 
 import jline.console.completer.FileNameCompleter;
 
-public class ExportCommand extends AbstractCommand {
+public class ExportCommand extends Command {
 
     public ExportCommand() {
         super("export");
@@ -42,12 +43,15 @@ public class ExportCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        final ParamParser parser = new ParamParser(1, 1, this.getUsage(), "--storage-id-format").parse(ctx);
-        final boolean nameFormat = !parser.hasFlag("--storage-id-format");
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+
+        // Parse parameters
+        final Map<String, Object> params = new ParamParser(
+          this, "--storage-id-format file").parseParameters(session, ctx, complete);
+        final boolean nameFormat = params.containsKey("--storage-id-format");
+        final String path = (String)params.get("file");
 
         // Check file
-        final String path = parser.getParam(0);
         final File file = new File(path);
         if (!(file.exists() && !file.isDirectory() && file.canWrite())
           && !(file.getParentFile() == null || (file.getParentFile().exists() && file.getParentFile().canWrite()))) {

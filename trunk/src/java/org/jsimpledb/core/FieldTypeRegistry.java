@@ -22,7 +22,7 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
 /**
  * A registry of {@link FieldType}s.
  *
- * <b>Arrays</b>
+ * <p><b>Arrays</b></p>
  *
  * <p>
  * Array types will be automatically created and registered on demand, assuming the base element
@@ -36,6 +36,22 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
  *
  * <p>
  * Arrays of references are not currently supported.
+ * </p>
+ *
+ * <p>
+ * The following types are automatically registered (or generated on demand):
+ * <ul>
+ *  <li>Primitive types ({@code boolean}, {@code int}, etc.)</li>
+ *  <li>Primitive wrapper types ({@link Boolean}, {@link Integer}, etc.)</li>
+ *  <li>{@link String}</li>
+ *  <li>Array types</li>
+ *  <li>{@link Enum} types</li>
+ *  <li>{@link java.util.Date}</li>
+ *  <li>{@link java.util.UUID}</li>
+ *  <li>{@link java.util.URI}</li>
+ *  <li>{@link java.io.File}</li>
+ *  <li>{@link java.util.regex.Pattern}</li>
+ * </ul>
  * </p>
  */
 public class FieldTypeRegistry {

@@ -10,7 +10,7 @@ package org.jsimpledb.cli;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.ParseContext;
 
-public class IterateCommand extends AbstractCommand {
+public class IterateCommand extends Command {
 
     public IterateCommand() {
         super("iterate");
@@ -29,15 +29,16 @@ public class IterateCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "The 'iterate' command takes one argument which is the name of an object type."
-          + " All instances of that type are then iterated in a new channel pushed on the stack.";
+          + " All instances of that type are then iterated in a new channel pushed on the stack."
+          + " The `type' parameter may be a storage ID or the name of a type in the current schema version;"
+          + " in the latter case, the name may include an optional `#N' suffix to specify a different schema version N.";
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
 
         // Parse type
-        final ParamParser parser = new ParamParser(1, 1, this.getUsage()).parse(ctx);
-        final int storageId = Util.parseTypeName(session, ctx, parser.getParam(0));
+        final int storageId = (Integer)new ParamParser(this, "type:type").parseParameters(session, ctx, complete).get("type");
 
         // Return all instances
         return new Action() {

@@ -14,13 +14,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.jsimpledb.util.ParseContext;
 import org.jsimpledb.util.XMLObjectSerializer;
 
 import jline.console.completer.FileNameCompleter;
 
-public class ImportCommand extends AbstractCommand {
+public class ImportCommand extends Command {
 
     public ImportCommand() {
         super("import");
@@ -37,8 +38,9 @@ public class ImportCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        final String path = new ParamParser(1, 1, this.getUsage()).parse(ctx).getParam(0);
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+        final Map<String, Object> params = new ParamParser(this, "file").parseParameters(session, ctx, complete);
+        final String path = (String)params.get("file");
 
         // Check file
         final File file = new File(path);

@@ -7,9 +7,11 @@
 
 package org.jsimpledb.cli;
 
+import java.util.Map;
+
 import org.jsimpledb.util.ParseContext;
 
-public class PrintCommand extends AbstractCommand {
+public class PrintCommand extends Command {
 
     public PrintCommand() {
         super("print");
@@ -33,22 +35,16 @@ public class PrintCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        final ParamParser parser = new ParamParser(0, 1, this.getUsage(), "-v", "-n").parse(ctx);
-        final boolean verbose = parser.hasFlag("-v");
-        final boolean noRemove = parser.hasFlag("-n");
-        final int depth;
-        if (parser.getParams().size() > 0) {
-            final String depthParam = parser.getParam(0);
-            try {
-                depth = Integer.parseInt(depthParam);
-                if (depth < 0)
-                    throw new IllegalArgumentException("depth is negative");
-            } catch (IllegalArgumentException e) {
-                throw new ParseException(ctx, "invalid depth `" + depthParam + "'");
-            }
-        } else
-            depth = 0;
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+
+        // Parse parameters
+        final Map<String, Object> params = new ParamParser(this, "-v -n depth:int?").parseParameters(session, ctx, complete);
+        final boolean verbose = params.containsKey("-v");
+        final boolean noRemove = params.containsKey("-n");
+        final int depth = params.containsKey("depth") ? (Integer)params.get("depth") : 0;
+        if (depth < 0)
+            throw new ParseException(ctx, "invalid negative depth");
+
         return new Action() {
             @Override
             public void run(Session session) throws Exception {

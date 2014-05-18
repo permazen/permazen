@@ -11,7 +11,7 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
 
-public class DeleteCommand extends AbstractCommand {
+public class DeleteCommand extends Command {
 
     public DeleteCommand() {
         super("delete");
@@ -33,8 +33,8 @@ public class DeleteCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        final ParamParser parser = new ParamParser(0, 0, this.getUsage()).parse(ctx);
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+        new ParamParser(this).parseParameters(session, ctx, complete);
         return new Action() {
             @Override
             public void run(Session session) throws Exception {

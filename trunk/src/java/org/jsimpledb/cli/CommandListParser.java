@@ -14,15 +14,18 @@ import org.jsimpledb.util.ParseContext;
 
 public class CommandListParser {
 
-    public List<Action> parse(Session session, ParseContext ctx) {
+    public List<Action> parse(Session session, ParseContext ctx, boolean complete) {
         final ArrayList<Action> actions = new ArrayList<>();
         while (true) {
-            final Action action = CommandParser.parse(session, ctx);
-            if (action == null)
+            new SpaceParser().parse(ctx);
+            if (ctx.isEOF() && !complete)
                 break;
-            actions.add(action);
+            actions.add(CommandParser.parse(session, ctx, complete));
+            if (ctx.isEOF() && !complete)
+                break;
+            if (!ctx.tryLiteral(";"))
+                throw new ParseException(ctx).addCompletion("; ");
         }
         return actions;
     }
 }
-

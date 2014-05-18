@@ -7,13 +7,14 @@
 
 package org.jsimpledb.cli;
 
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
 
-public class CreateCommand extends AbstractCommand {
+public class CreateCommand extends Command {
 
     public CreateCommand() {
         super("create");
@@ -36,37 +37,17 @@ public class CreateCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
 
         // Parse options
-        final ParamParser parser = new ParamParser(1, 1, this.getUsage(), "-c@", "-v@").parse(ctx);
-        final String vflag = parser.getFlag("-v");
-        final int version;
-        if (vflag != null) {
-            try {
-                version = Integer.parseInt(vflag);
-                if (version < 0)
-                    throw new IllegalArgumentException("version is negative");
-            } catch (IllegalArgumentException e) {
-                throw new ParseException(ctx, "invalid version `" + vflag + "'");
-            }
-        } else
-            version = 0;
-        final String cflag = parser.getFlag("-c");
-        final int count;
-        if (cflag != null) {
-            try {
-                count = Integer.parseInt(vflag);
-                if (count < 0)
-                    throw new IllegalArgumentException("count is negative");
-            } catch (IllegalArgumentException e) {
-                throw new ParseException(ctx, "invalid count `" + cflag + "'");
-            }
-        } else
-            count = 1;
-
-        // Parse type
-        final int storageId = Util.parseTypeName(session, ctx, parser.getParam(0));
+        final Map<String, Object> params = new ParamParser(this, "-v:int -c:int type:type").parseParameters(session, ctx, complete);
+        final int version = params.containsKey("-v") ? (Integer)params.get("-v") : 0;
+        if (version < 0)
+            throw new ParseException(ctx, "invalid negative version");
+        final int count = params.containsKey("-c") ? (Integer)params.get("-c") : 1;
+        if (count < 0)
+            throw new ParseException(ctx, "invalid negative count");
+        final int storageId = (Integer)params.get("type");
 
         // Return action that creates instance(s) and pushes them onto the stack
         return new Action() {

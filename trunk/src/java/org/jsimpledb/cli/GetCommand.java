@@ -7,10 +7,12 @@
 
 package org.jsimpledb.cli;
 
+import java.util.Map;
+
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.ParseContext;
 
-public class GetCommand extends AbstractCommand {
+public class GetCommand extends Command {
 
     public GetCommand() {
         super("get");
@@ -33,8 +35,9 @@ public class GetCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        final ParamParser parser = new ParamParser(1, 1, this.getUsage()).parse(ctx);
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+        final Map<String, Object> params = new ParamParser(this, "fieldname").parseParameters(session, ctx, complete);
+        final String fieldName = (String)params.get("fieldname");
         return new Action() {
             @Override
             public void run(Session session) throws Exception {

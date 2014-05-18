@@ -10,7 +10,7 @@ package org.jsimpledb.cli;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
 
-public class ShowSchemaCommand extends AbstractCommand implements Action {
+public class ShowSchemaCommand extends Command implements Action {
 
     public ShowSchemaCommand() {
         super("show-schema");
@@ -22,8 +22,8 @@ public class ShowSchemaCommand extends AbstractCommand implements Action {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        new ParamParser(0, 0, this.getUsage()).parse(ctx);
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+        new ParamParser(this).parseParameters(session, ctx, complete);
         return this;
     }
 

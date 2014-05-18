@@ -9,9 +9,11 @@ package org.jsimpledb.cli;
 
 import com.google.common.collect.Iterables;
 
+import java.util.Map;
+
 import org.jsimpledb.util.ParseContext;
 
-public class LimitCommand extends AbstractCommand {
+public class LimitCommand extends Command {
 
     public LimitCommand() {
         super("limit");
@@ -34,31 +36,16 @@ public class LimitCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
 
         // Parse parameters
-        final ParamParser parser = new ParamParser(1, 2, this.getUsage()).parse(ctx);
-        final String offsetParam = parser.getParam(0);
-        final int offset;
-        if (parser.getParams().size() > 1) {
-            try {
-                offset = Integer.parseInt(offsetParam);
-                if (offset < 0)
-                    throw new IllegalArgumentException("offset is negative");
-            } catch (IllegalArgumentException e) {
-                throw new ParseException(ctx, "invalid offset `" + offsetParam + "'");
-            }
-        } else
-            offset = 0;
-        final String limitParam = parser.getParam(parser.getParams().size() == 1 ? 0 : 1);
-        final int limit;
-        try {
-            limit = Integer.parseInt(limitParam);
-            if (limit < 0)
-                throw new IllegalArgumentException("limit is negative");
-        } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, "invalid limit `" + limitParam + "'");
-        }
+        final Map<String, Object> params = new ParamParser(this, "p1:int p2:int?").parseParameters(session, ctx, complete);
+        final int offset = params.containsKey("p2") ? (Integer)params.get("p1") : 0;
+        if (offset < 0)
+            throw new ParseException(ctx, "invalid negative offset");
+        final int limit = (Integer)params.get(params.containsKey("p2") ? "p2" : "p1");
+        if (limit < 0)
+            throw new ParseException(ctx, "invalid negative limit");
 
         // Return action
         return new Action() {

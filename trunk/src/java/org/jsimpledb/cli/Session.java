@@ -130,7 +130,7 @@ public class Session {
     public void report(Exception e) {
         final String message = e.getLocalizedMessage();
         try {
-            if (e instanceof ParseException)
+            if (e instanceof ParseException && message != null)
                 this.console.println("Error: " + message);
             else
                 this.console.println("Error: " + e.getClass().getSimpleName() + (message != null ? ": " + message : ""));
@@ -142,7 +142,7 @@ public class Session {
     }
 
     protected boolean showStackTrace(Exception e) {
-        return e instanceof NullPointerException;
+        return e instanceof NullPointerException || (e instanceof ParseException && e.getLocalizedMessage() == null);
     }
 
 // Transactions

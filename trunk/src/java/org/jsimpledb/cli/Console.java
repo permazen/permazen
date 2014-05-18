@@ -17,6 +17,8 @@ import java.util.List;
 
 import org.jsimpledb.core.Database;
 import org.jsimpledb.util.ParseContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jline.console.ConsoleReader;
 import jline.console.UserInterruptException;
@@ -28,6 +30,7 @@ import jline.console.history.FileHistory;
  */
 public class Console {
 
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final Database db;
     private final ConsoleReader console;
     private final Session session;
@@ -83,7 +86,7 @@ public class Console {
             public int complete(String buffer, int cursor, List<CharSequence> candidates) {
                 final ParseContext ctx = new ParseContext(lineBuffer + buffer.substring(0, cursor));
                 try {
-                    new CommandListParser().parse(session, ctx);
+                    new CommandListParser().parse(session, ctx, true);
                 } catch (ParseException e) {
                     String prefix = "";
                     int index = ctx.getIndex();
@@ -146,7 +149,7 @@ public class Console {
                 lineBuffer.setLength(0);
 
                 // Skip initial whitespace
-                ctx.skipWhitespace();
+                new SpaceParser().parse(ctx);
 
                 // Ignore blank input
                 if (ctx.getInput().length() == 0)
@@ -155,9 +158,9 @@ public class Console {
                 // Parse command(s)
                 final List<Action> actions;
                 try {
-                    actions = new CommandListParser().parse(this.session, ctx);
+                    actions = new CommandListParser().parse(this.session, ctx, false);
                 } catch (Exception e) {
-                    this.session.report(e);             // "should never happen"
+                    this.session.report(e);
                     continue;
                 }
 
