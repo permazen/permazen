@@ -33,7 +33,7 @@
         <property name="javac.classpath.resolved" value="true"/>
     </target>
 
-    <target name="unittest.classpath" depends="jar" unless="unittest.classpath.resolved">
+    <target name="unittest.classpath" unless="unittest.classpath.resolved">
         <dellroad:ivypath pathid="unittest.classpath" conf="test"/>
         <property name="unittest.classpath.resolved" value="true"/>
     </target>
@@ -135,7 +135,7 @@
 
     <!-- Run unit tests -->
     <target name="tests" description="Run unit tests"
-      depends="javac, unittest.classpath, testng.classpath, cobertura.classpath"
+      depends="javac, unittest.classpath, build.classpath, testng.classpath, cobertura.classpath"
       unless="tests.completed">
         <copy todir="build/test" overwrite="true">
             <fileset dir="src/test" includes="**/*.xsl"/>
