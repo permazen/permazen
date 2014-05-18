@@ -7,9 +7,11 @@
 
 package org.jsimpledb.cli;
 
+import java.util.Map;
+
 import org.jsimpledb.util.ParseContext;
 
-public class SetSchemaVersionCommand extends AbstractCommand {
+public class SetSchemaVersionCommand extends Command {
 
     public SetSchemaVersionCommand() {
         super("set-schema-version");
@@ -33,16 +35,11 @@ public class SetSchemaVersionCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        final String value = new ParamParser(1, 1, this.getUsage()).parse(ctx).getParam(0);
-        final int version;
-        try {
-            version = Integer.parseInt(value);
-            if (version < 0)
-                throw new IllegalArgumentException("schema version is negative");
-        } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, "invalid schema version `" + value + "'");
-        }
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+        final Map<String, Object> params = new ParamParser(this, "version:int").parseParameters(session, ctx, complete);
+        final int version = (Integer)params.get("version");
+        if (version < 0)
+            throw new ParseException(ctx, "invalid negative schema version");
         return new Action() {
             @Override
             public void run(Session session) throws Exception {

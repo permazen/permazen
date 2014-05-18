@@ -12,7 +12,7 @@ import java.util.Iterator;
 
 import org.jsimpledb.util.ParseContext;
 
-public class StackCommand extends AbstractCommand implements Action {
+public class StackCommand extends Command implements Action {
 
     public StackCommand() {
         super("stack");
@@ -24,8 +24,8 @@ public class StackCommand extends AbstractCommand implements Action {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        new ParamParser(0, 0, this.getUsage()).parse(ctx);
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+        new ParamParser(this).parseParameters(session, ctx, complete);
         return this;
     }
 

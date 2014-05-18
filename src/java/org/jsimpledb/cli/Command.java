@@ -17,13 +17,16 @@ import java.util.Set;
 
 import org.jsimpledb.util.ParseContext;
 
-public abstract class AbstractCommand {
+/**
+ * Superclass of all CLI commands.
+ */
+public abstract class Command {
 
     protected final String name;
 
 // Constructors
 
-    protected AbstractCommand(String name) {
+    protected Command(String name) {
         if (name == null)
             throw new IllegalArgumentException("null name");
         this.name = name;
@@ -50,7 +53,7 @@ public abstract class AbstractCommand {
      *
      * @throws ParseException if command is invalid
      */
-    public abstract Action parseParameters(Session session, ParseContext ctx);
+    public abstract Action parseParameters(Session session, ParseContext ctx, boolean complete);
 
 // Channel access
 

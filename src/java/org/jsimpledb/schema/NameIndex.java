@@ -8,7 +8,7 @@
 package org.jsimpledb.schema;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -23,8 +23,8 @@ import java.util.TreeMap;
 public class NameIndex {
 
     private final SchemaModel schemaModel;
-    private final TreeMap<String, HashSet<SchemaObject>> typeMap = new TreeMap<>();
-    private final TreeMap<Integer, TreeMap<String, HashSet<SchemaField>>> typeFieldMap = new TreeMap<>();
+    private final TreeMap<String, LinkedHashSet<SchemaObject>> typeMap = new TreeMap<>();
+    private final TreeMap<Integer, TreeMap<String, LinkedHashSet<SchemaField>>> typeFieldMap = new TreeMap<>();
 
     /**
      * Constructor.
@@ -42,22 +42,22 @@ public class NameIndex {
         for (SchemaObject type : schemaModel.getSchemaObjects().values()) {
 
             // Index type name
-            HashSet<SchemaObject> typeSet = this.typeMap.get(type.getName());
+            LinkedHashSet<SchemaObject> typeSet = this.typeMap.get(type.getName());
             if (typeSet == null) {
-                typeSet = new HashSet<SchemaObject>();
+                typeSet = new LinkedHashSet<SchemaObject>();
                 this.typeMap.put(type.getName(), typeSet);
             }
             typeSet.add(type);
 
             // Index field names
-            final TreeMap<String, HashSet<SchemaField>> fieldMap = new TreeMap<>();
+            final TreeMap<String, LinkedHashSet<SchemaField>> fieldMap = new TreeMap<>();
             this.typeFieldMap.put(type.getStorageId(), fieldMap);
             for (SchemaField field : type.getSchemaFields().values()) {
 
                 // Index field name
-                HashSet<SchemaField> fieldSet = fieldMap.get(field.getName());
+                LinkedHashSet<SchemaField> fieldSet = fieldMap.get(field.getName());
                 if (fieldSet == null) {
-                    fieldSet = new HashSet<SchemaField>();
+                    fieldSet = new LinkedHashSet<SchemaField>();
                     fieldMap.put(field.getName(), fieldSet);
                 }
                 fieldSet.add(field);
@@ -82,7 +82,7 @@ public class NameIndex {
     public Set<SchemaObject> getSchemaObjects(String name) {
         if (name == null)
             throw new IllegalArgumentException("null name");
-        final HashSet<SchemaObject> typeSet = this.typeMap.get(name);
+        final LinkedHashSet<SchemaObject> typeSet = this.typeMap.get(name);
         return typeSet != null ? Collections.unmodifiableSet(typeSet) : Collections.<SchemaObject>emptySet();
     }
 
@@ -129,10 +129,10 @@ public class NameIndex {
             throw new IllegalArgumentException("null type");
         if (name == null)
             throw new IllegalArgumentException("null name");
-        final TreeMap<String, HashSet<SchemaField>> fieldMap = this.typeFieldMap.get(type.getStorageId());
+        final TreeMap<String, LinkedHashSet<SchemaField>> fieldMap = this.typeFieldMap.get(type.getStorageId());
         if (fieldMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
-        final HashSet<SchemaField> fieldSet = fieldMap.get(name);
+        final LinkedHashSet<SchemaField> fieldSet = fieldMap.get(name);
         return fieldSet != null ? Collections.unmodifiableSet(fieldSet) : Collections.<SchemaField>emptySet();
     }
 
@@ -168,7 +168,7 @@ public class NameIndex {
     public SortedSet<String> getSchemaFieldNames(SchemaObject type) {
         if (type == null)
             throw new IllegalArgumentException("null type");
-        final TreeMap<String, HashSet<SchemaField>> fieldMap = this.typeFieldMap.get(type.getStorageId());
+        final TreeMap<String, LinkedHashSet<SchemaField>> fieldMap = this.typeFieldMap.get(type.getStorageId());
         if (fieldMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
         return Collections.unmodifiableSortedSet(fieldMap.navigableKeySet());

@@ -7,11 +7,11 @@
 
 package org.jsimpledb.cli;
 
-import java.util.Arrays;
+import java.util.Map;
 
 import org.jsimpledb.util.ParseContext;
 
-public class SetAllowNewSchemaCommand extends AbstractCommand {
+public class SetAllowNewSchemaCommand extends Command {
 
     public SetAllowNewSchemaCommand() {
         super("set-allow-new-schema");
@@ -28,13 +28,9 @@ public class SetAllowNewSchemaCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        final String value = new ParamParser(1, 1, this.getUsage()).parse(ctx).getParams().get(0);
-        if (!value.matches("(?i)true|false")) {
-            throw new ParseException(ctx, "invalid value `" + value + "'; specify either `true' or `false'")
-              .addCompletions(Util.complete(Arrays.asList("true", "false"), value, false));
-        }
-        final boolean allow = Boolean.valueOf(value);
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+        final Map<String, Object> params = new ParamParser(this, "allow:boolean").parseParameters(session, ctx, complete);
+        final boolean allow = (Boolean)params.get("allow");
         return new Action() {
             @Override
             public void run(Session session) throws Exception {

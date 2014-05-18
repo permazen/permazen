@@ -9,10 +9,11 @@ package org.jsimpledb.cli;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 
 import org.jsimpledb.util.ParseContext;
 
-public class SwapCommand extends AbstractCommand {
+public class SwapCommand extends Command {
 
     public SwapCommand() {
         super("swap");
@@ -36,22 +37,13 @@ public class SwapCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
 
         // Parse parameters
-        final ParamParser parser = new ParamParser(0, 1, this.getUsage()).parse(ctx);
-        final int depth;
-        if (parser.getParams().size() > 0) {
-            final String depthParam = parser.getParam(0);
-            try {
-                depth = Integer.parseInt(depthParam);
-                if (depth < 0)
-                    throw new IllegalArgumentException("depth is negative");
-            } catch (IllegalArgumentException e) {
-                throw new ParseException(ctx, "invalid depth `" + depthParam + "'");
-            }
-        } else
-            depth = 1;
+        final Map<String, Object> params = new ParamParser(this, "depth:int?").parseParameters(session, ctx, complete);
+        final int depth = params.containsKey("depth") ? (Integer)params.get("depth") : 1;
+        if (depth < 0)
+                throw new ParseException(ctx, "invalid negative stack depth");
 
         // Return action
         return new Action() {

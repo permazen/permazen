@@ -11,7 +11,7 @@ import java.util.Collection;
 
 import org.jsimpledb.util.ParseContext;
 
-public class CountCommand extends AbstractCommand implements Action {
+public class CountCommand extends Command implements Action {
 
     public CountCommand() {
         super("count");
@@ -34,8 +34,8 @@ public class CountCommand extends AbstractCommand implements Action {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        new ParamParser(0, 0, this.name).parse(ctx);
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+        new ParamParser(this).parseParameters(session, ctx, complete);
         return this;
     }
 

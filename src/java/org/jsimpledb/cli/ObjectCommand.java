@@ -7,12 +7,16 @@
 
 package org.jsimpledb.cli;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.ParseContext;
 
-public class ObjectCommand extends AbstractCommand {
+public class ObjectCommand extends Command {
 
     public ObjectCommand() {
         super("object");
@@ -34,20 +38,11 @@ public class ObjectCommand extends AbstractCommand {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
 
-        // Parse IDs
-        final TreeSet<ObjId> ids = new TreeSet<>();
-        while (true) {
-            ctx.skipWhitespace();
-            if (ctx.getInput().matches(";.*") || ctx.isEOF())
-                break;
-            ids.add(Util.parseObjId(session, ctx, this.getUsage()));
-        }
-        if (ids.isEmpty()) {
-            Util.parseObjId(session, ctx, this.getUsage());
-            throw new ParseException(ctx, "Usage: " + this.getUsage());     // should never get here
-        }
+        // Parse parameters
+        final Map<String, Object> params = new ParamParser(this, "id:objid+").parseParameters(session, ctx, complete);
+        final TreeSet<ObjId> ids = new TreeSet<>(Lists.transform((List<?>)params.get("id"), new CastFunction<ObjId>(ObjId.class)));
 
         // Return instances
         return new Action() {

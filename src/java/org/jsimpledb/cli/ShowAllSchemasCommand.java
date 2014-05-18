@@ -12,7 +12,7 @@ import java.util.Map;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.util.ParseContext;
 
-public class ShowAllSchemasCommand extends AbstractCommand implements Action {
+public class ShowAllSchemasCommand extends Command implements Action {
 
     public ShowAllSchemasCommand() {
         super("show-all-schemas");
@@ -24,8 +24,8 @@ public class ShowAllSchemasCommand extends AbstractCommand implements Action {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx) {
-        new ParamParser(0, 0, this.getUsage()).parse(ctx);
+    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+        new ParamParser(this).parseParameters(session, ctx, complete);
         return this;
     }
 
