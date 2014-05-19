@@ -38,16 +38,26 @@ public class ListField<E> extends CollectionField<List<E>, E> {
           .where(new TypeParameter<E>() { }, elementField.typeToken.wrap()), elementField);
     }
 
+// Public methods
+
     @Override
+    @SuppressWarnings("unchecked")
     public List<E> getValue(Transaction tx, ObjId id) {
-        return new JSList<E>(tx, this, id);
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return (List<E>)tx.readListField(id, this.storageId, false);
     }
 
     @Override
-    public boolean hasDefaultValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        return tx.readListField(id, this.storageId, false).isEmpty();
+    public String toString() {
+        return "list field `" + this.name + "' of " + this.elementField.fieldType;
+    }
+
+// Non-public methods
+
+    @Override
+    List<E> getValueInternal(Transaction tx, ObjId id) {
+        return new JSList<E>(tx, this, id);
     }
 
     @Override
@@ -59,13 +69,6 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     boolean hasComplexIndex(SimpleField<?> subField) {
         return true;        // index value = object ID + index
     }
-
-    @Override
-    public String toString() {
-        return "list field `" + this.name + "' of " + this.elementField.fieldType;
-    }
-
-// Subclass Methods
 
     @Override
     void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {

@@ -45,6 +45,8 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
         this.elementField.parent = this;
     }
 
+// Public methods
+
     /**
      * Get the element field.
      */
@@ -53,11 +55,18 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
     }
 
     @Override
-    abstract CollectionFieldStorageInfo toStorageInfo();
-
-    @Override
     public final List<SimpleField<E>> getSubFields() {
         return Collections.<SimpleField<E>>singletonList(this.elementField);
     }
+
+    @Override
+    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+        return this.getValue(tx, id).isEmpty();
+    }
+
+// Non-public methods
+
+    @Override
+    abstract CollectionFieldStorageInfo toStorageInfo();
 }
 

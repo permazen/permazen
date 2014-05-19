@@ -38,16 +38,26 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
           .where(new TypeParameter<E>() { }, elementField.typeToken.wrap()), elementField);
     }
 
+// Public methods
+
     @Override
+    @SuppressWarnings("unchecked")
     public NavigableSet<E> getValue(Transaction tx, ObjId id) {
-        return new JSSet<E>(tx, this, id);
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return (NavigableSet<E>)tx.readSetField(id, this.storageId, false);
     }
 
     @Override
-    public boolean hasDefaultValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        return tx.readSetField(id, this.storageId, false).isEmpty();
+    public String toString() {
+        return "set field `" + this.name + "' of " + this.elementField.fieldType;
+    }
+
+// Non-public methods
+
+    @Override
+    NavigableSet<E> getValueInternal(Transaction tx, ObjId id) {
+        return new JSSet<E>(tx, this, id);
     }
 
     @Override
@@ -59,13 +69,6 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     boolean hasComplexIndex(SimpleField<?> subField) {
         return false;       // index value = object ID
     }
-
-    @Override
-    public String toString() {
-        return "set field `" + this.name + "' of " + this.elementField.fieldType;
-    }
-
-// Subclass methods
 
     @Override
     void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {

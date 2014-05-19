@@ -43,6 +43,8 @@ public abstract class ComplexField<T> extends Field<T> {
         this.storageIdLength = UnsignedIntEncoder.encodeLength(storageId);
     }
 
+// Public methods
+
     /**
      * Get the sub-field(s) associated with this instance, ordered according to their meaning.
      *
@@ -50,13 +52,13 @@ public abstract class ComplexField<T> extends Field<T> {
      */
     public abstract List<? extends SimpleField<?>> getSubFields();
 
+// Non-public methods
+
     /**
-     * Get the Java value of this field in the given object.
-     *
-     * @param tx transaction
-     * @param id object id
+     * Get the Java collection object representing the value of this instance in the given object.
+     * This method does not need to do any validity checking of its parameters.
      */
-    public abstract T getValue(Transaction tx, ObjId id);
+    abstract T getValueInternal(Transaction tx, ObjId id);
 
     abstract ComplexFieldStorageInfo toStorageInfo();
 

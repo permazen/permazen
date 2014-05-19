@@ -51,21 +51,30 @@ public class CounterField extends Field<Long> {
         return new CounterFieldStorageInfo(this);
     }
 
+// Public methods
+
     @Override
-    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+    public Long getValue(Transaction tx, ObjId id) {
         if (tx == null)
             throw new IllegalArgumentException("null tx");
-        return tx.readCounterField(id, this.storageId, false) == 0;
+        return tx.readCounterField(id, this.storageId, false);
     }
 
     @Override
-    boolean isEquivalent(Field<?> field) {
-        return field.getClass() == this.getClass();
+    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+        return this.getValue(tx, id) == 0;
     }
 
     @Override
     public String toString() {
         return "counter field `" + this.name + "'";
+    }
+
+// Non-public methods
+
+    @Override
+    boolean isEquivalent(Field<?> field) {
+        return field.getClass() == this.getClass();
     }
 }
 
