@@ -40,12 +40,21 @@ public class ReferenceField extends SimpleField<ObjId> {
         this.onDelete = onDelete;
     }
 
+// Public methods
+
     /**
      * Get the desired behavior when an object referred to by this field is deleted.
      */
     public DeleteAction getOnDelete() {
         return this.onDelete;
     }
+
+    @Override
+    public String toString() {
+        return "reference field `" + this.name + "'";
+    }
+
+// Non-public methods
 
     @Override
     ReferenceFieldStorageInfo toStorageInfo(int superFieldStorageId) {
@@ -58,11 +67,6 @@ public class ReferenceField extends SimpleField<ObjId> {
             return false;
         final ReferenceField that = (ReferenceField)field;
         return this.onDelete == that.onDelete;
-    }
-
-    @Override
-    public String toString() {
-        return "reference field `" + this.name + "'";
     }
 }
 

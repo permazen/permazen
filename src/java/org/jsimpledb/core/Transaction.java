@@ -1162,7 +1162,7 @@ public class Transaction {
                 continue;
 
             // Save old field's value
-            oldFieldValues.put(storageId, oldField.getValue(this, id));
+            oldFieldValues.put(storageId, oldField.getValueInternal(this, id));
 
             // Determine if the fields are compatible and field content can be preserved
             final boolean compatible = newField != null && newField.isSchemaChangeCompatible(oldField);
@@ -1639,6 +1639,21 @@ public class Transaction {
         return writer.getBytes();
     }
 
+    boolean hasDefaultValue(ObjId id, SimpleField<?> field) {
+
+        // Sanity check
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        if (id == null)
+            throw new IllegalArgumentException("null id");
+
+        // Get object info to verify object exists
+        final ObjInfo info = this.getObjectInfo(id, false);
+
+        // Check whether non-default value stored in field
+        return this.kvt.get(field.buildKey(id)) == null;
+    }
+
     private synchronized <F, V> V readComplexField(ObjId id,
       int storageId, boolean updateVersion, Class<F> fieldClass, Class<V> valueType) {
 
@@ -1657,7 +1672,7 @@ public class Transaction {
             throw new UnknownFieldException(info.getObjType(), storageId, fieldClass.getSimpleName());
 
         // Return view
-        return valueType.cast(field.getValue(this, id));
+        return valueType.cast(field.getValueInternal(this, id));
     }
 
     /**

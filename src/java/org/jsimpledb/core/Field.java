@@ -39,6 +39,8 @@ public abstract class Field<T> extends SchemaItem {
         this.typeToken = typeToken;
     }
 
+// Public methods
+
     /**
      * Get the Java type corresponding to this field.
      */
@@ -47,14 +49,30 @@ public abstract class Field<T> extends SchemaItem {
     }
 
     /**
+     * Get the Java value of this field in the given object.
+     * Does not alter the schema version of the object.
+     *
+     * @param tx transaction
+     * @param id object id
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public abstract T getValue(Transaction tx, ObjId id);
+
+    /**
      * Determine if this field in the specified object has its default value in the specified {@link Transaction}.
      *
      * @param tx {@link Transaction} containing field state
      * @param id object ID
      * @return true if this field is set to its initial default value in object {@code id}, otherwise false
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if either parameter is null
      */
     public abstract boolean hasDefaultValue(Transaction tx, ObjId id);
+
+// Non-public methods
 
     /**
      * Build the key (or key prefix) for this field in the given object.

@@ -51,12 +51,43 @@ public class SimpleField<T> extends Field<T> {
         this.indexed = indexed;
     }
 
+// Public methods
+
     /**
      * Get the {@link FieldType} associated with this field.
      */
     public FieldType<T> getFieldType() {
         return this.fieldType;
     }
+
+    /**
+     * Determine whether this field is indexed.
+     */
+    public boolean isIndexed() {
+        return this.indexed;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T getValue(Transaction tx, ObjId id) {
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return (T)tx.readSimpleField(id, this.storageId, false);
+    }
+
+    @Override
+    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return tx.hasDefaultValue(id, this);
+    }
+
+    @Override
+    public String toString() {
+        return "field `" + this.name + "' of type " + this.fieldType.typeToken;
+    }
+
+// Non-public methods
 
     /**
      * Check compatibility with another {@link SimpleField} across a schema change.
@@ -86,25 +117,6 @@ public class SimpleField<T> extends Field<T> {
             return false;
         final SimpleField<?> that = (SimpleField<?>)field;
         return this.fieldType.equals(that.fieldType) && this.indexed == that.indexed;
-    }
-
-    @Override
-    public String toString() {
-        return "field `" + this.name + "' of type " + this.fieldType.typeToken;
-    }
-
-    /**
-     * Determine whether this field is indexed.
-     */
-    public boolean isIndexed() {
-        return this.indexed;
-    }
-
-    @Override
-    public boolean hasDefaultValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        return tx.kvt.get(this.buildKey(id)) == null;
     }
 
     /**

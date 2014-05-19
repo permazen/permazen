@@ -56,6 +56,8 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
         this.valueField.parent = this;
     }
 
+// Public methods
+
     /**
      * Get the key field.
      */
@@ -79,13 +81,16 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
-    MapFieldStorageInfo toStorageInfo() {
-        return new MapFieldStorageInfo(this);
+    @SuppressWarnings("unchecked")
+    public NavigableMap<K, V> getValue(Transaction tx, ObjId id) {
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        return (NavigableMap<K, V>)tx.readMapField(id, this.storageId, false);
     }
 
     @Override
-    boolean hasComplexIndex(SimpleField<?> subField) {
-        return true;        // index value = object ID + (key or value)
+    public boolean hasDefaultValue(Transaction tx, ObjId id) {
+        return this.getValue(tx, id).isEmpty();
     }
 
     @Override
@@ -93,18 +98,21 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
         return "map field `" + this.name + "' of " + this.keyField.fieldType + ", " + this.valueField.fieldType;
     }
 
+// Non-public methods
+
     @Override
-    public boolean hasDefaultValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        return tx.readMapField(id, this.storageId, false).isEmpty();
+    NavigableMap<K, V> getValueInternal(Transaction tx, ObjId id) {
+        return new JSMap<K, V>(tx, this, id);
     }
 
-// Subclass methods
+    @Override
+    MapFieldStorageInfo toStorageInfo() {
+        return new MapFieldStorageInfo(this);
+    }
 
     @Override
-    public NavigableMap<K, V> getValue(Transaction tx, ObjId id) {
-        return new JSMap<K, V>(tx, this, id);
+    boolean hasComplexIndex(SimpleField<?> subField) {
+        return true;        // index value = object ID + (key or value)
     }
 
     @Override
