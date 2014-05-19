@@ -33,6 +33,8 @@ import org.jsimpledb.util.ParseContext;
  */
 public class ParamParser implements Parser<Map<String, Object>> {
 
+    private static final ThreadLocal<HashMap<String, Object>> PARAMETERS_ALREADY_PARSED = new ThreadLocal<>();
+
     private final LinkedHashSet<Param> optionFlags = new LinkedHashSet<>();
     private final ArrayList<Param> params = new ArrayList<>();
 
@@ -139,88 +141,101 @@ public class ParamParser implements Parser<Map<String, Object>> {
     public Map<String, Object> parse(Session session, ParseContext ctx, boolean complete) {
 
         // Store results here
+        final HashMap<String, Object> oldValues = PARAMETERS_ALREADY_PARSED.get();
         final HashMap<String, Object> values = new HashMap<String, Object>();
+        PARAMETERS_ALREADY_PARSED.set(values);
+        try {
 
-        // First parse options
-        boolean needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
-        while (true) {
-            new SpaceParser(needSpace).parse(ctx, complete);
-            needSpace = false;
-            if (ctx.getInput().matches("^--([\\s;].*)?$")) {
-                ctx.setIndex(ctx.getIndex() + 2);
-                needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
-                break;
-            }
-            final Matcher matcher = ctx.tryPattern("(-[^\\s;]+)");
-            if (matcher == null)
-                break;
-            final String option = matcher.group(1);
-            final Param param = Iterables.find(this.optionFlags, new Predicate<Param>() {
-                @Override
-                public boolean apply(Param param) {
-                    return option.equals(param.getOptionFlag());
-                }
-            }, null);
-            if (param == null) {
-                throw new ParseException(ctx, "unrecognized option `" + option + "'").addCompletions(
-                  Util.complete(Iterables.transform(this.optionFlags, new Function<Param, String>() {
-                    @Override
-                    public String apply(Param param) {
-                        return param.getOptionFlag();
-                    }
-                }), option));
-            }
-            final Parser<?> parser = param.getParser();
-            if (parser != null) {
-                new SpaceParser(true).parse(ctx, complete);
-                values.put(param.getName(), parser.parse(session, ctx, complete));
-            } else
-                values.put(param.getName(), true);
-            needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
-        }
-
-        // Next parse parameters
-        for (Param param : this.params) {
-            final ArrayList<Object> paramValues = new ArrayList<>();
-            final String typeName = param.getTypeName();
-            final Parser<?> parser = param.getParser();
-            while (paramValues.size() < param.getMax()) {
+            // First parse options
+            boolean needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
+            while (true) {
                 new SpaceParser(needSpace).parse(ctx, complete);
                 needSpace = false;
-                if (!ctx.getInput().matches("^[^\\s;].*$")) {
-                    if (complete) {
-                        parser.parse(session, new ParseContext(""), true);      // calculate completions from empty string
-                        throw new ParseException(ctx, "");                      // should never get here
-                    }
+                if (ctx.getInput().matches("^--([\\s;].*)?$")) {
+                    ctx.setIndex(ctx.getIndex() + 2);
+                    needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
                     break;
                 }
-                paramValues.add(parser.parse(session, ctx, complete));
-                needSpace = paramValues.size() < param.getMin();
-            }
-            if (paramValues.size() < param.getMin()) {
-                final ParseException e = new ParseException(ctx, "missing `" + param + "' parameter");
-                if (complete) {
-                    try {
-                        parser.parse(session, new ParseContext(""), true);
-                    } catch (ParseException e2) {
-                        e.addCompletions(e2.getCompletions());
+                final Matcher matcher = ctx.tryPattern("(-[^\\s;]+)");
+                if (matcher == null)
+                    break;
+                final String option = matcher.group(1);
+                final Param param = Iterables.find(this.optionFlags, new Predicate<Param>() {
+                    @Override
+                    public boolean apply(Param param) {
+                        return option.equals(param.getOptionFlag());
                     }
+                }, null);
+                if (param == null) {
+                    throw new ParseException(ctx, "unrecognized option `" + option + "'").addCompletions(
+                      Util.complete(Iterables.transform(this.optionFlags, new Function<Param, String>() {
+                        @Override
+                        public String apply(Param param) {
+                            return param.getOptionFlag();
+                        }
+                    }), option));
                 }
-                throw e;
+                final Parser<?> parser = param.getParser();
+                if (parser != null) {
+                    new SpaceParser(true).parse(ctx, complete);
+                    values.put(param.getName(), parser.parse(session, ctx, complete));
+                } else
+                    values.put(param.getName(), true);
+                needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
             }
-            if (param.getMax() > 1)
-                values.put(param.getName(), Arrays.asList(paramValues.toArray()));
-            else if (!paramValues.isEmpty())
-                values.put(param.getName(), paramValues.get(0));
+
+            // Next parse parameters
+            for (Param param : this.params) {
+                final ArrayList<Object> paramValues = new ArrayList<>();
+                final String typeName = param.getTypeName();
+                final Parser<?> parser = param.getParser();
+                while (paramValues.size() < param.getMax()) {
+                    new SpaceParser(needSpace).parse(ctx, complete);
+                    needSpace = false;
+                    if (!ctx.getInput().matches("^[^\\s;].*$")) {
+                        if (complete) {
+                            parser.parse(session, new ParseContext(""), true);      // calculate completions from empty string
+                            throw new ParseException(ctx, "");                      // should never get here
+                        }
+                        break;
+                    }
+                    paramValues.add(parser.parse(session, ctx, complete));
+                    needSpace = paramValues.size() < param.getMin();
+                }
+                if (paramValues.size() < param.getMin()) {
+                    final ParseException e = new ParseException(ctx, "missing `" + param.getName() + "' parameter");
+                    if (complete) {
+                        try {
+                            parser.parse(session, new ParseContext(""), true);
+                        } catch (ParseException e2) {
+                            e.addCompletions(e2.getCompletions());
+                        }
+                    }
+                    throw e;
+                }
+                if (param.getMax() > 1)
+                    values.put(param.getName(), Arrays.asList(paramValues.toArray()));
+                else if (!paramValues.isEmpty())
+                    values.put(param.getName(), paramValues.get(0));
+            }
+
+            // Check for trailing garbage
+            new SpaceParser().parse(ctx, complete);
+            if (!ctx.getInput().matches("^(;.*)?$"))
+                throw new ParseException(ctx, "unrecognized extra parameters starting with `" + Util.truncate(ctx.getInput(), 16));
+
+            // Done
+            return values;
+        } finally {
+            PARAMETERS_ALREADY_PARSED.set(oldValues);
         }
+    }
 
-        // Check for trailing garbage
-        new SpaceParser().parse(ctx, complete);
-        if (!ctx.getInput().matches("^(;.*)?$"))
-            throw new ParseException(ctx, "unrecognized extra parameters starting with `" + Util.truncate(ctx.getInput(), 16));
-
-        // Done
-        return values;
+    /**
+     * Kludgey way to access the parameters already parsed during an invocation of {@link #parse parse()}.
+     */
+    public static Map<String, Object> getParametersAlreadyParsed() {
+        return PARAMETERS_ALREADY_PARSED.get();
     }
 
 // Param
@@ -247,8 +262,6 @@ public class ParamParser implements Parser<Map<String, Object>> {
      *  <li><code>-v:foo:int</code> - integer flag named {@code foo}</li>
      *  <li><code>foo</code> - string (word) parameter</li>
      *  <li><code>foo:int</code> - {@code int} parameter</li>
-     *  <li><code>foo:objid</code> - object ID</li>
-     *  <li><code>foo:type</code> - object type name converted to storage ID</li>
      *  <li><code>foo?</code> - optional final parameter</li>
      *  <li><code>foo*</code> - array of zero or more final parameters</li>
      *  <li><code>foo+</code> - array of one or more final parameters</li>

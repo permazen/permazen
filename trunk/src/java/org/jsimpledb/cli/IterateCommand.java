@@ -10,6 +10,7 @@ package org.jsimpledb.cli;
 import java.util.Map;
 
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjType;
 import org.jsimpledb.util.ParseContext;
 
 public class IterateCommand extends Command {
@@ -34,8 +35,8 @@ public class IterateCommand extends Command {
     @Override
     public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
-        // Parse type
-        final int storageId = (Integer)params.get("type");
+        // Get type
+        final int storageId = ((ObjType)params.get("type")).getStorageId();
 
         // Return all instances
         return new Action() {

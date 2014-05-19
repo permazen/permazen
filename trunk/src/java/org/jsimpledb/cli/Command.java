@@ -24,6 +24,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.SchemaItem;
@@ -208,14 +209,17 @@ public abstract class Command implements Parser<Action> {
     /**
      * Parses an object type name.
      */
-    private class TypeNameParser implements Parser<Integer> {
+    private class TypeNameParser implements Parser<ObjType> {
 
         @Override
-        public Integer parse(Session session, ParseContext ctx, boolean complete) {
+        public ObjType parse(Session session, ParseContext ctx, boolean complete) {
 
             // Try to parse as an integer
+            final Transaction tx = session.getTransaction();
+            final Database db = session.getDatabase();
             try {
-                return session.getDatabase().getFieldTypeRegistry().getFieldType(TypeToken.of(Integer.TYPE)).fromString(ctx);
+                final int storageId = db.getFieldTypeRegistry().getFieldType(TypeToken.of(Integer.TYPE)).fromString(ctx);
+                return tx.getSchemaVersion().getSchemaItem(storageId, ObjType.class);
             } catch (IllegalArgumentException e) {
                 // ignore
             }
@@ -236,8 +240,7 @@ public abstract class Command implements Parser<Action> {
             if (versionString != null) {
                 final int version;
                 try {
-                    nameIndex = new NameIndex(session.getTransaction().getSchema().getVersion(
-                      Integer.parseInt(versionString)).getSchemaModel());
+                    nameIndex = new NameIndex(tx.getSchema().getVersion(Integer.parseInt(versionString)).getSchemaModel());
                 } catch (IllegalArgumentException e) {
                     throw new ParseException(ctx, "invalid object type schema version `" + versionString
                       + "' given to the `" + Command.this.getName() + "' command");
@@ -253,7 +256,7 @@ public abstract class Command implements Parser<Action> {
                   + Command.this.getName() + "' command")
                    .addCompletions(Util.complete(nameIndex.getSchemaObjectNames(), typeName));
             case 1:
-                return schemaObjects.iterator().next().getStorageId();
+                return tx.getSchemaVersion().getSchemaItem(schemaObjects.iterator().next().getStorageId(), ObjType.class);
             default:
                 throw new ParseException(ctx, "ambiguous object type `" + typeName + "' given to the `"
                   + Command.this.getName() + "' command: there are multiple matching object types"
