@@ -17,12 +17,7 @@ import org.jsimpledb.util.ParseContext;
 public class CreateCommand extends Command {
 
     public CreateCommand() {
-        super("create");
-    }
-
-    @Override
-    public String getUsage() {
-        return this.name + " [-c count] [-v version] type";
+        super("create -c:count:int -v:version:int type:type");
     }
 
     @Override
@@ -37,14 +32,13 @@ public class CreateCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
         // Parse options
-        final Map<String, Object> params = new ParamParser(this, "-v:int -c:int type:type").parseParameters(session, ctx, complete);
-        final int version = params.containsKey("-v") ? (Integer)params.get("-v") : 0;
+        final int version = params.containsKey("version") ? (Integer)params.get("version") : 0;
         if (version < 0)
             throw new ParseException(ctx, "invalid negative version");
-        final int count = params.containsKey("-c") ? (Integer)params.get("-c") : 1;
+        final int count = params.containsKey("count") ? (Integer)params.get("count") : 1;
         if (count < 0)
             throw new ParseException(ctx, "invalid negative count");
         final int storageId = (Integer)params.get("type");

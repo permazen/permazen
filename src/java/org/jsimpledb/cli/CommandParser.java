@@ -50,19 +50,29 @@ public final class CommandParser {
     }
 
     public static Action parse(Session session, ParseContext ctx, boolean complete) {
-
-        // Get command name
-        final String commandName = ctx.matchPrefix("[^\\s;]*").group();
-
-        // Get matching command
-        final Command command = COMMANDS.get(commandName);
-        if (command == null) {
-            throw new ParseException(ctx, "unknown command `" + commandName + "'")
-              .addCompletions(Util.complete(COMMANDS.keySet(), commandName));
-        }
-
-        // Parse command parameters
-        return command.parseParameters(session, ctx, complete);
+        return new CommandNameParser().parse(session, ctx, complete).parse(session, ctx, complete);
     }
+
+// CommandNameParser
+
+    public static class CommandNameParser implements Parser<Command> {
+
+        @Override
+        public Command parse(Session session, ParseContext ctx, boolean complete) {
+
+            // Get specified command
+            final String commandName = ctx.matchPrefix("[^\\s;]*").group();
+
+            // Find specified command
+            final Command command = CommandParser.COMMANDS.get(commandName);
+            if (command == null) {
+                throw new ParseException(ctx, "unknown command `" + commandName + "'")
+                  .addCompletions(Util.complete(CommandParser.COMMANDS.keySet(), commandName));
+            }
+
+            // Done
+            return command;
+        }
+    };
 }
 

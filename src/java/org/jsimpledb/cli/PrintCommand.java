@@ -14,12 +14,7 @@ import org.jsimpledb.util.ParseContext;
 public class PrintCommand extends Command {
 
     public PrintCommand() {
-        super("print");
-    }
-
-    @Override
-    public String getUsage() {
-        return this.name + " [-v] [-n] [depth]";
+        super("print -v:verbose -n:noRemove depth:int?");
     }
 
     @Override
@@ -35,12 +30,11 @@ public class PrintCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
         // Parse parameters
-        final Map<String, Object> params = new ParamParser(this, "-v -n depth:int?").parseParameters(session, ctx, complete);
-        final boolean verbose = params.containsKey("-v");
-        final boolean noRemove = params.containsKey("-n");
+        final boolean verbose = params.containsKey("verbose");
+        final boolean noRemove = params.containsKey("noRemove");
         final int depth = params.containsKey("depth") ? (Integer)params.get("depth") : 0;
         if (depth < 0)
             throw new ParseException(ctx, "invalid negative depth");

@@ -7,18 +7,15 @@
 
 package org.jsimpledb.cli;
 
+import java.util.Map;
+
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.ParseContext;
 
 public class IterateCommand extends Command {
 
     public IterateCommand() {
-        super("iterate");
-    }
-
-    @Override
-    public String getUsage() {
-        return this.name + " type";
+        super("iterate type:type");
     }
 
     @Override
@@ -35,10 +32,10 @@ public class IterateCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
         // Parse type
-        final int storageId = (Integer)new ParamParser(this, "type:type").parseParameters(session, ctx, complete).get("type");
+        final int storageId = (Integer)params.get("type");
 
         // Return all instances
         return new Action() {

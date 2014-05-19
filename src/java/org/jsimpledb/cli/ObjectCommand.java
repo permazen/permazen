@@ -19,12 +19,7 @@ import org.jsimpledb.util.ParseContext;
 public class ObjectCommand extends Command {
 
     public ObjectCommand() {
-        super("object");
-    }
-
-    @Override
-    public String getUsage() {
-        return this.name + " id ...";
+        super("object id:objid+");
     }
 
     @Override
@@ -38,10 +33,9 @@ public class ObjectCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
         // Parse parameters
-        final Map<String, Object> params = new ParamParser(this, "id:objid+").parseParameters(session, ctx, complete);
         final TreeSet<ObjId> ids = new TreeSet<>(Lists.transform((List<?>)params.get("id"), new CastFunction<ObjId>(ObjId.class)));
 
         // Return instances

@@ -24,12 +24,7 @@ import jline.console.completer.FileNameCompleter;
 public class ImportCommand extends Command {
 
     public ImportCommand() {
-        super("import");
-    }
-
-    @Override
-    public String getUsage() {
-        return this.name + " file.xml";
+        super("import file.xml:file");
     }
 
     @Override
@@ -38,18 +33,15 @@ public class ImportCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
-        final Map<String, Object> params = new ParamParser(this, "file").parseParameters(session, ctx, complete);
-        final String path = (String)params.get("file");
+    protected Parser<?> getParser(String typeName) {
+        if ("file".equals(typeName))
+            return new FileParser();
+        return super.getParser(typeName);
+    }
 
-        // Check file
-        final File file = new File(path);
-        if (!file.exists() || file.isDirectory() || !file.canRead()) {
-            final ArrayList<CharSequence> list = new ArrayList<>();
-            new FileNameCompleter().complete(path, ctx.getIndex(), list);
-            throw new ParseException(ctx, "can't read file `" + file + "'").addCompletions(
-              Lists.transform(Lists.transform(list, new CastFunction<String>(String.class)), new StripPrefixFunction(path)));
-        }
+    @Override
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+        final File file = (File)params.get("file.xml");
 
         // Return import action
         return new Action() {
@@ -69,6 +61,31 @@ public class ImportCommand extends Command {
                 session.getWriter().println("Read " + count + " objects from `" + file + "'");
             }
         };
+    }
+
+// FileParser
+
+    private class FileParser implements Parser<File> {
+
+        @Override
+        public File parse(Session session, ParseContext ctx, boolean complete) {
+
+            // Get filename
+            final String path = ctx.matchPrefix("[^\\s;]*").group();
+
+            // Check file
+            final File file = new File(path);
+            if (!file.exists() || file.isDirectory() || !file.canRead()) {
+                final ArrayList<CharSequence> list = new ArrayList<>();
+                final int index = new FileNameCompleter().complete(path, path.length(), list);
+                throw new ParseException(ctx, "can't read file `" + file + "'").addCompletions(
+                  Lists.transform(Lists.transform(list, new CastFunction<String>(String.class)),
+                    new StripPrefixFunction(path.substring(index))));
+            }
+
+            // Done
+            return file;
+        }
     }
 }
 

@@ -17,7 +17,7 @@ public class CommandListParser {
     public List<Action> parse(Session session, ParseContext ctx, boolean complete) {
         final ArrayList<Action> actions = new ArrayList<>();
         while (true) {
-            new SpaceParser().parse(ctx);
+            ctx.skipWhitespace();
             if (ctx.isEOF() && !complete)
                 break;
             actions.add(CommandParser.parse(session, ctx, complete));

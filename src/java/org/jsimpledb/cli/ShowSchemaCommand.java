@@ -7,6 +7,8 @@
 
 package org.jsimpledb.cli;
 
+import java.util.Map;
+
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
 
@@ -22,8 +24,7 @@ public class ShowSchemaCommand extends Command implements Action {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
-        new ParamParser(this).parseParameters(session, ctx, complete);
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return this;
     }
 

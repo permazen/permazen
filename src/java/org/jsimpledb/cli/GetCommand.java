@@ -15,12 +15,7 @@ import org.jsimpledb.util.ParseContext;
 public class GetCommand extends Command {
 
     public GetCommand() {
-        super("get");
-    }
-
-    @Override
-    public String getUsage() {
-        return this.name + " field-name";
+        super("get fieldname");
     }
 
     @Override
@@ -35,8 +30,7 @@ public class GetCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
-        final Map<String, Object> params = new ParamParser(this, "fieldname").parseParameters(session, ctx, complete);
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final String fieldName = (String)params.get("fieldname");
         return new Action() {
             @Override
