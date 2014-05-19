@@ -42,6 +42,17 @@ public final class Util {
         new AddSuffixFunction(" "));
     }
 
+    /**
+     * Truncate a string with ellipsis if necessary.
+     */
+    public static String truncate(String string, int len) {
+        if (len < 4)
+            throw new IllegalArgumentException("len = " + len + " < 4");
+        if (string.length() <= len)
+            return string;
+        return string.substring(0, len - 3) + "...";
+    }
+
 // ObjInfo
 
     /**

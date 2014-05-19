@@ -7,6 +7,8 @@
 
 package org.jsimpledb.cli;
 
+import java.util.Map;
+
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
@@ -15,11 +17,6 @@ public class DeleteCommand extends Command {
 
     public DeleteCommand() {
         super("delete");
-    }
-
-    @Override
-    public String getUsage() {
-        return this.name;
     }
 
     @Override
@@ -33,8 +30,7 @@ public class DeleteCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
-        new ParamParser(this).parseParameters(session, ctx, complete);
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return new Action() {
             @Override
             public void run(Session session) throws Exception {

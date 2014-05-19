@@ -14,12 +14,7 @@ import org.jsimpledb.util.ParseContext;
 public class PopCommand extends Command {
 
     public PopCommand() {
-        super("pop");
-    }
-
-    @Override
-    public String getUsage() {
-        return this.name + " [depth]";
+        super("pop depth:int?");
     }
 
     @Override
@@ -34,10 +29,9 @@ public class PopCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
         // Parse parameters
-        final Map<String, Object> params = new ParamParser(this, "depth:int?").parseParameters(session, ctx, complete);
         final int depth = params.containsKey("depth") ? (Integer)params.get("depth") : 1;
         if (depth < 0)
             throw new ParseException(ctx, "invalid negative depth");

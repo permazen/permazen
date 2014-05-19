@@ -149,7 +149,7 @@ public class Console {
                 lineBuffer.setLength(0);
 
                 // Skip initial whitespace
-                new SpaceParser().parse(ctx);
+                ctx.skipWhitespace();
 
                 // Ignore blank input
                 if (ctx.getInput().length() == 0)

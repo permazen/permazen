@@ -24,8 +24,7 @@ public class ShowAllSchemasCommand extends Command implements Action {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
-        new ParamParser(this).parseParameters(session, ctx, complete);
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return this;
     }
 

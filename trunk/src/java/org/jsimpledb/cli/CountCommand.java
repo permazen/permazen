@@ -8,6 +8,7 @@
 package org.jsimpledb.cli;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.jsimpledb.util.ParseContext;
 
@@ -18,24 +19,18 @@ public class CountCommand extends Command implements Action {
     }
 
     @Override
-    public String getUsage() {
-        return this.name;
-    }
-
-    @Override
     public String getHelpSummary() {
         return "counts the number of items in the top input channel";
     }
 
     @Override
     public String getHelpDetail() {
-        return "The `" + this.name + "' command replaces the input channel on the top of the stack"
+        return "The `" + this.getName() + "' command replaces the input channel on the top of the stack"
         + " with the the number of items in that channel.";
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
-        new ParamParser(this).parseParameters(session, ctx, complete);
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return this;
     }
 

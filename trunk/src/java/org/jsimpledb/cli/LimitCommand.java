@@ -16,12 +16,12 @@ import org.jsimpledb.util.ParseContext;
 public class LimitCommand extends Command {
 
     public LimitCommand() {
-        super("limit");
+        super("limit p1:int p2:int?");
     }
 
     @Override
     public String getUsage() {
-        return this.name + " [offset] count";
+        return "limit [offset] count";
     }
 
     @Override
@@ -36,10 +36,9 @@ public class LimitCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
         // Parse parameters
-        final Map<String, Object> params = new ParamParser(this, "p1:int p2:int?").parseParameters(session, ctx, complete);
         final int offset = params.containsKey("p2") ? (Integer)params.get("p1") : 0;
         if (offset < 0)
             throw new ParseException(ctx, "invalid negative offset");

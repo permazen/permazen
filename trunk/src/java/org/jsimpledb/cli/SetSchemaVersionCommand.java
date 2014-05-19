@@ -14,12 +14,7 @@ import org.jsimpledb.util.ParseContext;
 public class SetSchemaVersionCommand extends Command {
 
     public SetSchemaVersionCommand() {
-        super("set-schema-version");
-    }
-
-    @Override
-    public String getUsage() {
-        return this.name + " version";
+        super("set-schema-version version:int");
     }
 
     @Override
@@ -35,8 +30,7 @@ public class SetSchemaVersionCommand extends Command {
     }
 
     @Override
-    public Action parseParameters(Session session, ParseContext ctx, boolean complete) {
-        final Map<String, Object> params = new ParamParser(this, "version:int").parseParameters(session, ctx, complete);
+    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final int version = (Integer)params.get("version");
         if (version < 0)
             throw new ParseException(ctx, "invalid negative schema version");
