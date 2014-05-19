@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jsimpledb.core.Database;
@@ -80,32 +81,8 @@ public class Console {
         // Input buffer
         final StringBuilder lineBuffer = new StringBuilder();
 
-        // Set up commands
-        console.addCompleter(new Completer() {
-            @Override
-            public int complete(String buffer, int cursor, List<CharSequence> candidates) {
-                final ParseContext ctx = new ParseContext(lineBuffer + buffer.substring(0, cursor));
-                try {
-                    new CommandListParser().parse(session, ctx, true);
-                } catch (ParseException e) {
-                    String prefix = "";
-                    int index = ctx.getIndex();
-                    while (index > 0 && !Character.isWhitespace(ctx.getOriginalInput().charAt(index - 1)))
-                        prefix = ctx.getOriginalInput().charAt(--index) + prefix;
-                    candidates.addAll(Lists.transform(e.getCompletions(), new AddPrefixFunction(prefix)));
-                    return index;
-                } catch (Exception e) {
-                    try {
-                        Console.this.console.println();
-                        Console.this.console.println("ERROR: error calculating command line completions");
-                        e.printStackTrace(session.getWriter());
-                    } catch (IOException e2) {
-                        // ignore
-                    }
-                }
-                return cursor;
-            }
-        });
+        // Set up tab completion
+        console.addCompleter(new ConsoleCompleter(lineBuffer));
 
         // Open a transaction to load and verify database schema
         this.session.perform(new Action() {
@@ -156,13 +133,14 @@ public class Console {
                     continue;
 
                 // Parse command(s)
-                final List<Action> actions;
-                try {
-                    actions = new CommandListParser().parse(this.session, ctx, false);
-                } catch (Exception e) {
-                    this.session.report(e);
+                final ArrayList<Action> actions = new ArrayList<>();
+                if (!this.session.perform(new Action() {
+                    @Override
+                    public void run(Session session) {
+                        actions.addAll(new CommandListParser().parse(session, ctx, false));
+                    }
+                }))
                     continue;
-                }
 
                 // Execute commands
                 for (Action action : actions) {
@@ -178,6 +156,52 @@ public class Console {
                 this.history.flush();
             this.console.flush();
             this.console.shutdown();
+        }
+    }
+
+// ConsoleCompleter
+
+    private class ConsoleCompleter implements Completer {
+
+        private final StringBuilder lineBuffer;
+
+        ConsoleCompleter(StringBuilder lineBuffer) {
+            this.lineBuffer = lineBuffer;
+        }
+
+        @Override
+        public int complete(final String buffer, final int cursor, final List<CharSequence> candidates) {
+            final int[] result = new int[1];
+            Console.this.session.perform(new Action() {
+                @Override
+                public void run(Session session) {
+                    result[0] = ConsoleCompleter.this.completeInTransaction(session, buffer, cursor, candidates);
+                }
+            });
+            return result[0];
+        }
+
+        private int completeInTransaction(Session session, String buffer, int cursor, List<CharSequence> candidates) {
+            final ParseContext ctx = new ParseContext(this.lineBuffer + buffer.substring(0, cursor));
+            try {
+                new CommandListParser().parse(session, ctx, true);
+            } catch (ParseException e) {
+                String prefix = "";
+                int index = ctx.getIndex();
+                while (index > 0 && !Character.isWhitespace(ctx.getOriginalInput().charAt(index - 1)))
+                    prefix = ctx.getOriginalInput().charAt(--index) + prefix;
+                candidates.addAll(Lists.transform(e.getCompletions(), new AddPrefixFunction(prefix)));
+                return index;
+            } catch (Exception e) {
+                try {
+                    Console.this.console.println();
+                    Console.this.console.println("ERROR: error calculating command line completions");
+                    e.printStackTrace(session.getWriter());
+                } catch (IOException e2) {
+                    // ignore
+                }
+            }
+            return cursor;
         }
     }
 }

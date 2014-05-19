@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
 
@@ -34,14 +35,14 @@ public class CreateCommand extends Command {
     @Override
     public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
-        // Parse options
+        // Get options
         final int version = params.containsKey("version") ? (Integer)params.get("version") : 0;
         if (version < 0)
             throw new ParseException(ctx, "invalid negative version");
         final int count = params.containsKey("count") ? (Integer)params.get("count") : 1;
         if (count < 0)
             throw new ParseException(ctx, "invalid negative count");
-        final int storageId = (Integer)params.get("type");
+        final int storageId = ((ObjType)params.get("type")).getStorageId();
 
         // Return action that creates instance(s) and pushes them onto the stack
         return new Action() {
