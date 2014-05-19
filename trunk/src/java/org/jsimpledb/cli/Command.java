@@ -7,32 +7,17 @@
 
 package org.jsimpledb.cli;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NavigableSet;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jsimpledb.core.Database;
-import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjType;
-import org.jsimpledb.core.SchemaItem;
-import org.jsimpledb.core.SchemaVersion;
-import org.jsimpledb.core.Transaction;
-import org.jsimpledb.schema.NameIndex;
-import org.jsimpledb.schema.SchemaObject;
-import org.jsimpledb.util.NavigableSets;
 import org.jsimpledb.util.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,8 +171,6 @@ public abstract class Command implements Parser<Action> {
         }
     }
 
-// Parsing
-
     /**
      * Convert parameter spec type name into a {@link Parser}. Used for custom type names not supported by {@link ParamParser}.
      *
@@ -197,175 +180,15 @@ public abstract class Command implements Parser<Action> {
      * </p>
      */
     protected Parser<?> getParser(String typeName) {
+        if (typeName == null)
+            throw new IllegalArgumentException("null typeName");
         if (typeName.equals("type"))
-            return new TypeNameParser();
+            return new ObjTypeParser();
         if (typeName.equals("objid"))
             return new ObjIdParser();
+        if (typeName.equals("field"))
+            return new FieldParser();
         return FieldTypeParser.getFieldTypeParser(typeName);
-    }
-
-// TypeNameParser
-
-    /**
-     * Parses an object type name.
-     */
-    private class TypeNameParser implements Parser<ObjType> {
-
-        @Override
-        public ObjType parse(Session session, ParseContext ctx, boolean complete) {
-
-            // Try to parse as an integer
-            final Transaction tx = session.getTransaction();
-            final Database db = session.getDatabase();
-            try {
-                final int storageId = db.getFieldTypeRegistry().getFieldType(TypeToken.of(Integer.TYPE)).fromString(ctx);
-                return tx.getSchemaVersion().getSchemaItem(storageId, ObjType.class);
-            } catch (IllegalArgumentException e) {
-                // ignore
-            }
-
-            // Try to parse as an object type name with optional #version suffix
-            final Matcher matcher;
-            try {
-                matcher = ctx.matchPrefix("([^\\s;#]+)(#([0-9]+))?");
-            } catch (IllegalArgumentException e) {
-                throw new ParseException(ctx, "invalid object type `" + Util.truncate(ctx.getInput(), 16)
-                  + "' given to the `" + Command.this.getName() + "' command");
-            }
-            final String typeName = matcher.group(1);
-            final String versionString = matcher.group(3);
-
-            // Get name index
-            final NameIndex nameIndex;
-            if (versionString != null) {
-                final int version;
-                try {
-                    nameIndex = new NameIndex(tx.getSchema().getVersion(Integer.parseInt(versionString)).getSchemaModel());
-                } catch (IllegalArgumentException e) {
-                    throw new ParseException(ctx, "invalid object type schema version `" + versionString
-                      + "' given to the `" + Command.this.getName() + "' command");
-                }
-            } else
-                nameIndex = session.getNameIndex();
-
-            // Find type by name
-            final Set<SchemaObject> schemaObjects = nameIndex.getSchemaObjects(typeName);
-            switch (schemaObjects.size()) {
-            case 0:
-                throw new ParseException(ctx, "unknown object type `" + typeName + "' given to the `"
-                  + Command.this.getName() + "' command")
-                   .addCompletions(Util.complete(nameIndex.getSchemaObjectNames(), typeName));
-            case 1:
-                return tx.getSchemaVersion().getSchemaItem(schemaObjects.iterator().next().getStorageId(), ObjType.class);
-            default:
-                throw new ParseException(ctx, "ambiguous object type `" + typeName + "' given to the `"
-                  + Command.this.getName() + "' command: there are multiple matching object types"
-                  + " with storage IDs " + Lists.transform(Lists.newArrayList(schemaObjects),
-                    new Function<SchemaObject, Integer>() {
-                        @Override
-                        public Integer apply(SchemaObject schemaObject) {
-                            return schemaObject.getStorageId();
-                        }
-                   }) + "; specify by storage ID");
-            }
-        }
-    }
-
-// ObjIdParser
-
-    /**
-     * Parses and object ID.
-     */
-    private class ObjIdParser implements Parser<ObjId> {
-
-        @Override
-        public ObjId parse(Session session, ParseContext ctx, boolean complete) {
-
-            // Get parameter
-            final Matcher matcher = ctx.tryPattern("([0-9A-Fa-f]{0,16})");
-            if (matcher == null)
-                throw new ParseException(ctx, "Usage: " + Command.this.getUsage());
-            final String param = matcher.group(1);
-
-            // Attempt to parse id
-            try {
-                return new ObjId(param);
-            } catch (IllegalArgumentException e) {
-                // parse failed - must be a partial ID
-            }
-
-            // Get corresponding min & max ObjId (both inclusive)
-            final char[] paramChars = param.toCharArray();
-            final char[] idChars = new char[16];
-            System.arraycopy(paramChars, 0, idChars, 0, paramChars.length);
-            Arrays.fill(idChars, paramChars.length, idChars.length, '0');
-            final String minString = new String(idChars);
-            ObjId min0;
-            try {
-                min0 = new ObjId(minString);
-            } catch (IllegalArgumentException e) {
-                if (!minString.startsWith("00"))
-                    throw new ParseException(ctx, "Usage: " + Command.this.getUsage());
-                min0 = null;
-            }
-            Arrays.fill(idChars, paramChars.length, idChars.length, 'f');
-            ObjId max0;
-            try {
-                max0 = new ObjId(new String(idChars));
-            } catch (IllegalArgumentException e) {
-                max0 = null;
-            }
-
-            // Find object IDs in the range
-            final ArrayList<String> completions = new ArrayList<>();
-            final ObjId min = min0;
-            final ObjId max = max0;
-            session.perform(new Action() {
-                @Override
-                public void run(Session session) throws Exception {
-                    final Transaction tx = session.getTransaction();
-                    final TreeSet<Integer> storageIds = new TreeSet<>();
-                    final ArrayList<NavigableSet<ObjId>> idSets = new ArrayList<>();
-                    for (SchemaVersion schemaVersion : tx.getSchema().getSchemaVersions().values()) {
-                        for (SchemaItem schemaItem : schemaVersion.getSchemaItemMap().values()) {
-                            if (!(schemaItem instanceof ObjType))
-                                continue;
-                            final int storageId = schemaItem.getStorageId();
-                            if ((min != null && storageId < min.getStorageId())
-                              || (max != null && storageId > max.getStorageId()))
-                                continue;
-                            NavigableSet<ObjId> idSet = tx.getAll(storageId);
-                            if (min != null) {
-                                try {
-                                    idSet = idSet.tailSet(min, true);
-                                } catch (IllegalArgumentException e) {
-                                    // ignore
-                                }
-                            }
-                            if (max != null) {
-                                try {
-                                    idSet = idSet.headSet(max, true);
-                                } catch (IllegalArgumentException e) {
-                                    // ignore
-                                }
-                            }
-                            idSets.add(idSet);
-                        }
-                    }
-                    int count = 0;
-                    for (ObjId id : NavigableSets.union(idSets)) {
-                        completions.add(id.toString());
-                        count++;
-                        if (count >= session.getLineLimit() + 1)
-                            break;
-                    }
-                }
-            });
-
-            // Throw exception with completions
-            throw new ParseException(ctx, "Usage: " + Command.this.getUsage())
-              .addCompletions(Util.complete(completions, param));
-        }
     }
 }
 
