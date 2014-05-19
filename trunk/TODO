@@ -4,6 +4,7 @@
         - Modifying fields
         - Inverting references
         - Evaluating reference paths
+    - Command line flag to scan classpath for Command classes
 
 - Add Vaadin GUI editor generator
 
