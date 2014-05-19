@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * &#64;JSimpleClass(storageId = 10)
  * public class Person {
  *
- *     &#64;JSimpleSetField(storageId = 11, <b>indexed = true</b>)
+ *     &#64;JSetField(storageId = 11, <b>indexed = true</b>)
  *     public abstract Set&lt;String&gt; getNicknames();
  *
  *     <b>&#64;IndexQuery("nicknames")</b>
@@ -70,7 +70,7 @@ import java.lang.annotation.Target;
  * <pre>
  * public class Company {
  *
- *     &#64;JSimpleMapField(storageId = 11,
+ *     &#64;JMapField(storageId = 11,
  *       key = &#64;JSimpleField(storageId = 12, <b>indexed = true</b>),
  *       value = &#64;JSimpleField(storageId = 13, type = "float")) // primitive type to disallow nulls
  *     public abstract Map&lt;Vendor, Float&gt; getAccountsPayable();
