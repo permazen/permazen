@@ -11,6 +11,7 @@
     <property name="maven.group.id" value="org.jsimpledb"/>
     <property name="library.version" value="1.0"/>
     <property name="javac.compiler.flags" value="-Xlint:all"/>
+    <property name="coverage.report" value="true"/>
 
     <!-- Import generic build macros -->
     <import file="${basedir}/src/build/macros.xml"/>
@@ -146,7 +147,7 @@
             <fileset dir="src/spring" includes="spring.*"/>
         </copy>
         <copy file="src/xml/log4j-build.xml" tofile="build/test/log4j.xml"/>
-        <dellroad:unit-tests>
+        <dellroad:unit-tests cobertura="${coverage.report}">
             <addclasspath>
                 <path refid="build.classpath"/>
                 <path refid="javac.classpath"/>
