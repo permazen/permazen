@@ -708,7 +708,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, NavigableSet<?>> querySimpleField(int storageId) {
+    public NavigableMap<?, ? extends NavigableSet<?>> querySimpleField(int storageId) {
         Converter<?, ?> keyConverter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
         final NavigableSetConverter<JObject, ObjId> valueConverter = new NavigableSetConverter(this.referenceConverter);
@@ -730,7 +730,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, NavigableSet<?>> queryListFieldEntries(int storageId) {
+    public NavigableMap<?, ? extends NavigableSet<?>> queryListFieldEntries(int storageId) {
         final JListField setField = this.jdb.getJField(storageId, JListField.class);
         Converter<?, ?> keyConverter = setField.elementField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
@@ -754,7 +754,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, NavigableSet<?>> queryMapFieldKeyEntries(int storageId) {
+    public NavigableMap<?, ? extends NavigableSet<?>> queryMapFieldKeyEntries(int storageId) {
         final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
         Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
@@ -780,7 +780,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, NavigableSet<?>> queryMapFieldValueEntries(int storageId) {
+    public NavigableMap<?, ? extends NavigableSet<?>> queryMapFieldValueEntries(int storageId) {
         final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
         Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
