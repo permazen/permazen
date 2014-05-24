@@ -45,7 +45,7 @@ Here's an example setup with Spring that uses a simple flat file for persistence
     <bean id="kvstore" class="org.jsimpledb.kv.simple.XMLKVDatabase" c:file="${user.home}/jsimpledb.xml"/>
  
     <!-- Define the core Database layer on top of that -->
-    <bean id="database" class="org.jsimpledb.core.Database" c:kvdb-ref="kvdb"/>
+    <bean id="database" class="org.jsimpledb.core.Database" c:kvdb-ref="kvstore"/>
  
     <!-- Define the Java model layer (JSimpleDB) using our annotated Java classes -->
     <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1"> 
