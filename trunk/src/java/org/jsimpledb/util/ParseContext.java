@@ -258,5 +258,18 @@ public class ParseContext implements Cloneable {
             text += ": " + message;
         return new IllegalArgumentException(text);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+        final ParseContext that = (ParseContext)obj;
+        return this.input.equals(that.input) && this.index == that.index;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.input.hashCode() ^ this.index;
+    }
 }
 
