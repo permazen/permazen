@@ -74,6 +74,7 @@ public class OnVersionChangeTest extends TestSupport {
             p4.setEnum1(Enum1.DDD);
             p5.setEnum1(Enum1.EEE);
 
+            Assert.assertEquals(p1.getSchemaVersion(), 1);
             Assert.assertEquals(tx.queryVersion(), buildMap(
               1, buildSet(p1, p2, p3, p4, p5)));
 
@@ -99,9 +100,21 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertEquals(tx.queryVersion(), buildMap(
               1, buildSet(p1, p2, p3, p4, p5)));
 
+            Assert.assertEquals(p1.getSchemaVersion(), 1);
+            Assert.assertEquals(p2.getSchemaVersion(), 1);
+            Assert.assertEquals(p3.getSchemaVersion(), 1);
+            Assert.assertEquals(p4.getSchemaVersion(), 1);
+            Assert.assertEquals(p5.getSchemaVersion(), 1);
+
             p1.upgrade();
             p2.upgrade();
             p3.upgrade();
+
+            Assert.assertEquals(p1.getSchemaVersion(), 2);
+            Assert.assertEquals(p2.getSchemaVersion(), 2);
+            Assert.assertEquals(p3.getSchemaVersion(), 2);
+            Assert.assertEquals(p4.getSchemaVersion(), 1);
+            Assert.assertEquals(p5.getSchemaVersion(), 1);
 
             Assert.assertEquals(p1.getLastName(), "Smith");
             Assert.assertEquals(p1.getFirstName(), "Joe");

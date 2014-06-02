@@ -48,6 +48,7 @@ class ClassGenerator<T> {
 
     // JObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
+    static final Method JOBJECT_GET_SCHEMA_VERSION_METHOD;
     static final Method JOBJECT_GET_TRANSACTION;
     static final Method JOBJECT_DELETE_METHOD;
     static final Method JOBJECT_EXISTS_METHOD;
@@ -69,6 +70,7 @@ class ClassGenerator<T> {
     static final Method DELETE_METHOD;
     static final Method EXISTS_METHOD;
     static final Method RECREATE_METHOD;
+    static final Method GET_SCHEMA_VERSION_METHOD;
     static final Method UPDATE_SCHEMA_VERSION_METHOD;
     static final Method REVALIDATE_METHOD;
     static final Method QUERY_SIMPLE_FIELD_METHOD;
@@ -83,6 +85,7 @@ class ClassGenerator<T> {
 
             // JObject methods
             JOBJECT_GET_OBJ_ID_METHOD = JObject.class.getMethod("getObjId");
+            JOBJECT_GET_SCHEMA_VERSION_METHOD = JObject.class.getMethod("getSchemaVersion");
             JOBJECT_GET_TRANSACTION = JObject.class.getMethod("getTransaction");
             JOBJECT_DELETE_METHOD = JObject.class.getMethod("delete");
             JOBJECT_EXISTS_METHOD = JObject.class.getMethod("exists");
@@ -104,6 +107,7 @@ class ClassGenerator<T> {
             DELETE_METHOD = JTransaction.class.getMethod("delete", ObjId.class);
             EXISTS_METHOD = JTransaction.class.getMethod("exists", ObjId.class);
             RECREATE_METHOD = JTransaction.class.getMethod("recreate", ObjId.class);
+            GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", ObjId.class);
             UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", ObjId.class);
             REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", ObjId.class);
             QUERY_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("querySimpleField", int.class);
@@ -253,6 +257,18 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Add JObject.getSchemaVersion()
+        mv = this.startMethod(cw, JOBJECT_GET_SCHEMA_VERSION_METHOD);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
+        this.emitInvoke(mv, GET_SCHEMA_VERSION_METHOD);
+        mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
