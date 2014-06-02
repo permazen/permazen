@@ -18,6 +18,8 @@
  *      into Spring's transaction infrastructure and enables the
  *      {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation for
  *      {@link org.jsimpledb.JSimpleDB} transactions.</li>
+ *  <li>A {@link org.springframework.dao.support.PersistenceExceptionTranslator}
+ *      {@linkplain org.jsimpledb.spring.JSimpleDBExceptionTranslator implementation} suitable for use with JSimpleDB</li>
  *  <li>{@link org.jsimpledb.spring.OpenTransactionInViewFilter}, which allows {@link org.jsimpledb.JSimpleDB}
  *      transactions to span an entire web request.</li>
  * </ul>
