@@ -331,29 +331,32 @@
             </copy>
 
             <!-- Sign and deploy the JARs -->
-            <antcontrib:for list="core cli spring javadocs sources" param="name" trim="true">
+            <antcontrib:for list="core,cli,spring,javadocs,sources" param="name" trim="true">
                 <sequential>
-                    <artifact:mvn>
-                        <antcontrib:if>
-                            <equals arg1="@{sign}" arg2="true"/>
-                            <antcontrib:then>
+                    <antcontrib:if>
+                        <equals arg1="@{sign}" arg2="true"/>
+                        <antcontrib:then>
+                            <artifact:mvn>
                                 <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file"/>
-                            </antcontrib:then>
-                            <antcontrib:else>
-                                <arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file"/>
-                            </antcontrib:else>
-                        </antcontrib:if>
-                        <arg value="-Durl=@{url}"/>
-                        <arg value="-DrepositoryId=@{id}"/>
-                        <arg value="-DpomFile=pom.xml"/>
-                        <arg value="-Dfile=build/dist/${ant.project.name}-@{name}-${library.version}.jar"/>
-                        <antcontrib:if>
-                            <equals arg1="@{sign}" arg2="true"/>
-                            <antcontrib:then>
+                                <arg value="-Durl=@{url}"/>
+                                <arg value="-DrepositoryId=@{id}"/>
+                                <arg value="-DpomFile=build/pom.xml"/>
+                                <arg value="-Dfile=build/dist/${ant.project.name}-@{name}-${library.version}.jar"/>
+                                <arg value="-Dclassifier=@{name}"/>
                                 <arg value="-Pgpg"/>
-                            </antcontrib:then>
-                        </antcontrib:if>
-                    </artifact:mvn>
+                            </artifact:mvn>
+                        </antcontrib:then>
+                        <antcontrib:else>
+                            <artifact:mvn>
+                                <arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file"/>
+                                <arg value="-Durl=@{url}"/>
+                                <arg value="-DrepositoryId=@{id}"/>
+                                <arg value="-DpomFile=build/pom.xml"/>
+                                <arg value="-Dfile=build/dist/${ant.project.name}-@{name}-${library.version}.jar"/>
+                                <arg value="-Dclassifier=@{name}"/>
+                            </artifact:mvn>
+                        </antcontrib:else>
+                    </antcontrib:if>
                 </sequential>
             </antcontrib:for>
         </sequential>
