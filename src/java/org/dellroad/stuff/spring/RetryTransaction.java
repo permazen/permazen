@@ -68,13 +68,15 @@ import java.lang.annotation.Target;
  *      for example:
  *      <pre>
  *
- *      &lt;bean class="org.dellroad.stuff.spring.RetryTransactionAspect" factory-method="aspectOf" p:exceptionTranslator-ref="myJpaDialect"/&gt;
+ *      &lt;bean class="org.dellroad.stuff.spring.RetryTransactionAspect" factory-method="aspectOf"
+ *        p:persistenceExceptionTranslator-ref="myJpaDialect"/&gt;
  *      </pre>This also gives you the opportunity to change the default values for {@link #maxRetries}, {@link #initialDelay},
  *      and {@link #maximumDelay}, which are applied when not explicitly overridden in the annotation, for example:
  *      <pre>
  *
- *      &lt;bean class="org.dellroad.stuff.spring.RetryTransactionAspect" factory-method="aspectOf" p:exceptionTranslator-ref="myJpaDialect"
- *      p:maxRetriesDefault="2" p:initialDelayDefault="25" p:maximumDelayDefault="5000"/&gt;
+ *      &lt;bean class="org.dellroad.stuff.spring.RetryTransactionAspect" factory-method="aspectOf"
+ *        p:persistenceExceptionTranslator-ref="myJpaDialect" p:maxRetriesDefault="2"
+ *        p:initialDelayDefault="25" p:maximumDelayDefault="5000"/&gt;
  *      </pre>
  *  </li>
  * </ul>
