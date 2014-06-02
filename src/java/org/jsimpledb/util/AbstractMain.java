@@ -7,23 +7,15 @@
 
 package org.jsimpledb.util;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 
 import org.dellroad.stuff.main.MainClass;
-import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
-import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.util.ByteUtil;
 
 /**
  * CLI main entry point.
