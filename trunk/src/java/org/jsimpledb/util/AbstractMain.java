@@ -87,10 +87,6 @@ public abstract class AbstractMain extends MainClass {
                     this.usageError();
                 this.kvType = KV_XML;
                 this.xmlFile = new File(params.removeFirst());
-                if (!this.xmlFile.exists()) {
-                    System.err.println(this.getName() + ": file `" + this.xmlFile + "' does not exist");
-                    return 1;
-                }
             } else if (option.equals("--"))
                 break;
             else if (!this.parseOption(option, params)) {
