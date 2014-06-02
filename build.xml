@@ -364,9 +364,11 @@
 
         <!-- Sanity check -->
         <fail message="can't put non-SNAPSHOT release ${library.version} into snapshot repository - do you need to update the version?">
-            <not>
-                <contains string="${library.version}" substring="SNAPSHOT"/>
-            </not>
+            <condition>
+                <not>
+                    <contains string="${library.version}" substring="SNAPSHOT"/>
+                </not>
+            </condition>
         </fail>
 
         <!-- Define maven snapshots repository id and url -->
@@ -378,7 +380,9 @@
 
         <!-- Sanity check -->
         <fail message="can't stage snapshot release ${library.version} - do you need to update the version?">
-            <contains string="${library.version}" substring="SNAPSHOT" casesensitive="false"/>
+            <condition>
+                <contains string="${library.version}" substring="SNAPSHOT" casesensitive="false"/>
+            </condition>
         </fail>
 
         <!-- Define maven snapshots repository id and url -->
