@@ -43,19 +43,19 @@ public abstract class AbstractXMLStreaming {
                 break;
             if (eventType == XMLStreamConstants.END_ELEMENT) {
                 if (!closingOK) {
-                    throw new XMLStreamException("expected opening " + desc + " but found closing "
-                      + reader.getName() + " tag instead", reader.getLocation());
+                    throw new XMLStreamException("expected opening <" + desc + "> but found closing <"
+                      + reader.getName() + "> tag instead", reader.getLocation());
                 }
                 return false;
             }
         }
         if (names.length == 0) {
-            throw new XMLStreamException("expected closing tag but found opening "
-              + reader.getName() + " tag instead", reader.getLocation());
+            throw new XMLStreamException("expected closing tag but found opening <"
+              + reader.getName() + "> tag instead", reader.getLocation());
         }
         if (!Arrays.asList(names).contains(reader.getName())) {
-            throw new XMLStreamException("expected opening " + desc
-              + " but found " + reader.getName() + " instead", reader.getLocation());
+            throw new XMLStreamException("expected opening <" + desc
+              + "> but found <" + reader.getName() + "> instead", reader.getLocation());
         }
         return true;
     }
