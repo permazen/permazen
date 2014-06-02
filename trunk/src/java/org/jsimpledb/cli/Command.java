@@ -176,7 +176,8 @@ public abstract class Command implements Parser<Action> {
      *
      * <p>
      * The implementation in {@link ParamParser} supports all {@link org.jsimpledb.core.FieldType}s registered with the database,
-     * {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID (returns {@link ObjId}).
+     * {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID
+     * (returns {@link org.jsimpledb.core.ObjId}).
      * </p>
      */
     protected Parser<?> getParser(String typeName) {
