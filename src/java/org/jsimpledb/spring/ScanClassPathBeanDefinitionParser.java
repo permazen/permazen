@@ -10,13 +10,12 @@ package org.jsimpledb.spring;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ListFactoryBean;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.XmlReaderContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScanBeanDefinitionParser;
-import org.springframework.core.env.Environment;
+import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,44 +35,27 @@ class ScanClassPathBeanDefinitionParser extends ComponentScanBeanDefinitionParse
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
 
-        // Scan for @JSimpleClass and @JSimpleFieldType-annotated classes
-        final String[] basePackages = StringUtils.tokenizeToStringArray(element.getAttribute(BASE_PACKAGE_ATTRIBUTE),
-          ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
-        final ScanClassPathClassScanner scanner = this.createScanner(parserContext, element);
-        final ArrayList<String> classNames = scanner.scanForClasses(basePackages);
+        // Get context info
+        final XmlReaderContext readerContext = parserContext.getReaderContext();
+        final ClassLoader classLoader = readerContext.getResourceLoader().getClassLoader();
 
-        // Build <util:list> equivalent bean
-        final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition();
-        builder.getRawBeanDefinition().setBeanClass(ListFactoryBean.class);
-        builder.addPropertyValue("sourceList", classNames);
-        builder.addPropertyValue("targetListClass", ClassList.class);       // forces automatic String -> Class conversion
+        // Build bean definition
+        final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ScanClassPathFactoryBean.class);
         builder.getRawBeanDefinition().setSource(parserContext.extractSource(element));
         if (parserContext.isNested())
             builder.setScope(parserContext.getContainingBeanDefinition().getScope());
         if (parserContext.isDefaultLazyInit())
             builder.setLazyInit(true);
-        return builder.getBeanDefinition();
-    }
-
-    protected ScanClassPathClassScanner createScanner(ParserContext parserContext, Element element) {
-        final XmlReaderContext readerContext = parserContext.getReaderContext();
-        final Environment environment = parserContext.getDelegate().getEnvironment();
-        boolean useDefaultFilters = true;
+        builder.addPropertyValue("basePackages", StringUtils.tokenizeToStringArray(
+          element.getAttribute(BASE_PACKAGE_ATTRIBUTE), ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
         if (element.hasAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE))
-            useDefaultFilters = Boolean.valueOf(element.getAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE));
-        final ScanClassPathClassScanner scanner = new ScanClassPathClassScanner(useDefaultFilters, environment);
-        scanner.setResourceLoader(readerContext.getResourceLoader());
+            builder.addPropertyValue("useDefaultFilters", element.getAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE));
         if (element.hasAttribute(RESOURCE_PATTERN_ATTRIBUTE))
-            scanner.setResourcePattern(element.getAttribute(RESOURCE_PATTERN_ATTRIBUTE));
-        this.parseTypeFilters(element, scanner, readerContext, parserContext);
-        return scanner;
-    }
+            builder.addPropertyValue("resourcePattern", element.getAttribute(RESOURCE_PATTERN_ATTRIBUTE));
 
-    protected void parseTypeFilters(Element element, ScanClassPathClassScanner scanner,
-      XmlReaderContext readerContext, ParserContext parserContext) {
-
-        // Parse exclude and include filter elements.
-        final ClassLoader classLoader = scanner.getResourceLoader().getClassLoader();
+        // Parse exclude and include filter elements
+        final ArrayList<TypeFilter> includeFilters = new ArrayList<>();
+        final ArrayList<TypeFilter> excludeFilters = new ArrayList<>();
         final NodeList nodeList = element.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             final Node node = nodeList.item(i);
@@ -83,19 +65,18 @@ class ScanClassPathBeanDefinitionParser extends ComponentScanBeanDefinitionParse
             final Element childElement = (Element)node;
             try {
                 if (INCLUDE_FILTER_ELEMENT.equals(localName))
-                    scanner.addIncludeFilter(this.createTypeFilter(childElement, classLoader));
+                    includeFilters.add(this.createTypeFilter(childElement, classLoader));
                 if (EXCLUDE_FILTER_ELEMENT.equals(localName))
-                    scanner.addExcludeFilter(this.createTypeFilter(childElement, classLoader));
+                    excludeFilters.add(this.createTypeFilter(childElement, classLoader));
             } catch (Exception e) {
                 readerContext.error(e.getMessage(), readerContext.extractSource(element), e.getCause());
             }
         }
-    }
+        builder.addPropertyValue("includeFilters", includeFilters);
+        builder.addPropertyValue("excludeFilters", excludeFilters);
 
-// ClassList
-
-    @SuppressWarnings("serial")
-    public static class ClassList extends ArrayList<Class<?>> {
+        // Done
+        return builder.getBeanDefinition();
     }
 }
 

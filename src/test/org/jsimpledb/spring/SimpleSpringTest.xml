@@ -25,7 +25,7 @@
     <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1">
         <constructor-arg>
             <jsimpledb:scan-classpath base-package="org.jsimpledb.spring">
-                <jsimpledb:include-filter type="regex" expression="org\.dellroad\.jsimpledb\.spring\.SimpleSpringTest\$.*"/>
+                <jsimpledb:exclude-filter type="regex" expression=".*Banana.*"/>
             </jsimpledb:scan-classpath>
         </constructor-arg>
     </bean>

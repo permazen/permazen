@@ -8,6 +8,7 @@
 package org.jsimpledb.spring;
 
 import org.jsimpledb.JObject;
+import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
@@ -48,6 +49,13 @@ public class SimpleSpringTest extends SpringTest {
         }
     }
 
+    @Test
+    public void testFilter() {
+        final JSimpleDB db = this.context.getBean(JSimpleDB.class);
+        Assert.assertTrue(db.getJClassesByStorageId().keySet().contains(100));
+        Assert.assertFalse(db.getJClassesByStorageId().keySet().contains(200));
+    }
+
 // Bean methods
 
     @Transactional
@@ -82,6 +90,14 @@ public class SimpleSpringTest extends SpringTest {
         public static Person create() {
             return JTransaction.getCurrent().create(Person.class);
         }
+    }
+
+    @JSimpleClass(storageId = 200)
+    public abstract static class Banana implements JObject {
+
+        @JField(storageId = 201)
+        public abstract float getWeight();
+        public abstract void setWeight(float weight);
     }
 }
 
