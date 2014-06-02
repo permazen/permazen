@@ -371,6 +371,8 @@ public class Database {
                               + " a recorded schema version " + version);
                         }
                     }
+                    if (version == 0)
+                        throw new SchemaMismatchException("uninitialized database and no schema version was provided");
 
                     // Record new schema in database
                     this.log.info("recording new schema version " + version + " into database");
