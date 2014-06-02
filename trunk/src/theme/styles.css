@@ -1,0 +1,59 @@
+/* $Id$ */
+
+/* Base our theme on the Vaadin reindeer theme */
+@import "../reindeer/legacy-styles.css";
+
+/*** OVERALL ***/
+
+/* Fix for http://dev.vaadin.com/ticket/11780 */
+.v-browserframe {
+    overflow:hidden;
+}
+
+/*** NOTIFICATIONS ***/
+
+.v-Notification h1,
+.v-Notification-error h1,
+.v-Notification-warning h1 {
+    display: block;
+    text-align: center;
+}
+
+.v-Notification p,
+.v-Notification-error p,
+.v-Notification-warning p {
+    width: 400px;
+}
+
+/*** APPLICATION TOP BAR ***/
+
+.jsdb-title {
+    font-size: large;
+}
+
+.jsdb-separator {
+    background-color: #666666;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+/*** TEXT INPUTS ***/
+
+.jsdb-fixed-width {
+    font-family: "Courier New", "Courier", monospace !important;
+}
+
+/*** TABLES ***/
+
+.v-table-row-odd {
+    background: #f0f0f0;
+}
+
+/*** BORDER PANEL ***/
+
+.v-panel-jsdb-border-panel {
+    border-color: #DCDCDC;
+    border-width: 1px;
+    border-style: solid;
+}
+

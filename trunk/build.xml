@@ -12,6 +12,7 @@
     <property name="library.version" value="1.1.0-SNAPSHOT"/>
     <property name="javac.compiler.flags" value="-Xlint:all"/>
     <property name="coverage.report" value="true"/>
+    <property name="custom.theme.name" value="jsdb"/>
 
     <!-- Import generic build macros -->
     <import file="${basedir}/src/build/macros.xml"/>
@@ -162,10 +163,12 @@
             <rule pattern="org.dellroad.stuff.**" result="org.jsimpledb.drstuff.@1"/>
             <fileset dir="build/classes">
                 <exclude name="org/jsimpledb/cli/**/*"/>
+                <exclude name="org/jsimpledb/gui/**/*"/>
                 <exclude name="org/jsimpledb/spring/**/*"/>
             </fileset>
             <fileset dir="build/resources">
                 <exclude name="org/jsimpledb/cli/**/*"/>
+                <exclude name="org/jsimpledb/gui/**/*"/>
                 <exclude name="org/jsimpledb/spring/**/*"/>
             </fileset>
             <manifest>
@@ -190,6 +193,31 @@
             </manifest>
             <keep pattern="org.jsimpledb.**"/>
         </jarjar>
+
+        <!-- GUI JAR -->
+        <delete dir="build/guijar"/>
+        <mkdir dir="build/guijar"/>
+        <copy todir="build/guijar/WEB-INF">
+            <fileset dir="src/web"/>
+        </copy>
+        <mkdir dir="build/guijar/VAADIN/themes/${custom.theme.name}"/>
+        <copy todir="build/guijar/VAADIN/themes/${custom.theme.name}">
+            <fileset dir="src/theme"/>
+        </copy>
+        <jar destfile="build/dist/${ant.project.name}-gui-${library.version}.jar">
+            <fileset dir="build/classes">
+                <include name="org/jsimpledb/gui/**/*"/>
+            </fileset>
+            <fileset dir="build/resources">
+                <include name="org/jsimpledb/gui/**/*"/>
+            </fileset>
+            <fileset dir="build/guijar"/>
+            <manifest>
+                <attribute name="Implementation-Version" value="${library.version}"/>
+                <attribute name="SCM-Revision" value="${svn.revision}"/>
+            </manifest>
+        </jar>
+        <delete dir="build/guijar"/>
 
         <!-- Spring JAR -->
         <jar destfile="build/dist/${ant.project.name}-spring-${library.version}.jar">
@@ -218,6 +246,18 @@
         <copy file="build/dist/${ant.project.name}-core-${library.version}.jar" toDir="build/cli/libs"/>
         <copy file="build/dist/${ant.project.name}-cli-${library.version}.jar" toDir="build/cli/libs"/>
         <property name="cli.completed" value="true"/>
+    </target>
+
+    <!-- Build GUI deployment -->
+    <target name="gui" description="Build GUI deployment" depends="jars" unless="gui.completed">
+        <delete dir="build/gui"/>
+        <mkdir dir="build/gui/libs"/>
+        <dellroad:ivyput pattern="build/gui/libs/[module]-[artifact].[ext]" conf="gui"/>
+        <copy tofile="build/gui/log4j.xml" file="src/xml/log4j-gui.xml"/>
+        <copy file="build/dist/${ant.project.name}-core-${library.version}.jar" toDir="build/gui/libs"/>
+        <copy file="build/dist/${ant.project.name}-gui-${library.version}.jar" toDir="build/gui/libs"/>
+        <copy file="build/dist/${ant.project.name}-spring-${library.version}.jar" toDir="build/gui/libs"/>
+        <property name="gui.completed" value="true"/>
     </target>
 
     <!-- All distribution files -->
@@ -331,7 +371,7 @@
             </copy>
 
             <!-- Sign and deploy the JARs -->
-            <antcontrib:for list="core,cli,spring,javadocs,sources" param="name" trim="true">
+            <antcontrib:for list="core,cli,gui,spring,javadocs,sources" param="name" trim="true">
                 <sequential>
                     <antcontrib:if>
                         <equals arg1="@{sign}" arg2="true"/>
