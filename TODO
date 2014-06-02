@@ -5,6 +5,7 @@
         - Inverting references
         - Evaluating reference paths
     - Command line flag to scan classpath for Command classes
+    - Add support for JPQL ?
 
 - Add Vaadin GUI editor generator
 
@@ -14,7 +15,6 @@
     - https://code.google.com/p/guava-libraries/wiki/RangesExplained
 
 - More built-in field types:
-    - Class
     - BigInteger, BigDecimal
     - SimpleDateFormat
     - BitSet
