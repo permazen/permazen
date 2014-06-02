@@ -9,18 +9,17 @@
 
     <!-- Configure build & stuff -->
     <property name="maven.group.id" value="org.jsimpledb"/>
-    <property name="library.version" value="1.0"/>
+    <property name="library.version" value="1.1.0-SNAPSHOT"/>
     <property name="javac.compiler.flags" value="-Xlint:all"/>
     <property name="coverage.report" value="true"/>
 
     <!-- Import generic build macros -->
     <import file="${basedir}/src/build/macros.xml"/>
 
-    <!-- Determine SVN revision and full version -->
+    <!-- Determine SVN revision and version -->
     <dellroad:svnrevision property="svn.revision"/>
-    <property name="full.version" value="${library.version}.${svn.revision}"/>
     <echo message=""/>
-    <echo message="Version is ${library.version}.${svn.revision}"/>
+    <echo message="Version is ${library.version} (r${svn.revision})"/>
     <echo message=""/>
 
     <!-- Classpath targets -->
@@ -32,6 +31,16 @@
     <target name="javac.classpath" unless="javac.classpath.resolved">
         <dellroad:ivypath pathid="javac.classpath" conf="javac"/>
         <property name="javac.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="weaver.classpath" unless="weaver.classpath.resolved">
+        <dellroad:ivypath pathid="weaver.classpath" conf="weaver"/>
+        <property name="weaver.classpath.resolved" value="true"/>
+    </target>
+
+    <target name="aspects.classpath" unless="aspects.classpath.resolved">
+        <dellroad:ivypath pathid="aspects.classpath" conf="aspects"/>
+        <property name="aspects.classpath.resolved" value="true"/>
     </target>
 
     <target name="unittest.classpath" unless="unittest.classpath.resolved">
@@ -47,22 +56,102 @@
             <fileset dir="src/java" includes="**/*.xsd"/>
             <fileset dir="src/properties" includes="${ant.project.name}.properties"/>
             <filterset>
-                <filter token="VERSION" value="${full.version}"/>
+                <filter token="VERSION" value="${library.version}"/>
             </filterset>
         </copy>
         <property name="resources.completed" value="true"/>
     </target>
 
-    <!-- Main JAR -->
-    <target name="jar" depends="javac, resources, build.classpath" unless="jar.completed"
+    <!-- AspectJ task definitions -->
+    <target name="aop-setup" depends="weaver.classpath, aspects.classpath"
+      unless="aop-setup.completed" description="Define AOP ant tasks and classpaths">
+
+        <!-- Define ant task -->
+        <taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
+            <classpath refid="weaver.classpath"/>
+        </taskdef>
+
+        <!-- Define iajc.classpath: where to find classes that might be seen during iajc compile -->
+        <path id="iajc.classpath">
+            <path refid="javac.classpath"/>
+        </path>
+
+        <!-- Define aspect.classpath: where to find pre-compiled AOP aspects -->
+        <path id="aspect.classpath">
+            <path refid="javac.classpath"/>
+        </path>
+
+        <property name="aop-setup.completed" value="true"/>
+    </target>
+
+    <!-- Aspect compiling -->
+    <target name="aspects" depends="javac, aop-setup" unless="aspects.completed" description="Compile AOP aspects">
+        <antcontrib:outofdate>
+            <sourcefiles>
+                <fileset dir="." includes="build.xml"/>
+                <fileset dir="src/java" includes="**/*.aj"/>
+            </sourcefiles>
+            <targetfiles path="build/aspects.timestamp"/>
+            <sequential>
+                <delete file="build/aspects.timestamp"/>
+                <path id="aspects.classpath">
+                    <path refid="iajc.classpath"/>
+                    <pathelement location="build/classes"/>
+                </path>
+                <iajc srcdir="src/java"
+                      destDir="build/classes"
+                      classpathRef="aspects.classpath"
+                      source="1.7"
+                      target="1.7"
+                      verbose="true"
+                      showWeaveInfo="true"
+                      failonerror="true">
+                        <include name="**/*.aj"/>
+                </iajc>
+                <touch file="build/aspects.timestamp"/>
+            </sequential>
+        </antcontrib:outofdate>
+        <property name="aspects.completed" value="true"/>
+    </target>
+
+    <!-- Aspect weaving -->
+    <target name="weaving" depends="javac, aop-setup" unless="weaving.completed">
+        <antcontrib:outofdate>
+            <sourcefiles>
+                <fileset dir="." includes="build.xml"/>
+                <fileset dir="src/ivy" includes="ivy.xml"/>
+                <fileset dir="src/java" includes="**/*.xml"/>
+                <fileset dir="src/java" includes="**/*.java"/>
+            </sourcefiles>
+            <targetfiles path="build/weaving.timestamp"/>
+            <sequential>
+                <delete file="build/weaving.timestamp"/>
+                <iajc inpath="build/classes"
+                      destDir="build/classes"
+                      classpathRef="iajc.classpath"
+                      source="1.7"
+                      target="1.7"
+                      verbose="true"
+                      showWeaveInfo="false"
+                      failonerror="true"
+                      aspectPathRef="aspect.classpath"/>
+                <touch file="build/weaving.timestamp"/>
+            </sequential>
+        </antcontrib:outofdate>
+        <property name="weaving.completed" value="true"/>
+    </target>
+
+    <!-- JARs -->
+    <target name="jars" depends="javac, resources, weaving, build.classpath" unless="jar.completed"
       description="Build main JAR">
         <dellroad:ivyput pattern="build/[artifact].[ext]" conf="jarjars"/>
         <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="build.classpath"/>
         <mkdir dir="build/dist"/>
-        <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
-        <jarjar destfile="build/dist/${ant.project.name}-${full.version}.jar">
+        <delete file="build/dist/${ant.project.name}-${library.version}.jar"/>
+
+        <!-- Core JAR -->
+        <jarjar destfile="build/dist/${ant.project.name}-core-${library.version}.jar">
             <zipfileset src="build/asm.jar"/>
-            <zipfileset src="build/jline.jar"/>
         <!-- for ClassGenerator debug
             <zipfileset src="build/asm-util.jar"/>
         -->
@@ -71,31 +160,79 @@
             </zipfileset>
             <rule pattern="org.objectweb.asm.**" result="org.jsimpledb.asm.@1"/>
             <rule pattern="org.dellroad.stuff.**" result="org.jsimpledb.drstuff.@1"/>
-            <rule pattern="jline.**" result="org.jsimpledb.jline.@1"/>
-            <fileset dir="build/classes"/>
-            <fileset dir="build/resources"/>
+            <fileset dir="build/classes">
+                <exclude name="org/jsimpledb/cli/**/*"/>
+                <exclude name="org/jsimpledb/spring/**/*"/>
+            </fileset>
+            <fileset dir="build/resources">
+                <exclude name="org/jsimpledb/cli/**/*"/>
+                <exclude name="org/jsimpledb/spring/**/*"/>
+            </fileset>
             <manifest>
-                <attribute name="Implementation-Version" value="${full.version}"/>
+                <attribute name="Implementation-Version" value="${library.version}"/>
+                <attribute name="SCM-Revision" value="${svn.revision}"/>
             </manifest>
-            <metainf dir="src/spring" includes="spring.*"/>
             <keep pattern="org.jsimpledb.**"/>
         </jarjar>
+
+        <!-- CLI JAR -->
+        <jarjar destfile="build/dist/${ant.project.name}-cli-${library.version}.jar">
+            <rule pattern="org.dellroad.stuff.**" result="org.jsimpledb.drstuff.@1"/>
+            <fileset dir="build/classes">
+                <include name="org/jsimpledb/cli/**/*"/>
+            </fileset>
+            <fileset dir="build/resources">
+                <include name="org/jsimpledb/cli/**/*"/>
+            </fileset>
+            <manifest>
+                <attribute name="Implementation-Version" value="${library.version}"/>
+                <attribute name="SCM-Revision" value="${svn.revision}"/>
+            </manifest>
+            <keep pattern="org.jsimpledb.**"/>
+        </jarjar>
+
+        <!-- Spring JAR -->
+        <jar destfile="build/dist/${ant.project.name}-spring-${library.version}.jar">
+            <fileset dir="build/classes">
+                <include name="org/jsimpledb/spring/**/*"/>
+            </fileset>
+            <fileset dir="build/resources">
+                <include name="org/jsimpledb/spring/**/*"/>
+            </fileset>
+            <manifest>
+                <attribute name="Implementation-Version" value="${library.version}"/>
+                <attribute name="SCM-Revision" value="${svn.revision}"/>
+            </manifest>
+            <metainf dir="src/spring" includes="spring.*"/>
+        </jar>
+
         <property name="jar.completed" value="true"/>
     </target>
 
+    <!-- Build CLI deployment -->
+    <target name="cli" description="Build CLI deployment" depends="jars" unless="cli.completed">
+        <delete dir="build/cli"/>
+        <mkdir dir="build/cli/libs"/>
+        <dellroad:ivyput pattern="build/cli/libs/[module]-[artifact].[ext]" conf="cli"/>
+        <copy tofile="build/cli/log4j.xml" file="src/xml/log4j-cli.xml"/>
+        <copy file="build/dist/${ant.project.name}-core-${library.version}.jar" toDir="build/cli/libs"/>
+        <copy file="build/dist/${ant.project.name}-cli-${library.version}.jar" toDir="build/cli/libs"/>
+        <property name="cli.completed" value="true"/>
+    </target>
+
     <!-- All distribution files -->
-    <target name="jars" depends="jar, javadoc" unless="jars.completed"
-      description="Build JARs">
+    <target name="otherjars" depends="javadoc" unless="otherjars.completed"
+      description="Build source and Javadoc ZIPs">
         <mkdir dir="build/dist"/>
-        <delete file="build/dist/${ant.project.name}-sources-${full.version}.zip"/>
-        <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">
+        <delete file="build/dist/${ant.project.name}-sources-${library.version}.jar"/>
+        <jar destfile="build/dist/${ant.project.name}-sources-${library.version}.jar">
             <fileset dir="src/java" includes="**/*"/>
-        </zip>
-        <delete file="build/dist/${ant.project.name}-javadocs-${full.version}.zip"/>
-        <zip destfile="build/dist/${ant.project.name}-javadocs-${full.version}.zip">
+        </jar>
+        <delete file="build/dist/${ant.project.name}-javadocs-${library.version}.jar"/>
+        <jar destfile="build/dist/${ant.project.name}-javadocs-${library.version}.jar">
             <fileset dir="build/reports/javadoc" includes="**/*"/>
-        </zip>
-        <property name="jars.completed" value="true"/>
+        </jar>
+        <property name="otherjars.completed" value="true"/>
     </target>
 
     <!-- Build Javadocs -->
@@ -106,7 +243,8 @@
         <copy todir="build/javadoc">
             <fileset dir="src/java/org/jsimpledb" includes="overview.html"/>
             <filterset>
-                <filter token="VERSION" value="${full.version}"/>
+                <filter token="VERSION" value="${library.version}"/>
+                <filter token="SVN_REVISION" value="${svn.revision}"/>
             </filterset>
         </copy>
         <dellroad:javadoc overview="build/javadoc/overview.html">
@@ -136,7 +274,7 @@
 
     <!-- Run unit tests -->
     <target name="tests" description="Run unit tests"
-      depends="javac, unittest.classpath, build.classpath, testng.classpath, cobertura.classpath"
+      depends="javac, resources, unittest.classpath, build.classpath, testng.classpath, cobertura.classpath"
       unless="tests.completed">
         <copy todir="build/test" overwrite="true">
             <fileset dir="src/test" includes="**/*.xsl"/>
@@ -175,73 +313,83 @@
         </copy>
     </target>
 
-    <!-- Publish to maven -->
-    <target name="mavenpub" depends="jars" description="Deploy JARs to Maven staging repository">
+    <!-- Maven macro -->
+    <macrodef uri="urn:org.dellroad.ant" name="mavenpub">
+        <attribute name="sign" default="true" description="Whether to sign with GPG"/>
+        <attribute name="url" description="Repository URL"/>
+        <attribute name="id" description="Repository ID"/>
+        <sequential>
 
-        <!-- Define Maven coordinates -->
-        <property name="groupId" value="${maven.group.id}"/>
-        <property name="artifactId" value="${ant.project.name}"/>
-        <property name="version" value="${full.version}"/>
+            <!-- Generate pom.xml -->
+            <copy todir="build">
+                <fileset dir="src/mvn" includes="pom.xml"/>
+                <filterset>
+                    <filter token="VERSION" value="${library.version}"/>
+                    <filter token="GROUP_ID" value="${maven.group.id}"/>
+                    <filter token="ARTIFACT_ID" value="${ant.project.name}"/>
+                </filterset>
+            </copy>
 
-        <!-- Define artifacts' name, which follows the convention of Maven -->
-        <property name="maven-jar" value="${dist}/lib/${artifactId}-${version}.jar" />
-        <property name="maven-javadoc-jar" value="${dist}/lib/${artifactId}-${version}-javadoc.jar" />
-        <property name="maven-sources-jar" value="${dist}/lib/${artifactId}-${version}-sources.jar" />
+            <!-- Sign and deploy the JARs -->
+            <antcontrib:for list="core cli spring javadocs sources" param="name" trim="true">
+                <sequential>
+                    <artifact:mvn>
+                        <antcontrib:if>
+                            <equals arg1="@{sign}" arg2="true"/>
+                            <antcontrib:then>
+                                <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file"/>
+                            </antcontrib:then>
+                            <antcontrib:else>
+                                <arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file"/>
+                            </antcontrib:else>
+                        </antcontrib:if>
+                        <arg value="-Durl=@{url}"/>
+                        <arg value="-DrepositoryId=@{id}"/>
+                        <arg value="-DpomFile=pom.xml"/>
+                        <arg value="-Dfile=build/dist/${ant.project.name}-@{name}-${library.version}.jar"/>
+                        <antcontrib:if>
+                            <equals arg1="@{sign}" arg2="true"/>
+                            <antcontrib:then>
+                                <arg value="-Pgpg"/>
+                            </antcontrib:then>
+                        </antcontrib:if>
+                    </artifact:mvn>
+                </sequential>
+            </antcontrib:for>
+        </sequential>
+    </macrodef>
 
-        <!-- Define maven snapshots and staging repository id and url -->
-        <property name="maven-snapshots-repository-id" value="sonatype-nexus-snapshots" />
-        <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
-        <property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
-        <property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
+    <!-- Publish snapshot to maven snapshot repository -->
+    <target name="maven-snapshot" depends="jars, otherjars" description="Deploy JARs to Maven snapshot repository">
 
-        <!-- Generate pom.xml -->
-        <copy todir="build">
-            <fileset dir="src/mvn" includes="pom.xml"/>
-            <filterset>
-                <filter token="VERSION" value="${full.version}"/>
-                <filter token="GROUP_ID" value="${maven.group.id}"/>
-                <filter token="ARTIFACT_ID" value="${ant.project.name}"/>
-            </filterset>
-        </copy>
+        <!-- Sanity check -->
+        <fail message="can't put non-SNAPSHOT release ${library.version} into snapshot repository - do you need to update the version?">
+            <not>
+                <contains string="${library.version}" substring="SNAPSHOT"/>
+            </not>
+        </fail>
 
-        <!-- Sign and deploy the main artifact -->
-        <artifact:mvn>
-            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
-            <arg value="-Durl=${maven-staging-repository-url}" />
-            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
-            <arg value="-DpomFile=build/pom.xml" />
-            <arg value="-Dfile=build/dist/${ant.project.name}-${full.version}.jar"/>
-            <arg value="-Pgpg" />
-        </artifact:mvn>
+        <!-- Define maven snapshots repository id and url -->
+        <dellroad:mavenpub url="https://oss.sonatype.org/content/repositories/snapshots/" id="sonatype-nexus-snapshots" sign="false"/>
+    </target>
 
-        <!-- sign and deploy the sources artifact -->
-        <artifact:mvn>
-            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
-            <arg value="-Durl=${maven-staging-repository-url}" />
-            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
-            <arg value="-DpomFile=build/pom.xml" />
-            <arg value="-Dfile=build/dist/${ant.project.name}-sources-${full.version}.zip"/>
-            <arg value="-Dclassifier=sources" />
-            <arg value="-Pgpg" />
-        </artifact:mvn>
+    <!-- Publish release to maven staging repository -->
+    <target name="maven-stage" depends="jars, otherjars" description="Deploy JARs to Maven staging repository">
 
-        <!-- sign and deploy the javadoc artifact -->
-        <artifact:mvn>
-            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
-            <arg value="-Durl=${maven-staging-repository-url}" />
-            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
-            <arg value="-DpomFile=build/pom.xml" />
-            <arg value="-Dfile=build/dist/${ant.project.name}-javadocs-${full.version}.zip"/>
-            <arg value="-Dclassifier=javadoc" />
-            <arg value="-Pgpg" />
-        </artifact:mvn>
+        <!-- Sanity check -->
+        <fail message="can't stage snapshot release ${library.version} - do you need to update the version?">
+            <contains string="${library.version}" substring="SNAPSHOT" casesensitive="false"/>
+        </fail>
+
+        <!-- Define maven snapshots repository id and url -->
+        <dellroad:mavenpub url="https://oss.sonatype.org/service/local/staging/deploy/maven2/" id="sonatype-nexus-staging" sign="true"/>
     </target>
 
     <!-- Reports target -->
     <target name="reports-project" depends="javadoc, checkstyle, tests"/>
 
     <!-- Release time stuff -->
-    <target name="release" depends="clean, jars, reports, publish, mavenpub"
+    <target name="release" depends="clean, jars, reports, publish, maven-stage"
       description="Perform release-time tasks"/>
 
     <!-- Default target -->
