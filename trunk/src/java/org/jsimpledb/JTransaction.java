@@ -562,6 +562,19 @@ public class JTransaction {
     }
 
     /**
+     * Get this schema version of the specified object. Does not change the object's schema version.
+     *
+     * @param id Object ID
+     * @return object's schema version
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if the object does not exist in this transaction
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public int getSchemaVersion(ObjId id) {
+        return this.tx.getSchemaVersion(id);
+    }
+
+    /**
      * Update the schema version of the specified object, if necessary, so that its version matches
      * the schema version associated with this {@link JSimpleDB}.
      *

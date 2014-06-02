@@ -650,7 +650,7 @@ public class Transaction {
      * @param id object ID of the object to delete
      * @return true if object was found and deleted, false if object was not found
      * @throws ReferencedObjectException if the object is referenced by some other object
-     *  through a reference field set to {@link DeleteAction#EXCEPTION}
+     *  through a reference field configured for {@link DeleteAction#EXCEPTION}
      * @throws IllegalArgumentException if {@code id} is null
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable

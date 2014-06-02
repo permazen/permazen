@@ -35,6 +35,18 @@ public interface JObject {
     ObjId getObjId();
 
     /**
+     * Get this instance's current schema version. Does not change this instance's schema version.
+     *
+     * @throws org.jsimpledb.core.DeletedObjectException
+     *  if this object does not exist in the {@link JTransaction} associated with this instance
+     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
+     *  associated with the current thread
+     * @throws org.jsimpledb.core.StaleTransactionException
+     *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
+     */
+    int getSchemaVersion();
+
+    /**
      * Get this instance's associated {@link JTransaction}.
      *
      * <p>
@@ -57,6 +69,8 @@ public interface JObject {
      *  associated with the current thread
      * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction associated with the current thread is no longer usable
+     * @throws org.jsimpledb.core.ReferencedObjectException if the object is referenced by some other object
+     *  through a reference field configured for {@link org.jsimpledb.core.DeleteAction#EXCEPTION}
      */
     boolean delete();
 
