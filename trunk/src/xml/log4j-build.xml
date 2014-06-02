@@ -15,10 +15,6 @@
         </layout>
     </appender>
 
-    <logger name="org.hibernate">
-        <level value="warn"/>
-    </logger>
-
     <root>
         <priority value="debug"/>
         <appender-ref ref="console"/>
