@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id$ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xmlns:jsimpledb="http://jsimpledb.googlecode.com/schema/jsimpledb"
+  xsi:schemaLocation="
+   http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://www.springframework.org/schema/context
+   http://www.springframework.org/schema/context/spring-context.xsd
+   http://www.springframework.org/schema/tx
+   http://www.springframework.org/schema/tx/spring-tx.xsd
+   http://www.springframework.org/schema/util
+   http://www.springframework.org/schema/util/spring-util.xsd
+   http://jsimpledb.googlecode.com/schema/jsimpledb
+     http://jsimpledb.googlecode.com/svn/schemas/jsimpledb-1.0.xsd">
+
+    <!-- Activate Spring annotation support -->
+    <context:annotation-config/>
+
+    <!-- Activate @Configurable -->
+    <context:spring-configured/>
+
+    <!-- Substitute ${properties.like.this} in this application context -->
+    <context:property-placeholder/>
+
+    <!-- Define an event multicaster for the application-wide ApplicationContext -->
+    <bean id="vcomEventMulticaster" class="org.springframework.context.event.SimpleApplicationEventMulticaster"/>
+
+    <!-- Define database -->
+    <bean id="main" class="org.jsimpledb.gui.Main" factory-method="getInstance"/>
+
+    <bean id="database" class="org.jsimpledb.core.Database">
+        <constructor-arg name="kvdb">
+            <bean factory-bean="main" factory-method="getKVDatabase"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database">
+        <constructor-arg name="version">
+            <bean factory-bean="main" factory-method="getSchemaVersion"/>
+        </constructor-arg>
+        <constructor-arg name="classes">
+            <jsimpledb:scan-classpath base-package="${jsimpledb.gui.packages}"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="jsimpledbGuiTransactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager" p:JSimpleDB-ref="jsimpledb">
+        <property name="allowNewSchema">
+            <bean factory-bean="main" factory-method="isAllowNewSchema"/>
+        </property>
+    </bean>
+
+    <!-- Activate @Transactional -->
+    <tx:annotation-driven transaction-manager="jsimpledbGuiTransactionManager" mode="aspectj"/>
+
+    <!-- Activate @RetryTransaction -->
+    <bean class="org.dellroad.stuff.spring.RetryTransactionAspect" factory-method="aspectOf"
+      p:maxRetriesDefault="5" p:initialDelayDefault="25" p:maximumDelayDefault="1000">
+        <property name="persistenceExceptionTranslator">
+            <bean class="org.jsimpledb.spring.JSimpleDBExceptionTranslator"/>
+        </property>
+    </bean>
+
+</beans>
