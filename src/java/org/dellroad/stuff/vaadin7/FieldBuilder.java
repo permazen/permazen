@@ -52,22 +52,22 @@ import java.util.TimeZone;
  * about how to edit a Java model class to stay contained within that class.
  *
  * <p>
- * This class supports two types of annotations: first, the {@link ProvidesField} annotation annotates a method that knows
- * how to build an {@link AbstractField} suitable for editing the bean property specified by
- * its {@link ProvidesField#value value()}. So {@link ProvidesField} is analgous to {@link ProvidesProperty}, except that
- * it defines an editing field rather than a container property.
+ * This class supports two types of annotations: first, the {@link ProvidesField &#64;ProvidesField} annotation annotates
+ * a method that knows how to build an {@link AbstractField} suitable for editing the bean property specified by
+ * its {@link ProvidesField#value value()}. So {@link ProvidesField &#64;ProvidesField} is analgous to
+ * {@link ProvidesProperty &#64;ProvidesProperty}, except that it defines an editing field rather than a container property.
  * </p>
  *
  * <p>
- * The {@link FieldBuilder.AbstractField} hierarchy annotations are the other type of annotation. These annotations annotate
- * a Java bean property getter method and specify how to configure an {@link AbstractField} subclass instance to edit
- * the bean property corresponding to the getter method.
- * {@link FieldBuilder.AbstractField} is the top level annotation in a hierarchy of annotations that correspond to the
- * {@link AbstractField} class hierarchy. {@link FieldBuilder.AbstractField} corresponds to {@link AbstractField},
- * and its properties configure corresponding {@link AbstractField} properties.
+ * The {@link FieldBuilder.AbstractField &#64;FieldBuilder.AbstractField} hierarchy annotations are the other type of annotation.
+ * These annotations annotate a Java bean property getter method and specify how to configure an {@link AbstractField} subclass
+ * instance to edit the bean property corresponding to the getter method.
+ * {@link FieldBuilder.AbstractField &#64;FieldBuilder.AbstractField} is the top level annotation in a hierarchy of annotations
+ * that correspond to the {@link AbstractField} class hierarchy. {@link FieldBuilder.AbstractField &#64;FieldBuilder.AbstractField}
+ * corresponds to {@link AbstractField}, and its properties configure corresponding {@link AbstractField} properties.
  * More specific annotations correspond to the various {@link AbstractField} subclasses,
- * for example {@link ComboBox FieldBuilder.ComboBox} corresponds to {@link ComboBox}.
- * When using more specific annotations, the "superclass" annotations configure the superclass properties.
+ * for example {@link ComboBox &#64;FieldBuilder.ComboBox} corresponds to {@link ComboBox}.
+ * When using more specific annotations, the "superclass" annotations configure the corresponding superclass' properties.
  * </p>
  *
  * <p>
@@ -103,8 +103,8 @@ import java.util.TimeZone;
  * </p>
  *
  * <p>
- * For all annotations in the {@link FieldBuilder.AbstractField} hierarchy, leaving properties set to their default values
- * results in the default behavior.
+ * For all annotations in the {@link FieldBuilder.AbstractField &#64;FieldBuilder.AbstractField} hierarchy, leaving properties
+ * set to their default values results in the default behavior.
  * </p>
  *
  * @see AbstractSelect
