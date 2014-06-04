@@ -34,6 +34,11 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
         this.element = element;
     }
 
+    @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseListFieldRemove(this);
+    }
+
     /**
      * Get the list index from which the element was removed.
      */

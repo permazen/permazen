@@ -31,6 +31,11 @@ public class SetFieldAdd<T, E> extends SetFieldChange<T> {
         this.element = element;
     }
 
+    @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseSetFieldAdd(this);
+    }
+
     /**
      * Get the element that was added to the set.
      */

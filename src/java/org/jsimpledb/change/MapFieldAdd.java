@@ -35,6 +35,11 @@ public class MapFieldAdd<T, K, V> extends MapFieldChange<T> {
         this.value = value;
     }
 
+    @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseMapFieldAdd(this);
+    }
+
     /**
      * Get the key of the new key/value pair that was added.
      */

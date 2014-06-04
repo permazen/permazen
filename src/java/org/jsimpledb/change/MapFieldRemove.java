@@ -35,6 +35,11 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
         this.value = value;
     }
 
+    @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseMapFieldRemove(this);
+    }
+
     /**
      * Get the key of the key/value pair that was removed.
      */

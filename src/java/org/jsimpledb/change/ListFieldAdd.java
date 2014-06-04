@@ -34,6 +34,11 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
         this.element = element;
     }
 
+    @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseListFieldAdd(this);
+    }
+
     /**
      * Get the list index at which the new element was added.
      */

@@ -38,6 +38,11 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
         this.newValue = newValue;
     }
 
+    @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseMapFieldReplace(this);
+    }
+
     /**
      * Get the key of the key/value pair whose value was replaced.
      */

@@ -27,6 +27,11 @@ public class MapFieldClear<T> extends MapFieldChange<T> {
     }
 
     @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseMapFieldClear(this);
+    }
+
+    @Override
     public String toString() {
         return "MapFieldClear[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\"]";
     }

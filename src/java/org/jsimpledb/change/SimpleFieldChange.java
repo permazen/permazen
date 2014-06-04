@@ -34,6 +34,11 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
         this.newValue = newValue;
     }
 
+    @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseSimpleFieldChange(this);
+    }
+
     /**
      * Get the value of the field before the change.
      */
