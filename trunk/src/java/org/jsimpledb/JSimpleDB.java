@@ -101,7 +101,11 @@ public class JSimpleDB {
 
     /**
      * Create an instance using an initially empty, in-memory {@link SimpleKVDatabase}.
-     * This constructor can also be used just to validate the given classes.
+     * Generates a database schema by introspecting the {@code classes}; schema version number {@code 1} is assumed.
+     *
+     * <p>
+     * This constructor can also be used just to validate the annotations on the given classes.
+     * </p>
      *
      * @param classes classes annotated with {@link JSimpleClass} and/or {@link JFieldType} annotations
      * @throws IllegalArgumentException if {@code classes} is null
@@ -113,7 +117,7 @@ public class JSimpleDB {
     }
 
     /**
-     * Primary constructor.
+     * Primary constructor. Generates a database schema by introspecting the provided classes.
      *
      * @param database core database to use
      * @param version schema version number of the schema derived from {@code classes}
@@ -246,6 +250,15 @@ public class JSimpleDB {
     // This method exists solely to bind the generic type parameters
     private <T> JClass<T> createJClass(String name, int storageId, TypeToken<T> typeToken) {
         return new JClass<T>(this, name, storageId, typeToken);
+    }
+
+    /**
+     * Get the schema version that this instance will use.
+     *
+     * @return the version specified when constructing this instance
+     */
+    public int getVersion() {
+        return this.version;
     }
 
 // Transactions
