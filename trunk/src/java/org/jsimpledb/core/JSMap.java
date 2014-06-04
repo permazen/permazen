@@ -96,10 +96,10 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
             @Override
             void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
                 if (oldValue == null)
-                    listener.onMapFieldAdd(tx, this.getId(), this.getStorageId(), path, referrers, keyObj, newValueObj);
+                    listener.onMapFieldAdd(tx, this.getId(), JSMap.this.field, path, referrers, keyObj, newValueObj);
                 else {
                     listener.onMapFieldReplace(tx, this.getId(),
-                      this.getStorageId(), path, referrers, keyObj, oldValueObj, newValueObj);
+                      JSMap.this.field, path, referrers, keyObj, oldValueObj, newValueObj);
                 }
             }
         });
@@ -149,7 +149,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
             @Override
             void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onMapFieldRemove(tx, this.getId(), this.getStorageId(), path, referrers, keyObj, valueObj);
+                listener.onMapFieldRemove(tx, this.getId(), JSMap.this.field, path, referrers, keyObj, valueObj);
             }
         });
 
@@ -200,7 +200,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
             @Override
             void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onMapFieldClear(tx, this.getId(), this.getStorageId(), path, referrers);
+                listener.onMapFieldClear(tx, this.getId(), JSMap.this.field, path, referrers);
             }
         });
     }

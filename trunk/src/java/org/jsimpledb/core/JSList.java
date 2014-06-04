@@ -113,7 +113,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
             @Override
             void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onListFieldReplace(tx, this.getId(), this.getStorageId(), path, referrers, index, oldElem, newElem);
+                listener.onListFieldReplace(tx, this.getId(), JSList.this.field, path, referrers, index, oldElem, newElem);
             }
         });
 
@@ -176,7 +176,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
             this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
                 @Override
                 void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onListFieldAdd(tx, this.getId(), this.getStorageId(), path, referrers, index2, elem);
+                    listener.onListFieldAdd(tx, this.getId(), JSList.this.field, path, referrers, index2, elem);
                 }
             });
 
@@ -216,7 +216,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
             @Override
             void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onListFieldClear(tx, this.getId(), this.getStorageId(), path, referrers);
+                listener.onListFieldClear(tx, this.getId(), JSList.this.field, path, referrers);
             }
         });
     }
@@ -273,7 +273,7 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
                         this.elem = JSList.this.elementType.read(new ByteReader(value));
                         this.decoded = true;
                     }
-                    listener.onListFieldRemove(tx, this.getId(), this.getStorageId(), path, referrers, i2, elem);
+                    listener.onListFieldRemove(tx, this.getId(), JSList.this.field, path, referrers, i2, elem);
                 }
             });
         }

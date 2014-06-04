@@ -29,7 +29,7 @@ public interface MapFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      * @param key the new map entry's key
@@ -37,7 +37,7 @@ public interface MapFieldChangeListener {
      * @param <K> Java type for {@code field}'s keys
      * @param <V> Java type for {@code field}'s values
      */
-    <K, V> void onMapFieldAdd(Transaction tx, ObjId id, int storageId,
+    <K, V> void onMapFieldAdd(Transaction tx, ObjId id, MapField<K, V> field,
       int[] path, NavigableSet<ObjId> referrers, K key, V value);
 
     /**
@@ -53,7 +53,7 @@ public interface MapFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      * @param key the removed map entry's key
@@ -61,7 +61,7 @@ public interface MapFieldChangeListener {
      * @param <K> Java type for {@code field}'s keys
      * @param <V> Java type for {@code field}'s values
      */
-    <K, V> void onMapFieldRemove(Transaction tx, ObjId id, int storageId,
+    <K, V> void onMapFieldRemove(Transaction tx, ObjId id, MapField<K, V> field,
       int[] path, NavigableSet<ObjId> referrers, K key, V value);
 
     /**
@@ -77,7 +77,7 @@ public interface MapFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      * @param key the map entry key
@@ -86,7 +86,7 @@ public interface MapFieldChangeListener {
      * @param <K> Java type for {@code field}'s keys
      * @param <V> Java type for {@code field}'s values
      */
-    <K, V> void onMapFieldReplace(Transaction tx, ObjId id, int storageId,
+    <K, V> void onMapFieldReplace(Transaction tx, ObjId id, MapField<K, V> field,
       int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue);
 
     /**
@@ -107,10 +107,10 @@ public interface MapFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that was cleared)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      */
-    void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers);
+    void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers);
 }
 

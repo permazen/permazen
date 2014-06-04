@@ -7,6 +7,9 @@
 
 package org.jsimpledb.change;
 
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when a list field is cleared.
@@ -19,16 +22,22 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that was cleared
+     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldClear(T jobj, String fieldName) {
-        super(jobj, fieldName);
+    public ListFieldClear(T jobj, int storageId, String fieldName) {
+        super(jobj, storageId, fieldName);
     }
 
     @Override
     public <R> R visit(FieldChangeSwitch<R> target) {
         return target.caseListFieldClear(this);
+    }
+
+    @Override
+    public void apply(JTransaction tx, ObjId id) {
+        tx.readListField(id, this.getStorageId()).clear();
     }
 
     @Override

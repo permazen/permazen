@@ -7,6 +7,9 @@
 
 package org.jsimpledb.change;
 
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when a simple field changes.
@@ -23,13 +26,14 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the field that changed
+     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param oldValue the old field value
      * @param newValue the new field value
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public SimpleFieldChange(T jobj, String fieldName, V oldValue, V newValue) {
-        super(jobj, fieldName);
+    public SimpleFieldChange(T jobj, int storageId, String fieldName, V oldValue, V newValue) {
+        super(jobj, storageId, fieldName);
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
@@ -37,6 +41,11 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
     @Override
     public <R> R visit(FieldChangeSwitch<R> target) {
         return target.caseSimpleFieldChange(this);
+    }
+
+    @Override
+    public void apply(JTransaction tx, ObjId id) {
+        tx.writeSimpleField(id, this.getStorageId(), this.newValue);
     }
 
     /**

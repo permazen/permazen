@@ -7,6 +7,11 @@
 
 package org.jsimpledb.change;
 
+import java.util.List;
+
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when an element is added to a list field.
@@ -23,13 +28,14 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
+     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param index index at which the addition occurred
      * @param element the element that was added
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldAdd(T jobj, String fieldName, int index, E element) {
-        super(jobj, fieldName);
+    public ListFieldAdd(T jobj, int storageId, String fieldName, int index, E element) {
+        super(jobj, storageId, fieldName);
         this.index = index;
         this.element = element;
     }
@@ -37,6 +43,12 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
     @Override
     public <R> R visit(FieldChangeSwitch<R> target) {
         return target.caseListFieldAdd(this);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void apply(JTransaction tx, ObjId id) {
+        ((List<E>)tx.readListField(id, this.getStorageId())).add(this.index, this.element);
     }
 
     /**

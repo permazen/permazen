@@ -47,22 +47,22 @@ public class OnChangeMultipleTest extends TestSupport {
             this.verify();
 
             p1.setName("Person #1");
-            this.verify(new SimpleFieldChange<Person, String>(p1, "name", null, "Person #1"));
+            this.verify(new SimpleFieldChange<Person, String>(p1, 101, "name", null, "Person #1"));
 
             p1.getFriends().add(p2);
-            this.verify(new SetFieldAdd<Person, Person>(p1, "friends", p2));
+            this.verify(new SetFieldAdd<Person, Person>(p1, 103, "friends", p2));
 
             p2.setName("Person #2");
-            this.verify(new SimpleFieldChange<Person, String>(p2, "name", null, "Person #2"));
+            this.verify(new SimpleFieldChange<Person, String>(p2, 101, "name", null, "Person #2"));
 
             final Person2 p3 = tx.create(Person2.class);
             p2.getFriends().add(p3);
-            this.verify(new SetFieldAdd<Person, Person>(p2, "friends", p3));
+            this.verify(new SetFieldAdd<Person, Person>(p2, 103, "friends", p3));
 
             p3.setName("Person #3");
             this.verify(
-              new SimpleFieldChange<Person, String>(p3, "name", null, "Person #3"),     // one for p2 (friends.element.name)
-              new SimpleFieldChange<Person, String>(p3, "name", null, "Person #3"));    // one for p3 (name)
+              new SimpleFieldChange<Person, String>(p3, 101, "name", null, "Person #3"),     // one for p2 (friends.element.name)
+              new SimpleFieldChange<Person, String>(p3, 101, "name", null, "Person #3"));    // one for p3 (name)
 
         } finally {
             JTransaction.setCurrent(null);

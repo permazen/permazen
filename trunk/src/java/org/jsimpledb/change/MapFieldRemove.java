@@ -7,6 +7,9 @@
 
 package org.jsimpledb.change;
 
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when a key/value pair is removed from a map field.
@@ -24,13 +27,14 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the map field that changed
+     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param key the key of the removed key/value pair
      * @param value the value of the removed key/value pair
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public MapFieldRemove(T jobj, String fieldName, K key, V value) {
-        super(jobj, fieldName);
+    public MapFieldRemove(T jobj, int storageId, String fieldName, K key, V value) {
+        super(jobj, storageId, fieldName);
         this.key = key;
         this.value = value;
     }
@@ -38,6 +42,11 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
     @Override
     public <R> R visit(FieldChangeSwitch<R> target) {
         return target.caseMapFieldRemove(this);
+    }
+
+    @Override
+    public void apply(JTransaction tx, ObjId id) {
+        tx.readMapField(id, this.getStorageId()).remove(this.key);
     }
 
     /**
