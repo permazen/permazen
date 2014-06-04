@@ -31,6 +31,11 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
         this.element = element;
     }
 
+    @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseSetFieldRemove(this);
+    }
+
     /**
      * Get the element that was removed from the set.
      */

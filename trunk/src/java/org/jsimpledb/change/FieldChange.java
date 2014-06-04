@@ -48,6 +48,14 @@ public abstract class FieldChange<T> {
         return this.fieldName;
     }
 
+    /**
+     * Apply visitor pattern. Invokes the method of {@code target} corresponding to this instance's type.
+     *
+     * @param target visitor pattern target
+     * @return value returned by the selected method of {@code target}
+     */
+    public abstract <R> R visit(FieldChangeSwitch<R> target);
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this)

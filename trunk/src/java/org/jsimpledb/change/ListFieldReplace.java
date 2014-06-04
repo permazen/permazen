@@ -37,6 +37,11 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
         this.newValue = newValue;
     }
 
+    @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseListFieldReplace(this);
+    }
+
     /**
      * Get the list index at which the element was replaced.
      */

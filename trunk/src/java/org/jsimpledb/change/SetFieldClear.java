@@ -27,6 +27,11 @@ public class SetFieldClear<T> extends SetFieldChange<T> {
     }
 
     @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseSetFieldClear(this);
+    }
+
+    @Override
     public String toString() {
         return "SetFieldClear[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\"]";
     }

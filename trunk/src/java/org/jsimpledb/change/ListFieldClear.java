@@ -27,6 +27,11 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
     }
 
     @Override
+    public <R> R visit(FieldChangeSwitch<R> target) {
+        return target.caseListFieldClear(this);
+    }
+
+    @Override
     public String toString() {
         return "ListFieldClear[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\"]";
     }
