@@ -16,6 +16,11 @@ package org.jsimpledb.core;
  * corresponding "real" database objects (as of the time they were copied).
  * </p>
  *
+ * <p>
+ * {@link SnapshotTransaction}s can never be closed (i.e., committed or rolled-back); they persist in memory until
+ * no longer referenced. {@link Transaction.Callback}s may be registered but they will never be invoked.
+ * </p>
+ *
  * @see Transaction#createSnapshotTransaction
  */
 public class SnapshotTransaction extends Transaction {
@@ -25,7 +30,7 @@ public class SnapshotTransaction extends Transaction {
     }
 
     /**
-     * Delete all objects contained in this snapshot transaction and reset it back to its initial state.
+     * Delete all objects contained in this snapshot transaction and reset it back to its initial empty state.
      *
      * <p>
      * It will contain schema meta-data but no objects.
@@ -87,14 +92,12 @@ public class SnapshotTransaction extends Transaction {
      * Register a transaction callback to be invoked when this transaction completes.
      *
      * <p>
-     * {@link SnapshotTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.
+     * {@link Transaction.Callback}s registered with a {@link SnapshotTransaction} will by definition never be invoked.
+     * Therefore, this method simply discards {@code callback}.
      * </p>
-     *
-     * @throws UnsupportedOperationException always
      */
     @Override
     public void addCallback(Callback callback) {
-        throw new UnsupportedOperationException("snapshot transaction");
     }
 
     /**
