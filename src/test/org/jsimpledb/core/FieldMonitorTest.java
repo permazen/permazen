@@ -297,83 +297,83 @@ public class FieldMonitorTest extends TestSupport {
 
         @Override
         public <T> void onSimpleFieldChange(Transaction tx, ObjId id,
-          int storageId, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
+          SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("SimpleChange", id, storageId, path, referrers, oldValue, newValue));
+            this.notifys.add(new Notify("SimpleChange", id, field.getStorageId(), path, referrers, oldValue, newValue));
         }
 
         @Override
-        public <E> void onSetFieldAdd(Transaction tx, ObjId id, int storageId, int[] path,
+        public <E> void onSetFieldAdd(Transaction tx, ObjId id, SetField<E> field, int[] path,
           NavigableSet<ObjId> referrers, E value) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("SetAdd", id, storageId, path, referrers, value));
+            this.notifys.add(new Notify("SetAdd", id, field.getStorageId(), path, referrers, value));
         }
 
         @Override
-        public <E> void onSetFieldRemove(Transaction tx, ObjId id, int storageId, int[] path,
+        public <E> void onSetFieldRemove(Transaction tx, ObjId id, SetField<E> field, int[] path,
           NavigableSet<ObjId> referrers, E value) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("SetRemove", id, storageId, path, referrers, value));
+            this.notifys.add(new Notify("SetRemove", id, field.getStorageId(), path, referrers, value));
         }
 
         @Override
-        public void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("SetClear", id, storageId, path, referrers));
+            this.notifys.add(new Notify("SetClear", id, field.getStorageId(), path, referrers));
         }
 
         @Override
-        public <E> void onListFieldAdd(Transaction tx, ObjId id, int storageId, int[] path,
+        public <E> void onListFieldAdd(Transaction tx, ObjId id, ListField<E> field, int[] path,
           NavigableSet<ObjId> referrers, int index, E value) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("ListAdd", id, storageId, path, referrers, index, value));
+            this.notifys.add(new Notify("ListAdd", id, field.getStorageId(), path, referrers, index, value));
         }
 
         @Override
-        public <E> void onListFieldRemove(Transaction tx, ObjId id, int storageId, int[] path,
+        public <E> void onListFieldRemove(Transaction tx, ObjId id, ListField<E> field, int[] path,
           NavigableSet<ObjId> referrers, int index, E value) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("ListRemove", id, storageId, path, referrers, index, value));
+            this.notifys.add(new Notify("ListRemove", id, field.getStorageId(), path, referrers, index, value));
         }
 
         @Override
-        public <E> void onListFieldReplace(Transaction tx, ObjId id, int storageId, int[] path,
+        public <E> void onListFieldReplace(Transaction tx, ObjId id, ListField<E> field, int[] path,
           NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("ListChange", id, storageId, path, referrers, index, oldValue, newValue));
+            this.notifys.add(new Notify("ListChange", id, field.getStorageId(), path, referrers, index, oldValue, newValue));
         }
 
         @Override
-        public void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("ListClear", id, storageId, path, referrers));
+            this.notifys.add(new Notify("ListClear", id, field.getStorageId(), path, referrers));
         }
 
         @Override
-        public <K, V> void onMapFieldAdd(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
-          K key, V value) {
+        public <K, V> void onMapFieldAdd(Transaction tx, ObjId id, MapField<K, V> field, int[] path,
+          NavigableSet<ObjId> referrers, K key, V value) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("MapAdd", id, storageId, path, referrers, key, value));
+            this.notifys.add(new Notify("MapAdd", id, field.getStorageId(), path, referrers, key, value));
         }
 
         @Override
-        public <K, V> void onMapFieldRemove(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
-          K key, V value) {
+        public <K, V> void onMapFieldRemove(Transaction tx, ObjId id, MapField<K, V> field, int[] path,
+          NavigableSet<ObjId> referrers, K key, V value) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("MapRemove", id, storageId, path, referrers, key, value));
+            this.notifys.add(new Notify("MapRemove", id, field.getStorageId(), path, referrers, key, value));
         }
 
         @Override
-        public <K, V> void onMapFieldReplace(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
-          K key, V oldValue, V newValue) {
+        public <K, V> void onMapFieldReplace(Transaction tx, ObjId id, MapField<K, V> field, int[] path,
+          NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("MapChange", id, storageId, path, referrers, key, oldValue, newValue));
+            this.notifys.add(new Notify("MapChange", id, field.getStorageId(), path, referrers, key, oldValue, newValue));
         }
 
         @Override
-        public void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
             Assert.assertEquals(tx, this.tx);
-            this.notifys.add(new Notify("MapClear", id, storageId, path, referrers));
+            this.notifys.add(new Notify("MapClear", id, field.getStorageId(), path, referrers));
         }
     }
 

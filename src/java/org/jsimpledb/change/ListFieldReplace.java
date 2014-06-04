@@ -7,6 +7,11 @@
 
 package org.jsimpledb.change;
 
+import java.util.List;
+
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when an element is replaced in a list field.
@@ -24,14 +29,15 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
+     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param index the index at which the replacement occurred
      * @param oldValue the old value in the list
      * @param newValue the new value in the list
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldReplace(T jobj, String fieldName, int index, E oldValue, E newValue) {
-        super(jobj, fieldName);
+    public ListFieldReplace(T jobj, int storageId, String fieldName, int index, E oldValue, E newValue) {
+        super(jobj, storageId, fieldName);
         this.index = index;
         this.oldValue = oldValue;
         this.newValue = newValue;
@@ -40,6 +46,12 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
     @Override
     public <R> R visit(FieldChangeSwitch<R> target) {
         return target.caseListFieldReplace(this);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void apply(JTransaction tx, ObjId id) {
+        ((List<E>)tx.readListField(id, this.getStorageId())).set(this.index, this.newValue);
     }
 
     /**

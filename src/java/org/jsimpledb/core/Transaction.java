@@ -1380,8 +1380,9 @@ public class Transaction {
         final Object oldObj = field.fieldType.read(new ByteReader(oldValue != null ? oldValue : field.fieldType.getDefaultValue()));
         this.addFieldChangeNotification(new SimpleFieldChangeNotifier(field, id) {
             @Override
+            @SuppressWarnings("unchecked")
             public void notify(Transaction tx, SimpleFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onSimpleFieldChange(tx, this.id, this.storageId, path, referrers, oldObj, newObj);
+                listener.onSimpleFieldChange(tx, this.id, (SimpleField<Object>)field, path, referrers, oldObj, newObj);
             }
         });
     }

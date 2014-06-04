@@ -7,6 +7,9 @@
     - Command line flag to scan classpath for Command classes
     - Add support for JPQL ?
 
+- Add ObjectChange superclass to FieldChange and allow as parameter
+  type to @OnChange methods to subsume @OnCreate and @OnDelete
+
 - Add Vaadin GUI editor generator
 
 - Ant task for easy validation of JLayer annotations during a build

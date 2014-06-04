@@ -32,7 +32,13 @@ import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
 import org.jsimpledb.change.SimpleFieldChange;
+import org.jsimpledb.core.Field;
+import org.jsimpledb.core.ListField;
+import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ReferenceField;
+import org.jsimpledb.core.SetField;
+import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.Transaction;
 
 /**
@@ -199,128 +205,122 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <T> void onSimpleFieldChange(Transaction tx, ObjId id,
-          int storageId, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
+          SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
             if (!this.canInvokeWith(SimpleFieldChange.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new SimpleFieldChange(this.jtx.getJObject(id),
-              jfield.name, this.convert(jfield, -1, oldValue), this.convert(jfield, -1, newValue)));
+            this.invoke(referrers, new SimpleFieldChange(this.jtx.getJObject(id), field.getStorageId(),
+              this.getFieldName(field), this.convert(field, oldValue), this.convert(field, newValue)));
         }
 
     // SetFieldChangeListener
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <E> void onSetFieldAdd(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers, E value) {
+        public <E> void onSetFieldAdd(Transaction tx, ObjId id,
+          SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
             if (!this.canInvokeWith(SetFieldAdd.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new SetFieldAdd(this.jtx.getJObject(id), jfield.name, this.convert(jfield, 0, value)));
+            this.invoke(referrers, new SetFieldAdd(this.jtx.getJObject(id), field.getStorageId(),
+              this.getFieldName(field), this.convert(field.getElementField(), value)));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <E> void onSetFieldRemove(Transaction tx, ObjId id, int storageId, int[] path,
-          NavigableSet<ObjId> referrers, E value) {
+        public <E> void onSetFieldRemove(Transaction tx, ObjId id,
+          SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
             if (!this.canInvokeWith(SetFieldRemove.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new SetFieldRemove(this.jtx.getJObject(id),
-              jfield.name, this.convert(jfield, 0, value)));
+            this.invoke(referrers, new SetFieldRemove(this.jtx.getJObject(id), field.getStorageId(),
+              this.getFieldName(field), this.convert(field.getElementField(), value)));
         }
 
         @Override
-        public void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             if (!this.canInvokeWith(SetFieldClear.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new SetFieldClear<JObject>(this.jtx.getJObject(id), jfield.name));
+            this.invoke(referrers, new SetFieldClear<JObject>(this.jtx.getJObject(id),
+              field.getStorageId(), this.getFieldName(field)));
         }
 
     // ListFieldChangeListener
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <E> void onListFieldAdd(Transaction tx, ObjId id, int storageId, int[] path,
-          NavigableSet<ObjId> referrers, int index, E value) {
+        public <E> void onListFieldAdd(Transaction tx, ObjId id,
+          ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
             if (!this.canInvokeWith(ListFieldAdd.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new ListFieldAdd(this.jtx.getJObject(id),
-              jfield.name, index, this.convert(jfield, 0, value)));
+            this.invoke(referrers, new ListFieldAdd(this.jtx.getJObject(id), field.getStorageId(),
+              this.getFieldName(field), index, this.convert(field.getElementField(), value)));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <E> void onListFieldRemove(Transaction tx, ObjId id, int storageId, int[] path,
-          NavigableSet<ObjId> referrers, int index, E value) {
+        public <E> void onListFieldRemove(Transaction tx, ObjId id,
+          ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
             if (!this.canInvokeWith(ListFieldRemove.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new ListFieldRemove(this.jtx.getJObject(id),
-              jfield.name, index, this.convert(jfield, 0, value)));
+            this.invoke(referrers, new ListFieldRemove(this.jtx.getJObject(id), field.getStorageId(),
+              this.getFieldName(field), index, this.convert(field.getElementField(), value)));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <E> void onListFieldReplace(Transaction tx, ObjId id, int storageId, int[] path,
-          NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
+        public <E> void onListFieldReplace(Transaction tx, ObjId id,
+          ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
             if (!this.canInvokeWith(ListFieldReplace.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new ListFieldReplace(this.jtx.getJObject(id),
-              jfield.name, index, this.convert(jfield, 0, oldValue), this.convert(jfield, 0, newValue)));
+            this.invoke(referrers, new ListFieldReplace(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field),
+              index, this.convert(field.getElementField(), oldValue), this.convert(field.getElementField(), newValue)));
         }
 
         @Override
-        public void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             if (!this.canInvokeWith(ListFieldClear.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new ListFieldClear<JObject>(this.jtx.getJObject(id), jfield.name));
+            this.invoke(referrers,
+              new ListFieldClear<JObject>(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field)));
         }
 
     // MapFieldChangeListener
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <K, V> void onMapFieldAdd(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
-          K key, V value) {
+        public <K, V> void onMapFieldAdd(Transaction tx, ObjId id,
+          MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
             if (!this.canInvokeWith(MapFieldAdd.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new MapFieldAdd(this.jtx.getJObject(id),
-              jfield.name, this.convert(jfield, 0, key), this.convert(jfield, 1, value)));
+            this.invoke(referrers, new MapFieldAdd(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field),
+              this.convert(field.getKeyField(), key), this.convert(field.getValueField(), value)));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <K, V> void onMapFieldRemove(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
-          K key, V value) {
+        public <K, V> void onMapFieldRemove(Transaction tx, ObjId id,
+          MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
             if (!this.canInvokeWith(MapFieldRemove.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new MapFieldRemove(this.jtx.getJObject(id),
-              jfield.name, this.convert(jfield, 0, key), this.convert(jfield, 1, value)));
+            this.invoke(referrers, new MapFieldRemove(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field),
+              this.convert(field.getKeyField(), key), this.convert(field.getValueField(), value)));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <K, V> void onMapFieldReplace(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
-          K key, V oldValue, V newValue) {
+        public <K, V> void onMapFieldReplace(Transaction tx, ObjId id,
+          MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
             if (!this.canInvokeWith(MapFieldReplace.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new MapFieldReplace(this.jtx.getJObject(id),
-              jfield.name, this.convert(jfield, 0, key), this.convert(jfield, 1, oldValue), this.convert(jfield, 1, newValue)));
+            this.invoke(referrers, new MapFieldReplace(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field),
+              this.convert(field.getKeyField(), key),
+              this.convert(field.getValueField(), oldValue), this.convert(field.getValueField(), newValue)));
         }
 
         @Override
-        public void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
             if (!this.canInvokeWith(MapFieldClear.class))
                 return;
-            final JField jfield = this.getJField(storageId);
-            this.invoke(referrers, new MapFieldClear<JObject>(this.jtx.getJObject(id), jfield.name));
+            this.invoke(referrers,
+              new MapFieldClear<JObject>(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field)));
         }
 
         @Override
@@ -344,22 +344,20 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             return this.method.getParameterTypes()[0].isAssignableFrom(paramType);
         }
 
-        private Object convert(JField jfield, int index, Object obj) {
-            if (obj == null)
-                return null;
-            boolean isReference;
-            if (index == -1) {
-                assert jfield instanceof JSimpleField;
-                isReference = jfield instanceof JReferenceField;
-            } else {
-                assert jfield instanceof JComplexField;
-                isReference = ((JComplexField)jfield).getSubFields().get(index) instanceof JReferenceField;
-            }
-            return isReference ? this.jtx.getJObject((ObjId)obj) : obj;
+        /**
+         * Convert {@link ObjId} to {@link JObject} as necessary for the specified field.
+         */
+        private Object convert(SimpleField<?> field, Object obj) {
+            return obj != null && field instanceof ReferenceField ? this.jtx.getJObject((ObjId)obj) : obj;
         }
 
-        private JField getJField(int storageId) {
-            return this.jtx.jdb.jfields.get(storageId);
+        /**
+         * Get the name of the field <i>in our schema version</i>, if the field exists in our schema version,
+         * otherwise the name of the field in its own schema versin.
+         */
+        private String getFieldName(Field<?> field) {
+            final JField jfield = this.jtx.jdb.jfields.get(field.getStorageId());
+            return jfield != null ? jfield.name : field.getName();
         }
 
         private void invoke(NavigableSet<ObjId> referrers, FieldChange<JObject> change) {

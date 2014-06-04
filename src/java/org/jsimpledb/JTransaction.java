@@ -42,6 +42,7 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ReferenceField;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.core.SetField;
+import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.StaleTransactionException;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.VersionChangeListener;
@@ -1092,75 +1093,76 @@ public class JTransaction {
 
         @Override
         public <T> void onSimpleFieldChange(Transaction tx, ObjId id,
-          int storageId, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
+          SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
             JTransaction.this.revalidate(referrers);
         }
 
     // SetFieldChangeListener
 
         @Override
-        public <E> void onSetFieldAdd(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers, E value) {
+        public <E> void onSetFieldAdd(Transaction tx, ObjId id,
+          SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
             JTransaction.this.revalidate(referrers);
         }
 
         @Override
-        public <E> void onSetFieldRemove(Transaction tx, ObjId id, int storageId, int[] path,
-          NavigableSet<ObjId> referrers, E value) {
+        public <E> void onSetFieldRemove(Transaction tx, ObjId id,
+          SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
             JTransaction.this.revalidate(referrers);
         }
 
         @Override
-        public void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             JTransaction.this.revalidate(referrers);
         }
 
     // ListFieldChangeListener
 
         @Override
-        public <E> void onListFieldAdd(Transaction tx, ObjId id, int storageId, int[] path,
-          NavigableSet<ObjId> referrers, int index, E value) {
+        public <E> void onListFieldAdd(Transaction tx, ObjId id,
+          ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
             JTransaction.this.revalidate(referrers);
         }
 
         @Override
-        public <E> void onListFieldRemove(Transaction tx, ObjId id, int storageId, int[] path,
-          NavigableSet<ObjId> referrers, int index, E value) {
+        public <E> void onListFieldRemove(Transaction tx, ObjId id,
+          ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
             JTransaction.this.revalidate(referrers);
         }
 
         @Override
-        public <E> void onListFieldReplace(Transaction tx, ObjId id, int storageId, int[] path,
-          NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
+        public <E> void onListFieldReplace(Transaction tx, ObjId id,
+          ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
             JTransaction.this.revalidate(referrers);
         }
 
         @Override
-        public void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             JTransaction.this.revalidate(referrers);
         }
 
     // MapFieldChangeListener
 
         @Override
-        public <K, V> void onMapFieldAdd(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
-          K key, V value) {
+        public <K, V> void onMapFieldAdd(Transaction tx, ObjId id,
+          MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
             JTransaction.this.revalidate(referrers);
         }
 
         @Override
-        public <K, V> void onMapFieldRemove(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
-          K key, V value) {
+        public <K, V> void onMapFieldRemove(Transaction tx, ObjId id,
+          MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
             JTransaction.this.revalidate(referrers);
         }
 
         @Override
-        public <K, V> void onMapFieldReplace(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers,
-          K key, V oldValue, V newValue) {
+        public <K, V> void onMapFieldReplace(Transaction tx, ObjId id,
+          MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
             JTransaction.this.revalidate(referrers);
         }
 
         @Override
-        public void onMapFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers) {
+        public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
             JTransaction.this.revalidate(referrers);
         }
     }

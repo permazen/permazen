@@ -29,14 +29,15 @@ public interface ListFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      * @param index the position in the list at which {@code value} was added or inserted
      * @param value the value added to the list
      * @param <E> Java type for {@code field}'s elements
      */
-    <E> void onListFieldAdd(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers, int index, E value);
+    <E> void onListFieldAdd(Transaction tx, ObjId id, ListField<E> field,
+      int[] path, NavigableSet<ObjId> referrers, int index, E value);
 
     /**
      * Receive notification of a removal of an element from a {@link ListField}.
@@ -51,14 +52,14 @@ public interface ListFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      * @param index the position in the list at which {@code value} was removed
      * @param value the value removed from the list
      * @param <E> Java type for {@code field}'s elements
      */
-    <E> void onListFieldRemove(Transaction tx, ObjId id, int storageId,
+    <E> void onListFieldRemove(Transaction tx, ObjId id, ListField<E> field,
       int[] path, NavigableSet<ObjId> referrers, int index, E value);
 
     /**
@@ -74,7 +75,7 @@ public interface ListFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      * @param index the position in the list at which the change occurred
@@ -82,7 +83,7 @@ public interface ListFieldChangeListener {
      * @param newValue the new value at list position {@code index}
      * @param <E> Java type for {@code field}'s elements
      */
-    <E> void onListFieldReplace(Transaction tx, ObjId id, int storageId,
+    <E> void onListFieldReplace(Transaction tx, ObjId id, ListField<E> field,
       int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue);
 
     /**
@@ -103,10 +104,10 @@ public interface ListFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that was cleared)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      */
-    void onListFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers);
+    void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers);
 }
 

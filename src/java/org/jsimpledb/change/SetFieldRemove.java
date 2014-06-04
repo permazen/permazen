@@ -7,6 +7,9 @@
 
 package org.jsimpledb.change;
 
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when an element is removed from a set field.
@@ -22,18 +25,24 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the set field that changed
+     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param element the element that was removed
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public SetFieldRemove(T jobj, String fieldName, E element) {
-        super(jobj, fieldName);
+    public SetFieldRemove(T jobj, int storageId, String fieldName, E element) {
+        super(jobj, storageId, fieldName);
         this.element = element;
     }
 
     @Override
     public <R> R visit(FieldChangeSwitch<R> target) {
         return target.caseSetFieldRemove(this);
+    }
+
+    @Override
+    public void apply(JTransaction tx, ObjId id) {
+        tx.readSetField(id, this.getStorageId()).remove(this.element);
     }
 
     /**

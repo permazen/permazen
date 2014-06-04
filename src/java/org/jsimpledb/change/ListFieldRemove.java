@@ -7,6 +7,9 @@
 
 package org.jsimpledb.change;
 
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when an element is removed from a list field.
@@ -23,13 +26,14 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the list field that changed
+     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param index index at which the removal occurred
      * @param element the element that was removed
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public ListFieldRemove(T jobj, String fieldName, int index, E element) {
-        super(jobj, fieldName);
+    public ListFieldRemove(T jobj, int storageId, String fieldName, int index, E element) {
+        super(jobj, storageId, fieldName);
         this.index = index;
         this.element = element;
     }
@@ -37,6 +41,11 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
     @Override
     public <R> R visit(FieldChangeSwitch<R> target) {
         return target.caseListFieldRemove(this);
+    }
+
+    @Override
+    public void apply(JTransaction tx, ObjId id) {
+        tx.readListField(id, this.getStorageId()).remove(this.index);
     }
 
     /**

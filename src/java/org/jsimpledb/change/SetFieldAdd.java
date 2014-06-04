@@ -7,6 +7,11 @@
 
 package org.jsimpledb.change;
 
+import java.util.Set;
+
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when an element is added to a set field.
@@ -22,18 +27,25 @@ public class SetFieldAdd<T, E> extends SetFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the set field that changed
+     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param element the element that was added
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public SetFieldAdd(T jobj, String fieldName, E element) {
-        super(jobj, fieldName);
+    public SetFieldAdd(T jobj, int storageId, String fieldName, E element) {
+        super(jobj, storageId, fieldName);
         this.element = element;
     }
 
     @Override
     public <R> R visit(FieldChangeSwitch<R> target) {
         return target.caseSetFieldAdd(this);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void apply(JTransaction tx, ObjId id) {
+        ((Set<E>)tx.readSetField(id, this.getStorageId())).add(this.element);
     }
 
     /**

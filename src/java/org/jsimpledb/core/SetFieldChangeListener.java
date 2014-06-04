@@ -29,13 +29,13 @@ public interface SetFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      * @param value the value added to the set
      * @param <E> Java type for {@code field}'s elements
      */
-    <E> void onSetFieldAdd(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers, E value);
+    <E> void onSetFieldAdd(Transaction tx, ObjId id, SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value);
 
     /**
      * Receive notification of the removal of an element from a {@link SetField}.
@@ -50,13 +50,13 @@ public interface SetFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      * @param value the value removed from the set
      * @param <E> Java type for {@code field}'s elements
      */
-    <E> void onSetFieldRemove(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers, E value);
+    <E> void onSetFieldRemove(Transaction tx, ObjId id, SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value);
 
     /**
      * Receive notification of the clearing of a {@link SetField}.
@@ -76,10 +76,10 @@ public interface SetFieldChangeListener {
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that was cleared)
-     * @param storageId the storage ID of the field that changed
+     * @param field the field that changed
      * @param path path of reference fields (represented by storage IDs) that lead to {@code id}
      * @param referrers all objects that (indirectly) refer to the affected object via {@code path}
      */
-    void onSetFieldClear(Transaction tx, ObjId id, int storageId, int[] path, NavigableSet<ObjId> referrers);
+    void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers);
 }
 

@@ -7,6 +7,11 @@
 
 package org.jsimpledb.change;
 
+import java.util.Map;
+
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.ObjId;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when the value in a key/value pair is replaced with a new value.
@@ -25,14 +30,15 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
      * Constructor.
      *
      * @param jobj Java object containing the map field that changed
+     * @param storageId the storage ID of the affected field
      * @param fieldName the name of the field that changed
      * @param key the key whose value was changed
      * @param oldValue the old value associated with {@code key}
      * @param newValue the new value associated with {@code key}
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
-    public MapFieldReplace(T jobj, String fieldName, K key, V oldValue, V newValue) {
-        super(jobj, fieldName);
+    public MapFieldReplace(T jobj, int storageId, String fieldName, K key, V oldValue, V newValue) {
+        super(jobj, storageId, fieldName);
         this.key = key;
         this.oldValue = oldValue;
         this.newValue = newValue;
@@ -41,6 +47,12 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
     @Override
     public <R> R visit(FieldChangeSwitch<R> target) {
         return target.caseMapFieldReplace(this);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void apply(JTransaction tx, ObjId id) {
+        ((Map<K, V>)tx.readMapField(id, this.getStorageId())).put(this.key, this.newValue);
     }
 
     /**
