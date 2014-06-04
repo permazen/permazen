@@ -31,7 +31,7 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
     }
 
     @Override
-    public <R> R visit(FieldChangeSwitch<R> target) {
+    public <R> R visit(ChangeSwitch<R> target) {
         return target.caseListFieldClear(this);
     }
 
@@ -39,6 +39,8 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
     public void apply(JTransaction tx, ObjId id) {
         tx.readListField(id, this.getStorageId()).clear();
     }
+
+// Object
 
     @Override
     public String toString() {

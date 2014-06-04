@@ -7,10 +7,6 @@
 
 package org.jsimpledb.change;
 
-import org.jsimpledb.JObject;
-import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
-
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when a field changes.
@@ -25,9 +21,8 @@ import org.jsimpledb.core.ObjId;
  *
  * @param <T> the type of the object containing the changed field
  */
-public abstract class FieldChange<T> {
+public abstract class FieldChange<T> extends Change<T> {
 
-    private final T jobj;
     private final int storageId;
     private final String fieldName;
 
@@ -41,27 +36,13 @@ public abstract class FieldChange<T> {
      * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null
      */
     protected FieldChange(T jobj, int storageId, String fieldName) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        super(jobj);
         if (storageId <= 0)
             throw new IllegalArgumentException("storageId <= 0");
         if (fieldName == null)
             throw new IllegalArgumentException("null fieldName");
-        this.jobj = jobj;
         this.storageId = storageId;
         this.fieldName = fieldName;
-    }
-
-    /**
-     * Get the Java model object containing the field that changed.
-     *
-     * <p>
-     * Although not declared as such to allow flexibility in Java model types, the returned object
-     * will always be a {@link JObject} instance.
-     * </p>
-     */
-    public T getObject() {
-        return this.jobj;
     }
 
     /**
@@ -82,95 +63,21 @@ public abstract class FieldChange<T> {
         return this.fieldName;
     }
 
-    /**
-     * Apply visitor pattern. Invokes the method of {@code target} corresponding to this instance's type.
-     *
-     * @param target visitor pattern target
-     * @return value returned by the selected method of {@code target}
-     */
-    public abstract <R> R visit(FieldChangeSwitch<R> target);
-
-    /**
-     * Apply this change to the given object in the given transaction.
-     *
-     * @param id the ID of the target object to which to apply this change
-     * @param tx the transaction in which to apply this change
-     * @throws IllegalArgumentException if {@code tx} is null
-     * @throws org.jsimpledb.core.DeletedObjectException if no object with ID {@code id} exists in {@code tx}
-     * @throws org.jsimpledb.core.UnknownFieldException  if the target object in {@code tx} has a schema version that
-     *  does not contain the affected field, or in which the affected field has a different type
-     * @throws RuntimeException if there is some other incompatibility between this change and the target object,
-     *  for example, setting a list element at an index that is out of bounds
-     * @throws StaleTransactionException if {@code tx} is no longer usable
-     */
-    public abstract void apply(JTransaction tx, ObjId id);
-
-    /**
-     * Apply this change to the object associated with this instance in the transaction associated with the current thread.
-     *
-     * <p>
-     * This is a convenience method, equivalent to:
-     *  <blockquote><code>
-     *  apply(tx, ((JObject)this.getObject()).getObjId());
-     *  </code></blockquote>
-     * </p>
-     *
-     * @throws IllegalArgumentException if {@code tx} is null
-     */
-    public void apply(JTransaction tx) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        this.apply(tx, ((JObject)this.jobj).getObjId());
-    }
-
-    /**
-     * Apply this change to the transaction associated with the current thread.
-     *
-     * <p>
-     * This is a convenience method, equivalent to:
-     *  <blockquote><code>
-     *  apply(JTransaction.getCurrent())
-     *  </code></blockquote>
-     * </p>
-     *
-     * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
-     */
-    public void apply() {
-        this.apply(JTransaction.getCurrent());
-    }
-
-    /**
-     * Apply this change to the specified object.
-     *
-     * <p>
-     * This is a convenience method, equivalent to:
-     *  <blockquote><code>
-     *  apply(obj.getTransaction(), jobj.getObjId());
-     *  </code></blockquote>
-     * </p>
-     *
-     * @throws IllegalStateException if there is no {@link JTransaction} associated with {@code jobj} or the current thread
-     * @throws IllegalArgumentException if {@code jobj} is null
-     */
-    public void apply(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
-        this.apply(jobj.getTransaction(), jobj.getObjId());
-    }
+// Object
 
     @Override
     public boolean equals(Object obj) {
         if (obj == this)
             return true;
-        if (obj == null || obj.getClass() != this.getClass())
+        if (!super.equals(obj))
             return false;
         final FieldChange<?> that = (FieldChange<?>)obj;
-        return this.jobj.equals(that.jobj) && this.fieldName.equals(that.fieldName);
+        return this.storageId == that.storageId && this.fieldName.equals(that.fieldName);
     }
 
     @Override
     public int hashCode() {
-        return this.jobj.hashCode() ^ this.fieldName.hashCode();
+        return super.hashCode() ^ this.storageId ^ this.fieldName.hashCode();
     }
 }
 

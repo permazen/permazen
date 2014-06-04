@@ -31,7 +31,7 @@ public class MapFieldClear<T> extends MapFieldChange<T> {
     }
 
     @Override
-    public <R> R visit(FieldChangeSwitch<R> target) {
+    public <R> R visit(ChangeSwitch<R> target) {
         return target.caseMapFieldClear(this);
     }
 
@@ -39,6 +39,8 @@ public class MapFieldClear<T> extends MapFieldChange<T> {
     public void apply(JTransaction tx, ObjId id) {
         tx.readMapField(id, this.getStorageId()).clear();
     }
+
+// Object
 
     @Override
     public String toString() {

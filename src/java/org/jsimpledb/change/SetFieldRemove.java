@@ -36,7 +36,7 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
     }
 
     @Override
-    public <R> R visit(FieldChangeSwitch<R> target) {
+    public <R> R visit(ChangeSwitch<R> target) {
         return target.caseSetFieldRemove(this);
     }
 
@@ -51,6 +51,8 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
     public E getElement() {
         return this.element;
     }
+
+// Object
 
     @Override
     public boolean equals(Object obj) {

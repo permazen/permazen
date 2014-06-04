@@ -40,7 +40,7 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
     }
 
     @Override
-    public <R> R visit(FieldChangeSwitch<R> target) {
+    public <R> R visit(ChangeSwitch<R> target) {
         return target.caseMapFieldRemove(this);
     }
 
@@ -62,6 +62,8 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
     public V getValue() {
         return this.value;
     }
+
+// Object
 
     @Override
     public boolean equals(Object obj) {

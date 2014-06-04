@@ -45,7 +45,7 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
     }
 
     @Override
-    public <R> R visit(FieldChangeSwitch<R> target) {
+    public <R> R visit(ChangeSwitch<R> target) {
         return target.caseMapFieldReplace(this);
     }
 
@@ -75,6 +75,8 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
     public V getNewValue() {
         return this.newValue;
     }
+
+// Object
 
     @Override
     public boolean equals(Object obj) {
