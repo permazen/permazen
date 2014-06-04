@@ -46,8 +46,10 @@ public class SnapshotJTransaction extends JTransaction {
       new CacheLoader<ObjId, JObject>() {
         @Override
         public JObject load(ObjId id) throws Exception {
-            return (JObject)SnapshotJTransaction.this.jdb.getJClass(id.getStorageId()).getSnapshotConstructor()
-              .newInstance(id, SnapshotJTransaction.this);
+            final JClass<?> jclass = SnapshotJTransaction.this.jdb.getJClass(id.getStorageId());
+            if (jclass == null)
+                throw new UnknownTypeException(id, SnapshotJTransaction.this.jdb.version);
+            return (JObject)jclass.getSnapshotConstructor().newInstance(id, SnapshotJTransaction.this);
         }
     });
 
@@ -83,6 +85,8 @@ public class SnapshotJTransaction extends JTransaction {
      *
      * @param id object ID
      * @return snapshot Java model object
+     * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
+     *  associated with this instance's {@link JSimpleDB}
      * @throws IllegalArgumentException if {@code id} is null
      */
     @Override

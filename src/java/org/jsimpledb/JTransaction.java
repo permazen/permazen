@@ -438,6 +438,8 @@ public class JTransaction {
      * @throws IllegalArgumentException if {@code id} is null
      * @see #getJObject(ObjId, Class)
      * @see JSimpleDB#getJObject JSimpleDB.getJObject()
+     * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
+     *  associated with this instance's {@link JSimpleDB}
      */
     public JObject getJObject(ObjId id) {
         return this.jdb.getJObject(id);
@@ -449,6 +451,9 @@ public class JTransaction {
      * @param id object ID
      * @return Java model object
      * @see #getJObject(ObjId)
+     * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
+     *  associated with this instance's {@link JSimpleDB}
+     * @throws ClassCastException if the Java model object does not have type {@code type}
      * @throws IllegalArgumentException if {@code id} or {@code type} is null
      */
     public <T> T getJObject(ObjId id, Class<T> type) {
@@ -959,13 +964,20 @@ public class JTransaction {
 
         @Override
         public void onCreate(Transaction tx, ObjId id) {
-            this.doOnCreate(JTransaction.this.jdb.getJClass(id.getStorageId()), id);
+            final JClass<?> jclass = JTransaction.this.jdb.getJClass(id.getStorageId());
+            if (jclass == null)             // object type does not exist in our schema
+                return;
+            this.doOnCreate(jclass, id);
         }
 
         // This method exists solely to bind the generic type parameters
         private <T> void doOnCreate(JClass<T> jclass, ObjId id) {
-            for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods)
-                Util.invoke(info.getMethod(), JTransaction.this.getJObject(id));
+            Object jobj = null;
+            for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods) {
+                if (jobj == null)
+                    jobj = JTransaction.this.getJObject(id);
+                Util.invoke(info.getMethod(), jobj);
+            }
         }
     }
 
@@ -975,13 +987,20 @@ public class JTransaction {
 
         @Override
         public void onDelete(Transaction tx, ObjId id) {
-            this.doOnDelete(JTransaction.this.jdb.getJClass(id.getStorageId()), id);
+            final JClass<?> jclass = JTransaction.this.jdb.getJClass(id.getStorageId());
+            if (jclass == null)             // object type does not exist in our schema
+                return;
+            this.doOnDelete(jclass, id);
         }
 
         // This method exists solely to bind the generic type parameters
         private <T> void doOnDelete(JClass<T> jclass, ObjId id) {
-            for (OnDeleteScanner<T>.MethodInfo info : jclass.onDeleteMethods)
-                Util.invoke(info.getMethod(), JTransaction.this.getJObject(id));
+            Object jobj = null;
+            for (OnDeleteScanner<T>.MethodInfo info : jclass.onDeleteMethods) {
+                if (jobj == null)
+                    jobj = JTransaction.this.getJObject(id);
+                Util.invoke(info.getMethod(), jobj);
+            }
         }
     }
 
@@ -991,7 +1010,10 @@ public class JTransaction {
 
         @Override
         public void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-            this.doOnVersionChange(JTransaction.this.jdb.getJClass(id.getStorageId()), id, oldVersion, newVersion, oldFieldValues);
+            final JClass<?> jclass = JTransaction.this.jdb.getJClass(id.getStorageId());
+            if (jclass == null)             // object type does not exist in our schema
+                return;
+            this.doOnVersionChange(jclass, id, oldVersion, newVersion, oldFieldValues);
         }
 
         // This method exists solely to bind the generic type parameters

@@ -21,7 +21,6 @@ import java.util.concurrent.ExecutionException;
 
 import javax.validation.Constraint;
 
-import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.ObjId;
 
 /**
@@ -61,7 +60,7 @@ final class Util {
     }
 
     /**
-     * Invoke method via reflection and re-throw any checked exception wrapped in an {@link DatabaseException}.
+     * Invoke method via reflection and re-throw any checked exception wrapped in an {@link JSimpleDBException}.
      */
     public static Object invoke(Method method, Object target, Object... params) {
         try {
@@ -71,13 +70,13 @@ final class Util {
                 throw (Error)e.getCause();
             if (e.getCause() instanceof RuntimeException)
                 throw (RuntimeException)e.getCause();
-            throw new DatabaseException("unexpected error invoking method " + method + " on " + target, e);
+            throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);
         } catch (Error e) {
             throw e;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new DatabaseException("unexpected error invoking method " + method + " on " + target, e);
+            throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);
         }
     }
 
@@ -100,9 +99,11 @@ final class Util {
         } catch (UncheckedExecutionException e) {
             cause = e.getCause() != null ? e.getCause() : e;
         }
+        if (cause instanceof JSimpleDBException)
+            throw (JSimpleDBException)cause;
         if (cause instanceof Error)
             throw (Error)cause;
-        throw new DatabaseException("can't instantiate object for ID " + id, cause);
+        throw new JSimpleDBException("can't instantiate object for ID " + id, cause);
     }
 }
 

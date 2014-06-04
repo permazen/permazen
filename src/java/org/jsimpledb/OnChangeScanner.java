@@ -208,7 +208,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
             if (!this.canInvokeWith(SimpleFieldChange.class))
                 return;
-            this.invoke(referrers, new SimpleFieldChange(this.jtx.getJObject(id), field.getStorageId(),
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new SimpleFieldChange(jobj, field.getStorageId(),
               this.getFieldName(field), this.convert(field, oldValue), this.convert(field, newValue)));
         }
 
@@ -220,7 +223,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
             if (!this.canInvokeWith(SetFieldAdd.class))
                 return;
-            this.invoke(referrers, new SetFieldAdd(this.jtx.getJObject(id), field.getStorageId(),
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new SetFieldAdd(jobj, field.getStorageId(),
               this.getFieldName(field), this.convert(field.getElementField(), value)));
         }
 
@@ -230,7 +236,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
             if (!this.canInvokeWith(SetFieldRemove.class))
                 return;
-            this.invoke(referrers, new SetFieldRemove(this.jtx.getJObject(id), field.getStorageId(),
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new SetFieldRemove(jobj, field.getStorageId(),
               this.getFieldName(field), this.convert(field.getElementField(), value)));
         }
 
@@ -238,8 +247,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             if (!this.canInvokeWith(SetFieldClear.class))
                 return;
-            this.invoke(referrers, new SetFieldClear<JObject>(this.jtx.getJObject(id),
-              field.getStorageId(), this.getFieldName(field)));
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new SetFieldClear<JObject>(jobj, field.getStorageId(), this.getFieldName(field)));
         }
 
     // ListFieldChangeListener
@@ -250,7 +261,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
             if (!this.canInvokeWith(ListFieldAdd.class))
                 return;
-            this.invoke(referrers, new ListFieldAdd(this.jtx.getJObject(id), field.getStorageId(),
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new ListFieldAdd(jobj, field.getStorageId(),
               this.getFieldName(field), index, this.convert(field.getElementField(), value)));
         }
 
@@ -260,7 +274,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
             if (!this.canInvokeWith(ListFieldRemove.class))
                 return;
-            this.invoke(referrers, new ListFieldRemove(this.jtx.getJObject(id), field.getStorageId(),
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new ListFieldRemove(jobj, field.getStorageId(),
               this.getFieldName(field), index, this.convert(field.getElementField(), value)));
         }
 
@@ -270,7 +287,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
             if (!this.canInvokeWith(ListFieldReplace.class))
                 return;
-            this.invoke(referrers, new ListFieldReplace(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field),
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new ListFieldReplace(jobj, field.getStorageId(), this.getFieldName(field),
               index, this.convert(field.getElementField(), oldValue), this.convert(field.getElementField(), newValue)));
         }
 
@@ -278,8 +298,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
             if (!this.canInvokeWith(ListFieldClear.class))
                 return;
-            this.invoke(referrers,
-              new ListFieldClear<JObject>(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field)));
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new ListFieldClear<JObject>(jobj, field.getStorageId(), this.getFieldName(field)));
         }
 
     // MapFieldChangeListener
@@ -290,7 +312,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
             if (!this.canInvokeWith(MapFieldAdd.class))
                 return;
-            this.invoke(referrers, new MapFieldAdd(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field),
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new MapFieldAdd(jobj, field.getStorageId(), this.getFieldName(field),
               this.convert(field.getKeyField(), key), this.convert(field.getValueField(), value)));
         }
 
@@ -300,7 +325,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
             if (!this.canInvokeWith(MapFieldRemove.class))
                 return;
-            this.invoke(referrers, new MapFieldRemove(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field),
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new MapFieldRemove(jobj, field.getStorageId(), this.getFieldName(field),
               this.convert(field.getKeyField(), key), this.convert(field.getValueField(), value)));
         }
 
@@ -310,7 +338,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
             if (!this.canInvokeWith(MapFieldReplace.class))
                 return;
-            this.invoke(referrers, new MapFieldReplace(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field),
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new MapFieldReplace(jobj, field.getStorageId(), this.getFieldName(field),
               this.convert(field.getKeyField(), key),
               this.convert(field.getValueField(), oldValue), this.convert(field.getValueField(), newValue)));
         }
@@ -319,8 +350,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
             if (!this.canInvokeWith(MapFieldClear.class))
                 return;
-            this.invoke(referrers,
-              new MapFieldClear<JObject>(this.jtx.getJObject(id), field.getStorageId(), this.getFieldName(field)));
+            final JObject jobj = this.getJObject(id);
+            if (jobj == null)
+                return;
+            this.invoke(referrers, new MapFieldClear<JObject>(jobj, field.getStorageId(), this.getFieldName(field)));
         }
 
         @Override
@@ -339,6 +372,14 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         }
 
     // Internal methods
+
+        private JObject getJObject(ObjId id) {
+            try {
+                return this.jtx.getJObject(id);
+            } catch (UnknownTypeException e) {
+                return null;
+            }
+        }
 
         private boolean canInvokeWith(Class<?> paramType) {
             return this.method.getParameterTypes()[0].isAssignableFrom(paramType);
@@ -365,7 +406,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 Util.invoke(this.method, null, change);
             else {
                 for (ObjId id : referrers) {
-                    final JObject target = this.jtx.getJObject(id);
+                    final JObject target = this.jtx.getJObject(id);     // type of 'id' should always be found
 
                     // Avoid invoking subclass's @OnChange method on superclass instance;
                     // this can happen when the field is in superclass but wildcard @OnChange is in the subclass
