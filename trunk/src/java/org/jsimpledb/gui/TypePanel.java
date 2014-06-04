@@ -16,8 +16,6 @@ public class TypePanel extends VerticalLayout {
 
     /**
      * Constructor.
-     *
-     * @param type type of the Java objects that back each item in the container
      */
     public TypePanel(MainPanel mainPanel) {
         this.mainPanel = mainPanel;

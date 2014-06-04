@@ -19,8 +19,6 @@ public class ObjectPanel extends VerticalLayout {
 
     /**
      * Constructor.
-     *
-     * @param type type of the Java objects that back each item in the container
      */
     public ObjectPanel(MainPanel mainPanel, JClass<?> jclass) {
         this.mainPanel = mainPanel;
