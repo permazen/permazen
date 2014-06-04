@@ -10,7 +10,7 @@ package org.jsimpledb;
 import org.jsimpledb.core.EnumValue;
 
 @SuppressWarnings("serial")
-class UnmatchedEnumException extends RuntimeException {
+class UnmatchedEnumException extends JSimpleDBException {
 
     private final Class<? extends Enum<?>> type;
     private final EnumValue value;

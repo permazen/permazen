@@ -89,7 +89,10 @@ public class JSimpleDB {
       new CacheLoader<ObjId, JObject>() {
         @Override
         public JObject load(ObjId id) throws Exception {
-            return (JObject)JSimpleDB.this.getJClass(id.getStorageId()).getConstructor().newInstance(id);
+            final JClass<?> jclass = JSimpleDB.this.getJClass(id.getStorageId());
+            if (jclass == null)
+                throw new UnknownTypeException(id, JSimpleDB.this.version);
+            return (JObject)jclass.getConstructor().newInstance(id);
         }
     });
 
@@ -363,6 +366,8 @@ public class JSimpleDB {
      * @return Java model object
      * @throws IllegalArgumentException if {@code id} is null
      * @see JTransaction#getJObject JTransaction.getJObject()
+     * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
+     *  associated with this instance
      */
     public JObject getJObject(ObjId id) {
         return Util.getJObject(this.objectCache, id);
@@ -374,6 +379,9 @@ public class JSimpleDB {
      * @param id object ID
      * @return Java model object
      * @see #getJObject(ObjId)
+     * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
+     *  associated with this instance
+     * @throws ClassCastException if the Java model object does not have type {@code type}
      * @throws IllegalArgumentException if {@code type} is null
      */
     public <T> T getJObject(ObjId id, Class<T> type) {
