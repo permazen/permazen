@@ -44,7 +44,7 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
     }
 
     @Override
-    public <R> R visit(FieldChangeSwitch<R> target) {
+    public <R> R visit(ChangeSwitch<R> target) {
         return target.caseListFieldReplace(this);
     }
 
@@ -74,6 +74,8 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
     public E getNewValue() {
         return this.newValue;
     }
+
+// Object
 
     @Override
     public boolean equals(Object obj) {

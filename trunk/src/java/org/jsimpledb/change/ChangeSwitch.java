@@ -8,13 +8,15 @@
 package org.jsimpledb.change;
 
 /**
- * Visitor pattern interface for the {@link FieldChange} class hierarchy.
+ * Visitor pattern interface for the {@link Change} class hierarchy.
  *
  * @param <R> method return type
- * @see FieldChange#visit
+ * @see Change#visit
  */
-public interface FieldChangeSwitch<R> {
+public interface ChangeSwitch<R> {
 
+    <T> R caseObjectCreate(ObjectCreate<T> change);
+    <T> R caseObjectDelete(ObjectDelete<T> change);
     <T, E> R caseListFieldAdd(ListFieldAdd<T, E> change);
     <T> R caseListFieldClear(ListFieldClear<T> change);
     <T, E> R caseListFieldRemove(ListFieldRemove<T, E> change);

@@ -39,7 +39,7 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
     }
 
     @Override
-    public <R> R visit(FieldChangeSwitch<R> target) {
+    public <R> R visit(ChangeSwitch<R> target) {
         return target.caseSimpleFieldChange(this);
     }
 
@@ -61,6 +61,8 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
     public V getNewValue() {
         return this.newValue;
     }
+
+// Object
 
     @Override
     public boolean equals(Object obj) {

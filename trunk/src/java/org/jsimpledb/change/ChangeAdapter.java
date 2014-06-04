@@ -8,17 +8,41 @@
 package org.jsimpledb.change;
 
 /**
- * Adpater class for the {@link FieldChangeSwitch} interface.
+ * Adpater class for the {@link ChangeSwitch} interface.
  *
  * @param <R> method return type
  */
-public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
+public class ChangeAdapter<R> implements ChangeSwitch<R> {
+
+    /**
+     * Handle a {@link ObjectCreate} event.
+     *
+     * <p>
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseChange caseChange()}.
+     * </p>
+     */
+    @Override
+    public <T> R caseObjectCreate(ObjectCreate<T> change) {
+        return this.caseChange(change);
+    }
+
+    /**
+     * Handle a {@link ObjectDelete} event.
+     *
+     * <p>
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseChange caseChange()}.
+     * </p>
+     */
+    @Override
+    public <T> R caseObjectDelete(ObjectDelete<T> change) {
+        return this.caseChange(change);
+    }
 
     /**
      * Handle a {@link ListFieldAdd} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
      * </p>
      */
     @Override
@@ -30,7 +54,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link ListFieldClear} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
      * </p>
      */
     @Override
@@ -42,7 +66,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link ListFieldRemove} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
      * </p>
      */
     @Override
@@ -54,7 +78,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link ListFieldReplace} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
      * </p>
      */
     @Override
@@ -66,7 +90,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link MapFieldAdd} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
      * </p>
      */
     @Override
@@ -78,7 +102,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link MapFieldClear} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
      * </p>
      */
     @Override
@@ -90,7 +114,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link MapFieldRemove} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
      * </p>
      */
     @Override
@@ -102,7 +126,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link MapFieldReplace} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
      * </p>
      */
     @Override
@@ -114,7 +138,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link SetFieldAdd} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseSetFieldChange caseSetFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseSetFieldChange caseSetFieldChange()}.
      * </p>
      */
     @Override
@@ -126,7 +150,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link SetFieldClear} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseSetFieldChange caseSetFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseSetFieldChange caseSetFieldChange()}.
      * </p>
      */
     @Override
@@ -138,7 +162,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link SetFieldRemove} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseSetFieldChange caseSetFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseSetFieldChange caseSetFieldChange()}.
      * </p>
      */
     @Override
@@ -150,7 +174,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Handle a {@link SimpleFieldChange} event.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseSetFieldChange caseFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseSetFieldChange caseFieldChange()}.
      * </p>
      */
     @Override
@@ -164,7 +188,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Internal roll-up method.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
      * </p>
      */
     protected <T> R caseListFieldChange(ListFieldChange<T> change) {
@@ -175,7 +199,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Internal roll-up method.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
      * </p>
      */
     protected <T> R caseMapFieldChange(MapFieldChange<T> change) {
@@ -186,7 +210,7 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Internal roll-up method.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
      * </p>
      */
     protected <T> R caseSetFieldChange(SetFieldChange<T> change) {
@@ -197,10 +221,21 @@ public class FieldChangeAdapter<R> implements FieldChangeSwitch<R> {
      * Internal roll-up method.
      *
      * <p>
-     * The implementation in {@link FieldChangeAdapter} returns null.
+     * The implementation in {@link ChangeAdapter} delegates to {@link #caseChange caseChange()}.
      * </p>
      */
     protected <T> R caseFieldChange(FieldChange<T> change) {
+        return this.caseChange(change);
+    }
+
+    /**
+     * Internal roll-up method.
+     *
+     * <p>
+     * The implementation in {@link ChangeAdapter} returns null.
+     * </p>
+     */
+    protected <T> R caseChange(Change<T> change) {
         return null;
     }
 }
