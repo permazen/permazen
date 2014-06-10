@@ -183,17 +183,17 @@ public abstract class FieldType<T> implements Comparator<T> {
     /**
      * Type for {@link URI}s.
      */
-    static final NullSafeType<URI> URI = new NullSafeType<>(new URIType());
+    static final NullSafeType<URI> URI = new URIType();
 
     /**
      * Type for {@link File}s.
      */
-    static final NullSafeType<File> FILE = new NullSafeType<>(new FileType());
+    static final NullSafeType<File> FILE = new FileType();
 
     /**
      * Type for {@link Pattern}s.
      */
-    static final NullSafeType<Pattern> PATTERN = new NullSafeType<>(new PatternType());
+    static final NullSafeType<Pattern> PATTERN = new PatternType();
 
     final String name;
     final TypeToken<T> typeToken;
@@ -336,6 +336,10 @@ public abstract class FieldType<T> implements Comparator<T> {
      * Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
      *
      * <p>
+     * Note: changing the return value of this method usually means changing the binary encoding.
+     * </p>
+     *
+     * <p>
      * The implementation in {@link FieldType} returns {@code true}.
      * </p>
      */
@@ -346,6 +350,10 @@ public abstract class FieldType<T> implements Comparator<T> {
     /**
      * Determine whether any of this field type's encoded values start with a {@code 0xff} byte.
      * Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
+     *
+     * <p>
+     * Note: changing the return value of this method usually means changing the binary encoding.
+     * </p>
      *
      * <p>
      * The implementation in {@link FieldType} returns {@code true}.
