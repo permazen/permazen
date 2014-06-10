@@ -9,6 +9,10 @@
 
 - Add Vaadin GUI editor generator
 
+- Bug: if same simple field storage ID used in two different Java classes,
+  an @IndexQuery on one could return sets containing instances of the other
+  Fix: require method return type to have common ancestor as set element type.
+
 - Ant task for easy validation of JLayer annotations during a build
 
 - Reimplement LockManager using Guava ranges
