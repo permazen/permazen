@@ -22,6 +22,11 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
 /**
  * A registry of {@link FieldType}s.
  *
+ * <p>
+ * All {@link FieldType}s in a {@link FieldTypeRegistry} are registered under a unique type name.
+ * However, multiple registered {@link FieldType}s may support the same {@linkplain FieldType#getTypeToken Java type}.
+ * </p>
+ *
  * <p><b>Arrays</b></p>
  *
  * <p>
