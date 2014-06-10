@@ -50,9 +50,11 @@ public class NullSafeType<T> extends FieldType<T> {
      * @param inner inner type that is not null safe
      */
     public NullSafeType(String name, FieldType<T> inner) {
-       super(name, inner.getTypeToken().wrap());
-       this.inner = inner;
-       this.inline = !inner.hasPrefix0xff();
+        super(name, inner.getTypeToken().wrap());
+        if (inner instanceof NullSafeType)
+            throw new IllegalArgumentException("inner type is already null-safe");
+        this.inner = inner;
+        this.inline = !inner.hasPrefix0xff();
     }
 
     /**
