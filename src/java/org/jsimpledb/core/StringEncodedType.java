@@ -7,66 +7,42 @@
 
 package org.jsimpledb.core;
 
-import org.jsimpledb.util.ByteReader;
-import org.jsimpledb.util.ByteWriter;
-import org.jsimpledb.util.ParseContext;
+import com.google.common.base.Converter;
 
 /**
- * Superclass for non-null types that are encoded and ordered as {@link String}s. Null values are not supported by this class.
+ * A {@link FieldType} implementation for any Java type that can be encoded uniquely as a {@link String}.
+ * A {@link Converter} is used to convert between native and {@link String} forms.
+ *
+ * <p>
+ * This class provides a convenient way to implement custom {@link FieldType}s.
+ * Null values are supported and null is the default value.
+ * </p>
  *
  * @param <T> The associated Java type
  */
-abstract class StringEncodedType<T> extends FieldType<T> {
+public class StringEncodedType<T> extends NullSafeType<T> {
 
-    private final String name;
-
-    protected StringEncodedType(Class<T> type) {
-        this(type, type.getSimpleName());
+    /**
+     * Convenience constructor. Uses the simple name of the {@code type} as this {@link FieldType}'s type name.
+     *
+     * @param type represented Java type
+     * @param converter converts between native form and {@link String} form
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public StringEncodedType(Class<T> type, Converter<T, String> converter) {
+        this(type, type.getSimpleName(), converter);
     }
 
-    protected StringEncodedType(Class<T> type, String name) {
-        super(type);
-        if (name == null)
-            throw new IllegalArgumentException("null name");
-        this.name = name;
-    }
-
-    @Override
-    public T read(ByteReader reader) {
-        final String s;
-        try {
-            s = FieldType.STRING.read(reader);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid encoded " + this.name, e);
-        }
-        return this.fromString(new ParseContext(s));
-    }
-
-    @Override
-    public void write(ByteWriter writer, T obj) {
-        FieldType.STRING.write(writer, this.toString(obj));
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void skip(ByteReader reader) {
-        FieldType.STRING.skip(reader);
-    }
-
-    @Override
-    public String toString(T obj) {
-        if (obj == null)
-            throw new IllegalArgumentException("illegal null " + this.name);
-        return obj.toString();
-    }
-
-    @Override
-    public int compare(T obj1, T obj2) {
-        return FieldType.STRING.compare(this.toString(obj1), this.toString(obj2));
+    /**
+     * Primary constructor.
+     *
+     * @param type represented Java type
+     * @param name the name for this {@link FieldType}
+     * @param converter converts between native form and {@link String} form
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public StringEncodedType(Class<T> type, String name, Converter<T, String> converter) {
+        super(new StringConvertedType<T>(type, name, converter));
     }
 }
 

@@ -7,32 +7,39 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Converter;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.jsimpledb.util.ParseContext;
-
 /**
- * Non-null {@link URI} type. Null values are not supported by this class.
+ * {@link URI} type. Null values are supported by this class.
  *
  * <b>Note:</b> sort is not consistent with {@link URI#compareTo}.
  */
 class URIType extends StringEncodedType<URI> {
 
     URIType() {
-        super(URI.class);
-    }
+        super(URI.class, new Converter<URI, String>() {
 
-// FieldType
+            @Override
+            protected String doForward(URI uri) {
+                if (uri == null)
+                    return null;
+                return uri.toString();
+            }
 
-    @Override
-    public URI fromString(ParseContext ctx) {
-        final String uri = ctx.getInput();
-        try {
-            return new URI(uri);
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("invalid URI `" + uri + "'", e);
-        }
+            @Override
+            protected URI doBackward(String string) {
+                if (string == null)
+                    return null;
+                try {
+                    return new URI(string);
+                } catch (URISyntaxException e) {
+                    throw new IllegalArgumentException("invalid URI `" + string + "'", e);
+                }
+            }
+        });
     }
 }
 

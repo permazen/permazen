@@ -7,24 +7,32 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Converter;
+
 import java.io.File;
 
-import org.jsimpledb.util.ParseContext;
-
 /**
- * Non-null {@link File} type. Null values are not supported by this class.
+ * {@link File} type. Null values are supported by this class.
  */
 class FileType extends StringEncodedType<File> {
 
     FileType() {
-        super(File.class);
-    }
+        super(File.class, new Converter<File, String>() {
 
-// FieldType
+            @Override
+            protected String doForward(File file) {
+                if (file == null)
+                    return null;
+                return file.toString();
+            }
 
-    @Override
-    public File fromString(ParseContext ctx) {
-        return new File(ctx.getInput());
+            @Override
+            protected File doBackward(String string) {
+                if (string == null)
+                    return null;
+                return new File(string);
+            }
+        });
     }
 }
 

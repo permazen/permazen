@@ -7,31 +7,34 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Converter;
+
 import java.util.regex.Pattern;
 
-import org.jsimpledb.util.ParseContext;
-
 /**
- * Non-null {@link Pattern} type. Null values are not supported by this class.
+ * {@link Pattern} type. Null values are supported by this class.
  *
  * <b>Note:</b> equality is not consistent with {@link Pattern#equals}, which is not implemented.
  */
 class PatternType extends StringEncodedType<Pattern> {
 
     PatternType() {
-        super(Pattern.class);
-    }
+        super(Pattern.class, new Converter<Pattern, String>() {
 
-// FieldType
+            @Override
+            protected String doForward(Pattern pattern) {
+                if (pattern == null)
+                    return null;
+                return pattern.toString();
+            }
 
-    @Override
-    public Pattern fromString(ParseContext ctx) {
-        final String regex = ctx.getInput();
-        try {
-            return Pattern.compile(regex);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid pattern `" + regex + "'", e);
-        }
+            @Override
+            protected Pattern doBackward(String string) {
+                if (string == null)
+                    return null;
+                return Pattern.compile(string);
+            }
+        });
     }
 }
 
