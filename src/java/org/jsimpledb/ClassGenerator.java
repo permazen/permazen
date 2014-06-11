@@ -328,7 +328,7 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, UPDATE_SCHEMA_VERSION_METHOD);
-        mv.visitInsn(Opcodes.RETURN);
+        mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 

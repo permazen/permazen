@@ -66,7 +66,7 @@ public class SnapshotJTransaction extends JTransaction {
      * @param jtx open transaction from which to snapshot objects
      * @param validationMode the {@link ValidationMode} to use for this transaction
      * @throws IllegalArgumentException if either parameter is null
-     * @throws StaleTransactionException if {@code jtx} is no longer usable
+     * @throws org.jsimpledb.core.StaleTransactionException if {@code jtx} is no longer usable
      */
     public SnapshotJTransaction(JTransaction jtx, ValidationMode validationMode) {
         super(jtx.getJSimpleDB(), jtx.tx.createSnapshotTransaction(), validationMode);
