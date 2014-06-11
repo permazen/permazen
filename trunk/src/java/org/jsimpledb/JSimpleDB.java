@@ -12,9 +12,11 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -253,6 +255,15 @@ public class JSimpleDB {
     }
 
     /**
+     * Get the core API {@link Database} underlying this instance.
+     *
+     * @return underlying {@link Database}
+     */
+    public Database getDatabase() {
+        return this.db;
+    }
+
+    /**
      * Get the schema version that this instance will use.
      *
      * @return the version specified when constructing this instance
@@ -351,6 +362,17 @@ public class JSimpleDB {
     }
 
     /**
+     * Get the {@link JClass} modeled by the given type.
+     *
+     * @param type an annotated Java object model type
+     * @return associated {@link JClass}
+     * @throws IllegalArgumentException if {@code type} is not a known Java object model type
+     */
+    public <T> JClass<T> getJClass(Class<T> type) {
+        return this.getJClass(TypeToken.of(type));
+    }
+
+    /**
      * Get the {@link JClass} associated with the given storage ID.
      *
      * @param storageId object type storage ID
@@ -362,6 +384,22 @@ public class JSimpleDB {
         if (jclass == null)
             throw new IllegalArgumentException("no JSimpleDB class associated with storage ID " + storageId);
         return jclass;
+    }
+
+    /**
+     * Get all {@link JClass}es which sub-type the given type.
+     *
+     * @param typeToken any Java type with annotated Java object model sub-types
+     * @return list of {@link JClass}es whose type is {@code type} or a sub-type, ordered by storage ID
+     */
+    @SuppressWarnings("unchecked")
+    public <T> List<JClass<? extends T>> getJClasses(TypeToken<T> typeToken) {
+        final ArrayList<JClass<? extends T>> list = new ArrayList<>();
+        for (JClass<?> jclass : this.jclasses.values()) {
+            if (typeToken.isAssignableFrom(jclass.typeToken))
+                list.add((JClass<? extends T>)jclass);
+        }
+        return list;
     }
 
 // Object Cache

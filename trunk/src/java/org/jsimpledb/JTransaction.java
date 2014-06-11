@@ -8,13 +8,14 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -225,12 +226,13 @@ public class JTransaction {
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(Class<T> type) {
-        final TypeToken<T> typeToken = TypeToken.of(type);
-        final ArrayList<NavigableSet<ObjId>> sets = new ArrayList<>();
-        for (JClass<?> jclass : this.jdb.jclasses.values()) {
-            if (typeToken.isAssignableFrom(jclass.typeToken))
-                sets.add(this.tx.getAll(jclass.storageId));
-        }
+        final List<NavigableSet<ObjId>> sets = Lists.transform(this.jdb.getJClasses(TypeToken.of(type)),
+          new Function<JClass<? extends T>, NavigableSet<ObjId>>() {
+            @Override
+            public NavigableSet<ObjId> apply(JClass<? extends T> jclass) {
+                return JTransaction.this.tx.getAll(jclass.storageId);
+            }
+        });
         return sets.isEmpty() ? NavigableSets.<T>empty() :
           (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(NavigableSets.union(sets), this.referenceConverter);
     }

@@ -45,6 +45,20 @@ public abstract class Change<T> {
     }
 
     /**
+     * Get the Java model object containing the field that changed.
+     *
+     * <p>
+     * This is a convenience method, equivalent to:
+     *  <blockquote><code>
+     *  (JObject)getObject()
+     *  </code></blockquote>
+     * </p>
+     */
+    public JObject getJObject() {
+        return (JObject)this.jobj;
+    }
+
+    /**
      * Apply visitor pattern. Invokes the method of {@code target} corresponding to this instance's type.
      *
      * @param target visitor pattern target

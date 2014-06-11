@@ -124,6 +124,7 @@ public interface JObject {
      * methods will be invoked prior to this method returning.
      * </p>
      *
+     * @return true if the object's schema version was changed, false if it was already updated
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
@@ -131,7 +132,7 @@ public interface JObject {
      * @throws org.jsimpledb.core.StaleTransactionException
      *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
      */
-    void upgrade();
+    boolean upgrade();
 
     /**
      * Copy this instance, and other instances it references, into another {@link JTransaction}.
