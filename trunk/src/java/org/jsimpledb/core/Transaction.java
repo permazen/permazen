@@ -75,6 +75,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #delete delete()} - Delete a database object</li>
  *  <li>{@link #exists exists()} - Test whether a database object exists</li>
  *  <li>{@link #copyTo copyTo()} - "Snapshot" an object by copying it into a different transaction</li>
+ *  <li>{@link #duplicate duplicate()} - Create a clone of an object</li>
  *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects</li>
  *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}</li>
  *  <li>{@link #addDeleteListener addDeleteListener()} - Register a {@link DeleteListener} for notifications
@@ -836,6 +837,40 @@ public class Transaction {
     }
 
     /**
+     * Duplicate the specified object. Creates a new object (with a new {@link ObjId}) having the
+     * same type as this instance and whose fields contain identical content. No schema version upgrade is performed.
+     *
+     * @param id object ID of the object to copy
+     * @return the object ID of the duplicate object
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
+     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public synchronized ObjId duplicate(ObjId id) {
+
+        // Sanity check
+        if (id == null)
+            throw new IllegalArgumentException("null id");
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        if (this.readOnly)
+            throw new ReadOnlyTransactionException(this);
+
+        // Get object info (or exception if object does not exist)
+        final ObjInfo srcInfo = this.getObjectInfo(id, false);
+
+        // Generate new object ID
+        final ObjId dstId = this.generateIdValidated(srcInfo.getStorageId());
+
+        // Copy fields
+        this.copyFields(srcInfo, dstId, this);
+
+        // Done
+        return dstId;
+    }
+
+    /**
      * "Snapshot" the specified object by copying it into a different transaction. This method copies the object
      * and all of its fields; any other objects it references are not copied. If the object already exists in {@code dest},
      * the old copy will be overwritten. The copy is done by copying key/value pairs directly for efficiency.
@@ -853,70 +888,120 @@ public class Transaction {
      * @param dest destination for the copy
      * @return false if object existed in {@code dest} and was overwritten, true if object did not exist in {@code dest}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
-     * @throws IllegalArgumentException if {@code id} is null
+     * @throws IllegalArgumentException if {@code id} or {@code dest} is null
+     * @throws ReadOnlyTransactionException if {@code dest} has been {@linkplain #setReadOnly set read-only}
+     * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws SchemaMismatchException if the schema version corresponding to the object's version is not identical
      *  in both transactions
      */
     public synchronized boolean copyTo(ObjId id, Transaction dest) {
 
         // Sanity check
+        if (id == null)
+            throw new IllegalArgumentException("null id");
+        if (dest == null)
+            throw new IllegalArgumentException("null dest");
+        if (this.stale)
+            throw new StaleTransactionException(this);
+
+        // Do nothing if nothing to do
         if (this == dest)
             return false;
+
+        // Get object info
+        final ObjInfo srcInfo = this.getObjectInfo(id, false);
 
         // Do the copy while both transactions are locked
         synchronized (dest) {
 
-            // Get object info
-            final ObjInfo info = this.getObjectInfo(id, false);
-            final int objectVersion = info.getVersionNumber();
+            // Sanity check
+            if (dest.stale)
+                throw new StaleTransactionException(dest);
+            if (dest.readOnly)
+                throw new ReadOnlyTransactionException(dest);
 
-            // Verify object's schema version in dest exists and is identical
-            final SchemaVersion destSchema;
+            // Copy fields
+            return this.copyFields(srcInfo, id, dest);
+        }
+    }
+
+    /**
+     * Copy object fields from one source object in this transaction to destination object in destination transaction.
+     * This method assumes both transactions are locked.
+     *
+     * @return true if destination object did not exist and was created
+     */
+    private /*synchronized*/ boolean copyFields(ObjInfo srcInfo, ObjId dstId, Transaction dstTx) {
+
+        // Sanity check
+        final ObjId srcId = srcInfo.getId();
+        if (srcId == dstId && dstTx == this)
+            throw new RuntimeException("internal error");
+
+        // Check whether destination object already exists
+        /*final*/ ObjInfo dstInfo;
+        try {
+            dstInfo = dstTx.getObjectInfo(dstId, false);
+        } catch (DeletedObjectException e) {
+            dstInfo = null;
+        }
+
+        // Verify object's schema version in destination transaction exists and is identical
+        final int objectVersion = srcInfo.getVersionNumber();
+        if (this != dstTx) {
+            final SchemaVersion dstSchema;
             try {
-                destSchema = dest.schema.getVersion(objectVersion);
+                dstSchema = dstTx.schema.getVersion(objectVersion);
             } catch (IllegalArgumentException e) {
                 throw new SchemaMismatchException("destination transaction has no schema version " + objectVersion);
             }
-            if (!Arrays.equals(this.version.encodedXML, dest.version.encodedXML))
+            if (!Arrays.equals(this.version.encodedXML, dstTx.version.encodedXML))
                 throw new SchemaMismatchException("destination transaction schema version " + objectVersion + " does not match");
-
-            // Does object already exists in dest? If so delete it first
-            final byte[] minKey = id.getBytes();
-            final boolean existed = dest.kvt.get(minKey) != null;
-            if (existed)
-                dest.deleteObject(info);
-
-            // Copy object meta-data and all simple field and counter content
-            final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
-            for (Iterator<KVPair> i = this.kvt.getRange(minKey, maxKey, false); i.hasNext(); ) {
-                final KVPair kv = i.next();
-                dest.kvt.put(kv.getKey(), kv.getValue());
-            }
-
-            // Add object schema version index entry
-            dest.kvt.put(Database.buildVersionIndexKey(id, objectVersion), ByteUtil.EMPTY);
-
-            // Copy object's simple field index entries
-            final ObjType type = info.getObjType();
-            for (SimpleField<?> field : type.simpleFields.values()) {
-                if (field.indexed) {
-                    final byte[] fieldValue = dest.kvt.get(field.buildKey(id));    // might be null (if field has default value)
-                    final byte[] indexKey = field.buildIndexKey(id, fieldValue);
-                    dest.kvt.put(indexKey, ByteUtil.EMPTY);
-                }
-            }
-
-            // Copy object's complex field index entries
-            for (ComplexField<?> field : type.complexFields.values()) {
-                for (SimpleField<?> subField : field.getSubFields()) {
-                    if (subField.indexed)
-                        field.addIndexEntries(dest, id, subField);
-                }
-            }
-
-            // Done
-            return !existed;
         }
+
+        // Does object already exists in destination transaction? If so delete it first
+        final boolean existed = dstInfo != null;
+        if (existed)
+            dstTx.deleteObject(dstInfo);
+
+        // Copy object meta-data and all field content
+        final byte[] srcMinKey = srcId.getBytes();
+        final byte[] srcMaxKey = ByteUtil.getKeyAfterPrefix(srcMinKey);
+        final ByteWriter dstWriter = new ByteWriter();
+        dstWriter.write(dstId.getBytes());
+        final int dstMark = dstWriter.mark();
+        for (Iterator<KVPair> i = this.kvt.getRange(srcMinKey, srcMaxKey, false); i.hasNext(); ) {
+            final KVPair kv = i.next();
+            final ByteReader srcReader = new ByteReader(kv.getKey());
+            srcReader.skip(srcMinKey.length);
+            dstWriter.reset(dstMark);
+            dstWriter.write(srcReader);
+            dstTx.kvt.put(dstWriter.getBytes(), kv.getValue());
+        }
+
+        // Add object schema version index entry
+        dstTx.kvt.put(Database.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
+
+        // Copy object's simple field index entries
+        final ObjType type = srcInfo.getObjType();
+        for (SimpleField<?> field : type.simpleFields.values()) {
+            if (field.indexed) {
+                final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // might be null (if field has default value)
+                final byte[] indexKey = field.buildIndexKey(dstId, fieldValue);
+                dstTx.kvt.put(indexKey, ByteUtil.EMPTY);
+            }
+        }
+
+        // Copy object's complex field index entries
+        for (ComplexField<?> field : type.complexFields.values()) {
+            for (SimpleField<?> subField : field.getSubFields()) {
+                if (subField.indexed)
+                    field.addIndexEntries(dstTx, dstId, subField);
+            }
+        }
+
+        // Done
+        return !existed;
     }
 
     /**

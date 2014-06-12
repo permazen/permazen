@@ -86,6 +86,22 @@ public interface JObject {
     boolean exists();
 
     /**
+     * Duplicate this instance. Creates a new instance (with a new {@linkplain #getObjId object ID}) having the
+     * same type as this instance and whose fields contain identical content. No schema version upgrade is performed.
+     *
+     * <p>
+     * This method can be thought of as the {@link JSimpleDB} database equivalent of {@link Object#clone}.
+     * </p>
+     *
+     * @return clone of this instance
+     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
+     *  associated with the current thread
+     * @throws org.jsimpledb.core.StaleTransactionException
+     *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
+     */
+    JObject duplicate();
+
+    /**
      * Recreate a deleted instance, if it does not exist, in its associated transaction.
      * The fields of a recreated object are set to their initial values.
      *
