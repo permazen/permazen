@@ -92,6 +92,7 @@ import org.slf4j.LoggerFactory;
  * <b>Validation</b>
  * <ul>
  *  <li>{@link #validate validate()} - Validate all objects in the validation queue</li>
+ *  <li>{@link #resetValidationQueue} - Clear the validation queue</li>
  * </ul>
  * </p>
  *
@@ -107,7 +108,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Lower Layer Access</b>
  * <ul>
- *  <li>{@link #getTransaction()} - Get the lower level {@link Transaction} underlying this instance</li>
+ *  <li>{@link #getTransaction} - Get the lower level {@link Transaction} underlying this instance</li>
  *  <li>{@link #getJObject getJObject()} - Get the Java model object for a specific database object</li>
  *  <li>{@link #getKey getKey()} - Get the key/value database key for a specific object and/or field</li>
  * </ul>
@@ -115,7 +116,31 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * The remaining methods in this class not mentioned above are normally used only indirectly via the {@link JObject} interface,
- * which all Java model objects implement.
+ * which all Java model objects implement:
+ * </p>
+ *
+ * <p>
+ * <b>JObject Methods</b>
+ * <ul>
+ *  <li>{@link #copyTo copyTo()} - Copy this instance into another transaction</li>
+ *  <li>{@link #delete delete()} - Delete an object from this transaction</li>
+ *  <li>{@link #exists exists()} - Test whether an object exists in this transaction</li>
+ *  <li>{@link #recreate recreate()} - Recreate an object in this transaction</li>
+ *  <li>{@link #duplicate duplicate()} - Duplicate an object in this transaction</li>
+ *  <li>{@link #revalidate revalidate()} - Add an object to the validation queue</li>
+ *  <li>{@link #getSchemaVersion getSchemaVersion()} - Get this schema version of an object</li>
+ *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version</li>
+ *  <li>{@link #readSimpleField readSimpleField()} - Read the value of a simple field</li>
+ *  <li>{@link #writeSimpleField writeSimpleField()} - Write the value of a simple field</li>
+ *  <li>{@link #readCounterField readCounterField()} - Access a {@link Counter} field</li>
+ *  <li>{@link #readSetField readSetField()} - Access a set field</li>
+ *  <li>{@link #readListField readListField()} - Access a list field</li>
+ *  <li>{@link #readMapField readMapField()} - Access a map field</li>
+ *  <li>{@link #querySimpleField querySimpleField()} - Query a simple field index</li>
+ *  <li>{@link #queryListFieldEntries queryListFieldEntries()} - Query a list field entry index</li>
+ *  <li>{@link #queryMapFieldKeyEntries queryMapFieldKeyEntries()} - Query a map field key entry index</li>
+ *  <li>{@link #queryMapFieldKeyEntries queryMapFieldKeyEntries()} - Query a map field value entry index</li>
+ * </ul>
  * </p>
  */
 public class JTransaction {
@@ -523,6 +548,22 @@ public class JTransaction {
     }
 
     /**
+     * Duplicate the given instance in this transaction.
+     *
+     * <p>
+     * This method is typically only used by generated classes; normally, {@link JObject#duplicate} would be used instead.
+     * </p>
+     *
+     * @param id Object ID
+     * @return clone of the specified object
+     * @throws DeletedObjectException if the object does not exist in this transaction
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public JObject duplicate(ObjId id) {
+        return this.getJObject(this.tx.duplicate(id));
+    }
+
+    /**
      * Add the given instance to the validation queue for validation, which will occur either at {@link #commit} time
      * or at the next invocation of {@link #validate}, whichever occurs first.
      *
@@ -572,6 +613,10 @@ public class JTransaction {
     /**
      * Get this schema version of the specified object. Does not change the object's schema version.
      *
+     * <p>
+     * This method is typically only used by generated classes; normally, {@link JObject#getSchemaVersion} would be used instead.
+     * </p>
+     *
      * @param id Object ID
      * @return object's schema version
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -589,6 +634,10 @@ public class JTransaction {
      * <p>
      * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange} methods will be invoked prior
      * to this method returning.
+     * </p>
+     *
+     * <p>
+     * This method is typically only used by generated classes; normally, {@link JObject#upgrade} would be used instead.
      * </p>
      *
      * @param id Object ID

@@ -52,6 +52,7 @@ class ClassGenerator<T> {
     static final Method JOBJECT_GET_TRANSACTION;
     static final Method JOBJECT_DELETE_METHOD;
     static final Method JOBJECT_EXISTS_METHOD;
+    static final Method JOBJECT_DUPLICATE_METHOD;
     static final Method JOBJECT_RECREATE_METHOD;
     static final Method JOBJECT_UPGRADE_METHOD;
     static final Method JOBJECT_REVALIDATE_METHOD;
@@ -69,6 +70,7 @@ class ClassGenerator<T> {
     static final Method READ_MAP_FIELD_METHOD;
     static final Method DELETE_METHOD;
     static final Method EXISTS_METHOD;
+    static final Method DUPLICATE_METHOD;
     static final Method RECREATE_METHOD;
     static final Method GET_SCHEMA_VERSION_METHOD;
     static final Method UPDATE_SCHEMA_VERSION_METHOD;
@@ -89,6 +91,7 @@ class ClassGenerator<T> {
             JOBJECT_GET_TRANSACTION = JObject.class.getMethod("getTransaction");
             JOBJECT_DELETE_METHOD = JObject.class.getMethod("delete");
             JOBJECT_EXISTS_METHOD = JObject.class.getMethod("exists");
+            JOBJECT_DUPLICATE_METHOD = JObject.class.getMethod("duplicate");
             JOBJECT_RECREATE_METHOD = JObject.class.getMethod("recreate");
             JOBJECT_UPGRADE_METHOD = JObject.class.getMethod("upgrade");
             JOBJECT_REVALIDATE_METHOD = JObject.class.getMethod("revalidate");
@@ -106,6 +109,7 @@ class ClassGenerator<T> {
             READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, int.class);
             DELETE_METHOD = JTransaction.class.getMethod("delete", ObjId.class);
             EXISTS_METHOD = JTransaction.class.getMethod("exists", ObjId.class);
+            DUPLICATE_METHOD = JTransaction.class.getMethod("duplicate", ObjId.class);
             RECREATE_METHOD = JTransaction.class.getMethod("recreate", ObjId.class);
             GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", ObjId.class);
             UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", ObjId.class);
@@ -293,6 +297,18 @@ class ClassGenerator<T> {
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, EXISTS_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Add JObject.duplicate()
+        mv = this.startMethod(cw, JOBJECT_DUPLICATE_METHOD);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
+        this.emitInvoke(mv, DUPLICATE_METHOD);
+        mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 

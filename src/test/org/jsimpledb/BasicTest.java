@@ -110,6 +110,16 @@ public class BasicTest extends TestSupport {
             this.check(t3, false, (byte)0, (short)0, (char)0, 0, 0.0f, 0L, 0.0, null, Mood.NORMAL, null, null,
               Arrays.asList(789, 456, 123, 456), t1, -3.0f);
 
+            // Test duplicate()
+            final MeanPerson t1dup = (MeanPerson)t1.duplicate();
+            this.check(t1dup, true, (byte)123, (short)-32763, '!', -99, 12.34e-13f, Long.MAX_VALUE, Double.POSITIVE_INFINITY,
+              "hey there", Mood.HAPPY, t1,
+              Arrays.asList("apple", "banana", "dinkle"),
+              Arrays.asList(23, 21, 22, 21),
+              Arrays.asList(t3),
+              t1, 100.0f, t2, -99.0f, null, -0.0f);
+            t1dup.delete();
+
             t2.setBooleanArray(null);
             Assert.assertNull(t2.getBooleanArray());
             t2.setBooleanArray(new boolean[] { false, true, false });
