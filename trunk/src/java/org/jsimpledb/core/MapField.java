@@ -11,7 +11,9 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 
 import org.jsimpledb.util.ByteReader;
@@ -113,6 +115,52 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     @Override
     MapFieldStorageInfo toStorageInfo() {
         return new MapFieldStorageInfo(this);
+    }
+
+    @Override
+    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
+        final FieldType<K> keyFieldType = this.keyField.fieldType;
+        final NavigableMap<K, V> src = this.getValue(srcTx, srcId);
+        final NavigableMap<K, V> dst = this.getValue(dstTx, dstId);
+        final Iterator<Map.Entry<K, V>> si = src.entrySet().iterator();
+        final Iterator<Map.Entry<K, V>> di = dst.entrySet().iterator();
+        if (!si.hasNext()) {
+            dst.clear();
+            return;
+        }
+        if (!di.hasNext()) {
+            dst.putAll(src);
+            return;
+        }
+        Map.Entry<K, V> s = si.next();
+        Map.Entry<K, V> d = di.next();
+        while (true) {
+            final int diff = keyFieldType.compare(s.getKey(), d.getKey());
+            boolean sadvance = true;
+            boolean dadvance = true;
+            if (diff < 0) {
+                dst.put(s.getKey(), s.getValue());
+                dadvance = false;
+            } else if (diff > 0) {
+                di.remove();
+                sadvance = false;
+            } else
+                d.setValue(s.getValue());
+            if (sadvance) {
+                if (!si.hasNext()) {
+                    dst.tailMap(s.getKey(), false).clear();
+                    return;
+                }
+                s = si.next();
+            }
+            if (dadvance) {
+                if (!di.hasNext()) {
+                    dst.putAll(src.tailMap(s.getKey(), true));
+                    return;
+                }
+                d = di.next();
+            }
+        }
     }
 
     @Override

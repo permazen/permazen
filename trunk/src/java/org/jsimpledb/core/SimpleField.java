@@ -119,6 +119,11 @@ public class SimpleField<T> extends Field<T> {
     }
 
     @Override
+    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
+        dstTx.writeSimpleField(dstId, this.storageId, srcTx.readSimpleField(srcId, this.storageId, false), false);
+    }
+
+    @Override
     boolean isEquivalent(Field<?> field) {
         if (field.getClass() != this.getClass())
             return false;
