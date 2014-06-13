@@ -107,8 +107,10 @@ public class SimpleField<T> extends Field<T> {
         return this.fieldType.equals(that.fieldType);
     }
 
-    SimpleFieldStorageInfo toStorageInfo(int superFieldStorageId) {
-        return new SimpleFieldStorageInfo(this, superFieldStorageId, this.parent != null && this.parent.hasComplexIndex(this));
+    @Override
+    SimpleFieldStorageInfo toStorageInfo() {
+        return new SimpleFieldStorageInfo(this,
+          this.parent != null ? this.parent.storageId : 0, this.parent != null && this.parent.hasComplexIndex(this));
     }
 
     @Override
