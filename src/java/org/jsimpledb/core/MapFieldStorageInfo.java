@@ -27,7 +27,8 @@ class MapFieldStorageInfo extends ComplexFieldStorageInfo {
         return Arrays.asList(this.keyField, this.valueField);
     }
 
-    void setSubFields(List<SimpleFieldStorageInfo> subFieldInfos) {
+    @Override
+    void initializeSubFields(List<SimpleFieldStorageInfo> subFieldInfos) {
         if (subFieldInfos.size() != 2)
             throw new IllegalArgumentException();
         this.keyField = subFieldInfos.get(0);

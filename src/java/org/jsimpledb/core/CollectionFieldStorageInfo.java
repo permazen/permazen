@@ -23,7 +23,8 @@ abstract class CollectionFieldStorageInfo extends ComplexFieldStorageInfo {
         return Collections.singletonList(this.elementField);
     }
 
-    void setSubFields(List<SimpleFieldStorageInfo> subFieldInfos) {
+    @Override
+    void initializeSubFields(List<SimpleFieldStorageInfo> subFieldInfos) {
         if (subFieldInfos.size() != 1)
             throw new IllegalArgumentException();
         this.elementField = subFieldInfos.get(0);
