@@ -109,6 +109,8 @@ public interface JObject {
     /**
      * Duplicate this instance. Creates a new instance (with a new {@linkplain #getObjId object ID}) having the
      * same type as this instance and whose fields contain identical content. No schema version upgrade is performed.
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
+     * notifications will be delivered accordingly.
      *
      * <p>
      * This method can be thought of as the {@link JSimpleDB} database equivalent of {@link Object#clone}.
@@ -177,7 +179,9 @@ public interface JObject {
      * <p>
      * This method will copy this object and all of its fields, along all other objects reachable through
      * any of the specified {@linkplain ReferencePath reference paths}, into the specified {@link JTransaction}.
-     * If any object already exists in {@code dest}, it will be overwritten.
+     * If any object already exists in {@code dest}, it will be overwritten, otherwise it will be created.
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
+     * notifications will be delivered accordingly.
      * </p>
      *
      * @param dest destination transaction for copies
@@ -203,7 +207,9 @@ public interface JObject {
      * This method will copy this object and all of its fields, along all other objects reachable through
      * any of the specified {@linkplain ReferencePath reference paths}, into the {@link SnapshotJTransaction}
      * {@linkplain JTransaction#getSnapshotTransaction associated} with this instance's associated transaction.
-     * If any object already exists there, it will be overwritten.
+     * If any object already exists there, it will be overwritten, otherwise it will be created.
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
+     * notifications will be delivered accordingly.
      * </p>
      *
      * <p>
@@ -237,7 +243,9 @@ public interface JObject {
      * This method will copy this object and all of its fields, along all other objects reachable through
      * any of the specified {@linkplain ReferencePath reference paths}, into the {@link JTransaction}
      * {@linkplain JTransaction#getCurrent associated} with the current thread.
-     * If any object already exists in the current thread's transaction, it will be overwritten.
+     * If any object already exists in the current thread's transaction, it will be overwritten, otherwise it will be created.
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
+     * notifications will be delivered accordingly.
      * </p>
      *
      * <p>

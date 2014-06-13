@@ -10,6 +10,7 @@ package org.jsimpledb.core;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
+import java.util.Iterator;
 import java.util.NavigableSet;
 
 import org.jsimpledb.util.ByteReader;
@@ -68,6 +69,51 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     @Override
     SetFieldStorageInfo toStorageInfo() {
         return new SetFieldStorageInfo(this);
+    }
+
+    @Override
+    void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
+        final FieldType<E> fieldType = this.elementField.fieldType;
+        final NavigableSet<E> src = this.getValue(srcTx, srcId);
+        final NavigableSet<E> dst = this.getValue(dstTx, dstId);
+        final Iterator<E> si = src.iterator();
+        final Iterator<E> di = dst.iterator();
+        if (!si.hasNext()) {
+            dst.clear();
+            return;
+        }
+        if (!di.hasNext()) {
+            dst.addAll(src);
+            return;
+        }
+        E s = si.next();
+        E d = di.next();
+        while (true) {
+            final int diff = fieldType.compare(s, d);
+            boolean sadvance = true;
+            boolean dadvance = true;
+            if (diff < 0) {
+                dst.add(s);
+                dadvance = false;
+            } else if (diff > 0) {
+                di.remove();
+                sadvance = false;
+            }
+            if (sadvance) {
+                if (!si.hasNext()) {
+                    dst.tailSet(s, false).clear();
+                    return;
+                }
+                s = si.next();
+            }
+            if (dadvance) {
+                if (!di.hasNext()) {
+                    dst.addAll(src.tailSet(s, true));
+                    return;
+                }
+                d = di.next();
+            }
+        }
     }
 
     @Override

@@ -339,7 +339,9 @@ public class JTransaction {
     }
 
     /**
-     * Copy the specified object into the specified destination transaction.
+     * Copy the specified object into the specified destination transaction. The destination object will
+     * be created if necessary. {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly.
      *
      * <p>
      * This method is typically only used by generated classes.

@@ -193,7 +193,7 @@ public class Transaction {
     private final HashSet<VersionChangeListener> versionChangeListeners = new HashSet<>();
     private final HashSet<CreateListener> createListeners = new HashSet<>();
     private final HashSet<DeleteListener> deleteListeners = new HashSet<>();
-    private final HashMap<Integer, HashSet<FieldMonitor>> monitorMap = new HashMap<>();
+    private final TreeMap<Integer, HashSet<FieldMonitor>> monitorMap = new TreeMap<>();
     private final LinkedHashSet<Callback> callbacks = new LinkedHashSet<>();
 
     Transaction(Database db, KVTransaction kvt, Schema schema, int versionNumber) {
@@ -931,72 +931,83 @@ public class Transaction {
      *
      * @return true if destination object did not exist and was created
      */
-    private /*synchronized*/ boolean copyFields(ObjInfo srcInfo, ObjId dstId, Transaction dstTx) {
+    private /*synchronized*/ boolean copyFields(final ObjInfo srcInfo, final ObjId dstId, final Transaction dstTx) {
+        return dstTx.mutateAndNotify(new Mutation<Boolean>() {
+            @Override
+            public Boolean mutate() {
+                return Transaction.doCopyFields(srcInfo, dstId, Transaction.this, dstTx);
+            }
+        });
+    }
+
+    // This method assumes both transactions are locked
+    private static boolean doCopyFields(ObjInfo srcInfo, ObjId dstId, Transaction srcTx, Transaction dstTx) {
 
         // Sanity check
         final ObjId srcId = srcInfo.getId();
-        if (srcId == dstId && dstTx == this)
+        if (srcId == dstId && srcTx == dstTx)
             throw new RuntimeException("internal error");
 
-        // Check whether destination object already exists
-        /*final*/ ObjInfo dstInfo;
-        try {
-            dstInfo = dstTx.getObjectInfo(dstId, false);
-        } catch (DeletedObjectException e) {
-            dstInfo = null;
-        }
-
-        // Verify object's schema version in destination transaction exists and is identical
+        // Verify object's schema version in destination transaction is identical
         final int objectVersion = srcInfo.getVersionNumber();
-        if (this != dstTx) {
+        if (srcTx != dstTx) {
             final SchemaVersion dstSchema;
             try {
                 dstSchema = dstTx.schema.getVersion(objectVersion);
             } catch (IllegalArgumentException e) {
                 throw new SchemaMismatchException("destination transaction has no schema version " + objectVersion);
             }
-            if (!Arrays.equals(this.version.encodedXML, dstTx.version.encodedXML))
+            if (!Arrays.equals(srcTx.version.encodedXML, dstTx.version.encodedXML))
                 throw new SchemaMismatchException("destination transaction schema version " + objectVersion + " does not match");
         }
 
-        // Does object already exists in destination transaction? If so delete it first
-        final boolean existed = dstInfo != null;
-        if (existed)
+        // Create destination object if it doesn't already exist
+        final boolean existed = !dstTx.create(dstId, objectVersion);
+        final ObjInfo dstInfo = dstTx.getObjectInfo(dstId, false);
+
+        // Do field-by-field copy if there are change listeners, otherwise do fast copy of key/value pairs
+        final ObjType type = srcInfo.getObjType();
+        if (dstTx.hasFieldMonitor(type)) {
+            for (Field<?> field : type.fields.values())
+                field.copy(srcId, dstId, srcTx, dstTx);
+        } else {
+
+            // Delete pre-existing object's field content, if any
             dstTx.deleteObject(dstInfo);
 
-        // Copy object meta-data and all field content
-        final byte[] srcMinKey = srcId.getBytes();
-        final byte[] srcMaxKey = ByteUtil.getKeyAfterPrefix(srcMinKey);
-        final ByteWriter dstWriter = new ByteWriter();
-        dstWriter.write(dstId.getBytes());
-        final int dstMark = dstWriter.mark();
-        for (Iterator<KVPair> i = this.kvt.getRange(srcMinKey, srcMaxKey, false); i.hasNext(); ) {
-            final KVPair kv = i.next();
-            final ByteReader srcReader = new ByteReader(kv.getKey());
-            srcReader.skip(srcMinKey.length);
-            dstWriter.reset(dstMark);
-            dstWriter.write(srcReader);
-            dstTx.kvt.put(dstWriter.getBytes(), kv.getValue());
-        }
+            // Add object schema version index entry
+            dstTx.kvt.put(Database.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
 
-        // Add object schema version index entry
-        dstTx.kvt.put(Database.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
-
-        // Copy object's simple field index entries
-        final ObjType type = srcInfo.getObjType();
-        for (SimpleField<?> field : type.simpleFields.values()) {
-            if (field.indexed) {
-                final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // might be null (if field has default value)
-                final byte[] indexKey = field.buildIndexKey(dstId, fieldValue);
-                dstTx.kvt.put(indexKey, ByteUtil.EMPTY);
+            // Copy object meta-data and all field content in one key range sweep
+            final byte[] srcMinKey = srcId.getBytes();
+            final byte[] srcMaxKey = ByteUtil.getKeyAfterPrefix(srcMinKey);
+            final ByteWriter dstWriter = new ByteWriter();
+            dstWriter.write(dstId.getBytes());
+            final int dstMark = dstWriter.mark();
+            for (Iterator<KVPair> i = srcTx.kvt.getRange(srcMinKey, srcMaxKey, false); i.hasNext(); ) {
+                final KVPair kv = i.next();
+                final ByteReader srcReader = new ByteReader(kv.getKey());
+                srcReader.skip(srcMinKey.length);
+                dstWriter.reset(dstMark);
+                dstWriter.write(srcReader);
+                dstTx.kvt.put(dstWriter.getBytes(), kv.getValue());
             }
-        }
 
-        // Copy object's complex field index entries
-        for (ComplexField<?> field : type.complexFields.values()) {
-            for (SimpleField<?> subField : field.getSubFields()) {
-                if (subField.indexed)
-                    field.addIndexEntries(dstTx, dstId, subField);
+            // Copy object's simple field index entries
+            for (SimpleField<?> field : type.simpleFields.values()) {
+                if (field.indexed) {
+                    final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // can be null (if field has default value)
+                    final byte[] indexKey = field.buildIndexKey(dstId, fieldValue);
+                    dstTx.kvt.put(indexKey, ByteUtil.EMPTY);
+                }
+            }
+
+            // Copy object's complex field index entries
+            for (ComplexField<?> field : type.complexFields.values()) {
+                for (SimpleField<?> subField : field.getSubFields()) {
+                    if (subField.indexed)
+                        field.addIndexEntries(dstTx, dstId, subField);
+                }
             }
         }
 
@@ -2023,11 +2034,16 @@ public class Transaction {
 
     /**
      * Determine if there are any monitors watching the specified field.
-     *
-     * @throws IllegalArgumentException if {@code field} is a sub-field
      */
     boolean hasFieldMonitor(Field<?> field) {
         return this.monitorMap.containsKey(field.storageId);
+    }
+
+    /**
+     * Determine if there are any monitors watching any field in the specified type.
+     */
+    boolean hasFieldMonitor(ObjType objType) {
+        return !NavigableSets.intersection(objType.fields.navigableKeySet(), this.monitorMap.navigableKeySet()).isEmpty();
     }
 
     /**
@@ -2041,15 +2057,25 @@ public class Transaction {
      */
     synchronized <V> V mutateAndNotify(ObjId id, Mutation<V> mutation) {
 
-        // Check that this transaction is still valid and the given object still exists.
+        // Verify object exists
         if (id == null)
             throw new IllegalArgumentException("null id");
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
         if (this.kvt.get(id.getBytes()) == null)
             throw new DeletedObjectException(id);
+
+        // Perform mutation
+        return this.mutateAndNotify(mutation);
+    }
+
+    private synchronized <V> V mutateAndNotify(Mutation<V> mutation) {
+
+        // Validate transaction
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        if (this.readOnly)
+            throw new ReadOnlyTransactionException(this);
 
         // If re-entrant invocation, we're already set up
         if (this.pendingNotifications.get() != null)

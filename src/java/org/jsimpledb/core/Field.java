@@ -89,6 +89,15 @@ public abstract class Field<T> extends SchemaItem {
     abstract FieldStorageInfo toStorageInfo();
 
     /**
+     * Copy field value between transactions.
+     *
+     * <p>
+     * This method assumes both objects exist and both transactions are locked.
+     * </p>
+     */
+    abstract void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx);
+
+    /**
      * Build the key (or key prefix) for this field in the given object.
      */
     byte[] buildKey(ObjId id) {

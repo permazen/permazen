@@ -9,6 +9,7 @@ package org.jsimpledb;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
 
 import org.jsimpledb.annotation.JField;
@@ -16,6 +17,10 @@ import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.SetField;
+import org.jsimpledb.core.SetFieldChangeListener;
+import org.jsimpledb.core.Transaction;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -145,6 +150,49 @@ public class SnapshotTest extends TestSupport {
             Assert.assertEquals(p1.getName(), "Foobar");
             Assert.assertEquals(p1.getAge(), 19);
             Assert.assertEquals(p1.getSet().size(), 0);
+
+            // Add change listener to force slower field-by-field copy
+            final boolean[] flag = new boolean[1];
+            tx2.getTransaction().addSetFieldChangeListener(103, new int[0], new SetFieldChangeListener() {
+                @Override
+                public <E> void onSetFieldAdd(Transaction tx, ObjId id,
+                  SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
+                    flag[0] = true;
+                }
+                @Override
+                public <E> void onSetFieldRemove(Transaction tx, ObjId id,
+                  SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
+                    flag[0] = true;
+                }
+                @Override
+                public void onSetFieldClear(Transaction tx, ObjId id,
+                  SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
+                    flag[0] = true;
+                }
+            });
+
+            p1.getSet().add(p1);
+            p1.getSet().add(p2);
+            snapshot.setName("Another Name");
+            snapshot.setAge(123);
+            snapshot.getSet().add(p2);
+            snapshot.getSet().add(p3);
+            snapshot.getMap1().clear();
+            snapshot.getMap1().put(p1, 123123f);
+            snapshot.getMap1().put(p3, null);
+            snapshot.getMap2().clear();
+            snapshot.getMap2().put(64f, p1);
+            snapshot.getMap2().put(33.33f, p2);
+            snapshot.getMap2().put(null, p3);
+
+            snapshot.copyTo(tx2);
+
+            Assert.assertEquals(p1.getName(), "Another Name");
+            Assert.assertEquals(p1.getAge(), 123);
+            Assert.assertEquals(p1.getSet(), buildSet(p2, p3));
+            Assert.assertEquals(p1.getMap1(), buildMap(p1, 123123f, p3, null));
+            Assert.assertEquals(p1.getMap2(), buildMap(64f, p1, 33.33f, p2, null, p3));
+            Assert.assertTrue(flag[0]);
 
             tx2.commit();
 
