@@ -47,6 +47,7 @@ public class CounterField extends Field<Long> {
         super(name, storageId, version, TypeToken.of(Long.class));
     }
 
+    @Override
     CounterFieldStorageInfo toStorageInfo() {
         return new CounterFieldStorageInfo(this);
     }

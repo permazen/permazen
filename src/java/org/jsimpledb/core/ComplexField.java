@@ -60,6 +60,7 @@ public abstract class ComplexField<T> extends Field<T> {
      */
     abstract T getValueInternal(Transaction tx, ObjId id);
 
+    @Override
     abstract ComplexFieldStorageInfo toStorageInfo();
 
     /**

@@ -127,7 +127,7 @@ public class SchemaVersion {
         final ObjTypeStorageInfo objInfo = objType.toStorageInfo();
         this.addStorageInfo(objInfo);
         for (SimpleField<?> field : objType.simpleFields.values()) {
-            final SimpleFieldStorageInfo fieldInfo = field.toStorageInfo(0);
+            final SimpleFieldStorageInfo fieldInfo = field.toStorageInfo();
             this.addStorageInfo(fieldInfo);
             objInfo.getFields().put(field.storageId, fieldInfo);
         }
@@ -136,7 +136,7 @@ public class SchemaVersion {
             objInfo.getFields().put(field.storageId, fieldInfo);
             final ArrayList<SimpleFieldStorageInfo> subFieldInfos = new ArrayList<>();
             for (SimpleField<?> subField : field.getSubFields()) {
-                final SimpleFieldStorageInfo subFieldInfo = subField.toStorageInfo(field.storageId);
+                final SimpleFieldStorageInfo subFieldInfo = subField.toStorageInfo();
                 this.addStorageInfo(subFieldInfo);
                 subFieldInfos.add(subFieldInfo);
             }

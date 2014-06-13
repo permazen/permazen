@@ -75,6 +75,11 @@ public abstract class Field<T> extends SchemaItem {
 // Non-public methods
 
     /**
+     * Create corresponding {@link StorageInfo} object.
+     */
+    abstract FieldStorageInfo toStorageInfo();
+
+    /**
      * Build the key (or key prefix) for this field in the given object.
      */
     byte[] buildKey(ObjId id) {
