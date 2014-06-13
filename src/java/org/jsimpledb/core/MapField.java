@@ -98,6 +98,11 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
         return "map field `" + this.name + "' of " + this.keyField.fieldType + ", " + this.valueField.fieldType;
     }
 
+    @Override
+    public <R> R visit(FieldSwitch<R> target) {
+        return target.caseMapField(this);
+    }
+
 // Non-public methods
 
     @Override

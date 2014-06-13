@@ -49,6 +49,11 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     }
 
     @Override
+    public <R> R visit(FieldSwitch<R> target) {
+        return target.caseListField(this);
+    }
+
+    @Override
     public String toString() {
         return "list field `" + this.name + "' of " + this.elementField.fieldType;
     }

@@ -83,6 +83,11 @@ public class SimpleField<T> extends Field<T> {
     }
 
     @Override
+    public <R> R visit(FieldSwitch<R> target) {
+        return target.caseSimpleField(this);
+    }
+
+    @Override
     public String toString() {
         return "field `" + this.name + "' of type " + this.fieldType.typeToken;
     }

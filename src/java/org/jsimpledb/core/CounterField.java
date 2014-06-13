@@ -67,6 +67,11 @@ public class CounterField extends Field<Long> {
     }
 
     @Override
+    public <R> R visit(FieldSwitch<R> target) {
+        return target.caseCounterField(this);
+    }
+
+    @Override
     public String toString() {
         return "counter field `" + this.name + "'";
     }
