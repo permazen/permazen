@@ -1141,7 +1141,7 @@ public class JTransaction {
             converter = this.referenceConverter;
         else if (field instanceof SetField && ((SetField)field).getElementField() instanceof ReferenceField)
             converter = new NavigableSetConverter(this.referenceConverter);
-        else if (field instanceof ListField && ((SetField)field).getElementField() instanceof ReferenceField)
+        else if (field instanceof ListField && ((ListField)field).getElementField() instanceof ReferenceField)
             converter = new ListConverter(this.referenceConverter);
         else if (field instanceof MapField
           && (((MapField)field).getKeyField() instanceof ReferenceField
