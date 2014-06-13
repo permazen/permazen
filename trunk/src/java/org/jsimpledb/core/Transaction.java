@@ -1576,20 +1576,19 @@ public class Transaction {
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized void adjustCounterField(final ObjId id,
-      final int storageId, final long offset, final boolean updateVersion) {
+    public synchronized void adjustCounterField(ObjId id, int storageId, long offset, boolean updateVersion) {
+
+        // Sanity check
+        if (id == null)
+            throw new IllegalArgumentException("null id");
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        if (this.readOnly)
+            throw new ReadOnlyTransactionException(this);
+
+        // Optimize away non-change
         if (offset == 0)
             return;
-        this.mutateAndNotify(id, new Mutation<Void>() {
-            @Override
-            public Void mutate() {
-                Transaction.this.doAdjustCounterField(id, storageId, offset, updateVersion);
-                return null;
-            }
-        });
-    }
-
-    private synchronized void doAdjustCounterField(ObjId id, int storageId, long offset, boolean updateVersion) {
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
@@ -1599,10 +1598,8 @@ public class Transaction {
         if (field == null)
             throw new UnknownFieldException(info.getObjType(), storageId, "counter field");
 
-        // Adjust value
-        final byte[] key = field.buildKey(id);
-        final CountingKVStore ckv = this.getCountingKVTransaction();
-        ckv.adjustCounter(key, offset);
+        // Adjust counter value
+        this.getCountingKVTransaction().adjustCounter(field.buildKey(id), offset);
     }
 
     /**
