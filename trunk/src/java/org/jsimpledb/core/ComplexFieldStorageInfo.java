@@ -7,6 +7,9 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import java.util.List;
 import java.util.NavigableSet;
 
@@ -17,6 +20,12 @@ abstract class ComplexFieldStorageInfo extends FieldStorageInfo {
 
     ComplexFieldStorageInfo(ComplexField<?> field) {
         super(field, 0);
+        this.initializeSubFields(Lists.transform(field.getSubFields(), new Function<SimpleField<?>, SimpleFieldStorageInfo>() {
+            @Override
+            public SimpleFieldStorageInfo apply(SimpleField<?> subField) {
+                return subField.toStorageInfo();
+            }
+        }));
     }
 
     /**
@@ -25,9 +34,9 @@ abstract class ComplexFieldStorageInfo extends FieldStorageInfo {
     public abstract List<SimpleFieldStorageInfo> getSubFields();
 
     /**
-     * Set the sub-fields associated with this instance.
+     * Initialize the sub-fields associated with this instance.
      */
-    abstract void setSubFields(List<SimpleFieldStorageInfo> subFieldInfos);
+    abstract void initializeSubFields(List<SimpleFieldStorageInfo> subFieldInfos);
 
     @Override
     public boolean canShareStorageId(StorageInfo obj) {
