@@ -7,11 +7,10 @@
 
 package org.jsimpledb.cli;
 
-import com.google.common.reflect.TypeToken;
-
 import java.util.Map;
 
 import org.jsimpledb.core.Field;
+import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ReferenceField;
@@ -46,48 +45,41 @@ public class GetCommand extends Command {
         return new Action() {
 
             @Override
-            public void run(Session session) {
+            public void run(final Session session) {
                 final Channel<? extends ObjId> channel = GetCommand.this.pop(session, ObjId.class);
-                final TypeToken<?> typeToken = field.getTypeToken();
-                final Channel<?> result;
-                if (field instanceof ReferenceField)
-                    result = this.getValues(session, channel, (ReferenceField)field);
-                else if (field instanceof SimpleField)
-                    result = this.getValues(session, channel, (SimpleField<?>)field);
-                else
-                    result = this.getValues(session, channel, field);
-                GetCommand.this.push(session, result);
-            }
+                GetCommand.this.push(session, field.visit(new FieldSwitchAdapter<Channel<?>>() {
 
-            // References
-            private Channel<ObjId> getValues(Session session, final Channel<? extends ObjId> channel, final ReferenceField field) {
-                return new TransformItemsChannel<ObjId, ObjId>(channel, new ObjectItemType(session)) {
                     @Override
-                    protected ObjId transformItem(Session session, ObjId id) {
-                        return field.getValue(session.getTransaction(), id);
+                    public Channel<?> caseReferenceField(final ReferenceField field) {
+                        return new TransformItemsChannel<ObjId, ObjId>(channel, new ObjectItemType(session)) {
+                            @Override
+                            protected ObjId transformItem(Session session, ObjId id) {
+                                return field.getValue(session.getTransaction(), id);
+                            }
+                        };
                     }
-                };
-            }
 
-            // Simple fields
-            private <T> Channel<T> getValues(Session session, Channel<? extends ObjId> channel, final SimpleField<T> field) {
-                final FieldType<T> fieldType = field.getFieldType();
-                return new TransformItemsChannel<ObjId, T>(channel, fieldType) {
                     @Override
-                    protected T transformItem(Session session, ObjId id) {
-                        return field.getValue(session.getTransaction(), id);
+                    public <T> Channel<?> caseSimpleField(final SimpleField<T> field) {
+                        final FieldType<T> fieldType = field.getFieldType();
+                        return new TransformItemsChannel<ObjId, T>(channel, fieldType) {
+                            @Override
+                            protected T transformItem(Session session, ObjId id) {
+                                return field.getValue(session.getTransaction(), id);
+                            }
+                        };
                     }
-                };
-            }
 
-            // Other fields
-            private <T> Channel<T> getValues(Session session, Channel<? extends ObjId> channel, final Field<T> field) {
-                return new TransformItemsChannel<ObjId, T>(channel, field.getTypeToken()) {
                     @Override
-                    protected T transformItem(Session session, ObjId id) {
-                        return field.getValue(session.getTransaction(), id);
+                    public <T> Channel<?> caseField(final Field<T> field) {
+                        return new TransformItemsChannel<ObjId, T>(channel, field.getTypeToken()) {
+                            @Override
+                            protected T transformItem(Session session, ObjId id) {
+                                return field.getValue(session.getTransaction(), id);
+                            }
+                        };
                     }
-                };
+                }));
             }
         };
     }

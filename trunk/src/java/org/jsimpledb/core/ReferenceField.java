@@ -50,6 +50,11 @@ public class ReferenceField extends SimpleField<ObjId> {
     }
 
     @Override
+    public <R> R visit(FieldSwitch<R> target) {
+        return target.caseReferenceField(this);
+    }
+
+    @Override
     public String toString() {
         return "reference field `" + this.name + "'";
     }

@@ -9,10 +9,16 @@ package org.jsimpledb.cli;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 
 import org.jsimpledb.core.CounterField;
 import org.jsimpledb.core.Field;
+import org.jsimpledb.core.FieldSwitchAdapter;
+import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
@@ -27,7 +33,7 @@ public class ObjectItemType extends FieldTypeItemType<ObjId> {
     }
 
     @Override
-    public void print(Session session, ObjId id, boolean verbose) {
+    public void print(final Session session, final ObjId id, final boolean verbose) {
 
         // Get console writer
         final PrintWriter writer = session.getWriter();
@@ -55,66 +61,77 @@ public class ObjectItemType extends FieldTypeItemType<ObjId> {
         // Display fields
         for (Field<?> field : info.getObjType().getFields().values()) {
             writer.print(String.format("%" + nameFieldSize + "s = ", field.getName()));
-            if (field instanceof SimpleField)
-                writer.println(this.readSimpleFieldStringValue(tx, (SimpleField<?>)field, id));
-            else if (field instanceof CounterField)
-                writer.println("" + tx.readCounterField(id, field.getStorageId(), false));
-            else if (field instanceof SetField) {
-                final SimpleField<?> elementField = ((SetField<?>)field).getElementField();
-                writer.println("{");
-                int count = 0;
-                for (Object elem : tx.readSetField(id, field.getStorageId(), false)) {
-                    if (count >= session.getLineLimit()) {
-                        writer.println(eindent + "...");
-                        break;
-                    }
-                    writer.println(eindent + this.getSimpleFieldStringValue(elementField, elem));
-                    count++;
+            field.visit(new FieldSwitchAdapter<Void>() {
+
+                @Override
+                public <T> Void caseSimpleField(SimpleField<T> field) {
+                    final FieldType<T> fieldType = field.getFieldType();
+                    writer.println(fieldType.toString(fieldType.validate(tx.readSimpleField(id, field.getStorageId(), false))));
+                    return null;
                 }
-                writer.println(indent + "}");
-            } else if (field instanceof ListField) {
-                final SimpleField<?> elementField = ((ListField<?>)field).getElementField();
-                writer.println("{");
-                int count = 0;
-                for (Object elem : tx.readListField(id, field.getStorageId(), false)) {
-                    if (count >= session.getLineLimit()) {
-                        writer.println(eindent + "...");
-                        break;
-                    }
-                    writer.println(eindent + "[" + count + "]" + this.getSimpleFieldStringValue(elementField, elem));
-                    count++;
+
+                @Override
+                public Void caseCounterField(CounterField field) {
+                    writer.println("" + tx.readCounterField(id, field.getStorageId(), false));
+                    return null;
                 }
-                writer.println(indent + "}");
-            } else if (field instanceof MapField) {
-                final SimpleField<?> keyField = ((MapField<?, ?>)field).getKeyField();
-                final SimpleField<?> valueField = ((MapField<?, ?>)field).getValueField();
-                writer.println("{");
-                int count = 0;
-                for (Map.Entry<?, ?> entry : tx.readMapField(id, field.getStorageId(), false).entrySet()) {
-                    if (count >= session.getLineLimit()) {
-                        writer.println(eindent + "...");
-                        break;
-                    }
-                    writer.println(eindent + this.getSimpleFieldStringValue(keyField, entry.getKey())
-                      + " -> " + this.getSimpleFieldStringValue(valueField, entry.getValue()));
-                    count++;
+
+                @Override
+                @SuppressWarnings("unchecked")
+                public <E> Void caseSetField(SetField<E> field) {
+                    this.handleCollection((NavigableSet<E>)tx.readSetField(id, field.getStorageId(), false),
+                      field.getElementField(), false);
+                    return null;
                 }
-                writer.println(indent + "}");
-            } else
-                throw new RuntimeException("internal error");
+
+                @Override
+                @SuppressWarnings("unchecked")
+                public <E> Void caseListField(ListField<E> field) {
+                    this.handleCollection((List<E>)tx.readListField(id, field.getStorageId(), false),
+                      field.getElementField(), true);
+                    return null;
+                }
+
+                private <E> void handleCollection(Collection<E> items, SimpleField<E> elementField, boolean showIndex) {
+                    final FieldType<E> fieldType = elementField.getFieldType();
+                    writer.println("{");
+                    int count = 0;
+                    for (E item : items) {
+                        if (count >= session.getLineLimit()) {
+                            writer.println(eindent + "...");
+                            break;
+                        }
+                        writer.print(eindent);
+                        if (showIndex)
+                            writer.print("[" + count + "] ");
+                        writer.println(fieldType.toString(item));
+                        count++;
+                    }
+                    writer.println(indent + "}");
+                }
+
+                @Override
+                @SuppressWarnings("unchecked")
+                public <K, V> Void caseMapField(MapField<K, V> field) {
+                    final FieldType<K> keyFieldType = field.getKeyField().getFieldType();
+                    final FieldType<V> valueFieldType = field.getValueField().getFieldType();
+                    writer.println("{");
+                    int count = 0;
+                    final NavigableMap<K, V> map = (NavigableMap<K, V>)tx.readMapField(id, field.getStorageId(), false);
+                    for (Map.Entry<K, V> entry : map.entrySet()) {
+                        if (count >= session.getLineLimit()) {
+                            writer.println(eindent + "...");
+                            break;
+                        }
+                        writer.println(eindent + keyFieldType.toString(entry.getKey())
+                          + " -> " + valueFieldType.toString(entry.getValue()));
+                        count++;
+                    }
+                    writer.println(indent + "}");
+                    return null;
+                }
+            });
         }
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings("unchecked")
-    private <T> String readSimpleFieldStringValue(Transaction tx, SimpleField<T> field, ObjId id) {
-        return field.getFieldType().toString((T)tx.readSimpleField(id, field.getStorageId(), false));
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings("unchecked")
-    private <T> String getSimpleFieldStringValue(SimpleField<T> field, Object value) {
-        return field.getFieldType().toString((T)value);
     }
 }
 

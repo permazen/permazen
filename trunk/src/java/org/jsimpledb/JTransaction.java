@@ -37,6 +37,7 @@ import org.jsimpledb.core.CreateListener;
 import org.jsimpledb.core.DeleteListener;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.Field;
+import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
@@ -1136,23 +1137,42 @@ public class JTransaction {
     private Object convertOldValue(Field<?> field, Object value) {
         if (value == null)
             return null;
-        Converter converter = null;
-        if (field instanceof ReferenceField)
-            converter = this.referenceConverter;
-        else if (field instanceof SetField && ((SetField)field).getElementField() instanceof ReferenceField)
-            converter = new NavigableSetConverter(this.referenceConverter);
-        else if (field instanceof ListField && ((ListField)field).getElementField() instanceof ReferenceField)
-            converter = new ListConverter(this.referenceConverter);
-        else if (field instanceof MapField
-          && (((MapField)field).getKeyField() instanceof ReferenceField
-           || ((MapField)field).getValueField() instanceof ReferenceField)) {
-            final MapField<?, ?> mapField = (MapField<?, ?>)field;
-            final Converter keyConverter = mapField.getKeyField() instanceof ReferenceField ?
-              this.referenceConverter : Converter.identity();
-            final Converter valueConverter = mapField.getValueField() instanceof ReferenceField ?
-              this.referenceConverter : Converter.identity();
-            converter = new NavigableMapConverter(keyConverter, valueConverter);
-        }
+        final Converter converter = field.visit(new FieldSwitchAdapter<Converter>() {
+
+            @Override
+            public Converter caseReferenceField(ReferenceField field) {
+                return JTransaction.this.referenceConverter;
+            }
+
+            @Override
+            public <E> Converter caseSetField(SetField<E> field) {
+                return field.getElementField() instanceof ReferenceField ?
+                  new NavigableSetConverter(JTransaction.this.referenceConverter) : null;
+            }
+
+            @Override
+            public <E> Converter caseListField(ListField<E> field) {
+                return field.getElementField() instanceof ReferenceField ?
+                  new ListConverter(JTransaction.this.referenceConverter) : null;
+            }
+
+            @Override
+            public <K, V> Converter caseMapField(MapField<K, V> field) {
+                if (field.getKeyField() instanceof ReferenceField || field.getValueField() instanceof ReferenceField) {
+                    final Converter keyConverter = field.getKeyField() instanceof ReferenceField ?
+                      JTransaction.this.referenceConverter : Converter.identity();
+                    final Converter valueConverter = field.getValueField() instanceof ReferenceField ?
+                      JTransaction.this.referenceConverter : Converter.identity();
+                    return new NavigableMapConverter(keyConverter, valueConverter);
+                }
+                return null;
+            }
+
+            @Override
+            public <T> Converter caseField(Field<T> field) {
+                return null;
+            }
+        });
         if (converter != null)
             value = converter.reverse().convert(value);
         return value;

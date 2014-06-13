@@ -72,6 +72,15 @@ public abstract class Field<T> extends SchemaItem {
      */
     public abstract boolean hasDefaultValue(Transaction tx, ObjId id);
 
+    /**
+     * Apply visitor pattern.
+     *
+     * @param target target to invoke
+     * @return value from the method of {@code target} corresponding to this instance's type
+     * @throws NullPointerException if {@code target} is null
+     */
+    public abstract <R> R visit(FieldSwitch<R> target);
+
 // Non-public methods
 
     /**

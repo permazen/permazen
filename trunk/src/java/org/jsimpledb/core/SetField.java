@@ -49,6 +49,11 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     }
 
     @Override
+    public <R> R visit(FieldSwitch<R> target) {
+        return target.caseSetField(this);
+    }
+
+    @Override
     public String toString() {
         return "set field `" + this.name + "' of " + this.elementField.fieldType;
     }
