@@ -125,29 +125,16 @@ public class SchemaVersion {
 
     private void addStorageInfo(ObjType objType) {
         final ObjTypeStorageInfo objInfo = objType.toStorageInfo();
-        this.addStorageInfo(objInfo);
-        for (SimpleField<?> field : objType.simpleFields.values()) {
-            final SimpleFieldStorageInfo fieldInfo = field.toStorageInfo();
-            this.addStorageInfo(fieldInfo);
-            objInfo.getFields().put(field.storageId, fieldInfo);
-        }
-        for (ComplexField<?> field : objType.complexFields.values()) {
-            final ComplexFieldStorageInfo fieldInfo = field.toStorageInfo();
-            objInfo.getFields().put(field.storageId, fieldInfo);
-            final ArrayList<SimpleFieldStorageInfo> subFieldInfos = new ArrayList<>();
-            for (SimpleField<?> subField : field.getSubFields()) {
-                final SimpleFieldStorageInfo subFieldInfo = subField.toStorageInfo();
-                this.addStorageInfo(subFieldInfo);
-                subFieldInfos.add(subFieldInfo);
+        for (Field<?> field : objType.fields.values()) {
+            final FieldStorageInfo fieldInfo = field.toStorageInfo();
+            if (field instanceof ComplexField) {
+                for (SimpleFieldStorageInfo subFieldInfo : ((ComplexFieldStorageInfo)fieldInfo).getSubFields())
+                    this.addStorageInfo(subFieldInfo);
             }
-            fieldInfo.setSubFields(subFieldInfos);
-            this.addStorageInfo(fieldInfo);
-        }
-        for (CounterField field : objType.counterFields.values()) {
-            final CounterFieldStorageInfo fieldInfo = field.toStorageInfo();
             this.addStorageInfo(fieldInfo);
             objInfo.getFields().put(field.storageId, fieldInfo);
         }
+        this.addStorageInfo(objInfo);
     }
 
     private void addStorageInfo(StorageInfo storageInfo) {
