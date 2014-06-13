@@ -52,6 +52,7 @@ class ClassGenerator<T> {
     static final Method JOBJECT_GET_TRANSACTION;
     static final Method JOBJECT_DELETE_METHOD;
     static final Method JOBJECT_EXISTS_METHOD;
+    static final Method JOBJECT_IS_SNAPSHOT_METHOD;
     static final Method JOBJECT_DUPLICATE_METHOD;
     static final Method JOBJECT_RECREATE_METHOD;
     static final Method JOBJECT_UPGRADE_METHOD;
@@ -91,6 +92,7 @@ class ClassGenerator<T> {
             JOBJECT_GET_TRANSACTION = JObject.class.getMethod("getTransaction");
             JOBJECT_DELETE_METHOD = JObject.class.getMethod("delete");
             JOBJECT_EXISTS_METHOD = JObject.class.getMethod("exists");
+            JOBJECT_IS_SNAPSHOT_METHOD = JObject.class.getMethod("isSnapshot");
             JOBJECT_DUPLICATE_METHOD = JObject.class.getMethod("duplicate");
             JOBJECT_RECREATE_METHOD = JObject.class.getMethod("recreate");
             JOBJECT_UPGRADE_METHOD = JObject.class.getMethod("upgrade");
@@ -300,6 +302,14 @@ class ClassGenerator<T> {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
+        // Add JObject.isSnapshot()
+        mv = this.startMethod(cw, JOBJECT_IS_SNAPSHOT_METHOD);
+        mv.visitCode();
+        mv.visitInsn(Opcodes.ICONST_0);
+        mv.visitInsn(Opcodes.IRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
         // Add JObject.duplicate()
         mv = this.startMethod(cw, JOBJECT_DUPLICATE_METHOD);
         mv.visitCode();
@@ -474,6 +484,14 @@ class ClassGenerator<T> {
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getSnapshotClassName(),
           SNAPSHOT_TRANSACTION_FIELD_NAME, Type.getDescriptor(SnapshotJTransaction.class));
         mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Add JObject.isSnapshot() (override)
+        mv = this.startMethod(cw, JOBJECT_IS_SNAPSHOT_METHOD);
+        mv.visitCode();
+        mv.visitInsn(Opcodes.ICONST_1);
+        mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }

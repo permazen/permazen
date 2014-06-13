@@ -82,10 +82,14 @@ public class SnapshotTest extends TestSupport {
             Assert.assertTrue(p1b.exists());
 
             Assert.assertSame(p1a.getSet().iterator().next(), p2a);
+            Assert.assertFalse(p2.isSnapshot());
             Person p2b = (Person)p2.copyOut();
+            Assert.assertTrue(p2b.isSnapshot());
             Assert.assertSame(p2a, p2b);
 
+            Assert.assertFalse(p1.isSnapshot());
             Person p1c = (Person)p1.copyOut("list.element", "map1", "map2.value");
+            Assert.assertTrue(p1c.isSnapshot());
             Assert.assertSame(p1c, p1b);
             Assert.assertTrue(p1c.getMap1().keySet().iterator().next().exists());
             Assert.assertTrue(p1c.getMap2().values().iterator().next().exists());
@@ -98,6 +102,7 @@ public class SnapshotTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
+        Assert.assertTrue(snapshot.isSnapshot());
         snapshot.setName("Foobar");
         snapshot.setAge(19);
         snapshot.getSet().clear();
@@ -110,6 +115,9 @@ public class SnapshotTest extends TestSupport {
             Assert.assertEquals(p1.getAge(), 123);
             Assert.assertEquals(p1.getSet().size(), 1);
 
+            Assert.assertTrue(snapshot.isSnapshot());
+            Assert.assertFalse(p1.isSnapshot());
+
             snapshot.copyIn();
 
             Assert.assertEquals(p1.getName(), "Foobar");
@@ -129,6 +137,7 @@ public class SnapshotTest extends TestSupport {
 
             p1.delete();
             Assert.assertFalse(p1.exists());
+            Assert.assertFalse(p1.isSnapshot());
 
             snapshot.copyTo(tx2);
             Assert.assertTrue(p1.exists());

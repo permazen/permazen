@@ -13,12 +13,25 @@ import org.jsimpledb.core.ObjId;
  * Interface implemented by {@link JSimpleDB} Java model objects.
  *
  * <p>
- * {@link JSimpleDB} automatically generates sub-classes of user-supplied Java model classes that implement this interface.
- * There are two types of {@link JObject}s: regular instances that reflect the state of the {@link JTransaction}
+ * All {@link JSimpleDB} database objects are instances of runtime-generated sub-classes of the provided Java model classes.
+ * These generated subclasses will always implement this interface, providing convenient access to database operations.
+ * Therefore, it is conveninent to declare Java model classes {@code abstract} and {@code implements JObject}.
+ * However, this is not strictly necessary; all of the methods declared here ultimately delegate to one of the
+ * {@link JTransaction} support methods.
+ * </p>
+ *
+ * <p>
+ * There are two types of {@link JObject}s: normal instances, which always reflect the state of the {@link JTransaction}
  * {@linkplain JTransaction#getCurrent associated} with the current thread, and "snapshot" instances that reflect
- * the state of their associated {@link SnapshotJTransaction}.
- * Therefore every {@link JObject} instance has an {@linkplain #getTransaction associated transaction}
- * which, in the case of regular instances only, may not exist if there's no transaction open in the current thread.
+ * the state of their associated {@link SnapshotJTransaction}. Use {@link #isSnapshot} to distinguish if necessary.
+ * For example, some create/delete/change callback methods may not apply in a snapshot context.
+ * </p>
+ *
+ * <p>
+ * The {@link #getTransaction} method returns the transaction associated with an instance. For a normal instance,
+ * this is just the {@link JTransaction} {@linkplain JTransaction#getCurrent associated} with the current thread;
+ * if there is no such transaction, an {@link IllegalStateException} is thrown. For a "snapshot" instance,
+ * {@link #getTransaction} always returns the corresponding {@link SnapshotJTransaction}.
  * </p>
  */
 public interface JObject {
@@ -84,6 +97,14 @@ public interface JObject {
      *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
      */
     boolean exists();
+
+    /**
+     * Determine whether this instance is a normal instance or is a "snapshot" instance associated
+     * with a {@link SnapshotJTransaction}.
+     *
+     * @return true if instance is a snapshot instance
+     */
+    boolean isSnapshot();
 
     /**
      * Duplicate this instance. Creates a new instance (with a new {@linkplain #getObjId object ID}) having the
