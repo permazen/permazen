@@ -146,6 +146,7 @@ public class FieldBuilder {
     /**
      * Introspect for {@link FieldBuilder} annotations on property getter methods and build
      * a mapping from Java bean property name to a field that may be used to edit that property.
+     * Only bean properties that have {@link FieldBuilder} annotations are detected.
      *
      * @param bean Java bean
      * @return mapping from bean property name to field
@@ -166,7 +167,7 @@ public class FieldBuilder {
             throw new RuntimeException("unexpected exception", e);
         }
         final ArrayList<Method> getterList = new ArrayList<>();
-        final HashMap<String, Method> getterMap = new HashMap<>();
+        final HashMap<String, Method> getterMap = new HashMap<>();              // contains all getter methods
         for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
             Method method = propertyDescriptor.getReadMethod();
 
@@ -188,7 +189,7 @@ public class FieldBuilder {
         }
 
         // Scan getters for FieldBuilder.* annotations other than FieldBuidler.ProvidesField
-        final HashMap<String, com.vaadin.ui.AbstractField<?>> map = new HashMap<>();
+        final HashMap<String, com.vaadin.ui.AbstractField<?>> map = new HashMap<>();        // contains @FieldBuilder.* fields
         for (Map.Entry<String, Method> entry : getterMap.entrySet()) {
             final String propertyName = entry.getKey();
             final Method method = entry.getValue();
@@ -202,8 +203,8 @@ public class FieldBuilder {
             map.put(propertyName, this.buildField(applierList, "method " + method));
         }
 
-        // Scan all methods for @FieldBuidler.ProvidesField annotations
-        final HashMap<String, Method> providerMap = new HashMap<>();
+        // Scan all methods for @FieldBuilder.ProvidesField annotations
+        final HashMap<String, Method> providerMap = new HashMap<>();            // contains @FieldBuilder.ProvidesField methods
         for (Method method : bean.getClass().getDeclaredMethods()) {
             if (method.getReturnType() == void.class || method.getParameterTypes().length > 0)
                 continue;
