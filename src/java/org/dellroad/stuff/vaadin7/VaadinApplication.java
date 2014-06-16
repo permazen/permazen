@@ -10,6 +10,8 @@ package org.dellroad.stuff.vaadin7;
 import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.VaadinSession;
 
+import java.util.concurrent.Future;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -222,8 +224,8 @@ public class VaadinApplication {
      * @throws IllegalArgumentException if {@code action} is null
      * @see VaadinUtil#invokeLater
      */
-    public void invokeLater(Runnable action) {
-        VaadinUtil.invokeLater(this.session, action);
+    public Future<Void> invokeLater(Runnable action) {
+        return VaadinUtil.invokeLater(this.session, action);
     }
 
     /**

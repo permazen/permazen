@@ -144,9 +144,14 @@ public final class VaadinUtil {
             throw new IllegalArgumentException("null session");
         if (action == null)
             throw new IllegalArgumentException("null action");
-        final VaadinSession.FutureAccess future = new VaadinSession.FutureAccess(session, action);
-        session.getPendingAccessQueue().add(future);
-        return future;
+        session.lock();
+        try {
+            final VaadinSession.FutureAccess future = new VaadinSession.FutureAccess(session, action);
+            session.getPendingAccessQueue().add(future);
+            return future;
+        } finally {
+            session.unlock();
+        }
     }
 
     /**
