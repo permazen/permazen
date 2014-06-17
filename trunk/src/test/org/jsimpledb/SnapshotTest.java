@@ -144,7 +144,7 @@ public class SnapshotTest extends TestSupport {
             Assert.assertFalse(p1.exists());
             Assert.assertFalse(p1.isSnapshot());
 
-            snapshot.copyTo(tx2);
+            snapshot.copyTo(tx2, null);
             Assert.assertTrue(p1.exists());
 
             Assert.assertEquals(p1.getName(), "Foobar");
@@ -185,7 +185,7 @@ public class SnapshotTest extends TestSupport {
             snapshot.getMap2().put(33.33f, p2);
             snapshot.getMap2().put(null, p3);
 
-            snapshot.copyTo(tx2);
+            snapshot.copyTo(tx2, null);
 
             Assert.assertEquals(p1.getName(), "Another Name");
             Assert.assertEquals(p1.getAge(), 123);

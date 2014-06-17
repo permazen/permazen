@@ -396,7 +396,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             }
 
             // Copy over object, replacing any previous
-            snapshot.copyTo(id, this.tx);
+            snapshot.copy(id, id, this.tx);
         }
 
         // Done

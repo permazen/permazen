@@ -123,11 +123,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>JObject Methods</b>
  * <ul>
- *  <li>{@link #copyTo copyTo()} - Copy this instance into another transaction</li>
+ *  <li>{@link #copyTo copyTo()} - Copy an object into another transaction</li>
  *  <li>{@link #delete delete()} - Delete an object from this transaction</li>
  *  <li>{@link #exists exists()} - Test whether an object exists in this transaction</li>
  *  <li>{@link #recreate recreate()} - Recreate an object in this transaction</li>
- *  <li>{@link #duplicate duplicate()} - Duplicate an object in this transaction</li>
  *  <li>{@link #revalidate revalidate()} - Add an object to the validation queue</li>
  *  <li>{@link #getSchemaVersion getSchemaVersion()} - Get this schema version of an object</li>
  *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version</li>
@@ -344,35 +343,42 @@ public class JTransaction {
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly.
      *
      * <p>
-     * This method is typically only used by generated classes.
+     * This method is typically only used by generated classes; normally, {@link JObject#copyTo} would be used instead.
      * </p>
      *
      * @param dest destination transaction
-     * @param jobj object to copy
+     * @param srcId source object ID
+     * @param dstId target object ID, or null for same as {@code srcId}
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
-     * @return the copied version of this instance
+     * @return the copied object, i.e., the object having ID {@code dstId} in {@code dest}
+     * @throws DeletedObjectException if {@code srcId} does not exist in this transaction
+     * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcId}'s object's version
+     *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @throws IllegalArgumentException if any parameter is null
+     * @see JObject#copyTo JObject.copyTo()
      * @see JObject#copyOut JObject.copyOut()
      * @see JObject#copyIn JObject.copyIn()
-     * @see JObject#copyTo JObject.copyTo()
      */
-    public JObject copyTo(JTransaction dest, JObject jobj, String... refPaths) {
+    public JObject copyTo(JTransaction dest, ObjId srcId, ObjId dstId, String... refPaths) {
 
         // Sanity check
         if (dest == null)
             throw new IllegalArgumentException("null destination transaction");
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        if (srcId == null)
+            throw new IllegalArgumentException("null srcId");
         if (refPaths == null)
             throw new IllegalArgumentException("null refPaths");
-        if (this.tx == dest.tx)
-            return jobj;
-        final ObjId id = jobj.getObjId();
+        if (dstId == null)
+            dstId = srcId;
+
+        // Check trivial case
+        if (this.tx == dest.tx && srcId.equals(dstId))
+            return dest.getJObject(dstId);
 
         // Parse paths
-        final TypeToken<?> startType = this.jdb.getJClass(id.getStorageId()).typeToken;
+        final TypeToken<?> startType = this.jdb.getJClass(srcId.getStorageId()).typeToken;
         final HashSet<ReferencePath> paths = new HashSet<>(refPaths.length);
         for (String refPath : refPaths) {
 
@@ -410,7 +416,7 @@ public class JTransaction {
         // Ensure object is copied when there are zero reference paths
         final HashSet<ObjId> seen = new HashSet<>();
         if (paths.isEmpty())
-            this.copyTo(seen, dest, id, new ArrayDeque<JReferenceField>());
+            this.copyTo(seen, dest, srcId, dstId, new ArrayDeque<JReferenceField>());
 
         // Recurse over each reference path
         for (ReferencePath path : paths) {
@@ -423,21 +429,21 @@ public class JTransaction {
             fields.add((JReferenceField)this.jdb.jfields.get(path.getTargetField()));
 
             // Recurse over this path
-            this.copyTo(seen, dest, id, fields);
+            this.copyTo(seen, dest, srcId, dstId, fields);
         }
 
         // Done
-        return dest.getJObject(id);
+        return dest.getJObject(dstId);
     }
 
-    void copyTo(Set<ObjId> seen, JTransaction dest, ObjId id, Deque<JReferenceField> fields) {
+    void copyTo(Set<ObjId> seen, JTransaction dest, ObjId srcId, ObjId dstId, Deque<JReferenceField> fields) {
 
         // Already copied this object?
-        if (!seen.add(id))
+        if (!seen.add(dstId))
             return;
 
         // Copy current instance
-        this.tx.copyTo(id, dest.tx);
+        this.tx.copy(srcId, dstId, dest.tx);
 
         // Recurse through the next reference field in the path
         if (fields.isEmpty())
@@ -445,11 +451,12 @@ public class JTransaction {
         final JReferenceField jfield = fields.removeFirst();
         if (jfield.parent instanceof JComplexField) {
             final JComplexField superField = (JComplexField)jfield.parent;
-            superField.copyRecurse(seen, this, dest, id, jfield, fields);
+            superField.copyRecurse(seen, this, dest, srcId, jfield, fields);
         } else {
-            final ObjId referrent = (ObjId)this.tx.readSimpleField(id, jfield.storageId, false);
+            assert jfield instanceof JReferenceField;
+            final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, jfield.storageId, false);
             if (referrent != null)
-                this.copyTo(seen, dest, referrent, fields);
+                this.copyTo(seen, dest, referrent, referrent, fields);
         }
     }
 
@@ -498,6 +505,7 @@ public class JTransaction {
      * @param type an annotated Java object model type
      * @return newly created instance
      * @throws IllegalArgumentException if {@code type} is not a known Java object model type
+     * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> T create(Class<T> type) {
         final JClass<T> jclass = this.jdb.getJClass(TypeToken.of(type));
@@ -514,6 +522,7 @@ public class JTransaction {
      *
      * @param id Object ID
      * @return true if the object was deleted, false if {@code obj} is null or did not exist
+     * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
     public boolean delete(ObjId id) {
@@ -529,6 +538,7 @@ public class JTransaction {
      *
      * @param id Object ID
      * @return true if the object exists, false if not
+     * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
     public boolean exists(ObjId id) {
@@ -544,26 +554,11 @@ public class JTransaction {
      *
      * @param id Object ID
      * @return true if the object was recreated, false if the object already existed
+     * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
     public boolean recreate(ObjId id) {
         return this.tx.create(id);
-    }
-
-    /**
-     * Duplicate the given instance in this transaction.
-     *
-     * <p>
-     * This method is typically only used by generated classes; normally, {@link JObject#duplicate} would be used instead.
-     * </p>
-     *
-     * @param id Object ID
-     * @return clone of the specified object
-     * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws IllegalArgumentException if {@code id} is null
-     */
-    public JObject duplicate(ObjId id) {
-        return this.getJObject(this.tx.duplicate(id));
     }
 
     /**
@@ -958,12 +953,35 @@ public class JTransaction {
             return;
 
         // Do validation
-        this.runWithCurrent(new Runnable() {
+        this.performAction(new Runnable() {
             @Override
             public void run() {
                 JTransaction.this.doValidate();
             }
         });
+    }
+
+    /**
+     * Invoke the given {@link Runnable} with this instance as the {@linkplain #getCurrent current transaction}.
+     *
+     * <p>
+     * If another instance is currently associated with the current thread, it is set aside for the duration of
+     * {@code action}'s execution, and then restored when {@code action} is complete.
+     * </p>
+     *
+     * @param action action to perform
+     * @throws IllegalArgumentException if {@code action} is null
+     */
+    public void performAction(Runnable action) {
+        if (action == null)
+            throw new IllegalArgumentException("null action");
+        final JTransaction previous = CURRENT.get();
+        CURRENT.set(this);
+        try {
+            action.run();
+        } finally {
+            CURRENT.set(previous);
+        }
     }
 
 // Internal methods
@@ -999,16 +1017,6 @@ public class JTransaction {
             final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
             for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods)
                 Util.invoke(info.getMethod(), jobj);
-        }
-    }
-
-    private void runWithCurrent(Runnable action) {
-        final JTransaction previous = CURRENT.get();
-        CURRENT.set(this);
-        try {
-            action.run();
-        } finally {
-            CURRENT.set(previous);
         }
     }
 

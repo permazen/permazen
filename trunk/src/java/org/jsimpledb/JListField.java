@@ -119,10 +119,10 @@ public class JListField extends JCollectionField {
     }
 
     @Override
-    void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest,
+    void copyRecurse(Set<ObjId> seen, JTransaction srcTx, JTransaction dstTx,
       ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
         assert subField == this.elementField;
-        this.copyRecurse(seen, src, dest, src.tx.readListField(id, this.storageId, false), nextFields);
+        this.copyRecurse(seen, srcTx, dstTx, srcTx.tx.readListField(id, this.storageId, false), nextFields);
     }
 }
 

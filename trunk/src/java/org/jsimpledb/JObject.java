@@ -107,24 +107,6 @@ public interface JObject {
     boolean isSnapshot();
 
     /**
-     * Duplicate this instance. Creates a new instance (with a new {@linkplain #getObjId object ID}) having the
-     * same type as this instance and whose fields contain identical content. No schema version upgrade is performed.
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
-     * notifications will be delivered accordingly.
-     *
-     * <p>
-     * This method can be thought of as the {@link JSimpleDB} database equivalent of {@link Object#clone}.
-     * </p>
-     *
-     * @return clone of this instance
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
-     * @throws org.jsimpledb.core.StaleTransactionException
-     *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
-     */
-    JObject duplicate();
-
-    /**
      * Recreate a deleted instance, if it does not exist, in its associated transaction.
      * The fields of a recreated object are set to their initial values.
      *
@@ -174,31 +156,54 @@ public interface JObject {
     boolean upgrade();
 
     /**
-     * Copy this instance, and other instances it references, into another {@link JTransaction}.
+     * Copy this instance, and other instances it references, into a (possibly) different {@link JTransaction}.
+     * This is a more general method; see {@link #copyIn copyIn()} and {@link #copyOut copyOut()} for more common
+     * and specific use cases.
      *
      * <p>
-     * This method will copy this object and all of its fields, along all other objects reachable through
-     * any of the specified {@linkplain ReferencePath reference paths}, into the specified {@link JTransaction}.
-     * If any object already exists in {@code dest}, it will be overwritten, otherwise it will be created.
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
-     * notifications will be delivered accordingly.
+     * This method will copy this object's fields into the object with ID {@code target} (or this instance's object ID if
+     * {@code target} is null) in the {@code dest} transaction, overwriting any previous values there, along with all other
+     * objects reachable from this instance through any of the specified {@linkplain ReferencePath reference paths}.
+     * If {@code target} (or any other referenced object) already exists in {@code dest}, it will have its schema version
+     * updated first, if necessary, otherwise it will be created. Any
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnVersionChange},
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate}, and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
+     * methods will be notified accordingly as usual.
+     * </p>
+     *
+     * <p>
+     * The two transactions must be compatible in that for object schema versions encountered, the schema version is identical
+     * in both transactions.
+     * </p>
+     *
+     * <p>
+     * Note: if {@code target} is not equal to this instance's object ID, and through one of the {@code refPaths} there
+     * is a circular reference back to this instance, then that reference is copied as-is (i.e., it is not changed from
+     * this instance to {@code target}).
+     * </p>
+     *
+     * <p>
+     * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
+     * deadlock could result.
      * </p>
      *
      * @param dest destination transaction for copies
+     * @param target target object ID in {@code dest} onto which to copy this instance's fields, or null for this instance
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
-     * @return the copied version of this instance
+     * @return the copied version of this instance in {@code dest}
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread
      * @throws org.jsimpledb.core.SchemaMismatchException
-     *  if the schema corresponding to this object's version is not identical in both transactions
-     * @throws IllegalArgumentException if {@code dest} or {@code refPaths} is null
+     *  if the schema corresponding to this object's version is not identical in both the {@link JTransaction}
+     *  associated with this instance and {@code dest} (as well for any referenced objects)
+     * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      * @see #copyOut copyOut()
      */
-    JObject copyTo(JTransaction dest, String... refPaths);
+    JObject copyTo(JTransaction dest, ObjId target, String... refPaths);
 
     /**
      * Snapshot this instance and other instances it references.
@@ -218,9 +223,9 @@ public interface JObject {
      * </p>
      *
      * <p>
-     * This is a convenience method, equivalent to:
+     * This is a convenience method, and is equivalent to invoking:
      *  <blockquote><code>
-     *  copyTo(JTransaction.getCurrent().getSnapshotTransaction(), refPaths);
+     *  this.copyTo(this.getTransaction().getSnapshotTransaction(), null, refPaths);
      *  </code></blockquote>
      * </p>
      *
@@ -254,7 +259,10 @@ public interface JObject {
      * </p>
      *
      * <p>
-     * This is a convenience method, equivalent to {@code copyIn(JTransaction.getCurrent(), refPaths)}.
+     * This is a convenience method, and is equivalent to invoking:
+     *  <blockquote><code>
+     *  this.copyTo(JTransaction.getCurrent(), null, refPaths)
+     *  </code></blockquote>
      * </p>
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
