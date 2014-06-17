@@ -127,7 +127,21 @@ public final class VaadinUtil {
 
     /**
      * Peform some action while holding the given {@link VaadinSession}'s lock, but do so asynchronously.
-     * This method returns immediately.
+     *
+     * <p>
+     * Here the term "asynchronously" means:
+     * <ul>
+     *  <li>If any thread holds the session lock (including the current thread), this method will return
+     *      immediately and the action will be performed later, when the session is eventually unlocked.</li>
+     *  <li>If no thread holds the session lock, the session will be locked and the action performed
+     *      synchronously by the current thread.</li>
+     * </ul>
+     * </p>
+     *
+     * <p>
+     * This method now just invokes {@link VaadinSession#access}, a method which didn't exist in earlier
+     * versions of Vaadin.
+     * </p>
      *
      * <p>
      * Note: when executing within a Vaadin HTTP request, the current thread's {@link VaadinSession} is available
@@ -144,14 +158,7 @@ public final class VaadinUtil {
             throw new IllegalArgumentException("null session");
         if (action == null)
             throw new IllegalArgumentException("null action");
-        session.lock();
-        try {
-            final VaadinSession.FutureAccess future = new VaadinSession.FutureAccess(session, action);
-            session.getPendingAccessQueue().add(future);
-            return future;
-        } finally {
-            session.unlock();
-        }
+        return session.access(action);
     }
 
     /**
