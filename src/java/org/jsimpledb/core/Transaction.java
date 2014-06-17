@@ -74,8 +74,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #create(int) create()} - Create a database object</li>
  *  <li>{@link #delete delete()} - Delete a database object</li>
  *  <li>{@link #exists exists()} - Test whether a database object exists</li>
- *  <li>{@link #copyTo copyTo()} - "Snapshot" an object by copying it into a different transaction</li>
- *  <li>{@link #duplicate duplicate()} - Create a clone of an object</li>
+ *  <li>{@link #copy copy()} - Copy an object's fields onto another object in a (possibly) different transaction</li>
  *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects</li>
  *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}</li>
  *  <li>{@link #addDeleteListener addDeleteListener()} - Register a {@link DeleteListener} for notifications
@@ -448,7 +447,7 @@ public class Transaction {
 
     /**
      * Create an empty, in-memory transaction initialized with the same schema history as this transaction.
-     * The result can be used as a destination for {@linkplain #copyTo copyTo} "snapshot" copies of objects.
+     * The result can be used as a destination for "snapshot" copies of objects made via {@link #copy copy()}.
      *
      * <p>
      * The returned {@link SnapshotTransaction} does not support {@link #commit}, {@link #rollback}, {@link #setRollbackOnly},
@@ -837,79 +836,55 @@ public class Transaction {
     }
 
     /**
-     * Duplicate the specified object. Creates a new object (with a new {@link ObjId}) having the
-     * same type as this instance and whose fields contain identical content. No schema version upgrade is performed.
-     *
-     * @param id object ID of the object to copy
-     * @return the object ID of the duplicate object
-     * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
-     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code id} is null
-     */
-    public synchronized ObjId duplicate(ObjId id) {
-
-        // Sanity check
-        if (id == null)
-            throw new IllegalArgumentException("null id");
-        if (this.stale)
-            throw new StaleTransactionException(this);
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
-
-        // Get object info (or exception if object does not exist)
-        final ObjInfo srcInfo = this.getObjectInfo(id, false);
-
-        // Generate new object ID
-        final ObjId dstId = this.generateIdValidated(srcInfo.getStorageId());
-
-        // Copy fields
-        this.copyFields(srcInfo, dstId, this);
-
-        // Done
-        return dstId;
-    }
-
-    /**
-     * "Snapshot" the specified object by copying it into a different transaction. This method copies the object
-     * and all of its fields; any other objects it references are not copied. If the object already exists in {@code dest},
-     * the old copy will be overwritten. The copy is done by copying key/value pairs directly for efficiency.
+     * Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.
      *
      * <p>
-     * Note: if two threads attempt to copy objects between the same two transactions in opposite directions,
-     * deadlock may result.
+     * The schema version associated with the {@code source} object must be identical in this transaction and {@code dest}.
+     * Only the object's fields are copied; any other objects they reference are not copied. If the {@code target} object
+     * does not exist in {@code dest}, it will be created first (and {@link CreateListener}s notified); if {@code target}
+     * does exist in {@code dest}, it's schema version will be upgraded if necessary (and any registered
+     * {@link VersionChangeListener}s notified).
+     * (Meaningful) changes to {@code target}'s fields generate change listener notifications.
      * </p>
      *
      * <p>
-     * If {@code dest} is this instance, no changes are made and false is returned.
+     * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
+     * deadlock could result.
      * </p>
      *
-     * @param id object ID of the object to copy
-     * @param dest destination for the copy
-     * @return false if object existed in {@code dest} and was overwritten, true if object did not exist in {@code dest}
+     * <p>
+     * If {@code dest} is this instance, and {@code source} equals {@code target}, no changes are made and false is returned.
+     * </p>
+     *
+     * @param source object ID of the source object in this transaction
+     * @param target object ID of the target object in {@code dest}
+     * @param dest destination transaction containing {@code target} (possibly same as this transaction)
+     * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
-     * @throws IllegalArgumentException if {@code id} or {@code dest} is null
+     * @throws IllegalArgumentException if any parameter is null
      * @throws ReadOnlyTransactionException if {@code dest} has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws SchemaMismatchException if the schema version corresponding to the object's version is not identical
-     *  in both transactions
+     * @throws SchemaMismatchException if the schema version associated with {@code source} differs between
+     *  this transaction and {@code dest}
      */
-    public synchronized boolean copyTo(ObjId id, Transaction dest) {
+    public synchronized boolean copy(ObjId source, final ObjId target, final Transaction dest) {
 
         // Sanity check
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        if (source == null)
+            throw new IllegalArgumentException("null source");
+        if (target == null)
+            throw new IllegalArgumentException("null target");
         if (dest == null)
             throw new IllegalArgumentException("null dest");
         if (this.stale)
             throw new StaleTransactionException(this);
 
         // Do nothing if nothing to do
-        if (this == dest)
+        if (this == dest && source.equals(target))
             return false;
 
         // Get object info
-        final ObjInfo srcInfo = this.getObjectInfo(id, false);
+        final ObjInfo srcInfo = this.getObjectInfo(source, false);
 
         // Do the copy while both transactions are locked
         synchronized (dest) {
@@ -921,23 +896,13 @@ public class Transaction {
                 throw new ReadOnlyTransactionException(dest);
 
             // Copy fields
-            return this.copyFields(srcInfo, id, dest);
+            return dest.mutateAndNotify(new Mutation<Boolean>() {
+                @Override
+                public Boolean mutate() {
+                    return Transaction.doCopyFields(srcInfo, target, Transaction.this, dest);
+                }
+            });
         }
-    }
-
-    /**
-     * Copy object fields from one source object in this transaction to destination object in destination transaction.
-     * This method assumes both transactions are locked.
-     *
-     * @return true if destination object did not exist and was created
-     */
-    private /*synchronized*/ boolean copyFields(final ObjInfo srcInfo, final ObjId dstId, final Transaction dstTx) {
-        return dstTx.mutateAndNotify(new Mutation<Boolean>() {
-            @Override
-            public Boolean mutate() {
-                return Transaction.doCopyFields(srcInfo, dstId, Transaction.this, dstTx);
-            }
-        });
     }
 
     // This method assumes both transactions are locked
@@ -945,29 +910,34 @@ public class Transaction {
 
         // Sanity check
         final ObjId srcId = srcInfo.getId();
-        if (srcId == dstId && srcTx == dstTx)
+        if (srcId.equals(dstId) && srcTx == dstTx)
             throw new RuntimeException("internal error");
 
-        // Verify object's schema version in destination transaction is identical
+        // Find and verify source object's schema version in destination transaction
         final int objectVersion = srcInfo.getVersionNumber();
-        if (srcTx != dstTx) {
-            final SchemaVersion dstSchema;
-            try {
-                dstSchema = dstTx.schema.getVersion(objectVersion);
-            } catch (IllegalArgumentException e) {
-                throw new SchemaMismatchException("destination transaction has no schema version " + objectVersion);
-            }
-            if (!Arrays.equals(srcTx.version.encodedXML, dstTx.version.encodedXML))
-                throw new SchemaMismatchException("destination transaction schema version " + objectVersion + " does not match");
+        final SchemaVersion dstSchema;
+        try {
+            dstSchema = dstTx.schema.getVersion(objectVersion);
+        } catch (IllegalArgumentException e) {
+            throw new SchemaMismatchException("destination transaction has no schema version " + objectVersion);
         }
+        if (!Arrays.equals(srcTx.version.encodedXML, dstTx.version.encodedXML))
+            throw new SchemaMismatchException("destination transaction schema version " + objectVersion + " does not match");
 
         // Create destination object if it doesn't already exist
         final boolean existed = !dstTx.create(dstId, objectVersion);
         final ObjInfo dstInfo = dstTx.getObjectInfo(dstId, false);
+        final boolean needUpgrade = dstInfo.getVersionNumber() != objectVersion;   // can only happen if object already existed
 
-        // Do field-by-field copy if there are change listeners, otherwise do fast copy of key/value pairs
+        // Do field-by-field copy if there are change or version listeners, otherwise do fast copy of key/value pairs
         final ObjType type = srcInfo.getObjType();
-        if (dstTx.hasFieldMonitor(type)) {
+        if (dstTx.hasFieldMonitor(type) || (needUpgrade && !dstTx.versionChangeListeners.isEmpty())) {
+
+            // Upgrade object first
+            if (needUpgrade)
+                dstTx.updateVersion(dstInfo, dstSchema);
+
+            // Copy fields
             for (Field<?> field : type.fields.values())
                 field.copy(srcId, dstId, srcTx, dstTx);
         } else {
@@ -975,7 +945,7 @@ public class Transaction {
             // Delete pre-existing object's field content, if any
             dstTx.deleteObject(dstInfo);
 
-            // Add object schema version index entry
+            // Add schema version index entry
             dstTx.kvt.put(Database.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
 
             // Copy object meta-data and all field content in one key range sweep
@@ -1131,24 +1101,22 @@ public class Transaction {
             return false;
 
         // Update schema version
-        this.updateVersion(id, info);
+        this.updateVersion(info, this.version);
         return true;
     }
 
     /**
      * Update object to the current schema version.
      *
-     * @param id object id
      * @param info original object info
-     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
-     * @throws InvalidObjectVersionException if the schema version is invalid
-     * @throws IllegalArgumentException if {@code id} is null
+     * @param targetVersion version to change to
      */
-    private synchronized void updateVersion(ObjId id, ObjInfo info) {
+    private synchronized void updateVersion(ObjInfo info, SchemaVersion targetVersion) {
 
         // Get version numbers
+        final ObjId id = info.getId();
         final int oldVersion = info.getVersionNumber();
-        final int newVersion = this.version.versionNumber;
+        final int newVersion = targetVersion.versionNumber;
 
         // Sanity check
         if (newVersion == oldVersion)
@@ -1160,7 +1128,7 @@ public class Transaction {
         final ObjType oldType = info.getObjType();
         final ObjType newType;
         try {
-            newType = this.version.getSchemaItem(id.getStorageId(), ObjType.class);
+            newType = targetVersion.getSchemaItem(id.getStorageId(), ObjType.class);
         } catch (IllegalArgumentException e) {
             throw new InconsistentDatabaseException("object " + id + " has an unrecognized storage ID", e);
         }
@@ -1786,9 +1754,9 @@ public class Transaction {
             return info;
 
         // Update schema version
-        this.updateVersion(id, info);
+        this.updateVersion(info, this.version);
 
-        // Get new object
+        // Get updated object info
         return new ObjInfo(this, id);
     }
 

@@ -272,6 +272,25 @@ public class JSimpleDB {
         return this.version;
     }
 
+    /**
+     * Get the Java model class of the given {@link JObject}.
+     * If {@code jobj} is an instance of a JSimpleDB-generated subclass of a user-supplied Java model class,
+     * this returns the original Java model class. Otherwise, it returns {@code obj}'s type.
+     *
+     * @param jobj database instance
+     * @return lowest ancestor class of {@code jobj}'s class that is not a JSimpleDB-generated subclass
+     * @throws IllegalArgumentException if {@code jobj} is null
+     */
+    public static Class<?> getModelClass(JObject jobj) {
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        for (Class<?> type = jobj.getClass(); type != null; type = type.getSuperclass()) {
+            if (type.getName().indexOf(ClassGenerator.CLASSNAME_SUFFIX) == -1)
+                return type;
+        }
+        return null;
+    }
+
 // Transactions
 
     /**

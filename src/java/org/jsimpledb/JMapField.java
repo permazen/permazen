@@ -183,13 +183,13 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest,
+    void copyRecurse(Set<ObjId> seen, JTransaction srcTx, JTransaction dstTx,
       ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
-        final NavigableMap<?, ?> map = src.tx.readMapField(id, this.storageId, false);
+        final NavigableMap<?, ?> map = srcTx.tx.readMapField(id, this.storageId, false);
         if (subField == this.keyField)
-            this.copyRecurse(seen, src, dest, map.keySet(), nextFields);
+            this.copyRecurse(seen, srcTx, dstTx, map.keySet(), nextFields);
         else if (subField == this.valueField)
-            this.copyRecurse(seen, src, dest, map.values(), nextFields);
+            this.copyRecurse(seen, srcTx, dstTx, map.values(), nextFields);
         else
             throw new RuntimeException();
     }

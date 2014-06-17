@@ -101,10 +101,10 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest,
+    void copyRecurse(Set<ObjId> seen, JTransaction srcTx, JTransaction dstTx,
       ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
         assert subField == this.elementField;
-        this.copyRecurse(seen, src, dest, src.tx.readSetField(id, this.storageId, false), nextFields);
+        this.copyRecurse(seen, srcTx, dstTx, srcTx.tx.readSetField(id, this.storageId, false), nextFields);
     }
 }
 

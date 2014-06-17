@@ -68,15 +68,26 @@ public abstract class JComplexField extends JField {
     abstract Method getIndexEntryQueryMethod(int queryType);
 
     /**
-     * Recurse for copying between transactions.
+     * Recurse for copying between transactions. Copies all objects referred to by any reference in the given
+     * subfield of the given object from {@code srcTx} to {@code dstTx}.
+     *
+     * @param seen IDs of objects already copied
+     * @param srcTx source transaction
+     * @param dstTx destination transaction
+     * @param id ID of the object containing this complex field in {@code srcTx}
+     * @param subField sub-field of this field containing reference values
+     * @param nextFields remaining fields to follow in the reference path
      */
-    abstract void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest,
+    abstract void copyRecurse(Set<ObjId> seen, JTransaction srcTx, JTransaction dstTx,
       ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields);
 
-    void copyRecurse(Set<ObjId> seen, JTransaction src, JTransaction dest, Iterable<?> it, Deque<JReferenceField> nextFields) {
+    // Recurse on the iteration of references
+    void copyRecurse(Set<ObjId> seen, JTransaction srcTx, JTransaction dstTx, Iterable<?> it, Deque<JReferenceField> nextFields) {
         for (Object obj : it) {
-            if (obj != null)
-                src.copyTo(seen, dest, (ObjId)obj, nextFields);
+            if (obj != null) {
+                final ObjId id = (ObjId)obj;
+                srcTx.copyTo(seen, dstTx, id, id, nextFields);
+            }
         }
     }
 }
