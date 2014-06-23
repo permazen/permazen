@@ -82,12 +82,12 @@ public abstract class Change<T> {
     public abstract void apply(JTransaction tx, ObjId id);
 
     /**
-     * Apply this change to the object associated with this instance in the transaction associated with the current thread.
+     * Apply this change to the object associated with this instance in the given transaction.
      *
      * <p>
      * This is a convenience method, equivalent to:
      *  <blockquote><code>
-     *  apply(tx, ((JObject)this.getObject()).getObjId());
+     *  apply(tx, this.getJObject().getObjId());
      *  </code></blockquote>
      * </p>
      *
@@ -96,7 +96,7 @@ public abstract class Change<T> {
     public void apply(JTransaction tx) {
         if (tx == null)
             throw new IllegalArgumentException("null tx");
-        this.apply(tx, ((JObject)this.jobj).getObjId());
+        this.apply(tx, this.getJObject().getObjId());
     }
 
     /**
@@ -125,7 +125,7 @@ public abstract class Change<T> {
      *  </code></blockquote>
      * </p>
      *
-     * @throws IllegalStateException if there is no {@link JTransaction} associated with {@code jobj} or the current thread
+     * @throws IllegalStateException if there is no {@link JTransaction} associated with {@code jobj}
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     public void apply(JObject jobj) {
