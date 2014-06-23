@@ -6,6 +6,6 @@
  */
 
 /**
- * Classes passed to {@link org.jsimpledb.annotation.OnChange &#64OnChange}-annotated methods.
+ * Classes passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods.
  */
 package org.jsimpledb.change;
