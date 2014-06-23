@@ -74,6 +74,6 @@ public @interface VaadinConfigurable {
      * For beans that are (or will interact with) Vaadin widgets, containers, etc., this typically
      * indicates a programming error. In such cases, this property configures what to do, if anything.
      */
-    ErrorAction ifApplicationNotLocked() default ErrorAction.IGNORE;
+    ErrorAction ifApplicationNotLocked() default ErrorAction.EXCEPTION;
 }
 

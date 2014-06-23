@@ -79,6 +79,6 @@ public @interface VaadinConfigurable {
      *
      * @see com.vaadin.server.VaadinSession#getLockInstance
      */
-    ErrorAction ifSessionNotLocked() default ErrorAction.IGNORE;
+    ErrorAction ifSessionNotLocked() default ErrorAction.EXCEPTION;
 }
 

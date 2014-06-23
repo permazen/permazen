@@ -1,3 +1,9 @@
+Version Next
+
+    - Changed VaadinConfigurable.ifSessionNotLocked default to EXCEPTION
+    - Revert previous change to VaadinUtil.invokeLater() (issue #19)
+    - Added ParseContext.tryPattern().
+
 Version 1.0.882 Released May 6, 2014
 
     - Moved XMLResultSetWriter from xml -> sql sub-package
