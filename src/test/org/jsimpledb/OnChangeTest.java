@@ -19,6 +19,8 @@ import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnChange;
+import org.jsimpledb.change.Change;
+import org.jsimpledb.change.ChangeCopier;
 import org.jsimpledb.change.FieldChange;
 import org.jsimpledb.change.ListFieldAdd;
 import org.jsimpledb.change.ListFieldChange;
@@ -136,6 +138,20 @@ public class OnChangeTest extends TestSupport {
         EVENTS.get().clear();
     }
 
+    private static void recordChange(FieldChange<?> change) {
+        if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore snapshot changes
+            return;
+        EVENTS.get().add(change);
+    }
+
+    private static void verifyCopy(Change<?> change) {
+        if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore snapshot changes
+            return;
+        final Change<?> copy1 = change.visit(new ChangeCopier());
+        final Change<?> copy2 = copy1.visit(new ChangeCopier(JTransaction.getCurrent()));
+        Assert.assertEquals(copy2, change);
+    }
+
 // Model Classes
 
     @JSimpleClass(storageId = 100)
@@ -154,7 +170,8 @@ public class OnChangeTest extends TestSupport {
 
         @OnChange("knownPeople.element.enemies.key.age")
         private void knownEnemyAgeChange(SimpleFieldChange<NicePerson, Integer> change) {
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
     // name
@@ -162,11 +179,13 @@ public class OnChangeTest extends TestSupport {
         @OnChange("name")
         private void nameChange(FieldChange<Person> change) {
             Assert.assertSame(change.getObject(), this);
+            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("name")
         private void nameChange(SimpleFieldChange<Person, String> change) {
             Assert.assertSame(change.getObject(), this);
+            OnChangeTest.verifyCopy(change);
         }
 
     // knownPeople
@@ -174,35 +193,41 @@ public class OnChangeTest extends TestSupport {
         @OnChange("knownPeople")
         private void knownPeopleChange(FieldChange<Person> change) {
             Assert.assertSame(change.getObject(), this);
+            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldChange<Person> change) {
             Assert.assertSame(change.getObject(), this);
+            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldAdd<Person, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldRemove<Person, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldReplace<Person, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("knownPeople")
         private void knownPeopleChange(ListFieldClear<Person> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @Override
@@ -224,40 +249,47 @@ public class OnChangeTest extends TestSupport {
         @OnChange("enemies")
         private void enemiesChange(FieldChange<MeanPerson> change) {
             Assert.assertSame(change.getObject(), this);
+            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldChange<MeanPerson> change) {
             Assert.assertSame(change.getObject(), this);
+            OnChangeTest.verifyCopy(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldClear<MeanPerson> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldAdd<MeanPerson, NicePerson, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldRemove<MeanPerson, NicePerson, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("enemies")
         private void enemiesChange(MapFieldReplace<MeanPerson, NicePerson, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange(startType = Person.class, value = "name")
         private static void personNameChange(SimpleFieldChange<Person, String> change) {
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
     }
 
@@ -276,66 +308,77 @@ public class OnChangeTest extends TestSupport {
 
         @OnChange("ratings")
         private void ratingsChange(FieldChange<NicePerson> change) {
+            OnChangeTest.verifyCopy(change);
             Assert.assertSame(change.getObject(), this);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldChange<NicePerson> change) {
+            OnChangeTest.verifyCopy(change);
             Assert.assertSame(change.getObject(), this);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldAdd<NicePerson, Person, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldRemove<NicePerson, Person, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldReplace<NicePerson, Person, Float> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("ratings")
         private void ratingsChange(MapFieldClear<NicePerson> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
     // friends
 
         @OnChange("friends")
         private void friendsChange(FieldChange<NicePerson> change) {
+            OnChangeTest.verifyCopy(change);
             Assert.assertSame(change.getObject(), this);
         }
 
         @OnChange("friends")
         private void friendsChange(SetFieldChange<NicePerson> change) {
+            OnChangeTest.verifyCopy(change);
             Assert.assertSame(change.getObject(), this);
         }
 
         @OnChange("friends")
         private void friendsChange(SetFieldAdd<NicePerson, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("friends")
         private void friendsChange(SetFieldRemove<NicePerson, Person> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
 
         @OnChange("friends")
         private void friendsChange(SetFieldClear<NicePerson> change) {
             Assert.assertSame(change.getObject(), this);
-            EVENTS.get().add(change);
+            OnChangeTest.verifyCopy(change);
+            OnChangeTest.recordChange(change);
         }
     }
 }
