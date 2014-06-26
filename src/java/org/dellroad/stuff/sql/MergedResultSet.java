@@ -30,11 +30,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 /**
  * Merges multiple {@link ResultSet}s into a single {@link ResultSet}. The merge is performed in an online fashion
@@ -56,8 +55,7 @@ public class MergedResultSet implements ResultSet {
 
     private final ResultSet representative;
     private final ArrayList<ResultSet> resultSets;
-    private final ArrayList<ResultSet> remaining;
-    private final Comparator<ResultSet> comparator;
+    private final PriorityQueue<ResultSet> remaining;
 
     private int currentRow;
     private boolean closed;
@@ -152,10 +150,9 @@ public class MergedResultSet implements ResultSet {
             sortOrders = newSortOrders;
         }
         this.resultSets = new ArrayList<ResultSet>(resultSets);
-        this.remaining = new ArrayList<ResultSet>(this.resultSets.size());
         this.representative = this.resultSets.get(0);
         final boolean[] sortOrders2 = sortOrders;
-        this.comparator = sortColumns.length == 0 ? null : new Comparator<ResultSet>() {
+        this.remaining = new PriorityQueue<ResultSet>(this.resultSets.size(), new Comparator<ResultSet>() {
             @Override
             @SuppressWarnings("unchecked")
             public int compare(ResultSet rs1, ResultSet rs2) {
@@ -180,7 +177,7 @@ public class MergedResultSet implements ResultSet {
                 }
                 return 0;
             }
-        };
+        });
     }
 
     // Convert column names into column indexes
@@ -202,7 +199,7 @@ public class MergedResultSet implements ResultSet {
         this.checkClosed();
         if (this.remaining.isEmpty())
             throw new SQLException("there is no current row");
-        return this.remaining.get(0);
+        return this.remaining.peek();
     }
 
     private void checkClosed() throws SQLException {
@@ -212,36 +209,31 @@ public class MergedResultSet implements ResultSet {
 
     @Override
     public boolean next() throws SQLException {
-        if (this.currentRow == 0) {             // we are before the first row
+        try {
+            if (this.currentRow == 0) {                 // we are before the first row
 
-            // Perform the initial load
-            this.remaining.addAll(this.resultSets);
-            for (Iterator<ResultSet> i = this.remaining.iterator(); i.hasNext(); ) {
-                if (!i.next().next())
-                    i.remove();
+                // Perform the initial load
+                for (ResultSet resultSet : this.resultSets) {
+                    if (resultSet.next())
+                        this.remaining.add(resultSet);
+                }
+            } else if (!this.remaining.isEmpty()) {   // we are somewhere in the middle
+
+                // Advance the ResultSet we just read from and re-insert it into the priority queue
+                final ResultSet resultSet = this.remaining.remove();
+                if (resultSet.next())
+                    this.remaining.add(resultSet);
             }
-        } else {                                // we are somewhere in the middle or past the last row
 
-            // Discard the current row, if any
-            if (!this.remaining.isEmpty() && !this.remaining.get(0).next())
-                this.remaining.remove(0);
-        }
-
-        // Are all ResultSets completely exhausted?
-        if (this.remaining.isEmpty()) {
-            this.currentRow = -1;               // indicates we are past the last row
-            return false;
-        }
-
-        // Re-sort the remaining ResultSets
-        if (this.comparator != null) {
-            try {
-                Collections.sort(this.remaining, this.comparator);
-            } catch (RuntimeException e) {
-                if (e.getCause() instanceof SQLException)
-                    throw (SQLException)e.getCause();
-                throw e;
+            // Are all ResultSets completely exhausted?
+            if (this.remaining.isEmpty()) {
+                this.currentRow = -1;               // indicates we are past the last row
+                return false;
             }
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof SQLException)
+                throw (SQLException)e.getCause();
+            throw e;
         }
 
         // Done
