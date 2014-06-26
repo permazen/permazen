@@ -7,24 +7,24 @@
 
 package org.jsimpledb.util;
 
-import com.google.common.reflect.TypeResolver;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 
 /**
  * Recreates {@link TypeToken}s from the output of {@link TypeToken#toString}.
- * Requires that no type variables or wildcards appear.
+ * Currently requires that no type variables or wildcards appear.
  */
 public class TypeTokenParser {
 
     private final ClassLoader loader;
 
-    private Method toGenericTypeMethod;
+    private Method newParameterizedTypeMethod;
 
     /**
      * Default constructor.
@@ -75,10 +75,9 @@ public class TypeTokenParser {
         final String className = matcher.group();
         final Class<?> cl = this.loader.loadClass(className);
         final TypeVariable<?>[] typeParameters = cl.getTypeParameters();
-        final TypeToken<?> typeToken = this.toGenericType(cl);
         ctx.skipWhitespace();
         if (ctx.isEOF())
-            return typeToken;
+            return TypeToken.of(cl);
         ctx.skipWhitespace();
         final ArrayList<Type> parameterTypes = new ArrayList<>(typeParameters.length);
         if (ctx.peek() == '<') {
@@ -98,29 +97,27 @@ public class TypeTokenParser {
             throw new IllegalArgumentException(cl + " has " + typeParameters.length + " generic type parameters but "
               + parameterTypes.size() + " parameters were supplied");
         }
-        TypeResolver typeResolver = new TypeResolver();
-        for (int i = 0; i < typeParameters.length; i++)
-            typeResolver = typeResolver.where(typeParameters[i], parameterTypes.get(i));
-        return TypeToken.of(typeResolver.resolveType(typeToken.getType()));
+        return parameterTypes.isEmpty() ? TypeToken.of(cl) : this.newParameterizedType(cl, parameterTypes);
     }
 
     /**
      * Convert a raw class back into its generic type.
      *
      * @param target raw class
+     * @param params type parameters
      * @return generic {@link TypeToken} for {@code target}
      * @see <a href="https://code.google.com/p/guava-libraries/issues/detail?id=1645">Guava Issue #1645</a>
      */
     @SuppressWarnings("unchecked")
-    private <T> TypeToken<? extends T> toGenericType(Class<T> target) {
+    private <T> TypeToken<? extends T> newParameterizedType(Class<T> target, List<Type> params) {
         Type type;
         try {
-            if (this.toGenericTypeMethod == null) {
-                this.toGenericTypeMethod = Class.forName("com.google.common.reflect.Types", false, this.loader)
-                  .getDeclaredMethod("newParameterizedType", Class.class);
-                this.toGenericTypeMethod.setAccessible(true);
+            if (this.newParameterizedTypeMethod == null) {
+                this.newParameterizedTypeMethod = Class.forName("com.google.common.reflect.Types", false, this.loader)
+                  .getDeclaredMethod("newParameterizedType", Class.class, Type[].class);
+                this.newParameterizedTypeMethod.setAccessible(true);
             }
-            type = (Type)this.toGenericTypeMethod.invoke(null, target);
+            type = (Type)this.newParameterizedTypeMethod.invoke(null, target, params.toArray(new Type[params.size()]));
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
