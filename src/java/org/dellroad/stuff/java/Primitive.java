@@ -396,7 +396,7 @@ public abstract class Primitive<T> implements Comparator<T> {
 
             // 0[xX] HexDigits_opt . HexDigits BinaryExponent FloatTypeSuffix_opt
             + "(0[xX]" + HEX_DIGITS + "?(\\.)" + HEX_DIGITS + ")"
-             + ")[pP][+-]?" + DIGITS + "))" + "[fFdD]?))";
+             + ")[pP][+-]?" + DIGITS + "))" + "))";
 
         private DoubleFormat() {
         }
