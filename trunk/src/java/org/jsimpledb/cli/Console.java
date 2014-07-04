@@ -16,6 +16,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsimpledb.cli.parse.CommandListParser;
+import org.jsimpledb.cli.parse.CommandParser;
+import org.jsimpledb.cli.parse.ParseException;
+import org.jsimpledb.cli.util.AddPrefixFunction;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.util.ParseContext;
 import org.slf4j.Logger;
@@ -35,6 +39,8 @@ public class Console {
     private final Database db;
     private final ConsoleReader console;
     private final Session session;
+    private final CommandParser commandParser;
+    private final CommandListParser commandListParser;
 
     private FileHistory history;
 
@@ -48,6 +54,8 @@ public class Console {
         this.console.setHistoryEnabled(true);
         this.console.setHandleUserInterrupt(true);
         this.session = new Session(this.db, this.console);
+        this.commandParser = new CommandParser(this.session);
+        this.commandListParser = new CommandListParser(this.commandParser);
     }
 
     public Database getDatabase() {
@@ -137,7 +145,7 @@ public class Console {
                 if (!this.session.perform(new Action() {
                     @Override
                     public void run(Session session) {
-                        actions.addAll(new CommandListParser().parse(session, ctx, false));
+                        actions.addAll(commandListParser.parse(session, ctx, false));
                     }
                 }))
                     continue;
@@ -184,7 +192,7 @@ public class Console {
         private int completeInTransaction(Session session, String buffer, int cursor, List<CharSequence> candidates) {
             final ParseContext ctx = new ParseContext(this.lineBuffer + buffer.substring(0, cursor));
             try {
-                new CommandListParser().parse(session, ctx, true);
+                Console.this.commandListParser.parse(session, ctx, true);
             } catch (ParseException e) {
                 String prefix = "";
                 int index = ctx.getIndex();
@@ -195,7 +203,7 @@ public class Console {
             } catch (Exception e) {
                 try {
                     Console.this.console.println();
-                    Console.this.console.println("ERROR: error calculating command line completions");
+                    Console.this.console.println("Error: got exception calculating command line completions");
                     e.printStackTrace(session.getWriter());
                 } catch (IOException e2) {
                     // ignore

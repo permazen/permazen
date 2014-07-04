@@ -9,7 +9,8 @@
     <test name="Unit Tests">
         <packages>
             <package name="org.jsimpledb"/>
-            <package name="org.jsimpledb.cli"/>
+            <package name="org.jsimpledb.cli.parse"/>
+            <package name="org.jsimpledb.cli.parse.expr"/>
             <package name="org.jsimpledb.core"/>
             <package name="org.jsimpledb.kv"/>
             <package name="org.jsimpledb.kv.util"/>

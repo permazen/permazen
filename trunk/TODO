@@ -1,12 +1,4 @@
 
-- Improvements to CLI
-    - Commands for:
-        - Modifying fields
-        - Inverting references
-        - Evaluating reference paths
-    - Command line flag to scan classpath for Command classes
-    - Add support for JPQL ?
-
 - Add Vaadin GUI editor generator
 
 - Bug: if same simple field storage ID used in two different Java classes,

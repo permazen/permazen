@@ -9,8 +9,14 @@ package org.jsimpledb.cli;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayDeque;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
+import org.jsimpledb.cli.cmd.Command;
+import org.jsimpledb.cli.func.Function;
+import org.jsimpledb.cli.parse.ParseException;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.core.Transaction;
@@ -27,7 +33,10 @@ public class Session {
     private final Database db;
     private final ConsoleReader console;
     private final PrintWriter writer;
-    private final ArrayDeque<Channel<?>> stack = new ArrayDeque<>();
+    private final LinkedHashSet<String> imports = new LinkedHashSet<>();
+    private final TreeMap<String, Command> commands = new TreeMap<>();
+    private final TreeMap<String, Function> functions = new TreeMap<>();
+    private final TreeMap<String, Object> variables = new TreeMap<>();
 
     private Transaction tx;
     private SchemaModel schemaModel;
@@ -45,6 +54,7 @@ public class Session {
         this.db = db;
         this.console = console;
         this.writer = new PrintWriter(console.getOutput(), true);
+        this.imports.add("java.lang.*");
     }
 
 // Accessors
@@ -61,8 +71,20 @@ public class Session {
         return this.writer;
     }
 
-    public ArrayDeque<Channel<?>> getStack() {
-        return this.stack;
+    public Set<String> getImports() {
+        return this.imports;
+    }
+
+    public SortedMap<String, Command> getCommands() {
+        return this.commands;
+    }
+
+    public SortedMap<String, Function> getFunctions() {
+        return this.functions;
+    }
+
+    public SortedMap<String, Object> getVars() {
+        return this.variables;
     }
 
     public Transaction getTransaction() {
@@ -123,6 +145,36 @@ public class Session {
     }
     public void setDone(boolean done) {
         this.done = done;
+    }
+
+// Class name resolution
+
+    public Class<?> resolveClass(String name) {
+        final int firstDot = name.indexOf('.');
+        final String firstPart = firstDot != -1 ? name.substring(0, firstDot - 1) : name;
+        name = name.replaceAll("\\.", "\\$");
+        for (String pkg : this.imports) {
+            String className;
+            if (pkg.endsWith(".*"))
+                className = pkg.substring(0, pkg.length() - 1) + name;
+            else {
+                if (!firstPart.equals(pkg.substring(pkg.lastIndexOf('.') + 1, pkg.length() - 2)))
+                    continue;
+                className = pkg.substring(0, pkg.length() - 2 - firstPart.length()) + name;
+            }
+            while (true) {
+                try {
+                    return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+                } catch (ClassNotFoundException e) {
+                    // not found
+                }
+                final int lastDot = className.lastIndexOf('.');
+                if (lastDot == -1)
+                    break;
+                className = className.substring(0, lastDot) + "$" + className.substring(lastDot + 1);
+            }
+        }
+        return null;
     }
 
 // Errors
