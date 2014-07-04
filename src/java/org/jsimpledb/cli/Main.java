@@ -14,7 +14,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 
+import org.jsimpledb.cli.cmd.Command;
+import org.jsimpledb.cli.func.Function;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.AbstractMain;
@@ -25,6 +28,7 @@ import org.jsimpledb.util.AbstractMain;
 public class Main extends AbstractMain {
 
     private File schemaFile;
+    private final LinkedHashSet<Class<?>> addClasses = new LinkedHashSet<>();
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -32,13 +36,38 @@ public class Main extends AbstractMain {
             if (params.isEmpty())
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
+        } else if (option.equals("--add")) {
+            if (params.isEmpty())
+                this.usageError();
+            this.addClass(params.removeFirst());
+        } else if (option.equals("--addpkg")) {
+            if (params.isEmpty())
+                this.usageError();
+            this.scanClasses(params.removeFirst());
         } else
             return false;
         return true;
     }
 
+    private void scanClasses(String pkgname) {
+        for (String className : new ClassPathScanner().scanForClasses(pkgname.split("[\\s,]")))
+            this.addClass(className);
+    }
+
+    private void addClass(String className) {
+        try {
+            this.addClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("failed to load class `" + className + "'", e);
+        }
+    }
+
     @Override
     public int run(String[] args) throws Exception {
+
+        // Register normal commands and functions
+        this.scanClasses(Command.class.getPackage().getName());
+        this.scanClasses(Function.class.getPackage().getName());
 
         // Parse command line
         final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));
@@ -77,6 +106,40 @@ public class Main extends AbstractMain {
             }
         }
 
+        // Instantiate and add scanned classes
+        for (Class<?> cl : this.addClasses) {
+            Exception failure = null;
+            Object obj = null;
+            try {
+                obj = cl.getConstructor(Session.class).newInstance(console.getSession());
+            } catch (NoSuchMethodException e) {
+                try {
+                    obj = cl.getConstructor().newInstance();
+                } catch (NoSuchMethodException e2) {
+                    System.err.println(this.getName() + ": can't find suitable constructor in class " + cl.getName());
+                    return 1;
+                } catch (Exception e2) {
+                    failure = e2;
+                }
+            } catch (Exception e) {
+                failure = e;
+            }
+            if (failure != null)
+                System.err.println(this.getName() + ": can't instantiate class " + cl.getName() + ": " + failure);
+            if (obj instanceof Command) {
+                final Command command = (Command)obj;
+                console.getSession().getCommands().put(command.getName(), command);
+                //System.err.println(this.getName() + ": added command `" + command.getName() + "'");
+            } else if (obj instanceof Function) {
+                final Function function = (Function)obj;
+                console.getSession().getFunctions().put(function.getName(), function);
+                //System.err.println(this.getName() + ": added function `" + function.getName() + "'");
+            } else {
+                System.err.println(this.getName() + ": warning: class "
+                  + cl.getName() + " is neither a command nor a function; ignoring");
+            }
+        }
+
         // Run console
         console.run();
 
@@ -97,6 +160,8 @@ public class Main extends AbstractMain {
         System.err.println("Usage:");
         System.err.println("  " + this.getName() + " [options]");
         System.err.println("Options:");
+        System.err.println("  --add class       Add specified @CliCommand- or @CliFunction-annotated Java class");
+        System.err.println("  --addpkg package  Scan for @CliCommand and @CliFunction classes under Java package");
         System.err.println("  --schema file     Load database schema from XML file");
         this.outputFlags();
     }
