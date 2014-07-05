@@ -124,7 +124,8 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new String(buf.toByteArray(), Charset.forName("UTF-8"));
+        return new String(buf.toByteArray(), Charset.forName("UTF-8"))
+          .replaceAll("(?s)<\\?xml version=\"1\\.0\" encoding=\"UTF-8\"\\?>\n", "");
     }
 
     @Override

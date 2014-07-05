@@ -388,7 +388,8 @@ public class Database {
                 this.log.debug("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
                 final SchemaModel dbSchemaModel = schema.getVersion(version).getSchemaModel();
                 if (schemaModel != null && !schemaModel.equals(schema.getVersion(version).getSchemaModel())) {
-                    this.log.error("schema mismatch:\n  database schema:\n{}  provided schema:\n{}", dbSchemaModel, schemaModel);
+                    this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}",
+                      dbSchemaModel, schemaModel);
                     throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "
                       + version + " that is already recorded in the database");
                 }
