@@ -285,7 +285,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             this.encode(writer, bounds.getLowerBound());
             result[0] = writer.getBytes();
             if (!bounds.getLowerBoundType().isInclusive())
-                result[0] = ByteUtil.getNextKey(result[0]);
+                result[0] = this.prefixMode ? ByteUtil.getKeyAfterPrefix(result[0]) : ByteUtil.getNextKey(result[0]);
             break;
         }
         switch (bounds.getUpperBoundType()) {
