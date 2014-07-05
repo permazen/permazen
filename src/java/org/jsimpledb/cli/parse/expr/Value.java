@@ -15,9 +15,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.NavigableSet;
 
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.util.InstancePredicate;
+import org.jsimpledb.util.NavigableSets;
 
 /**
  * An evaluation-time value used in an expression.
@@ -120,13 +122,13 @@ public class Value {
         this.verifySetter(operation);
         final int amount = increment ? 1 : -1;
         final Object value = this.get(session);
-        Object num = value instanceof Character ? value : this.checkNumeric(session, operation);
+        Object num = value instanceof Character ? value : Value.checkNumeric(session, value, operation);
         if (num instanceof Byte)
-            num = (Byte)num + (byte)amount;
+            num = (byte)((Byte)num + (byte)amount);
         else if (num instanceof Character)
-            num = (Character)num + (char)amount;
+            num = (char)((Character)num + (char)amount);
         else if (num instanceof Short)
-            num = (Short)num + (short)amount;
+            num = (short)((Short)num + (short)amount);
         else if (num instanceof Integer)
             num = (Integer)num + amount;
         else if (num instanceof Float)
@@ -151,7 +153,7 @@ public class Value {
      * @param session current session
      */
     public Value negate(Session session) {
-        final Number num = this.promoteNumeric(session, "negate");
+        final Number num = Value.promoteNumeric(session, this.get(session), "negate");
         if (num instanceof BigDecimal)
             return new Value(((BigDecimal)num).negate());
         if (num instanceof Double)
@@ -173,7 +175,7 @@ public class Value {
      * @param session current session
      */
     public Value invert(Session session) {
-        final Number num = this.promoteNumeric(session, "invert");
+        final Number num = Value.promoteNumeric(session, this.get(session), "invert");
         if (num instanceof Integer)
             return new Value(~(Integer)num);
         if (num instanceof Long)
@@ -187,8 +189,10 @@ public class Value {
      * @param session current session
      */
     public Value multiply(Session session, Value that) {
-        final Number lnum = this.promoteNumeric(session, "multiply", that);
-        final Number rnum = that.promoteNumeric(session, "multiply", this);
+        final Object thisValue = this.get(session);
+        final Object thatValue = that.get(session);
+        final Number lnum = Value.promoteNumeric(session, thisValue, "multiply", thatValue);
+        final Number rnum = Value.promoteNumeric(session, thatValue, "multiply", thisValue);
         if (lnum instanceof BigDecimal)
             return new Value(((BigDecimal)lnum).multiply((BigDecimal)rnum));
         if (lnum instanceof Double)
@@ -211,8 +215,10 @@ public class Value {
      * @param session current session
      */
     public Value divide(Session session, Value that) {
-        final Number lnum = this.promoteNumeric(session, "divide", that);
-        final Number rnum = that.promoteNumeric(session, "divide", this);
+        final Object thisValue = this.get(session);
+        final Object thatValue = that.get(session);
+        final Number lnum = Value.promoteNumeric(session, thisValue, "divide", thatValue);
+        final Number rnum = Value.promoteNumeric(session, thatValue, "divide", thisValue);
         if (lnum instanceof BigDecimal)
             return new Value(((BigDecimal)lnum).divide((BigDecimal)rnum));
         if (lnum instanceof Double)
@@ -235,8 +241,10 @@ public class Value {
      * @param session current session
      */
     public Value mod(Session session, Value that) {
-        final Number lnum = this.promoteNumeric(session, "modulo", that);
-        final Number rnum = that.promoteNumeric(session, "modulo", this);
+        final Object thisValue = this.get(session);
+        final Object thatValue = that.get(session);
+        final Number lnum = Value.promoteNumeric(session, thisValue, "modulo", thatValue);
+        final Number rnum = Value.promoteNumeric(session, thatValue, "modulo", thisValue);
         if (lnum instanceof Double)
             return new Value((Double)lnum % (Double)rnum);
         if (lnum instanceof Float)
@@ -265,8 +273,8 @@ public class Value {
             return new Value(String.valueOf(thisValue) + String.valueOf(thatValue));
 
         // Handle numeric
-        final Number lnum = this.promoteNumeric(session, "add", that);
-        final Number rnum = that.promoteNumeric(session, "add", this);
+        final Number lnum = Value.promoteNumeric(session, thisValue, "add", thatValue);
+        final Number rnum = Value.promoteNumeric(session, thatValue, "add", thisValue);
         if (lnum instanceof BigDecimal)
             return new Value(((BigDecimal)lnum).add((BigDecimal)rnum));
         if (lnum instanceof Double)
@@ -288,9 +296,18 @@ public class Value {
      *
      * @param session current session
      */
+    @SuppressWarnings("unchecked")
     public Value subtract(Session session, Value that) {
-        final Number lnum = this.promoteNumeric(session, "subtract", that);
-        final Number rnum = that.promoteNumeric(session, "subtract", this);
+
+        // Handle NavigableSet
+        final Object thisValue = this.get(session);
+        final Object thatValue = that.get(session);
+        if (thisValue instanceof NavigableSet && thatValue instanceof NavigableSet)
+            return new Value(NavigableSets.difference((NavigableSet<Object>)thisValue, (NavigableSet<Object>)thatValue));
+
+        // Handle numeric
+        final Number lnum = Value.promoteNumeric(session, thisValue, "subtract", thatValue);
+        final Number rnum = Value.promoteNumeric(session, thatValue, "subtract", thisValue);
         if (lnum instanceof BigDecimal)
             return new Value(((BigDecimal)lnum).subtract((BigDecimal)rnum));
         if (lnum instanceof Double)
@@ -313,17 +330,18 @@ public class Value {
      * @param session current session
      */
     public Value lshift(Session session, Value arg) {
-        final Number target = this.promoteNumeric(session, "left shift");
-        final Number shift = arg.promoteNumeric(session, "left shift");
+        final Object thisValue = this.get(session);
+        final Object thatValue = arg.get(session);
+        final Number target = Value.promoteNumeric(session, thisValue, "left shift");
+        final Number shift = Value.promoteNumeric(session, thatValue, "left shift");
         if (!(target instanceof Integer) && !(target instanceof Long))
             throw new EvalException("invalid left shift value of type " + target.getClass().getName());
         if (!(shift instanceof Integer) && !(shift instanceof Long))
             throw new EvalException("invalid left shift amount of type " + shift.getClass().getName());
-        final int amount = shift.intValue() & 0x1f;
         if (target instanceof Long)
-            return new Value((Long)target << amount);
+            return new Value((Long)target << (shift.intValue() & 0x1f));
         if (target instanceof Integer)
-            return new Value((Integer)target << amount);
+            return new Value((Integer)target << (shift.intValue() & 0x3f));
         throw new EvalException("invalid left shift operation on values of type "
           + target.getClass().getName() + " and " + shift.getClass().getName());
     }
@@ -334,17 +352,18 @@ public class Value {
      * @param session current session
      */
     public Value rshift(Session session, Value arg) {
-        final Number target = this.promoteNumeric(session, "right shift");
-        final Number shift = arg.promoteNumeric(session, "right shift");
+        final Object thisValue = this.get(session);
+        final Object thatValue = arg.get(session);
+        final Number target = Value.promoteNumeric(session, thisValue, "right shift");
+        final Number shift = Value.promoteNumeric(session, thatValue, "right shift");
         if (!(target instanceof Integer) && !(target instanceof Long))
             throw new EvalException("invalid right shift value of type " + target.getClass().getName());
         if (!(shift instanceof Integer) && !(shift instanceof Long))
             throw new EvalException("invalid right shift amount of type " + shift.getClass().getName());
-        final int amount = shift.intValue() & 0x1f;
         if (target instanceof Long)
-            return new Value((Long)target >> amount);
+            return new Value((Long)target >> (shift.intValue() & 0x1f));
         if (target instanceof Integer)
-            return new Value((Integer)target >> amount);
+            return new Value((Integer)target >> (shift.intValue() & 0x3f));
         throw new EvalException("invalid right shift operation on values of type "
           + target.getClass().getName() + " and " + shift.getClass().getName());
     }
@@ -355,17 +374,18 @@ public class Value {
      * @param session current session
      */
     public Value urshift(Session session, Value arg) {
-        final Number target = this.promoteNumeric(session, "right shift");
-        final Number shift = arg.promoteNumeric(session, "right shift");
+        final Object thisValue = this.get(session);
+        final Object thatValue = arg.get(session);
+        final Number target = Value.promoteNumeric(session, thisValue, "unsigned right shift");
+        final Number shift = Value.promoteNumeric(session, thatValue, "unsigned right shift");
         if (!(target instanceof Integer) && !(target instanceof Long))
             throw new EvalException("invalid right shift value of type " + target.getClass().getName());
         if (!(shift instanceof Integer) && !(shift instanceof Long))
             throw new EvalException("invalid right shift amount of type " + shift.getClass().getName());
-        final int amount = shift.intValue() & 0x1f;
         if (target instanceof Long)
-            return new Value((Long)target >>> amount);
+            return new Value((Long)target >>> (shift.intValue() & 0x1f));
         if (target instanceof Integer)
-            return new Value((Integer)target >>> amount);
+            return new Value((Integer)target >>> (shift.intValue() & 0x3f));
         throw new EvalException("invalid right shift operation on values of type "
           + target.getClass().getName() + " and " + shift.getClass().getName());
     }
@@ -375,6 +395,7 @@ public class Value {
      *
      * @param session current session
      */
+    @SuppressWarnings("unchecked")
     public Value and(Session session, Value that) {
 
         // Handle boolean
@@ -383,9 +404,13 @@ public class Value {
         if (thisValue instanceof Boolean && thatValue instanceof Boolean)
             return new Value((Boolean)thisValue & (Boolean)thatValue);
 
+        // Handle NavigableSet
+        if (thisValue instanceof NavigableSet && thatValue instanceof NavigableSet)
+            return new Value(NavigableSets.intersection((NavigableSet<Object>)thisValue, (NavigableSet<Object>)thatValue));
+
         // Handle numeric
-        final Number lnum = this.promoteNumeric(session, "`and'", that);
-        final Number rnum = that.promoteNumeric(session, "`and'", this);
+        final Number lnum = Value.promoteNumeric(session, thisValue, "`and'", thatValue);
+        final Number rnum = Value.promoteNumeric(session, thatValue, "`and'", thisValue);
         if (!(lnum instanceof Integer) && !(lnum instanceof Long) && !(lnum instanceof BigInteger))
             throw new EvalException("invalid `and' operation on value of type " + lnum.getClass().getName());
         if (lnum instanceof BigInteger)
@@ -400,6 +425,7 @@ public class Value {
      *
      * @param session current session
      */
+    @SuppressWarnings("unchecked")
     public Value or(Session session, Value that) {
 
         // Handle boolean
@@ -408,9 +434,13 @@ public class Value {
         if (thisValue instanceof Boolean && thatValue instanceof Boolean)
             return new Value((Boolean)thisValue | (Boolean)thatValue);
 
+        // Handle NavigableSet
+        if (thisValue instanceof NavigableSet && thatValue instanceof NavigableSet)
+            return new Value(NavigableSets.union((NavigableSet<Object>)thisValue, (NavigableSet<Object>)thatValue));
+
         // Handle numeric
-        final Number lnum = this.promoteNumeric(session, "`or'", that);
-        final Number rnum = that.promoteNumeric(session, "`or'", this);
+        final Number lnum = Value.promoteNumeric(session, thisValue, "`or'", thatValue);
+        final Number rnum = Value.promoteNumeric(session, thatValue, "`or'", thisValue);
         if (!(lnum instanceof Integer) && !(lnum instanceof Long) && !(lnum instanceof BigInteger))
             throw new EvalException("invalid `or' operation on value of type " + lnum.getClass().getName());
         if (lnum instanceof BigInteger)
@@ -425,6 +455,7 @@ public class Value {
      *
      * @param session current session
      */
+    @SuppressWarnings("unchecked")
     public Value xor(Session session, Value that) {
 
         // Handle boolean
@@ -433,9 +464,13 @@ public class Value {
         if (thisValue instanceof Boolean && thatValue instanceof Boolean)
             return new Value((Boolean)thisValue ^ (Boolean)thatValue);
 
+        // Handle NavigableSet
+        if (thisValue instanceof NavigableSet && thatValue instanceof NavigableSet)
+            return new Value(NavigableSets.symmetricDifference((NavigableSet<Object>)thisValue, (NavigableSet<Object>)thatValue));
+
         // Handle numeric
-        final Number lnum = this.promoteNumeric(session, "exclusive `or'", that);
-        final Number rnum = that.promoteNumeric(session, "exclusive `or'", this);
+        final Number lnum = Value.promoteNumeric(session, thisValue, "exclusive `or'", thatValue);
+        final Number rnum = Value.promoteNumeric(session, thatValue, "exclusive `or'", thisValue);
         if (!(lnum instanceof Integer) && !(lnum instanceof Long) && !(lnum instanceof BigInteger))
             throw new EvalException("invalid exclusive `or' operation on value of type " + lnum.getClass().getName());
         if (lnum instanceof BigInteger)
@@ -452,8 +487,10 @@ public class Value {
      * @param mask bit mask with bits {@link #LT}, {@link #GT}, and/or {@link #EQ}
      */
     public Value compare(Session session, Value that, int mask) {
-        final Number lnum = this.promoteNumeric(session, "comparison", that);
-        final Number rnum = that.promoteNumeric(session, "comparison", this);
+        final Object thisValue = this.get(session);
+        final Object thatValue = that.get(session);
+        final Number lnum = Value.promoteNumeric(session, thisValue, "comparison", thatValue);
+        final Number rnum = Value.promoteNumeric(session, thatValue, "comparison", thisValue);
         int result;
         if (lnum instanceof BigDecimal)
             result = ((BigDecimal)lnum).compareTo((BigDecimal)rnum);
@@ -486,29 +523,29 @@ public class Value {
     }
 
     /**
-     * Promote this value to the widest numeric type among itself and the provided values, with integer as a lower bound.
+     * Promote the given object to the widest numeric type among itself and the provided objects, with integer as a lower bound.
      *
      * @param session current session
+     * @param obj Java value
      * @param operation description of operation for error messages
-     * @param args one or more other values
+     * @param args zero or more other Java values
      * @throws IllegalArgumentException if any argument is not numeric
      */
-    Number promoteNumeric(final Session session, final String operation, Value... args) {
+    static Number promoteNumeric(final Session session, final Object obj, final String operation, Object... args) {
 
         // Promote any byte, char, or short up to int
-        final Object value = this.get(session);
-        Number num = value instanceof Character ? (int)(Character)value : this.checkNumeric(session, operation);
+        Number num = obj instanceof Character ? (int)(Character)obj : Value.checkNumeric(session, obj, operation);
         if (num instanceof Byte || num instanceof Short)
             num = num.intValue();
 
         // Promote to widest type of any argument
-        if (args.length != 0) {
+        if (args.length > 0) {
             final ArrayList<Number> nums = new ArrayList<Number>(1 + args.length);
             nums.add(num);
-            nums.addAll(Lists.transform(Arrays.asList(args), new Function<Value, Number>() {
+            nums.addAll(Lists.transform(Arrays.asList(args), new Function<Object, Number>() {
                 @Override
-                public Number apply(Value value) {
-                    return value.promoteNumeric(session, operation);
+                public Number apply(Object value) {
+                    return Value.promoteNumeric(session, value, operation);
                 }
             }));
             if (Iterables.find(nums, new InstancePredicate(BigDecimal.class), null) != null)
@@ -527,6 +564,22 @@ public class Value {
 
         // Done
         return num;
+    }
+
+    /**
+     * Verify object has a numeric type (i.e., {@link Number}).
+     *
+     * @param session current session
+     * @param object Java value
+     * @param operation description of operation for error messages
+     * @return numeric value
+     */
+    static Number checkNumeric(Session session, Object obj, String operation) {
+        if (!(obj instanceof Number)) {
+            throw new EvalException("invalid " + operation + " operation on "
+              + (obj != null ? "non-numeric value of type " + obj.getClass().getName() : "null value"));
+        }
+        return (Number)obj;
     }
 
     /**
@@ -553,6 +606,25 @@ public class Value {
      */
     static BigInteger toBigInteger(Number num) {
         return Value.toBigDecimal(num).toBigInteger();
+    }
+
+    /**
+     * Function that invokes {@link #get Value.get()} on its argument.
+     */
+    public static class GetFunction implements Function<Value, Object> {
+
+        private final Session session;
+
+        public GetFunction(Session session) {
+            if (session == null)
+                throw new IllegalArgumentException("null session");
+            this.session = session;
+        }
+
+        @Override
+        public Object apply(Value item) {
+            return item.get(this.session);
+        }
     }
 }
 

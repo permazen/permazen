@@ -47,10 +47,10 @@ public enum Op {
             }
 
             // Promote index to integer
-            final Number item = itemValue.promoteNumeric(session, "array access");
+            final Number item = Value.promoteNumeric(session, itemValue.get(session), "array access");
             if (!(item instanceof Integer))
                 throw new EvalException("invalid array index value of type " + item.getClass().getName());
-            final int index = item.intValue();
+            final int index = (int)(Integer)item;
 
             // Handle list
             if (target instanceof List) {
