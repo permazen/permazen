@@ -122,7 +122,8 @@ public class JSimpleDB {
      * Primary constructor. Generates a database schema by introspecting the provided classes.
      *
      * @param database core database to use
-     * @param version schema version number of the schema derived from {@code classes}
+     * @param version schema version number of the schema derived from {@code classes},
+     *  or zero to use the highest version already recorded in the database
      * @param classes classes annotated with {@link JSimpleClass} and/or {@link JFieldType} annotations
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code version} is not greater than zero
@@ -134,7 +135,7 @@ public class JSimpleDB {
         // Initialize
         if (database == null)
             throw new IllegalArgumentException("null database");
-        if (version <= 0)
+        if (version < 0)
             throw new IllegalArgumentException("invalid schema version: " + version);
         if (classes == null)
             throw new IllegalArgumentException("null classes");
@@ -266,7 +267,8 @@ public class JSimpleDB {
     /**
      * Get the schema version that this instance will use.
      *
-     * @return the version specified when constructing this instance
+     * @return the schema version that this instance will use when opening transactions via
+     *  {@link Database#createTransaction Database.createTransaction()}
      */
     public int getVersion() {
         return this.version;
