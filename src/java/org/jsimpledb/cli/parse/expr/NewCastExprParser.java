@@ -60,11 +60,10 @@ public class NewCastExprParser implements Parser<Node> {
                             return new Value(constructor.newInstance(params));
                         } catch (IllegalArgumentException e) {
                             continue;                               // wrong method, a parameter type didn't match
-                        } catch (InvocationTargetException e) {
-                            throw new EvalException("exception invoking constructor `"
-                              + cl.getName() + "()': " + e, e.getTargetException());
                         } catch (Exception e) {
-                            throw new EvalException("error invoking constructor `" + cl.getName() + "()': " + e, e);
+                            final Throwable t = e instanceof InvocationTargetException ?
+                              ((InvocationTargetException)e).getTargetException() : e;
+                            throw new EvalException("error invoking constructor `" + cl.getName() + "()': " + t, t);
                         }
                     }
                     throw new EvalException("no compatible constructor found in class " + cl.getName());
