@@ -14,12 +14,15 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 
+import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.cli.func.Function;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.schema.SchemaModel;
+import org.jsimpledb.spring.ScanClassPathClassScanner;
 import org.jsimpledb.util.AbstractMain;
 
 /**
@@ -29,13 +32,19 @@ public class Main extends AbstractMain {
 
     private File schemaFile;
     private final LinkedHashSet<Class<?>> addClasses = new LinkedHashSet<>();
+    private HashSet<Class<?>> schemaClasses;
+    private JSimpleDB jdb;
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
-        if (option.equals("--schema")) {
+        if (option.equals("--schema-file")) {
             if (params.isEmpty())
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
+        } else if (option.equals("--schema-pkg")) {
+            if (params.isEmpty())
+                this.usageError();
+            this.scanSchemaClasses(params.removeFirst());
         } else if (option.equals("--add")) {
             if (params.isEmpty())
                 this.usageError();
@@ -59,6 +68,18 @@ public class Main extends AbstractMain {
             this.addClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("failed to load class `" + className + "'", e);
+        }
+    }
+
+    private void scanSchemaClasses(String pkgname) {
+        if (this.schemaClasses == null)
+            this.schemaClasses = new HashSet<>();
+        for (String className : new ScanClassPathClassScanner().scanForClasses(pkgname.split("[\\s,]"))) {
+            try {
+                schemaClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("failed to load class `" + className + "'", e);
+            }
         }
     }
 
@@ -87,16 +108,17 @@ public class Main extends AbstractMain {
 
         // Set up console
         final Console console = new Console(new Database(this.kvdb), new FileInputStream(FileDescriptor.in), System.out);
+        final Session session = console.getSession();
         console.setHistoryFile(new File(new File(System.getProperty("user.home")), ".jsimpledb_history"));
-        console.getSession().setReadOnly(this.readOnly);
-        console.getSession().setVerbose(this.verbose);
-        console.getSession().setSchemaVersion(this.schemaVersion);
-        console.getSession().setAllowNewSchema(this.newSchema);
+        session.setReadOnly(this.readOnly);
+        session.setVerbose(this.verbose);
+        session.setSchemaVersion(this.schemaVersion);
+        session.setAllowNewSchema(this.newSchema);
         if (this.schemaFile != null) {
             try {
                 final InputStream input = new BufferedInputStream(new FileInputStream(this.schemaFile));
                 try {
-                    console.getSession().setSchemaModel(SchemaModel.fromXML(input));
+                    session.setSchemaModel(SchemaModel.fromXML(input));
                 } finally {
                     input.close();
                 }
@@ -106,12 +128,28 @@ public class Main extends AbstractMain {
             }
         }
 
-        // Instantiate and add scanned classes
+        // Load JSimpleDB layer, if specified
+        if (this.schemaClasses != null) {
+
+            // Create JSimpleDB instance
+            this.jdb = new JSimpleDB(session.getDatabase(), this.schemaVersion, this.schemaClasses);
+
+            // Sanity check consistent schema model if both --schema-file and --schema-pkg were specified
+            if (session.getSchemaModel() == null)
+                session.setSchemaModel(this.jdb.getSchemaModel());
+            else if (!session.getSchemaModel().equals(this.jdb.getSchemaModel())) {
+                System.err.println(this.getName() + ": schema from `" + this.schemaFile + "' conflicts with schema generated"
+                  + " from scanned classes " + this.schemaClasses);
+                return 1;
+            }
+        }
+
+        // Instantiate and add scanned CLI classes
         for (Class<?> cl : this.addClasses) {
             Exception failure = null;
             Object obj = null;
             try {
-                obj = cl.getConstructor(Session.class).newInstance(console.getSession());
+                obj = cl.getConstructor(Session.class).newInstance(session);
             } catch (NoSuchMethodException e) {
                 try {
                     obj = cl.getConstructor().newInstance();
@@ -128,12 +166,10 @@ public class Main extends AbstractMain {
                 System.err.println(this.getName() + ": can't instantiate class " + cl.getName() + ": " + failure);
             if (obj instanceof Command) {
                 final Command command = (Command)obj;
-                console.getSession().getCommands().put(command.getName(), command);
-                //System.err.println(this.getName() + ": added command `" + command.getName() + "'");
+                session.getCommands().put(command.getName(), command);
             } else if (obj instanceof Function) {
                 final Function function = (Function)obj;
-                console.getSession().getFunctions().put(function.getName(), function);
-                //System.err.println(this.getName() + ": added function `" + function.getName() + "'");
+                session.getFunctions().put(function.getName(), function);
             } else {
                 System.err.println(this.getName() + ": warning: class "
                   + cl.getName() + " is neither a command nor a function; ignoring");
@@ -160,10 +196,12 @@ public class Main extends AbstractMain {
         System.err.println("Usage:");
         System.err.println("  " + this.getName() + " [options]");
         System.err.println("Options:");
-        System.err.println("  --add class       Add specified @CliCommand- or @CliFunction-annotated Java class");
-        System.err.println("  --addpkg package  Scan for @CliCommand and @CliFunction classes under Java package");
-        System.err.println("  --schema file     Load database schema from XML file");
-        this.outputFlags();
+        this.outputFlags(new String[][] {
+          { "--add class",          "Add specified @CliCommand- or @CliFunction-annotated Java class" },
+          { "--addpkg package",     "Scan for @CliCommand and @CliFunction classes under Java package" },
+          { "--schema-file file",   "Load core database schema from XML file" },
+          { "--schema-pkg package", "Scan for @JSimpleClass classes under Java package to build schema" },
+        });
     }
 
     public static void main(String[] args) throws Exception {

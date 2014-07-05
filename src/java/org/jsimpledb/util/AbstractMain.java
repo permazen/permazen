@@ -10,6 +10,8 @@ package org.jsimpledb.util;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.dellroad.stuff.main.MainClass;
 import org.jsimpledb.kv.KVDatabase;
@@ -38,6 +40,8 @@ public abstract class AbstractMain extends MainClass {
     protected KVDatabase kvdb;
 
     /**
+     * Parse command line options.
+     *
      * @return -1 to proceed, otherwise process exit value
      */
     public int parseOptions(ArrayDeque<String> params) {
@@ -101,6 +105,11 @@ public abstract class AbstractMain extends MainClass {
         return -1;
     }
 
+    /**
+     * Subclass hook to parse unrecognized command line options.
+     *
+     * @return true if successful, false otherwise
+     */
     protected boolean parseOption(String option, ArrayDeque<String> params) {
         return false;
     }
@@ -144,16 +153,35 @@ public abstract class AbstractMain extends MainClass {
 
     protected abstract String getName();
 
-    protected void outputFlags() {
-        System.err.println("  --fdb file        Use FoundationDB with specified cluster file");
-        System.err.println("  --mem             Use an empty in-memory database (default)");
-        System.err.println("  --prefix prefix   FoundationDB key prefix (hex or string)");
-        System.err.println("  --read-only       Disallow database modifications");
-        System.err.println("  --new-schema      Allow recording of a new database schema version");
-        System.err.println("  --xml file        Use the specified XML flat file database");
-        System.err.println("  --version num     Specify database schema version (default highest recorded)");
-        System.err.println("  -h, --help        Show this help message");
-        System.err.println("  -v, --verbose     Show verbose error messages");
+    /**
+     * Output usage message flag listing.
+     */
+    protected void outputFlags(String[][] subclassOpts) {
+        final String[][] baseOpts = new String[][] {
+            { "--fdb file",         "Use FoundationDB with specified cluster file" },
+            { "--mem",              "Use an empty in-memory database (default)" },
+            { "--prefix prefix",    "FoundationDB key prefix (hex or string)" },
+            { "--read-only",        "Disallow database modifications" },
+            { "--new-schema",       "Allow recording of a new database schema version" },
+            { "--xml file",         "Use the specified XML flat file database" },
+            { "--version num",      "Specify database schema version (default highest recorded)" },
+            { "--help, -h",         "Show this help message" },
+            { "--verbose, -v",      "Show verbose error messages" },
+        };
+        final String[][] combinedOpts = new String[baseOpts.length + subclassOpts.length][];
+        System.arraycopy(baseOpts, 0, combinedOpts, 0, baseOpts.length);
+        System.arraycopy(subclassOpts, 0, combinedOpts, baseOpts.length, subclassOpts.length);
+        Arrays.sort(combinedOpts, new Comparator<String[]>() {
+            @Override
+            public int compare(String[] opt1, String[] opt2) {
+                return opt1[0].compareTo(opt2[0]);
+            }
+        });
+        int width = 0;
+        for (String[] opt : combinedOpts)
+            width = Math.max(width, opt[0].length());
+        for (String[] opt : combinedOpts)
+            System.err.println(String.format("  %-" + width + "s  %s", opt[0], opt[1]));
     }
 }
 
