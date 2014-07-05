@@ -206,8 +206,10 @@ public class BaseExprParser implements Parser<Node> {
                     try {
                         writeMethod.invoke(obj, value);
                     } catch (Exception e) {
+                        final Throwable t = e instanceof InvocationTargetException ?
+                          ((InvocationTargetException)e).getTargetException() : e;
                         throw new EvalException("error writing property `" + name + "' to object of type "
-                          + cl.getName() + ": " + e, e);
+                          + cl.getName() + ": " + t, t);
                     }
                 }
             } : null) {
@@ -216,8 +218,10 @@ public class BaseExprParser implements Parser<Node> {
                     try {
                         return readMethod.invoke(obj);
                     } catch (Exception e) {
+                        final Throwable t = e instanceof InvocationTargetException ?
+                          ((InvocationTargetException)e).getTargetException() : e;
                         throw new EvalException("error reading property `" + name + "' from object of type "
-                          + cl.getName() + ": " + e, e);
+                          + cl.getName() + ": " + t, t);
                     }
                 }
             };
@@ -355,11 +359,10 @@ public class BaseExprParser implements Parser<Node> {
                         return new Value(method.invoke(obj, methodParams));
                     } catch (IllegalArgumentException e) {
                         continue;                               // a parameter type didn't match -> wrong method
-                    } catch (InvocationTargetException e) {
-                        throw new EvalException("got exception invoking method `" + name + "()' "
-                          + desc + ": " + e, e.getTargetException());
                     } catch (Exception e) {
-                        throw new EvalException("error invoking method `" + name + "()' " + desc + ": " + e, e);
+                        final Throwable t = e instanceof InvocationTargetException ?
+                          ((InvocationTargetException)e).getTargetException() : e;
+                        throw new EvalException("error invoking method `" + name + "()' " + desc + ": " + t, t);
                     }
                 }
                 throw new EvalException("no compatible method `" + name + "()' found in " + cl);
