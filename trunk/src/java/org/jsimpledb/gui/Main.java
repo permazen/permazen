@@ -154,9 +154,10 @@ public class Main extends AbstractMain {
         System.err.println("Usage:");
         System.err.println("  " + this.getName() + " [options] java.package ...");
         System.err.println("Options:");
-        System.err.println("  --port port       Specify HTTP port (default " + DEFAULT_HTTP_PORT + ")");
-        System.err.println("  --root directory  Specify GUI install directory");
-        this.outputFlags();
+        this.outputFlags(new String[][] {
+          { "--port port",      "Specify HTTP port (default " + DEFAULT_HTTP_PORT + ")" },
+          { "--root directory", "Specify GUI install directory" },
+        });
     }
 
     public static void main(String[] args) throws Exception {

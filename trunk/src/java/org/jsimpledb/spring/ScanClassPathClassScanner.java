@@ -19,14 +19,34 @@ import org.springframework.core.type.ClassMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.Assert;
 
-class ScanClassPathClassScanner extends ClassPathScanningCandidateComponentProvider {
+/**
+ * Scans classpath for {@link JSimpleClass &#64;JSimpleClass} and {@link JFieldType &#64;JFieldType} annotated classes.
+ */
+public class ScanClassPathClassScanner extends ClassPathScanningCandidateComponentProvider {
 
-    ScanClassPathClassScanner(boolean useDefaultFilters, Environment environment) {
+    /**
+     * Constructor. Enables use of default filters and uses a {@link org.springframework.core.env.StandardEnvironment}.
+     */
+    public ScanClassPathClassScanner() {
+        super(true);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param useDefaultFilters whether to register the default filters for {@link JSimpleClass &#64;JSimpleClass}
+     *  and {@link JFieldType &#64;JFieldType} type annotations
+     * @param environment environment to use
+     */
+    public ScanClassPathClassScanner(boolean useDefaultFilters, Environment environment) {
         super(useDefaultFilters, environment);
     }
 
     /**
      * Find annotated classes.
+     *
+     * @param basePackages package name(s) to search under
+     * @return list of class names found
      */
     public ArrayList<String> scanForClasses(String... basePackages) {
         Assert.notEmpty(basePackages, "At least one base package must be specified");

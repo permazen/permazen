@@ -244,6 +244,7 @@
         <dellroad:ivyput pattern="build/cli/libs/[module]-[artifact].[ext]" conf="cli"/>
         <copy tofile="build/cli/log4j.xml" file="src/xml/log4j-cli.xml"/>
         <copy file="build/dist/${ant.project.name}-core-${library.version}.jar" toDir="build/cli/libs"/>
+        <copy file="build/dist/${ant.project.name}-spring-${library.version}.jar" toDir="build/cli/libs"/>
         <copy file="build/dist/${ant.project.name}-cli-${library.version}.jar" toDir="build/cli/libs"/>
         <property name="cli.completed" value="true"/>
     </target>
