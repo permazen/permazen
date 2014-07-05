@@ -33,12 +33,7 @@ public class ListFunction extends SimpleFunction {
 
     @Override
     protected Value apply(final Session session, Value[] params) {
-        return new Value(Lists.transform(Arrays.asList(params), new com.google.common.base.Function<Value, Object>() {
-            @Override
-            public Object apply(Value item) {
-                return item.get(session);
-            }
-        }));
+        return new Value(Lists.transform(Arrays.asList(params), new Value.GetFunction(session)));
     }
 }
 
