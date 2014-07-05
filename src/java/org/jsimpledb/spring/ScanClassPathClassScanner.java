@@ -60,7 +60,7 @@ public class ScanClassPathClassScanner extends ClassPathScanningCandidateCompone
 
     /**
      * Overridden to change the default filters. {@link ScanClassPathClassScanner} wants to match
-     * {@link &#64;JSimpleClass} and {@link &#64;JFieldType} annotated classes.
+     * {@link JSimpleClass &#64;JSimpleClass} and {@link JFieldType &#64;JFieldType} annotated classes.
      */
     @Override
     protected void registerDefaultFilters() {
