@@ -49,103 +49,116 @@ public class BaseExprParser implements Parser<Node> {
     @Override
     public Node parse(Session session, ParseContext ctx, boolean complete) {
 
-        // Parse atom
-        final Node atom = AtomParser.INSTANCE.parse(session, ctx, complete);
+        // Parse initial atom
+        Node node = AtomParser.INSTANCE.parse(session, ctx, complete);
 
-        // Parse operator, if any
-        final Matcher opMatcher = ctx.tryPattern("\\s*(\\[|\\.|\\(|\\+{2}|-{2})");
-        if (opMatcher == null)
-            return atom;
-        final String opsym = opMatcher.group(1);
-        final int mark = ctx.getIndex();
+        // Parse operators (this gives left-to-right association)
+        while (true) {
 
-        // Handle operators
-        switch (opsym) {
-        case "(":
-        {
-            // Atom must be an identifier, for a function call
-            if (!(atom instanceof IdentNode))
-                throw new ParseException(ctx);
-            final String functionName = ((IdentNode)atom).getName();
-            final Function function = session.getFunctions().get(functionName);
-            if (function != null) {
-                final Object params = function.parseParams(session, ctx, complete);
-                return new Node() {
-                    @Override
-                    public Value evaluate(Session session) {
-                        return function.apply(session, params);
-                    }
-                };
-            }
-            throw new ParseException(ctx, "unknown function `" + functionName + "()'")
-              .addCompletions(ParseUtil.complete(session.getFunctions().keySet(), functionName));
-        }
-        case ".":
-        {
-            // Parse next atom - it must be an identifier, method or property name
-            this.spaceParser.parse(ctx, complete);
-            final Node memberNode = AtomParser.INSTANCE.parse(session, ctx, complete);
-            if (!(memberNode instanceof IdentNode)) {
-                ctx.setIndex(mark);
-                throw new ParseException(ctx);
-            }
-            String member = ((IdentNode)memberNode).getName();
+            // Parse operator, if any
+            final Matcher opMatcher = ctx.tryPattern("\\s*(\\[|\\.|\\(|\\+{2}|-{2})");
+            if (opMatcher == null)
+                return node;
+            final String opsym = opMatcher.group(1);
+            final int mark = ctx.getIndex();
 
-            // If first atom was an identifier, must be a class name, with last component the field or method name
-            final Class<?> cl;
-            if (atom instanceof IdentNode) {
-
-                // Parse class name
-                String className = ((IdentNode)atom).getName();
-                for (Matcher matcher; (matcher = ctx.tryPattern("\\s*\\.\\s*(" + IdentNode.NAME_PATTERN + ")")) != null; ) {
-                    className += "." + member;
-                    member = matcher.group(1);
-                }
-
-                // Resolve class
-                if ((cl = session.resolveClass(className)) == null)
-                    throw new ParseException(ctx, "unknown class `" + className + "'");     // TODO: tab-completions
-            } else
-                cl = null;
-
-            // Handle property access
-            if (ctx.tryPattern("\\s*\\(") == null) {
-                final String propertyName = member;
-                return new Node() {
-                    @Override
-                    public Value evaluate(Session session) {
-                        if (cl != null) {
-                            return new Value(propertyName.equals("class") ?
-                              cl : BaseExprParser.this.readStaticField(cl, propertyName));
+            // Handle operators
+            switch (opsym) {
+            case "(":
+            {
+                // Atom must be an identifier, for a function call
+                if (!(node instanceof IdentNode))
+                    throw new ParseException(ctx);
+                final String functionName = ((IdentNode)node).getName();
+                final Function function = session.getFunctions().get(functionName);
+                if (function != null) {
+                    final Object params = function.parseParams(session, ctx, complete);
+                    node = new Node() {
+                        @Override
+                        public Value evaluate(Session session) {
+                            return function.apply(session, params);
                         }
-                        return BaseExprParser.this.evaluateProperty(session, atom.evaluate(session), propertyName);
+                    };
+                    break;
+                }
+                throw new ParseException(ctx, "unknown function `" + functionName + "()'")
+                  .addCompletions(ParseUtil.complete(session.getFunctions().keySet(), functionName));
+            }
+            case ".":
+            {
+                // Parse next atom - it must be an identifier, method or property name
+                this.spaceParser.parse(ctx, complete);
+                final Node memberNode = AtomParser.INSTANCE.parse(session, ctx, complete);
+                if (!(memberNode instanceof IdentNode)) {
+                    ctx.setIndex(mark);
+                    throw new ParseException(ctx);
+                }
+                String member = ((IdentNode)memberNode).getName();
+
+                // If first atom was an identifier, must be a class name, with last component the field or method name
+                final Class<?> cl;
+                if (node instanceof IdentNode) {
+
+                    // Parse class name
+                    String className = ((IdentNode)node).getName();
+                    for (Matcher matcher; (matcher = ctx.tryPattern("\\s*\\.\\s*(" + IdentNode.NAME_PATTERN + ")")) != null; ) {
+                        className += "." + member;
+                        member = matcher.group(1);
+                    }
+
+                    // Resolve class
+                    if ((cl = session.resolveClass(className)) == null)
+                        throw new ParseException(ctx, "unknown class `" + className + "'");     // TODO: tab-completions
+                } else
+                    cl = null;
+
+                // Handle property access
+                if (ctx.tryPattern("\\s*\\(") == null) {
+                    final String propertyName = member;
+                    final Node target = node;
+                    node = new Node() {
+                        @Override
+                        public Value evaluate(Session session) {
+                            if (cl != null) {
+                                return new Value(propertyName.equals("class") ?
+                                  cl : BaseExprParser.this.readStaticField(cl, propertyName));
+                            }
+                            return BaseExprParser.this.evaluateProperty(session, target.evaluate(session), propertyName);
+                        }
+                    };
+                    break;
+                }
+
+                // Handle method call
+                node = this.createMethodInvokeNode(cl != null ? cl : node,
+                  member, BaseExprParser.parseParams(session, ctx, complete));
+                break;
+            }
+            case "[":
+            {
+                this.spaceParser.parse(ctx, complete);
+                final Node index = AssignmentExprParser.INSTANCE.parse(session, ctx, complete);
+                this.spaceParser.parse(ctx, complete);
+                if (!ctx.tryLiteral("]"))
+                    throw new ParseException(ctx).addCompletion("] ");
+                final Node target = node;
+                node = new Node() {
+                    @Override
+                    public Value evaluate(Session session) {
+                        return Op.ARRAY_ACCESS.apply(session, target.evaluate(session), index.evaluate(session));
                     }
                 };
+                break;
             }
-
-            // Handle method call
-            return this.createMethodInvokeNode(cl != null ? cl : atom, member, BaseExprParser.parseParams(session, ctx, complete));
-        }
-        case "[":
-        {
-            this.spaceParser.parse(ctx, complete);
-            final Node index = AssignmentExprParser.INSTANCE.parse(session, ctx, complete);
-            this.spaceParser.parse(ctx, complete);
-            if (!ctx.tryLiteral("]"))
-                throw new ParseException(ctx).addCompletion("] ");
-            return new Node() {
-                @Override
-                public Value evaluate(Session session) {
-                    return Op.ARRAY_ACCESS.apply(session, atom.evaluate(session), index.evaluate(session));
-                }
-            };
-        }
-        case "++":
-            return this.createPostcrementNode("increment", atom, true);
-        case "--":
-            return this.createPostcrementNode("decrement", atom, false);
-        default:
-            throw new RuntimeException("internal error: " + opsym);
+            case "++":
+                node = this.createPostcrementNode("increment", node, true);
+                break;
+            case "--":
+                node = this.createPostcrementNode("decrement", node, false);
+                break;
+            default:
+                throw new RuntimeException("internal error: " + opsym);
+            }
         }
     }
 
@@ -370,11 +383,11 @@ public class BaseExprParser implements Parser<Node> {
         };
     }
 
-    private Node createPostcrementNode(final String operation, final Node atom, final boolean increment) {
+    private Node createPostcrementNode(final String operation, final Node node, final boolean increment) {
         return new Node() {
             @Override
             public Value evaluate(Session session) {
-                final Value oldValue = atom.evaluate(session);
+                final Value oldValue = node.evaluate(session);
                 oldValue.increment(session, "post-" + operation, increment);
                 return oldValue;
             }
