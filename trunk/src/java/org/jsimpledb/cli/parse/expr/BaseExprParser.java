@@ -7,8 +7,6 @@
 
 package org.jsimpledb.cli.parse.expr;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.beans.BeanInfo;
@@ -20,11 +18,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.cli.ObjInfo;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.func.Function;
 import org.jsimpledb.cli.parse.ParseException;
@@ -35,7 +34,6 @@ import org.jsimpledb.core.CounterField;
 import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.Transaction;
@@ -277,29 +275,16 @@ public class BaseExprParser implements Parser<Node> {
             };
         }
 
-        // Handle properties of database objects
+        // Handle properties of database objects (i.e., database fields)
         if (obj instanceof ObjId) {
-
-            // Get object info
             final ObjId id = (ObjId)obj;
-            final ObjInfo info = ObjInfo.getObjInfo(session, id);
-            if (info == null)
-                throw new EvalException("error reading field `" + name + "': object " + id + " does not exist");
-            final ObjType objType = info.getObjType();
-
-            // Find the field
-            final org.jsimpledb.core.Field<?> field = Iterables.find(objType.getFields().values(),
-              new Predicate<org.jsimpledb.core.Field<?>>() {
-                @Override
-                public boolean apply(org.jsimpledb.core.Field<?> field) {
-                    return field.getName().equals(name);
-                }
-              }, null);
-            if (field == null)
-                throw new EvalException("error reading field `" + name + "': there is no such field in " + objType);
-
-            // Return value
             final Transaction tx = session.getTransaction();
+            final org.jsimpledb.core.Field<?> field;
+            try {
+                field = ParseUtil.resolveField(session, id, name);
+            } catch (IllegalArgumentException e) {
+                throw new EvalException(e.getMessage());
+            }
             return field.visit(new FieldSwitchAdapter<Value>() {
 
                 @Override
@@ -343,15 +328,12 @@ public class BaseExprParser implements Parser<Node> {
             public Value evaluate(final Session session) {
                 final Class<?> cl;
                 final Object obj;
-                final String desc;
                 if (target instanceof Node) {       // instance method
                     obj = ((Node)target).evaluate(session).checkNotNull(session, "method " + name + "() invocation");
                     cl = obj.getClass();
-                    desc = "object of type " + cl.getName();
                 } else {                            // static method
                     obj = null;
                     cl = (Class<?>)target;
-                    desc = cl.toString();
                 }
                 final Object[] params = Lists.transform(paramNodes, new com.google.common.base.Function<Node, Object>() {
                     @Override
@@ -359,32 +341,62 @@ public class BaseExprParser implements Parser<Node> {
                         return param.evaluate(session).get(session);
                     }
                 }).toArray();
-                for (Method method : cl.getMethods()) {
-                    if (!method.getName().equals(name))
-                        continue;
-                    final Class<?>[] ptypes = method.getParameterTypes();
-                    Object[] methodParams = params;
-                    if (method.isVarArgs()) {
-                        if (params.length < ptypes.length - 1)
-                            continue;
-                        methodParams = new Object[ptypes.length];
-                        System.arraycopy(params, 0, methodParams, 0, ptypes.length - 1);
-                        Object[] varargs = new Object[params.length - (ptypes.length - 1)];
-                        System.arraycopy(params, ptypes.length - 1, varargs, 0, varargs.length);
-                        methodParams[ptypes.length - 1] = varargs;
-                    } else if (methodParams.length != ptypes.length)
-                        continue;
-                    try {
-                        return new Value(method.invoke(obj, methodParams));
-                    } catch (IllegalArgumentException e) {
-                        continue;                               // a parameter type didn't match -> wrong method
-                    } catch (Exception e) {
-                        final Throwable t = e instanceof InvocationTargetException ?
-                          ((InvocationTargetException)e).getTargetException() : e;
-                        throw new EvalException("error invoking method `" + name + "()' " + desc + ": " + t, t);
+
+                // Try interface methods
+                for (Class<?> iface : this.addInterfaces(cl, new HashSet<Class<?>>())) {
+                    for (Method method : iface.getMethods()) {
+                        final Value value = this.tryMethod(method, obj, name, params);
+                        if (value != null)
+                            return value;
                     }
                 }
+
+                // Try class methods
+                for (Method method : cl.getMethods()) {
+                    final Value value = this.tryMethod(method, obj, name, params);
+                    if (value != null)
+                        return value;
+                }
+
+                // Not found
                 throw new EvalException("no compatible method `" + name + "()' found in " + cl);
+            }
+
+            private Set<Class<?>> addInterfaces(Class<?> cl, Set<Class<?>> interfaces) {
+                for (Class<?> iface : cl.getInterfaces()) {
+                    interfaces.add(iface);
+                    this.addInterfaces(iface, interfaces);
+                }
+                if (cl.getSuperclass() != null)
+                    this.addInterfaces(cl.getSuperclass(), interfaces);
+                return interfaces;
+            }
+
+            private Value tryMethod(Method method, Object obj, String name, Object[] params) {
+                if (!method.getName().equals(name))
+                    return null;
+                final Class<?>[] ptypes = method.getParameterTypes();
+                if (method.isVarArgs()) {
+                    if (params.length < ptypes.length - 1)
+                        return null;
+                    Object[] newParams = new Object[ptypes.length];
+                    System.arraycopy(params, 0, newParams, 0, ptypes.length - 1);
+                    Object[] varargs = new Object[params.length - (ptypes.length - 1)];
+                    System.arraycopy(params, ptypes.length - 1, varargs, 0, varargs.length);
+                    newParams[ptypes.length - 1] = varargs;
+                    params = newParams;
+                } else if (params.length != ptypes.length)
+                    return null;
+                try {
+                    return new Value(method.invoke(obj, params));
+                } catch (IllegalArgumentException e) {
+                    return null;                            // a parameter type didn't match -> wrong method
+                } catch (Exception e) {
+                    final Throwable t = e instanceof InvocationTargetException ?
+                      ((InvocationTargetException)e).getTargetException() : e;
+                    throw new EvalException("error invoking method `" + name + "()' on "
+                      + (obj != null ? "object of type " + obj.getClass().getName() : method.getDeclaringClass()) + ": " + t, t);
+                }
             }
         };
     }

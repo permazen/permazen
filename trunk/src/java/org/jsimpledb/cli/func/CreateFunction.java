@@ -63,7 +63,7 @@ public class CreateFunction extends Function {
         this.spaceParser.parse(ctx, complete);
 
         // Finish parse
-        this.spaceParser.parse(ctx, complete);
+        ctx.skipWhitespace();
         if (!ctx.tryLiteral(")"))
             throw new ParseException(ctx, "expected `)'").addCompletion(") ");
 

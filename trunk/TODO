@@ -1,7 +1,5 @@
 
 - CLI
-    - new function: query(Person.age)
-    - new function: queryVersion()
     - new function: upgrade(obj [, version])
 
 - Add Vaadin GUI editor generator

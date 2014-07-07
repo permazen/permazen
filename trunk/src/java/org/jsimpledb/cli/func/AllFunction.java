@@ -48,7 +48,7 @@ public class AllFunction extends Function {
         final int storageId = new ObjTypeParser().parse(session, ctx, complete).getStorageId();
 
         // Finish parse
-        this.spaceParser.parse(ctx, complete);
+        ctx.skipWhitespace();
         if (!ctx.tryLiteral(")"))
             throw new ParseException(ctx, "expected `)'").addCompletion(") ");
 

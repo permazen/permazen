@@ -70,7 +70,10 @@ public abstract class SimpleFunction extends Function {
         // Parse parameters
         final ArrayList<Node> params = new ArrayList<Node>(Math.min(this.maxArgs, this.minArgs * 2));
         while (true) {
-            this.spaceParser.parse(ctx, complete);
+            if (params.size() < this.maxArgs)
+                this.spaceParser.parse(ctx, complete);
+            else
+                ctx.skipWhitespace();
             if (ctx.isEOF()) {
                 final ParseException e = new ParseException(ctx, "truncated input");
                 if (params.size() < this.minArgs)
