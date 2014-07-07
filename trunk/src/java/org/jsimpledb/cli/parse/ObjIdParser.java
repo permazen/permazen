@@ -105,11 +105,13 @@ public class ObjIdParser implements Parser<ObjId> {
                     }
                 }
                 int count = 0;
-                for (ObjId id : NavigableSets.union(idSets)) {
-                    completions.add(id.toString());
-                    count++;
-                    if (count >= session.getLineLimit() + 1)
-                        break;
+                if (!idSets.isEmpty()) {
+                    for (ObjId id : NavigableSets.union(idSets)) {
+                        completions.add(id.toString());
+                        count++;
+                        if (count >= session.getLineLimit() + 1)
+                            break;
+                    }
                 }
             }
         });
