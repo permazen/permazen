@@ -53,7 +53,7 @@ public abstract class ApplyExprFunction extends Function {
         final Node expr = new ExprParser().parse(session, ctx, complete);
 
         // Finish parse
-        this.spaceParser.parse(ctx, complete);
+        ctx.skipWhitespace();
         if (!ctx.tryLiteral(")"))
             throw new ParseException(ctx, "expected `)'").addCompletion(") ");
 
