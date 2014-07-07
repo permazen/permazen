@@ -1197,7 +1197,7 @@ public class Transaction {
 
             // Add new index entry
             if (newField != null && newField.indexed && !skipIndexUpdate)
-                this.kvt.put(newField.buildIndexKey(id, null), ByteUtil.EMPTY);
+                this.kvt.put(newField.buildIndexKey(id, oldValue), ByteUtil.EMPTY);
         }
 
     //////// Update complex fields and corresponding index entries
