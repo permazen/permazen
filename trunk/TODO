@@ -1,4 +1,7 @@
 
+- CLI
+    - Aggregate functions: min(), max(), avg(), sum()
+
 - Add Vaadin GUI editor generator
 
 - Bug: if same simple field storage ID used in two different Java classes,
