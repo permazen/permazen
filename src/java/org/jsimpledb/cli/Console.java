@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.cli.parse.CommandListParser;
 import org.jsimpledb.cli.parse.CommandParser;
 import org.jsimpledb.cli.parse.ParseException;
@@ -36,7 +37,6 @@ import jline.console.history.FileHistory;
 public class Console {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final Database db;
     private final ConsoleReader console;
     private final Session session;
     private final CommandParser commandParser;
@@ -45,25 +45,27 @@ public class Console {
     private FileHistory history;
 
     /**
-     * Constrcutor.
+     * Constructor for core level access only.
      */
     public Console(Database db, InputStream in, OutputStream out) throws IOException {
-        this.db = db;
+        this(null, db, in, out);
+    }
+
+    /**
+     * Constructor for {@link JSimpleDB} level access.
+     */
+    public Console(JSimpleDB jdb, InputStream in, OutputStream out) throws IOException {
+        this(jdb, null, in, out);
+    }
+
+    private Console(JSimpleDB jdb, Database db, InputStream in, OutputStream out) throws IOException {
         this.console = new ConsoleReader(in, out);
         this.console.setBellEnabled(true);
         this.console.setHistoryEnabled(true);
         this.console.setHandleUserInterrupt(true);
-        this.session = new Session(this.db, this.console);
+        this.session = jdb != null ? new Session(jdb, this.console) : new Session(db, this.console);
         this.commandParser = new CommandParser(this.session);
         this.commandListParser = new CommandListParser(this.commandParser);
-    }
-
-    public Database getDatabase() {
-        return this.db;
-    }
-
-    public ConsoleReader getConsole() {
-        return this.console;
     }
 
     public Session getSession() {
