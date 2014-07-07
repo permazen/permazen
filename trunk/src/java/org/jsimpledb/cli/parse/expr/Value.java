@@ -10,12 +10,14 @@ package org.jsimpledb.cli.parse.expr;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.NavigableSet;
+import java.util.Set;
 
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.util.InstancePredicate;
@@ -302,8 +304,16 @@ public class Value {
         // Handle NavigableSet
         final Object thisValue = this.get(session);
         final Object thatValue = that.get(session);
-        if (thisValue instanceof NavigableSet && thatValue instanceof NavigableSet)
+        if (thisValue instanceof NavigableSet
+          && thatValue instanceof NavigableSet
+          && (((NavigableSet<?>)thisValue).comparator() != null ?
+           ((NavigableSet<?>)thisValue).comparator().equals(((NavigableSet<?>)thatValue).comparator()) :
+           ((NavigableSet<?>)thatValue).comparator() == null))
             return new Value(NavigableSets.difference((NavigableSet<Object>)thisValue, (NavigableSet<Object>)thatValue));
+
+        // Handle Set
+        if (thisValue instanceof Set && thatValue instanceof Set)
+            return new Value(Sets.difference((Set<Object>)thisValue, (Set<Object>)thatValue));
 
         // Handle numeric
         final Number lnum = Value.promoteNumeric(session, thisValue, "subtract", thatValue);
@@ -405,8 +415,16 @@ public class Value {
             return new Value((Boolean)thisValue & (Boolean)thatValue);
 
         // Handle NavigableSet
-        if (thisValue instanceof NavigableSet && thatValue instanceof NavigableSet)
+        if (thisValue instanceof NavigableSet
+          && thatValue instanceof NavigableSet
+          && (((NavigableSet<?>)thisValue).comparator() != null ?
+           ((NavigableSet<?>)thisValue).comparator().equals(((NavigableSet<?>)thatValue).comparator()) :
+           ((NavigableSet<?>)thatValue).comparator() == null))
             return new Value(NavigableSets.intersection((NavigableSet<Object>)thisValue, (NavigableSet<Object>)thatValue));
+
+        // Handle Set
+        if (thisValue instanceof Set && thatValue instanceof Set)
+            return new Value(Sets.intersection((Set<Object>)thisValue, (Set<Object>)thatValue));
 
         // Handle numeric
         final Number lnum = Value.promoteNumeric(session, thisValue, "`and'", thatValue);
@@ -435,8 +453,16 @@ public class Value {
             return new Value((Boolean)thisValue | (Boolean)thatValue);
 
         // Handle NavigableSet
-        if (thisValue instanceof NavigableSet && thatValue instanceof NavigableSet)
+        if (thisValue instanceof NavigableSet
+          && thatValue instanceof NavigableSet
+          && (((NavigableSet<?>)thisValue).comparator() != null ?
+           ((NavigableSet<?>)thisValue).comparator().equals(((NavigableSet<?>)thatValue).comparator()) :
+           ((NavigableSet<?>)thatValue).comparator() == null))
             return new Value(NavigableSets.union((NavigableSet<Object>)thisValue, (NavigableSet<Object>)thatValue));
+
+        // Handle Set
+        if (thisValue instanceof Set && thatValue instanceof Set)
+            return new Value(Sets.union((Set<Object>)thisValue, (Set<Object>)thatValue));
 
         // Handle numeric
         final Number lnum = Value.promoteNumeric(session, thisValue, "`or'", thatValue);
@@ -465,8 +491,16 @@ public class Value {
             return new Value((Boolean)thisValue ^ (Boolean)thatValue);
 
         // Handle NavigableSet
-        if (thisValue instanceof NavigableSet && thatValue instanceof NavigableSet)
+        if (thisValue instanceof NavigableSet
+          && thatValue instanceof NavigableSet
+          && (((NavigableSet<?>)thisValue).comparator() != null ?
+           ((NavigableSet<?>)thisValue).comparator().equals(((NavigableSet<?>)thatValue).comparator()) :
+           ((NavigableSet<?>)thatValue).comparator() == null))
             return new Value(NavigableSets.symmetricDifference((NavigableSet<Object>)thisValue, (NavigableSet<Object>)thatValue));
+
+        // Handle Set
+        if (thisValue instanceof Set && thatValue instanceof Set)
+            return new Value(Sets.symmetricDifference((Set<Object>)thisValue, (Set<Object>)thatValue));
 
         // Handle numeric
         final Number lnum = Value.promoteNumeric(session, thisValue, "exclusive `or'", thatValue);
