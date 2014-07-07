@@ -33,7 +33,6 @@ public class Main extends AbstractMain {
     private File schemaFile;
     private final LinkedHashSet<Class<?>> addClasses = new LinkedHashSet<>();
     private HashSet<Class<?>> schemaClasses;
-    private JSimpleDB jdb;
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -103,22 +102,13 @@ public class Main extends AbstractMain {
             return 1;
         }
 
-        // Start up KV database
-        this.startupKVDatabase();
-
-        // Set up console
-        final Console console = new Console(new Database(this.kvdb), new FileInputStream(FileDescriptor.in), System.out);
-        final Session session = console.getSession();
-        console.setHistoryFile(new File(new File(System.getProperty("user.home")), ".jsimpledb_history"));
-        session.setReadOnly(this.readOnly);
-        session.setVerbose(this.verbose);
-        session.setSchemaVersion(this.schemaVersion);
-        session.setAllowNewSchema(this.newSchema);
+        // Read schema file from `--schema-file' (if any)
+        SchemaModel schemaModel = null;
         if (this.schemaFile != null) {
             try {
                 final InputStream input = new BufferedInputStream(new FileInputStream(this.schemaFile));
                 try {
-                    session.setSchemaModel(SchemaModel.fromXML(input));
+                    schemaModel = SchemaModel.fromXML(input);
                 } finally {
                     input.close();
                 }
@@ -128,21 +118,33 @@ public class Main extends AbstractMain {
             }
         }
 
+        // Start up KV database
+        this.startupKVDatabase();
+        final Database db = new Database(this.kvdb);
+
         // Load JSimpleDB layer, if specified
-        if (this.schemaClasses != null) {
+        final JSimpleDB jdb = this.schemaClasses != null ? new JSimpleDB(db, this.schemaVersion, this.schemaClasses) : null;
 
-            // Create JSimpleDB instance
-            this.jdb = new JSimpleDB(session.getDatabase(), this.schemaVersion, this.schemaClasses);
-
-            // Sanity check consistent schema model if both --schema-file and --schema-pkg were specified
-            if (session.getSchemaModel() == null)
-                session.setSchemaModel(this.jdb.getSchemaModel());
-            else if (!session.getSchemaModel().equals(this.jdb.getSchemaModel())) {
+        // Sanity check consistent schema model if both --schema-file and --schema-pkg were specified
+        if (jdb != null && schemaModel != null) {
+            if (!schemaModel.equals(jdb.getSchemaModel())) {
                 System.err.println(this.getName() + ": schema from `" + this.schemaFile + "' conflicts with schema generated"
                   + " from scanned classes " + this.schemaClasses);
                 return 1;
             }
         }
+
+        // Set up console
+        final Console console = jdb != null ?
+          new Console(jdb, new FileInputStream(FileDescriptor.in), System.out) :
+          new Console(db, new FileInputStream(FileDescriptor.in), System.out);
+        final Session session = console.getSession();
+        console.setHistoryFile(new File(new File(System.getProperty("user.home")), ".jsimpledb_history"));
+        session.setReadOnly(this.readOnly);
+        session.setVerbose(this.verbose);
+        session.setSchemaModel(schemaModel);
+        session.setSchemaVersion(this.schemaVersion);
+        session.setAllowNewSchema(this.newSchema);
 
         // Instantiate and add scanned CLI classes
         for (Class<?> cl : this.addClasses) {

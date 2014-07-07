@@ -14,6 +14,9 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.JTransaction;
+import org.jsimpledb.ValidationMode;
 import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.cli.func.Function;
 import org.jsimpledb.cli.parse.ParseException;
@@ -30,6 +33,7 @@ import jline.console.ConsoleReader;
  */
 public class Session {
 
+    private final JSimpleDB jdb;
     private final Database db;
     private final ConsoleReader console;
     private final PrintWriter writer;
@@ -40,6 +44,7 @@ public class Session {
 
     private Transaction tx;
     private SchemaModel schemaModel;
+    private ValidationMode validationMode;
     private NameIndex nameIndex;
     private int schemaVersion;
     private boolean allowNewSchema;
@@ -50,8 +55,23 @@ public class Session {
 
 // Constructors
 
+    /**
+     * Constructor for core level access only.
+     */
     public Session(Database db, ConsoleReader console) {
+        this.jdb = null;
         this.db = db;
+        this.console = console;
+        this.writer = new PrintWriter(console.getOutput(), true);
+        this.imports.add("java.lang.*");
+    }
+
+    /**
+     * Constructor for {@link JSimpleDB} level access.
+     */
+    public Session(JSimpleDB jdb, ConsoleReader console) {
+        this.jdb = jdb;
+        this.db = jdb.getDatabase();
         this.console = console;
         this.writer = new PrintWriter(console.getOutput(), true);
         this.imports.add("java.lang.*");
@@ -59,6 +79,20 @@ public class Session {
 
 // Accessors
 
+    /**
+     * Get the associated {@link JSimpleDB}, if any.
+     *
+     * @return the associated {@link JSimpleDB} or null if there is none
+     */
+    public JSimpleDB getJSimpleDB() {
+        return this.jdb;
+    }
+
+    /**
+     * Get the associated {@link Database}.
+     *
+     * @return the associated {@link Database}
+     */
     public Database getDatabase() {
         return this.db;
     }
@@ -110,6 +144,13 @@ public class Session {
     }
     public void setSchemaVersion(int schemaVersion) {
         this.schemaVersion = schemaVersion;
+    }
+
+    public ValidationMode getValidationMode() {
+        return this.validationMode;
+    }
+    public void setValidationMode(ValidationMode validationMode) {
+        this.validationMode = validationMode;
     }
 
     public int getLineLimit() {
@@ -229,7 +270,21 @@ public class Session {
         try {
             if (this.tx != null)
                 throw new IllegalStateException("a transaction is already open");
-            this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema);
+            if (this.jdb != null) {
+                boolean exists = true;
+                try {
+                    JTransaction.getCurrent();
+                } catch (IllegalStateException e) {
+                    exists = false;
+                }
+                if (exists)
+                    throw new IllegalStateException("a transaction is already open");
+                final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,
+                  validationMode != null ? validationMode : ValidationMode.AUTOMATIC);
+                JTransaction.setCurrent(jtx);
+                this.tx = jtx.getTransaction();
+            } else
+                this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema);
             final SchemaVersion version = this.tx.getSchemaVersion();
             this.setSchemaModel(version.getSchemaModel());
             this.setSchemaVersion(version.getVersionNumber());
@@ -246,13 +301,18 @@ public class Session {
         try {
             if (this.tx == null)
                 throw new IllegalStateException("no transaction");
-            this.tx.commit();
+            if (this.jdb != null)
+                JTransaction.getCurrent().commit();
+            else
+                this.tx.commit();
             return true;
         } catch (Exception e) {
             this.report(e);
             return false;
         } finally {
             this.tx = null;
+            if (this.jdb != null)
+                JTransaction.setCurrent(null);
         }
     }
 
@@ -260,13 +320,18 @@ public class Session {
         try {
             if (this.tx == null)
                 throw new IllegalStateException("no transaction");
-            this.tx.rollback();
+            if (this.jdb != null)
+                JTransaction.getCurrent().rollback();
+            else
+                this.tx.rollback();
             return true;
         } catch (Exception e) {
             this.report(e);
             return false;
         } finally {
             this.tx = null;
+            if (this.jdb != null)
+                JTransaction.setCurrent(null);
         }
     }
 }
