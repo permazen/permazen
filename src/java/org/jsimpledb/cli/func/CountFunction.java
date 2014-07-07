@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.jsimpledb.cli.Session;
+import org.jsimpledb.cli.parse.expr.EvalException;
 import org.jsimpledb.cli.parse.expr.Value;
 
 @CliFunction
@@ -46,7 +47,7 @@ public class CountFunction extends SimpleFunction {
                 count++;
             return new Value(count);
         }
-        throw new IllegalArgumentException("count() cannot be applied to object of type " + obj.getClass().getName());
+        throw new EvalException("count() cannot be applied to object of type " + obj.getClass().getName());
     }
 }
 
