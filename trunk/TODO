@@ -1,4 +1,11 @@
 
+- CLI
+    - use JObject instead of ObjId when in JDB mode
+        - allows access to Java properties & methods
+    - new function: query(Person.age)
+    - new function: queryVersion()
+    - new function: upgrade(obj)
+
 - Add Vaadin GUI editor generator
 
 - Bug: if same simple field storage ID used in two different Java classes,
@@ -7,7 +14,7 @@
 
 - Ant task for easy validation of JLayer annotations during a build
 
-- Reimplement LockManager using Guava ranges
+- Reimplement LockManager using Guava ranges?
     - https://code.google.com/p/guava-libraries/wiki/RangesExplained
 
 - More built-in field types:
