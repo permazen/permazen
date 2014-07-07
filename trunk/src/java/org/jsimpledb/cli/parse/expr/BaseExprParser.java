@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import org.jsimpledb.JTransaction;
 import org.jsimpledb.cli.ObjInfo;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.func.Function;
@@ -195,8 +196,13 @@ public class BaseExprParser implements Parser<Node> {
 
     private Value evaluateProperty(Session session, Value value, final String name) {
 
-        // Evaluate value
-        final Object obj = value.checkNotNull(session, "property `" + name + "' access");
+        // Evaluate value, converting ObjId into JObject (if possible)
+        Object obj0 = value.checkNotNull(session, "property `" + name + "' access");
+        if (obj0 instanceof ObjId && session.getJSimpleDB() != null)
+            obj0 = JTransaction.getCurrent().getJObject((ObjId)obj0);
+        final Object obj = obj0;
+
+        // Get object class
         final Class<?> cl = obj.getClass();
 
         // Try bean property accessed via bean methods
