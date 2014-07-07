@@ -1,10 +1,8 @@
 
 - CLI
-    - use JObject instead of ObjId when in JDB mode
-        - allows access to Java properties & methods
     - new function: query(Person.age)
     - new function: queryVersion()
-    - new function: upgrade(obj)
+    - new function: upgrade(obj [, version])
 
 - Add Vaadin GUI editor generator
 
