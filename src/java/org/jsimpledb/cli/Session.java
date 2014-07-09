@@ -9,6 +9,7 @@ package org.jsimpledb.cli;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.SortedMap;
@@ -190,19 +191,27 @@ public class Session {
 
 // Class name resolution
 
-    public Class<?> resolveClass(String name) {
+    public Class<?> resolveClass(final String name) {
         final int firstDot = name.indexOf('.');
         final String firstPart = firstDot != -1 ? name.substring(0, firstDot - 1) : name;
-        name = name.replaceAll("\\.", "\\$");
-        for (String pkg : this.imports) {
+        final ArrayList<String> packages = new ArrayList<>(this.imports.size() + 1);
+        packages.add(null);
+        packages.addAll(this.imports);
+        for (String pkg : packages) {
+
+            // Get absolute class name
             String className;
-            if (pkg.endsWith(".*"))
+            if (pkg == null)
+                className = name;
+            else if (pkg.endsWith(".*"))
                 className = pkg.substring(0, pkg.length() - 1) + name;
             else {
                 if (!firstPart.equals(pkg.substring(pkg.lastIndexOf('.') + 1, pkg.length() - 2)))
                     continue;
                 className = pkg.substring(0, pkg.length() - 2 - firstPart.length()) + name;
             }
+
+            // Try package vs. nested classes
             while (true) {
                 try {
                     return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
