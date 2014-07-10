@@ -87,6 +87,8 @@ public class JSimpleDB {
     final Database db;
     final int version;
 
+    volatile int lastVersion;
+
     private final LoadingCache<ObjId, JObject> objectCache = CacheBuilder.newBuilder().weakValues().build(
       new CacheLoader<ObjId, JObject>() {
         @Override
@@ -275,6 +277,22 @@ public class JSimpleDB {
     }
 
     /**
+     * Get the schema version that this instance used for the most recently created transaction.
+     *
+     * <p>
+     * If no transations have been created yet, this returns zero. Otherwise, it returns the schema version
+     * used by the most recently created transaction. If the {@code version} passed to the constructor was zero,
+     * this method can be used to get the highest schema version recorded in the database;
+     * otherwise, this will necessarily be the same non-zero value.
+     * </p>
+     *
+     * @return the schema version that this instance used in the most recent transaction
+     */
+    public int getLastVersion() {
+        return this.lastVersion;
+    }
+
+    /**
      * Get the Java model class of the given {@link JObject}.
      * If {@code jobj} is an instance of a JSimpleDB-generated subclass of a user-supplied Java model class,
      * this returns the original Java model class. Otherwise, it returns {@code obj}'s type.
@@ -317,6 +335,7 @@ public class JSimpleDB {
         if (validationMode == null)
             throw new IllegalArgumentException("null validationMode");
         final Transaction tx = this.db.createTransaction(this.getSchemaModel(), this.version, allowNewSchema);
+        this.lastVersion = tx.getSchema().getSchemaVersions().lastKey();
         return new JTransaction(this, tx, validationMode);
     }
 
