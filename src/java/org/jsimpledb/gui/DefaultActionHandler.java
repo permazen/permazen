@@ -12,6 +12,10 @@ import java.util.List;
 import org.dellroad.stuff.vaadin7.BackedItem;
 import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
 
+/**
+ * Vaadin {@link com.vaadin.event.Action.Handler} implementation that builds a list
+ * of {@link Action}s using a configured {@link ActionListBuilder}.
+ */
 @SuppressWarnings("serial")
 public class DefaultActionHandler<T> implements com.vaadin.event.Action.Handler {
 
@@ -38,11 +42,9 @@ public class DefaultActionHandler<T> implements com.vaadin.event.Action.Handler 
 // Action.Handler
 
     @Override
-    public com.vaadin.event.Action[] getActions(Object guiTarget, Object sender) {
+    public Action[] getActions(Object guiTarget, Object sender) {
         final List<? extends Action> list = this.actionListBuilder.buildActionList(this.getTarget(guiTarget));
-        if (list == null || list.isEmpty())
-            return new com.vaadin.event.Action[0];
-        return list.toArray(new com.vaadin.event.Action[list.size()]);
+        return list == null || list.isEmpty() ? new Action[0] : list.toArray(new Action[list.size()]);
     }
 
     @Override

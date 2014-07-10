@@ -14,6 +14,9 @@ import com.vaadin.ui.VerticalLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Main GUI panel containing the various tabs.
+ */
 @SuppressWarnings("serial")
 @org.dellroad.stuff.vaadin7.VaadinConfigurable
 public class MainPanel extends VerticalLayout {

@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.dellroad.stuff.java.ErrorAction;
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
 import org.dellroad.stuff.vaadin7.VaadinConfigurable;
@@ -26,9 +25,13 @@ import org.jsimpledb.JSimpleDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+/**
+ * Hierarical container that contains the tree of Java model classes.
+ */
 @SuppressWarnings("serial")
-@VaadinConfigurable(ifSessionNotLocked = ErrorAction.EXCEPTION)
+@VaadinConfigurable
 public class JClassContainer extends SimpleKeyedContainer<Integer, JClassContainer.Node> implements Container.Hierarchical {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -36,6 +39,7 @@ public class JClassContainer extends SimpleKeyedContainer<Integer, JClassContain
     private final ArrayList<Node> rootList = new ArrayList<>();
 
     @Autowired
+    @Qualifier("jsimpledbGuiJSimpleDB")
     private JSimpleDB jdb;
 
     /**
@@ -101,6 +105,10 @@ public class JClassContainer extends SimpleKeyedContainer<Integer, JClassContain
 
     public static class Node {
 
+        public static final String NAME_PROPERTY = "name";
+        public static final String STORAGE_ID_PROPERTY = "storageId";
+        public static final String TYPE_PROPERTY = "type";
+
         public static final Function<Node, Integer> STORAGE_ID_FUNCTION = new Function<Node, Integer>() {
             @Override
             public Integer apply(Node node) {
@@ -132,17 +140,17 @@ public class JClassContainer extends SimpleKeyedContainer<Integer, JClassContain
             return this.childs;
         }
 
-        @ProvidesProperty
+        @ProvidesProperty(NAME_PROPERTY)
         public String getName() {
             return this.jclass.getName();
         }
 
-        @ProvidesProperty
+        @ProvidesProperty(STORAGE_ID_PROPERTY)
         public int getStorageId() {
             return this.jclass.getStorageId();
         }
 
-        @ProvidesProperty
+        @ProvidesProperty(TYPE_PROPERTY)
         public String getType() {
             return this.jclass.getTypeToken().toString();
         }

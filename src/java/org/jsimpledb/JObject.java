@@ -172,8 +172,8 @@ public interface JObject {
      * </p>
      *
      * <p>
-     * The two transactions must be compatible in that for object schema versions encountered, the schema version is identical
-     * in both transactions.
+     * The two transactions must be compatible in that for any object schema versions encountered, those schema versions
+     * must be identical in both transactions.
      * </p>
      *
      * <p>

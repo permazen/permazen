@@ -9,6 +9,9 @@ package org.jsimpledb.gui;
 
 import com.vaadin.ui.VerticalLayout;
 
+/**
+ * Panel showing object types.
+ */
 @SuppressWarnings("serial")
 public class TypePanel extends VerticalLayout {
 
