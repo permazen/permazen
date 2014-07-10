@@ -71,6 +71,29 @@ public class JSimpleField extends JField {
         return this.setter;
     }
 
+    /**
+     * Get a {@link Converter} that converts from core {@link org.jsimpledb.core.Database} values
+     * to this field's Java model values.
+     *
+     * <p>
+     * Currently, these are the only field types that require conversion:
+     * <ul>
+     *  <li>Reference fields require conversion from {@link org.jsimpledb.core.ObjId} to Java model object
+     *  (i.e., {@link JObject})</li>
+     *  <li>{@link Enum} types require conversion from {@link org.jsimpledb.core.EnumValue} to Java {@link Enum} values</li>
+     * </ul>
+     * </p>
+     *
+     * @return value {@link Converter} for this field, or null if no conversion is required
+     */
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Converter<?, ?> getConverter(JTransaction jtx) {
+        if (Enum.class.isAssignableFrom(this.typeToken.getRawType()))
+            return this.createEnumConverter((TypeToken<Enum>)this.typeToken);
+        return null;
+    }
+
     @Override
     SimpleSchemaField toSchemaItem() {
         final SimpleSchemaField schemaField = new SimpleSchemaField();
@@ -141,14 +164,6 @@ public class JSimpleField extends JField {
         types.add(new TypeToken<NavigableMap<V, NavigableSet<T>>>() { }
           .where(new TypeParameter<V>() { }, fieldType.wrap())
           .where(new TypeParameter<T>() { }, targetType));
-    }
-
-    @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    Converter<?, ?> getConverter(JTransaction jtx) {
-        if (Enum.class.isAssignableFrom(this.typeToken.getRawType()))
-            return this.createEnumConverter((TypeToken<Enum>)this.typeToken);
-        return null;
     }
 
     // This method exists solely to bind the generic type parameters
