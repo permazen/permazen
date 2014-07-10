@@ -10,6 +10,9 @@ package org.jsimpledb.gui;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Panel;
 
+/**
+ * Simple horizontal line.
+ */
 @SuppressWarnings("serial")
 public class HorizontalLine extends Panel {
 

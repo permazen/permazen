@@ -15,6 +15,9 @@ import java.util.List;
 
 import org.jsimpledb.JClass;
 
+/**
+ * Table showing object types.
+ */
 @SuppressWarnings("serial")
 public class TypeTable extends TreeTable implements ActionListBuilder<JClassContainer.Node> {
 
@@ -30,12 +33,13 @@ public class TypeTable extends TreeTable implements ActionListBuilder<JClassCont
         this.setHierarchyColumn("name");
         this.setAnimationsEnabled(true);
 
-        this.addColumn("name", "Name", 140, Table.Align.LEFT);
-        this.addColumn("storageId", "SID", 40, Table.Align.CENTER);
-        this.addColumn("type", "Type", 250, Table.Align.CENTER);
+        this.addColumn(JClassContainer.Node.NAME_PROPERTY, "Name", 140, Table.Align.LEFT);
+        this.addColumn(JClassContainer.Node.STORAGE_ID_PROPERTY, "SID", 40, Table.Align.CENTER);
+        this.addColumn(JClassContainer.Node.TYPE_PROPERTY, "Type", 250, Table.Align.CENTER);
 
         this.setColumnCollapsingAllowed(true);
-        this.setVisibleColumns("name", "storageId", "type");
+        this.setVisibleColumns(JClassContainer.Node.NAME_PROPERTY,
+          JClassContainer.Node.STORAGE_ID_PROPERTY, JClassContainer.Node.TYPE_PROPERTY);
 
         // Add actions
         this.addActionHandler(new DefaultActionHandler<JClassContainer.Node>(this.getContainer(), this));

@@ -9,6 +9,9 @@ package org.jsimpledb.gui;
 
 import java.util.List;
 
+/**
+ * Interface used to build a list of right mouse click menu options.
+ */
 public interface ActionListBuilder<T> {
 
     /**

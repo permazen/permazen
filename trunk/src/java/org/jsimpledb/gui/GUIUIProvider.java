@@ -11,6 +11,9 @@ import com.vaadin.server.UIClassSelectionEvent;
 import com.vaadin.server.UIProvider;
 import com.vaadin.ui.UI;
 
+/**
+ * {@link UIProvider} for this GUI.
+ */
 @SuppressWarnings("serial")
 public class GUIUIProvider extends UIProvider {
 

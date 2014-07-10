@@ -23,12 +23,12 @@ import com.vaadin.ui.Link;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import org.dellroad.stuff.java.ErrorAction;
 import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.jsimpledb.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Superclass of the various {@link UI}s that constitute the GUI.
@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Push
 @SuppressWarnings("serial")
 @Theme("jsdb")
-@VaadinConfigurable(ifSessionNotLocked = ErrorAction.EXCEPTION)
+@VaadinConfigurable
 public abstract class AbstractUI extends UI {
 
     private static final float UPPER_BAR_HEIGHT = 44;
@@ -47,6 +47,7 @@ public abstract class AbstractUI extends UI {
     private final VerticalLayout rootLayout = new VerticalLayout();
 
     @Autowired
+    @Qualifier("jsimpledbGuiMain")
     private Main main;
 
 // Constructor

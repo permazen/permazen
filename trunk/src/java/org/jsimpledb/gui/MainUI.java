@@ -9,6 +9,9 @@ package org.jsimpledb.gui;
 
 import com.vaadin.ui.Component;
 
+/**
+ * Main GUI {@link com.vaadin.ui.UI} component.
+ */
 @SuppressWarnings("serial")
 public class MainUI extends AbstractUI {
 

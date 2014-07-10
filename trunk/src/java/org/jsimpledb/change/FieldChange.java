@@ -48,7 +48,7 @@ public abstract class FieldChange<T> extends Change<T> {
     /**
      * Get the storage ID of the field that changed.
      *
-     * @return chagned field's storage ID
+     * @return changed field's storage ID
      */
     public int getStorageId() {
         return this.storageId;
