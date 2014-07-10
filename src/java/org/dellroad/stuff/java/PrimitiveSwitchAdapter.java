@@ -21,7 +21,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      */
     @Override
     public R caseVoid() {
-        return caseDefault();
+        return this.caseDefault();
     }
 
     /**
@@ -30,7 +30,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      */
     @Override
     public R caseBoolean() {
-        return caseDefault();
+        return this.caseDefault();
     }
 
     /**
@@ -39,7 +39,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      */
     @Override
     public R caseByte() {
-        return caseNumber();
+        return this.caseNumber();
     }
 
     /**
@@ -48,7 +48,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      */
     @Override
     public R caseCharacter() {
-        return caseDefault();
+        return this.caseDefault();
     }
 
     /**
@@ -57,7 +57,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      */
     @Override
     public R caseShort() {
-        return caseNumber();
+        return this.caseNumber();
     }
 
     /**
@@ -66,7 +66,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      */
     @Override
     public R caseInteger() {
-        return caseNumber();
+        return this.caseNumber();
     }
 
     /**
@@ -75,7 +75,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      */
     @Override
     public R caseFloat() {
-        return caseNumber();
+        return this.caseNumber();
     }
 
     /**
@@ -84,7 +84,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      */
     @Override
     public R caseLong() {
-        return caseNumber();
+        return this.caseNumber();
     }
 
     /**
@@ -93,7 +93,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      */
     @Override
     public R caseDouble() {
-        return caseNumber();
+        return this.caseNumber();
     }
 
     /**
@@ -101,7 +101,7 @@ public class PrimitiveSwitchAdapter<R> implements PrimitiveSwitch<R> {
      * The implementation in {@link PrimitiveSwitchAdapter} delegates to {@link #caseDefault}.
      */
     protected R caseNumber() {
-        return caseDefault();
+        return this.caseDefault();
     }
 
     /**
