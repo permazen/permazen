@@ -14,7 +14,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import org.jsimpledb.JSimpleDB;
@@ -22,7 +21,6 @@ import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.cli.func.Function;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.spring.ScanClassPathClassScanner;
 import org.jsimpledb.util.AbstractMain;
 
 /**
@@ -32,7 +30,6 @@ public class Main extends AbstractMain {
 
     private File schemaFile;
     private final LinkedHashSet<Class<?>> addClasses = new LinkedHashSet<>();
-    private HashSet<Class<?>> schemaClasses;
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -40,10 +37,6 @@ public class Main extends AbstractMain {
             if (params.isEmpty())
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
-        } else if (option.equals("--schema-pkg")) {
-            if (params.isEmpty())
-                this.usageError();
-            this.scanSchemaClasses(params.removeFirst());
         } else if (option.equals("--add")) {
             if (params.isEmpty())
                 this.usageError();
@@ -67,18 +60,6 @@ public class Main extends AbstractMain {
             this.addClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("failed to load class `" + className + "'", e);
-        }
-    }
-
-    private void scanSchemaClasses(String pkgname) {
-        if (this.schemaClasses == null)
-            this.schemaClasses = new HashSet<>();
-        for (String className : new ScanClassPathClassScanner().scanForClasses(pkgname.split("[\\s,]"))) {
-            try {
-                schemaClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("failed to load class `" + className + "'", e);
-            }
         }
     }
 
@@ -202,7 +183,6 @@ public class Main extends AbstractMain {
           { "--add class",          "Add specified @CliCommand- or @CliFunction-annotated Java class" },
           { "--addpkg package",     "Scan for @CliCommand and @CliFunction classes under Java package" },
           { "--schema-file file",   "Load core database schema from XML file" },
-          { "--schema-pkg package", "Scan for @JSimpleClass classes under Java package to build schema" },
         });
     }
 
