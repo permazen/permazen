@@ -12,12 +12,14 @@ import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 
 import org.dellroad.stuff.main.MainClass;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
+import org.jsimpledb.spring.ScanClassPathClassScanner;
 
 /**
  * CLI main entry point.
@@ -33,6 +35,7 @@ public abstract class AbstractMain extends MainClass {
     protected File xmlFile;
     protected byte[] keyPrefix;
     protected int schemaVersion;
+    protected HashSet<Class<?>> schemaClasses;
     protected boolean newSchema;
     protected boolean verbose;
     protected boolean readOnly;
@@ -66,6 +69,10 @@ public abstract class AbstractMain extends MainClass {
                     System.err.println(this.getName() + ": invalid schema version `" + vstring + "': " + e.getMessage());
                     this.usageError();
                 }
+            } else if (option.equals("--schema-pkg")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.scanSchemaClasses(params.removeFirst());
             } else if (option.equals("--new-schema"))
                 this.newSchema = true;
             else if (option.equals("--mem"))
@@ -114,6 +121,18 @@ public abstract class AbstractMain extends MainClass {
         return false;
     }
 
+    private void scanSchemaClasses(String pkgname) {
+        if (this.schemaClasses == null)
+            this.schemaClasses = new HashSet<>();
+        for (String className : new ScanClassPathClassScanner().scanForClasses(pkgname.split("[\\s,]"))) {
+            try {
+                schemaClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("failed to load class `" + className + "'", e);
+            }
+        }
+    }
+
     protected void startupKVDatabase() {
         if (this.kvdb != null)
             this.shutdownKVDatabase();
@@ -158,15 +177,16 @@ public abstract class AbstractMain extends MainClass {
      */
     protected void outputFlags(String[][] subclassOpts) {
         final String[][] baseOpts = new String[][] {
-            { "--fdb file",         "Use FoundationDB with specified cluster file" },
-            { "--mem",              "Use an empty in-memory database (default)" },
-            { "--prefix prefix",    "FoundationDB key prefix (hex or string)" },
-            { "--read-only",        "Disallow database modifications" },
-            { "--new-schema",       "Allow recording of a new database schema version" },
-            { "--xml file",         "Use the specified XML flat file database" },
-            { "--version num",      "Specify database schema version (default highest recorded)" },
-            { "--help, -h",         "Show this help message" },
-            { "--verbose, -v",      "Show verbose error messages" },
+            { "--fdb file",             "Use FoundationDB with specified cluster file" },
+            { "--mem",                  "Use an empty in-memory database (default)" },
+            { "--prefix prefix",        "FoundationDB key prefix (hex or string)" },
+            { "--read-only",            "Disallow database modifications" },
+            { "--new-schema",           "Allow recording of a new database schema version" },
+            { "--xml file",             "Use the specified XML flat file database" },
+            { "--version num",          "Specify database schema version (default highest recorded)" },
+            { "--schema-pkg package",   "Scan for @JSimpleClass classes under Java package to build schema" },
+            { "--help, -h",             "Show this help message" },
+            { "--verbose, -v",          "Show verbose error messages" },
         };
         final String[][] combinedOpts = new String[baseOpts.length + subclassOpts.length][];
         System.arraycopy(baseOpts, 0, combinedOpts, 0, baseOpts.length);
