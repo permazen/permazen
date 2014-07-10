@@ -76,7 +76,7 @@ public class NewCastExprParser implements Parser<Node> {
           + "(\\s*\\.\\s*" + IdentNode.NAME_PATTERN + ")*)\\s*\\)\\s*");
         if (castMatcher != null) {
             final String className = castMatcher.group(1).replaceAll("\\s", "");
-            final Node target = UnaryExprParser.INSTANCE.parse(session, ctx, complete);
+            final Node target = this.parse(session, ctx, complete);             // associates right-to-left
             ctx.skipWhitespace();
             return new Node() {
                 @Override
