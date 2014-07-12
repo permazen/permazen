@@ -25,12 +25,12 @@
         <dependency force="true" org="com.mysql" name="mysql-connector-java" rev="5.1+" conf="javac,test-&gt;default"/>
         <dependency force="true" org="com.tonicsystems" name="jarjar" rev="1.4" conf="build->default"/>
         <dependency force="true" org="com.foundationdb" name="fdb-java" rev="2.+" conf="base,test->default"/>
-        <dependency force="true" org="com.vaadin" name="vaadin" rev="7.1+" conf="javac,gui,aspects->default"/>
-        <dependency force="true" org="javax.servlet" name="servletapi" rev="3.0" conf="javac,aspects->default"/>
+        <dependency force="true" org="com.vaadin" name="vaadin" rev="7.1+" conf="javac,gui,cli,aspects->default"/>
+        <dependency force="true" org="javax.servlet" name="servletapi" rev="3.1.0" conf="javac,gui,aspects->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="base->default"/>
         <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1+" conf="javac,gui,cli->default"/>
         <dependency force="true" org="org.aspectj" name="aspectj" rev="1.7.2" conf="weaver->tools;base->default"/>
-        <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.882" conf="javac,gui->default; weaver->aspects; jarjars->default"/>
+        <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.882" conf="base->core; weaver->aspects"/>
         <dependency force="true" org="org.eclipse" name="jetty" rev="9.2.0.v20140526" conf="javac,gui->webapp,annotations"/>
         <dependency force="true" org="org.objectweb.asm" name="asm" rev="4.+" conf="javac,gui,build->default; jarjars->core,util"/>
         <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7.2" conf="base->default;test,gui,cli->log4j"/>

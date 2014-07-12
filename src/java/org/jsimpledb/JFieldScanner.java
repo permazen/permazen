@@ -10,6 +10,7 @@ package org.jsimpledb;
 import java.lang.reflect.Method;
 
 import org.jsimpledb.annotation.JField;
+import org.jsimpledb.util.AnnotationScanner;
 
 /**
  * Scans for {@link JField &#64;JField} annotations.

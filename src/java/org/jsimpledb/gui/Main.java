@@ -23,7 +23,9 @@ import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
-import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.ValidationMode;
+import org.jsimpledb.core.Database;
 import org.jsimpledb.util.AbstractMain;
 
 /**
@@ -35,6 +37,7 @@ public class Main extends AbstractMain {
 
     private static Main instance;
 
+    private JSimpleDB jdb;
     private Server server;
     private int port = DEFAULT_HTTP_PORT;
     private URI root;
@@ -67,10 +70,14 @@ public class Main extends AbstractMain {
             return result;
         switch (params.size()) {
         case 0:
+            break;
+        default:
             this.usageError();
             return 1;
-        default:
-            break;
+        }
+        if (this.schemaClasses == null) {
+            System.err.println(this.getName() + ": no schema classes defined; please specify using `--schema-pkg'");
+            return 1;
         }
 
         // Try to infer root directory from classpath
@@ -91,49 +98,49 @@ public class Main extends AbstractMain {
         }
         this.log.debug("using root directory " + this.root);
 
-        // Set up model class packages
-        final StringBuilder buf = new StringBuilder();
-        for (String packageName : params) {
-            if (buf.length() > 0)
-                buf.append(' ');
-            buf.append(packageName);
-        }
-        System.setProperty("jsimpledb.gui.packages", buf.toString());
-
-        // Start up KV database
+        // Set up database
         this.startupKVDatabase();
+        try {
 
-        // Create web server with Spring application context
-        this.server = new Server(this.port);
-        final WebAppContext context = new WebAppContext();
-        context.setBaseResource(Resource.newResource(this.root));
-        context.setConfigurations(new Configuration[] {
-                            new AnnotationConfiguration(),
-                            new WebXmlConfiguration(),
-                            new WebInfConfiguration(),
-                            new PlusConfiguration(),
-                            new MetaInfConfiguration(),
-                            new FragmentConfiguration(),
-                            new EnvConfiguration() });
-        context.setContextPath("/");
-        context.setParentLoaderPriority(true);
-        this.server.setHandler(context);
+            // Create JSimpleDB instance
+            this.jdb = new JSimpleDB(new Database(this.kvdb), this.schemaVersion, this.schemaClasses);
 
-        // Start server
-        this.server.start();
+            // Verify schema
+            this.verifySchema();
 
-        // Wait for server to stop
-        this.server.join();
+            // Create web server with Spring application context
+            this.server = new Server(this.port);
+            final WebAppContext context = new WebAppContext();
+            context.setBaseResource(Resource.newResource(this.root));
+            context.setConfigurations(new Configuration[] {
+                                new AnnotationConfiguration(),
+                                new WebXmlConfiguration(),
+                                new WebInfConfiguration(),
+                                new PlusConfiguration(),
+                                new MetaInfConfiguration(),
+                                new FragmentConfiguration(),
+                                new EnvConfiguration() });
+            context.setContextPath("/");
+            context.setParentLoaderPriority(true);
+            this.server.setHandler(context);
 
-        // Shut down KV database
-        this.shutdownKVDatabase();
+            // Start server
+            this.server.start();
 
-        // Done
-        return 0;
+            // Wait for server to stop
+            this.server.join();
+
+            // Done
+            return 0;
+        } finally {
+
+            // Shut down KV database
+            this.shutdownKVDatabase();
+        }
     }
 
-    public KVDatabase getKVDatabase() {
-        return this.kvdb;
+    public JSimpleDB getJSimpleDB() {
+        return this.jdb;
     }
 
     public boolean isAllowNewSchema() {
@@ -144,6 +151,10 @@ public class Main extends AbstractMain {
         return this.schemaVersion;
     }
 
+    private void verifySchema() {
+        this.jdb.createTransaction(this.newSchema, ValidationMode.AUTOMATIC).rollback();
+    }
+
     @Override
     protected String getName() {
         return "jsimpledb-gui";
@@ -152,7 +163,7 @@ public class Main extends AbstractMain {
     @Override
     protected void usageMessage() {
         System.err.println("Usage:");
-        System.err.println("  " + this.getName() + " [options] java.package ...");
+        System.err.println("  " + this.getName() + " --schema-pkg package [options]");
         System.err.println("Options:");
         this.outputFlags(new String[][] {
           { "--port port",      "Specify HTTP port (default " + DEFAULT_HTTP_PORT + ")" },

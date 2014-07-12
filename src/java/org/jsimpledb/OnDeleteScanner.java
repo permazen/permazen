@@ -10,6 +10,7 @@ package org.jsimpledb;
 import java.lang.reflect.Method;
 
 import org.jsimpledb.annotation.OnDelete;
+import org.jsimpledb.util.AnnotationScanner;
 
 /**
  * Scans for {@link OnDelete &#64;OnDelete} annotations.

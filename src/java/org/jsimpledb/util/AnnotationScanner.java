@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.jsimpledb;
+package org.jsimpledb.util;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -19,29 +19,52 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.dellroad.stuff.java.MethodAnnotationScanner;
+import org.jsimpledb.JClass;
 
 /**
- * Support superclass for annotation scanners.
+ * Support superclass for Java model class annotation scanners.
  */
-class AnnotationScanner<T, A extends Annotation> extends MethodAnnotationScanner<T, A> {
+public class AnnotationScanner<T, A extends Annotation> extends MethodAnnotationScanner<T, A> {
 
-    final JClass<T> jclass;
+    /**
+     * The associated Java model class.
+     */
+    protected final JClass<T> jclass;
 
+    /**
+     * Constructor.
+     *
+     * @param jclass Java model class
+     * @param annotationType annotation to scan for
+     */
     @SuppressWarnings("unchecked")
-    AnnotationScanner(JClass<T> jclass, Class<A> annotationType) {
-        super((Class<T>)jclass.typeToken.getRawType(), annotationType);
+    public AnnotationScanner(JClass<T> jclass, Class<A> annotationType) {
+        super((Class<T>)jclass.getTypeToken().getRawType(), annotationType);
         this.jclass = jclass;
     }
 
+    /**
+     * Get a simple description of the annotation being scanned for.
+     */
     public String getAnnotationDescription() {
         return "@" + this.annotationType.getSimpleName();
     }
 
+    /**
+     * Verify method is not static.
+     *
+     * @throws IllegalArgumentException if method is static
+     */
     protected void checkNotStatic(Method method) {
         if ((method.getModifiers() & Modifier.STATIC) != 0)
             throw new IllegalArgumentException(this.getErrorPrefix(method) + "annotation is not supported on static methods");
     }
 
+    /**
+     * Verify method return type.
+     *
+     * @throws IllegalArgumentException if has an invalid return type
+     */
     protected void checkReturnType(Method method, List<TypeToken<?>> expecteds) {
         final TypeToken<?> actual = TypeToken.of(method.getGenericReturnType());
         for (TypeToken<?> expected : expecteds) {
@@ -52,6 +75,11 @@ class AnnotationScanner<T, A extends Annotation> extends MethodAnnotationScanner
           + (expecteds.size() != 1 ? "one of " + expecteds : expecteds.get(0)));
     }
 
+    /**
+     * Verify method return type.
+     *
+     * @throws IllegalArgumentException if has an invalid return type
+     */
     protected void checkReturnType(Method method, Class<?>... expecteds) {
         final Class<?> actual = method.getReturnType();
         for (Class<?> expected : expecteds) {
@@ -62,6 +90,11 @@ class AnnotationScanner<T, A extends Annotation> extends MethodAnnotationScanner
           + (expecteds.length != 1 ? "one of " + Arrays.asList(expecteds) : expecteds[0]));
     }
 
+    /**
+     * Verify method parameter type(s).
+     *
+     * @throws IllegalArgumentException if has an invalid parameter type(s)
+     */
     protected void checkParameterTypes(Method method, List<TypeToken<?>> expected) {
         final List<TypeToken<?>> actual = this.getParameterTypeTokens(method);
         if (!actual.equals(expected)) {
@@ -70,10 +103,20 @@ class AnnotationScanner<T, A extends Annotation> extends MethodAnnotationScanner
         }
     }
 
+    /**
+     * Verify method parameter type(s).
+     *
+     * @throws IllegalArgumentException if has an invalid parameter type(s)
+     */
     protected void checkParameterTypes(Method method, TypeToken<?>... expected) {
         this.checkParameterTypes(method, Arrays.asList(expected));
     }
 
+    /**
+     * Verify method takes a single parameter of the specified type.
+     *
+     * @throws IllegalArgumentException if parameter type does not match
+     */
     protected void checkSingleParameterType(Method method, List<TypeToken<?>> choices) {
         final List<TypeToken<?>> actuals = this.getParameterTypeTokens(method);
         if (actuals.size() != 1 || !choices.contains(actuals.get(0))) {
@@ -82,6 +125,9 @@ class AnnotationScanner<T, A extends Annotation> extends MethodAnnotationScanner
         }
     }
 
+    /**
+     * Get method parameter types as {@link TypeToken}s.
+     */
     protected List<TypeToken<?>> getParameterTypeTokens(Method method) {
         return Lists.transform(Arrays.asList(method.getGenericParameterTypes()), new Function<Type, TypeToken<?>>() {
             @Override
@@ -91,8 +137,11 @@ class AnnotationScanner<T, A extends Annotation> extends MethodAnnotationScanner
         });
     }
 
+    /**
+     * Get "invalid annotation" error message prefix that describes the annotation on the specified method.
+     */
     protected String getErrorPrefix(Method method) {
-        return "invalid @" + this.annotationType.getSimpleName() + " annotation on method " + method + ": ";
+        return "invalid @" + this.getAnnotationDescription() + " annotation on method " + method + ": ";
     }
 }
 

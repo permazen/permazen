@@ -28,6 +28,13 @@ public abstract class JCollectionField extends JComplexField {
         this.elementField = elementField;
     }
 
+    /**
+     * Get the element sub-field.
+     */
+    public JSimpleField getElementField() {
+        return this.elementField;
+    }
+
     @Override
     public List<JSimpleField> getSubFields() {
         return Collections.<JSimpleField>singletonList(this.elementField);

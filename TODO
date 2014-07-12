@@ -2,6 +2,9 @@
 - CLI
     - Aggregate functions: min(), max(), avg(), sum()
 
+- New type-level annotation @CopyReferences which specified a default set of
+  reference paths to use with copyIn(), copyOut(), and copyTo().
+
 - Add Vaadin GUI editor generator
 
 - Bug: if same simple field storage ID used in two different Java classes,

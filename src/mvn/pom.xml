@@ -50,6 +50,11 @@
       <artifactId>slf4j-api</artifactId>
       <version>1.7.7</version>
     </dependency>
+    <dependency>
+      <groupId>org.dellroad</groupId>
+      <artifactId>dellroad-stuff</artifactId>
+      <version>@DRSTUFF_VERSION@</version>
+    </dependency>
   </dependencies>
   <parent>
     <groupId>org.sonatype.oss</groupId>

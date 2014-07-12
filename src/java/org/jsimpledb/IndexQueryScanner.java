@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import org.jsimpledb.annotation.IndexQuery;
+import org.jsimpledb.util.AnnotationScanner;
 
 /**
  * Scans for {@link IndexQuery &#64;IndexQuery} annotations.

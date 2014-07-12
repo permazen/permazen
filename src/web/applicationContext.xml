@@ -31,29 +31,18 @@
     <context:property-placeholder/>
 
     <!-- Define an event multicaster for the application-wide ApplicationContext -->
-    <bean id="vcomEventMulticaster" class="org.springframework.context.event.SimpleApplicationEventMulticaster"/>
+    <bean id="jsimpledbGuiEventMulticaster" class="org.springframework.context.event.SimpleApplicationEventMulticaster"/>
 
-    <!-- Define database -->
-    <bean id="main" class="org.jsimpledb.gui.Main" factory-method="getInstance"/>
+    <!-- Expose the command line Main object so we can access its properties -->
+    <bean id="jsimpledbGuiMain" class="org.jsimpledb.gui.Main" factory-method="getInstance"/>
 
-    <bean id="database" class="org.jsimpledb.core.Database">
-        <constructor-arg name="kvdb">
-            <bean factory-bean="main" factory-method="getKVDatabase"/>
-        </constructor-arg>
-    </bean>
+    <!-- Get JSimpleDB database from Main object -->
+    <bean id="jsimpledbGuiJSimpleDB" factory-bean="jsimpledbGuiMain" factory-method="getJSimpleDB"/>
 
-    <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database">
-        <constructor-arg name="version">
-            <bean factory-bean="main" factory-method="getSchemaVersion"/>
-        </constructor-arg>
-        <constructor-arg name="classes">
-            <jsimpledb:scan-classpath base-package="${jsimpledb.gui.packages}"/>
-        </constructor-arg>
-    </bean>
-
-    <bean id="jsimpledbGuiTransactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager" p:JSimpleDB-ref="jsimpledb">
+    <!-- Define TransactionManager -->
+    <bean id="jsimpledbGuiTransactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager" p:JSimpleDB-ref="jsimpledbGuiJSimpleDB">
         <property name="allowNewSchema">
-            <bean factory-bean="main" factory-method="isAllowNewSchema"/>
+            <bean factory-bean="jsimpledbGuiMain" factory-method="isAllowNewSchema"/>
         </property>
     </bean>
 

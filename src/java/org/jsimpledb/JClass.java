@@ -27,6 +27,7 @@ import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaObject;
+import org.jsimpledb.util.AnnotationScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

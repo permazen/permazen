@@ -103,7 +103,7 @@ public abstract class AbstractUI extends UI {
         layout.addComponent(titleLabel);
         layout.setExpandRatio(titleLabel, 1.0f);
         layout.setComponentAlignment(titleLabel, Alignment.BOTTOM_CENTER);
-        final Label versionLabel = new SizedLabel("Schema Version " + this.main.getSchemaVersion());
+        final Label versionLabel = new SizedLabel(this.main.getDatabaseDescription());
         layout.addComponent(versionLabel);
         layout.setComponentAlignment(versionLabel, Alignment.BOTTOM_RIGHT);
         return layout;

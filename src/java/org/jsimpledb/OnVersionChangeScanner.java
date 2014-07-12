@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Map;
 
 import org.jsimpledb.annotation.OnVersionChange;
+import org.jsimpledb.util.AnnotationScanner;
 
 /**
  * Scans for {@link OnVersionChange &#64;OnVersionChange} annotations.

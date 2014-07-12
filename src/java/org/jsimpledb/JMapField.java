@@ -50,6 +50,20 @@ public class JMapField extends JComplexField {
         this.valueField = valueField;
     }
 
+    /**
+     * Get the key sub-field.
+     */
+    public JSimpleField getKeyField() {
+        return this.keyField;
+    }
+
+    /**
+     * Get the value sub-field.
+     */
+    public JSimpleField getValueField() {
+        return this.valueField;
+    }
+
     @Override
     public List<JSimpleField> getSubFields() {
         return Arrays.asList(this.keyField, this.valueField);

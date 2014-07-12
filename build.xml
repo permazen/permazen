@@ -148,19 +148,19 @@
         <dellroad:ivyput pattern="build/[artifact].[ext]" conf="jarjars"/>
         <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="build.classpath"/>
         <mkdir dir="build/dist"/>
-        <delete file="build/dist/${ant.project.name}-${library.version}.jar"/>
 
         <!-- Core JAR -->
+        <delete file="build/dist/${ant.project.name}-${library.version}.jar"/>
         <jarjar destfile="build/dist/${ant.project.name}-core-${library.version}.jar">
+
+            <!-- Fold in ASM classes -->
             <zipfileset src="build/asm.jar"/>
         <!-- for ClassGenerator debug
             <zipfileset src="build/asm-util.jar"/>
         -->
-            <zipfileset src="build/dellroad-stuff.jar">
-                <include name="**/*.class"/>
-            </zipfileset>
             <rule pattern="org.objectweb.asm.**" result="org.jsimpledb.asm.@1"/>
-            <rule pattern="org.dellroad.stuff.**" result="org.jsimpledb.drstuff.@1"/>
+
+            <!-- JSimpleDB core classes -->
             <fileset dir="build/classes">
                 <exclude name="org/jsimpledb/cli/**/*"/>
                 <exclude name="org/jsimpledb/gui/**/*"/>
@@ -179,8 +179,10 @@
         </jarjar>
 
         <!-- CLI JAR -->
-        <jarjar destfile="build/dist/${ant.project.name}-cli-${library.version}.jar">
-            <rule pattern="org.dellroad.stuff.**" result="org.jsimpledb.drstuff.@1"/>
+        <delete file="build/dist/${ant.project.name}-cli-${library.version}.jar"/>
+        <jar destfile="build/dist/${ant.project.name}-cli-${library.version}.jar">
+
+            <!-- JSimpleDB CLI classes -->
             <fileset dir="build/classes">
                 <include name="org/jsimpledb/cli/**/*"/>
             </fileset>
@@ -191,8 +193,7 @@
                 <attribute name="Implementation-Version" value="${library.version}"/>
                 <attribute name="SCM-Revision" value="${svn.revision}"/>
             </manifest>
-            <keep pattern="org.jsimpledb.**"/>
-        </jarjar>
+        </jar>
 
         <!-- GUI JAR -->
         <delete dir="build/guijar"/>
@@ -204,7 +205,10 @@
         <copy todir="build/guijar/VAADIN/themes/${custom.theme.name}">
             <fileset dir="src/theme"/>
         </copy>
+        <delete file="build/dist/${ant.project.name}-gui-${library.version}.jar"/>
         <jar destfile="build/dist/${ant.project.name}-gui-${library.version}.jar">
+
+            <!-- JSimpleDB GUI classes -->
             <fileset dir="build/classes">
                 <include name="org/jsimpledb/gui/**/*"/>
             </fileset>
@@ -220,7 +224,10 @@
         <delete dir="build/guijar"/>
 
         <!-- Spring JAR -->
+        <delete file="build/dist/${ant.project.name}-spring-${library.version}.jar"/>
         <jar destfile="build/dist/${ant.project.name}-spring-${library.version}.jar">
+
+            <!-- JSimpleDB Spring classes -->
             <fileset dir="build/classes">
                 <include name="org/jsimpledb/spring/**/*"/>
             </fileset>
@@ -361,6 +368,13 @@
         <attribute name="id" description="Repository ID"/>
         <sequential>
 
+            <!-- Get dellroad-stuff version -->
+            <exec executable="sed" logError="true" failonerror="false" outputproperty="dellroad.stuff.version">
+                <arg value="-n"/>
+                <arg value="s/^.*&lt;dependency.*name=&quot;dellroad-stuff&quot;.*rev=&quot;\([0-9.]*\)&quot;.*$$/\1/gp"/>
+                <arg value="${basedir}/src/ivy/ivy.xml"/>
+            </exec>
+
             <!-- Generate pom.xml -->
             <copy todir="build">
                 <fileset dir="src/mvn" includes="pom.xml"/>
@@ -368,6 +382,7 @@
                     <filter token="VERSION" value="${library.version}"/>
                     <filter token="GROUP_ID" value="${maven.group.id}"/>
                     <filter token="ARTIFACT_ID" value="${ant.project.name}"/>
+                    <filter token="DRSTUFF_VERSION" value="${dellroad.stuff.version}"/>
                 </filterset>
             </copy>
 
