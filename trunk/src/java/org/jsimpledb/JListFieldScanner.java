@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.jsimpledb.annotation.JListField;
+import org.jsimpledb.util.AnnotationScanner;
 
 /**
  * Scans for {@link JListField &#64;JListField} annotations.

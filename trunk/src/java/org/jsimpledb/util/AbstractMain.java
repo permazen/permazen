@@ -41,6 +41,7 @@ public abstract class AbstractMain extends MainClass {
     protected boolean readOnly;
 
     protected KVDatabase kvdb;
+    protected String databaseDescription;
 
     /**
      * Parse command line options.
@@ -133,12 +134,17 @@ public abstract class AbstractMain extends MainClass {
         }
     }
 
+    public String getDatabaseDescription() {
+        return this.databaseDescription;
+    }
+
     protected void startupKVDatabase() {
         if (this.kvdb != null)
             this.shutdownKVDatabase();
         switch (this.kvType) {
         case KV_MEM:
             this.kvdb = new SimpleKVDatabase();
+            this.databaseDescription = "In-Memory Database";
             break;
         case KV_FDB:
         {
@@ -147,10 +153,14 @@ public abstract class AbstractMain extends MainClass {
             fdb.setKeyPrefix(this.keyPrefix);
             fdb.start();
             this.kvdb = fdb;
+            this.databaseDescription = "FoundationDB";
+            if (this.keyPrefix != null)
+                this.databaseDescription += " [0x" + ByteUtil.toString(this.keyPrefix) + "]";
             break;
         }
         case KV_XML:
             this.kvdb = new XMLKVDatabase(this.xmlFile);
+            this.databaseDescription = this.xmlFile.getName();
             break;
         default:
             throw new RuntimeException("internal error");

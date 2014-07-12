@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import org.jsimpledb.annotation.JSetField;
+import org.jsimpledb.util.AnnotationScanner;
 
 /**
  * Scans for {@link JSetField &#64;JSetField} annotations.

@@ -13,6 +13,7 @@ import java.util.NavigableMap;
 import java.util.SortedMap;
 
 import org.jsimpledb.annotation.JMapField;
+import org.jsimpledb.util.AnnotationScanner;
 
 /**
  * Scans for {@link JMapField &#64;JMapField} annotations.

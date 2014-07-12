@@ -7,107 +7,78 @@
 
 package org.jsimpledb.gui;
 
-import com.vaadin.ui.Notification;
+import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Table;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jsimpledb.JClass;
-import org.jsimpledb.JObject;
-import org.jsimpledb.JTransaction;
 
+/**
+ * Table showing all objects of a certain type, backed by an {@link ObjectContainer}.
+ */
 @SuppressWarnings("serial")
-public class ObjectTable extends Table implements ActionListBuilder<JObject> {
+public class ObjectTable extends AbstractTable<ObjectContainer> {
 
-    private final MainPanel mainPanel;
+    private final Class<?> type;
     private final JClass<?> jclass;
 
-    private final ArrayList<String> columnIds = new ArrayList<>();
+    public ObjectTable(Class<?> type) {
+        this(type, null);
+    }
 
-    public ObjectTable(MainPanel mainPanel, JClass<?> jclass) {
-        super(jclass.getName(), new ObjectContainer(jclass));
-        this.mainPanel = mainPanel;
+    public ObjectTable(JClass<?> jclass) {
+        this(null, jclass);
+    }
+
+    private ObjectTable(Class<?> type, JClass<?> jclass) {
+        this.type = type;
         this.jclass = jclass;
-
-        this.setSelectable(false);
-        this.setImmediate(false);
+        this.setSelectable(true);
+        this.setImmediate(true);
         this.setSizeFull();
+    }
 
-        this.addColumn(ObjectContainer.OBJ_ID_PROPERTY, "ID", 120, Table.Align.CENTER);
-        this.addColumn(ObjectContainer.TYPE_PROPERTY, "Type", 80, Table.Align.CENTER);
-        this.addColumn(ObjectContainer.VERSION_PROPERTY, "Version", 50, Table.Align.CENTER);
-        for (String fieldName : this.getContainer().getJClass().getJFieldsByName().keySet()) {
-            this.addColumn(fieldName, fieldName, 120, Table.Align.CENTER);
-            this.setColumnExpandRatio(fieldName, 1.0f);
+    @Override
+    protected ObjectContainer buildContainer() {
+        return this.jclass != null ? new ObjectContainer(this.jclass) : new ObjectContainer(this.type);
+    }
+
+    @Override
+    protected void configureColumns() {
+
+        // Add columns
+        for (String fieldName : this.getContainer().getOrderedPropertyNames()) {
+            String title = DefaultFieldFactory.createCaptionByPropertyId(fieldName);
+            Table.Align align = Table.Align.CENTER;
+            int width = 120;
+            switch (fieldName) {
+            case ObjectContainer.REFERENCE_LABEL_PROPERTY:
+                title = "Object";
+                width = 120;
+                break;
+            case ObjectContainer.OBJ_ID_PROPERTY:
+                title = "ID";
+                width = 120;
+                break;
+            case ObjectContainer.TYPE_PROPERTY:
+                title = "Type";
+                width = 80;
+                break;
+            case ObjectContainer.VERSION_PROPERTY:
+                title = "Ver";
+                width = 30;
+                break;
+            default:
+                break;
+            }
+            this.addColumn(fieldName, title, width, align);
+            this.setColumnExpandRatio(fieldName, 120.0f / width);
         }
 
+        // Adjust columns
         this.setColumnCollapsingAllowed(true);
         this.setColumnCollapsed(ObjectContainer.VERSION_PROPERTY, true);
-
-        this.setVisibleColumns(this.columnIds.toArray());
-
-        // Add actions
-        this.addActionHandler(new DefaultActionHandler<JObject>(this.getContainer(), this));
-    }
-
-    protected void addColumn(String property, String name, int width, Table.Align alignment) {
-        this.setColumnHeader(property, name);
-        this.setColumnWidth(property, width);
-        if (alignment != null)
-            this.setColumnAlignment(property, alignment);
-        this.columnIds.add(property);
-    }
-
-    protected ObjectContainer getContainer() {
-        return (ObjectContainer)this.getContainerDataSource();
-    }
-
-// ActionListBuilder
-
-    @Override
-    public List<? extends Action> buildActionList(JObject target) {
-        if (target == null)
-            return null;
-        final ArrayList<Action> list = new ArrayList<>();
-        list.add(new DeleteAction(target));
-        return list;
-    }
-
-// Vaadin lifecycle
-
-    @Override
-    public void attach() {
-        super.attach();
-        this.getContainer().connect();
-    }
-
-    @Override
-    public void detach() {
-        this.getContainer().disconnect();
-        super.detach();
-    }
-
-// Actions
-
-    private class DeleteAction extends Action {
-
-        final JObject jobj;
-
-        DeleteAction(JObject jobj) {
-            super("Delete", true);
-            this.jobj = jobj;
-        }
-
-        @Override
-        protected void performAction() {
-            final JObject actual = JTransaction.getCurrent().getJObject(this.jobj.getObjId());
-            final boolean deleted = actual.delete();
-            if (!deleted)
-                Notification.show("Object does not exist", "Apparently it was already deleted.", Notification.Type.WARNING_MESSAGE);
-            else
-                Notification.show("Object " + this.jobj.getObjId() + " deleted.");
-        }
+        if (!this.getContainer().hasReferenceLabel())
+            this.setColumnCollapsed(ObjectContainer.REFERENCE_LABEL_PROPERTY, true);
     }
 }
 

@@ -40,6 +40,7 @@ import org.jsimpledb.core.ReferenceField;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.util.AnnotationScanner;
 
 /**
  * Scans for {@link OnChange &#64;OnChange} annotations.
