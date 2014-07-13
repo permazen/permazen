@@ -2,6 +2,10 @@
 - CLI
     - Aggregate functions: min(), max(), avg(), sum()
 
+- Composite indexes on multiple fields?
+    - @CompositeIndex(storageId = 123, fields = { 15, 16 })
+    - public NavigableSet<?> queryIndex(int... storageId)
+
 - New type-level annotation @CopyReferences which specified a default set of
   reference paths to use with copyIn(), copyOut(), and copyTo().
 
