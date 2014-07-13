@@ -7,14 +7,13 @@
 
 package org.jsimpledb.cli.cmd;
 
-import com.google.common.collect.Iterators;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -27,6 +26,7 @@ import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.ParseException;
 import org.jsimpledb.cli.parse.Parser;
 import org.jsimpledb.cli.parse.expr.Node;
+import org.jsimpledb.cli.parse.expr.Value;
 import org.jsimpledb.cli.util.CastFunction;
 import org.jsimpledb.cli.util.StripPrefixFunction;
 import org.jsimpledb.core.ObjId;
@@ -72,11 +72,11 @@ public class DumpCommand extends Command {
         return new Action() {
             @Override
             public void run(Session session) throws Exception {
-                final Object value = expr.evaluate(session);
-                final Iterator<?> i = value instanceof Iterator ?
-                  (Iterator<?>)value : value instanceof Iterable ? ((Iterable<?>)value).iterator() : null;
-                if (i == null)
-                    throw new IllegalArgumentException("value of expression is neither an Iterator nor an Iterable");
+                final Value value = expr.evaluate(session);
+                final Object obj = value.checkNotNull(session, "dump");
+                final Iterable<?> i = obj instanceof Iterable ? ((Iterable<?>)obj) : null;
+                if (obj == null)
+                    throw new IllegalArgumentException("value of expression is not an Iterable");
                 final AtomicUpdateFileOutputStream updateOutput = new AtomicUpdateFileOutputStream(file);
                 final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
                 boolean success = false;
@@ -86,7 +86,7 @@ public class DumpCommand extends Command {
                       XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8"));
                     writer.writeStartDocument("UTF-8", "1.0");
                     count = new XMLObjectSerializer(session.getTransaction()).write(writer, nameFormat,
-                      Iterators.transform(i, new CastFunction<ObjId>(ObjId.class)));
+                      Iterables.transform(i, new CastFunction<ObjId>(ObjId.class)));
                     success = true;
                 } finally {
                     if (success) {

@@ -7,7 +7,7 @@
 
 package org.jsimpledb.util;
 
-import com.google.common.collect.Iterators;
+import com.google.common.collect.Iterables;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -451,12 +451,12 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             storageIds.addAll(schemaVersion.getSchemaModel().getSchemaObjects().keySet());
 
         // Get corresponding iterators
-        final ArrayList<Iterator<ObjId>> iterators = new ArrayList<>(storageIds.size());
+        final ArrayList<NavigableSet<ObjId>> sets = new ArrayList<>(storageIds.size());
         for (int storageId : storageIds)
-            iterators.add(this.tx.getAll(storageId).iterator());
+            sets.add(this.tx.getAll(storageId));
 
         // Output all objects
-        return this.write(writer, nameFormat, Iterators.concat(iterators.iterator()));
+        return this.write(writer, nameFormat, Iterables.concat(sets));
     }
 
     /**
@@ -470,21 +470,20 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      *
      * @param writer XML writer; will not be closed by this method
      * @param nameFormat true for Name Format, false for Storage ID Format
-     * @param iterator iterator of object IDs
+     * @param objIds object IDs
      * @return the number of objects written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code writer} is null
      */
-    public int write(XMLStreamWriter writer, boolean nameFormat, Iterator<? extends ObjId> iterator) throws XMLStreamException {
+    public int write(XMLStreamWriter writer, boolean nameFormat, Iterable<? extends ObjId> objIds) throws XMLStreamException {
         if (writer == null)
             throw new IllegalArgumentException("null writer");
-        if (iterator == null)
-            throw new IllegalArgumentException("null iterator");
+        if (objIds == null)
+            throw new IllegalArgumentException("null objIds");
         writer.setDefaultNamespace(OBJECTS_TAG.getNamespaceURI());
         writer.writeStartElement(OBJECTS_TAG.getNamespaceURI(), OBJECTS_TAG.getLocalPart());
-        int count;
-        for (count = 0; iterator.hasNext(); count++) {
-            final ObjId id = iterator.next();
+        int count = 0;
+        for (ObjId id : objIds) {
 
             // Get object info
             final int typeStorageId = id.getStorageId();
@@ -562,6 +561,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 this.writeOpenTag(writer, true, objectElement, storageIdAttr, id, version);
             else
                 writer.writeEndElement();
+            count++;
         }
 
         // Done
