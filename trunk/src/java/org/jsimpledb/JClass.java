@@ -24,7 +24,10 @@ import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.core.FieldType;
+import org.jsimpledb.core.ListField;
+import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.SetField;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaObject;
 import org.jsimpledb.util.AnnotationScanner;
@@ -241,8 +244,8 @@ public class JClass<T> extends JSchemaObject {
 
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
-              elementType, null, elementAnnotation.type(), elementAnnotation.storageId(), elementAnnotation.indexed(),
-              elementAnnotation.onDelete(), null, null,
+              elementType, SetField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementAnnotation.storageId(),
+              elementAnnotation.indexed(), elementAnnotation.onDelete(), null, null,
               "element field of set field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create set field
@@ -274,8 +277,8 @@ public class JClass<T> extends JSchemaObject {
 
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
-              elementType, null, elementAnnotation.type(), elementAnnotation.storageId(), elementAnnotation.indexed(),
-              elementAnnotation.onDelete(), null, null,
+              elementType, ListField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementAnnotation.storageId(),
+              elementAnnotation.indexed(), elementAnnotation.onDelete(), null, null,
               "element field of list field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create list field
@@ -309,11 +312,11 @@ public class JClass<T> extends JSchemaObject {
 
             // Create key and value sub-fields
             final JSimpleField keyField = this.createSimpleField("key() property of " + description,
-              keyType, null, keyAnnotation.type(), keyAnnotation.storageId(), keyAnnotation.indexed(),
+              keyType, MapField.KEY_FIELD_NAME, keyAnnotation.type(), keyAnnotation.storageId(), keyAnnotation.indexed(),
               keyAnnotation.onDelete(), null, null,
               "key field of map field `" + fieldName + "' in object type `" + this.name + "'");
             final JSimpleField valueField = this.createSimpleField("value() property of " + description,
-              valueType, null, valueAnnotation.type(), valueAnnotation.storageId(), valueAnnotation.indexed(),
+              valueType, MapField.VALUE_FIELD_NAME, valueAnnotation.type(), valueAnnotation.storageId(), valueAnnotation.indexed(),
               valueAnnotation.onDelete(), null, null,
               "value field of map field `" + fieldName + "' in object type `" + this.name + "'");
 
@@ -346,7 +349,7 @@ public class JClass<T> extends JSchemaObject {
         final SchemaObject schemaObject = new SchemaObject();
         super.initialize(schemaObject);
         for (JField field : this.jfields.values()) {
-            SchemaField schemaField = field.toSchemaItem();
+            final SchemaField schemaField = field.toSchemaItem();
             schemaObject.getSchemaFields().put(schemaField.getStorageId(), schemaField);
         }
         return schemaObject;

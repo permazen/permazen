@@ -103,6 +103,8 @@ public class JSimpleField extends JField {
 
     void initialize(SimpleSchemaField schemaField) {
         super.initialize(schemaField);
+        if (this.parent instanceof JComplexField)
+            schemaField.setName(null);
         schemaField.setType(this.typeName);
         schemaField.setIndexed(this.indexed);
     }
