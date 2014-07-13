@@ -34,8 +34,9 @@ public class Counter {
     private final Transaction tx;
     private final ObjId id;
     private final int storageId;
+    private final boolean updateVersion;
 
-    Counter(Transaction tx, ObjId id, int storageId) {
+    Counter(Transaction tx, ObjId id, int storageId, boolean updateVersion) {
         if (tx == null)
             throw new IllegalArgumentException("null tx");
         if (id == null)
@@ -43,6 +44,7 @@ public class Counter {
         this.tx = tx;
         this.id = id;
         this.storageId = storageId;
+        this.updateVersion = updateVersion;
     }
 
     /**
@@ -55,7 +57,7 @@ public class Counter {
      * @throws DeletedObjectException if the object from which this instance was read no longer exists
      */
     public long get() {
-        return this.tx.readCounterField(this.id, this.storageId, true);
+        return this.tx.readCounterField(this.id, this.storageId, this.updateVersion);
     }
 
     /**
@@ -68,7 +70,7 @@ public class Counter {
      * @throws DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void set(long value) {
-        this.tx.writeCounterField(this.id, this.storageId, value, true);
+        this.tx.writeCounterField(this.id, this.storageId, value, this.updateVersion);
     }
 
     /**
@@ -80,7 +82,7 @@ public class Counter {
      * @throws DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void adjust(long offset) {
-        this.tx.adjustCounterField(this.id, this.storageId, offset, true);
+        this.tx.adjustCounterField(this.id, this.storageId, offset, this.updateVersion);
     }
 }
 

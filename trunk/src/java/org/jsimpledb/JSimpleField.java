@@ -128,6 +128,9 @@ public class JSimpleField extends JField {
                 if (JSimpleField.this.typeToken.isPrimitive())
                     generator.wrap(mv, Primitive.get(JSimpleField.this.typeToken.getRawType()));
 
+                // Push "true"
+                mv.visitInsn(Opcodes.ICONST_1);
+
                 // Invoke Transaction.writeSimpleField()
                 mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
                   writeMethod.getName(), Type.getMethodDescriptor(writeMethod));

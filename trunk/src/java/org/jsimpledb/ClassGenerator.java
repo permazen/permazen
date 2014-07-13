@@ -100,12 +100,13 @@ class ClassGenerator<T> {
 
             // JTransaction methods
             GET_CURRENT_METHOD = JTransaction.class.getMethod("getCurrent");
-            READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", ObjId.class, int.class);
-            WRITE_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("writeSimpleField", ObjId.class, int.class, Object.class);
-            READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField", ObjId.class, int.class);
-            READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", ObjId.class, int.class);
-            READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", ObjId.class, int.class);
-            READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, int.class);
+            READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", ObjId.class, int.class, boolean.class);
+            WRITE_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("writeSimpleField",
+              ObjId.class, int.class, Object.class, boolean.class);
+            READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField", ObjId.class, int.class, boolean.class);
+            READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", ObjId.class, int.class, boolean.class);
+            READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", ObjId.class, int.class, boolean.class);
+            READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, int.class, boolean.class);
             DELETE_METHOD = JTransaction.class.getMethod("delete", ObjId.class);
             EXISTS_METHOD = JTransaction.class.getMethod("exists", ObjId.class);
             RECREATE_METHOD = JTransaction.class.getMethod("recreate", ObjId.class);

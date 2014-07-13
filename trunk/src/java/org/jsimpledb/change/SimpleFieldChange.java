@@ -44,8 +44,8 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
     }
 
     @Override
-    public void apply(JTransaction tx, ObjId id) {
-        tx.writeSimpleField(id, this.getStorageId(), this.newValue);
+    public void apply(JTransaction jtx, ObjId id) {
+        jtx.writeSimpleField(id, this.getStorageId(), this.newValue, false);
     }
 
     /**

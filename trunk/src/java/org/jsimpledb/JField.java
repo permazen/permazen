@@ -75,6 +75,9 @@ public abstract class JField extends JSchemaObject {
             @Override
             public void emit(MethodVisitor mv) {
 
+                // Push "true"
+                mv.visitInsn(Opcodes.ICONST_1);
+
                 // Invoke JTransaction.readXXX()
                 mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
                   readMethod.getName(), Type.getMethodDescriptor(readMethod));
