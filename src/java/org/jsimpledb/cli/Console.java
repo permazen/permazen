@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +64,8 @@ public class Console {
         this.console.setBellEnabled(true);
         this.console.setHistoryEnabled(true);
         this.console.setHandleUserInterrupt(true);
-        this.session = jdb != null ? new Session(jdb, this.console) : new Session(db, this.console);
+        final PrintWriter writer = new PrintWriter(console.getOutput(), true);
+        this.session = jdb != null ? new Session(jdb, writer) : new Session(db, writer);
         this.commandParser = new CommandParser(this.session);
         this.commandListParser = new CommandListParser(this.commandParser);
     }
