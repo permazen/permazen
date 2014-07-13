@@ -244,14 +244,36 @@ public class JTransaction {
     }
 
     /**
-     * Get all instances of the given type. The ordering of the returned set is based on the object IDs.
+     * Get all instances of the given {@link JClass} (or any sub-type). The ordering of the returned set is based on the object IDs.
      *
-     * @param type any Java type with annotated Java object model sub-types
+     * @param jclass Java model type
+     * @return read-only view of all instances of {@code type}
+     */
+    @SuppressWarnings("unchecked")
+    public <T> NavigableSet<T> getAll(JClass<T> jclass) {
+        return this.getAll(jclass.getTypeToken());
+    }
+
+    /**
+     * Get all instances of the given type (or any sub-type). The ordering of the returned set is based on the object IDs.
+     *
+     * @param type any Java type
      * @return read-only view of all instances of {@code type}
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(Class<T> type) {
-        final List<NavigableSet<ObjId>> sets = Lists.transform(this.jdb.getJClasses(TypeToken.of(type)),
+        return this.getAll(TypeToken.of(type));
+    }
+
+    /**
+     * Get all instances of the given type (or any sub-type). The ordering of the returned set is based on the object IDs.
+     *
+     * @param type any Java type
+     * @return read-only view of all instances of {@code type}
+     */
+    @SuppressWarnings("unchecked")
+    public <T> NavigableSet<T> getAll(TypeToken<T> type) {
+        final List<NavigableSet<ObjId>> sets = Lists.transform(this.jdb.getJClasses(type),
           new Function<JClass<? extends T>, NavigableSet<ObjId>>() {
             @Override
             public NavigableSet<ObjId> apply(JClass<? extends T> jclass) {
@@ -260,6 +282,21 @@ public class JTransaction {
         });
         return sets.isEmpty() ? NavigableSets.<T>empty() :
           (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(NavigableSets.union(sets), this.referenceConverter);
+    }
+
+    /**
+     * Get all instances having exactly the given type. The ordering of the returned set is based on the object IDs.
+     *
+     * @param jclass object {@link JClass}
+     * @return read-only view of all instances having exactly type {@code jclass}
+     * @throws IllegalArgumentException if {@code jclass} is null
+     */
+    @SuppressWarnings("unchecked")
+    public <T> NavigableSet<T> getAllOfType(JClass<T> jclass) {
+        if (jclass == null)
+            throw new IllegalArgumentException("null jclass");
+        return (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(
+          JTransaction.this.tx.getAll(jclass.storageId), this.referenceConverter);
     }
 
     /**
