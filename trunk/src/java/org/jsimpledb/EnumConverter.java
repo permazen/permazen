@@ -15,7 +15,15 @@ import java.util.HashMap;
 import org.dellroad.stuff.java.EnumUtil;
 import org.jsimpledb.core.EnumValue;
 
-class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
+/**
+ * Converts between core database {@link EnumValue} objects and the corresponding Java {@link Enum} model values.
+ *
+ * <p>
+ * When converting in the forward direction from {@link EnumValue} to {@link Enum}, it is possible no value in the
+ * {@link Enum} type matches. In that case, an {@link UnmatchedEnumException} will be thrown.
+ * </p>
+ */
+public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
 
     private final TypeToken<T> typeToken;
 

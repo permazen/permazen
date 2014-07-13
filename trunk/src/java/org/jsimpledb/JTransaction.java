@@ -1134,12 +1134,7 @@ public class JTransaction {
 
     @SuppressWarnings("unchecked")
     private <X, Y> Y convert(Converter<X, Y> converter, Object value) {
-        try {
-            return converter != null ? converter.convert((X)value) : (Y)value;
-        } catch (UnmatchedEnumException e) {
-            this.log.warn("unable to convert enum value that has disappeared, returning null", e);
-            return null;
-        }
+        return converter != null ? converter.convert((X)value) : (Y)value;
     }
 
     // Convert an old value from core database in prior schema version
@@ -1183,8 +1178,13 @@ public class JTransaction {
                 return null;
             }
         });
-        if (converter != null)
-            value = converter.reverse().convert(value);
+        if (converter != null) {
+            try {
+                value = converter.reverse().convert(value);
+            } catch (UnmatchedEnumException e) {
+                // ignore - give them the EnumValue object instead
+            }
+        }
         return value;
     }
 
