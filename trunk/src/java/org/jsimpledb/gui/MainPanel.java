@@ -12,7 +12,6 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.MethodProperty;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
