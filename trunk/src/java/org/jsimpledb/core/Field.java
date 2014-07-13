@@ -49,7 +49,7 @@ public abstract class Field<T> extends SchemaItem {
     }
 
     /**
-     * Get the Java value of this field in the given object.
+     * Get the value of this field in the given object.
      * Does not alter the schema version of the object.
      *
      * @param tx transaction
