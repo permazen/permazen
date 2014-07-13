@@ -8,10 +8,12 @@
 package org.jsimpledb;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import org.jsimpledb.core.CollectionField;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.CollectionSchemaField;
 
 /**
@@ -34,6 +36,9 @@ public abstract class JCollectionField extends JComplexField {
     public JSimpleField getElementField() {
         return this.elementField;
     }
+
+    @Override
+    public abstract Collection<?> getValue(JTransaction jtx, ObjId id);
 
     @Override
     public List<JSimpleField> getSubFields() {
