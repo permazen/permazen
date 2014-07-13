@@ -36,8 +36,8 @@ public class SetFieldClear<T> extends SetFieldChange<T> {
     }
 
     @Override
-    public void apply(JTransaction tx, ObjId id) {
-        tx.readSetField(id, this.getStorageId()).clear();
+    public void apply(JTransaction jtx, ObjId id) {
+        jtx.readSetField(id, this.getStorageId(), false).clear();
     }
 
 // Object

@@ -44,8 +44,8 @@ public class SetFieldAdd<T, E> extends SetFieldChange<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void apply(JTransaction tx, ObjId id) {
-        ((Set<E>)tx.readSetField(id, this.getStorageId())).add(this.element);
+    public void apply(JTransaction jtx, ObjId id) {
+        ((Set<E>)jtx.readSetField(id, this.getStorageId(), false)).add(this.element);
     }
 
     /**

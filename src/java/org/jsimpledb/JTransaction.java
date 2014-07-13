@@ -657,9 +657,9 @@ public class JTransaction {
      * and not normally invoked directly by user code.
      * </p>
      */
-    public Object readSimpleField(ObjId id, int storageId) {
+    public Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJField(storageId, JSimpleField.class).getConverter(this),
-          this.tx.readSimpleField(id, storageId, true));
+          this.tx.readSimpleField(id, storageId, updateVersion));
     }
 
     /**
@@ -671,11 +671,11 @@ public class JTransaction {
      * and not normally invoked directly by user code.
      * </p>
      */
-    public void writeSimpleField(ObjId id, int storageId, Object value) {
+    public void writeSimpleField(ObjId id, int storageId, Object value, boolean updateVersion) {
         final Converter<?, ?> converter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
         if (converter != null)
             value = this.convert(converter.reverse(), value);
-        this.tx.writeSimpleField(id, storageId, value, true);
+        this.tx.writeSimpleField(id, storageId, value, updateVersion);
     }
 
     /**
@@ -686,9 +686,11 @@ public class JTransaction {
      * and not normally invoked directly by user code.
      * </p>
      */
-    public Counter readCounterField(ObjId id, int storageId) {
+    public Counter readCounterField(ObjId id, int storageId, boolean updateVersion) {
         this.jdb.getJField(storageId, JCounterField.class);
-        return new Counter(this.tx, id, storageId);
+        if (updateVersion)
+            this.tx.updateSchemaVersion(id);
+        return new Counter(this.tx, id, storageId, updateVersion);
     }
 
     /**
@@ -700,9 +702,9 @@ public class JTransaction {
      * getter override methods and not normally invoked directly by user code.
      * </p>
      */
-    public NavigableSet<?> readSetField(ObjId id, int storageId) {
+    public NavigableSet<?> readSetField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJField(storageId, JSetField.class).getConverter(this),
-          this.tx.readSetField(id, storageId, true));
+          this.tx.readSetField(id, storageId, updateVersion));
     }
 
     /**
@@ -714,9 +716,9 @@ public class JTransaction {
      * getter override methods and not normally invoked directly by user code.
      * </p>
      */
-    public List<?> readListField(ObjId id, int storageId) {
+    public List<?> readListField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJField(storageId, JListField.class).getConverter(this),
-          this.tx.readListField(id, storageId, true));
+          this.tx.readListField(id, storageId, updateVersion));
     }
 
     /**
@@ -728,9 +730,9 @@ public class JTransaction {
      * getter override methods and not normally invoked directly by user code.
      * </p>
      */
-    public NavigableMap<?, ?> readMapField(ObjId id, int storageId) {
+    public NavigableMap<?, ?> readMapField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJField(storageId, JMapField.class).getConverter(this),
-          this.tx.readMapField(id, storageId, true));
+          this.tx.readMapField(id, storageId, updateVersion));
     }
 
 // Reference Path Access
@@ -776,7 +778,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, ? extends NavigableSet<?>> querySimpleField(int storageId) {
+    public NavigableMap<?, ? extends NavigableSet<JObject>> querySimpleField(int storageId) {
         Converter<?, ?> keyConverter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
         final NavigableSetConverter<JObject, ObjId> valueConverter = new NavigableSetConverter(this.referenceConverter);
@@ -798,7 +800,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, ? extends NavigableSet<?>> queryListFieldEntries(int storageId) {
+    public NavigableMap<?, ? extends NavigableSet<ListIndexEntry<?>>> queryListFieldEntries(int storageId) {
         final JListField setField = this.jdb.getJField(storageId, JListField.class);
         Converter<?, ?> keyConverter = setField.elementField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
@@ -822,7 +824,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, ? extends NavigableSet<?>> queryMapFieldKeyEntries(int storageId) {
+    public NavigableMap<?, ? extends NavigableSet<MapKeyIndexEntry<?, ?>>> queryMapFieldKeyEntries(int storageId) {
         final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
         Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
@@ -848,7 +850,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, ? extends NavigableSet<?>> queryMapFieldValueEntries(int storageId) {
+    public NavigableMap<?, ? extends NavigableSet<MapValueIndexEntry<?, ?>>> queryMapFieldValueEntries(int storageId) {
         final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
         Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();

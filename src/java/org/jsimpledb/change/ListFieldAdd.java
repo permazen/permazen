@@ -47,8 +47,8 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void apply(JTransaction tx, ObjId id) {
-        ((List<E>)tx.readListField(id, this.getStorageId())).add(this.index, this.element);
+    public void apply(JTransaction jtx, ObjId id) {
+        ((List<E>)jtx.readListField(id, this.getStorageId(), false)).add(this.index, this.element);
     }
 
     /**

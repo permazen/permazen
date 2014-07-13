@@ -36,8 +36,8 @@ public class ListFieldClear<T> extends ListFieldChange<T> {
     }
 
     @Override
-    public void apply(JTransaction tx, ObjId id) {
-        tx.readListField(id, this.getStorageId()).clear();
+    public void apply(JTransaction jtx, ObjId id) {
+        jtx.readListField(id, this.getStorageId(), false).clear();
     }
 
 // Object

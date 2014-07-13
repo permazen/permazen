@@ -45,8 +45,8 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
     }
 
     @Override
-    public void apply(JTransaction tx, ObjId id) {
-        tx.readMapField(id, this.getStorageId()).remove(this.key);
+    public void apply(JTransaction jtx, ObjId id) {
+        jtx.readMapField(id, this.getStorageId(), false).remove(this.key);
     }
 
     /**
