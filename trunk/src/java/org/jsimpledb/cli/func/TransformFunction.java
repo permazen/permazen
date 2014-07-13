@@ -35,7 +35,7 @@ public class TransformFunction extends ApplyExprFunction {
     @Override
     public String getHelpDetail() {
         return "Creates a view of a collection where each item is transformed by assigning the item to the specified variable"
-          + " and evaluating the specified expression.";
+          + " and evaluating the specified expression. Maps are also supported, in which case the map's entrySet() is transformed.";
     }
 
     @Override

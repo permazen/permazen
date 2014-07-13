@@ -10,11 +10,13 @@ package org.jsimpledb.cli.parse.expr;
 import com.google.common.reflect.TypeToken;
 
 import java.util.Date;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.string.StringEncoder;
+import org.jsimpledb.JTransaction;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.ObjIdParser;
 import org.jsimpledb.cli.parse.ParseException;
@@ -23,6 +25,7 @@ import org.jsimpledb.cli.parse.Parser;
 import org.jsimpledb.cli.parse.SpaceParser;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.FieldTypeRegistry;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.ParseContext;
 
 /**
@@ -33,6 +36,25 @@ public class AtomParser implements Parser<Node> {
     public static final AtomParser INSTANCE = new AtomParser();
 
     private final SpaceParser spaceParser = new SpaceParser();
+    private final TreeSet<String> identifierCompletions;
+
+    public AtomParser() {
+        this(null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param identifierCompletions set of valid identifiers tab completions, or null to allow any identifiers
+     */
+    public AtomParser(Iterable<String> identifierCompletions) {
+        if (identifierCompletions != null) {
+            this.identifierCompletions = new TreeSet<String>();
+            for (String identifierCompletion : identifierCompletions)
+                this.identifierCompletions.add(identifierCompletion);
+        } else
+            this.identifierCompletions = null;
+    }
 
     @Override
     public Node parse(Session session, ParseContext ctx, boolean complete) {
@@ -141,15 +163,26 @@ public class AtomParser implements Parser<Node> {
         }
 
         // Try to match object literal
-        if (ctx.tryLiteral("@"))
-            return new LiteralNode(new ObjIdParser().parse(session, ctx, complete));
+        if (ctx.tryLiteral("@")) {
+            final ObjId id = new ObjIdParser().parse(session, ctx, complete);
+            return !session.hasJSimpleDB() ? new LiteralNode(id) : new Node() {
+                @Override
+                public Value evaluate(Session session) {
+                    return new Value(JTransaction.getCurrent().getJObject(id));
+                }
+            };
+        }
 
         // Try to match identifier
         final Matcher identMatcher = ctx.tryPattern(IdentNode.NAME_PATTERN);
         if (identMatcher != null) {
             final String name = identMatcher.group();
-            if (ctx.isEOF() && complete)
-                throw new ParseException(ctx).addCompletions(ParseUtil.complete(session.getVars().keySet(), name));
+            if (complete && ctx.isEOF()) {
+                final ParseException e = new ParseException(ctx);
+                if (this.identifierCompletions != null)
+                    e.addCompletions(ParseUtil.complete(this.identifierCompletions, name));
+                throw e;
+            }
             return new IdentNode(name);
         }
 

@@ -22,7 +22,7 @@ public class ForEachFunction extends ApplyExprFunction {
 
     @Override
     public String getHelpSummary() {
-        return "iterates over a collection";
+        return "evaluates an expression for each item in a collection";
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ForEachFunction extends ApplyExprFunction {
     @Override
     public String getHelpDetail() {
         return "Iterates over a collection, for each item assigning the item to the specified variable and evaluating"
-          + " the specified expression.";
+          + " the specified expression. Maps are also supported, in which case the map's entrySet() is iterated.";
     }
 
     @Override

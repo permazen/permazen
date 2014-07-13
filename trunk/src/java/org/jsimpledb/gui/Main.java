@@ -143,16 +143,8 @@ public class Main extends AbstractMain {
         return this.jdb;
     }
 
-    public boolean isAllowNewSchema() {
-        return this.newSchema;
-    }
-
-    public int getSchemaVersion() {
-        return this.schemaVersion;
-    }
-
     private void verifySchema() {
-        this.jdb.createTransaction(this.newSchema, ValidationMode.AUTOMATIC).rollback();
+        this.jdb.createTransaction(this.allowNewSchema, ValidationMode.AUTOMATIC).rollback();
     }
 
     @Override

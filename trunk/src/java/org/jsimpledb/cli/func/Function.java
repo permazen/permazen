@@ -85,7 +85,7 @@ public abstract class Function {
     public abstract Object parseParams(Session session, ParseContext ctx, boolean complete);
 
     /**
-     * Apply this function.
+     * Evaluate this function. There will be a transaction open.
      *
      * @param session CLI session
      * @param params parsed parameters returned by {@link #parseParams parseParams()}

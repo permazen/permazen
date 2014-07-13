@@ -23,7 +23,7 @@ public class ListFunction extends SimpleFunction {
 
     @Override
     public String getHelpSummary() {
-        return "creates a list of items";
+        return "creates a list of items from explicitly provided values";
     }
 
     @Override

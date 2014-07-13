@@ -52,7 +52,7 @@ public class ObjectTable extends AbstractTable<ObjectContainer> {
             int width = 120;
             switch (fieldName) {
             case ObjectContainer.REFERENCE_LABEL_PROPERTY:
-                title = "Object";
+                title = "Label";
                 width = 120;
                 break;
             case ObjectContainer.OBJ_ID_PROPERTY:
@@ -64,19 +64,19 @@ public class ObjectTable extends AbstractTable<ObjectContainer> {
                 width = 80;
                 break;
             case ObjectContainer.VERSION_PROPERTY:
-                title = "Ver";
-                width = 30;
+                title = "Version";
+                width = 40;
                 break;
             default:
                 break;
             }
             this.addColumn(fieldName, title, width, align);
-            this.setColumnExpandRatio(fieldName, 120.0f / width);
+            this.setColumnExpandRatio(fieldName, width / 120.0f);
         }
 
         // Adjust columns
         this.setColumnCollapsingAllowed(true);
-        this.setColumnCollapsed(ObjectContainer.VERSION_PROPERTY, true);
+        //this.setColumnCollapsed(ObjectContainer.VERSION_PROPERTY, true);
         if (!this.getContainer().hasReferenceLabel())
             this.setColumnCollapsed(ObjectContainer.REFERENCE_LABEL_PROPERTY, true);
     }

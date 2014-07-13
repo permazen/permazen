@@ -70,13 +70,9 @@ public abstract class SimpleFunction extends Function {
         // Parse parameters
         final ArrayList<Node> params = new ArrayList<Node>(Math.min(this.maxArgs, this.minArgs * 2));
         while (true) {
-            if (params.size() < this.maxArgs)
-                this.spaceParser.parse(ctx, complete);
-            else
-                ctx.skipWhitespace();
             if (ctx.isEOF()) {
                 final ParseException e = new ParseException(ctx, "truncated input");
-                if (params.size() < this.minArgs)
+                if (!params.isEmpty() && params.size() < this.minArgs)
                     e.addCompletion(", ");
                 else if (params.size() >= this.minArgs)
                     e.addCompletion(") ");
@@ -84,10 +80,14 @@ public abstract class SimpleFunction extends Function {
             }
             if (ctx.tryLiteral(")"))
                 break;
-            if (!params.isEmpty() && !ctx.tryLiteral(","))
-                throw new ParseException(ctx, "expected `,' between " + this.name + "() function parameters").addCompletion(", ");
-            this.spaceParser.parse(ctx, complete);
+            if (!params.isEmpty()) {
+                if (!ctx.tryLiteral(","))
+                    throw new ParseException(ctx, "expected `,' between " + this.name + "() function parameters")
+                      .addCompletion(", ");
+                this.spaceParser.parse(ctx, complete);
+            }
             params.add(AssignmentExprParser.INSTANCE.parse(session, ctx, complete));
+            ctx.skipWhitespace();
         }
 
         // Check number
