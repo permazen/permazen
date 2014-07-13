@@ -137,7 +137,12 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertSame(p2.getEnum2(), Enum2.BBB);
             Assert.assertSame(p3.getEnum2(), Enum2.CCC);
             Assert.assertSame(p4.getEnum2(), Enum2.DDD);
-            Assert.assertSame(p5.getEnum2(), null);
+            try {
+                p5.getEnum2();
+                assert false : "expected UnmatchedEnumException";
+            } catch (UnmatchedEnumException e) {
+                // expected
+            }
 
             Assert.assertEquals(tx.queryVersion(), buildMap(
               2, buildSet(p1, p2, p3, p4, p5)));
