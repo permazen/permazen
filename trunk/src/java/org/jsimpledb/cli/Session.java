@@ -7,7 +7,6 @@
 
 package org.jsimpledb.cli;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -27,8 +26,6 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
 
-import jline.console.ConsoleReader;
-
 /**
  * Represents one console session.
  */
@@ -36,7 +33,6 @@ public class Session {
 
     private final JSimpleDB jdb;
     private final Database db;
-    private final ConsoleReader console;
     private final PrintWriter writer;
     private final LinkedHashSet<String> imports = new LinkedHashSet<>();
     private final TreeMap<String, Command> commands = new TreeMap<>();
@@ -58,23 +54,34 @@ public class Session {
 
     /**
      * Constructor for core level access only.
+     *
+     * @param db core database
+     * @param writer console output
+     * @throws IllegalArgumentException if either parameter is null
      */
-    public Session(Database db, ConsoleReader console) {
-        this.jdb = null;
-        this.db = db;
-        this.console = console;
-        this.writer = new PrintWriter(console.getOutput(), true);
-        this.imports.add("java.lang.*");
+    public Session(Database db, PrintWriter writer) {
+        this(null, db, writer);
     }
 
     /**
      * Constructor for {@link JSimpleDB} level access.
+     *
+     * @param jdb database
+     * @param writer console output
+     * @throws IllegalArgumentException if either parameter is null
      */
-    public Session(JSimpleDB jdb, ConsoleReader console) {
+    public Session(JSimpleDB jdb, PrintWriter writer) {
+        this(jdb, jdb.getDatabase(), writer);
+    }
+
+    private Session(JSimpleDB jdb, Database db, PrintWriter writer) {
+        if (db == null)
+            throw new IllegalArgumentException("null db");
+        if (writer == null)
+            throw new IllegalArgumentException("null writer");
         this.jdb = jdb;
-        this.db = jdb.getDatabase();
-        this.console = console;
-        this.writer = new PrintWriter(console.getOutput(), true);
+        this.db = db;
+        this.writer = writer;
         this.imports.add("java.lang.*");
     }
 
@@ -90,16 +97,19 @@ public class Session {
     }
 
     /**
+     * Determine if this instance has an associated {@link JSimpleDB}.
+     */
+    public boolean hasJSimpleDB() {
+        return this.jdb != null;
+    }
+
+    /**
      * Get the associated {@link Database}.
      *
      * @return the associated {@link Database}
      */
     public Database getDatabase() {
         return this.db;
-    }
-
-    public ConsoleReader getConsole() {
-        return this.console;
     }
 
     public PrintWriter getWriter() {
@@ -231,16 +241,12 @@ public class Session {
 
     public void report(Exception e) {
         final String message = e.getLocalizedMessage();
-        try {
-            if (e instanceof ParseException && message != null)
-                this.console.println("Error: " + message);
-            else
-                this.console.println("Error: " + e.getClass().getSimpleName() + (message != null ? ": " + message : ""));
-            if (this.verbose || this.showStackTrace(e))
-                e.printStackTrace(this.writer);
-        } catch (IOException ioe) {
-            this.setDone(true);
-        }
+        if (e instanceof ParseException && message != null)
+            this.writer.println("Error: " + message);
+        else
+            this.writer.println("Error: " + e.getClass().getSimpleName() + (message != null ? ": " + message : ""));
+        if (this.verbose || this.showStackTrace(e))
+            e.printStackTrace(this.writer);
     }
 
     protected boolean showStackTrace(Exception e) {
