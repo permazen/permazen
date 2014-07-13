@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -65,7 +65,7 @@ public class BaseExprParser implements Parser<Node> {
             switch (opsym) {
             case "(":
             {
-                // Atom must be an identifier, for a function call
+                // Atom must be an identifier, the name of a global function being invoked
                 if (!(node instanceof IdentNode))
                     throw new ParseException(ctx);
                 final String functionName = ((IdentNode)node).getName();
@@ -85,7 +85,7 @@ public class BaseExprParser implements Parser<Node> {
             }
             case ".":
             {
-                // Parse next atom - it must be an identifier, method or property name
+                // Parse next atom - it must be an identifier, either a method or property name
                 this.spaceParser.parse(ctx, complete);
                 final Node memberNode = AtomParser.INSTANCE.parse(session, ctx, complete);
                 if (!(memberNode instanceof IdentNode)) {
@@ -94,33 +94,34 @@ public class BaseExprParser implements Parser<Node> {
                 }
                 String member = ((IdentNode)memberNode).getName();
 
-                // If first atom was an identifier, must be a class name, with last component the field or method name
-                final Class<?> cl;
+                // If first atom was an identifier, this must be a class name followed by a field or method name
+                Class<?> cl = null;
                 if (node instanceof IdentNode) {
 
-                    // Parse class name
+                    // Keep parsing identifiers until we recognize a class name
                     String className = ((IdentNode)node).getName();
-                    for (Matcher matcher; (matcher = ctx.tryPattern("\\s*\\.\\s*(" + IdentNode.NAME_PATTERN + ")")) != null; ) {
+                    while (true) {
+                        if ((cl = session.resolveClass(className)) != null)
+                            break;
+                        final Matcher matcher = ctx.tryPattern("\\s*\\.\\s*(" + IdentNode.NAME_PATTERN + ")");
+                        if (matcher == null)
+                            throw new ParseException(ctx, "unknown class `" + className + "'");     // TODO: tab-completions
                         className += "." + member;
                         member = matcher.group(1);
                     }
-
-                    // Resolve class
-                    if ((cl = session.resolveClass(className)) == null)
-                        throw new ParseException(ctx, "unknown class `" + className + "'");     // TODO: tab-completions
-                } else
-                    cl = null;
+                }
 
                 // Handle property access
                 if (ctx.tryPattern("\\s*\\(") == null) {
                     final String propertyName = member;
                     final Node target = node;
+                    final Class<?> cl2 = cl;
                     node = new Node() {
                         @Override
                         public Value evaluate(Session session) {
-                            if (cl != null) {
+                            if (cl2 != null) {
                                 return new Value(propertyName.equals("class") ?
-                                  cl : BaseExprParser.this.readStaticField(cl, propertyName));
+                                  cl2 : BaseExprParser.this.readStaticField(cl2, propertyName));
                             }
                             return BaseExprParser.this.evaluateProperty(session, target.evaluate(session), propertyName);
                         }
@@ -343,7 +344,7 @@ public class BaseExprParser implements Parser<Node> {
                 }).toArray();
 
                 // Try interface methods
-                for (Class<?> iface : this.addInterfaces(cl, new HashSet<Class<?>>())) {
+                for (Class<?> iface : this.addInterfaces(cl, new LinkedHashSet<Class<?>>())) {
                     for (Method method : iface.getMethods()) {
                         final Value value = this.tryMethod(method, obj, name, params);
                         if (value != null)
