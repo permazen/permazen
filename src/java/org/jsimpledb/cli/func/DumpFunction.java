@@ -10,12 +10,12 @@ package org.jsimpledb.cli.func;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.cli.ObjInfo;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.expr.EvalException;
@@ -40,7 +40,7 @@ public class DumpFunction extends SimpleFunction {
 
     @Override
     public String getHelpSummary() {
-        return "prints all fields of the given object(s) to the console";
+        return "prints all fields of the given object to the console";
     }
 
     @Override
@@ -51,23 +51,16 @@ public class DumpFunction extends SimpleFunction {
     @Override
     protected Value apply(Session session, Value[] params) {
 
-        // Evaluate value
+        // Get object
         Object obj = params[0].checkNotNull(session, "dump()");
-        if (obj instanceof ObjId)
-            obj = Collections.singleton(obj);
-        if (!(obj instanceof Iterable))
+        if (obj instanceof JObject)
+            obj = ((JObject)obj).getObjId();
+        else if (!(obj instanceof ObjId))
             throw new EvalException("invalid dump() operation on non-database object of type " + obj.getClass().getName());
+        final ObjId id = (ObjId)obj;
 
-        // Dump item(s)
-        for (Object item : (Iterable<?>)obj) {
-
-            // Get object ID
-            if (!(item instanceof ObjId))
-                throw new EvalException("invalid dump() operation on object of type " + obj.getClass().getName());
-
-            // Dump object
-            this.dump(session, (ObjId)item);
-        }
+        // Dump object
+        this.dump(session, id);
 
         // Done
         return new Value(null);

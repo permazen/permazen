@@ -125,7 +125,7 @@ public class Main extends AbstractMain {
         session.setVerbose(this.verbose);
         session.setSchemaModel(schemaModel);
         session.setSchemaVersion(this.schemaVersion);
-        session.setAllowNewSchema(this.newSchema);
+        session.setAllowNewSchema(this.allowNewSchema);
 
         // Instantiate and add scanned CLI classes
         for (Class<?> cl : this.addClasses) {

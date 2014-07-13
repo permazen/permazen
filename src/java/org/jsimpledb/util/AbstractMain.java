@@ -36,7 +36,7 @@ public abstract class AbstractMain extends MainClass {
     protected byte[] keyPrefix;
     protected int schemaVersion;
     protected HashSet<Class<?>> schemaClasses;
-    protected boolean newSchema;
+    protected boolean allowNewSchema;
     protected boolean verbose;
     protected boolean readOnly;
 
@@ -75,7 +75,7 @@ public abstract class AbstractMain extends MainClass {
                     this.usageError();
                 this.scanSchemaClasses(params.removeFirst());
             } else if (option.equals("--new-schema"))
-                this.newSchema = true;
+                this.allowNewSchema = true;
             else if (option.equals("--mem"))
                 this.kvType = KV_MEM;
             else if (option.equals("--prefix")) {
@@ -113,6 +113,22 @@ public abstract class AbstractMain extends MainClass {
         return -1;
     }
 
+    public int getSchemaVersion() {
+        return this.schemaVersion;
+    }
+
+    public boolean isAllowNewSchema() {
+        return this.allowNewSchema;
+    }
+
+    public boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    public String getDatabaseDescription() {
+        return this.databaseDescription;
+    }
+
     /**
      * Subclass hook to parse unrecognized command line options.
      *
@@ -132,10 +148,6 @@ public abstract class AbstractMain extends MainClass {
                 throw new RuntimeException("failed to load class `" + className + "'", e);
             }
         }
-    }
-
-    public String getDatabaseDescription() {
-        return this.databaseDescription;
     }
 
     protected void startupKVDatabase() {

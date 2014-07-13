@@ -7,12 +7,12 @@
 
 package org.jsimpledb.cli.func;
 
+import org.jsimpledb.JTransaction;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.ObjTypeParser;
 import org.jsimpledb.cli.parse.ParseException;
 import org.jsimpledb.cli.parse.SpaceParser;
 import org.jsimpledb.cli.parse.expr.Value;
-import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
 
 @CliFunction
@@ -59,8 +59,9 @@ public class AllFunction extends Function {
     @Override
     public Value apply(Session session, Object params) {
         final int storageId = (Integer)params;
-        final Transaction tx = session.getTransaction();
-        return new Value(tx.getAll(storageId));
+        return session.hasJSimpleDB() ?
+          new Value(JTransaction.getCurrent().getAll(session.getJSimpleDB().getJClass(storageId))) :
+          new Value(session.getTransaction().getAll(storageId));
     }
 }
 

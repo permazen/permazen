@@ -7,6 +7,7 @@
 
 package org.jsimpledb.cli.parse.expr;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.beans.BeanInfo;
@@ -23,6 +24,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import org.jsimpledb.JField;
+import org.jsimpledb.JObject;
+import org.jsimpledb.JSimpleField;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.func.Function;
@@ -30,13 +34,9 @@ import org.jsimpledb.cli.parse.ParseException;
 import org.jsimpledb.cli.parse.ParseUtil;
 import org.jsimpledb.cli.parse.Parser;
 import org.jsimpledb.cli.parse.SpaceParser;
-import org.jsimpledb.core.CounterField;
-import org.jsimpledb.core.FieldSwitchAdapter;
-import org.jsimpledb.core.MapField;
+import org.jsimpledb.cli.util.AddSuffixFunction;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
-import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
 
 public class BaseExprParser implements Parser<Node> {
@@ -49,7 +49,8 @@ public class BaseExprParser implements Parser<Node> {
     public Node parse(Session session, ParseContext ctx, boolean complete) {
 
         // Parse initial atom
-        Node node = AtomParser.INSTANCE.parse(session, ctx, complete);
+        Node node = new AtomParser(
+          Iterables.transform(session.getFunctions().keySet(), new AddSuffixFunction("("))).parse(session, ctx, complete);
 
         // Parse operators (this gives left-to-right association)
         while (true) {
@@ -195,14 +196,84 @@ public class BaseExprParser implements Parser<Node> {
 
     private Value evaluateProperty(Session session, Value value, final String name) {
 
-        // Evaluate value, converting ObjId into JObject (if possible)
-        Object obj0 = value.checkNotNull(session, "property `" + name + "' access");
-        if (obj0 instanceof ObjId && session.getJSimpleDB() != null)
-            obj0 = JTransaction.getCurrent().getJObject((ObjId)obj0);
-        final Object obj = obj0;
-
-        // Get object class
+        // Evaluate target
+        final Object obj = value.checkNotNull(session, "property `" + name + "' access");
         final Class<?> cl = obj.getClass();
+
+        // Handle properties of database objects (i.e., database fields)
+        if (session.hasJSimpleDB() && obj instanceof JObject) {
+            final ObjId id = ((JObject)obj).getObjId();
+
+            // Resolve JField
+            JField jfield0;
+            try {
+                jfield0 = ParseUtil.resolveJField(session, id, name);
+            } catch (IllegalArgumentException e) {
+                jfield0 = null;
+            }
+            final JField jfield = jfield0;
+
+            // Return value if found
+            if (jfield != null) {
+                return new Value(null, jfield instanceof JSimpleField ? new Setter() {
+                    @Override
+                    public void set(Session session, Object value) {
+                        try {
+                            ((JSimpleField)jfield).setValue(JTransaction.getCurrent(), id, value);
+                        } catch (IllegalArgumentException e) {
+                            throw new EvalException("invalid value of type " + (value != null ? value.getClass().getName() : "null")
+                              + " for field `" + jfield.getName() + "'", e);
+                        }
+                    }
+                } : null) {
+                    @Override
+                    public Object get(Session session) {
+                        try {
+                            return jfield.getValue(JTransaction.getCurrent(), id);
+                        } catch (Exception e) {
+                            throw new EvalException("error reading field `" + name + "' from object " + id + ": "
+                              + (e.getMessage() != null ? e.getMessage() : e));
+                        }
+                    }
+                };
+            }
+        } else if (!session.hasJSimpleDB() && obj instanceof ObjId) {
+            final ObjId id = (ObjId)obj;
+
+            // Resolve field
+            org.jsimpledb.core.Field<?> field0;
+            try {
+                field0 = ParseUtil.resolveField(session, id, name);
+            } catch (IllegalArgumentException e) {
+                field0 = null;
+            }
+            final org.jsimpledb.core.Field<?> field = field0;
+
+            // Return value if found
+            if (field != null) {
+                return new Value(field instanceof SimpleField ? new Setter() {
+                    @Override
+                    public void set(Session session, Object value) {
+                        try {
+                            session.getTransaction().writeSimpleField(id, field.getStorageId(), value, false);
+                        } catch (IllegalArgumentException e) {
+                            throw new EvalException("invalid value of type " + (value != null ? value.getClass().getName() : "null")
+                              + " for " + field, e);
+                        }
+                    }
+                } : null) {
+                    @Override
+                    public Object get(Session session) {
+                        try {
+                            return field.getValue(session.getTransaction(), id);
+                        } catch (Exception e) {
+                            throw new EvalException("error reading field `" + name + "' from object " + id + ": "
+                              + (e.getMessage() != null ? e.getMessage() : e));
+                        }
+                    }
+                };
+            }
+        }
 
         // Try bean property accessed via bean methods
         final BeanInfo beanInfo;
@@ -276,49 +347,6 @@ public class BaseExprParser implements Parser<Node> {
             };
         }
 
-        // Handle properties of database objects (i.e., database fields)
-        if (obj instanceof ObjId) {
-            final ObjId id = (ObjId)obj;
-            final Transaction tx = session.getTransaction();
-            final org.jsimpledb.core.Field<?> field;
-            try {
-                field = ParseUtil.resolveField(session, id, name);
-            } catch (IllegalArgumentException e) {
-                throw new EvalException(e.getMessage());
-            }
-            return field.visit(new FieldSwitchAdapter<Value>() {
-
-                @Override
-                public <E> Value caseSetField(SetField<E> field) {
-                    return new Value(tx.readSetField(id, field.getStorageId(), false));
-                }
-
-                @Override
-                public <K, V> Value caseMapField(MapField<K, V> field) {
-                    return new Value(tx.readMapField(id, field.getStorageId(), false));
-                }
-
-                @Override
-                public <T> Value caseSimpleField(final SimpleField<T> field) {
-                    return new Value(tx.readSimpleField(id, field.getStorageId(), false), new Setter() {
-                        @Override
-                        public void set(Session session, Object value) {
-                            try {
-                                session.getTransaction().writeSimpleField(id, field.getStorageId(), value, false);
-                            } catch (IllegalArgumentException e) {
-                                throw new EvalException("invalid value of type " + value.getClass().getName() + " for " + field, e);
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public Value caseCounterField(CounterField field) {
-                    return new Value(tx.readCounterField(id, field.getStorageId(), false));
-                }
-            });
-        }
-
         // Not found
         throw new EvalException("property `" + name + "' not found in " + cl);
     }
@@ -327,21 +355,25 @@ public class BaseExprParser implements Parser<Node> {
         return new Node() {
             @Override
             public Value evaluate(final Session session) {
-                final Class<?> cl;
-                final Object obj;
-                if (target instanceof Node) {       // instance method
-                    obj = ((Node)target).evaluate(session).checkNotNull(session, "method " + name + "() invocation");
-                    cl = obj.getClass();
-                } else {                            // static method
-                    obj = null;
-                    cl = (Class<?>)target;
-                }
+
+                // Evaluate params
                 final Object[] params = Lists.transform(paramNodes, new com.google.common.base.Function<Node, Object>() {
                     @Override
                     public Object apply(Node param) {
                         return param.evaluate(session).get(session);
                     }
                 }).toArray();
+
+                // Handle static method
+                if (!(target instanceof Node))
+                    return this.invokeMethod((Class<?>)target, null, name, params);
+
+                // Handle instance method
+                final Object obj = ((Node)target).evaluate(session).checkNotNull(session, "method " + name + "() invocation");
+                return this.invokeMethod(obj.getClass(), obj, name, params);
+            }
+
+            private Value invokeMethod(Class<?> cl, Object obj, String name, Object[] params) {
 
                 // Try interface methods
                 for (Class<?> iface : this.addInterfaces(cl, new LinkedHashSet<Class<?>>())) {

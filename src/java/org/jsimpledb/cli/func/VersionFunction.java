@@ -7,6 +7,7 @@
 
 package org.jsimpledb.cli.func;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.expr.EvalException;
 import org.jsimpledb.cli.parse.expr.Value;
@@ -34,8 +35,10 @@ public class VersionFunction extends SimpleFunction {
     protected Value apply(Session session, Value[] params) {
 
         // Get object
-        final Object obj = params[0].checkNotNull(session, "version()");
-        if (!(obj instanceof ObjId))
+        Object obj = params[0].checkNotNull(session, "version()");
+        if (obj instanceof JObject)
+            obj = ((JObject)obj).getObjId();
+        else if (!(obj instanceof ObjId))
             throw new EvalException("invalid version() operation on non-database object of type " + obj.getClass().getName());
         final ObjId id = (ObjId)obj;
 

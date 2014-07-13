@@ -7,6 +7,7 @@
 
 package org.jsimpledb.cli.func;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
@@ -43,7 +44,7 @@ public class LimitFunction extends SimpleFunction {
         // Apply limit
         Object obj = params[0].checkNotNull(session, "limit()");
         if (obj instanceof Iterable)
-            obj = ((Iterable<?>)obj).iterator();
+            return new Value(Iterables.limit((Iterable<?>)obj, limit));
         if (obj instanceof Iterator)
             return new Value(Iterators.limit((Iterator<?>)obj, limit));
         throw new EvalException("limit() cannot be applied to object of type " + obj.getClass().getName());

@@ -12,9 +12,9 @@ import com.google.common.collect.Iterables;
 
 import java.util.NoSuchElementException;
 
+import org.jsimpledb.JField;
 import org.jsimpledb.cli.ObjInfo;
 import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.util.AddSuffixFunction;
 import org.jsimpledb.cli.util.PrefixPredicate;
 import org.jsimpledb.cli.util.StripPrefixFunction;
 import org.jsimpledb.core.Field;
@@ -44,9 +44,42 @@ public final class ParseUtil {
      * Generate completions based on a set of possibilities and the provided input prefix.
      */
     public static Iterable<String> complete(Iterable<String> choices, String prefix) {
-        return Iterables.transform(
-          Iterables.transform(Iterables.filter(choices, new PrefixPredicate(prefix)), new StripPrefixFunction(prefix)),
-        new AddSuffixFunction(" "));
+        return Iterables.transform(Iterables.filter(choices, new PrefixPredicate(prefix)), new StripPrefixFunction(prefix));
+    }
+
+    /**
+     * Locate the {@link JField} with the given name in the specified object.
+     *
+     * @param session current session
+     * @param id object ID
+     * @param name field name
+     * @throws IllegalArgumentException if object does not exist
+     * @throws IllegalArgumentException if field is not found
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public static JField resolveJField(Session session, ObjId id, String name) {
+
+        // Sanity check
+        if (session == null)
+            throw new IllegalArgumentException("null session");
+        if (id == null)
+            throw new IllegalArgumentException("null id");
+        if (name == null)
+            throw new IllegalArgumentException("null name");
+        if (!session.hasJSimpleDB())
+            throw new IllegalArgumentException("this session has no JSimpleDB");
+
+        // Get object type
+        final ObjInfo info = ObjInfo.getObjInfo(session, id);
+        if (info == null)
+            throw new IllegalArgumentException("error accessing field `" + name + "': object " + id + " does not exist");
+        final ObjType objType = info.getObjType();
+
+        // Find JField
+        final JField jfield =  session.getJSimpleDB().getJClass(objType.getStorageId()).getJFieldsByName().get(name);
+        if (jfield == null)
+            throw new IllegalArgumentException("error accessing field `" + name + "': there is no such field in " + objType);
+        return jfield;
     }
 
     /**

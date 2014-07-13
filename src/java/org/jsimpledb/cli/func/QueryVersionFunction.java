@@ -7,6 +7,7 @@
 
 package org.jsimpledb.cli.func;
 
+import org.jsimpledb.JTransaction;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.expr.Value;
 
@@ -34,7 +35,8 @@ public class QueryVersionFunction extends SimpleFunction {
 
     @Override
     public Value apply(Session session, Value[] params) {
-        return new Value(session.getTransaction().queryVersion());
+        return new Value(session.hasJSimpleDB() ?
+          JTransaction.getCurrent().queryVersion() : session.getTransaction().queryVersion());
     }
 }
 

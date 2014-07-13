@@ -13,6 +13,7 @@ import com.google.common.collect.Iterables;
 import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 
+import org.jsimpledb.JTransaction;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.ObjTypeParser;
 import org.jsimpledb.cli.parse.ParseException;
@@ -24,7 +25,6 @@ import org.jsimpledb.core.Field;
 import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.SimpleField;
-import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.ParseContext;
 
 @CliFunction
@@ -127,8 +127,8 @@ public class QueryFunction extends Function {
     @Override
     public Value apply(Session session, Object params) {
         final int storageId = (Integer)params;
-        final Transaction tx = session.getTransaction();
-        return new Value(tx.querySimpleField(storageId));
+        return new Value(session.hasJSimpleDB() ?
+          JTransaction.getCurrent().querySimpleField(storageId) : session.getTransaction().querySimpleField(storageId));
     }
 
 // Functions and Predicates
