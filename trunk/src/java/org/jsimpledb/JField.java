@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.dellroad.stuff.java.Primitive;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -59,6 +60,18 @@ public abstract class JField extends JSchemaObject {
     public boolean isRequiresValidation() {
         return this.requiresValidation;
     }
+
+    /**
+     * Get the Java value of this field in the given object.
+     * Does not alter the schema version of the object.
+     *
+     * @param jtx transaction
+     * @param id object id
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public abstract Object getValue(JTransaction jtx, ObjId id);
 
     abstract void outputMethods(ClassGenerator<?> generator, ClassWriter cw);
 

@@ -65,6 +65,13 @@ public class JMapField extends JComplexField {
     }
 
     @Override
+    public NavigableMap<?, ?> getValue(JTransaction jtx, ObjId id) {
+        if (jtx == null)
+            throw new IllegalArgumentException("null jtx");
+        return jtx.readMapField(id, this.storageId, false);
+    }
+
+    @Override
     public List<JSimpleField> getSubFields() {
         return Arrays.asList(this.keyField, this.valueField);
     }

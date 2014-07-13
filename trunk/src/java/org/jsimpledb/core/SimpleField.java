@@ -67,6 +67,23 @@ public class SimpleField<T> extends Field<T> {
         return this.indexed;
     }
 
+    /**
+     * Set the value of this field in the given object.
+     * Does not alter the schema version of the object.
+     *
+     * @param tx transaction
+     * @param id object id
+     * @param value new value
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code tx} or {@code id} is null
+     */
+    public void setValue(Transaction tx, ObjId id, T value) {
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        tx.writeSimpleField(id, this.storageId, value, false);
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public T getValue(Transaction tx, ObjId id) {

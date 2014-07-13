@@ -39,6 +39,13 @@ public class JListField extends JCollectionField {
     }
 
     @Override
+    public List<?> getValue(JTransaction jtx, ObjId id) {
+        if (jtx == null)
+            throw new IllegalArgumentException("null jtx");
+        return jtx.readListField(id, this.storageId, false);
+    }
+
+    @Override
     ListSchemaField toSchemaItem() {
         final ListSchemaField schemaField = new ListSchemaField();
         super.initialize(schemaField);
