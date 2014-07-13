@@ -14,6 +14,7 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.Set;
 
 import org.jsimpledb.change.ListFieldReplace;
@@ -32,6 +33,13 @@ public class JSetField extends JCollectionField {
 
     JSetField(String name, int storageId, JSimpleField elementField, String description, Method getter) {
         super(name, storageId, elementField, description, getter);
+    }
+
+    @Override
+    public NavigableSet<?> getValue(JTransaction jtx, ObjId id) {
+        if (jtx == null)
+            throw new IllegalArgumentException("null jtx");
+        return jtx.readSetField(id, this.storageId, false);
     }
 
     @Override

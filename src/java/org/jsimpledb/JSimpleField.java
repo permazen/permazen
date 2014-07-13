@@ -18,6 +18,7 @@ import java.util.NavigableSet;
 
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.change.SimpleFieldChange;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SimpleSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -49,6 +50,15 @@ public class JSimpleField extends JField {
     }
 
     /**
+     * Get the {@link JComplexField} of which this instance is a sub-field, if any.
+     *
+     * @return parent {@link JComplexField}, or null if this instance is not a sub-field
+     */
+    public JComplexField getParentField() {
+        return this.parent instanceof JComplexField ? (JComplexField)this.parent : null;
+    }
+
+    /**
      * Get name of this field's {@link org.jsimpledb.core.FieldType}.
      */
     public String getTypeName() {
@@ -69,6 +79,31 @@ public class JSimpleField extends JField {
      */
     public Method getSetter() {
         return this.setter;
+    }
+
+    @Override
+    public Object getValue(JTransaction jtx, ObjId id) {
+        if (jtx == null)
+            throw new IllegalArgumentException("null jtx");
+        return jtx.readSimpleField(id, this.storageId, false);
+    }
+
+    /**
+     * Set the Java value of this field in the given object.
+     * Does not alter the schema version of the object.
+     *
+     * @param jtx transaction
+     * @param id object id
+     * @param value new value
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code value} is not an appropriate value for this field
+     * @throws IllegalArgumentException if {@code tx} or {@code id} is null
+     */
+    public void setValue(JTransaction jtx, ObjId id, Object value) {
+        if (jtx == null)
+            throw new IllegalArgumentException("null jtx");
+        jtx.writeSimpleField(id, this.storageId, value, false);
     }
 
     /**
