@@ -429,14 +429,14 @@ public class JSimpleDB {
     /**
      * Get all {@link JClass}es which sub-type the given type.
      *
-     * @param typeToken any Java type with annotated Java object model sub-types
-     * @return list of {@link JClass}es whose type is {@code type} or a sub-type, ordered by storage ID
+     * @param typeToken type restriction, or null for no restrction
+     * @return list of {@link JClass}es whose type is {@code typeToken} or a sub-type (if not null), ordered by storage ID
      */
     @SuppressWarnings("unchecked")
     public <T> List<JClass<? extends T>> getJClasses(TypeToken<T> typeToken) {
         final ArrayList<JClass<? extends T>> list = new ArrayList<>();
         for (JClass<?> jclass : this.jclasses.values()) {
-            if (typeToken.isAssignableFrom(jclass.typeToken))
+            if (typeToken == null || typeToken.isAssignableFrom(jclass.typeToken))
                 list.add((JClass<? extends T>)jclass);
         }
         return list;
