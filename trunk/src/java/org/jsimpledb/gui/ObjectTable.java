@@ -10,8 +10,6 @@ package org.jsimpledb.gui;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Table;
 
-import org.jsimpledb.JClass;
-
 /**
  * Table showing all objects of a certain type, backed by an {@link ObjectContainer}.
  */
@@ -19,19 +17,15 @@ import org.jsimpledb.JClass;
 public class ObjectTable extends AbstractTable<ObjectContainer> {
 
     private final Class<?> type;
-    private final JClass<?> jclass;
+    private final boolean showFields;
 
     public ObjectTable(Class<?> type) {
-        this(type, null);
+        this(type, true);
     }
 
-    public ObjectTable(JClass<?> jclass) {
-        this(null, jclass);
-    }
-
-    private ObjectTable(Class<?> type, JClass<?> jclass) {
+    public ObjectTable(Class<?> type, boolean showFields) {
         this.type = type;
-        this.jclass = jclass;
+        this.showFields = showFields;
         this.setSelectable(true);
         this.setImmediate(true);
         this.setSizeFull();
@@ -39,21 +33,24 @@ public class ObjectTable extends AbstractTable<ObjectContainer> {
 
     @Override
     protected ObjectContainer buildContainer() {
-        return this.jclass != null ? new ObjectContainer(this.jclass) : new ObjectContainer(this.type);
+        return new ObjectContainer(this.type);
     }
 
     @Override
     protected void configureColumns() {
 
         // Add columns
+        this.setColumnCollapsingAllowed(true);
         for (String fieldName : this.getContainer().getOrderedPropertyNames()) {
             String title = DefaultFieldFactory.createCaptionByPropertyId(fieldName);
             Table.Align align = Table.Align.CENTER;
             int width = 120;
+            boolean showField = this.showFields;
             switch (fieldName) {
             case ObjectContainer.REFERENCE_LABEL_PROPERTY:
                 title = "Label";
                 width = 120;
+                showField = true;
                 break;
             case ObjectContainer.OBJ_ID_PROPERTY:
                 title = "ID";
@@ -72,11 +69,11 @@ public class ObjectTable extends AbstractTable<ObjectContainer> {
             }
             this.addColumn(fieldName, title, width, align);
             this.setColumnExpandRatio(fieldName, width / 120.0f);
+            this.setColumnCollapsed(fieldName, !showField);
         }
 
         // Adjust columns
         this.setColumnCollapsingAllowed(true);
-        //this.setColumnCollapsed(ObjectContainer.VERSION_PROPERTY, true);
         if (!this.getContainer().hasReferenceLabel())
             this.setColumnCollapsed(ObjectContainer.REFERENCE_LABEL_PROPERTY, true);
     }

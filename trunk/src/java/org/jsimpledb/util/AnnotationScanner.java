@@ -24,23 +24,35 @@ import org.jsimpledb.JClass;
 /**
  * Support superclass for Java model class annotation scanners.
  */
-public class AnnotationScanner<T, A extends Annotation> extends MethodAnnotationScanner<T, A> {
+public abstract class AnnotationScanner<T, A extends Annotation> extends MethodAnnotationScanner<T, A> {
 
     /**
-     * The associated Java model class.
+     * The associated Java model class, if any.
      */
     protected final JClass<T> jclass;
 
     /**
-     * Constructor.
+     * Constructor for when there is an associated {@link JClass}.
      *
      * @param jclass Java model class
      * @param annotationType annotation to scan for
      */
     @SuppressWarnings("unchecked")
-    public AnnotationScanner(JClass<T> jclass, Class<A> annotationType) {
+    protected AnnotationScanner(JClass<T> jclass, Class<A> annotationType) {
         super((Class<T>)jclass.getTypeToken().getRawType(), annotationType);
         this.jclass = jclass;
+    }
+
+    /**
+     * Constructor for when there is no associated {@link JClass}.
+     *
+     * @param type Java type to scan
+     * @param annotationType annotation to scan for
+     */
+    @SuppressWarnings("unchecked")
+    protected AnnotationScanner(Class<T> type, Class<A> annotationType) {
+        super(type, annotationType);
+        this.jclass = null;
     }
 
     /**
@@ -141,7 +153,7 @@ public class AnnotationScanner<T, A extends Annotation> extends MethodAnnotation
      * Get "invalid annotation" error message prefix that describes the annotation on the specified method.
      */
     protected String getErrorPrefix(Method method) {
-        return "invalid @" + this.getAnnotationDescription() + " annotation on method " + method + ": ";
+        return "invalid " + this.getAnnotationDescription() + " annotation on method " + method + ": ";
     }
 }
 
