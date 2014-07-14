@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.ParseException;
 import org.jsimpledb.cli.parse.SpaceParser;
-import org.jsimpledb.cli.parse.expr.AssignmentExprParser;
+import org.jsimpledb.cli.parse.expr.ExprParser;
 import org.jsimpledb.cli.parse.expr.Node;
 import org.jsimpledb.cli.parse.expr.Value;
 import org.jsimpledb.util.ParseContext;
@@ -86,7 +86,7 @@ public abstract class SimpleFunction extends Function {
                       .addCompletion(", ");
                 this.spaceParser.parse(ctx, complete);
             }
-            params.add(AssignmentExprParser.INSTANCE.parse(session, ctx, complete));
+            params.add(ExprParser.INSTANCE.parse(session, ctx, complete));
             ctx.skipWhitespace();
         }
 
