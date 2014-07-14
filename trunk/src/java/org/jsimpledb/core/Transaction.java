@@ -7,6 +7,10 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -97,7 +101,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Object and Field Access</b>
  * <ul>
- *  <li>{@link #getAll getAll()} - Get all objects of a specific type</li>
+ *  <li>{@link #getAll getAll(int)} - Get all objects, or all objects of a specific type</li>
  *  <li>{@link #readSimpleField readSimpleField()} - Read the value of a {@link SimpleField} in an object</li>
  *  <li>{@link #writeSimpleField writeSimpleField()} - Write the value of a {@link SimpleField} in an object</li>
  *  <li>{@link #readCounterField readCounterField()} - Read the value of a {@link CounterField} in an object</li>
@@ -1304,6 +1308,34 @@ public class Transaction {
 // Object and Field Access
 
     /**
+     * Get all objects in the database.
+     *
+     * @return immutable set containing all database objects
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @see #getAll(int)
+     */
+    public NavigableSet<ObjId> getAll() {
+
+        // Sanity check
+        if (this.stale)
+            throw new StaleTransactionException(this);
+
+        // Return the union of all type sets
+        return NavigableSets.union(Iterables.transform(Iterables.filter(this.schema.storageInfos.values(),
+          new Predicate<StorageInfo>() {
+            @Override
+            public boolean apply(StorageInfo storageInfo) {
+                return storageInfo instanceof ObjTypeStorageInfo;
+            }
+        }), new Function<StorageInfo, NavigableSet<ObjId>>() {
+            @Override
+            public NavigableSet<ObjId> apply(StorageInfo storageInfo) {
+                return new ObjTypeSet(Transaction.this, storageInfo.storageId);
+            }
+        }));
+    }
+
+    /**
      * Get all objects whose object type has the specified storage ID.
      *
      * <p>
@@ -1315,6 +1347,7 @@ public class Transaction {
      * @return set containing all objects having the specified storage ID
      * @throws IllegalArgumentException if {@code storageId} does not correspond to any known object type
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @see #getAll()
      */
     public NavigableSet<ObjId> getAll(int storageId) {
 
