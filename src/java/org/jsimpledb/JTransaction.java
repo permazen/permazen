@@ -248,27 +248,30 @@ public class JTransaction {
      *
      * @param jclass Java model type
      * @return read-only view of all instances of {@code type}
+     * @throws IllegalArgumentException if {@code jclass} is null
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(JClass<T> jclass) {
+        if (jclass == null)
+            throw new IllegalArgumentException("null jclass");
         return this.getAll(jclass.getTypeToken());
     }
 
     /**
      * Get all instances of the given type (or any sub-type). The ordering of the returned set is based on the object IDs.
      *
-     * @param type any Java type
+     * @param type any Java type, or null to get all objects
      * @return read-only view of all instances of {@code type}
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(Class<T> type) {
-        return this.getAll(TypeToken.of(type));
+        return this.getAll(type != null ? TypeToken.of(type) : (TypeToken<T>)null);
     }
 
     /**
      * Get all instances of the given type (or any sub-type). The ordering of the returned set is based on the object IDs.
      *
-     * @param type any Java type
+     * @param type any Java type, or null to get all objects
      * @return read-only view of all instances of {@code type}
      */
     @SuppressWarnings("unchecked")
