@@ -68,7 +68,7 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
         private final Comparator<? super E> comparator = IntersectionNavigableSet.this.getComparator(false);
 
         private boolean firstTime = true;
-        private boolean finished;
+        private boolean finished = IntersectionNavigableSet.this.list.isEmpty();
         private boolean haveNext;
         private E next;
 

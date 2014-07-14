@@ -30,7 +30,6 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
      * Convenience constructor for the case where there are no lower or upper bounds.
      *
      * @param sets sets to be combined
-     * @throws IllegalArgumentException if the {@code sets} is empty
      * @throws IllegalArgumentException if the {@link NavigableSet}s in {@code sets} do not have equal {@link Comparator}s
      */
     protected AbstractMultiNavigableSet(Iterable<? extends NavigableSet<E>> sets) {
@@ -43,7 +42,6 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
      * @param sets sets to be combined
      * @param comparator common comparator
      * @param bounds range restriction
-     * @throws IllegalArgumentException if the {@code sets} is empty
      * @throws IllegalArgumentException if the {@link NavigableSet}s in {@code sets} do not have equal {@link Comparator}s
      * @throws IllegalArgumentException if {@code bounds} is null
      */
@@ -65,7 +63,7 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
     private static <E> Comparator<? super E> getComparator(Iterable<? extends NavigableSet<E>> sets) {
         final Iterator<? extends NavigableSet<E>> i = sets.iterator();
         if (!i.hasNext())
-            throw new IllegalArgumentException("empty sets");
+            return null;
         final Comparator<? super E> comparator = i.next().comparator();
         while (i.hasNext()) {
             final Comparator<? super E> comparator2 = i.next().comparator();
