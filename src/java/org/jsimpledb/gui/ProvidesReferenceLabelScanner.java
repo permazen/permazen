@@ -7,9 +7,10 @@
 
 package org.jsimpledb.gui;
 
+import com.vaadin.ui.Component;
+
 import java.lang.reflect.Method;
 
-import org.jsimpledb.JClass;
 import org.jsimpledb.util.AnnotationScanner;
 
 /**
@@ -17,15 +18,17 @@ import org.jsimpledb.util.AnnotationScanner;
  */
 class ProvidesReferenceLabelScanner<T> extends AnnotationScanner<T, ProvidesReferenceLabel> {
 
-    ProvidesReferenceLabelScanner(JClass<T> jclass) {
-        super(jclass, ProvidesReferenceLabel.class);
+    ProvidesReferenceLabelScanner(Class<T> type) {
+        super(type, ProvidesReferenceLabel.class);
     }
 
     @Override
     protected boolean includeMethod(Method method, ProvidesReferenceLabel annotation) {
         this.checkNotStatic(method);
-        if (method.getReturnType() == void.class)
-            throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to return non-void");
+        if (!Component.class.isAssignableFrom(method.getReturnType())) {
+            throw new IllegalArgumentException(this.getErrorPrefix(method)
+              + "method is required to return Component or some sub-type");
+        }
         this.checkParameterTypes(method);
         return true;
     }

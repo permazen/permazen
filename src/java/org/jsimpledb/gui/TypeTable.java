@@ -7,6 +7,8 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.reflect.TypeToken;
+
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TreeTable;
 
@@ -16,26 +18,30 @@ import com.vaadin.ui.TreeTable;
 @SuppressWarnings("serial")
 public class TypeTable extends TreeTable {
 
-    public TypeTable(JClassContainer container) {
+    public TypeTable(TypeContainer container) {
         super(null, container);
 
         this.setSelectable(false);
         this.setImmediate(false);
         this.setSizeFull();
-        this.setHierarchyColumn(JClassContainer.Node.NAME_PROPERTY);
+        this.setHierarchyColumn(TypeContainer.Node.NAME_PROPERTY);
         this.setAnimationsEnabled(true);
 
-        this.addColumn(JClassContainer.Node.NAME_PROPERTY, "Name", 140, Table.Align.LEFT);
-        this.addColumn(JClassContainer.Node.STORAGE_ID_PROPERTY, "SID", 40, Table.Align.CENTER);
-        this.addColumn(JClassContainer.Node.TYPE_PROPERTY, "Type", 250, Table.Align.CENTER);
+        this.addColumn(TypeContainer.Node.NAME_PROPERTY, "Name", 140, Table.Align.LEFT);
+        this.addColumn(TypeContainer.Node.STORAGE_ID_PROPERTY, "SID", 40, Table.Align.CENTER);
+        this.addColumn(TypeContainer.Node.TYPE_PROPERTY, "Type", 250, Table.Align.CENTER);
 
-        this.setColumnExpandRatio(JClassContainer.Node.NAME_PROPERTY, 1.0f);
+        this.setColumnExpandRatio(TypeContainer.Node.NAME_PROPERTY, 1.0f);
 
-        this.setVisibleColumns(JClassContainer.Node.NAME_PROPERTY,
-          JClassContainer.Node.STORAGE_ID_PROPERTY, JClassContainer.Node.TYPE_PROPERTY);
+        this.setVisibleColumns(TypeContainer.Node.NAME_PROPERTY,
+          TypeContainer.Node.STORAGE_ID_PROPERTY, TypeContainer.Node.TYPE_PROPERTY);
         this.setColumnCollapsingAllowed(true);
-        this.setColumnCollapsed(JClassContainer.Node.STORAGE_ID_PROPERTY, true);
-        this.setColumnCollapsed(JClassContainer.Node.TYPE_PROPERTY, true);
+        this.setColumnCollapsed(TypeContainer.Node.STORAGE_ID_PROPERTY, true);
+        this.setColumnCollapsed(TypeContainer.Node.TYPE_PROPERTY, true);
+
+        // Expand all root nodes
+        for (TypeToken<?> typeToken : container.rootItemIds())
+            this.setCollapsed(typeToken, false);
     }
 
     protected void addColumn(String property, String name, int width, Table.Align alignment) {
@@ -45,8 +51,8 @@ public class TypeTable extends TreeTable {
             this.setColumnAlignment(property, alignment);
     }
 
-    public JClassContainer getContainer() {
-        return (JClassContainer)this.getContainerDataSource();
+    public TypeContainer getContainer() {
+        return (TypeContainer)this.getContainerDataSource();
     }
 
 // Vaadin lifecycle
