@@ -30,7 +30,6 @@ public final class NavigableSets {
      * </p>
      *
      * @param sets the sets to intersect
-     * @throws IllegalArgumentException if the {@code sets} is empty
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      */
     public static <E> NavigableSet<E> intersection(Iterable<? extends NavigableSet<E>> sets) {
@@ -48,7 +47,6 @@ public final class NavigableSets {
      * </p>
      *
      * @param sets the sets to intersect
-     * @throws IllegalArgumentException if the {@code sets} is empty
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      */
     @SafeVarargs
@@ -63,7 +61,6 @@ public final class NavigableSets {
      * (or else all null, for natural ordering).
      *
      * @param sets the sets to union
-     * @throws IllegalArgumentException if the {@code sets} is empty
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      */
     @SafeVarargs
@@ -78,7 +75,6 @@ public final class NavigableSets {
      * (or else all null, for natural ordering).
      *
      * @param sets the sets to union
-     * @throws IllegalArgumentException if the {@code sets} is empty
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      */
     public static <E> NavigableSet<E> union(Iterable<? extends NavigableSet<E>> sets) {
@@ -93,7 +89,6 @@ public final class NavigableSets {
      *
      * @param set1 original set
      * @param set2 set of elements to exclude from {@code set1}
-     * @throws IllegalArgumentException if the {@code set1} or {@code set2} is empty
      * @throws IllegalArgumentException if the {@code set1} and {@code set2} do not have equal {@link Comparator}s
      */
     public static <E> NavigableSet<E> difference(NavigableSet<E> set1, NavigableSet<E> set2) {
@@ -108,7 +103,6 @@ public final class NavigableSets {
      *
      * @param set1 first set
      * @param set2 second set
-     * @throws IllegalArgumentException if the {@code set1} or {@code set2} is empty
      * @throws IllegalArgumentException if the {@code set1} and {@code set2} do not have equal {@link Comparator}s
      */
     public static <E> NavigableSet<E> symmetricDifference(NavigableSet<E> set1, NavigableSet<E> set2) {

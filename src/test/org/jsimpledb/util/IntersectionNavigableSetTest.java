@@ -21,6 +21,21 @@ import org.testng.annotations.Test;
 public class IntersectionNavigableSetTest extends TestSupport {
 
     @Test
+    public void testEmpty1() {
+        final TreeSet<Integer> t1 = new TreeSet<>();
+        t1.add(123);
+        t1.add(456);
+        t1.add(789);
+        final TreeSet<Integer> empty = new TreeSet<>();
+        Assert.assertEquals(NavigableSets.intersection(t1, empty), NavigableSets.empty());
+    }
+
+    @Test
+    public void testEmpty2() {
+        Assert.assertEquals(NavigableSets.<Object>intersection(), NavigableSets.empty());
+    }
+
+    @Test
     public void testRandomIntersections() {
         for (int testNum = 0; testNum < 200; testNum++) {
 
