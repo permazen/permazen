@@ -1,4 +1,7 @@
 
+- CLI parser bug:
+    "new Object().getClass()" fails
+
 - CLI
     - Aggregate functions: min(), max(), avg(), sum()
 
