@@ -3,7 +3,7 @@ Version Next
     - Changed VaadinConfigurable.ifSessionNotLocked default to EXCEPTION
     - Revert previous change to VaadinUtil.invokeLater() (issue #19)
     - Fix bug in Primitive.FLOAT and Primitive.LONG parse pattern
-    - Added ParseContext.tryPattern().
+    - Added ParseContext.tryPattern(), equals(), and hashCode()
 
 Version 1.0.882 Released May 6, 2014
 
