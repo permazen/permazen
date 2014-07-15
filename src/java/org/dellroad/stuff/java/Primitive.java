@@ -339,6 +339,23 @@ public abstract class Primitive<T> implements Comparator<T> {
     abstract T doParseValue(String string);
 
     /**
+     * Get the instance with the given name (e.g., {@code "void"}, {@code "int"}, etc.).
+     *
+     * @param name instance short name
+     * @return corresponding instance, or null if name does not correspond to any {@link Primitive} instance
+     * @throws IllegalArgumentException if {@code name} is null
+     */
+    public static Primitive<?> forName(String name) {
+        if (name == null)
+            throw new IllegalArgumentException("null name");
+        for (Primitive<?> primitive : Primitive.values()) {
+            if (name.equals(primitive.getName()))
+                return primitive;
+        }
+        return null;
+    }
+
+    /**
      * Get all instances of this class.
      *
      * @return a modifiable set containing all instances; modifications have no effect on this class

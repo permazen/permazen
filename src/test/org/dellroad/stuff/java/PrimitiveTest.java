@@ -21,6 +21,18 @@ import org.testng.annotations.Test;
 
 public class PrimitiveTest extends TestSupport {
 
+    @Test(dataProvider = "names")
+    public <T> void testName(Primitive<?> primitive, String name) {
+        if (primitive != null)
+            Assert.assertEquals(primitive.getName(), name);
+        try {
+            Assert.assertSame(primitive, Primitive.forName(name));
+            assert name != null;
+        } catch (IllegalArgumentException e) {
+            assert name == null;
+        }
+    }
+
     @Test(dataProvider = "data")
     public <T> void testPrimitive(Primitive<T> primitive, Iterator<T> i) throws Exception {
         while (i.hasNext()) {
@@ -31,6 +43,29 @@ public class PrimitiveTest extends TestSupport {
             Assert.assertEquals(primitive.parseValue(string), value,
               primitive + " parsed value " + primitive.parseValue(string) + " for \"" + string + "\" does not equal " + value);
         }
+    }
+
+    @DataProvider(name = "names")
+    public Object[][] getNameData() {
+        return new Object[][] {
+
+            // Success
+            { Primitive.VOID, "void" },
+            { Primitive.BOOLEAN, "boolean" },
+            { Primitive.BYTE, "byte" },
+            { Primitive.CHARACTER, "char" },
+            { Primitive.SHORT, "short" },
+            { Primitive.INTEGER, "int" },
+            { Primitive.FLOAT, "float" },
+            { Primitive.LONG, "long" },
+            { Primitive.DOUBLE, "double" },
+
+            // Fails
+            { null, null },
+            { null, "VOID" },
+            { null, "integer" },
+            { null, "Integer" },
+        };
     }
 
     @DataProvider(name = "data")

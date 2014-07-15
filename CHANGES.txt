@@ -4,6 +4,7 @@ Version Next
     - Revert previous change to VaadinUtil.invokeLater() (issue #19)
     - Fix bug in Primitive.FLOAT and Primitive.LONG parse pattern
     - Added ParseContext.tryPattern(), equals(), and hashCode()
+    - Added Primitive.forName()
 
 Version 1.0.882 Released May 6, 2014
 
