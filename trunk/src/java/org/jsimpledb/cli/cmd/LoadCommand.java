@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 import org.jsimpledb.cli.Action;
 import org.jsimpledb.cli.Session;
@@ -78,7 +79,10 @@ public class LoadCommand extends Command {
         public File parse(Session session, ParseContext ctx, boolean complete) {
 
             // Get filename
-            final String path = ctx.matchPrefix("[^\\s;]*").group();
+            final Matcher matcher = ctx.tryPattern("[^\\s;]*");
+            if (matcher == null)
+                throw new ParseException(ctx);
+            final String path = matcher.group();
 
             // Check file
             final File file = new File(path);

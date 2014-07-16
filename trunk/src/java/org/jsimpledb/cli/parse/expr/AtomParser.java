@@ -173,18 +173,16 @@ public class AtomParser implements Parser<Node> {
             };
         }
 
-        // Try to match identifier
+        // Try to match identifier; support tab-completion of configured identifiers, if any
         final Matcher identMatcher = ctx.tryPattern(IdentNode.NAME_PATTERN);
         if (identMatcher != null) {
             final String name = identMatcher.group();
-            if (complete && ctx.isEOF()) {
-                final ParseException e = new ParseException(ctx);
-                if (this.identifierCompletions != null)
-                    e.addCompletions(ParseUtil.complete(this.identifierCompletions, name));
-                throw e;
-            }
+            if (complete && ctx.isEOF() && this.identifierCompletions != null && !name.equals("new"))
+                throw new ParseException(ctx).addCompletions(ParseUtil.complete(this.identifierCompletions, name));
             return new IdentNode(name);
         }
+        if (complete && ctx.isEOF() && this.identifierCompletions != null)
+            throw new ParseException(ctx).addCompletions(this.identifierCompletions);
 
         // No match
         throw new ParseException(ctx);

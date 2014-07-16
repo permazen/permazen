@@ -48,8 +48,7 @@ public class FieldTypeParser<T> implements Parser<T> {
         try {
             return (T)actualFieldType.fromString(ctx);
         } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, "invalid " + actualFieldType.getName() + " parameter starting with `"
-              + ParseUtil.truncate(ctx.getOriginalInput().substring(start), 16) + "'");
+            throw new ParseException(ctx, "invalid " + actualFieldType.getName() + " parameter");
         }
     }
 

@@ -53,6 +53,12 @@ public class AllFunction extends Function {
         if (ctx.tryLiteral(")"))
             return null;
 
+        // Special handling for tab-completion support for type names
+        if (complete && (ctx.isEOF() || IdentNode.NAME_PATTERN.matcher(ctx.getInput()).matches())) {
+            new ObjTypeParser().parse(session, ctx, complete);
+            throw new ParseException(ctx, "expected `)'").addCompletion(") ");
+        }
+
         // Parse expression
         final int startingMark = ctx.getIndex();
         final Node node = ExprParser.INSTANCE.parse(session, ctx, complete);
@@ -62,10 +68,8 @@ public class AllFunction extends Function {
         if (node instanceof IdentNode) {
             ctx.setIndex(startingMark);
             result = new ObjTypeParser().parse(session, ctx, complete).getStorageId();
-        } else if (session.hasJSimpleDB())          // must be java.lang.Class or integer expression - but only in non-core mode
+        } else
             result = node;
-        else
-            throw new ParseException(ctx, "invalid object type expression");
 
         // Finish parse
         ctx.skipWhitespace();
@@ -92,12 +96,11 @@ public class AllFunction extends Function {
         // Handle expression
         if (param instanceof Node) {
             final Object obj = ((Node)param).evaluate(session).checkNotNull(session, "all()");
-            if (obj instanceof Class) {
-                assert session.hasJSimpleDB();
-                return new Value(JTransaction.getCurrent().getAll((Class<?>)obj));
-            }
             if (obj instanceof Number)
                 return this.getAll(session, ((Number)obj).intValue());
+            if (obj instanceof Class && session.hasJSimpleDB())
+                return new Value(JTransaction.getCurrent().getAll((Class<?>)obj));
+            throw new EvalException("invalid object type expression with value of type " + obj.getClass().getName());
         }
 
         // Oops
