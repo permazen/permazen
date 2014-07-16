@@ -32,12 +32,12 @@ import org.jsimpledb.util.ParseContext;
  *  <li><code>Person.grades.key</code></li>
  * </p>
  */
-public class IndexedFieldParser implements Parser<Integer> {
+public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
 
     private final SpaceParser spaceParser = new SpaceParser();
 
     @Override
-    public Integer parse(final Session session, final ParseContext ctx, final boolean complete) {
+    public Result parse(final Session session, final ParseContext ctx, final boolean complete) {
 
         // Get object type
         final int typeStart = ctx.getIndex();
@@ -64,10 +64,10 @@ public class IndexedFieldParser implements Parser<Integer> {
         }
 
         // Get sub-field if field is a complex field
-        final int storageId = field.visit(new FieldSwitchAdapter<Integer>() {
+        return field.visit(new FieldSwitchAdapter<Result>() {
 
             @Override
-            protected <T> Integer caseComplexField(ComplexField<T> field) {
+            protected <T> Result caseComplexField(ComplexField<T> field) {
                 ctx.skipWhitespace();
                 if (!ctx.tryLiteral(".")) {
                     throw new ParseException(ctx, "expected sub-field name").addCompletion(".");
@@ -86,24 +86,56 @@ public class IndexedFieldParser implements Parser<Integer> {
                       .addCompletions(ParseUtil.complete(Iterables.transform(Iterables.filter(
                         field.getSubFields(), new IsIndexedPredicate()), new FieldNameFunction()), name));
                 }
-                this.verifyIndexed(subField);
-                return subField.getStorageId();
+                return new Result(this.verifyIndexedSimple(subField), field);
             }
 
             @Override
-            protected <T> Integer caseField(Field<T> field) {
-                this.verifyIndexed(field);
-                return field.getStorageId();
+            protected <T> Result caseField(Field<T> field) {
+                return new Result(this.verifyIndexedSimple(field));
             }
 
-            private void verifyIndexed(Field<?> field) {
+            private SimpleField<?> verifyIndexedSimple(Field<?> field) {
                 if (!(field instanceof SimpleField) || !((SimpleField<?>)field).isIndexed())
                     throw new ParseException(ctx, "expected indexed field");
+                return (SimpleField<?>)field;
             }
         });
+    }
 
-        // Done
-        return storageId;
+// Return type
+
+    /**
+     * Result returned from an {@link IndexedFieldParser} parse.
+     */
+    public static class Result {
+
+        private final SimpleField<?> field;
+        private final ComplexField<?> parentField;
+
+        Result(SimpleField<?> field) {
+            this(field, null);
+        }
+
+        Result(SimpleField<?> field, ComplexField<?> parentField) {
+            this.field = field;
+            this.parentField = parentField;
+        }
+
+        /**
+         * Get the indexed field.
+         */
+        public SimpleField<?> getField() {
+            return this.field;
+        }
+
+        /**
+         * Get the indexed field's parent field, if any.
+         *
+         * @return indexed field's parent field, or null if the indexed field is not a sub-field
+         */
+        public ComplexField<?> getParentField() {
+            return this.parentField;
+        }
     }
 
 // Functions and Predicates

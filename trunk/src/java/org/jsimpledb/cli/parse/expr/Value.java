@@ -28,27 +28,35 @@ import org.jsimpledb.util.NavigableSets;
  */
 public class Value {
 
+    /**
+     * Special value that can be used to indicate "no value" in certain situations, such as return value
+     * from a method returning void. Actually evaluates to null.
+     */
+    public static final Value NO_VALUE = new Value(null);
+
     static final int LT = 0x01;
     static final int GT = 0x02;
     static final int EQ = 0x04;
 
-    static final Setter SELF = new Setter() {
-        @Override
-        public void set(Session session, Object value) {
-            throw new RuntimeException("internal error");
-        }
-    };
-
     private final Object obj;
-    private Setter setter;
+    private final Setter setter;
 
+    /**
+     * Constructor for a constant, non L-Value instance.
+     */
     public Value(Object obj) {
         this(obj, null);
     }
 
+    /**
+     * Primary constructor.
+     *
+     * @param obj value to be returned by {@link #get get()} (unless overridden by subclass)
+     * @param setter callback for changing this instance's value, or null if this instance is not an L-Value
+     */
     public Value(Object obj, Setter setter) {
         this.obj = obj;
-        this.setter = setter == SELF ? (Setter)this : setter;
+        this.setter = this instanceof DynamicValue ? (DynamicValue)this : setter;
     }
 
     /**
@@ -61,7 +69,7 @@ public class Value {
     /**
      * Get the {@link Setter} associated with this value, if any.
      *
-     * @return associated {@link Setter}, or null if there is none
+     * @return associated {@link Setter}, or null if this is not an L-Value
      */
     public Setter getSetter() {
         return this.setter;
@@ -134,7 +142,7 @@ public class Value {
      * @param increment true to increment, false to decrement
      * @return adjusted value
      */
-    public Value increment(Session session, String operation, boolean increment) {
+    public Value xxcrement(Session session, String operation, boolean increment) {
         this.verifySetter(operation);
         final int amount = increment ? 1 : -1;
         final Object value = this.get(session);
@@ -159,8 +167,9 @@ public class Value {
             num = ((BigDecimal)num).add(increment ? BigDecimal.ONE : BigDecimal.ONE.negate());
         else
             throw new EvalException("invalid " + operation + " operation on value of type " + num.getClass().getName());
-        this.setter.set(session, num);
-        return new Value(num);
+        final Value result = new Value(num);
+        this.setter.set(session, result);
+        return result;
     }
 
     /**

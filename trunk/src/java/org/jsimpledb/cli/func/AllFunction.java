@@ -85,8 +85,13 @@ public class AllFunction extends Function {
 
         // Handle null
         if (param == null) {
-            return new Value(session.hasJSimpleDB() ?
-              JTransaction.getCurrent().getAll((Class<?>)null) : session.getTransaction().getAll());
+            return new Value(null) {
+                @Override
+                public Object get(Session session) {
+                    return session.hasJSimpleDB() ?
+                      JTransaction.getCurrent().getAll((Class<?>)null) : session.getTransaction().getAll();
+                }
+            };
         }
 
         // Handle storage ID
@@ -98,8 +103,14 @@ public class AllFunction extends Function {
             final Object obj = ((Node)param).evaluate(session).checkNotNull(session, "all()");
             if (obj instanceof Number)
                 return this.getAll(session, ((Number)obj).intValue());
-            if (obj instanceof Class && session.hasJSimpleDB())
-                return new Value(JTransaction.getCurrent().getAll((Class<?>)obj));
+            if (obj instanceof Class && session.hasJSimpleDB()) {
+                return new Value(null) {
+                    @Override
+                    public Object get(Session session) {
+                        return JTransaction.getCurrent().getAll((Class<?>)obj);
+                    }
+                };
+            }
             throw new EvalException("invalid object type expression with value of type " + obj.getClass().getName());
         }
 
@@ -107,14 +118,23 @@ public class AllFunction extends Function {
         throw new RuntimeException("internal error");
     }
 
-    private Value getAll(Session session, int storageId) {
+    private Value getAll(Session session, final int storageId) {
+
+        // Handle core-only case
         if (!session.hasJSimpleDB()) {
-            try {
-                return new Value(session.getTransaction().getAll(storageId));
-            } catch (IllegalArgumentException e) {
-                throw new EvalException(e.getMessage());
-            }
+            return new Value(null) {
+                @Override
+                public Object get(Session session) {
+                    try {
+                        return session.getTransaction().getAll(storageId);
+                    } catch (IllegalArgumentException e) {
+                        throw new EvalException(e.getMessage());
+                    }
+                }
+            };
         }
+
+        // Handle JSimpleDB case
         final JClass<?> jclass;
         try {
             jclass = JTransaction.getCurrent().getJSimpleDB().getJClass(storageId);
@@ -122,7 +142,12 @@ public class AllFunction extends Function {
             throw new EvalException("no type with storage ID " + storageId + " exists in schema version "
               + JTransaction.getCurrent().getJSimpleDB().getLastVersion());
         }
-        return new Value(JTransaction.getCurrent().getAll(jclass));
+        return new Value(null) {
+            @Override
+            public Object get(Session session) {
+                return JTransaction.getCurrent().getAll(jclass);
+            }
+        };
     }
 }
 

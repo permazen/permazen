@@ -34,7 +34,7 @@ public class TransformFunction extends ApplyExprFunction {
 
     @Override
     public String getHelpDetail() {
-        return "Creates a view of a collection where each item is transformed by assigning the item to the specified variable"
+        return "Creates a view of an Iterable where each item is transformed by assigning the item to the specified variable"
           + " and evaluating the specified expression. Maps are also supported, in which case the map's entrySet() is transformed.";
     }
 
@@ -48,14 +48,17 @@ public class TransformFunction extends ApplyExprFunction {
                 Object items = params.getItems().evaluate(session).checkNotNull(session, "transform()");
                 if (items instanceof Map)
                     items = ((Map<?, ?>)items).entrySet();
-                if (!(items instanceof Iterable))
-                    throw new EvalException("invalid transform() operation on object of type " + items.getClass().getName());
+                if (!(items instanceof Iterable)) {
+                    throw new EvalException("invalid transform() operation on non-Iterable object of type "
+                      + items.getClass().getName());
+                }
 
                 // Return tranformed view
                 return Iterables.transform((Iterable<?>)items, new com.google.common.base.Function<Object, Object>() {
                     @Override
                     public Object apply(Object item) {
-                        return TransformFunction.this.evaluate(session, params.getVariable(), item, params.getExpr()).get(session);
+                        return TransformFunction.this.evaluate(session,
+                          params.getVariable(), new Value(item), params.getExpr()).get(session);
                     }
                 });
             }

@@ -18,8 +18,8 @@ public interface Setter {
      * Make assignment.
      *
      * @param value new value
-     * @throws IllegalArgumentException if {@code value} is invalid
+     * @throws IllegalArgumentException if {@code value} is null or otherwise invalid
      */
-    void set(Session session, Object value);
+    void set(Session session, Value value);
 }
 

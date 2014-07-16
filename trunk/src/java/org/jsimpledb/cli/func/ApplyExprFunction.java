@@ -75,21 +75,26 @@ public abstract class ApplyExprFunction extends Function {
      * Set the variable to the given value and then evaluate the expression.
      * Any previous value of the variable is saved prior and restored after.
      */
-    protected Value evaluate(Session session, String variable, Object value, Node expr) {
+    protected Value evaluate(Session session, String variable, Value value, Node expr) {
 
         // Save previous variable value, if any
         final boolean hasPreviousValue = session.getVars().containsKey(variable);
-        final Object previousValue = hasPreviousValue ? session.getVars().get(variable) : null;
+        final Value previousValue = hasPreviousValue ? session.getVars().get(variable) : null;
 
         // Assign variable
         session.getVars().put(variable, value);
+        final Value result;
+        try {
 
-        // Evaluate expression
-        final Value result = expr.evaluate(session);
+            // Evaluate expression
+            result = expr.evaluate(session);
 
-        // Restore previous variable value
-        if (hasPreviousValue)
-            session.getVars().put(variable, previousValue);
+        } finally {
+
+            // Restore previous variable value
+            if (hasPreviousValue)
+                session.getVars().put(variable, previousValue);
+        }
 
         // Done
         return result;

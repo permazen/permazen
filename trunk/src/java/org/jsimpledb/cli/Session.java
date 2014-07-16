@@ -20,6 +20,7 @@ import org.jsimpledb.ValidationMode;
 import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.cli.func.Function;
 import org.jsimpledb.cli.parse.ParseException;
+import org.jsimpledb.cli.parse.expr.Value;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.core.Transaction;
@@ -37,7 +38,7 @@ public class Session {
     private final LinkedHashSet<String> imports = new LinkedHashSet<>();
     private final TreeMap<String, Command> commands = new TreeMap<>();
     private final TreeMap<String, Function> functions = new TreeMap<>();
-    private final TreeMap<String, Object> variables = new TreeMap<>();
+    private final TreeMap<String, Value> variables = new TreeMap<>();
 
     private Transaction tx;
     private SchemaModel schemaModel;
@@ -128,7 +129,7 @@ public class Session {
         return this.functions;
     }
 
-    public SortedMap<String, Object> getVars() {
+    public SortedMap<String, Value> getVars() {
         return this.variables;
     }
 

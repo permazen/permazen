@@ -37,17 +37,23 @@ public class LimitFunction extends SimpleFunction {
     protected Value apply(Session session, Value[] params) {
 
         // Get limit
+        final Value value = params[0];
         final int limit = params[1].checkNumeric(session, "limit()").intValue();
         if (limit < 0)
             throw new EvalException("invalid limit() value " + limit);
 
         // Apply limit
-        Object obj = params[0].checkNotNull(session, "limit()");
-        if (obj instanceof Iterable)
-            return new Value(Iterables.limit((Iterable<?>)obj, limit));
-        if (obj instanceof Iterator)
-            return new Value(Iterators.limit((Iterator<?>)obj, limit));
-        throw new EvalException("limit() cannot be applied to object of type " + obj.getClass().getName());
+        return new Value(null) {
+            @Override
+            public Object get(Session session) {
+                final Object obj = value.checkNotNull(session, "limit()");
+                if (obj instanceof Iterable)
+                    return Iterables.limit((Iterable<?>)obj, limit);
+                if (obj instanceof Iterator)
+                    return Iterators.limit((Iterator<?>)obj, limit);
+                throw new EvalException("limit() cannot be applied to object of type " + obj.getClass().getName());
+            }
+        };
     }
 }
 

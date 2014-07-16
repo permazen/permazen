@@ -398,12 +398,12 @@ public class BaseExprParser implements Parser<Node> {
     private Value evaluateProperty(Session session, Value value, final String name) {
 
         // Evaluate target
-        final Object obj = value.checkNotNull(session, "property `" + name + "' access");
-        final Class<?> cl = obj.getClass();
+        final Object target = value.checkNotNull(session, "property `" + name + "' access");
+        final Class<?> cl = target.getClass();
 
         // Handle properties of database objects (i.e., database fields)
-        if (session.hasJSimpleDB() && obj instanceof JObject) {
-            final ObjId id = ((JObject)obj).getObjId();
+        if (session.hasJSimpleDB() && target instanceof JObject) {
+            final ObjId id = ((JObject)target).getObjId();
 
             // Resolve JField
             JField jfield0;
@@ -418,11 +418,12 @@ public class BaseExprParser implements Parser<Node> {
             if (jfield != null) {
                 return new Value(null, jfield instanceof JSimpleField ? new Setter() {
                     @Override
-                    public void set(Session session, Object value) {
+                    public void set(Session session, Value value) {
+                        final Object obj = value.get(session);
                         try {
-                            ((JSimpleField)jfield).setValue(JTransaction.getCurrent(), id, value);
+                            ((JSimpleField)jfield).setValue(JTransaction.getCurrent(), id, obj);
                         } catch (IllegalArgumentException e) {
-                            throw new EvalException("invalid value of type " + (value != null ? value.getClass().getName() : "null")
+                            throw new EvalException("invalid value of type " + (obj != null ? obj.getClass().getName() : "null")
                               + " for field `" + jfield.getName() + "'", e);
                         }
                     }
@@ -438,8 +439,8 @@ public class BaseExprParser implements Parser<Node> {
                     }
                 };
             }
-        } else if (!session.hasJSimpleDB() && obj instanceof ObjId) {
-            final ObjId id = (ObjId)obj;
+        } else if (!session.hasJSimpleDB() && target instanceof ObjId) {
+            final ObjId id = (ObjId)target;
 
             // Resolve field
             org.jsimpledb.core.Field<?> field0;
@@ -454,11 +455,12 @@ public class BaseExprParser implements Parser<Node> {
             if (field != null) {
                 return new Value(field instanceof SimpleField ? new Setter() {
                     @Override
-                    public void set(Session session, Object value) {
+                    public void set(Session session, Value value) {
+                        final Object obj = value.get(session);
                         try {
-                            session.getTransaction().writeSimpleField(id, field.getStorageId(), value, false);
+                            session.getTransaction().writeSimpleField(id, field.getStorageId(), obj, false);
                         } catch (IllegalArgumentException e) {
-                            throw new EvalException("invalid value of type " + (value != null ? value.getClass().getName() : "null")
+                            throw new EvalException("invalid value of type " + (obj != null ? obj.getClass().getName() : "null")
                               + " for " + field, e);
                         }
                     }
@@ -492,9 +494,10 @@ public class BaseExprParser implements Parser<Node> {
             final Method writeMethod = pd.getWriteMethod();
             return new Value(null, writeMethod != null ? new Setter() {
                 @Override
-                public void set(Session session, Object value) {
+                public void set(Session session, Value value) {
+                    final Object obj = value.get(session);
                     try {
-                        writeMethod.invoke(obj, value);
+                        writeMethod.invoke(target, obj);
                     } catch (Exception e) {
                         final Throwable t = e instanceof InvocationTargetException ?
                           ((InvocationTargetException)e).getTargetException() : e;
@@ -506,7 +509,7 @@ public class BaseExprParser implements Parser<Node> {
                 @Override
                 public Object get(Session session) {
                     try {
-                        return readMethod.invoke(obj);
+                        return readMethod.invoke(target);
                     } catch (Exception e) {
                         final Throwable t = e instanceof InvocationTargetException ?
                           ((InvocationTargetException)e).getTargetException() : e;
@@ -528,9 +531,10 @@ public class BaseExprParser implements Parser<Node> {
             final Field javaField2 = javaField;
             return new DynamicValue() {
                 @Override
-                public void set(Session session, Object value) {
+                public void set(Session session, Value value) {
+                    final Object obj = value.get(session);
                     try {
-                        javaField2.set(obj, value);
+                        javaField2.set(target, obj);
                     } catch (Exception e) {
                         throw new EvalException("error setting field `" + name + "' in object of type "
                           + cl.getName() + ": " + e, e);
@@ -539,7 +543,7 @@ public class BaseExprParser implements Parser<Node> {
                 @Override
                 public Object get(Session session) {
                     try {
-                        return javaField2.get(obj);
+                        return javaField2.get(target);
                     } catch (Exception e) {
                         throw new EvalException("error reading field `" + name + "' in object of type "
                           + cl.getName() + ": " + e, e);
@@ -549,8 +553,8 @@ public class BaseExprParser implements Parser<Node> {
         }
 
         // Handle array.length
-        if (obj.getClass().isArray() && name.equals("length"))
-            return new Value(Array.getLength(obj));
+        if (target.getClass().isArray() && name.equals("length"))
+            return new Value(Array.getLength(target));
 
         // Not found
         throw new EvalException("property `" + name + "' not found in " + cl);
@@ -625,8 +629,9 @@ public class BaseExprParser implements Parser<Node> {
                     params = newParams;
                 } else if (params.length != ptypes.length)
                     return null;
+                final Object result;
                 try {
-                    return new Value(method.invoke(obj, params));
+                    result = method.invoke(obj, params);
                 } catch (IllegalArgumentException e) {
                     return null;                            // a parameter type didn't match -> wrong method
                 } catch (Exception e) {
@@ -635,6 +640,7 @@ public class BaseExprParser implements Parser<Node> {
                     throw new EvalException("error invoking method `" + name + "()' on "
                       + (obj != null ? "object of type " + obj.getClass().getName() : method.getDeclaringClass()) + ": " + t, t);
                 }
+                return result != null || method.getReturnType() != Void.TYPE ? new Value(result) : Value.NO_VALUE;
             }
         };
     }
@@ -644,7 +650,7 @@ public class BaseExprParser implements Parser<Node> {
             @Override
             public Value evaluate(Session session) {
                 final Value oldValue = node.evaluate(session);
-                oldValue.increment(session, "post-" + operation, increment);
+                oldValue.xxcrement(session, "post-" + operation, increment);
                 return oldValue;
             }
         };

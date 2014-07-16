@@ -12,7 +12,7 @@ public class RelationalExprParser extends BinaryExprParser {
     public static final RelationalExprParser INSTANCE = new RelationalExprParser();
 
     public RelationalExprParser() {
-        super(ShiftExprParser.INSTANCE, Op.LTEQ, Op.GTEQ, Op.LT, Op.GT, Op.INSTANCEOF);
+        super(InstanceofParser.INSTANCE, Op.LTEQ, Op.GTEQ, Op.LT, Op.GT);
     }
 }
 

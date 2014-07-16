@@ -36,9 +36,10 @@ public enum Op {
                 final Object key = targetValue.get(session);
                 return new Value(map.get(key), new Setter() {
                     @Override
-                    public void set(Session session, Object value) {
+                    public void set(Session session, Value value) {
+                        final Object obj = value.get(session);
                         try {
-                            map.put(key, value);
+                            map.put(key, obj);
                         } catch (RuntimeException e) {
                             throw new EvalException("invalid map put operation", e);
                         }
@@ -54,9 +55,10 @@ public enum Op {
                 final List list = (List)target;
                 return new Value(list.get(index), new Setter() {
                     @Override
-                    public void set(Session session, Object value) {
+                    public void set(Session session, Value value) {
+                        final Object obj = value.get(session);
                         try {
-                            list.set(index, value);
+                            list.set(index, obj);
                         } catch (RuntimeException e) {
                             throw new EvalException("invalid list set operation", e);
                         }
@@ -73,9 +75,10 @@ public enum Op {
             }
             return new Value(element, new Setter() {
                 @Override
-                public void set(Session session, Object value) {
+                public void set(Session session, Value value) {
+                    final Object obj = value.get(session);
                     try {
-                        Array.set(target, index, value);
+                        Array.set(target, index, obj);
                     } catch (RuntimeException e) {
                         throw new EvalException("invalid array set operation", e);
                     }
@@ -130,7 +133,7 @@ public enum Op {
 // Cast
 
     CAST(1, "()") {
-        // TODO
+        // Handled by CastExprParser
     },
 
 // Multiplicative
@@ -226,7 +229,7 @@ public enum Op {
     },
 
     INSTANCEOF(2, "instanceof") {
-        // TODO
+        // Handled by InstanceofParser
     },
 
 // Equality

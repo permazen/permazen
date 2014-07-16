@@ -14,6 +14,7 @@ import org.jsimpledb.cli.Action;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.expr.EvalException;
 import org.jsimpledb.cli.parse.expr.Node;
+import org.jsimpledb.cli.parse.expr.Value;
 import org.jsimpledb.util.ParseContext;
 
 @CliCommand
@@ -35,16 +36,17 @@ public class EvalCommand extends Command {
             @Override
             public void run(Session session) throws Exception {
                 final PrintWriter writer = session.getWriter();
+                final Value value;
                 final Object result;
                 try {
-                    result = expr.evaluate(session).get(session);
+                    result = (value = expr.evaluate(session)).get(session);
                 } catch (EvalException e) {
                     writer.println("Error: " + e.getMessage());
                     for (Throwable t = e.getCause(); t != null; t = t.getCause())
                         writer.println("Caused by: " + t);
                     return;
                 }
-                if (result != null)
+                if (value != Value.NO_VALUE)
                     writer.println(result);
             }
         };

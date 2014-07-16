@@ -63,7 +63,7 @@ public class DumpFunction extends SimpleFunction {
         this.dump(session, id);
 
         // Done
-        return new Value(null);
+        return Value.NO_VALUE;
     }
 
     private void dump(final Session session, final ObjId id) {

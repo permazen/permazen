@@ -27,7 +27,8 @@ public class AssignmentExprParser extends BinaryExprParser {
 
                 // Get left-hand value
                 final Value oldValue = lhs.evaluate(session);
-                if (oldValue.getSetter() == null)
+                final Setter setter = oldValue.getSetter();
+                if (setter == null)
                     throw new EvalException("invalid assignment to non-assignable value");
 
                 // Calculate new value
@@ -36,7 +37,7 @@ public class AssignmentExprParser extends BinaryExprParser {
                     newValue = Op.forSymbol(op.getSymbol().replaceAll("=", "")).apply(session, oldValue, newValue);
 
                 // Assign new value
-                oldValue.getSetter().set(session, newValue.get(session));
+                setter.set(session, newValue);
 
                 // Done
                 return newValue;

@@ -32,7 +32,7 @@ public class ForEachFunction extends ApplyExprFunction {
 
     @Override
     public String getHelpDetail() {
-        return "Iterates over a collection, for each item assigning the item to the specified variable and evaluating"
+        return "Iterates over an Iterable, for each item assigning the item to the specified variable and evaluating"
           + " the specified expression. Maps are also supported, in which case the map's entrySet() is iterated.";
     }
 
@@ -46,12 +46,12 @@ public class ForEachFunction extends ApplyExprFunction {
         if (items instanceof Map)
             items = ((Map<?, ?>)items).entrySet();
         if (!(items instanceof Iterable))
-            throw new EvalException("invalid foreach() operation over object of type " + items.getClass().getName());
+            throw new EvalException("invalid foreach() operation over non-Iterable object of type " + items.getClass().getName());
         for (Object item : ((Iterable<?>)items))
-            this.evaluate(session, params.getVariable(), item, params.getExpr());
+            this.evaluate(session, params.getVariable(), new Value(item), params.getExpr());
 
         // Done
-        return new Value(null);
+        return Value.NO_VALUE;
     }
 }
 
