@@ -104,12 +104,26 @@ public class Value {
      * @return numeric value
      */
     public Number checkNumeric(Session session, String operation) {
+        return Value.checkNumeric(session, this.get(session), operation);
+    }
+
+    /**
+     * Verify this instance has a numeric type that is integral, i.e., byte, char, short, or int.
+     * Return its integer value.
+     *
+     * @param session current session
+     * @param operation description of operation for error messages
+     * @return integer value
+     */
+    public int checkIntegral(Session session, String operation) {
         final Object value = this.checkNotNull(session, operation);
-        if (!(value instanceof Number)) {
+        if (value instanceof Character)
+            return (int)(Character)value;
+        if (!(value instanceof Byte) && !(value instanceof Short) && !(value instanceof Integer)) {
             throw new EvalException("invalid " + operation
-              + " operation on non-numeric value of type " + value.getClass().getName());
+              + " operation on non-integral value of type " + value.getClass().getName());
         }
-        return (Number)value;
+        return ((Number)value).intValue();
     }
 
     /**

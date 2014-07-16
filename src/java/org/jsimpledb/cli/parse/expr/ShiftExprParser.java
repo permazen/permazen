@@ -12,7 +12,7 @@ public class ShiftExprParser extends BinaryExprParser {
     public static final ShiftExprParser INSTANCE = new ShiftExprParser();
 
     public ShiftExprParser() {
-        super(AdditiveExprParser.INSTANCE, Op.LSHIFT, Op.RSHIFT, Op.URSHIFT);
+        super(AdditiveExprParser.INSTANCE, Op.LSHIFT, Op.URSHIFT, Op.RSHIFT);
     }
 }
 

@@ -46,11 +46,8 @@ public enum Op {
                 });
             }
 
-            // Promote index to integer
-            final Number item = Value.promoteNumeric(session, itemValue.get(session), "array access");
-            if (!(item instanceof Integer))
-                throw new EvalException("invalid array index value of type " + item.getClass().getName());
-            final int index = (int)(Integer)item;
+            // Get array index
+            final int index = itemValue.checkIntegral(session, "array access");
 
             // Handle list
             if (target instanceof List) {

@@ -15,15 +15,20 @@ import java.beans.IndexedPropertyDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 
+import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.JField;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleField;
@@ -52,10 +57,146 @@ public class BaseExprParser implements Parser<Node> {
         Node node = new AtomParser(
           Iterables.transform(session.getFunctions().keySet(), new AddSuffixFunction("("))).parse(session, ctx, complete);
 
-        // Parse operators (this gives left-to-right association)
+        // Handle new
+        if (node instanceof IdentNode && ((IdentNode)node).getName().equals("new")) {
+
+            // Get class name (or array type base), which must be a sequence of identifiers connected via dots
+            new SpaceParser(true).parse(ctx, complete);
+            String className = ctx.matchPrefix(IdentNode.NAME_PATTERN).group();
+            while (true) {
+                final Matcher matcher = ctx.tryPattern("\\s*\\.\\s*(" + IdentNode.NAME_PATTERN + ")");
+                if (matcher == null)
+                    break;
+                className += "." + matcher.group(1);
+            }
+
+            // Get array dimensions, if any
+            final ArrayList<Node> dims = new ArrayList<>();
+            boolean sawNull = false;
+            while (true) {
+                ctx.skipWhitespace();
+                if (!ctx.tryLiteral("["))
+                    break;
+                ctx.skipWhitespace();
+                if (ctx.tryLiteral("]")) {
+                    dims.add(null);
+                    sawNull = true;
+                    continue;
+                }
+                if (!sawNull) {
+                    dims.add(ExprParser.INSTANCE.parse(session, ctx, complete));
+                    ctx.skipWhitespace();
+                }
+                if (!ctx.tryLiteral("]"))
+                    throw new ParseException(ctx, "expected `]'").addCompletion("]");
+            }
+
+            // Resolve (base) class name
+            final Class<?> baseClass;
+            final Primitive<?> primitive;
+            if (!dims.isEmpty() && (primitive = Primitive.forName(className)) != null) {
+                if (primitive == Primitive.VOID)
+                    throw new ParseException(ctx, "illegal instantiation of void array");
+                baseClass = primitive.getType();
+            } else {
+                baseClass = session.resolveClass(className);
+                if (baseClass == null)
+                    throw new ParseException(ctx, "unknown class `" + className + "'");     // TODO: tab-completions
+            }
+
+            // Handle non-array
+            if (dims.isEmpty()) {
+
+                // Parse parameters
+                ctx.skipWhitespace();
+                if (!ctx.tryLiteral("("))
+                    throw new ParseException(ctx, "expected `('").addCompletion("(");
+                final List<Node> paramNodes = BaseExprParser.parseParams(session, ctx, complete);
+
+                // Return constructor invocation node
+                node = new Node() {
+                    @Override
+                    public Value evaluate(final Session session) {
+                        if (baseClass.isInterface())
+                            throw new EvalException("invalid instantiation of " + baseClass);
+                        final Object[] params = Lists.transform(paramNodes, new com.google.common.base.Function<Node, Object>() {
+                            @Override
+                            public Object apply(Node param) {
+                                return param.evaluate(session).get(session);
+                            }
+                        }).toArray();
+                        for (Constructor<?> constructor : baseClass.getConstructors()) {
+                            final Class<?>[] ptypes = constructor.getParameterTypes();
+                            if (ptypes.length != params.length)
+                                continue;
+                            try {
+                                return new Value(constructor.newInstance(params));
+                            } catch (IllegalArgumentException e) {
+                                continue;                               // wrong method, a parameter type didn't match
+                            } catch (Exception e) {
+                                final Throwable t = e instanceof InvocationTargetException ?
+                                  ((InvocationTargetException)e).getTargetException() : e;
+                                throw new EvalException("error invoking constructor `" + baseClass.getName() + "()': " + t, t);
+                            }
+                        }
+                        throw new EvalException("no compatible constructor found in " + baseClass);
+                    }
+                };
+            } else {                                        // handle array
+
+                // Check number of dimensions
+                if (dims.size() > 255)
+                    throw new ParseException(ctx, "too many array dimensions (" + dims.size() + " > 255)");
+
+                // Array literal must be present if and only if no dimensions are given
+                final List<?> literal = dims.get(0) == null ?
+                  this.parseArrayLiteral(session, ctx, complete, this.getArrayClass(baseClass, dims.size() - 1)) : null;
+
+                // Return array instantiation invocation node
+                node = new Node() {
+                    @Override
+                    public Value evaluate(final Session session) {
+                        final Class<?> elemType = BaseExprParser.this.getArrayClass(baseClass, dims.size() - 1);
+                        return new Value(literal != null ?
+                          this.createLiteral(session, elemType, literal) : this.createEmpty(session, elemType, dims));
+                    }
+
+                    private Object createEmpty(Session session, Class<?> elemType, List<Node> dims) {
+                        final int length = dims.get(0).evaluate(session).checkIntegral(session, "array creation");
+                        final Object array = Array.newInstance(elemType, length);
+                        final List<Node> remainingDims = dims.subList(1, dims.size());
+                        if (!remainingDims.isEmpty() && remainingDims.get(0) != null) {
+                            for (int i = 0; i < length; i++)
+                                Array.set(array, i, this.createEmpty(session, elemType.getComponentType(), remainingDims));
+                        }
+                        return array;
+                    }
+
+                    private Object createLiteral(Session session, Class<?> elemType, List<?> values) {
+                        final int length = values.size();
+                        final Object array = Array.newInstance(elemType, length);
+                        for (int i = 0; i < length; i++) {
+                            if (elemType.isArray()) {
+                                Array.set(array, i, this.createLiteral(session,
+                                  elemType.getComponentType(), (List<?>)values.get(i)));
+                            } else {
+                                try {
+                                    Array.set(array, i, ((Node)values.get(i)).evaluate(session).get(session));
+                                } catch (Exception e) {
+                                    throw new EvalException("error setting array value: " + e, e);
+                                }
+                            }
+                        }
+                        return array;
+                    }
+                };
+            }
+        }
+
+        // Repeatedly parse operators (this gives left-to-right association)
         while (true) {
 
-            // Parse operator, if any
+            // Parse operator, if any (one of `[', `.', `(', `++', or `--')
             final Matcher opMatcher = ctx.tryPattern("\\s*(\\[|\\.|\\(|\\+{2}|-{2})");
             if (opMatcher == null)
                 return node;
@@ -99,17 +240,28 @@ public class BaseExprParser implements Parser<Node> {
                 Class<?> cl = null;
                 if (node instanceof IdentNode) {
 
-                    // Keep parsing identifiers until we recognize a class name
-                    String className = ((IdentNode)node).getName();
+                    // Keep parsing identifiers as long as we can; after each identifier, try to resolve a class name
+                    final TreeMap<Integer, Class<?>> classes = new TreeMap<>();
+                    String idents = ((IdentNode)node).getName();
                     while (true) {
-                        if ((cl = session.resolveClass(className)) != null)
-                            break;
+                        classes.put(ctx.getIndex(), session.resolveClass(idents));
                         final Matcher matcher = ctx.tryPattern("\\s*\\.\\s*(" + IdentNode.NAME_PATTERN + ")");
                         if (matcher == null)
-                            throw new ParseException(ctx, "unknown class `" + className + "'");     // TODO: tab-completions
-                        className += "." + member;
+                            break;
+                        idents += "." + member;
                         member = matcher.group(1);
                     }
+
+                    // Use the longest class name resolved, if any
+                    for (Map.Entry<Integer, Class<?>> entry : classes.descendingMap().entrySet()) {
+                        if (entry.getValue() != null) {
+                            cl = entry.getValue();
+                            ctx.setIndex(entry.getKey());
+                            break;
+                        }
+                    }
+                    if (cl == null)
+                        throw new ParseException(ctx, "unknown class `" + idents + "'");        // TODO: tab-completions
                 }
 
                 // Handle property access
@@ -163,6 +315,47 @@ public class BaseExprParser implements Parser<Node> {
         }
     }
 
+    // Parse array literal
+    private List<?> parseArrayLiteral(Session session, ParseContext ctx, boolean complete, Class<?> elemType) {
+        final ArrayList<Object> list = new ArrayList<>();
+        this.spaceParser.parse(ctx, complete);
+        if (!ctx.tryLiteral("{"))
+            throw new ParseException(ctx).addCompletion("{ ");
+        this.spaceParser.parse(ctx, complete);
+        if (ctx.tryLiteral("}"))
+            return list;
+        while (true) {
+            list.add(elemType.isArray() ?
+              this.parseArrayLiteral(session, ctx, complete, elemType.getComponentType()) :
+              ExprParser.INSTANCE.parse(session, ctx, complete));
+            ctx.skipWhitespace();
+            if (ctx.tryLiteral("}"))
+                break;
+            if (!ctx.tryLiteral(","))
+                throw new ParseException(ctx, "expected `,'").addCompletion(", ");
+            this.spaceParser.parse(ctx, complete);
+        }
+        return list;
+    }
+
+    // Get the array class with the given base type and dimensions
+    private Class<?> getArrayClass(Class<?> base, int dimensions) {
+        if (dimensions == 0)
+            return base;
+        final String suffix = base.isArray() ? base.getName() :
+          base.isPrimitive() ? "" + Primitive.get(base).getLetter() : "L" + base.getName() + ";";
+        final StringBuilder buf = new StringBuilder(dimensions + suffix.length());
+        while (dimensions-- > 0)
+            buf.append('[');
+        buf.append(suffix);
+        final String className = buf.toString();
+        try {
+            return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+        } catch (Exception e) {
+            throw new EvalException("can't load array class `" + className + "'");
+        }
+    }
+
     // Parse method parameters; we assume opening `(' has just been parsed
     static List<Node> parseParams(Session session, ParseContext ctx, boolean complete) {
         final ArrayList<Node> params = new ArrayList<Node>();
@@ -176,7 +369,7 @@ public class BaseExprParser implements Parser<Node> {
             if (ctx.tryLiteral(")"))
                 break;
             if (!ctx.tryLiteral(","))
-                throw new ParseException(ctx).addCompletion(", ");
+                throw new ParseException(ctx, "expected `,'").addCompletion(", ");
             spaceParser.parse(ctx, complete);
         }
         return params;
@@ -346,6 +539,10 @@ public class BaseExprParser implements Parser<Node> {
                 }
             };
         }
+
+        // Handle array.length
+        if (obj.getClass().isArray() && name.equals("length"))
+            return new Value(Array.getLength(obj));
 
         // Not found
         throw new EvalException("property `" + name + "' not found in " + cl);

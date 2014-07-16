@@ -121,8 +121,7 @@ public class ParamParser implements Parser<Map<String, Object>> {
                 try {
                     return prim.parseValue(ctx.matchPrefix("[^\\s]+").group());
                 } catch (IllegalArgumentException e) {
-                    throw new ParseException(ctx, "invalid " + prim.getName()
-                      + " value starting at `" + ParseUtil.truncate(ctx.getInput(), 8) + "'", e);
+                    throw new ParseException(ctx, "invalid " + prim.getName() + " value", e);
                 }
             }
         };

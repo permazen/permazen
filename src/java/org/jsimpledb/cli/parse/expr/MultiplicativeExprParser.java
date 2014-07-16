@@ -12,7 +12,7 @@ public class MultiplicativeExprParser extends BinaryExprParser {
     public static final MultiplicativeExprParser INSTANCE = new MultiplicativeExprParser();
 
     public MultiplicativeExprParser() {
-        super(NewCastExprParser.INSTANCE, Op.MULTIPLY, Op.DIVIDE, Op.MODULO);
+        super(CastExprParser.INSTANCE, Op.MULTIPLY, Op.DIVIDE, Op.MODULO);
     }
 }
 
