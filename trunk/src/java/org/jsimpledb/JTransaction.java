@@ -396,6 +396,7 @@ public class JTransaction {
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
+     * @throws IllegalArgumentException if {@code srcId} or {@code dstId} are not valid
      * @throws IllegalArgumentException if any parameter is null
      * @see JObject#copyTo JObject.copyTo()
      * @see JObject#copyOut JObject.copyOut()
@@ -417,14 +418,21 @@ public class JTransaction {
         if (this.tx == dest.tx && srcId.equals(dstId))
             return dest.getJObject(dstId);
 
+        // Use default if no reference paths are explicitly provided
+        final JClass<?> jclass = this.jdb.getJClass(srcId.getStorageId());
+        if (refPaths.length == 0)
+            refPaths = jclass.copyReferences.toArray(new String[jclass.copyReferences.size()]);
+
         // Parse paths
-        final TypeToken<?> startType = this.jdb.getJClass(srcId.getStorageId()).typeToken;
+        final TypeToken<?> startType = jclass.typeToken;
         final HashSet<ReferencePath> paths = new HashSet<>(refPaths.length);
         for (String refPath : refPaths) {
 
-            // Parse refernce path
+            // Ignore nulls
             if (refPath == null)
-                throw new IllegalArgumentException("null refPath");
+                continue;
+
+            // Parse reference path
             final ReferencePath path = this.jdb.parseReferencePath(startType, refPath, null);
 
             // Verify target field is a reference field; convert a complex target field into its reference sub-field(s)
