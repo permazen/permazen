@@ -2479,10 +2479,13 @@ public class Transaction {
 
     /**
      * Callback interface for notification of transaction completion events.
+     * Callbacks are registered with a transaction via {@link Transaction#addCallback Transaction.addCallback()}.
      *
      * <p>
      * Modeled after Spring's {@link org.springframework.transaction.support.TransactionSynchronization} interface.
      * </p>
+     *
+     * @see Transaction#addCallback Transaction.addCallback()
      */
     public interface Callback {
 
