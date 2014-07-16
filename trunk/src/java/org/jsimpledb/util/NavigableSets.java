@@ -25,7 +25,7 @@ public final class NavigableSets {
      * (or else all null, for natural ordering).
      *
      * <p>
-     * The returned intersection interates efficiently: a complete iteration takes time <i>O(N * M)</i> where
+     * The returned intersection interates efficiently: a complete iteration requires <i>O(N * M)</i> queries, where
      * <i>N</i> is the size of the smallest set, and <i>M</i> is the number of sets.
      * </p>
      *
