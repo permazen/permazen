@@ -40,7 +40,7 @@ public class PrintFunction extends SimpleFunction {
             for (Throwable t = e.getCause(); t != null; t = t.getCause())
                 writer.println("Caused by: " + t);
         }
-        return new Value(null);
+        return Value.NO_VALUE;
     }
 }
 

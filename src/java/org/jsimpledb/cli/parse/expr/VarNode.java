@@ -33,14 +33,16 @@ public class VarNode extends AbstractNamed implements Node {
 
             @Override
             public Object get(Session session) {
-                final Object value = session.getVars().get(VarNode.this.name);
-                if (value == null && !session.getVars().containsKey(VarNode.this.name))
+                final Value value = session.getVars().get(VarNode.this.name);
+                if (value == null)
                     throw new EvalException("variable `" + name + "' is not defined");
-                return value;
+                return value.get(session);
             }
 
             @Override
-            public void set(Session session, Object value) {
+            public void set(Session session, Value value) {
+                if (value == null)
+                    throw new IllegalArgumentException("null value");
                 session.getVars().put(VarNode.this.name, value);
             }
         };

@@ -46,7 +46,7 @@ public class QueryFunction extends Function {
         // Parse indexed field parameter
         if (ctx.tryLiteral(")"))
             throw new ParseException(ctx, "indexed field parameter required");
-        final int storageId = new IndexedFieldParser().parse(session, ctx, complete);
+        final int storageId = new IndexedFieldParser().parse(session, ctx, complete).getField().getStorageId();
 
         // Finish parse
         ctx.skipWhitespace();
@@ -60,8 +60,13 @@ public class QueryFunction extends Function {
     @Override
     public Value apply(Session session, Object params) {
         final int storageId = (Integer)params;
-        return new Value(session.hasJSimpleDB() ?
-          JTransaction.getCurrent().querySimpleField(storageId) : session.getTransaction().querySimpleField(storageId));
+        return new Value(null) {
+            @Override
+            public Object get(Session session) {
+                return session.hasJSimpleDB() ?
+                  JTransaction.getCurrent().querySimpleField(storageId) : session.getTransaction().querySimpleField(storageId);
+            }
+        };
     }
 }
 

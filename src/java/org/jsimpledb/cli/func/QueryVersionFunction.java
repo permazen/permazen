@@ -35,8 +35,13 @@ public class QueryVersionFunction extends SimpleFunction {
 
     @Override
     public Value apply(Session session, Value[] params) {
-        return new Value(session.hasJSimpleDB() ?
-          JTransaction.getCurrent().queryVersion() : session.getTransaction().queryVersion());
+        return new Value(null) {
+            @Override
+            public Object get(Session session) {
+                return session.hasJSimpleDB() ?
+                  JTransaction.getCurrent().queryVersion() : session.getTransaction().queryVersion();
+            }
+        };
     }
 }
 

@@ -65,7 +65,7 @@ public class UnaryExprParser implements Parser<Node> {
         return new Node() {
             @Override
             public Value evaluate(Session session) {
-                return arg.evaluate(session).increment(session, "pre-" + operation, increment);
+                return arg.evaluate(session).xxcrement(session, "pre-" + operation, increment);
             }
         };
     }

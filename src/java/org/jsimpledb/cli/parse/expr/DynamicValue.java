@@ -15,7 +15,7 @@ import org.jsimpledb.cli.Session;
 public abstract class DynamicValue extends Value implements Setter {
 
     protected DynamicValue() {
-        super(null, SELF);
+        super(null);
     }
 
     @Override
