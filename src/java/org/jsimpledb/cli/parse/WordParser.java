@@ -9,6 +9,7 @@ package org.jsimpledb.cli.parse;
 
 import java.util.Collection;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.util.ParseContext;
@@ -56,7 +57,10 @@ public class WordParser implements Parser<String> {
     public String parse(Session session, ParseContext ctx, boolean complete) {
 
         // Get word
-        final String word = ctx.matchPrefix("[^\\s;]*").group();
+        final Matcher matcher = ctx.tryPattern("[^\\s;]*");
+        if (matcher == null)
+            throw new ParseException(ctx);
+        final String word = matcher.group();
 
         // Check word
         if (this.words != null) {

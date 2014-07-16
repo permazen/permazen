@@ -34,7 +34,7 @@ public class ObjIdParser implements Parser<ObjId> {
         // Get parameter
         final Matcher matcher = ctx.tryPattern("([0-9A-Fa-f]{0,16})");
         if (matcher == null)
-            throw new ParseException(ctx, "invalid object ID starting with `" + ParseUtil.truncate(ctx.getInput(), 16) + "'");
+            throw new ParseException(ctx, "invalid object ID");
         final String param = matcher.group(1);
 
         // Attempt to parse id
@@ -42,7 +42,7 @@ public class ObjIdParser implements Parser<ObjId> {
             return new ObjId(param);
         } catch (IllegalArgumentException e) {              // must be a partial ID
             if (!ctx.isEOF() || !complete)
-                throw new ParseException(ctx, "invalid object ID starting with `" + ParseUtil.truncate(ctx.getInput(), 16) + "'");
+                throw new ParseException(ctx, "invalid object ID");
         }
 
         // Get corresponding min & max ObjId (both inclusive)
@@ -56,7 +56,7 @@ public class ObjIdParser implements Parser<ObjId> {
             min0 = new ObjId(minString);
         } catch (IllegalArgumentException e) {
             if (!minString.startsWith("00"))
-                throw new ParseException(ctx, "invalid object ID starting with `" + ParseUtil.truncate(ctx.getInput(), 16) + "'");
+                throw new ParseException(ctx, "invalid object ID");
             min0 = null;
         }
         Arrays.fill(idChars, paramChars.length, idChars.length, 'f');
@@ -117,8 +117,7 @@ public class ObjIdParser implements Parser<ObjId> {
         });
 
         // Throw exception with completions
-        throw new ParseException(ctx, "invalid object ID starting with `" + ParseUtil.truncate(ctx.getInput(), 16) + "'")
-          .addCompletions(ParseUtil.complete(completions, param));
+        throw new ParseException(ctx, "invalid object ID").addCompletions(ParseUtil.complete(completions, param));
     }
 }
 

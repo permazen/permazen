@@ -72,8 +72,8 @@ public abstract class Function {
      * Parse function parameters.
      *
      * <p>
-     * The {@code ctx} will be pointing at the first parameter (if any). This method should parse (but not evaluate)
-     * function parameters up through the closing parenthesis.
+     * The {@code ctx} will be pointing at the first parameter (if any) or closing parenthesis. This method should parse
+     * (but not evaluate) function parameters up through the closing parenthesis.
      * </p>
      *
      * @param session CLI session

@@ -41,19 +41,21 @@ public class ObjTypeParser implements Parser<ObjType> {
         // Try to parse as an integer
         final Transaction tx = session.getTransaction();
         final Database db = session.getDatabase();
+        final int startIndex = ctx.getIndex();
         try {
             final int storageId = db.getFieldTypeRegistry().getFieldType(TypeToken.of(Integer.TYPE)).fromString(ctx);
             return tx.getSchemaVersion().getSchemaItem(storageId, ObjType.class);
         } catch (IllegalArgumentException e) {
             // ignore
         }
+        ctx.setIndex(startIndex);
 
         // Try to parse as an object type name with optional #version suffix
         final Matcher matcher;
         try {
             matcher = ctx.matchPrefix("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*)(#([0-9]+))?");
         } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, "invalid object type starting with `" + ParseUtil.truncate(ctx.getInput(), 16) + "'");
+            throw new ParseException(ctx, "invalid object type").addCompletions(session.getNameIndex().getSchemaObjectNames());
         }
         final String typeName = matcher.group(1);
         final String versionString = matcher.group(3);
@@ -65,6 +67,7 @@ public class ObjTypeParser implements Parser<ObjType> {
             try {
                 nameIndex = new NameIndex(tx.getSchema().getVersion(Integer.parseInt(versionString)).getSchemaModel());
             } catch (IllegalArgumentException e) {
+                ctx.setIndex(startIndex);
                 throw new ParseException(ctx, "invalid object type schema version `" + versionString + "'");
             }
         } else

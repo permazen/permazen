@@ -62,7 +62,10 @@ public class BaseExprParser implements Parser<Node> {
 
             // Get class name (or array type base), which must be a sequence of identifiers connected via dots
             new SpaceParser(true).parse(ctx, complete);
-            String className = ctx.matchPrefix(IdentNode.NAME_PATTERN).group();
+            final Matcher firstMatcher = ctx.tryPattern(IdentNode.NAME_PATTERN);
+            if (firstMatcher == null)
+                throw new ParseException(ctx, "expected class name");
+            String className = firstMatcher.group();
             while (true) {
                 final Matcher matcher = ctx.tryPattern("\\s*\\.\\s*(" + IdentNode.NAME_PATTERN + ")");
                 if (matcher == null)
@@ -108,9 +111,9 @@ public class BaseExprParser implements Parser<Node> {
             if (dims.isEmpty()) {
 
                 // Parse parameters
-                ctx.skipWhitespace();
                 if (!ctx.tryLiteral("("))
                     throw new ParseException(ctx, "expected `('").addCompletion("(");
+                ctx.skipWhitespace();
                 final List<Node> paramNodes = BaseExprParser.parseParams(session, ctx, complete);
 
                 // Return constructor invocation node
@@ -212,23 +215,28 @@ public class BaseExprParser implements Parser<Node> {
                     throw new ParseException(ctx);
                 final String functionName = ((IdentNode)node).getName();
                 final Function function = session.getFunctions().get(functionName);
-                if (function != null) {
-                    final Object params = function.parseParams(session, ctx, complete);
-                    node = new Node() {
-                        @Override
-                        public Value evaluate(Session session) {
-                            return function.apply(session, params);
-                        }
-                    };
-                    break;
+                if (function == null) {
+                    throw new ParseException(ctx, "unknown function `" + functionName + "()'")
+                      .addCompletions(ParseUtil.complete(session.getFunctions().keySet(), functionName));
                 }
-                throw new ParseException(ctx, "unknown function `" + functionName + "()'")
-                  .addCompletions(ParseUtil.complete(session.getFunctions().keySet(), functionName));
+
+                // Parse function parameters
+                ctx.skipWhitespace();
+                final Object params = function.parseParams(session, ctx, complete);
+
+                // Return node that applies the function to the parameters
+                node = new Node() {
+                    @Override
+                    public Value evaluate(Session session) {
+                        return function.apply(session, params);
+                    }
+                };
+                break;
             }
             case ".":
             {
                 // Parse next atom - it must be an identifier, either a method or property name
-                this.spaceParser.parse(ctx, complete);
+                ctx.skipWhitespace();
                 final Node memberNode = AtomParser.INSTANCE.parse(session, ctx, complete);
                 if (!(memberNode instanceof IdentNode)) {
                     ctx.setIndex(mark);

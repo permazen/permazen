@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -111,7 +112,10 @@ public class DumpCommand extends Command {
         public File parse(Session session, ParseContext ctx, boolean complete) {
 
             // Get filename
-            final String path = ctx.matchPrefix("[^\\s;]*").group();
+            final Matcher matcher = ctx.tryPattern("[^\\s;]*");
+            if (matcher == null)
+                throw new ParseException(ctx);
+            final String path = matcher.group();
 
             // Check file
             final File file = new File(path);
