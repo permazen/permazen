@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Provides a read-only view of the intersection of two or more {@link NavigableSet}s.
- * A complete iteration takes time <i>O(N * M)</i> where <i>N</i> is the number of
+ * A complete iteration takes <i>O(N * M)</i> queries, where <i>N</i> is the number of
  * elements in the smallest set and <i>M</i> is the number of sets.
  */
 class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
