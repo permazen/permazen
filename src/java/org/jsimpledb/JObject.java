@@ -189,7 +189,7 @@ public interface JObject {
      *
      * @param dest destination transaction for copies
      * @param target target object ID in {@code dest} onto which to copy this instance's fields, or null for this instance
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied
+     * @param refPaths zero or more reference paths that refer to additional objects to be copied; null values are ignored
      * @return the copied version of this instance in {@code dest}
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
@@ -229,7 +229,7 @@ public interface JObject {
      *  </code></blockquote>
      * </p>
      *
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied
+     * @param refPaths zero or more reference paths that refer to additional objects to be copied; null values are ignored
      * @return the snapshot {@link JObject} copy of this instance
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
@@ -265,7 +265,7 @@ public interface JObject {
      *  </code></blockquote>
      * </p>
      *
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied
+     * @param refPaths zero or more reference paths that refer to additional objects to be copied; null values are ignored
      * @return the regular database copy of this instance
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance

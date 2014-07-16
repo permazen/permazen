@@ -19,6 +19,7 @@ import java.lang.annotation.Target;
  * <p>
  * This annotation does not change when an object will be enqueued for validation. It only affects the behavior once validation
  * of an instance is actually performed.
+ * </p>
  *
  * <p>
  * When validating an object, validation via {@link Validate &#64;Validate} methods occurs after JSR 303 validation, if any.

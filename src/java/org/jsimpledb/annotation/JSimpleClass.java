@@ -25,18 +25,22 @@ import java.lang.annotation.Target;
  * <p>
  * The following annotations are supported on the methods of a {@link JSimpleClass &#64;JSimpleClass}-annotated class:
  * <ul>
- *  <li>@link JField &#64;JField} - defines a simple value or reference field
- *  <li>@link JSetField &#64;JSetField} - defines a {@link java.util.NavigableSet} field
- *  <li>@link JListField &#64;JListField} - defines a {@link java.util.List} field
- *  <li>@link JMapField &#64;JMapField} - defines a {@link java.util.NavigableMap} field
- *  <li>@link OnChange &#64;OnChange} - annotates a method to be invoked when some field (possibly seen through
+ *  <li>{@link JField &#64;JField} - defines a simple value or reference field
+ *  <li>{@link JSetField &#64;JSetField} - defines a {@link java.util.NavigableSet} field
+ *  <li>{@link JListField &#64;JListField} - defines a {@link java.util.List} field
+ *  <li>{@link JMapField &#64;JMapField} - defines a {@link java.util.NavigableMap} field
+ *  <li>{@link OnChange &#64;OnChange} - annotates a method to be invoked when some field (possibly seen through
  *      a path of references) changes
- *  <li>@link OnCreate &#64;OnCreate} - annotates a method to be invoked just after object creation
- *  <li>@link OnDelete &#64;OnDelete} - annotates a method to be invoked just prior to object deletion
- *  <li>@link OnVersionChange &#64;OnVersionChange} - annotates a method to be invoked when the object's schema version changes
+ *  <li>{@link OnCreate &#64;OnCreate} - annotates a method to be invoked just after object creation
+ *  <li>{@link OnDelete &#64;OnDelete} - annotates a method to be invoked just prior to object deletion
+ *  <li>{@link OnVersionChange &#64;OnVersionChange} - annotates a method to be invoked when the object's schema version changes
+ *  <li>{@link Validate &#64;Validate} - annotates a method to be invoked whenever the object is (re)validated
  * </ul>
- * These annotations may be present on any overridden supertype method, including methods in superclasses that
- * are not annotated with {@link JSimpleClass &#64;JSimpleClass}, and interface methods.
+ * </p>
+ *
+ * <p>
+ * The above annotations may be present on any overridden supertype method, including methods in superclasses and superinterfaces
+ * (whether or not annotated with {@link JSimpleClass &#64;JSimpleClass}).
  * </p>
  *
  * <p>
@@ -59,6 +63,24 @@ public @interface JSimpleClass {
      * </p>
      */
     String name() default "";
+
+    /**
+     * Specifies a default set of reference paths to follow whenever an instance is copied between transactions
+     * via {@link org.jsimpledb.JObject JObject.copyIn()}, {@link org.jsimpledb.JObject JObject.copyOut()},
+     * or {@link org.jsimpledb.JObject JObject.copyTo()}, and no reference paths are explicitly provided.
+     *
+     * <p>
+     * This annotation property works cummulatively: if a {@link JSimpleClass &#64;JSimpleClass}-annotated
+     * class subclasses another {@link JSimpleClass &#64;JSimpleClass}-annotated class, the {@link #copyReferences}
+     * reference paths from the superclass are automatically inherited.
+     * </p>
+     *
+     * <p>
+     * To negate the effect of this property and not follow any reference paths when copying,
+     * specify a single null reference path (which will be ignored).
+     * </p>
+     */
+    String[] copyReferences() default {};
 
     /**
      * Storage ID for this object type. Value must be positive.

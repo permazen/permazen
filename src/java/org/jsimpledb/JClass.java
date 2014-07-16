@@ -12,11 +12,13 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +49,7 @@ public class JClass<T> extends JSchemaObject {
     final TypeToken<T> typeToken;
     final TreeMap<Integer, JField> jfields = new TreeMap<>();
     final TreeMap<String, JField> jfieldsByName = new TreeMap<>();
+    final TreeSet<String> copyReferences = new TreeSet<>();
 
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
@@ -71,14 +74,17 @@ public class JClass<T> extends JSchemaObject {
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    JClass(JSimpleDB jdb, String name, int storageId, TypeToken<T> typeToken) {
+    JClass(JSimpleDB jdb, String name, int storageId, String[] copyReferences, TypeToken<T> typeToken) {
         super(name, storageId, "object type `" + name + "' (" + typeToken + ")");
         if (jdb == null)
             throw new IllegalArgumentException("null jdb");
         if (name == null)
             throw new IllegalArgumentException("null name");
+        if (copyReferences == null)
+            throw new IllegalArgumentException("null copyReferences");
         this.jdb = jdb;
         this.typeToken = typeToken;
+        this.copyReferences.addAll(Arrays.asList(copyReferences));
     }
 
     // Get generated subclass' constructor
@@ -342,6 +348,13 @@ public class JClass<T> extends JSchemaObject {
         this.onVersionChangeMethods = new ArrayList<>(onVersionChangeScanner.findAnnotatedMethods());
         Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);
         this.indexQueryMethods = new IndexQueryScanner<T>(this).findAnnotatedMethods();
+    }
+
+    void inheritCopyReferences() {
+        for (JClass<?> jclass : this.jdb.jclasses.values()) {
+            if (jclass != this && jclass.typeToken.isAssignableFrom(this.typeToken))
+                this.copyReferences.addAll(jclass.copyReferences);
+        }
     }
 
     @Override
