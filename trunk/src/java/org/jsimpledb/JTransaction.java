@@ -848,7 +848,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, ? extends NavigableSet<ListIndexEntry<?>>> queryListFieldEntries(int storageId) {
+    public NavigableMap<?, NavigableSet<ListIndexEntry<?>>> queryListFieldEntries(int storageId) {
         final JListField setField = this.jdb.getJField(storageId, JListField.class);
         Converter<?, ?> keyConverter = setField.elementField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
@@ -872,7 +872,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, ? extends NavigableSet<MapKeyIndexEntry<?, ?>>> queryMapFieldKeyEntries(int storageId) {
+    public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?, ?>>> queryMapFieldKeyEntries(int storageId) {
         final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
         Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
@@ -898,7 +898,7 @@ public class JTransaction {
      * </p>
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, ? extends NavigableSet<MapValueIndexEntry<?, ?>>> queryMapFieldValueEntries(int storageId) {
+    public NavigableMap<?, NavigableSet<MapValueIndexEntry<?, ?>>> queryMapFieldValueEntries(int storageId) {
         final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
         Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
