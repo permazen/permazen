@@ -20,7 +20,7 @@ public class ParseException extends RuntimeException {
     private final ParseContext ctx;
 
     public ParseException(ParseContext ctx) {
-        this(ctx, "parse error at " + (ctx.isEOF() ? "end of input" : "`" + ParseUtil.truncate(ctx.getInput(), 20) + "'"));
+        this(ctx, null);
     }
 
     public ParseException(ParseContext ctx, String message) {
@@ -28,7 +28,8 @@ public class ParseException extends RuntimeException {
     }
 
     public ParseException(ParseContext ctx, String message, Throwable cause) {
-        super(message, cause);
+        super((message != null ? message : "parse error") + " at "
+          + (ctx.isEOF() ? "end of input" : "`" + ParseUtil.truncate(ctx.getInput(), 20) + "'"), cause);
         this.ctx = ctx;
     }
 

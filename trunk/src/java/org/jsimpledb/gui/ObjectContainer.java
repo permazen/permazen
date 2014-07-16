@@ -384,7 +384,7 @@ public class ObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
                 } else
                     throw new RuntimeException("internal error");
             } catch (UnknownFieldException e) {
-                return new SizedLabel("<i>N/A</i>", ContentMode.HTML);
+                return new SizedLabel("<i>NA</i>", ContentMode.HTML);
             }
         }
 

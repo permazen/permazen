@@ -82,7 +82,7 @@ public class CreateFunction extends Function {
         // Create object
         final Transaction tx = session.getTransaction();
         final ObjId id = version != null ?
-          tx.create(storageId, version.evaluate(session).checkNumeric(session, "create()").intValue()) : tx.create(storageId);
+          tx.create(storageId, version.evaluate(session).checkIntegral(session, "create()")) : tx.create(storageId);
         return new Value(session.hasJSimpleDB() ? JTransaction.getCurrent().getJObject(id) : id);
     }
 

@@ -31,6 +31,10 @@ public abstract class BinaryExprParser implements Parser<Node> {
 
     /**
      * Primary constructor.
+     *
+     * @param lowerLevel next lower parse level
+     * @param leftAssociative true for left-to-right association, false for right-to-left
+     * @param ops operations, with operations that have other operations as prefixes listed first
      */
     protected BinaryExprParser(Parser<? extends Node> lowerLevel, boolean leftAssociative, Op... ops) {
         if (lowerLevel == null)

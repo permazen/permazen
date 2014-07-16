@@ -7,11 +7,14 @@
 
 package org.jsimpledb.cli.parse.expr;
 
+import java.util.Arrays;
+
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.cli.Console;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.ParseException;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.util.ParseContext;
 import org.testng.Assert;
@@ -74,10 +77,39 @@ public class ExprParseTest extends TestSupport {
         }
 
         // Verify
-        Assert.assertEquals(actual, expected);
+        if (expected instanceof boolean[]) {
+            Assert.assertTrue(actual instanceof boolean[]);
+            Assert.assertEquals((boolean[])actual, (boolean[])expected);
+        } else if (expected instanceof byte[]) {
+            Assert.assertTrue(actual instanceof byte[]);
+            Assert.assertEquals((byte[])actual, (byte[])expected);
+        } else if (expected instanceof char[]) {
+            Assert.assertTrue(actual instanceof char[]);
+            Assert.assertEquals((char[])actual, (char[])expected);
+        } else if (expected instanceof short[]) {
+            Assert.assertTrue(actual instanceof short[]);
+            Assert.assertEquals((short[])actual, (short[])expected);
+        } else if (expected instanceof int[]) {
+            Assert.assertTrue(actual instanceof int[]);
+            Assert.assertEquals((int[])actual, (int[])expected);
+        } else if (expected instanceof float[]) {
+            Assert.assertTrue(actual instanceof float[]);
+            Assert.assertEquals((float[])actual, (float[])expected);
+        } else if (expected instanceof long[]) {
+            Assert.assertTrue(actual instanceof long[]);
+            Assert.assertEquals((long[])actual, (long[])expected);
+        } else if (expected instanceof double[]) {
+            Assert.assertTrue(actual instanceof double[]);
+            Assert.assertEquals((double[])actual, (double[])expected);
+        } else if (expected instanceof Object[]) {
+            Assert.assertTrue(actual instanceof Object[]);
+            Assert.assertTrue(Arrays.deepEquals((Object[])actual, (Object[])expected));
+        } else
+            Assert.assertEquals(actual, expected);
     }
 
     @DataProvider(name = "cases")
+    @SuppressWarnings("rawtypes")
     public Object[][] genExprParseCases() {
         return new Object[][] {
 
@@ -93,6 +125,7 @@ public class ExprParseTest extends TestSupport {
             { "'\u1234'", '\u1234' },
             { "\"line1\\nline2\\n\"", "line1\nline2\n" },
             { "\"\\\"quoted\\\"\"", "\"quoted\"" },
+            { "@1111111111111111", new ObjId("1111111111111111") },
 
             // Literal fails
             { "'\''", PARSE_FAIL },
@@ -114,6 +147,107 @@ public class ExprParseTest extends TestSupport {
             // Additive
             { "5 * 3 + 4", 19 },
             { "5 + 3 * 4", 17 },
+
+            // Arrays
+            { "new int[0]", new int[0] },
+            { "new int[7]", new int[7] },
+            { "new int[7][]", new int[7][] },
+            { "new int[7][][][]", new int[7][][][] },
+            { "new int[][] { { 1 }, { 2, 3 }, { } }", new int[][] { { 1 }, { 2, 3 }, { } } },
+            { "new int[]", PARSE_FAIL },
+            { "new int[] { }", new int[] { } },
+            { "new int[] { \"abc\" }", EVAL_FAIL },
+            { "new int[7].length", 7 },
+            { "new void[]", PARSE_FAIL },
+            { "new String[]", PARSE_FAIL },
+            { "new String[3]", new String[3] },
+            { "new String[] { \"foo\", \"bar\" }", new String[] { "foo", "bar" } },
+            { "new java.util.Map[] { }", new java.util.Map[] { } },
+            { "new java.util.Map.Entry[] { }", new java.util.Map.Entry[] { } },
+
+            // Methods
+            { "\"abc\".length()", 3 },
+            { "\"abc\".bytes", new byte[] { (byte)'a', (byte)'b', (byte)'c' } },
+
+        //CHECKSTYLE OFF: SimplifyBooleanExpression
+
+            // Operators
+            { "$x = 12", 12 },
+            { "$x += 12", 24 },
+            { "$x -= 10", 14 },
+            { "$x *= 2", 28 },
+            { "$x /= 3", 9 },
+            { "$x %= 4", 1 },
+            { "$x &= 5", 1 },
+            { "$x |= 6", 7 },
+            { "$x ^= 15", 8 },
+            { "$x <<= 2", 32 },
+            { "$x >>= 1", 16 },
+            { "$x >>>= 1", 8 },
+            { "5 < 3 ? 17 : 19",
+               5 < 3 ? 17 : 19 },
+            { "true || false",
+               true || false },
+            { "true && false",
+               true && false },
+            { "true | false",
+               true | false },
+            { "true & false",
+               true & false },
+            { "true ^ false",
+               true ^ false },
+            { "!true",
+               !true },
+            { "!false",
+               !false },
+            { "5 == 3",
+               5 == 3 },
+            { "5 != 3",
+               5 != 3 },
+            { "5 > 3",
+               5 > 3 },
+            { "5 >= 3",
+               5 >= 3 },
+            { "5 < 3",
+               5 < 3 },
+            { "5 <= 3",
+               5 <= 3 },
+            { "100 << 2",
+               100 << 2 },
+            { "100 >> 2",
+               100 >> 2 },
+            { "100 >>> 2",
+               100 >>> 2 },
+            { "100 + 2",
+               100 + 2 },
+            { "100 - 2",
+               100 - 2 },
+            { "100 * 2",
+               100 * 2 },
+            { "100 / 2",
+               100 / 2 },
+            { "100 % 2",
+               100 % 2 },
+            { "-(100)",
+               -(100) },
+
+            // Misc
+            { "java.lang.annotation.ElementType.FIELD",
+               java.lang.annotation.ElementType.FIELD },
+            { "java.util.Map.class",
+               java.util.Map.class },
+            { "java.util.Map.Entry.class",
+               java.util.Map.Entry.class },
+            { "new String(\"abcd\").hashCode()",
+               new String("abcd").hashCode() },
+            { "new String(\"abcd\").class",
+               String.class },
+            { "(byte)(short)(int)(float)123.45",
+               (byte)(short)(int)(float)123.45 },
+            { "4 & 7 | 6 << 5 >>> 2 << 1 >>> 2 + 6 * 3 - 7 / 2 ^ 99",
+               4 & 7 | 6 << 5 >>> 2 << 1 >>> 2 + 6 * 3 - 7 / 2 ^ 99 },
+
+        //CHECKSTYLE ON: SimplifyBooleanExpression
 
         };
     }
