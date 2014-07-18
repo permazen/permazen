@@ -108,7 +108,7 @@ import org.slf4j.LoggerFactory;
  * Instances may be (re)loaded at any time by invoking {@link #reload}. In addition, individual objects may be updated without
  * requiring a complete reload by invoking {@link #applyChange applyChange()}. In a typical design pattern,
  * {@link org.jsimpledb.change.Change} objects originate from {@link org.jsimpledb.annotation.OnChange &#64;OnChange} methods
- * and are broadcast (after copying into memory using a {@link org.jsimpledb.change.ChangeCopier) to listeners (such as this
+ * and are broadcast (after copying into memory using a {@link org.jsimpledb.change.ChangeCopier} to listeners (such as this
  * container) within a transaction synchronization callback (see {@link org.jsimpledb.core.Transaction.Callback#afterCommit}).
  * </p>
  *
