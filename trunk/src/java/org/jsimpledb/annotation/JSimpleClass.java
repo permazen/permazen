@@ -65,24 +65,6 @@ public @interface JSimpleClass {
     String name() default "";
 
     /**
-     * Specifies a default set of reference paths to follow whenever an instance is copied between transactions
-     * via {@link org.jsimpledb.JObject JObject.copyIn()}, {@link org.jsimpledb.JObject JObject.copyOut()},
-     * or {@link org.jsimpledb.JObject JObject.copyTo()}, and no reference paths are explicitly provided.
-     *
-     * <p>
-     * This annotation property works cummulatively: if a {@link JSimpleClass &#64;JSimpleClass}-annotated
-     * class subclasses another {@link JSimpleClass &#64;JSimpleClass}-annotated class, the {@link #copyReferences}
-     * reference paths from the superclass are automatically inherited.
-     * </p>
-     *
-     * <p>
-     * To negate the effect of this property and not follow any reference paths when copying,
-     * specify a single null reference path (which will be ignored).
-     * </p>
-     */
-    String[] copyReferences() default {};
-
-    /**
      * Storage ID for this object type. Value must be positive.
      */
     int storageId();

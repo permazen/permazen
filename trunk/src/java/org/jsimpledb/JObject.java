@@ -163,12 +163,11 @@ public interface JObject {
      * <p>
      * This method will copy this object's fields into the object with ID {@code target} (or this instance's object ID if
      * {@code target} is null) in the {@code dest} transaction, overwriting any previous values there, along with all other
-     * objects reachable from this instance through any of the specified {@linkplain ReferencePath reference paths}.
-     * If {@code target} (or any other referenced object) already exists in {@code dest}, it will have its schema version
-     * updated first, if necessary, otherwise it will be created. Any
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnVersionChange},
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate}, and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
-     * methods will be notified accordingly as usual.
+     * objects reachable from this instance through any of the specified {@linkplain ReferencePath reference paths} and
+     * the objects returned by {@link #getCopyAlongs()}, if any. If {@code target} (or any other referenced object) already
+     * exists in {@code dest}, it will have its schema version updated first, if necessary, otherwise it will be created.
+     * Any {@link org.jsimpledb.annotation.OnCreate &#64;OnVersionChange}, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate},
+     * and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} methods will be notified accordingly as usual (in {@code dest}).
      * </p>
      *
      * <p>
@@ -189,7 +188,7 @@ public interface JObject {
      *
      * @param dest destination transaction for copies
      * @param target target object ID in {@code dest} onto which to copy this instance's fields, or null for this instance
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied; null values are ignored
+     * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the copied version of this instance in {@code dest}
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
@@ -210,7 +209,8 @@ public interface JObject {
      *
      * <p>
      * This method will copy this object and all of its fields, along all other objects reachable through
-     * any of the specified {@linkplain ReferencePath reference paths}, into the {@link SnapshotJTransaction}
+     * any of the specified {@linkplain ReferencePath reference paths} and the objects returned by {@link #getCopyAlongs()},
+     * if any, into the {@link SnapshotJTransaction}
      * {@linkplain JTransaction#getSnapshotTransaction associated} with this instance's associated transaction.
      * If any object already exists there, it will be overwritten, otherwise it will be created.
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
@@ -229,7 +229,7 @@ public interface JObject {
      *  </code></blockquote>
      * </p>
      *
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied; null values are ignored
+     * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the snapshot {@link JObject} copy of this instance
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
@@ -246,8 +246,8 @@ public interface JObject {
      *
      * <p>
      * This method will copy this object and all of its fields, along all other objects reachable through
-     * any of the specified {@linkplain ReferencePath reference paths}, into the {@link JTransaction}
-     * {@linkplain JTransaction#getCurrent associated} with the current thread.
+     * any of the specified {@linkplain ReferencePath reference paths} and the objects returned by {@link #getCopyAlongs()},
+     * if any, into the {@link JTransaction} {@linkplain JTransaction#getCurrent associated} with the current thread.
      * If any object already exists in the current thread's transaction, it will be overwritten, otherwise it will be created.
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
      * notifications will be delivered accordingly.
@@ -265,7 +265,7 @@ public interface JObject {
      *  </code></blockquote>
      * </p>
      *
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied; null values are ignored
+     * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the regular database copy of this instance
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
@@ -278,5 +278,37 @@ public interface JObject {
      * @see #copyOut copyOut()
      */
     JObject copyIn(String... refPaths);
+
+    /**
+     * Identify any other objects that should be copied along with this object when it is being copied into a
+     * different transaction.
+     * This allows instances to ensure that any objects that are "closely related" to this instance are always included
+     * in any copy operation. The precise definition of "closely related" is application specific, of course.
+     * A typical example would be objects in a collection field that need to be referenceable in the destination transaction.
+     * It may also include objects that reference this object, when it is expected that reference inversion will be
+     * used in the destination transaction.
+     *
+     * <p>
+     * This method is only invoked for the "original" object being copied; it is not invoked recursively for other objects in
+     * the returned {@link Iterable}.
+     * </p>
+     *
+     * <p>
+     * Unlike the other methods in the {@link JObject} interface, this method is to be (optionally) implemented by the
+     * user-provided Java model class. It is invoked whenever this instance is copied between transactions via
+     * {@link org.jsimpledb.JObject JObject.copyIn()}, {@link org.jsimpledb.JObject JObject.copyOut()}, or
+     * {@link org.jsimpledb.JObject JObject.copyTo()}. All of the objects in the returned {@link Iterable} will be copied as well
+     * (along with objects on any explicitly provided reference paths; the same object may safely appear more than once).
+     * </p>
+     *
+     * <p>
+     * This method is optional in the sense that if it is not implemented in the user-provided Java model class,
+     * {@link JSimpleDB} will create a stub implementation of this method in the generated subclass that returns null.
+     * </p>
+     *
+     * @return {@link Iterable} of additional objects to be copied, or null for none; any non-{@link JObject} objects
+     *  (including nulls) in the returned iteration are ignored
+     */
+    Iterable<?> getCopyAlongs();
 }
 
