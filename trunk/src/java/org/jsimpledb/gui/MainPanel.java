@@ -110,7 +110,7 @@ public class MainPanel extends VerticalLayout {
     private final ComboBox sortComboBox = new ComboBox();
     private final Session session;
 
-    private ObjectTable objectTable = new ObjectTable(Void.class);      // table will be empty initially
+    private ObjectTable objectTable;
     private Class<?> type;
     private boolean canCreate;
 
@@ -135,6 +135,7 @@ public class MainPanel extends VerticalLayout {
         this.typeTable.setImmediate(true);
 
         // Setup object table, initially showing all objects
+        this.objectTable = new ObjectTable(null);
         this.objectTable.setSelectable(true);
         this.objectTable.setImmediate(true);
 
@@ -150,7 +151,9 @@ public class MainPanel extends VerticalLayout {
         final HorizontalLayout buttonRow = new HorizontalLayout();
         buttonRow.setSpacing(true);
         buttonRow.setWidth("100%");
-        buttonRow.addComponent(new SizedLabel("Schema Version " + this.jdb.getLastVersion()));
+        final SizedLabel versionLabel = new SizedLabel("Schema Version " + this.jdb.getLastVersion());
+        buttonRow.addComponent(versionLabel);
+        buttonRow.setComponentAlignment(versionLabel, Alignment.MIDDLE_LEFT);
         final Label spacer1 = new Label();
         buttonRow.addComponent(spacer1);
         buttonRow.setExpandRatio(spacer1, 1.0f);
@@ -164,13 +167,14 @@ public class MainPanel extends VerticalLayout {
         // Build show form
         final FormLayout showForm = new FormLayout();
         showForm.setMargin(false);
+        showForm.setWidth("100%");
 
         // Add show field
         final HorizontalLayout showLayout = new HorizontalLayout();
         showLayout.setCaption("Show:");
         showLayout.setSpacing(true);
         showLayout.setMargin(false);
-        this.showField.setWidth("100%");
+        this.showField.setWidth(600, Sizeable.Unit.PIXELS);
         this.showField.addStyleName("jsdb-fixed-width");
         showLayout.addComponent(this.showField);
         showForm.addComponent(showLayout);
@@ -527,7 +531,7 @@ public class MainPanel extends VerticalLayout {
 
             // Use ComboBox for references
             if (jfield instanceof JReferenceField) {
-                final ReferenceComboBox comboBox = new ReferenceComboBox(propertyType, allowNull);
+                final ReferenceComboBox comboBox = new ReferenceComboBox(MainPanel.this.jdb, propertyType, allowNull);
                 comboBox.setPropertyDataSource(property);
                 return comboBox;
             }

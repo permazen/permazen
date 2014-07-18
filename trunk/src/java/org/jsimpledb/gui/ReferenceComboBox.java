@@ -11,14 +11,16 @@ import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 
+import org.jsimpledb.JSimpleDB;
+
 /**
  * {@link ComboBox} that chooses an object reference.
  */
 @SuppressWarnings("serial")
 public class ReferenceComboBox extends ComboBox {
 
-    public ReferenceComboBox(Class<?> type, boolean allowNull) {
-        final ObjectContainer container = new ObjectContainer(type);
+    public ReferenceComboBox(JSimpleDB jdb, Class<?> type, boolean allowNull) {
+        final ObjectContainer container = new ObjectContainer(jdb, type);
         this.setContainerDataSource(container);
         this.setNullSelectionAllowed(allowNull);
         this.setNewItemsAllowed(false);
