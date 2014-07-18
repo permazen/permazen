@@ -9,9 +9,11 @@ package org.jsimpledb;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
 
+import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JMapField;
@@ -21,6 +23,7 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SetFieldChangeListener;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.util.NavigableSets;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -244,6 +247,47 @@ public class SnapshotTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testCopyAlong() throws Exception {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Foo.class);
+
+        final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction stx = tx.getSnapshotTransaction();
+        JTransaction.setCurrent(tx);
+        try {
+
+            final Foo f1 = tx.create(Foo.class);
+            final Foo f2 = tx.create(Foo.class);
+            final Foo f3 = tx.create(Foo.class);
+
+            f1.setRef(f2);
+            f2.setRef(f3);
+            f3.setRef(f1);
+
+            Assert.assertEquals(f1.getReferrers(), buildSet(f3));
+            Assert.assertEquals(f2.getReferrers(), buildSet(f1));
+            Assert.assertEquals(f3.getReferrers(), buildSet(f2));
+
+            final Foo f1s = (Foo)f1.copyOut();
+            Assert.assertEquals(f1s, stx.getJObject(f1.getObjId()));
+
+            final Foo f2s = (Foo)stx.getJObject(f2.getObjId());
+            final Foo f3s = (Foo)stx.getJObject(f3.getObjId());
+
+            Assert.assertTrue(f1s.exists());
+            Assert.assertFalse(f2s.exists());
+            Assert.assertTrue(f3s.exists());
+
+            Assert.assertEquals(f1s.getReferrers(), buildSet(f3));
+            Assert.assertEquals(f2s.getReferrers(), buildSet(f1));
+            Assert.assertEquals(f3s.getReferrers(), buildSet());
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     @JSimpleClass(storageId = 100)
@@ -272,6 +316,27 @@ public class SnapshotTest extends TestSupport {
           key = @JField(storageId = 111),
           value = @JField(storageId = 112))
         public abstract Map<Float, Person> getMap2();
+    }
+
+    @JSimpleClass(storageId = 200)
+    public abstract static class Foo implements JObject {
+
+        @JField(storageId = 201)
+        public abstract Foo getRef();
+        public abstract void setRef(Foo ref);
+
+        public NavigableSet<Foo> getReferrers() {
+            final NavigableSet<Foo> referrers = this.queryFoo().get(this);
+            return referrers != null ? referrers : NavigableSets.<Foo>empty();
+        }
+
+        @IndexQuery("ref")
+        public abstract NavigableMap<Foo, NavigableSet<Foo>> queryFoo();
+
+        @Override
+        public Iterable<Foo> getCopyAlongs() {
+            return this.getReferrers();
+        }
     }
 }
 

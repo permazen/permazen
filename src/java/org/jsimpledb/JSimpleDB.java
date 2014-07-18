@@ -208,8 +208,7 @@ public class JSimpleDB {
                 }
                 JClass<?> jclass;
                 try {
-                    jclass = this.createJClass(name, jclassAnnotation.storageId(),
-                      jclassAnnotation.copyReferences(), TypeToken.of(type));
+                    jclass = this.createJClass(name, jclassAnnotation.storageId(), TypeToken.of(type));
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("invalid @" + JSimpleClass.class.getSimpleName()
                       + " annotation on " + type + ": " + e, e);
@@ -241,17 +240,13 @@ public class JSimpleDB {
             }
         }
 
-        // Inherit copyReferences from superclasses
-        for (JClass<?> jclass : this.jclasses.values())
-            jclass.inheritCopyReferences();
-
         // Validate schema
         this.db.validateSchema(this.getSchemaModel());
     }
 
     // This method exists solely to bind the generic type parameters
-    private <T> JClass<T> createJClass(String name, int storageId, String[] copyReferences, TypeToken<T> typeToken) {
-        return new JClass<T>(this, name, storageId, copyReferences, typeToken);
+    private <T> JClass<T> createJClass(String name, int storageId, TypeToken<T> typeToken) {
+        return new JClass<T>(this, name, storageId, typeToken);
     }
 
     /**
