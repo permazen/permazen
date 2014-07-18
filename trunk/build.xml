@@ -307,6 +307,7 @@
                 <link href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/"/>
                 <link href="http://docs.spring.io/spring/docs/4.0.x/javadoc-api/"/>
                 <link href="https://foundationdb.com/documentation/javadoc/"/>
+                <link href="https://vaadin.com/api/"/>
                 <link href="http://www.slf4j.org/api/"/>
             </links>
         </dellroad:javadoc>
