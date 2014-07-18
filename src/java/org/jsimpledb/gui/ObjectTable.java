@@ -10,14 +10,24 @@ package org.jsimpledb.gui;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Table;
 
+import org.dellroad.stuff.vaadin7.VaadinConfigurable;
+import org.jsimpledb.JSimpleDB;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 /**
  * Table showing all objects of a certain type, backed by an {@link ObjectContainer}.
  */
 @SuppressWarnings("serial")
+@VaadinConfigurable
 public class ObjectTable extends AbstractTable<ObjectContainer> {
 
     private final Class<?> type;
     private final boolean showFields;
+
+    @Autowired
+    @Qualifier("jsimpledbGuiJSimpleDB")
+    private JSimpleDB jdb;
 
     public ObjectTable(Class<?> type) {
         this(type, true);
@@ -33,7 +43,7 @@ public class ObjectTable extends AbstractTable<ObjectContainer> {
 
     @Override
     protected ObjectContainer buildContainer() {
-        return new ObjectContainer(this.type);
+        return new ObjectContainer(this.jdb, this.type);
     }
 
     @Override
@@ -74,7 +84,7 @@ public class ObjectTable extends AbstractTable<ObjectContainer> {
 
         // Adjust columns
         this.setColumnCollapsingAllowed(true);
-        if (!this.getContainer().hasReferenceLabel())
+        if (!this.getContainer().hasCustomReferenceLabel())
             this.setColumnCollapsed(ObjectContainer.REFERENCE_LABEL_PROPERTY, true);
     }
 }

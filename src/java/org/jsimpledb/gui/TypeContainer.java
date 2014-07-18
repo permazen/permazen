@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
- * Hierarical container that contains the tree of Java model classes.
+ * Hierarical container that contains the tree of all Java model classes in the database schema.
  */
 @SuppressWarnings("serial")
 @VaadinConfigurable
