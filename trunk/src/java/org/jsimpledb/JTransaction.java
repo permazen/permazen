@@ -83,7 +83,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Object Access</b>
  * <ul>
- *  <li>{@link #create create()} - Create a new database object</li>
+ *  <li>{@link #create(Class) create()} - Create a new database object</li>
  *  <li>{@link #getAll getAll()} - Get all database objects that are instances of a given Java type</li>
  *  <li>{@link #queryVersion queryVersion()} - Get database objects grouped according to their schema versions</li>
  * </ul>
@@ -556,9 +556,21 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> T create(Class<T> type) {
-        final JClass<T> jclass = this.jdb.getJClass(TypeToken.of(type));
+        return this.create(this.jdb.getJClass(TypeToken.of(type)));
+    }
+
+    /**
+     * Create a new instance of the given type in this transaction.
+     *
+     * @param jclass object type
+     * @return newly created instance
+     * @throws IllegalArgumentException if {@code jclass} is not valid for this instance
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T create(JClass<T> jclass) {
         final ObjId id = this.tx.create(jclass.storageId);
-        return type.cast(this.getJObject(id));
+        return (T)jclass.getTypeToken().getRawType().cast(this.getJObject(id));
     }
 
     /**
