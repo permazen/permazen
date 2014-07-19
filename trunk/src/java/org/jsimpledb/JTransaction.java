@@ -491,7 +491,11 @@ public class JTransaction {
             return;
 
         // Copy current instance
-        this.tx.copy(srcId, dstId, dest.tx);
+        try {
+            this.tx.copy(srcId, dstId, dest.tx);
+        } catch (DeletedObjectException e) {
+            // ignore - this is a dangling reference
+        }
 
         // Recurse through the next reference field in the path
         if (fields.isEmpty())

@@ -192,6 +192,7 @@ public interface JObject {
      * @return the copied version of this instance in {@code dest}
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
+     *  (no exception is thrown however if an indirectly referenced object does not exist)
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread
      * @throws org.jsimpledb.core.SchemaMismatchException
@@ -233,6 +234,7 @@ public interface JObject {
      * @return the snapshot {@link JObject} copy of this instance
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
+     *  (no exception is thrown however if an indirectly referenced object does not exist)
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread
      * @throws IllegalArgumentException if {@code refPaths} is null
@@ -269,6 +271,7 @@ public interface JObject {
      * @return the regular database copy of this instance
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
+     *  (no exception is thrown however if an indirectly referenced object does not exist)
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread
      * @throws org.jsimpledb.core.SchemaMismatchException
