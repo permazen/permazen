@@ -200,7 +200,7 @@ public class Console {
             } catch (ParseException e) {
                 String prefix = "";
                 int index = ctx.getIndex();
-                while (index > 0 && !Character.isWhitespace(ctx.getOriginalInput().charAt(index - 1)))
+                while (index > 0 && Character.isJavaIdentifierPart(ctx.getOriginalInput().charAt(index - 1)))
                     prefix = ctx.getOriginalInput().charAt(--index) + prefix;
                 candidates.addAll(Lists.transform(e.getCompletions(), new AddPrefixFunction(prefix)));
                 return index;
