@@ -55,7 +55,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
     @Override
     public <T> ObjectDelete<T> caseObjectDelete(ObjectDelete<T> change) {
-        return new ObjectDelete<T>(this.copyIfReference(change.getObject()));
+        return new ObjectDelete<T>(change.getObject());             // don't bother try to copy a deleted object!
     }
 
     @Override
