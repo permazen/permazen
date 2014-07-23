@@ -455,14 +455,14 @@ public class JTransaction {
 
         // Ensure object is copied even when there are zero reference paths
         final HashSet<ObjId> seen = new HashSet<>();
-        this.copyTo(seen, dest, srcId, dstId, new ArrayDeque<JReferenceField>());
+        this.copyTo(seen, dest, srcId, dstId, true, new ArrayDeque<JReferenceField>());
 
         // Copy any "copy along" objects
         final Iterable<?> copyAlongs = this.getJObject(srcId).getCopyAlongs();
         if (copyAlongs != null) {
             for (JObject jobj : Iterables.filter(copyAlongs, JObject.class)) {
                 final ObjId id = jobj.getObjId();
-                this.copyTo(seen, dest, id, id, new ArrayDeque<JReferenceField>());
+                this.copyTo(seen, dest, id, id, false, new ArrayDeque<JReferenceField>());
             }
         }
 
@@ -477,14 +477,14 @@ public class JTransaction {
             fields.add((JReferenceField)this.jdb.jfields.get(path.getTargetField()));
 
             // Recurse over this path
-            this.copyTo(seen, dest, srcId, dstId, fields);
+            this.copyTo(seen, dest, srcId, dstId, false/*doesn't matter*/, fields);
         }
 
         // Done
         return dest.getJObject(dstId);
     }
 
-    void copyTo(Set<ObjId> seen, JTransaction dest, ObjId srcId, ObjId dstId, Deque<JReferenceField> fields) {
+    void copyTo(Set<ObjId> seen, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, Deque<JReferenceField> fields) {
 
         // Already copied this object?
         if (!seen.add(dstId))
@@ -494,7 +494,8 @@ public class JTransaction {
         try {
             this.tx.copy(srcId, dstId, dest.tx);
         } catch (DeletedObjectException e) {
-            // ignore - this is a dangling reference
+            if (required)
+                throw e;
         }
 
         // Recurse through the next reference field in the path
@@ -508,7 +509,7 @@ public class JTransaction {
             assert jfield instanceof JReferenceField;
             final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, jfield.storageId, false);
             if (referrent != null)
-                this.copyTo(seen, dest, referrent, referrent, fields);
+                this.copyTo(seen, dest, referrent, referrent, false, fields);
         }
     }
 
@@ -805,7 +806,7 @@ public class JTransaction {
      * Find all objects that refer to any object in the given target set through the specified path of references.
      *
      * @param startType starting Java type for the path
-     * @param path dot-separated path of zero or more reference fields, followed by a final reference field
+     * @param path dot-separated path of one or more reference fields
      * @param targetObjects target objects
      * @return set of objects that refer to any of the {@code targetObjects} via the {@code path} from {@code startType}
      * @throws org.jsimpledb.core.UnknownFieldException if {@code path} is invalid

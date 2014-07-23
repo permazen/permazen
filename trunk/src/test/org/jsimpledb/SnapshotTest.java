@@ -7,6 +7,7 @@
 
 package org.jsimpledb;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -19,6 +20,8 @@ import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.core.DeleteAction;
+import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SetFieldChangeListener;
@@ -288,6 +291,40 @@ public class SnapshotTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testDanglingReference() throws Exception {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Foo.class, Foo2.class);
+
+        final JTransaction tx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final JTransaction stx = tx.getSnapshotTransaction();
+        JTransaction.setCurrent(tx);
+        try {
+
+            final Foo f1 = tx.create(Foo2.class);
+            final Foo f2 = tx.create(Foo2.class);
+
+            f1.setRef(f2);
+            f2.delete();
+
+            try {
+                f1.copyOut();
+            } catch (DeletedObjectException e) {
+                assert false;
+            }
+
+            try {
+                f2.copyOut();
+                assert false;
+            } catch (DeletedObjectException e) {
+                // expected
+            }
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     @JSimpleClass(storageId = 100)
@@ -321,7 +358,7 @@ public class SnapshotTest extends TestSupport {
     @JSimpleClass(storageId = 200)
     public abstract static class Foo implements JObject {
 
-        @JField(storageId = 201)
+        @JField(storageId = 201, onDelete = DeleteAction.NOTHING)
         public abstract Foo getRef();
         public abstract void setRef(Foo ref);
 
@@ -336,6 +373,15 @@ public class SnapshotTest extends TestSupport {
         @Override
         public Iterable<Foo> getCopyAlongs() {
             return this.getReferrers();
+        }
+    }
+
+    @JSimpleClass(storageId = 300)
+    public abstract static class Foo2 extends Foo {
+
+        @Override
+        public Iterable<Foo> getCopyAlongs() {
+            return Collections.singleton(this.getRef());
         }
     }
 }
