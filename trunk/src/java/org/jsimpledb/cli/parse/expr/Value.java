@@ -96,12 +96,7 @@ public class Value {
      * @return boolean value
      */
     public boolean checkBoolean(Session session, String operation) {
-        final Object value = this.checkNotNull(session, operation);
-        if (!(value instanceof Boolean)) {
-            throw new EvalException("invalid " + operation
-              + " operation on non-boolean value of type " + value.getClass().getName());
-        }
-        return (Boolean)value;
+        return this.checkType(session, operation, Boolean.class);
     }
 
     /**
@@ -132,6 +127,25 @@ public class Value {
               + " operation on non-integral value of type " + value.getClass().getName());
         }
         return ((Number)value).intValue();
+    }
+
+    /**
+     * Verify this instance has the specified type.
+     * Return its value cast to that type.
+     *
+     * @param session current session
+     * @param operation description of operation for error messages
+     * @return typed value
+     */
+    public <T> T checkType(Session session, String operation, Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        final Object value = this.checkNotNull(session, operation);
+        if (!type.isInstance(value)) {
+            throw new EvalException("invalid " + operation + " operation on non-"
+              + type.getSimpleName() + " value of type " + value.getClass().getName());
+        }
+        return type.cast(value);
     }
 
     /**
