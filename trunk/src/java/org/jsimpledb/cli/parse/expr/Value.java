@@ -338,7 +338,7 @@ public class Value {
     @SuppressWarnings("unchecked")
     public Value subtract(Session session, Value that) {
 
-        // Handle NavigableSet
+        // Handle NavigableSet with equal comparators XXX might not have compatible elements
         final Object thisValue = this.get(session);
         final Object thatValue = that.get(session);
         if (thisValue instanceof NavigableSet
@@ -451,7 +451,7 @@ public class Value {
         if (thisValue instanceof Boolean && thatValue instanceof Boolean)
             return new Value((Boolean)thisValue & (Boolean)thatValue);
 
-        // Handle NavigableSet
+        // Handle NavigableSet with equal comparators XXX might not have compatible elements
         if (thisValue instanceof NavigableSet
           && thatValue instanceof NavigableSet
           && (((NavigableSet<?>)thisValue).comparator() != null ?
@@ -489,7 +489,7 @@ public class Value {
         if (thisValue instanceof Boolean && thatValue instanceof Boolean)
             return new Value((Boolean)thisValue | (Boolean)thatValue);
 
-        // Handle NavigableSet
+        // Handle NavigableSet with equal comparators XXX might not have compatible elements
         if (thisValue instanceof NavigableSet
           && thatValue instanceof NavigableSet
           && (((NavigableSet<?>)thisValue).comparator() != null ?
@@ -527,7 +527,7 @@ public class Value {
         if (thisValue instanceof Boolean && thatValue instanceof Boolean)
             return new Value((Boolean)thisValue ^ (Boolean)thatValue);
 
-        // Handle NavigableSet
+        // Handle NavigableSet with equal comparators XXX might not have compatible elements
         if (thisValue instanceof NavigableSet
           && thatValue instanceof NavigableSet
           && (((NavigableSet<?>)thisValue).comparator() != null ?

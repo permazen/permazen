@@ -9,64 +9,92 @@ package org.jsimpledb.gui;
 
 import com.google.common.collect.Iterables;
 
-import org.dellroad.stuff.spring.RetryTransaction;
+import java.util.Collections;
+
 import org.dellroad.stuff.vaadin7.VaadinApplicationListener;
 import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.cli.Action;
+import org.jsimpledb.cli.Session;
+import org.jsimpledb.cli.parse.expr.EvalException;
+import org.jsimpledb.cli.parse.expr.ExprParser;
+import org.jsimpledb.cli.parse.expr.Node;
 import org.jsimpledb.cli.util.CastFunction;
+import org.jsimpledb.util.ParseContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.ApplicationEventMulticaster;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Container that contains all database objects of give type (up to a limit of {@link #MAX_OBJECTS}).
+ * {@link JObjectContainer} whose contents are determined by a Java expression.
  */
 @SuppressWarnings("serial")
 @VaadinConfigurable(preConstruction = true)
 public class ObjectContainer extends JObjectContainer {
 
-    public static final int MAX_OBJECTS = 1000;
+    private final Session session;
 
     private DataChangeListener dataChangeListener;
-    private JObject lowerBound;
-    private Query query;
+    private String contentExpression;
 
-    @Autowired
+    @Autowired(required = false)
     @Qualifier("jsimpledbGuiEventMulticaster")
     private ApplicationEventMulticaster eventMulticaster;
+
+    /**
+     * Constructor.
+     */
+    public <T> ObjectContainer(JSimpleDB jdb, Session session) {
+        this(jdb, null, session);
+    }
 
     /**
      * Constructor.
      *
      * @param type type restriction, or null for no restriction
      */
-    public <T> ObjectContainer(JSimpleDB jdb, Class<T> type) {
+    public <T> ObjectContainer(JSimpleDB jdb, Class<T> type, Session session) {
         super(jdb, type);
+        if (session == null)
+            throw new IllegalArgumentException("null session");
+        this.session = session;
     }
 
-    @RetryTransaction
-    @Transactional("jsimpledbGuiTransactionManager")
-    protected void doInTransaction(Runnable action) {
-        action.run();
+    /**
+     * Configure the expression that returns this container's content. Container will automatically reload.
+     */
+    public void setContentExpression(String contentExpression) {
+        this.contentExpression = contentExpression;
+        this.reload();
     }
 
-    public void reload(Query query) {
-        this.query = query;
-        super.reload();
-    }
-
-    public void reload() {
-        if (this.query != null)
-            this.reload(this.query);
+    protected void doInTransaction(final Runnable action) {
+        this.session.perform(new Action() {
+            @Override
+            public void run(Session session) {
+                action.run();
+            }
+        });
     }
 
     @Override
     protected Iterable<? extends JObject> queryForObjects() {
-        return Iterables.limit(
-          Iterables.transform(this.query.query(this.type), new CastFunction<JObject>(JObject.class)),
-          MAX_OBJECTS);
+
+        // Any content?
+        if (this.contentExpression == null)
+            return Collections.<JObject>emptySet();
+
+        // Parse and evaluate content expression
+        final Node node = new ExprParser().parse(session, new ParseContext(this.contentExpression), false);
+        final Object content = node.evaluate(this.session).get(this.session);
+        if (!(content instanceof Iterable)) {
+            throw new EvalException("expression must evaluate to an Iterable; found "
+              + (content != null ? content : "null") + " instead");
+        }
+
+        // Reload container with results of expression
+        return Iterables.transform((Iterable<?>)content, new CastFunction<JObject>(JObject.class));
     }
 
 // Connectable
@@ -74,8 +102,10 @@ public class ObjectContainer extends JObjectContainer {
     @Override
     public void connect() {
         super.connect();
-        this.dataChangeListener = new DataChangeListener();
-        this.dataChangeListener.register();
+        if (this.eventMulticaster != null) {
+            this.dataChangeListener = new DataChangeListener();
+            this.dataChangeListener.register();
+        }
     }
 
     @Override
@@ -85,24 +115,6 @@ public class ObjectContainer extends JObjectContainer {
             this.dataChangeListener = null;
         }
         super.disconnect();
-    }
-
-// Query
-
-    /**
-     * Callback interface used when loading objects into an {@link ObjectContainer}.
-     */
-    public interface Query {
-
-        /**
-         * Get the objects to load into the {@link ObjectContainer}.
-         * At most {@link ObjectContainer#MAX_OBJECTS} objects are shown, and objects that are
-         * not instances of the type associated with the container will be filtered out (if {@code type} is not null).
-         * A transaction will be open.
-         *
-         * @param type type restriction, or null for none
-         */
-        <T> Iterable<?> query(Class<T> type);
     }
 
 // DataChangeListener

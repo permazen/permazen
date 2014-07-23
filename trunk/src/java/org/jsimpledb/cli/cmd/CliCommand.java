@@ -25,5 +25,19 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Documented
 public @interface CliCommand {
+
+    /**
+     * Determine whether the annotated {@link org.jsimpledb.cli.cmd.Command} works properly in JSimpleDB mode,
+     * i.e., when the there are {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated Java model
+     * classes defined and the {@link org.jsimpledb.JSimpleDB} API is used.
+     */
+    boolean worksInJSimpleDBMode() default true;
+
+    /**
+     * Determine whether the annotated {@link org.jsimpledb.cli.cmd.Command} works properly in Core API mode,
+     * i.e., when the there are no {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated Java model
+     * classes defined and the core {@link org.jsimpledb.core.Database} API is used.
+     */
+    boolean worksInCoreAPIMode() default true;
 }
 

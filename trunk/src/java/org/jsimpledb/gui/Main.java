@@ -11,6 +11,8 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
@@ -25,13 +27,16 @@ import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.ValidationMode;
+import org.jsimpledb.cli.func.CliFunction;
+import org.jsimpledb.cli.func.Function;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.spring.AnnotatedClassScanner;
 import org.jsimpledb.util.AbstractMain;
 
 /**
  * GUI main entry point.
  */
-public class Main extends AbstractMain {
+public class Main extends AbstractMain implements GUIConfig {
 
     private static final int DEFAULT_HTTP_PORT = 8080;
 
@@ -41,6 +46,7 @@ public class Main extends AbstractMain {
     private Server server;
     private int port = DEFAULT_HTTP_PORT;
     private URI root;
+    private final LinkedHashSet<Class<?>> functionClasses = new LinkedHashSet<>();
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -52,9 +58,18 @@ public class Main extends AbstractMain {
             if (params.isEmpty())
                 this.usageError();
             this.port = Integer.parseInt(params.removeFirst());
+        } else if (option.equals("--funcpkg")) {
+            if (params.isEmpty())
+                this.usageError();
+            this.scanFunctionClasses(params.removeFirst());
         } else
             return false;
         return true;
+    }
+
+    private void scanFunctionClasses(String pkgname) {
+        for (String className : new AnnotatedClassScanner(CliFunction.class).scanForClasses(pkgname.split("[\\s,]")))
+            this.functionClasses.add(this.loadClass(className));
     }
 
     @Override
@@ -62,6 +77,9 @@ public class Main extends AbstractMain {
 
         // Set singleton
         Main.instance = this;
+
+        // Register built-in functions
+        this.scanFunctionClasses(Function.class.getPackage().getName());
 
         // Parse command line
         final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));
@@ -139,8 +157,14 @@ public class Main extends AbstractMain {
         }
     }
 
+    @Override
     public JSimpleDB getJSimpleDB() {
         return this.jdb;
+    }
+
+    @Override
+    public Set<Class<?>> getFunctionClasses() {
+        return this.functionClasses;
     }
 
     private void verifySchema() {

@@ -7,30 +7,27 @@
 
 package org.jsimpledb.gui;
 
-import com.google.common.reflect.TypeToken;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.MethodProperty;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.shared.ui.combobox.FilteringMode;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.AbstractField;
-import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
-import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -52,21 +49,22 @@ import org.jsimpledb.JTransaction;
 import org.jsimpledb.change.ObjectCreate;
 import org.jsimpledb.change.ObjectDelete;
 import org.jsimpledb.cli.Session;
+import org.jsimpledb.cli.func.CliFunction;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ReferencedObjectException;
 import org.jsimpledb.core.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Main GUI panel containing the various tabs.
  */
 @SuppressWarnings("serial")
-@VaadinConfigurable(preConstruction = true)
+@VaadinConfigurable
 public class MainPanel extends VerticalLayout {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -75,7 +73,7 @@ public class MainPanel extends VerticalLayout {
     private final Button editButton = new Button("Edit", new Button.ClickListener() {
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            MainPanel.this.editButtonClicked((ObjId)MainPanel.this.objectTable.getValue());
+            MainPanel.this.editButtonClicked(MainPanel.this.objectChooser.getObjId());
         }
     });
     private final Button newButton = new Button("New", new Button.ClickListener() {
@@ -87,67 +85,67 @@ public class MainPanel extends VerticalLayout {
     private final Button deleteButton = new Button("Delete", new Button.ClickListener() {
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            MainPanel.this.deleteButtonClicked((ObjId)MainPanel.this.objectTable.getValue());
+            MainPanel.this.deleteButtonClicked(MainPanel.this.objectChooser.getObjId());
         }
     });
     private final Button upgradeButton = new Button("Upgrade", new Button.ClickListener() {
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            MainPanel.this.upgradeButtonClicked((ObjId)MainPanel.this.objectTable.getValue());
-        }
-    });
-    private final Button showButton = new Button("Go", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            MainPanel.this.showButtonClicked();
+            MainPanel.this.upgradeButtonClicked(MainPanel.this.objectChooser.getObjId());
         }
     });
 
-    private final HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
-    private final TypeContainer typeContainer = new TypeContainer();
-    private final TypeTable typeTable = new TypeTable(this.typeContainer);
-    private final TextField showField = new TextField();
-    private final ComboBox sortComboBox = new ComboBox();
+    private final GUIConfig guiConfig;
+    private final JSimpleDB jdb;
     private final Session session;
+    private final ObjectChooser objectChooser;
 
-    private ObjectTable objectTable;
-    private Class<?> type;
-    private boolean canCreate;
-
-    @Autowired
-    @Qualifier("jsimpledbGuiMain")
-    private Main main;
-
-    @Autowired
-    @Qualifier("jsimpledbGuiJSimpleDB")
-    private JSimpleDB jdb;
-
-    @Autowired
+    @Autowired(required = false)
     private ChangePublisher changePublisher;
 
-    public MainPanel() {
+    public MainPanel(GUIConfig guiConfig) {
+        this.guiConfig = guiConfig;
+        this.jdb = this.guiConfig.getJSimpleDB();
+
+        // Setup session
+        this.session = new Session(this.jdb, new PrintWriter(System.out, true));      // XXX
+        this.session.setReadOnly(this.guiConfig.isReadOnly());
+        this.session.setSchemaModel(this.jdb.getSchemaModel());
+        this.session.setSchemaVersion(this.guiConfig.getSchemaVersion());
+        this.session.setAllowNewSchema(this.guiConfig.isAllowNewSchema());
+        for (Class<?> cl : this.guiConfig.getFunctionClasses()) {
+            if (cl.getAnnotation(CliFunction.class).worksInJSimpleDBMode()) {
+                try {
+                    this.session.registerFunction(cl);
+                } catch (IllegalArgumentException e) {
+                    this.log.warn("failed to register function " + cl + ": " + e.getMessage());
+                }
+            }
+        }
+
+        // Setup object chooser
+        this.objectChooser = new ObjectChooser(this.jdb, this.session, null, true);
+
+        // Listen to object selections
+        this.objectChooser.getObjectTable().addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+                MainPanel.this.selectObject(MainPanel.this.objectChooser.getObjId());
+            }
+        });
+    }
+
+    @Override
+    public void attach() {
+        super.attach();
         this.setMargin(false);
         this.setSpacing(true);
         this.setHeight("100%");
 
-        // Setup type table
-        this.typeTable.setSelectable(true);
-        this.typeTable.setImmediate(true);
-
-        // Setup object table, initially showing all objects
-        this.objectTable = new ObjectTable(null);
-        this.objectTable.setSelectable(true);
-        this.objectTable.setImmediate(true);
-
         // Layout top split panel
-        this.splitPanel.setWidth("100%");
-        this.splitPanel.setHeight(300, Sizeable.Unit.PIXELS);
-        this.splitPanel.addComponent(this.typeTable);
-        this.splitPanel.addComponent(this.objectTable);
-        this.splitPanel.setSplitPosition(20);
-        this.addComponent(this.splitPanel);
+        this.addComponent(this.objectChooser.getObjectPanel());
 
-        // Row with schema version and buttons
+        // Add row with schema version and buttons
         final HorizontalLayout buttonRow = new HorizontalLayout();
         buttonRow.setSpacing(true);
         buttonRow.setWidth("100%");
@@ -164,147 +162,36 @@ public class MainPanel extends VerticalLayout {
         this.addComponent(buttonRow);
         this.setComponentAlignment(buttonRow, Alignment.TOP_RIGHT);
 
-        // Build show form
-        final FormLayout showForm = new FormLayout();
-        showForm.setMargin(false);
-        showForm.setWidth("100%");
-
-        // Add show field
-        final HorizontalLayout showLayout = new HorizontalLayout();
-        showLayout.setCaption("Show:");
-        showLayout.setSpacing(true);
-        showLayout.setMargin(false);
-        this.showField.setWidth(600, Sizeable.Unit.PIXELS);
-        this.showField.addStyleName("jsdb-fixed-width");
-        showLayout.addComponent(this.showField);
-        showForm.addComponent(showLayout);
-
-        // Add sort fields
-        final HorizontalLayout sortLayout = new HorizontalLayout();
-        sortLayout.setCaption("Sort by:");
-        sortLayout.setSpacing(true);
-        sortLayout.setMargin(false);
-        this.sortComboBox.setNullSelectionAllowed(false);
-        this.sortComboBox.setNewItemsAllowed(false);
-        this.sortComboBox.setTextInputAllowed(false);
-        this.sortComboBox.setFilteringMode(FilteringMode.OFF);
-        this.sortComboBox.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
-        this.sortComboBox.setItemCaptionPropertyId(SortKeyContainer.DESCRIPTION_PROPERTY);
-        this.rebuildSortComboBox();
-        sortLayout.addComponent(this.sortComboBox);
-        showForm.addComponent(sortLayout);
-
-        // Add show button
-        showForm.addComponent(this.showButton);
-
         // Add show form
-        this.addComponent(showForm);
+        this.addComponent(this.objectChooser.getShowForm());
 
         // Add space filler
         final Label spacer2 = new Label();
         this.addComponent(spacer2);
         this.setExpandRatio(spacer2, 1.0f);
 
-        // Listen to type selections
-        this.typeTable.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent event) {
-                MainPanel.this.selectType((TypeToken<?>)event.getProperty().getValue());
-            }
-        });
-
-        // Listen to object selections
-        this.objectTable.addValueChangeListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(Property.ValueChangeEvent event) {
-                final JObject jobj = MainPanel.this.objectTable.getContainer().getJavaObject(
-                  (ObjId)event.getProperty().getValue());
-                MainPanel.this.selectObject(jobj);
-            }
-        });
-
-        // Set up CLI session
-        this.session = new Session(this.jdb, new PrintWriter(System.out, true));      // XXX
-        this.session.setReadOnly(main.isReadOnly());
-        this.session.setSchemaModel(this.jdb.getSchemaModel());
-        this.session.setSchemaVersion(main.getSchemaVersion());
-        this.session.setAllowNewSchema(main.isAllowNewSchema());
+        // Populate table
+        //this.selectType(TypeToken.of(Object.class), true);
     }
 
 // GUI Updates
 
-    // Invoked when a type is clicked on
-    public void selectType(TypeToken<?> typeToken) {
-        if (typeToken == null)
-            return;
-        this.type = typeToken.getRawType();
-        JClass<?> jclass = null;
-        String typeName;
-        if (this.type == Object.class)
-            typeName = "";
-        else {
-            typeName = this.type.getName() + ".class";
-            try {
-                jclass = this.jdb.getJClass(typeToken);
-                typeName = jclass.getName();
-            } catch (IllegalArgumentException e) {
-                // use class name
-            }
-        }
-        this.canCreate = jclass != null && (jclass.getTypeToken().getRawType().getModifiers() & Modifier.ABSTRACT) == 0;
-        this.showField.setValue("all(" + typeName + ")");
-        this.rebuildSortComboBox();
-        this.showObjects();
-    }
-
     // Invoked when an object is clicked on
-    protected void selectObject(JObject jobj) {
+    protected void selectObject(ObjId id) {
 
-        // Handle de-selection
-        if (jobj == null) {
-            this.editButton.setEnabled(false);
-            this.newButton.setEnabled(false);
-            this.deleteButton.setEnabled(false);
-            this.upgradeButton.setEnabled(false);
-            return;
-        }
+        // New button
+        this.newButton.setEnabled(this.objectChooser.getJClass() != null);
 
         // Update buttons
-        this.editButton.setEnabled(true);
-        this.newButton.setEnabled(this.canCreate);
-        this.deleteButton.setEnabled(true);
-        this.upgradeButton.setEnabled(this.canUpgrade(jobj));
-    }
-
-    protected void showObjects() {
-
-        // Replace object table
-        final ObjectTable newTable = new ObjectTable(this.type);
-        this.splitPanel.replaceComponent(this.objectTable, newTable);
-        this.objectTable = newTable;
-
-        // Populate table
-        this.objectTable.getContainer().reload((SortKeyContainer.SortKey)this.sortComboBox.getValue());
-    }
-
-    protected void rebuildSortComboBox() {
-
-        // Keep the same sort if possible
-        final SortKeyContainer.SortKey previousSort = (SortKeyContainer.SortKey)this.sortComboBox.getValue();
-
-        // Build new sort key container
-        final SortKeyContainer sortKeyContainer = new SortKeyContainer(this.type);
-        this.sortComboBox.setContainerDataSource(sortKeyContainer);
-
-        // Keep same sort key if possible, otherwise default to object ID
-        this.sortComboBox.setValue(sortKeyContainer.getJavaObject(previousSort) != null ?
-          previousSort : sortKeyContainer.new ObjectIdSortKey());
-    }
-
-// Show
-
-    private void showButtonClicked() {
-        this.showObjects();
+        if (id == null) {
+            this.editButton.setEnabled(false);
+            this.deleteButton.setEnabled(false);
+            this.upgradeButton.setEnabled(false);
+        } else {
+            this.editButton.setEnabled(true);
+            this.deleteButton.setEnabled(true);
+            this.upgradeButton.setEnabled(this.canUpgrade(id));
+        }
     }
 
 // Edit
@@ -320,7 +207,7 @@ public class MainPanel extends VerticalLayout {
         }
 
         // Ensure type is known
-        final int storageId = jobj.getObjId().getStorageId();
+        final int storageId = id.getStorageId();
         final JClass<?> jclass;
         try {
             jclass = this.jdb.getJClass(storageId);
@@ -332,7 +219,7 @@ public class MainPanel extends VerticalLayout {
         }
 
         // Open window
-        new EditWindow(jobj, jclass).show();
+        new EditWindow(jobj, jclass, false).show();
     }
 
     @RetryTransaction
@@ -347,25 +234,36 @@ public class MainPanel extends VerticalLayout {
 // New
 
     private void newButtonClicked() {
-        this.log.info("creating new object of type " + this.type);
-        this.doCreate();
+        final JClass<?> jclass = this.objectChooser.getJClass();
+        if (jclass == null) {
+            Notification.show("Can't create object having unknown type",
+              "Please select an object type first", Notification.Type.WARNING_MESSAGE);
+            return;
+        }
+        this.log.info("creating new object of type " + jclass.getTypeToken());
+        new EditWindow(this.doCreateForEdit(jclass), jclass, true).show();
     }
 
     @RetryTransaction
     @Transactional("jsimpledbGuiTransactionManager")
-    private void doCreate() {
-        final Object jobj = JTransaction.getCurrent().create(this.type);
-        this.changePublisher.publishChangeOnCommit(new ObjectCreate<Object>(jobj));
+    private JObject doCreateForEdit(JClass<?> jclass) {
+        return (JObject)JTransaction.getCurrent().getSnapshotTransaction().create(jclass);
     }
 
 // Delete
 
     private void deleteButtonClicked(ObjId id) {
         this.log.info("deleting object " + id);
-        if (this.doDelete(id))
-            Notification.show("Removed object " + id);
-        else
+        try {
+            this.doDelete(id);
+        } catch (DeletedObjectException e) {
             Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
+        } catch (ReferencedObjectException e) {
+            Notification.show("Object " + id + " is referenced by " + e.getReferrer(),
+              e.getMessage(), Notification.Type.ERROR_MESSAGE);
+        }
+        Notification.show("Removed object " + id);
+        this.selectObject(null);
     }
 
     @RetryTransaction
@@ -373,7 +271,7 @@ public class MainPanel extends VerticalLayout {
     private boolean doDelete(ObjId id) {
         final JObject jobj = JTransaction.getCurrent().getJObject(id);
         final boolean deleted = jobj.delete();
-        if (deleted)
+        if (deleted && this.changePublisher != null)
             this.changePublisher.publishChangeOnCommit(new ObjectDelete<Object>(jobj));
         return deleted;
     }
@@ -408,13 +306,16 @@ public class MainPanel extends VerticalLayout {
             return -1;
         }
         final boolean upgraded = jobj.upgrade();
-        if (upgraded)
+        if (upgraded && this.changePublisher != null)
             this.changePublisher.publishChangeOnCommit(jobj);
         return upgraded ? oldVersion : 0;
     }
 
-    private boolean canUpgrade(JObject jobj) {
-        return jobj != null && jobj.getSchemaVersion() != this.jdb.getLastVersion();
+    @RetryTransaction
+    @Transactional("jsimpledbGuiTransactionManager")
+    private boolean canUpgrade(ObjId id) {
+        final JObject jobj = JTransaction.getCurrent().getJObject(id);
+        return jobj.exists() && jobj.getSchemaVersion() != this.jdb.getLastVersion();
     }
 
 // EditWindow
@@ -423,14 +324,16 @@ public class MainPanel extends VerticalLayout {
 
         private final JObject jobj;
         private final JClass<?> jclass;
+        private final boolean create;
         private final LinkedHashMap<String, Component> editorMap = new LinkedHashMap<>();
 
-        EditWindow(JObject jobj, JClass<?> jclass) {
-            super(MainPanel.this.getUI(), "Edit Object");
+        EditWindow(JObject jobj, JClass<?> jclass, boolean create) {
+            super(MainPanel.this.getUI(), (create ? "New" : "Edit") + " " + jclass.getName());
             this.setWidth(600, Sizeable.Unit.PIXELS);
             this.setHeight(450, Sizeable.Unit.PIXELS);
             this.jobj = jobj;
             this.jclass = jclass;
+            this.create = create;
 
             // Get the names of all database properties
             final SortedMap<String, JField> fieldMap = jclass.getJFieldsByName();
@@ -455,15 +358,17 @@ public class MainPanel extends VerticalLayout {
                 if (jfield instanceof JSimpleField)
                     editor = this.buildSimpleFieldEditor((JSimpleField)jfield);
                 else
-                    continue;       // TODO
+                    editor = new Label("TODO: " + jfield);       // TODO
                 this.editorMap.put(fieldName, editor);
             }
         }
 
         @Override
         protected void addContent(VerticalLayout layout) {
-            layout.addComponent(Component.class.cast(MainPanel.this.objectTable.getContainer().getContainerProperty(
-              this.jobj.getObjId(), ObjectContainer.REFERENCE_LABEL_PROPERTY).getValue()));
+            if (!this.create) {
+                layout.addComponent((Component)MainPanel.this.objectChooser.getObjectContainer().getContainerProperty(
+                  this.jobj.getObjId(), JObjectContainer.REFERENCE_LABEL_PROPERTY).getValue());
+            }
             final FormLayout formLayout = new FormLayout();
             for (Component component : this.editorMap.values())
                 formLayout.addComponent(component);
@@ -476,19 +381,26 @@ public class MainPanel extends VerticalLayout {
         protected boolean execute() {
             final JTransaction jtx = JTransaction.getCurrent();
 
-            // Find object
+            // Find/create object
             final ObjId id = this.jobj.getObjId();
-            final JObject target = jtx.getJObject(id);
-            if (!target.exists()) {
+            final JObject target = this.create ? (JObject)jtx.create(this.jclass) : jtx.getJObject(id);
+
+            // Verify object still exists when editing
+            if (!this.create && !target.exists()) {
                 Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
                 return true;
             }
 
-            // Copy values
-            this.jobj.copyIn();
+            // Copy fields
+            this.jobj.copyTo(jtx, id);
 
             // Broadcast update event after successful commit
-            MainPanel.this.changePublisher.publishChangeOnCommit(target);
+            if (MainPanel.this.changePublisher != null) {
+                if (create)
+                    MainPanel.this.changePublisher.publishChangeOnCommit(new ObjectCreate<Object>(target));
+                else
+                    MainPanel.this.changePublisher.publishChangeOnCommit(target);
+            }
 
             // Show notification after successful commit
             final VaadinSession vaadinSession = VaadinUtil.getCurrentSession();
@@ -498,7 +410,7 @@ public class MainPanel extends VerticalLayout {
                     VaadinUtil.invoke(vaadinSession, new Runnable() {
                         @Override
                         public void run() {
-                            Notification.show("Updated object " + id);
+                            Notification.show((EditWindow.this.create ? "Created" : "Updated") + " object " + id);
                         }
                     });
                 }
@@ -506,11 +418,11 @@ public class MainPanel extends VerticalLayout {
             return true;
         }
 
-        protected Field<?> buildFieldFieldEditor(String fieldName, AbstractField<?> field) {
+        protected Component buildFieldFieldEditor(String fieldName, AbstractField<?> field) {
             return field;
         }
 
-        protected Field<?> buildSimpleFieldEditor(JSimpleField jfield) {
+        protected Component buildSimpleFieldEditor(JSimpleField jfield) {
 
             // Get field info
             final boolean allowNull = jfield.getGetter().getAnnotation(NotNull.class) == null;
@@ -519,21 +431,25 @@ public class MainPanel extends VerticalLayout {
             final Property<?> property = this.buildProperty(jfield);
 
             // Build editor
-            final Field<?> editor = this.buildSimpleFieldEditor(jfield, property, allowNull);
+            final Component editor = this.buildSimpleFieldEditor(jfield, property, allowNull);
             editor.setCaption(this.buildCaption(jfield.getName()));
             return editor;
         }
 
-        protected Field<?> buildSimpleFieldEditor(JSimpleField jfield, Property<?> property, boolean allowNull) {
+        @SuppressWarnings("unchecked")
+        protected Component buildSimpleFieldEditor(JSimpleField jfield, Property<?> property, boolean allowNull) {
 
             // Get property type
             final Class<?> propertyType = jfield.getGetter().getReturnType();
 
-            // Use ComboBox for references
+            // Use object choosers for references
             if (jfield instanceof JReferenceField) {
-                final ReferenceComboBox comboBox = new ReferenceComboBox(MainPanel.this.jdb, propertyType, allowNull);
-                comboBox.setPropertyDataSource(property);
-                return comboBox;
+                final JReferenceField refField = (JReferenceField)jfield;
+                final Method getter = refField.getGetter();
+                final Method setter = refField.getSetter();
+                final ObjectEditor objectEditor = new ObjectEditor(this.jobj.getTransaction(), MainPanel.this.session,
+                  getter.getReturnType(), new MethodProperty<JObject>(JObject.class, this.jobj, getter, setter), allowNull);
+                return objectEditor;
             }
 
             // Use ComboBox for Enum's
@@ -543,6 +459,15 @@ public class MainPanel extends VerticalLayout {
                 if (allowNull)
                     comboBox.setInputPrompt("Null");
                 return comboBox;
+            }
+
+            // Use DatePicker for dates
+            if (Date.class.isAssignableFrom(propertyType)) {
+                final PopupDateField dateField = new PopupDateField();
+                dateField.setImmediate(true);
+                dateField.setResolution(Resolution.SECOND);
+                dateField.setPropertyDataSource(property);
+                return dateField;
             }
 
             // Use text field for all other field types

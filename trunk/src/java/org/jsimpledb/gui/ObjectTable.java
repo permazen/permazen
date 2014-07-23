@@ -10,31 +10,34 @@ package org.jsimpledb.gui;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Table;
 
-import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.jsimpledb.JSimpleDB;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.jsimpledb.cli.Session;
 
 /**
  * Table showing all objects of a certain type, backed by an {@link ObjectContainer}.
  */
 @SuppressWarnings("serial")
-@VaadinConfigurable
-public class ObjectTable extends AbstractTable<ObjectContainer> {
+public class ObjectTable extends AbstractTable<JObjectContainer> {
 
-    private final Class<?> type;
+    private final JSimpleDB jdb;
+    private final JObjectContainer container;
+    private final Session session;
     private final boolean showFields;
 
-    @Autowired
-    @Qualifier("jsimpledbGuiJSimpleDB")
-    private JSimpleDB jdb;
-
-    public ObjectTable(Class<?> type) {
-        this(type, true);
+    public ObjectTable(JSimpleDB jdb, JObjectContainer container, Session session) {
+        this(jdb, container, session, true);
     }
 
-    public ObjectTable(Class<?> type, boolean showFields) {
-        this.type = type;
+    public ObjectTable(JSimpleDB jdb, JObjectContainer container, Session session, boolean showFields) {
+        if (jdb == null)
+            throw new IllegalArgumentException("null jdb");
+        if (container == null)
+            throw new IllegalArgumentException("null container");
+        if (session == null)
+            throw new IllegalArgumentException("null session");
+        this.jdb = jdb;
+        this.container = container;
+        this.session = session;
         this.showFields = showFields;
         this.setSelectable(true);
         this.setImmediate(true);
@@ -42,8 +45,8 @@ public class ObjectTable extends AbstractTable<ObjectContainer> {
     }
 
     @Override
-    protected ObjectContainer buildContainer() {
-        return new ObjectContainer(this.jdb, this.type);
+    protected JObjectContainer buildContainer() {
+        return this.container;
     }
 
     @Override
@@ -57,20 +60,20 @@ public class ObjectTable extends AbstractTable<ObjectContainer> {
             int width = 120;
             boolean showField = this.showFields;
             switch (fieldName) {
-            case ObjectContainer.REFERENCE_LABEL_PROPERTY:
+            case JObjectContainer.REFERENCE_LABEL_PROPERTY:
                 title = "Label";
                 width = 120;
                 showField = true;
                 break;
-            case ObjectContainer.OBJ_ID_PROPERTY:
+            case JObjectContainer.OBJECT_ID_PROPERTY:
                 title = "ID";
                 width = 120;
                 break;
-            case ObjectContainer.TYPE_PROPERTY:
+            case JObjectContainer.TYPE_PROPERTY:
                 title = "Type";
                 width = 80;
                 break;
-            case ObjectContainer.VERSION_PROPERTY:
+            case JObjectContainer.VERSION_PROPERTY:
                 title = "Version";
                 width = 40;
                 break;
@@ -84,8 +87,7 @@ public class ObjectTable extends AbstractTable<ObjectContainer> {
 
         // Adjust columns
         this.setColumnCollapsingAllowed(true);
-        if (!this.getContainer().hasCustomReferenceLabel())
-            this.setColumnCollapsed(ObjectContainer.REFERENCE_LABEL_PROPERTY, true);
+        this.setColumnCollapsed(JObjectContainer.OBJECT_ID_PROPERTY, true);
     }
 }
 

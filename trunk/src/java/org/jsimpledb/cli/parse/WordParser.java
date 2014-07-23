@@ -19,7 +19,7 @@ import org.jsimpledb.util.ParseContext;
  */
 public class WordParser implements Parser<String> {
 
-    private final TreeSet<String> words;
+    private final Collection<String> words;
     private final String description;
 
     /**
@@ -53,6 +53,19 @@ public class WordParser implements Parser<String> {
         this.description = description;
     }
 
+    /**
+     * Get the set of valid words, if there is such a set.
+     *
+     * <p>
+     * The implementation in {@link WordParser} returns the collection provided to the constructor, if any.
+     * </p>
+     *
+     * @return collection of valid words, or null to not place any restriction
+     */
+    protected Collection<String> getWords() {
+        return this.words;
+    }
+
     @Override
     public String parse(Session session, ParseContext ctx, boolean complete) {
 
@@ -63,10 +76,12 @@ public class WordParser implements Parser<String> {
         final String word = matcher.group();
 
         // Check word
-        if (this.words != null) {
-            if (!this.words.contains(word)) {
+        final Collection<String> validWords = this.getWords();
+        if (validWords != null) {
+            final TreeSet<String> sortedWords = new TreeSet<>(validWords);
+            if (!sortedWords.contains(word)) {
                 throw new ParseException(ctx, "unknown " + this.description + " `" + word + "'")
-                  .addCompletions(ParseUtil.complete(this.words, word));
+                  .addCompletions(ParseUtil.complete(sortedWords, word));
             }
         } else if (word.length() == 0)
             throw new ParseException(ctx, "missing " + this.description);

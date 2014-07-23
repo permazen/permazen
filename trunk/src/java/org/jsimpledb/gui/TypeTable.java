@@ -21,23 +21,22 @@ public class TypeTable extends TreeTable {
     public TypeTable(TypeContainer container) {
         super(null, container);
 
-        this.setSelectable(false);
-        this.setImmediate(false);
+        this.setSelectable(true);
+        this.setImmediate(true);
         this.setSizeFull();
-        this.setHierarchyColumn(TypeContainer.Node.NAME_PROPERTY);
+        this.setHierarchyColumn(TypeContainer.NAME_PROPERTY);
         this.setAnimationsEnabled(true);
 
-        this.addColumn(TypeContainer.Node.NAME_PROPERTY, "Name", 140, Table.Align.LEFT);
-        this.addColumn(TypeContainer.Node.STORAGE_ID_PROPERTY, "SID", 40, Table.Align.CENTER);
-        this.addColumn(TypeContainer.Node.TYPE_PROPERTY, "Type", 250, Table.Align.CENTER);
+        this.addColumn(TypeContainer.NAME_PROPERTY, "Type", 140, Table.Align.LEFT);
+        this.addColumn(TypeContainer.STORAGE_ID_PROPERTY, "SID", 40, Table.Align.CENTER);
+        this.addColumn(TypeContainer.TYPE_PROPERTY, "Java Type", 250, Table.Align.CENTER);
 
-        this.setColumnExpandRatio(TypeContainer.Node.NAME_PROPERTY, 1.0f);
+        this.setColumnExpandRatio(TypeContainer.NAME_PROPERTY, 1.0f);
 
-        this.setVisibleColumns(TypeContainer.Node.NAME_PROPERTY,
-          TypeContainer.Node.STORAGE_ID_PROPERTY, TypeContainer.Node.TYPE_PROPERTY);
+        this.setVisibleColumns(TypeContainer.NAME_PROPERTY, TypeContainer.STORAGE_ID_PROPERTY, TypeContainer.TYPE_PROPERTY);
         this.setColumnCollapsingAllowed(true);
-        this.setColumnCollapsed(TypeContainer.Node.STORAGE_ID_PROPERTY, true);
-        this.setColumnCollapsed(TypeContainer.Node.TYPE_PROPERTY, true);
+        this.setColumnCollapsed(TypeContainer.STORAGE_ID_PROPERTY, true);
+        this.setColumnCollapsed(TypeContainer.TYPE_PROPERTY, true);
 
         // Expand all root nodes
         for (TypeToken<?> typeToken : container.rootItemIds())

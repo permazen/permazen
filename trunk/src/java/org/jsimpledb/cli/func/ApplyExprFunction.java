@@ -34,7 +34,7 @@ public abstract class ApplyExprFunction extends Function {
         final Node items = new ExprParser().parse(session, ctx, complete);
 
         // Get variable
-        this.spaceParser.parse(ctx, complete);
+        ctx.skipWhitespace();
         if (!ctx.tryLiteral(","))
             throw new ParseException(ctx, "expected `,'").addCompletion(", ");
         this.spaceParser.parse(ctx, complete);
@@ -46,7 +46,7 @@ public abstract class ApplyExprFunction extends Function {
         final String variable = ((VarNode)param1).getName();
 
         // Get expression
-        this.spaceParser.parse(ctx, complete);
+        ctx.skipWhitespace();
         if (!ctx.tryLiteral(","))
             throw new ParseException(ctx, "expected `,'").addCompletion(", ");
         this.spaceParser.parse(ctx, complete);

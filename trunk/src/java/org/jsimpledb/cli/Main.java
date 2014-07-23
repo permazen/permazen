@@ -17,10 +17,13 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.cli.cmd.CliCommand;
 import org.jsimpledb.cli.cmd.Command;
+import org.jsimpledb.cli.func.CliFunction;
 import org.jsimpledb.cli.func.Function;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.schema.SchemaModel;
+import org.jsimpledb.spring.AnnotatedClassScanner;
 import org.jsimpledb.util.AbstractMain;
 
 /**
@@ -29,7 +32,8 @@ import org.jsimpledb.util.AbstractMain;
 public class Main extends AbstractMain {
 
     private File schemaFile;
-    private final LinkedHashSet<Class<?>> addClasses = new LinkedHashSet<>();
+    private final LinkedHashSet<Class<?>> commandClasses = new LinkedHashSet<>();
+    private final LinkedHashSet<Class<?>> functionClasses = new LinkedHashSet<>();
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -37,38 +41,35 @@ public class Main extends AbstractMain {
             if (params.isEmpty())
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
-        } else if (option.equals("--add")) {
+        } else if (option.equals("--cmdpkg")) {
             if (params.isEmpty())
                 this.usageError();
-            this.addClass(params.removeFirst());
-        } else if (option.equals("--addpkg")) {
+            this.scanCommandClasses(params.removeFirst());
+        } else if (option.equals("--funcpkg")) {
             if (params.isEmpty())
                 this.usageError();
-            this.scanClasses(params.removeFirst());
+            this.scanFunctionClasses(params.removeFirst());
         } else
             return false;
         return true;
     }
 
-    private void scanClasses(String pkgname) {
-        for (String className : new ClassPathScanner().scanForClasses(pkgname.split("[\\s,]")))
-            this.addClass(className);
+    private void scanCommandClasses(String pkgname) {
+        for (String className : new AnnotatedClassScanner(CliCommand.class).scanForClasses(pkgname.split("[\\s,]")))
+            this.commandClasses.add(this.loadClass(className));
     }
 
-    private void addClass(String className) {
-        try {
-            this.addClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("failed to load class `" + className + "'", e);
-        }
+    private void scanFunctionClasses(String pkgname) {
+        for (String className : new AnnotatedClassScanner(CliFunction.class).scanForClasses(pkgname.split("[\\s,]")))
+            this.functionClasses.add(this.loadClass(className));
     }
 
     @Override
     public int run(String[] args) throws Exception {
 
-        // Register normal commands and functions
-        this.scanClasses(Command.class.getPackage().getName());
-        this.scanClasses(Function.class.getPackage().getName());
+        // Register built-in commands and functions
+        this.scanCommandClasses(Command.class.getPackage().getName());
+        this.scanFunctionClasses(Function.class.getPackage().getName());
 
         // Parse command line
         final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));
@@ -95,6 +96,8 @@ public class Main extends AbstractMain {
                 }
             } catch (Exception e) {
                 System.err.println(this.getName() + ": can't load schema from `" + this.schemaFile + "': " + e.getMessage());
+                if (this.verbose)
+                    e.printStackTrace(System.err);
                 return 1;
             }
         }
@@ -126,37 +129,22 @@ public class Main extends AbstractMain {
         session.setSchemaModel(schemaModel);
         session.setSchemaVersion(this.schemaVersion);
         session.setAllowNewSchema(this.allowNewSchema);
-
-        // Instantiate and add scanned CLI classes
-        for (Class<?> cl : this.addClasses) {
-            Exception failure = null;
-            Object obj = null;
-            try {
-                obj = cl.getConstructor(Session.class).newInstance(session);
-            } catch (NoSuchMethodException e) {
-                try {
-                    obj = cl.getConstructor().newInstance();
-                } catch (NoSuchMethodException e2) {
-                    System.err.println(this.getName() + ": can't find suitable constructor in class " + cl.getName());
-                    return 1;
-                } catch (Exception e2) {
-                    failure = e2;
-                }
-            } catch (Exception e) {
-                failure = e;
+        try {
+            for (Class<?> cl : this.commandClasses) {
+                final CliCommand annotation = cl.getAnnotation(CliCommand.class);
+                if (jdb != null ? annotation.worksInJSimpleDBMode() : annotation.worksInCoreAPIMode())
+                    session.registerCommand(cl);
             }
-            if (failure != null)
-                System.err.println(this.getName() + ": can't instantiate class " + cl.getName() + ": " + failure);
-            if (obj instanceof Command) {
-                final Command command = (Command)obj;
-                session.getCommands().put(command.getName(), command);
-            } else if (obj instanceof Function) {
-                final Function function = (Function)obj;
-                session.getFunctions().put(function.getName(), function);
-            } else {
-                System.err.println(this.getName() + ": warning: class "
-                  + cl.getName() + " is neither a command nor a function; ignoring");
+            for (Class<?> cl : this.functionClasses) {
+                final CliFunction annotation = cl.getAnnotation(CliFunction.class);
+                if (jdb != null ? annotation.worksInJSimpleDBMode() : annotation.worksInCoreAPIMode())
+                    session.registerFunction(cl);
             }
+        } catch (IllegalArgumentException e) {
+            System.err.println(this.getName() + ": " + e.getMessage());
+            if (this.verbose)
+                e.printStackTrace(System.err);
+            return 1;
         }
 
         // Run console
@@ -180,9 +168,9 @@ public class Main extends AbstractMain {
         System.err.println("  " + this.getName() + " [options]");
         System.err.println("Options:");
         this.outputFlags(new String[][] {
-          { "--add class",          "Add specified @CliCommand- or @CliFunction-annotated Java class" },
-          { "--addpkg package",     "Scan for @CliCommand and @CliFunction classes under Java package" },
           { "--schema-file file",   "Load core database schema from XML file" },
+          { "--cmdpkg package",     "Register @CliCommand-annotated classes found under the specified Java package" },
+          { "--funcpkg package",     "Register @CliFunction-annotated classes found under the specified Java package" },
         });
     }
 

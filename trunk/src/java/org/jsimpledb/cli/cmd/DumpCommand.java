@@ -22,6 +22,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
+import org.jsimpledb.JObject;
 import org.jsimpledb.cli.Action;
 import org.jsimpledb.cli.Session;
 import org.jsimpledb.cli.parse.ParseException;
@@ -74,10 +75,7 @@ public class DumpCommand extends Command {
             @Override
             public void run(Session session) throws Exception {
                 final Value value = expr.evaluate(session);
-                final Object obj = value.checkNotNull(session, "dump");
-                final Iterable<?> i = obj instanceof Iterable ? ((Iterable<?>)obj) : null;
-                if (obj == null)
-                    throw new IllegalArgumentException("value of expression is not an Iterable");
+                final Iterable<?> i = value.checkType(session, "dump", Iterable.class);
                 final AtomicUpdateFileOutputStream updateOutput = new AtomicUpdateFileOutputStream(file);
                 final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
                 boolean success = false;
@@ -87,7 +85,12 @@ public class DumpCommand extends Command {
                       XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8"));
                     writer.writeStartDocument("UTF-8", "1.0");
                     count = new XMLObjectSerializer(session.getTransaction()).write(writer, nameFormat,
-                      Iterables.transform(i, new CastFunction<ObjId>(ObjId.class)));
+                      Iterables.transform(i, new CastFunction<ObjId>(ObjId.class) {
+                        @Override
+                        public ObjId apply(Object obj) {
+                            return obj instanceof JObject ? ((JObject)obj).getObjId() : super.apply(obj);
+                        }
+                      }));
                     success = true;
                 } finally {
                     if (success) {

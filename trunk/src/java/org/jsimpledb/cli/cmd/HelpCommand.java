@@ -8,6 +8,7 @@
 package org.jsimpledb.cli.cmd;
 
 import java.io.PrintWriter;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.jsimpledb.cli.Action;
@@ -23,7 +24,7 @@ public class HelpCommand extends Command {
     private final Session session;
 
     public HelpCommand(Session session) {
-        super("help command:command?");
+        super("help command-or-function:cmdfunc?");
         this.session = session;
     }
 
@@ -34,20 +35,28 @@ public class HelpCommand extends Command {
 
     @Override
     public String getHelpDetail() {
-        return "Displays the list of known commands, or help information about a specific command.";
+        return "Displays the list of known commands and functions, or help information about a specific command or function.";
     }
 
     @Override
     protected Parser<?> getParser(String typeName) {
-        if ("command".equals(typeName))
-            //return new WordParser(this.session.getCommands().keySet(), "command");        // TODO: functions too
-            return new WordParser("command/function");
+        if ("cmdfunc".equals(typeName)) {
+            return new WordParser("command/function") {
+                @Override
+                protected HashSet<String> getWords() {
+                    final HashSet<String> names = new HashSet<>();
+                    names.addAll(HelpCommand.this.session.getCommands().keySet());
+                    names.addAll(HelpCommand.this.session.getFunctions().keySet());
+                    return names;
+                }
+            };
+        }
         return super.getParser(typeName);
     }
 
     @Override
     public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
-        final String name = (String)params.get("command");
+        final String name = (String)params.get("command-or-function");
         return new Action() {
             @Override
             public void run(Session session) throws Exception {
