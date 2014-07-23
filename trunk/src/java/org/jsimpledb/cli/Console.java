@@ -105,7 +105,8 @@ public class Console {
         // Main command loop
         try {
 
-            this.console.println("Welcome to JSimpleDB. Type `help' for help.");
+            this.console.println("Welcome to JSimpleDB. You are in "
+              + (this.session.hasJSimpleDB() ? "JSimpleDB" : "Core API") + " Mode. Type `help' for help.");
             while (!session.isDone()) {
 
                 // Read command line
