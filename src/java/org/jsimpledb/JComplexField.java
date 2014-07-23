@@ -86,7 +86,7 @@ public abstract class JComplexField extends JField {
         for (Object obj : it) {
             if (obj != null) {
                 final ObjId id = (ObjId)obj;
-                srcTx.copyTo(seen, dstTx, id, id, nextFields);
+                srcTx.copyTo(seen, dstTx, id, id, false, nextFields);
             }
         }
     }
