@@ -20,42 +20,40 @@ import java.util.List;
 
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
-import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.jsimpledb.JClass;
 import org.jsimpledb.JSimpleDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Hierarical container that contains the tree of all Java model classes in the database schema.
  */
 @SuppressWarnings("serial")
-@VaadinConfigurable
 public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContainer.Node> implements Container.Hierarchical {
+
+    public static final String NAME_PROPERTY = "name";
+    public static final String STORAGE_ID_PROPERTY = "storageId";
+    public static final String TYPE_PROPERTY = "type";
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    private final JSimpleDB jdb;
     private final Class<?> type;
     private final ArrayList<Node> rootList = new ArrayList<>();
-
-    @Autowired
-    @Qualifier("jsimpledbGuiJSimpleDB")
-    private JSimpleDB jdb;
 
     /**
      * Constructor.
      */
-    public TypeContainer() {
-        this(null);
+    public TypeContainer(JSimpleDB jdb) {
+        this(jdb, null);
     }
 
     /**
      * Constructor.
      */
-    public TypeContainer(Class<?> type) {
+    public TypeContainer(JSimpleDB jdb, Class<?> type) {
         super(Node.class);
+        this.jdb = jdb;
         this.type = type;
     }
 
@@ -132,10 +130,6 @@ public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContai
 
     public static class Node {
 
-        public static final String NAME_PROPERTY = "name";
-        public static final String STORAGE_ID_PROPERTY = "storageId";
-        public static final String TYPE_PROPERTY = "type";
-
         public static final Function<Node, TypeToken<?>> TYPE_TOKEN_FUNCTION = new Function<Node, TypeToken<?>>() {
             @Override
             public TypeToken<?> apply(Node node) {
@@ -179,17 +173,17 @@ public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContai
             return this.childs;
         }
 
-        @ProvidesProperty(NAME_PROPERTY)
+        @ProvidesProperty(TypeContainer.NAME_PROPERTY)
         public String getName() {
             return this.jclass != null ? this.jclass.getName() : this.typeToken.getRawType().getSimpleName();
         }
 
-        @ProvidesProperty(STORAGE_ID_PROPERTY)
+        @ProvidesProperty(TypeContainer.STORAGE_ID_PROPERTY)
         public Integer getStorageId() {
             return this.jclass != null ? this.jclass.getStorageId() : null;
         }
 
-        @ProvidesProperty(TYPE_PROPERTY)
+        @ProvidesProperty(TypeContainer.TYPE_PROPERTY)
         public SizedLabel getType() {
             return new SizedLabel("<code>" + this.getTypeToken().toString() + "</code>", ContentMode.HTML);
         }

@@ -15,13 +15,10 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import org.dellroad.stuff.vaadin7.VaadinConfigurable;
-
 /**
  * A confirmation window. Content and action on confirmation are supplied by the subclass.
  */
 @SuppressWarnings("serial")
-@VaadinConfigurable
 public abstract class ConfirmWindow extends Window {
 
     protected final Button okButton;

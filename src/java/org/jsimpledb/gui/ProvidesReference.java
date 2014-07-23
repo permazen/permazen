@@ -19,13 +19,12 @@ import java.lang.annotation.Target;
  *
  * <p>
  * The annotated method must be an instance method (i.e., not static) and take zero parameters. It does not need to be public.
- * If the returned object is a {@link com.vaadin.ui.Component}, then it will be used directly,
- * otherwise the {@link String} value of the returned object is used.
+ * It must have return value that is either {@link String} or a sub-type of {@link com.vaadin.ui.Component}.
  * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-public @interface ProvidesReferenceLabel {
+public @interface ProvidesReference {
 }
 

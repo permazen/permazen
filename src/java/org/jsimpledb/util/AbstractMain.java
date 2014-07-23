@@ -19,7 +19,7 @@ import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
-import org.jsimpledb.spring.ScanClassPathClassScanner;
+import org.jsimpledb.spring.JSimpleDBClassScanner;
 
 /**
  * CLI main entry point.
@@ -141,12 +141,20 @@ public abstract class AbstractMain extends MainClass {
     private void scanSchemaClasses(String pkgname) {
         if (this.schemaClasses == null)
             this.schemaClasses = new HashSet<>();
-        for (String className : new ScanClassPathClassScanner().scanForClasses(pkgname.split("[\\s,]"))) {
-            try {
-                schemaClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("failed to load class `" + className + "'", e);
-            }
+        for (String className : new JSimpleDBClassScanner().scanForClasses(pkgname.split("[\\s,]")))
+            this.schemaClasses.add(this.loadClass(className));
+    }
+
+    /**
+     * Load a class.
+     *
+     * @throws RuntimeException if load fails
+     */
+    protected Class<?> loadClass(String className) {
+        try {
+            return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("failed to load class `" + className + "'", e);
         }
     }
 

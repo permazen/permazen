@@ -8,6 +8,7 @@
 package org.jsimpledb.cli;
 
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -200,6 +201,62 @@ public class Session {
         this.done = done;
     }
 
+// Command and Function registration
+
+    /**
+     * Create an instance of the specified class and register it as a {@link Command}.
+     * The class must have a public constructor taking either a single {@link Session} parameter
+     * or no parameters; they will be tried in that order.
+     *
+     * @param cl command class
+     * @throws IllegalArgumentException if {@code cl} has no suitable constructor
+     * @throws IllegalArgumentException if {@code cl} instantiation fails
+     * @throws IllegalArgumentException if {@code cl} does not subclass {@link Command}
+     */
+    public void registerCommand(Class<?> cl) {
+        if (!Command.class.isAssignableFrom(cl))
+            throw new IllegalArgumentException(cl + " does not subclass " + Command.class.getName());
+        final Command command = this.instantiate(cl.asSubclass(Command.class));
+        this.commands.put(command.getName(), command);
+    }
+
+    /**
+     * Create an instance of the specified class and register it as a {@link Function}.
+     * as appropriate. The class must have a public constructor taking either a single {@link Session} parameter
+     * or no parameters; they will be tried in that order.
+     *
+     * @param cl function class
+     * @throws IllegalArgumentException if {@code cl} has no suitable constructor
+     * @throws IllegalArgumentException if {@code cl} instantiation fails
+     * @throws IllegalArgumentException if {@code cl} does not subclass {@link Command}
+     */
+    public void registerFunction(Class<?> cl) {
+        if (!Function.class.isAssignableFrom(cl))
+            throw new IllegalArgumentException(cl + " does not subclass " + Function.class.getName());
+        final Function function = this.instantiate(cl.asSubclass(Function.class));
+        this.functions.put(function.getName(), function);
+    }
+
+    private <T> T instantiate(Class<T> cl) {
+        Throwable failure;
+        try {
+            return cl.getConstructor(Session.class).newInstance(this);
+        } catch (NoSuchMethodException e) {
+            try {
+                return cl.getConstructor().newInstance();
+            } catch (NoSuchMethodException e2) {
+                throw new IllegalArgumentException("no suitable constructor found in class " + cl.getName());
+            } catch (Exception e2) {
+                failure = e2;
+            }
+        } catch (Exception e) {
+            failure = e;
+        }
+        if (failure instanceof InvocationTargetException)
+            failure = failure.getCause();
+        throw new IllegalArgumentException("unable to instantiate class " + cl.getName() + ": " + failure, failure);
+    }
+
 // Class name resolution
 
     public Class<?> resolveClass(final String name) {
@@ -256,6 +313,9 @@ public class Session {
 
 // Transactions
 
+    /**
+     * Perform the given action within a transaction.
+     */
     public boolean perform(Action action) {
         try {
             final boolean newTransaction = this.tx == null;
@@ -270,7 +330,7 @@ public class Session {
             } finally {
                 if (newTransaction && this.tx != null) {
                     if (success)
-                        this.commitTransaction();
+                        success = this.commitTransaction();
                     else
                         this.rollbackTransaction();
                 }
@@ -282,7 +342,7 @@ public class Session {
         }
     }
 
-    public boolean openTransaction() {
+    private boolean openTransaction() {
         try {
             if (this.tx != null)
                 throw new IllegalStateException("a transaction is already open");
@@ -313,7 +373,7 @@ public class Session {
         }
     }
 
-    public boolean commitTransaction() {
+    private boolean commitTransaction() {
         try {
             if (this.tx == null)
                 throw new IllegalStateException("no transaction");
@@ -332,7 +392,7 @@ public class Session {
         }
     }
 
-    public boolean rollbackTransaction() {
+    private boolean rollbackTransaction() {
         try {
             if (this.tx == null)
                 throw new IllegalStateException("no transaction");

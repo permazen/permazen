@@ -68,12 +68,13 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Instances will have the following properties:
  * <ul>
- *  <li>{@link #OBJ_ID_PROPERTY}: Object {@link ObjId}</li>
+ *  <li>{@link #OBJECT_ID_PROPERTY}: Object {@link ObjId}</li>
  *  <li>{@link #TYPE_PROPERTY}: Object type name (JSimpleDB type name, not Java type name, though these are typically the same)</li>
  *  <li>{@link #VERSION_PROPERTY}: Object schema version</li>
- *  <li>{@link #REFERENCE_LABEL_PROPERTY}: Object <b>reference label</b>, which is a short description of the object.
- *      This property contains the return value from the type's {@link ProvidesReferenceLabel
- *      &#64;ProvidesReferenceLabel}-annotated method, if any; otherwise it returns the same as {@link #OBJ_ID_PROPERTY}</li>
+ *  <li>{@link #REFERENCE_LABEL_PROPERTY}: Object <b>reference label</b>, which is a short {@link Component} description of the
+ *      object. This property contains the return value from the type's {@link ProvidesReference
+ *      &#64;ProvidesReference}-annotated method that returns a sub-type of {@link Component}, if any;
+ *      otherwise it returns the same as {@link #OBJECT_ID_PROPERTY}.</i>
  *  <li>A property for every {@link JSimpleDB} field that is common to all object types that sub-type
  *      this instance's configured type. The property's ID is the field name; its value is as follows:
  *      <ul>
@@ -112,10 +113,14 @@ import org.slf4j.LoggerFactory;
  * container) within a transaction synchronization callback (see {@link org.jsimpledb.core.Transaction.Callback#afterCommit}).
  * </p>
  *
- * <p><b>{@link ProvidesReferenceLabel &#64;ProvidesReferenceLabel} Limitations</b></p>
+ * <p>
+ * The number of objects loaded is limited by a configurable maximum.
+ * </p>
+ *
+ * <p><b>{@link ProvidesReference &#64;ProvidesReference} Limitations</b></p>
  *
  * <p>
- * The use of {@link ProvidesReferenceLabel &#64;ProvidesReferenceLabel} methods for reference labels has certain implications.
+ * The use of {@link ProvidesReference &#64;ProvidesReference} methods for reference labels/strings has certain implications.
  * First, if the method reads any of the object field(s) via their Java getter methods (as would normally be expected),
  * this will trigger a schema upgrade of the object if out of date; however, this schema upgrade will occur in the container's
  * {@link org.jsimpledb.SnapshotJTransaction} rather than in a real database transaction, so the container will show
@@ -136,6 +141,11 @@ import org.slf4j.LoggerFactory;
 public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
 
     /**
+     * Default maximum number of objects.
+     */
+    public static final int DEFAULT_MAX_OBJECTS = 1000;
+
+    /**
      * Container property name for the reference label property, which has type {@link Component}.
      */
     public static final String REFERENCE_LABEL_PROPERTY = "$label";
@@ -143,7 +153,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     /**
      * Container property name for the object ID property.
      */
-    public static final String OBJ_ID_PROPERTY = "$objId";
+    public static final String OBJECT_ID_PROPERTY = "$objId";
 
     /**
      * Container property name for the object type property.
@@ -162,15 +172,15 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      */
     protected final JSimpleDB jdb;
 
-    /**
-     * The type restriction for this container, or null if there is no restriction.
-     */
-    protected final Class<?> type;
+    private final ObjIdPropertyDef objIdPropertyDef = new ObjIdPropertyDef();
+    private final ObjTypePropertyDef objTypePropertyDef = new ObjTypePropertyDef();
+    private final ObjVersionPropertyDef objVersionPropertyDef = new ObjVersionPropertyDef();
+    private final RefLabelPropertyDef refLabelPropertyDef = new RefLabelPropertyDef();
 
-    private final ProvidesPropertyScanner<?> propertyScanner;
-    private final ObjPropertyDef<?> referenceLabelPropertyDef;
-    private final List<String> orderedPropertyNames;
-    private final ReferenceLabelCache referenceLabelCache = ReferenceLabelCache.getInstance();
+    private Class<?> type;
+    private int maxObjects = DEFAULT_MAX_OBJECTS;
+    private ProvidesPropertyScanner<?> propertyScanner;
+    private List<String> orderedPropertyNames;
 
     /**
      * Constructor.
@@ -183,18 +193,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         if (jdb == null)
             throw new IllegalArgumentException("null jdb");
         this.jdb = jdb;
-        this.type = type;
-        this.propertyScanner = type != null ? new ProvidesPropertyScanner<T>(type) : null;
-        this.referenceLabelPropertyDef = this.buildReferenceLabelPropertyDef();
-        final ArrayList<PropertyDef<?>> propertyDefs = new ArrayList<>(this.buildPropertyDefs());
-        this.orderedPropertyNames = Collections.unmodifiableList(Lists.transform(propertyDefs,
-          new Function<PropertyDef<?>, String>() {
-            @Override
-            public String apply(PropertyDef<?> propertyDef) {
-                return propertyDef.getName();
-            }
-        }));
-        this.setProperties(propertyDefs);
+        this.setType(type);
         this.setPropertyExtractor(this);
     }
 
@@ -208,19 +207,36 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     }
 
     /**
+     * Change the type restriction associated with this instance. Typically requires a reload.
+     *
+     * @param type Java type restriction, or null for none
+     */
+    public <T> void setType(Class<T> type) {
+        this.type = type;
+        this.propertyScanner = this.type != null ? new ProvidesPropertyScanner<T>(/*this.*/type) : null;
+        final ArrayList<PropertyDef<?>> propertyDefs = new ArrayList<>(this.buildPropertyDefs());
+        this.orderedPropertyNames = Collections.unmodifiableList(Lists.transform(propertyDefs,
+          new Function<PropertyDef<?>, String>() {
+            @Override
+            public String apply(PropertyDef<?> propertyDef) {
+                return propertyDef.getName();
+            }
+        }));
+        this.setProperties(propertyDefs);
+    }
+
+    /**
+     * Configure the maximum number of objects.
+     */
+    public void setMaxObjects(int maxObjects) {
+        this.maxObjects = Math.max(maxObjects, 0);
+    }
+
+    /**
      * Get the properties of this container in preferred order.
      */
     public List<String> getOrderedPropertyNames() {
         return this.orderedPropertyNames;
-    }
-
-    /**
-     * Returns whether this container's {@link #REFERENCE_LABEL_PROPERTY} is generated from a
-     * {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated method. If not, reference labels
-     * will return the same as {@link #OBJ_ID_PROPERTY}, so both properties do not need to be shown.
-     */
-    public boolean hasCustomReferenceLabel() {
-        return !(this.referenceLabelPropertyDef instanceof ObjIdPropertyDef);
     }
 
     @Override
@@ -326,13 +342,16 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
             }
         });
 
-        // Copy database objects out of the databaes transaction into my in-memory transaction as we load them
+        // Copy database objects out of the database transaction into my in-memory transaction as we load them
         jobjs = Iterables.transform(jobjs, new Function<JObject, JObject>() {
             @Override
             public JObject apply(JObject jobj) {
                 return JObjectContainer.this.copyOut(jobj);
             }
         });
+
+        // Limit the total number of objects in the container
+        jobjs = Iterables.limit(jobjs, this.maxObjects);
 
         // Now actually load them
         this.load(jobjs);
@@ -378,24 +397,11 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     private Collection<PropertyDef<?>> buildPropertyDefs() {
         final PropertyDefHolder pdefs = new PropertyDefHolder();
 
-        // Add reference label property
-        pdefs.setPropertyDef(this.referenceLabelPropertyDef);
-
         // Add properties shared by all JObjects
-        pdefs.setPropertyDef(new ObjIdPropertyDef(OBJ_ID_PROPERTY));
-        pdefs.setPropertyDef(new ObjPropertyDef<SizedLabel>(TYPE_PROPERTY, SizedLabel.class) {
-            @Override
-            public SizedLabel extract(JObject jobj) {
-                return new SizedLabel(jobj.getTransaction().getTransaction().getSchema()
-                  .getVersion(jobj.getSchemaVersion()).getSchemaItem(jobj.getObjId().getStorageId(), ObjType.class).getName());
-            }
-        });
-        pdefs.setPropertyDef(new ObjPropertyDef<SizedLabel>(VERSION_PROPERTY, SizedLabel.class) {
-            @Override
-            public SizedLabel extract(JObject jobj) {
-                return new SizedLabel("" + jobj.getSchemaVersion());
-            }
-        });
+        pdefs.setPropertyDef(this.refLabelPropertyDef);
+        pdefs.setPropertyDef(this.objIdPropertyDef);
+        pdefs.setPropertyDef(this.objTypePropertyDef);
+        pdefs.setPropertyDef(this.objVersionPropertyDef);
 
         // Add properties for all fields common to all sub-types of our configured type
         final SortedMap<Integer, JField> jfields = Util.getCommonJFields(
@@ -443,58 +449,29 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         }
     }
 
-// Reference label
-
-    private ObjPropertyDef<?> buildReferenceLabelPropertyDef() {
-        final Method referenceLabelMethod = this.type != null ? this.referenceLabelCache.getReferenceLabelMethod(this.type) : null;
-        return referenceLabelMethod != null ?
-          this.buildReferenceLabelPropertyDef(referenceLabelMethod) : new ObjIdPropertyDef(REFERENCE_LABEL_PROPERTY);
-    }
-
-    private ObjPropertyDef<Component> buildReferenceLabelPropertyDef(final Method method) {
-        return new ObjPropertyDef<Component>(REFERENCE_LABEL_PROPERTY, Component.class) {
-            @Override
-            public Component extract(JObject jobj) {
-                try {
-                    try {
-                        return Component.class.cast(method.invoke(jobj));
-                    } catch (InvocationTargetException e) {
-                        if (e.getCause() instanceof Error)
-                            throw (Error)e.getCause();
-                        if (e.getCause() instanceof Exception)
-                            throw (Exception)e.getCause();
-                        throw e;
-                    }
-                } catch (Error e) {
-                    throw e;
-                } catch (DeletedObjectException e) {
-                    return new SizedLabel("<i>Missing</i>", ContentMode.HTML);
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException("unexpected error invoking method " + method, e);
-                }
-            }
-        };
-    }
-
 // ObjPropertyDef
 
-    private abstract static class ObjPropertyDef<C extends Component> extends PropertyDef<C> {
+    /**
+     * Support superclass for {@link PropertyDef} implementations that derive the property value from a {@link JObject}.
+     */
+    public abstract static class ObjPropertyDef<T> extends PropertyDef<T> {
 
-        ObjPropertyDef(String name, Class<C> type) {
+        protected ObjPropertyDef(String name, Class<T> type) {
             super(name, type);
         }
 
-        public abstract C extract(JObject jobj);
+        public abstract T extract(JObject jobj);
     }
 
 // ObjIdPropertyDef
 
-    private static class ObjIdPropertyDef extends ObjPropertyDef<SizedLabel> {
+    /**
+     * Implements the {@link JObjectContainer#OBJECT_ID_PROPERTY} property.
+     */
+    public static class ObjIdPropertyDef extends ObjPropertyDef<SizedLabel> {
 
-        ObjIdPropertyDef(String name) {
-            super(name, SizedLabel.class);
+        public ObjIdPropertyDef() {
+            super(OBJECT_ID_PROPERTY, SizedLabel.class);
         }
 
         @Override
@@ -503,15 +480,99 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         }
     }
 
+// ObjTypePropertyDef
+
+    /**
+     * Implements the {@link JObjectContainer#TYPE_PROPERTY} property.
+     */
+    public static class ObjTypePropertyDef extends ObjPropertyDef<SizedLabel> {
+
+        public ObjTypePropertyDef() {
+            super(TYPE_PROPERTY, SizedLabel.class);
+        }
+
+        @Override
+        public SizedLabel extract(JObject jobj) {
+            return new SizedLabel(jobj.getTransaction().getTransaction().getSchema()
+              .getVersion(jobj.getSchemaVersion()).getSchemaItem(jobj.getObjId().getStorageId(), ObjType.class).getName());
+        }
+    }
+
+// ObjVersionPropertyDef
+
+    /**
+     * Implements the {@link JObjectContainer#VERSION_PROPERTY} property.
+     */
+    public static class ObjVersionPropertyDef extends ObjPropertyDef<SizedLabel> {
+
+        public ObjVersionPropertyDef() {
+            super(VERSION_PROPERTY, SizedLabel.class);
+        }
+
+        @Override
+        public SizedLabel extract(JObject jobj) {
+            return new SizedLabel("" + jobj.getSchemaVersion());
+        }
+    }
+
+// RefLabelPropertyDef
+
+    /**
+     * Implements the {@link JObjectContainer#REFERENCE_LABEL_PROPERTY} property.
+     */
+    public static class RefLabelPropertyDef extends ObjPropertyDef<Component> {
+
+        public RefLabelPropertyDef() {
+            super(REFERENCE_LABEL_PROPERTY, Component.class);
+        }
+
+        @Override
+        public Component extract(JObject jobj) {
+            final Method method = ReferenceMethodCache.getInstance().getReferenceLabelMethod(jobj.getClass());
+            if (method == null)
+                return new ObjIdPropertyDef().extract(jobj);
+            final Object value;
+            try {
+                value = JObjectContainer.invoke(jobj, method);
+            } catch (DeletedObjectException e) {
+                return new ObjIdPropertyDef().extract(jobj);
+            }
+            return value instanceof Component ? (Component)value : new SizedLabel(String.valueOf(value));
+        }
+    }
+
+    private static Object invoke(JObject jobj, Method method) {
+        try {
+            try {
+                return method.invoke(jobj);
+            } catch (InvocationTargetException e) {
+                if (e.getCause() instanceof Error)
+                    throw (Error)e.getCause();
+                if (e.getCause() instanceof Exception)
+                    throw (Exception)e.getCause();
+                throw e;
+            }
+        } catch (Error e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("unexpected error invoking method " + method, e);
+        }
+    }
+
 // ObjFieldPropertyDef
 
-    private class ObjFieldPropertyDef extends ObjPropertyDef<Component> {
+    /**
+     * Implements a property reflecting the value of a {@link JSimpleDB} field.
+     */
+    public static class ObjFieldPropertyDef extends ObjPropertyDef<Component> {
 
         private static final int MAX_ITEMS = 3;
 
         private final JField jfield;
 
-        ObjFieldPropertyDef(JField jfield) {
+        public ObjFieldPropertyDef(JField jfield) {
             super(jfield.getName(), Component.class);
             this.jfield = jfield;
         }
@@ -582,7 +643,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
             if (value == null)
                 return new SizedLabel("<i>Null</i>", ContentMode.HTML);
             if (value instanceof JObject)
-                return JObjectContainer.this.referenceLabelPropertyDef.extract((JObject)value);
+                return new RefLabelPropertyDef().extract((JObject)value);
             return new SizedLabel(String.valueOf(value));
         }
     }

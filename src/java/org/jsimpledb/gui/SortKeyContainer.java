@@ -7,51 +7,47 @@
 
 package org.jsimpledb.gui;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import com.vaadin.ui.DefaultFieldFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.NavigableSet;
 import java.util.SortedMap;
 
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SelfKeyedContainer;
-import org.dellroad.stuff.vaadin7.VaadinConfigurable;
+import org.jsimpledb.JClass;
 import org.jsimpledb.JComplexField;
 import org.jsimpledb.JField;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleField;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
-import org.jsimpledb.util.NavigableSets;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Container that contains all possible sort keys for a given {@link JClass}.
  */
 @SuppressWarnings("serial")
-@VaadinConfigurable(preConstruction = true)
 class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
 
     public static final String DESCRIPTION_PROPERTY = "description";
 
-    @Autowired
-    @Qualifier("jsimpledbGuiJSimpleDB")
-    private JSimpleDB jdb;
+    private final JSimpleDB jdb;
+    private final JClass<?> jclass;
+    private final Class<?> type;
 
-    /**
-     * Constructor.
-     *
-     * @param type type restriction, or null for no restriction
-     */
-    public SortKeyContainer(Class<?> type) {
+    public SortKeyContainer(JSimpleDB jdb, JClass<?> jclass) {
+        this(jdb, jclass, jclass.getTypeToken().getRawType());
+    }
+
+    public SortKeyContainer(JSimpleDB jdb, Class<?> type) {
+        this(jdb, null, type);
+    }
+
+    private SortKeyContainer(JSimpleDB jdb, JClass<?> jclass, Class<?> type) {
         super(SortKey.class);
+        this.jdb = jdb;
+        this.jclass = jclass;
+        this.type = type;
 
         // Add sort keys common to all objects
         final ArrayList<SortKey> sortKeys = new ArrayList<>();
@@ -60,7 +56,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
 
         // Identify fields common to all sub-types of `type'
         SortedMap<Integer, JField> commonFields = Util.getCommonJFields(
-          this.jdb.getJClasses(TypeToken.of(type != null ? type : Object.class)));
+          this.jdb.getJClasses(TypeToken.of(this.type != null ? this.type : Object.class)));
 
         // Add sort keys for all indexed fields common to all sub-types
         if (commonFields != null) {
@@ -79,9 +75,20 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         this.load(sortKeys);
     }
 
+    private String getAllExpression() {
+        final StringBuilder buf = new StringBuilder();
+        buf.append("all(");
+        if (this.jclass != null)
+            buf.append(this.jclass.getName());
+        else if (this.type != null)
+            buf.append(this.type.getName() + ".class");
+        buf.append(")");
+        return buf.toString();
+    }
+
 // SortKey
 
-    abstract class SortKey implements ObjectContainer.Query {
+    abstract class SortKey {
 
         private final String description;
 
@@ -112,6 +119,8 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         public String toString() {
             return "SortKey[" + this.description + "]";
         }
+
+        public abstract String getExpression(JObject startingPoint, boolean reverse);
     }
 
     // Sorts by object ID
@@ -122,8 +131,8 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         }
 
         @Override
-        public <T> NavigableSet<T> query(Class<T> type) {
-            return JTransaction.getCurrent().getAll(type);
+        public String getExpression(JObject startingPoint, boolean reverse) {       // TODO: starting point and sort order
+            return SortKeyContainer.this.getAllExpression();
         }
     }
 
@@ -135,9 +144,12 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         }
 
         @Override
-        public <T> Iterable<T> query(Class<T> type) {
-            return Iterables.concat(
-              Iterables.transform(JTransaction.getCurrent().queryVersion().values(), new TypeIntersector<T>(type)));
+        public String getExpression(JObject startingPoint, boolean reverse) {       // TODO: starting point and sort order
+            String versions = "queryVersion().values()";
+            final String typeAll = SortKeyContainer.this.getAllExpression();
+            if (!typeAll.equals("all()"))
+                versions = "transform(" + versions + ", $version," + " $version & " + typeAll + ")";
+            return "concat(" + versions + ")";
         }
     }
 
@@ -145,6 +157,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
     class FieldSortKey extends SortKey {
 
         private final int storageId;
+        private final String fieldName;
         private final boolean isSubField;
 
         FieldSortKey(JSimpleField jfield) {
@@ -153,28 +166,18 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
               + DefaultFieldFactory.createCaptionByPropertyId(jfield.getName()));
             this.storageId = jfield.getStorageId();
             this.isSubField = jfield.getParentField() != null;
+            this.fieldName = (this.isSubField ? jfield.getParentField().getName() + "." : "") + jfield.getName();
         }
 
         @Override
-        public <T> Iterable<T> query(Class<T> type) {
-
-            // Query index, intersect each value set with the given type, and concatenate the resulting sets
-            Iterable<T> values = Iterables.concat(Iterables.transform(
-              JTransaction.getCurrent().querySimpleField(this.storageId).values(), new TypeIntersector<T>(type)));
-
-            // For sub-fields of complex fields, objects can appear multiple times so we have to filter out duplicates
-            if (this.isSubField) {
-                values = Iterables.filter(values, new Predicate<T>() {
-                    private final HashSet<ObjId> seen = new HashSet<>();
-                    @Override
-                    public boolean apply(T obj) {
-                        return this.seen.add(((JObject)obj).getObjId());
-                    }
-                });
-            }
-
-            // Done
-            return values;
+        public String getExpression(JObject startingPoint, boolean reverse) {       // TODO: starting point and sort order
+            String values = (SortKeyContainer.this.jclass != null ?
+              "query(" + SortKeyContainer.this.jclass.getName() + "." + this.fieldName + ")" :
+              JTransaction.class.getName() + ".getCurrent().querySimpleField(" + this.storageId + ")") + ".values()";
+            final String typeAll = SortKeyContainer.this.getAllExpression();
+            if (!typeAll.equals("all()"))
+                values = "transform(" + values + ", $value," + " $value & " + typeAll + ")";
+            return "concat(" + values + ")";
         }
 
         @Override
@@ -184,28 +187,12 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
             if (!super.equals(obj))
                 return false;
             final FieldSortKey that = (FieldSortKey)obj;
-            return this.storageId == that.storageId;
+            return this.storageId == that.storageId && this.isSubField == that.isSubField;
         }
 
         @Override
         public int hashCode() {
-            return super.hashCode() ^ this.storageId;
-        }
-    }
-
-    // Creates intersection with the specified type
-    private static class TypeIntersector<T> implements Function<NavigableSet<JObject>, NavigableSet<T>> {
-
-        private final NavigableSet<T> typeSet;
-
-        TypeIntersector(Class<T> type) {
-            this.typeSet = type != null ? JTransaction.getCurrent().getAll(type) : null;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public NavigableSet<T> apply(NavigableSet<JObject> set) {
-            return this.typeSet != null ? NavigableSets.intersection((NavigableSet<T>)set, this.typeSet) : (NavigableSet<T>)set;
+            return super.hashCode() ^ this.storageId ^ (this.isSubField ? 1 : 0);
         }
     }
 }

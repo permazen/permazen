@@ -23,12 +23,9 @@ import com.vaadin.ui.Link;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.jsimpledb.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Superclass of the various {@link UI}s that constitute the GUI.
@@ -37,7 +34,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Push
 @SuppressWarnings("serial")
 @Theme("jsdb")
-@VaadinConfigurable
 public abstract class AbstractUI extends UI {
 
     private static final float UPPER_BAR_HEIGHT = 44;
@@ -46,24 +42,11 @@ public abstract class AbstractUI extends UI {
 
     private final VerticalLayout rootLayout = new VerticalLayout();
 
-    @Autowired
-    @Qualifier("jsimpledbGuiMain")
-    private Main main;
-
-// Constructor
-
-    protected AbstractUI() {
-        this(null);
-    }
-
-    protected AbstractUI(String title) {
-        this.getPage().setTitle("JSimpleDB GUI" + (title != null ? " " + title : ""));
-    }
-
 // Vaadin lifecycle
 
     @Override
     public void init(VaadinRequest request) {
+        this.getPage().setTitle(this.getTitle());
         this.setContent(this.rootLayout);
         this.rootLayout.setSpacing(true);
         this.rootLayout.setSizeFull();
@@ -78,10 +61,18 @@ public abstract class AbstractUI extends UI {
 
 // Layout construction
 
+    protected String getTitle() {
+        return "JSimpleDB";
+    }
+
+    protected Component getTopRightLabel() {
+        return null;
+    }
+
     protected Component buildRootUpperBar() {
 
         // Logo
-        final Link logo = new Link(null, new ExternalResource("main"));
+        final Link logo = new Link(null, new ExternalResource(MainUI.URI_PATH));
         logo.setIcon(new ThemeResource("img/jsimpledb-logo-48x48.png"));
         final HorizontalLayout logoLayout = new HorizontalLayout();
         logoLayout.addStyleName("jsdb-upper-bar-company-logo-layout");
@@ -90,7 +81,7 @@ public abstract class AbstractUI extends UI {
         logoLayout.setComponentAlignment(logo, Alignment.BOTTOM_LEFT);
 
         // Title
-        final SizedLabel titleLabel = new SizedLabel("JSimpleDB Viewer");
+        final SizedLabel titleLabel = new SizedLabel(this.getTitle());
         titleLabel.addStyleName("jsdb-title");
 
         // Sequence parts
@@ -103,9 +94,11 @@ public abstract class AbstractUI extends UI {
         layout.addComponent(titleLabel);
         layout.setExpandRatio(titleLabel, 1.0f);
         layout.setComponentAlignment(titleLabel, Alignment.BOTTOM_CENTER);
-        final Label versionLabel = new SizedLabel(this.main.getDatabaseDescription());
-        layout.addComponent(versionLabel);
-        layout.setComponentAlignment(versionLabel, Alignment.BOTTOM_RIGHT);
+        final Component topRightLabel = this.getTopRightLabel();
+        if (topRightLabel != null) {
+            layout.addComponent(topRightLabel);
+            layout.setComponentAlignment(topRightLabel, Alignment.BOTTOM_RIGHT);
+        }
         return layout;
     }
 

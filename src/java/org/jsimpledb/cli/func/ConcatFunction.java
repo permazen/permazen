@@ -42,16 +42,7 @@ public class ConcatFunction extends SimpleFunction {
         return new Value(null) {
             @Override
             public Object get(final Session session) {
-
-                // Evaluate items
-                final Object items = value.checkNotNull(session, "concat()");
-                if (!(items instanceof Iterable)) {
-                    throw new EvalException("invalid concat() operation on non-Iterable object of type "
-                      + items.getClass().getName());
-                }
-
-                // Return concatenation of Iterables
-                return Iterables.concat(Iterables.transform((Iterable<?>)items,
+                return Iterables.concat(Iterables.transform((Iterable<?>)value.checkType(session, "concat()", Iterable.class),
                   new com.google.common.base.Function<Object, Iterable<?>>() {
                     @Override
                     public Iterable<?> apply(Object item) {

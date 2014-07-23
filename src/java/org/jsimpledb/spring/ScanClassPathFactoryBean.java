@@ -73,7 +73,7 @@ class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?>>> imple
     protected List<Class<?>> createInstance() {
 
         // Build and configure scanner
-        final ScanClassPathClassScanner scanner = new ScanClassPathClassScanner(this.useDefaultFilters, this.environment);
+        final JSimpleDBClassScanner scanner = new JSimpleDBClassScanner(this.useDefaultFilters, this.environment);
         scanner.setResourceLoader(this.resourceLoader);
         if (this.resourcePattern != null)
             scanner.setResourcePattern(this.resourcePattern);
