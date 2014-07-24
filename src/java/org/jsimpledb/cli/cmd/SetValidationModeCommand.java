@@ -36,9 +36,7 @@ public class SetValidationModeCommand extends Command {
 
     @Override
     protected Parser<?> getParser(String typeName) {
-        if ("mode".equals(typeName))
-            return new EnumNameParser<ValidationMode>(ValidationMode.class);
-        return super.getParser(typeName);
+        return "mode".equals(typeName) ? new EnumNameParser<ValidationMode>(ValidationMode.class) : super.getParser(typeName);
     }
 
     @Override
