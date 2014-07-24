@@ -42,9 +42,7 @@ public class LoadCommand extends Command {
 
     @Override
     protected Parser<?> getParser(String typeName) {
-        if ("file".equals(typeName))
-            return new FileParser();
-        return super.getParser(typeName);
+        return "file".equals(typeName) ? new FileParser() : super.getParser(typeName);
     }
 
     @Override
