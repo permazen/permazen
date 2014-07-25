@@ -103,14 +103,15 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * <p>
  * Instances are serializable; on deserialization the {@link ConfigurableWebApplicationContext} associated with the
  * {@link VaadinSession} is {@linkplain ConfigurableWebApplicationContext#refresh refreshed}; therefore, the
- * {@link ConfigurableWebApplicationContext} is not itself stored in the HTTP session by this class (as is typical with Spring).
+ * {@link ConfigurableWebApplicationContext} is not itself stored in the HTTP session by this class. This is consistent
+ * with the way normal Spring application contexts ususally work across clustered servers.
  * </p>
  *
  * <p>
  * However, any session-scope beans should work as expected.
  * So while this class associates an application context with each {@link VaadinSession}, when sessions are shared across
  * multiple servers in a clustered environment, there will actually be a separate application contexts per server.
- * Therefore, beans that are truly "session wide" should be declared {@code scope="session"}.
+ * Beans that must truly be "session wide" should be declared {@code scope="session"} as you normally would.
  * </p>
  *
  * @see VaadinConfigurable

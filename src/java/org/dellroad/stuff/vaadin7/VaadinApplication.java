@@ -27,12 +27,15 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * Although this class does not require Spring, the singleton instance can be declared as a session-scope bean in the
- * Spring XML application context created by a {@link SpringVaadinSessionListener}, which allows other beans and widgets
+ * Although this class does not require Spring, the singleton instance can be declared as a bean in the Spring XML
+ * application context created by a {@link SpringVaadinSessionListener}, which allows other beans and widgets
  * in the Vaadin application context to autowire it and have access to the methods provided here:
  * <blockquote><pre>
- *  &lt;bean class="org.dellroad.stuff.vaadin7.VaadinApplication" scope="session"/&gt;
+ *  &lt;bean class="org.dellroad.stuff.vaadin7.VaadinApplication"/&gt;
  * </pre></blockquote>
+ * If you are in a clustered environment and are subclassing this class, {@code scope="session"} is recommended;
+ * without it, there will be one instance per server+session rather than one unique instance per session. Of course,
+ * whether that matters depends on the semantics of the subclass fields.
  * </p>
  *
  * <p>
@@ -41,9 +44,9 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * Note: the session-wide instance of this class is stored in the Vaadin session and is {@link Serializable}. Therefore,
- * in a clustered environment, subclasses must be prepared to handle (de)serialization. Also, avoid declaring fields that
- * reference this class in non-session-scope beans; instead, use {@link #get VaadinApplication.get()}.
+ * Note: the singleton instance of this class is stored in the Vaadin session and is {@link Serializable}. Therefore,
+ * in a clustered environment, subclasses must be prepared to handle (de)serialization. Also, avoid declaring fields
+ * that reference this class in non-session-scope beans; instead, use {@link #get VaadinApplication.get()}.
  * </p>
  *
  * @see SpringVaadinServlet
