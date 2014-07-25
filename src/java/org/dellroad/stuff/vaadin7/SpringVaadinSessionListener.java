@@ -20,7 +20,8 @@ import com.vaadin.server.WrappedHttpSession;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
+import java.util.WeakHashMap;
 
 import javax.servlet.ServletContext;
 
@@ -58,24 +59,20 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * <h3>Accessing the Spring Context</h3>
  *
  * <p>
- * The {@link ConfigurableWebApplicationContext} itself is {@linkplain VaadinSession#setAttribute stored as an attribute}
- * of the {@link VaadinSession} under the key {@link #APPLICATION_CONTEXT_ATTRIBUTE_KEY}. The
- * {@link #getApplicationContext() getApplicationContext()} method provides convenient access from anywhere.
+ * The {@link #getApplicationContext() getApplicationContext()} method provides access to the application context.
+ * Alternately, use {@link VaadinConfigurable @VaadinConfigurable} (see below) and implement
+ * {@link org.springframework.context.ApplicationContextAware}, etc.
+ * Invoking {@link #configureBean configureBean()} at any time will configure a bean manually.
  * </p>
  *
- * <p>
- * Invoking {@link #configureBean configureBean()} at any time will configure a bean manually. To have beans configured
- * automatically at construction time, use {@link VaadinConfigurable @VaadinConfigurable} (see below).
- * </p>
- *
- * <h3>Exposing the Vaadin Application</h3>
+ * <h3>Exposing the Vaadin Session</h3>
  *
  * <p>
  * The {@link VaadinSession} instance representing the "Vaadin application" can be exposed in the associated Spring
  * application context and therefore made available for autowiring, etc. Simply add a bean definition that invokes
  * {@link VaadinUtil#getCurrentSession}:
  * <blockquote><pre>
- *  &lt;bean id="vaadinServiceSession" class="org.dellroad.stuff.vaadin7.VaadinUtil" factory-method="getCurrentSession"/&gt;
+ *  &lt;bean id="vaadinSession" class="org.dellroad.stuff.vaadin7.VaadinUtil" factory-method="getCurrentSession"/&gt;
  * </pre></blockquote>
  * This bean can then be autowired into application-specific "backend" beans, allowing them to use e.g.
  * {@link VaadinUtil#invoke VaadinUtil.invoke()}, which performs the locking necessary to avoid race conditions.
@@ -88,7 +85,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * {@code new FooBar()}, where the class {@code FooBar} is marked {@link VaadinConfigurable @VaadinConfigurable},
  * will automagically cause the new {@code FooBar} object to be configured by the application context associated with
  * the currently running Vaadin application. In effect, this does for Vaadin application beans what Spring's
- * {@link org.springframework.beans.factory.annotation.Configurable @Configurable} does for regular beans.
+ * {@link org.springframework.beans.factory.annotation.Configurable @Configurable} does for regular servlet context-wide beans.
  * </p>
  *
  * <p>
@@ -96,9 +93,24 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * will not be invoked on application close for these beans, since their lifecycle is controlled outside of the
  * Spring application context (this is also the case with
  * {@link org.springframework.beans.factory.annotation.Configurable @Configurable} beans). Instead, these beans
- * can themselves register as a {@link SessionDestroyListener} for shutdown notification; see
+ * can themselves register as a {@link SessionDestroyListener} for shutdown notification; but see
  * {@link VaadinUtil#addSessionDestroyListener VaadinUtil.addSessionDestroyListener()} for a memory-leak free
  * method for doing this.
+ * </p>
+ *
+ * <h3>Serialization and Clustering</h3>
+ *
+ * <p>
+ * Instances are serializable; on deserialization the {@link ConfigurableWebApplicationContext} associated with the
+ * {@link VaadinSession} is {@linkplain ConfigurableWebApplicationContext#refresh refreshed}; therefore, the
+ * {@link ConfigurableWebApplicationContext} is not itself stored in the HTTP session by this class (as is typical with Spring).
+ * </p>
+ *
+ * <p>
+ * However, any session-scope beans should work as expected.
+ * So while this class associates an application context with each {@link VaadinSession}, when sessions are shared across
+ * multiple servers in a clustered environment, there will actually be a separate application contexts per server.
+ * Therefore, beans that are truly "session wide" should be declared {@code scope="session"}.
  * </p>
  *
  * @see VaadinConfigurable
@@ -107,17 +119,13 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * @see com.vaadin.server.VaadinService
  * @see com.vaadin.server.VaadinSession
  */
-@SuppressWarnings("serial")
 public class SpringVaadinSessionListener implements SessionInitListener, SessionDestroyListener {
 
-    /**
-     * The {@link VaadinSession} attribute key under which the Spring {@link ConfigurableWebApplicationContext} is stored.
-     */
-    public static final String APPLICATION_CONTEXT_ATTRIBUTE_KEY = "springVaadinSessionListenerApplicationContext";
-
-    private static final AtomicLong UNIQUE_INDEX = new AtomicLong();
+    private static final long serialVersionUID = -2107311484324869198L;
+    private static final WeakHashMap<VaadinSession, ConfigurableWebApplicationContext> CONTEXT_MAP = new WeakHashMap<>();
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final UUID uuid = UUID.randomUUID();            // ensures a unique ID for the associated context across a cluster
     private final String applicationName;
     private final String configLocation;
 
@@ -156,7 +164,7 @@ public class SpringVaadinSessionListener implements SessionInitListener, Session
     public static ConfigurableWebApplicationContext getApplicationContext(VaadinSession session) {
         if (session == null)
             throw new IllegalArgumentException("null session");
-        return (ConfigurableWebApplicationContext)session.getAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY);
+        return CONTEXT_MAP.get(session);
     }
 
     /**
@@ -229,7 +237,7 @@ public class SpringVaadinSessionListener implements SessionInitListener, Session
         if (request == null)
             throw new IllegalStateException("null request");
         if (SpringVaadinSessionListener.getApplicationContext(session) != null)
-            throw new IllegalStateException("context already loaded");
+            throw new IllegalStateException("context already loaded for session " + session);
 
         // Logging
         this.log.info("creating new application context for Vaadin application [" + this.getApplicationName()
@@ -249,9 +257,9 @@ public class SpringVaadinSessionListener implements SessionInitListener, Session
             this.log.warn("unsupported VaadinRequest instance: " + request);
 
         // Create and configure a new application context for this Application instance
-        XmlWebApplicationContext context = new XmlWebApplicationContext();
+        final XmlWebApplicationContext context = new XmlWebApplicationContext();
         context.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX
-          + contextPath + this.getApplicationName() + "-" + UNIQUE_INDEX.incrementAndGet());
+          + contextPath + this.getApplicationName() + "-" + this.uuid);
         if (parent != null)
             context.setParent(parent);
         if (servletContext != null)
@@ -265,7 +273,7 @@ public class SpringVaadinSessionListener implements SessionInitListener, Session
 
         // Associate context with the current session
         boolean success = false;
-        session.setAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY, context);
+        CONTEXT_MAP.put(session, context);
 
         // Refresh context
         try {
@@ -273,7 +281,7 @@ public class SpringVaadinSessionListener implements SessionInitListener, Session
             success = true;
         } finally {
             if (!success)
-                session.setAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY, null);
+                CONTEXT_MAP.remove(session);
         }
     }
 
@@ -288,7 +296,7 @@ public class SpringVaadinSessionListener implements SessionInitListener, Session
               + " for Vaadin application [" + SpringVaadinSessionListener.this.getApplicationName() + "]");
             return;
         }
-        session.setAttribute(APPLICATION_CONTEXT_ATTRIBUTE_KEY, null);
+        CONTEXT_MAP.remove(session);
         VaadinUtil.invoke(session, new Runnable() {
             @Override
             public void run() {

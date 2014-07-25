@@ -1,5 +1,6 @@
 Version Next
 
+    - Improvements relating to serialization and HTTP sessions
     - Changed VaadinConfigurable.ifSessionNotLocked default to EXCEPTION
     - Revert previous change to VaadinUtil.invokeLater() (issue #19)
     - Fix bug in Primitive.FLOAT and Primitive.LONG parse pattern

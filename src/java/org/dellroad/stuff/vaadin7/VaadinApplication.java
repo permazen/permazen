@@ -10,6 +10,9 @@ package org.dellroad.stuff.vaadin7;
 import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.VaadinSession;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
@@ -19,36 +22,42 @@ import org.slf4j.LoggerFactory;
  * A globally accessible "Vaadin application" singleton.
  *
  * <p>
- * When constructed, a new instance of this class associates itself with the current {@link VaadinSession}.
- * This singleton instance is then always accessible from any Vaadin thread via {@link #get()}.
+ * At most one instance is associated with each {@link VaadinSession} (attempting to create more than one will result in
+ * an exception). This singleton instance is then always accessible from any Vaadin thread via {@link #get()}.
  * </p>
  *
  * <p>
- * Although not tied to Spring, this class would typically be declared as a singleton in the Spring XML application context
- * created by a {@link SpringVaadinSessionListener}, allowing other beans and widgets in the Vaadin application context to autowire
- * it and have access to the methods provided here. If this class is subclassed, additional application-specific fields and
- * methods can be supplied to the entire application via the same mechanism.
- * </p>
- *
- * <p>
- * To use this class, simply declare it in the Spring XML application context associated with your Vaadin application
- * by {@link SpringVaadinServlet}:
+ * Although this class does not require Spring, the singleton instance can be declared as a session-scope bean in the
+ * Spring XML application context created by a {@link SpringVaadinSessionListener}, which allows other beans and widgets
+ * in the Vaadin application context to autowire it and have access to the methods provided here:
  * <blockquote><pre>
- *  &lt;bean class="org.dellroad.stuff.vaadin7.VaadinApplication"/&gt;
+ *  &lt;bean class="org.dellroad.stuff.vaadin7.VaadinApplication" scope="session"/&gt;
  * </pre></blockquote>
+ * </p>
+ *
+ * <p>
+ * If this class is subclassed, additional application-specific fields and methods can be supplied to the entire
+ * application via the same mechanism. Subclasses can override {@link #init} for any application-specific initialization.
+ * </p>
+ *
+ * <p>
+ * Note: the session-wide instance of this class is stored in the Vaadin session and is {@link Serializable}. Therefore,
+ * in a clustered environment, subclasses must be prepared to handle (de)serialization. Also, avoid declaring fields that
+ * reference this class in non-session-scope beans; instead, use {@link #get VaadinApplication.get()}.
  * </p>
  *
  * @see SpringVaadinServlet
  * @see SpringVaadinSessionListener
  * @see com.vaadin.server.VaadinService
  */
-public class VaadinApplication {
+public class VaadinApplication implements Serializable {
 
+    private static final long serialVersionUID = -4202507689739224846L;
     private static final Class<VaadinApplication> ATTRIBUTE_KEY = VaadinApplication.class;
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final VaadinSession session;
+    private transient VaadinSession session;
 
     /**
      * Convenience constructor. Equivalent to:
@@ -97,6 +106,7 @@ public class VaadinApplication {
      *
      * <p>
      * The implementation in {@link VaadinApplication} does nothing. Subclasses may override as desired.
+     * </p>
      */
     protected void init() {
     }
@@ -261,6 +271,13 @@ public class VaadinApplication {
     // This method exists solely to bind the generic type
     private static <T> void setAttribute(VaadinSession session, Class<T> clazz, Object value) {
         session.setAttribute(clazz, clazz.cast(value));
+    }
+
+// Serialization
+
+    private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
+        input.defaultReadObject();
+        this.session = VaadinUtil.getCurrentSession();
     }
 }
 
