@@ -350,12 +350,6 @@ public abstract class AbstractSimpleContainer<I, T> extends AbstractInMemoryCont
 
 // Container and superclass required methods
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public BackedItem<T> getItem(Object itemId) {
-        return (BackedItem<T>)super.getItem(itemId);
-    }
-
     // Workaround for http://dev.vaadin.com/ticket/8856
     @Override
     @SuppressWarnings("unchecked")
