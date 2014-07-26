@@ -617,6 +617,7 @@ public class JTransaction {
      * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
      *  associated with this instance's {@link JSimpleDB}
      * @see #getJObject(ObjId, Class)
+     * @see #getJObject(JObject)
      * @see JSimpleDB#getJObject JSimpleDB.getJObject()
      */
     public JObject getJObject(ObjId id) {
@@ -633,11 +634,32 @@ public class JTransaction {
      * @throws ClassCastException if the Java model object does not have type {@code type}
      * @throws IllegalArgumentException if {@code id} or {@code type} is null
      * @see #getJObject(ObjId)
+     * @see #getJObject(JObject)
      */
     public <T> T getJObject(ObjId id, Class<T> type) {
         if (type == null)
             throw new IllegalArgumentException("null type");
         return type.cast(this.getJObject(id));
+    }
+
+    /**
+     * Get the Java model object with the same object ID as the given object and whose state derives from this transaction.
+     * This method is equivalent to {@code getJObject(jobj.getObjId())} followed by an appropriate cast to type {@code T}.
+     *
+     * @param jobj Java model object
+     * @return Java model object in this transaction with the same object ID (possibly {@code jobj} itself)
+     * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
+     *  associated with this instance's {@link JSimpleDB}
+     * @throws IllegalArgumentException if {@code jobj} is null
+     * @throws ClassCastException if the Java model object in this transaction somehow does not have the same type as {@code jobj}
+     * @see #getJObject(ObjId)
+     * @see #getJObject(ObjId, Class)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends JObject> T getJObject(T jobj) {
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        return (T)jobj.getClass().cast(this.getJObject(jobj.getObjId()));
     }
 
     /**
