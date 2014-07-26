@@ -446,14 +446,17 @@ public class JTransaction {
             throw new IllegalArgumentException("null destination transaction");
         if (srcId == null)
             throw new IllegalArgumentException("null srcId");
-        if (refPaths == null)
-            throw new IllegalArgumentException("null refPaths");
         if (dstId == null)
             dstId = srcId;
 
         // Check trivial case
         if (this.tx == dest.tx && srcId.equals(dstId))
             return dest.getJObject(dstId);
+
+        // Copy "related objects" if a null reference path is given
+        final Iterable<?> relatedObjects = refPaths == null ? this.getJObject(srcId).getRelatedObjects() : null;
+        if (refPaths == null)
+            refPaths = new String[0];
 
         // Parse paths
         final TypeToken<?> startType = this.jdb.getJClass(srcId.getStorageId()).typeToken;
@@ -495,10 +498,9 @@ public class JTransaction {
         final HashSet<ObjId> seen = new HashSet<>();
         this.copyTo(seen, dest, srcId, dstId, true, new ArrayDeque<JReferenceField>());
 
-        // Copy any "copy along" objects
-        final Iterable<?> copyAlongs = this.getJObject(srcId).getCopyAlongs();
-        if (copyAlongs != null) {
-            for (JObject jobj : Iterables.filter(copyAlongs, JObject.class)) {
+        // Copy related objects (if any) if refPaths was null
+        if (relatedObjects != null) {
+            for (JObject jobj : Iterables.filter(relatedObjects, JObject.class)) {
                 final ObjId id = jobj.getObjId();
                 this.copyTo(seen, dest, id, id, false, new ArrayDeque<JReferenceField>());
             }
