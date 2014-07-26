@@ -1297,6 +1297,8 @@ public class JTransaction {
                     jobj = JTransaction.this.getJObject(id);
                 Util.invoke(info.getMethod(), jobj);
             }
+            if (validationMode == ValidationMode.AUTOMATIC)
+                JTransaction.this.revalidate(Collections.singleton(id));
         }
     }
 
