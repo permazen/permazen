@@ -113,6 +113,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default {@link SnapshotJTransaction}</li>
  *  <li>{@link #copyTo(JTransaction, ObjId, ObjId, String[]) copyTo()} - Copy an object
  *      and its related objects into another transaction</li>
+ *  <li>{@link #copyTo(JTransaction, Iterable) copyTo()} - Copy explicitly specified objects into another transaction</li>
  * </ul>
  * </p>
  *
@@ -401,6 +402,21 @@ public class JTransaction {
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly.
      *
      * <p>
+     * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
+     * Does nothing if this instance and {@code dest} are the same instance and {@code srcId} and {@code dstId} are the same.
+     * </p>
+     *
+     * <p>
+     * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
+     * must be identical in both transactions.
+     * </p>
+     *
+     * <p>
+     * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
+     * deadlock could result.
+     * </p>
+     *
+     * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#copyIn}, {@link JObject#copyOut},
      * or {@link JObject#copyTo} would be used instead.
      * </p>
@@ -421,6 +437,7 @@ public class JTransaction {
      * @see JObject#copyTo JObject.copyTo()
      * @see JObject#copyOut JObject.copyOut()
      * @see JObject#copyIn JObject.copyIn()
+     * @see #copyTo(JTransaction, Iterable)
      */
     public JObject copyTo(JTransaction dest, ObjId srcId, ObjId dstId, String... refPaths) {
 
@@ -503,6 +520,56 @@ public class JTransaction {
 
         // Done
         return dest.getJObject(dstId);
+    }
+
+    /**
+     * Copy the objects in the specified {@link Iterable} into the specified destination transaction.
+     * Destination objects will be created if necessary, and {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly.
+     *
+     * <p>
+     * If an object is encountered more than once, it is not copied again.
+     * Does nothing if this instance and {@code dest} are the same instance.
+     * </p>
+     *
+     * <p>
+     * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
+     * must be identical in both transactions.
+     * </p>
+     *
+     * <p>
+     * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
+     * deadlock could result.
+     * </p>
+     *
+     * @param dest destination transaction
+     * @param objIds {@link Iterable} returning the object ID's of the objects to copy
+     * @throws DeletedObjectException if an object ID in {@code objIds} does not exist in this transaction
+     * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to an object ID in
+     *  {@code objId}'s object's version is not identical in this instance and {@code dest}
+     * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
+     * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
+     *  is {@linkplain Transaction#setReadOnly set read-only}
+     * @throws IllegalArgumentException if {@code dest} or {@code objIds} is null
+     * @see #copyTo(JTransaction, ObjId, ObjId, String[])
+     */
+    public void copyTo(JTransaction dest, Iterable<? extends ObjId> objIds) {
+
+        // Sanity check
+        if (dest == null)
+            throw new IllegalArgumentException("null dest");
+        if (objIds == null)
+            throw new IllegalArgumentException("null objIds");
+
+        // Check trivial case
+        if (this.tx == dest.tx)
+            return;
+
+        // Copy objects
+        final HashSet<ObjId> seen = new HashSet<>();
+        final ArrayDeque<JReferenceField> emptyFields = new ArrayDeque<>();
+        for (ObjId id : objIds)
+            this.copyTo(seen, dest, id, id, true, emptyFields);
     }
 
     void copyTo(Set<ObjId> seen, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, Deque<JReferenceField> fields) {

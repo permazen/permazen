@@ -171,11 +171,12 @@ public interface JObject {
      * </p>
      *
      * <p>
-     * The two transactions must be compatible in that for any object schema versions encountered, those schema versions
+     * The two transactions must be compatible in that for any schema versions encountered, those schema versions
      * must be identical in both transactions.
      * </p>
      *
      * <p>
+     * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
      * Note: if {@code target} is not equal to this instance's object ID, and through one of the {@code refPaths} there
      * is a circular reference back to this instance, then that reference is copied as-is (i.e., it is not changed from
      * this instance to {@code target}).
