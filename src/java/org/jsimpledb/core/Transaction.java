@@ -139,7 +139,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * <b>Reference Path Queries</b>
+ * <b>Reference Inversion</b>
  * <ul>
  *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects that refer to any element in a given set
  *      of objects through a specified reference path</li>
@@ -828,6 +828,7 @@ public class Transaction {
      *
      * @param id object ID of the object to find
      * @return true if object was found, false if object was not found
+     * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized boolean exists(ObjId id) {
@@ -1371,7 +1372,7 @@ public class Transaction {
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SimpleField}
-     * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @return value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
@@ -1414,7 +1415,7 @@ public class Transaction {
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SimpleField}
      * @param value new value for the field
-     * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
@@ -1495,7 +1496,7 @@ public class Transaction {
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link CounterField}
-     * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @return value of the counter in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
@@ -1538,7 +1539,7 @@ public class Transaction {
      * @param id object ID of the object
      * @param storageId storage ID of the {@link CounterField}
      * @param value new counter value
-     * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
@@ -1582,7 +1583,7 @@ public class Transaction {
      * @param id object ID of the object
      * @param storageId storage ID of the {@link CounterField}
      * @param offset offset value to add to counter value
-     * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
@@ -1624,7 +1625,7 @@ public class Transaction {
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SetField}
-     * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists in the object
@@ -1644,7 +1645,7 @@ public class Transaction {
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link ListField}
-     * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists in the object
@@ -1664,7 +1665,7 @@ public class Transaction {
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link MapField}
-     * @param updateVersion true to automatically update the object's schema version, false to not change it
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists in the object
@@ -2381,9 +2382,8 @@ public class Transaction {
      * </p>
      *
      * @param storageId {@link MapField}'s storage ID
-     * @return read-only, real-time view of all objects having the specified value in the map value field
+     * @return read-only, real-time view of map values mapped to sets of {@link MapValueIndexEntry}s
      * @throws UnknownFieldException if no {@link MapField} field corresponding to {@code storageId} exists
-     * @throws IllegalArgumentException if {@code value} is not a valid value for the map's value field
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
