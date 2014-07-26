@@ -134,7 +134,9 @@ import org.slf4j.LoggerFactory;
  * Secondly, because the values of reference fields (including complex sub-fields) are displayed using reference labels,
  * and these are typically derived from the referenced object's fields, those indirectly referenced fields need to be
  * copied into the container's {@link org.jsimpledb.SnapshotJTransaction} as well. The easiest way to ensure these indirectly
- * referenced objects are copied is by overriding {@link JObject#getCopyAlongs}.
+ * referenced objects are copied is by overriding {@link JObject#getRelatedObjects}, because this container copies
+ * objects into memory by passing a null {@code refPaths} argument to {@link JObject#copyOut JObject#copyOut} (this
+ * behavior is determined by {@link #copyOut}; subclasses may override as needed).
  * </p>
  */
 @SuppressWarnings("serial")
@@ -361,16 +363,16 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * Copy the given database object out into the current {@link org.jsimpledb.SnapshotJTransaction}.
      *
      * <p>
-     * The implementation in {@link JObjectContainer} returns {@link JObject#copyOut jobj.copyOut()}.
+     * The implementation in {@link JObjectContainer} returns {@link JObject#copyOut jobj.copyOut((String[])null)}.
      * Subclasses may override to specify custom reference paths to copy, etc. As an alternative,
-     * consider implementing {@link JObject#getCopyAlongs} in Java model classes.
+     * consider simply implementing {@link JObject#getRelatedObjects} in Java model classes.
      * </p>
      *
      * @param jobj the object to copy
      * @return the copy of {@code jobj} in the current {@link org.jsimpledb.SnapshotJTransaction}
      */
     protected JObject copyOut(JObject jobj) {
-        return jobj.copyOut();
+        return jobj.copyOut((String[])null);
     }
 
     /**

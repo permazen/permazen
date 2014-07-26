@@ -60,7 +60,7 @@ class ClassGenerator<T> {
     static final Method JOBJECT_COPY_OUT_METHOD;
     static final Method JOBJECT_COPY_IN_METHOD;
     static final Method JOBJECT_COPY_TO_METHOD;
-    static final Method JOBJECT_GET_COPY_ALONGS_METHOD;
+    static final Method JOBJECT_GET_RELATED_OBJECTS_METHOD;
 
     // JTransaction method handles
     static final Method GET_CURRENT_METHOD;
@@ -99,7 +99,7 @@ class ClassGenerator<T> {
             JOBJECT_COPY_TO_METHOD = JObject.class.getMethod("copyTo", JTransaction.class, ObjId.class, String[].class);
             JOBJECT_COPY_OUT_METHOD = JObject.class.getMethod("copyOut", String[].class);
             JOBJECT_COPY_IN_METHOD = JObject.class.getMethod("copyIn", String[].class);
-            JOBJECT_GET_COPY_ALONGS_METHOD = JObject.class.getMethod("getCopyAlongs");
+            JOBJECT_GET_RELATED_OBJECTS_METHOD = JObject.class.getMethod("getRelatedObjects");
 
             // JTransaction methods
             GET_CURRENT_METHOD = JTransaction.class.getMethod("getCurrent");
@@ -387,15 +387,15 @@ class ClassGenerator<T> {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // Add JObject.getCopyAlongs()
-        mv = this.startMethod(cw, JOBJECT_GET_COPY_ALONGS_METHOD);
+        // Add JObject.getRelatedObjects()
+        mv = this.startMethod(cw, JOBJECT_GET_RELATED_OBJECTS_METHOD);
         mv.visitCode();
         final Label theTry = new Label();
         final Label theCatch = new Label();
         mv.visitLabel(theTry);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getSuperclassName(),
-          JOBJECT_GET_COPY_ALONGS_METHOD.getName(), Type.getMethodDescriptor(Type.getType(Iterable.class)));
+          JOBJECT_GET_RELATED_OBJECTS_METHOD.getName(), Type.getMethodDescriptor(Type.getType(Iterable.class)));
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitLabel(theCatch);
         mv.visitInsn(Opcodes.ACONST_NULL);

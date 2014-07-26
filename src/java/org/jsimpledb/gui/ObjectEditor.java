@@ -169,7 +169,7 @@ public class ObjectEditor extends HorizontalLayout {
                 Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
                 return false;
             }
-            ObjectEditor.this.property.setValue(jobj.copyTo(ObjectEditor.this.dest, id));
+            ObjectEditor.this.property.setValue(jobj.copyTo(ObjectEditor.this.dest, id, (String[])null));
             return true;
         }
     }

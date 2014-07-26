@@ -251,7 +251,7 @@ public class SnapshotTest extends TestSupport {
     }
 
     @Test
-    public void testCopyAlong() throws Exception {
+    public void testCopyRelated() throws Exception {
 
         final JSimpleDB jdb = BasicTest.getJSimpleDB(Foo.class);
 
@@ -272,7 +272,7 @@ public class SnapshotTest extends TestSupport {
             Assert.assertEquals(f2.getReferrers(), buildSet(f1));
             Assert.assertEquals(f3.getReferrers(), buildSet(f2));
 
-            final Foo f1s = (Foo)f1.copyOut();
+            final Foo f1s = (Foo)f1.copyOut((String[])null);
             Assert.assertEquals(f1s, stx.getJObject(f1.getObjId()));
 
             final Foo f2s = (Foo)stx.getJObject(f2.getObjId());
@@ -371,7 +371,7 @@ public class SnapshotTest extends TestSupport {
         public abstract NavigableMap<Foo, NavigableSet<Foo>> queryFoo();
 
         @Override
-        public Iterable<Foo> getCopyAlongs() {
+        public Iterable<Foo> getRelatedObjects() {
             return this.getReferrers();
         }
     }
@@ -380,7 +380,7 @@ public class SnapshotTest extends TestSupport {
     public abstract static class Foo2 extends Foo {
 
         @Override
-        public Iterable<Foo> getCopyAlongs() {
+        public Iterable<Foo> getRelatedObjects() {
             return Collections.singleton(this.getRef());
         }
     }
