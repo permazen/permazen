@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  * <b>Transaction Meta-Data</b>
  * <ul>
  *  <li>{@link #getJSimpleDB getJSimpleDB()} - Get the associated {@link JSimpleDB} instance</li>
- *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default {@link SnapshotJTransaction}</li>
+ *  <li>{@link #getTransaction} - Get the core API {@link Transaction} underlying this instance</li>
  * </ul>
  * </p>
  *
@@ -83,6 +83,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Object Access</b>
  * <ul>
+ *  <li>{@link #getJObject(ObjId) getJObject()} - Get the Java model object corresponding to a specific database object ID</li>
  *  <li>{@link #create(Class) create()} - Create a new database object</li>
  *  <li>{@link #getAll getAll()} - Get all database objects that are instances of a given Java type</li>
  *  <li>{@link #queryVersion queryVersion()} - Get database objects grouped according to their schema versions</li>
@@ -98,7 +99,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * <b>Reference Path Queries</b>
+ * <b>Reference Inversion</b>
  * <ul>
  *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects that refer to any element in a given set
  *      of objects through a specified reference path</li>
@@ -107,29 +108,32 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * <b>Lower Layer Access</b>
+ * <b>Snapshot Transactions</b>
  * <ul>
- *  <li>{@link #getTransaction} - Get the lower level {@link Transaction} underlying this instance</li>
- *  <li>{@link #getJObject getJObject()} - Get the Java model object for a specific database object</li>
- *  <li>{@link #getKey getKey()} - Get the key/value database key for a specific object and/or field</li>
+ *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default {@link SnapshotJTransaction}</li>
+ *  <li>{@link #copyTo(JTransaction, ObjId, ObjId, String[]) copyTo()} - Copy an object
+ *      and its related objects into another transaction</li>
  * </ul>
  * </p>
  *
  * <p>
- * The remaining methods in this class not mentioned above are normally used only indirectly via the {@link JObject} interface,
- * which all Java model objects implement:
+ * <b>Lower Layer Access</b>
+ * <ul>
+ *  <li>{@link #getKey(JObject) getKey()} - Get the {@link org.jsimpledb.kv.KVDatabase} key prefix for a specific object</li>
+ *  <li>{@link #getKey(JObject, String) getKey()} - Get the {@link org.jsimpledb.kv.KVDatabase}
+ *      key for a specific field in a specific object</li>
+ * </ul>
  * </p>
  *
  * <p>
- * <b>JObject Methods</b>
+ * The remaining methods in this class are normally only used by generated Java model object subclasses.
+ * Instead of using these methods directly, using the appropriately annotated Java model object method
+ * or {@link JObject} interface method is recommended.
+ * </p>
+ *
+ * <p>
+ * <b>Java Model Object Methods</b>
  * <ul>
- *  <li>{@link #copyTo copyTo()} - Copy an object into another transaction</li>
- *  <li>{@link #delete delete()} - Delete an object from this transaction</li>
- *  <li>{@link #exists exists()} - Test whether an object exists in this transaction</li>
- *  <li>{@link #recreate recreate()} - Recreate an object in this transaction</li>
- *  <li>{@link #revalidate revalidate()} - Add an object to the validation queue</li>
- *  <li>{@link #getSchemaVersion getSchemaVersion()} - Get this schema version of an object</li>
- *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version</li>
  *  <li>{@link #readSimpleField readSimpleField()} - Read the value of a simple field</li>
  *  <li>{@link #writeSimpleField writeSimpleField()} - Write the value of a simple field</li>
  *  <li>{@link #readCounterField readCounterField()} - Access a {@link Counter} field</li>
@@ -140,6 +144,18 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #queryListFieldEntries queryListFieldEntries()} - Query a list field entry index</li>
  *  <li>{@link #queryMapFieldKeyEntries queryMapFieldKeyEntries()} - Query a map field key entry index</li>
  *  <li>{@link #queryMapFieldKeyEntries queryMapFieldKeyEntries()} - Query a map field value entry index</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * <b>{@link JObject} Methods</b>
+ * <ul>
+ *  <li>{@link #delete delete()} - Delete an object from this transaction</li>
+ *  <li>{@link #exists exists()} - Test whether an object exists in this transaction</li>
+ *  <li>{@link #recreate recreate()} - Recreate an object in this transaction</li>
+ *  <li>{@link #revalidate revalidate()} - Add an object to the validation queue</li>
+ *  <li>{@link #getSchemaVersion getSchemaVersion()} - Get this schema version of an object</li>
+ *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version</li>
  * </ul>
  * </p>
  */
@@ -249,6 +265,7 @@ public class JTransaction {
      * @param jclass Java model type
      * @return read-only view of all instances of {@code type}
      * @throws IllegalArgumentException if {@code jclass} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(JClass<T> jclass) {
@@ -262,6 +279,7 @@ public class JTransaction {
      *
      * @param type any Java type, or null to get all objects
      * @return read-only view of all instances of {@code type}
+     * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(Class<T> type) {
@@ -273,6 +291,7 @@ public class JTransaction {
      *
      * @param type any Java type, or null to get all objects
      * @return read-only view of all instances of {@code type}
+     * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(TypeToken<T> type) {
@@ -293,6 +312,7 @@ public class JTransaction {
      * @param jclass object {@link JClass}
      * @return read-only view of all instances having exactly type {@code jclass}
      * @throws IllegalArgumentException if {@code jclass} is null
+     * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAllOfType(JClass<T> jclass) {
@@ -344,23 +364,21 @@ public class JTransaction {
      * </p>
      *
      * @param jobj Java model object
-     * @param path a {@linkplain ReferencePath reference path} with zero intermediate reference fields
+     * @param fieldName the name of a field in {@code jobj}'s type
      * @return the {@link org.jsimpledb.kv.KVDatabase} key of the field in the specified object
-     * @throws IllegalArgumentException if {@code path} is invalid
-     * @throws IllegalArgumentException if {@code path} contains one or more intermediate references
-     * @throws IllegalArgumentException if the target of {@code path} is a sub-field of a complex field
      * @throws IllegalArgumentException if {@code jobj} does not contain the specified field
+     * @throws IllegalArgumentException if {@code fieldName} is otherwise invalid
      * @throws IllegalArgumentException if either parameter is null
      */
-    public byte[] getKey(JObject jobj, String path) {
+    public byte[] getKey(JObject jobj, String fieldName) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
         final TypeToken<?> startType = this.jdb.getJClass(jobj.getObjId().getStorageId()).typeToken;
-        final ReferencePath refPath = this.jdb.parseReferencePath(startType, path, false);
+        final ReferencePath refPath = this.jdb.parseReferencePath(startType, fieldName, false);
         if (refPath.getReferenceFields().length > 0)
-            throw new IllegalArgumentException("path `" + path + "' contains one or more reference fields");
+            throw new IllegalArgumentException("invalid field `" + fieldName + "'");
         if (!refPath.targetType.getRawType().isInstance(jobj))
-            throw new IllegalArgumentException("jobj is not an instance of " + refPath.targetType);
+            throw new IllegalArgumentException("jobj is not an instance of " + refPath.targetType); // should never happen
         return this.tx.getKey(jobj.getObjId(), refPath.targetField.storageId);
     }
 
@@ -383,7 +401,8 @@ public class JTransaction {
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly.
      *
      * <p>
-     * This method is typically only used by generated classes; normally, {@link JObject#copyTo} would be used instead.
+     * This method is typically only used by generated classes; normally, {@link JObject#copyIn}, {@link JObject#copyOut},
+     * or {@link JObject#copyTo} would be used instead.
      * </p>
      *
      * @param dest destination transaction
@@ -395,6 +414,8 @@ public class JTransaction {
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcId}'s object's version
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
+     * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
+     *  is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @throws IllegalArgumentException if any parameter is null
      * @see JObject#copyTo JObject.copyTo()
@@ -526,10 +547,10 @@ public class JTransaction {
      * @param id object ID
      * @return Java model object
      * @throws IllegalArgumentException if {@code id} is null
-     * @see #getJObject(ObjId, Class)
-     * @see JSimpleDB#getJObject JSimpleDB.getJObject()
      * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
      *  associated with this instance's {@link JSimpleDB}
+     * @see #getJObject(ObjId, Class)
+     * @see JSimpleDB#getJObject JSimpleDB.getJObject()
      */
     public JObject getJObject(ObjId id) {
         return this.jdb.getJObject(id);
@@ -540,11 +561,11 @@ public class JTransaction {
      *
      * @param id object ID
      * @return Java model object
-     * @see #getJObject(ObjId)
      * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
      *  associated with this instance's {@link JSimpleDB}
      * @throws ClassCastException if the Java model object does not have type {@code type}
      * @throws IllegalArgumentException if {@code id} or {@code type} is null
+     * @see #getJObject(ObjId)
      */
     public <T> T getJObject(ObjId id, Class<T> type) {
         if (type == null)
@@ -558,6 +579,7 @@ public class JTransaction {
      * @param type an annotated Java object model type
      * @return newly created instance
      * @throws IllegalArgumentException if {@code type} is not a known Java object model type
+     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> T create(Class<T> type) {
@@ -570,6 +592,7 @@ public class JTransaction {
      * @param jclass object type
      * @return newly created instance
      * @throws IllegalArgumentException if {@code jclass} is not valid for this instance
+     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
@@ -579,15 +602,18 @@ public class JTransaction {
     }
 
     /**
-     * Delete the given instance in this transaction.
+     * Delete the object with the given object ID in this transaction.
      *
      * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#delete} would be used instead.
      * </p>
      *
-     * @param id Object ID
-     * @return true if the object was deleted, false if {@code obj} is null or did not exist
+     * @param id object ID of the object to delete
+     * @return true if object was found and deleted, false if object was not found
+     * @throws ReferencedObjectException if the object is referenced by some other object
+     *  through a reference field configured for {@link org.jsimpledb.core.DeleteAction#EXCEPTION}
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if {@code id} is null
      */
     public boolean delete(ObjId id) {
@@ -595,14 +621,14 @@ public class JTransaction {
     }
 
     /**
-     * Determine whether the given instance exists in this transaction.
+     * Determine whether the object with the given object ID exists in this transaction.
      *
      * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#exists} would be used instead.
      * </p>
      *
-     * @param id Object ID
-     * @return true if the object exists, false if not
+     * @param id object ID of the object to find
+     * @return true if object was found, false if object was not found
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -620,6 +646,7 @@ public class JTransaction {
      * @param id Object ID
      * @return true if the object was recreated, false if the object already existed
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if {@code id} is null
      */
     public boolean recreate(ObjId id) {
@@ -707,6 +734,7 @@ public class JTransaction {
      * @return true if the object's schema version was changed, false if it was already updated
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if the object does not exist in this transaction
+     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if {@code id} is null
      */
     public boolean updateSchemaVersion(ObjId id) {
@@ -721,6 +749,15 @@ public class JTransaction {
      * This method is used by generated {@link org.jsimpledb.annotation.JField &#64;JField} getter override methods
      * and not normally invoked directly by user code.
      * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link JSimpleField}
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @return value of the field in the object
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code id} is null
      */
     public Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJField(storageId, JSimpleField.class).getConverter(this),
@@ -735,6 +772,17 @@ public class JTransaction {
      * This method is used by generated {@link org.jsimpledb.annotation.JField &#64;JField} setter override methods
      * and not normally invoked directly by user code.
      * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link JSimpleField}
+     * @param value new value for the field
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
+     * @throws IllegalArgumentException if {@code id} is null
      */
     public void writeSimpleField(ObjId id, int storageId, Object value, boolean updateVersion) {
         final Converter<?, ?> converter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
@@ -750,6 +798,15 @@ public class JTransaction {
      * This method is used by generated {@link org.jsimpledb.annotation.JField &#64;JField} getter override methods
      * and not normally invoked directly by user code.
      * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link JCounterField}
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @return value of the counter in the object
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link JCounterField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code id} is null
      */
     public Counter readCounterField(ObjId id, int storageId, boolean updateVersion) {
         this.jdb.getJField(storageId, JCounterField.class);
@@ -766,6 +823,14 @@ public class JTransaction {
      * This method is used by generated {@link org.jsimpledb.annotation.JSetField &#64;JSetField}
      * getter override methods and not normally invoked directly by user code.
      * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link JSetField}
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code id} is null
      */
     public NavigableSet<?> readSetField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJField(storageId, JSetField.class).getConverter(this),
@@ -780,6 +845,14 @@ public class JTransaction {
      * This method is used by generated {@link org.jsimpledb.annotation.JListField &#64;JListField}
      * getter override methods and not normally invoked directly by user code.
      * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link JListField}
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code id} is null
      */
     public List<?> readListField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJField(storageId, JListField.class).getConverter(this),
@@ -794,6 +867,14 @@ public class JTransaction {
      * This method is used by generated {@link org.jsimpledb.annotation.JMapField &#64;JMapField}
      * getter override methods and not normally invoked directly by user code.
      * </p>
+     *
+     * @param id object ID of the object
+     * @param storageId storage ID of the {@link JMapField}
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists in the object
+     * @throws IllegalArgumentException if {@code id} is null
      */
     public NavigableMap<?, ?> readMapField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJField(storageId, JMapField.class).getConverter(this),
@@ -841,6 +922,11 @@ public class JTransaction {
      * Used by generated {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} override methods
      * that return index maps whose values are sets of Java model objects (i.e., not other index entry types).
      * </p>
+     *
+     * @param storageId {@link JSimpleField}'s storage ID
+     * @return read-only, real-time view of field values mapped to sets of {@link JObject}s with the value in the field
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, ? extends NavigableSet<JObject>> querySimpleField(int storageId) {
@@ -863,6 +949,11 @@ public class JTransaction {
      * Used by generated {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} override methods
      * that return index maps whose values are sets of {@link ListIndexEntry}s.
      * </p>
+     *
+     * @param storageId {@link JListField}'s storage ID
+     * @return read-only, real-time view of list element values mapped to sets of {@link ListIndexEntry}s
+     * @throws UnknownFieldException if no {@link JListField} field corresponding to {@code storageId} exists
+     * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<ListIndexEntry<?>>> queryListFieldEntries(int storageId) {
@@ -887,6 +978,11 @@ public class JTransaction {
      * Used by generated {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} override methods
      * that return index maps whose values are sets of {@link MapKeyIndexEntry}s.
      * </p>
+     *
+     * @param storageId {@link JMapField}'s storage ID
+     * @return read-only, real-time view of map key values mapped to sets of {@link MapKeyIndexEntry}s
+     * @throws UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
+     * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?, ?>>> queryMapFieldKeyEntries(int storageId) {
@@ -913,6 +1009,11 @@ public class JTransaction {
      * Used by generated {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} override methods
      * that return index maps whose values are sets of {@link MapValueIndexEntry}s.
      * </p>
+     *
+     * @param storageId {@link JMapField}'s storage ID
+     * @return read-only, real-time view of map values mapped to sets of {@link MapValueIndexEntry}s
+     * @throws UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
+     * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<MapValueIndexEntry<?, ?>>> queryMapFieldValueEntries(int storageId) {
