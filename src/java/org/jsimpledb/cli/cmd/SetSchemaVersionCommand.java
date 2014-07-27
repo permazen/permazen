@@ -9,13 +9,12 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.ParseException;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseException;
 
-@CliCommand
-public class SetSchemaVersionCommand extends Command {
+@Command
+public class SetSchemaVersionCommand extends AbstractCommand {
 
     public SetSchemaVersionCommand() {
         super("set-schema-version version:int");
@@ -34,13 +33,13 @@ public class SetSchemaVersionCommand extends Command {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final int version = (Integer)params.get("version");
         if (version < 0)
             throw new ParseException(ctx, "invalid negative schema version");
-        return new Action() {
+        return new CliSession.Action() {
             @Override
-            public void run(Session session) throws Exception {
+            public void run(CliSession session) throws Exception {
                 session.setSchemaVersion(version);
                 session.getWriter().println("Set schema version to " + version);
             }

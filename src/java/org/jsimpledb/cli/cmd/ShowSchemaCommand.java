@@ -9,13 +9,12 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.util.ParseContext;
 
-@CliCommand
-public class ShowSchemaCommand extends Command implements Action {
+@Command
+public class ShowSchemaCommand extends AbstractCommand implements CliSession.Action {
 
     public ShowSchemaCommand() {
         super("show-schema");
@@ -27,14 +26,14 @@ public class ShowSchemaCommand extends Command implements Action {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return this;
     }
 
-// Action
+// CliSession.Action
 
     @Override
-    public void run(Session session) throws Exception {
+    public void run(CliSession session) throws Exception {
 
         // Get schema model
         final SchemaModel schemaModel = session.getSchemaModel();

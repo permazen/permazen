@@ -7,14 +7,12 @@
 
 package org.jsimpledb.cli.func;
 
-import java.io.PrintWriter;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.expr.Value;
+import org.jsimpledb.parse.func.Function;
 
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.expr.EvalException;
-import org.jsimpledb.cli.parse.expr.Value;
-
-@CliFunction
-public class PrintFunction extends SimpleFunction {
+@Function
+public class PrintFunction extends SimpleCliFunction {
 
     public PrintFunction() {
         super("print", 1, 1);
@@ -31,15 +29,8 @@ public class PrintFunction extends SimpleFunction {
     }
 
     @Override
-    protected Value apply(Session session, Value[] params) {
-        final PrintWriter writer = session.getWriter();
-        try {
-            writer.println(params[0].get(session));
-        } catch (EvalException e) {
-            writer.println("Error: " + e.getMessage());
-            for (Throwable t = e.getCause(); t != null; t = t.getCause())
-                writer.println("Caused by: " + t);
-        }
+    protected Value apply(CliSession session, Value[] params) {
+        session.getWriter().println(params[0].get(session));
         return Value.NO_VALUE;
     }
 }

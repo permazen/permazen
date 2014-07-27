@@ -23,22 +23,22 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.JObject;
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.ParseException;
-import org.jsimpledb.cli.parse.Parser;
-import org.jsimpledb.cli.parse.expr.Node;
-import org.jsimpledb.cli.parse.expr.Value;
-import org.jsimpledb.cli.util.CastFunction;
-import org.jsimpledb.cli.util.StripPrefixFunction;
+import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseException;
+import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.Parser;
+import org.jsimpledb.parse.expr.Node;
+import org.jsimpledb.parse.expr.Value;
+import org.jsimpledb.parse.util.CastFunction;
+import org.jsimpledb.parse.util.StripPrefixFunction;
 import org.jsimpledb.util.XMLObjectSerializer;
 
 import jline.console.completer.FileNameCompleter;
 
-@CliCommand
-public class DumpCommand extends Command {
+@Command
+public class DumpCommand extends AbstractCommand {
 
     public DumpCommand() {
         super("dump --storage-id-format:storageIdFormat file.xml:file expr:expr");
@@ -61,7 +61,7 @@ public class DumpCommand extends Command {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
 
         // Parse parameters
         final boolean nameFormat = !params.containsKey("storageIdFormat");
@@ -69,9 +69,9 @@ public class DumpCommand extends Command {
         final Node expr = (Node)params.get("expr");
 
         // Return export action
-        return new Action() {
+        return new CliSession.Action() {
             @Override
-            public void run(Session session) throws Exception {
+            public void run(CliSession session) throws Exception {
                 final Value value = expr.evaluate(session);
                 final Iterable<?> i = value.checkType(session, "dump", Iterable.class);
                 final AtomicUpdateFileOutputStream updateOutput = new AtomicUpdateFileOutputStream(file);
@@ -110,7 +110,7 @@ public class DumpCommand extends Command {
     private class FileParser implements Parser<File> {
 
         @Override
-        public File parse(Session session, ParseContext ctx, boolean complete) {
+        public File parse(ParseSession session, ParseContext ctx, boolean complete) {
 
             // Get filename
             final Matcher matcher = ctx.tryPattern("[^\\s;]*");

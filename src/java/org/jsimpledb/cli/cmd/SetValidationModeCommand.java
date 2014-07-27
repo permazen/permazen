@@ -10,14 +10,13 @@ package org.jsimpledb.cli.cmd;
 import java.util.Map;
 
 import org.jsimpledb.ValidationMode;
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.EnumNameParser;
-import org.jsimpledb.cli.parse.Parser;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.EnumNameParser;
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.Parser;
 
-@CliCommand
-public class SetValidationModeCommand extends Command {
+@Command
+public class SetValidationModeCommand extends AbstractCommand {
 
     public SetValidationModeCommand() {
         super("set-validation-mode mode:mode");
@@ -40,11 +39,11 @@ public class SetValidationModeCommand extends Command {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final ValidationMode mode = (ValidationMode)params.get("mode");
-        return new Action() {
+        return new CliSession.Action() {
             @Override
-            public void run(Session session) throws Exception {
+            public void run(CliSession session) throws Exception {
                 session.setValidationMode(mode);
                 session.getWriter().println("Set validation mode to " + mode);
                 if (session.getJSimpleDB() == null)

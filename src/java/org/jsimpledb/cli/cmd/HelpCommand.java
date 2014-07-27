@@ -11,19 +11,18 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.func.Function;
-import org.jsimpledb.cli.parse.Parser;
-import org.jsimpledb.cli.parse.WordParser;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.Parser;
+import org.jsimpledb.parse.WordParser;
+import org.jsimpledb.parse.func.AbstractFunction;
 
-@CliCommand
-public class HelpCommand extends Command {
+@Command
+public class HelpCommand extends AbstractCommand {
 
-    private final Session session;
+    private final CliSession session;
 
-    public HelpCommand(Session session) {
+    public HelpCommand(CliSession session) {
         super("help command-or-function:cmdfunc?");
         this.session = session;
     }
@@ -55,26 +54,26 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final String name = (String)params.get("command-or-function");
-        return new Action() {
+        return new CliSession.Action() {
             @Override
-            public void run(Session session) throws Exception {
+            public void run(CliSession session) throws Exception {
                 final PrintWriter writer = session.getWriter();
                 if (name == null) {
                     writer.println("Available commands:");
-                    for (Command availableCommand : session.getCommands().values())
+                    for (AbstractCommand availableCommand : session.getCommands().values())
                         writer.println(String.format("%24s - %s", availableCommand.getName(), availableCommand.getHelpSummary()));
                     writer.println("Available functions:");
-                    for (Function availableFunction : session.getFunctions().values())
+                    for (AbstractFunction availableFunction : session.getFunctions().values())
                         writer.println(String.format("%24s - %s", availableFunction.getName(), availableFunction.getHelpSummary()));
                 } else {
-                    final Command command = session.getCommands().get(name);
+                    final AbstractCommand command = session.getCommands().get(name);
                     if (command != null) {
                         writer.println("Usage: " + command.getUsage());
                         writer.println(command.getHelpDetail());
                     }
-                    final Function function = session.getFunctions().get(name);
+                    final AbstractFunction function = session.getFunctions().get(name);
                     if (function != null) {
                         writer.println("Usage: " + function.getUsage());
                         writer.println(function.getHelpDetail());

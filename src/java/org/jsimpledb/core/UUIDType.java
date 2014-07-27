@@ -9,10 +9,10 @@ package org.jsimpledb.core;
 
 import java.util.UUID;
 
+import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
-import org.jsimpledb.util.ParseContext;
 
 /**
  * Non-null {@link UUID} type. Null values are not supported by this class.

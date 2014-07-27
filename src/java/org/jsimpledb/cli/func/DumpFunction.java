@@ -16,10 +16,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.jsimpledb.JObject;
-import org.jsimpledb.cli.ObjInfo;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.expr.EvalException;
-import org.jsimpledb.cli.parse.expr.Value;
+import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.core.CounterField;
 import org.jsimpledb.core.Field;
 import org.jsimpledb.core.FieldSwitchAdapter;
@@ -30,9 +27,13 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.parse.ObjInfo;
+import org.jsimpledb.parse.expr.EvalException;
+import org.jsimpledb.parse.expr.Value;
+import org.jsimpledb.parse.func.Function;
 
-@CliFunction
-public class DumpFunction extends SimpleFunction {
+@Function
+public class DumpFunction extends SimpleCliFunction {
 
     public DumpFunction() {
         super("dump", 1, 1);
@@ -49,7 +50,7 @@ public class DumpFunction extends SimpleFunction {
     }
 
     @Override
-    protected Value apply(Session session, Value[] params) {
+    protected Value apply(CliSession session, Value[] params) {
 
         // Get object
         Object obj = params[0].checkNotNull(session, "dump()");
@@ -66,7 +67,7 @@ public class DumpFunction extends SimpleFunction {
         return Value.NO_VALUE;
     }
 
-    private void dump(final Session session, final ObjId id) {
+    private void dump(final CliSession session, final ObjId id) {
 
         // Get transaction and console writer
         final Transaction tx = session.getTransaction();

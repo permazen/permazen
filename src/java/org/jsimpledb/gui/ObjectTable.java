@@ -11,7 +11,7 @@ import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Table;
 
 import org.jsimpledb.JSimpleDB;
-import org.jsimpledb.cli.Session;
+import org.jsimpledb.Session;
 
 /**
  * Table showing all objects of a certain type, backed by an {@link ObjectContainer}.

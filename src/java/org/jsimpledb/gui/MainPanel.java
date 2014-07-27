@@ -25,7 +25,6 @@ import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -48,13 +47,12 @@ import org.jsimpledb.JSimpleField;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.change.ObjectCreate;
 import org.jsimpledb.change.ObjectDelete;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.func.CliFunction;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ReferencedObjectException;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.parse.ParseSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +95,7 @@ public class MainPanel extends VerticalLayout {
 
     private final GUIConfig guiConfig;
     private final JSimpleDB jdb;
-    private final Session session;
+    private final ParseSession session;
     private final ObjectChooser objectChooser;
 
     @Autowired(required = false)
@@ -107,19 +105,22 @@ public class MainPanel extends VerticalLayout {
         this.guiConfig = guiConfig;
         this.jdb = this.guiConfig.getJSimpleDB();
 
-        // Setup session
-        this.session = new Session(this.jdb, new PrintWriter(System.out, true));      // XXX
+        // Setup parse session
+        this.session = new ParseSession(this.jdb) {
+            @Override
+            protected void reportException(Exception e) {
+                Notification.show(e.getMessage(), null, Notification.Type.ERROR_MESSAGE);
+            }
+        };
         this.session.setReadOnly(this.guiConfig.isReadOnly());
         this.session.setSchemaModel(this.jdb.getSchemaModel());
         this.session.setSchemaVersion(this.guiConfig.getSchemaVersion());
         this.session.setAllowNewSchema(this.guiConfig.isAllowNewSchema());
         for (Class<?> cl : this.guiConfig.getFunctionClasses()) {
-            if (cl.getAnnotation(CliFunction.class).worksInJSimpleDBMode()) {
-                try {
-                    this.session.registerFunction(cl);
-                } catch (IllegalArgumentException e) {
-                    this.log.warn("failed to register function " + cl + ": " + e.getMessage());
-                }
+            try {
+                this.session.registerFunction(cl);
+            } catch (IllegalArgumentException e) {
+                this.log.warn("failed to register function " + cl + ": " + e.getMessage());
             }
         }
 

@@ -6,6 +6,6 @@
  */
 
 /**
- * JSimpleDB CLI {@link org.jsimpledb.cli.func.Function} related classes, including pre-defined functions.
+ * JSimpleDB CLI pre-defined {@link org.jsimpledb.parse.func.Function}s.
  */
 package org.jsimpledb.cli.func;

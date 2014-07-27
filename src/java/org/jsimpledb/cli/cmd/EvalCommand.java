@@ -10,15 +10,14 @@ package org.jsimpledb.cli.cmd;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.expr.EvalException;
-import org.jsimpledb.cli.parse.expr.Node;
-import org.jsimpledb.cli.parse.expr.Value;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.expr.EvalException;
+import org.jsimpledb.parse.expr.Node;
+import org.jsimpledb.parse.expr.Value;
 
-@CliCommand
-public class EvalCommand extends Command {
+@Command
+public class EvalCommand extends AbstractCommand {
 
     public EvalCommand() {
         super("eval expr:expr");
@@ -30,11 +29,11 @@ public class EvalCommand extends Command {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final Node expr = (Node)params.get("expr");
-        return new Action() {
+        return new CliSession.Action() {
             @Override
-            public void run(Session session) throws Exception {
+            public void run(CliSession session) throws Exception {
                 final PrintWriter writer = session.getWriter();
                 final Value value;
                 final Object result;

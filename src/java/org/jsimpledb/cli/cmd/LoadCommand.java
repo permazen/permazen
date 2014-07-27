@@ -17,19 +17,19 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.ParseException;
-import org.jsimpledb.cli.parse.Parser;
-import org.jsimpledb.cli.util.CastFunction;
-import org.jsimpledb.cli.util.StripPrefixFunction;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseException;
+import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.Parser;
+import org.jsimpledb.parse.util.CastFunction;
+import org.jsimpledb.parse.util.StripPrefixFunction;
 import org.jsimpledb.util.XMLObjectSerializer;
 
 import jline.console.completer.FileNameCompleter;
 
-@CliCommand
-public class LoadCommand extends Command {
+@Command
+public class LoadCommand extends AbstractCommand {
 
     public LoadCommand() {
         super("load file.xml:file");
@@ -46,13 +46,13 @@ public class LoadCommand extends Command {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final File file = (File)params.get("file.xml");
 
         // Return import action
-        return new Action() {
+        return new CliSession.Action() {
             @Override
-            public void run(Session session) throws Exception {
+            public void run(CliSession session) throws Exception {
                 final BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
                 final int count;
                 try {
@@ -74,7 +74,7 @@ public class LoadCommand extends Command {
     private class FileParser implements Parser<File> {
 
         @Override
-        public File parse(Session session, ParseContext ctx, boolean complete) {
+        public File parse(ParseSession session, ParseContext ctx, boolean complete) {
 
             // Get filename
             final Matcher matcher = ctx.tryPattern("[^\\s;]*");

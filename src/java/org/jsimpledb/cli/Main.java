@@ -17,11 +17,10 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 import org.jsimpledb.JSimpleDB;
-import org.jsimpledb.cli.cmd.CliCommand;
 import org.jsimpledb.cli.cmd.Command;
-import org.jsimpledb.cli.func.CliFunction;
-import org.jsimpledb.cli.func.Function;
+import org.jsimpledb.cli.func.SimpleCliFunction;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.spring.AnnotatedClassScanner;
 import org.jsimpledb.util.AbstractMain;
@@ -55,12 +54,12 @@ public class Main extends AbstractMain {
     }
 
     private void scanCommandClasses(String pkgname) {
-        for (String className : new AnnotatedClassScanner(CliCommand.class).scanForClasses(pkgname.split("[\\s,]")))
+        for (String className : new AnnotatedClassScanner(Command.class).scanForClasses(pkgname.split("[\\s,]")))
             this.commandClasses.add(this.loadClass(className));
     }
 
     private void scanFunctionClasses(String pkgname) {
-        for (String className : new AnnotatedClassScanner(CliFunction.class).scanForClasses(pkgname.split("[\\s,]")))
+        for (String className : new AnnotatedClassScanner(Function.class).scanForClasses(pkgname.split("[\\s,]")))
             this.functionClasses.add(this.loadClass(className));
     }
 
@@ -70,6 +69,7 @@ public class Main extends AbstractMain {
         // Register built-in commands and functions
         this.scanCommandClasses(Command.class.getPackage().getName());
         this.scanFunctionClasses(Function.class.getPackage().getName());
+        this.scanFunctionClasses(SimpleCliFunction.class.getPackage().getName());
 
         // Parse command line
         final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));
@@ -122,7 +122,7 @@ public class Main extends AbstractMain {
         final Console console = jdb != null ?
           new Console(jdb, new FileInputStream(FileDescriptor.in), System.out) :
           new Console(db, new FileInputStream(FileDescriptor.in), System.out);
-        final Session session = console.getSession();
+        final CliSession session = console.getSession();
         console.setHistoryFile(new File(new File(System.getProperty("user.home")), ".jsimpledb_history"));
         session.setReadOnly(this.readOnly);
         session.setVerbose(this.verbose);
@@ -131,13 +131,13 @@ public class Main extends AbstractMain {
         session.setAllowNewSchema(this.allowNewSchema);
         try {
             for (Class<?> cl : this.commandClasses) {
-                final CliCommand annotation = cl.getAnnotation(CliCommand.class);
-                if (jdb != null ? annotation.worksInJSimpleDBMode() : annotation.worksInCoreAPIMode())
+                final Command annotation = cl.getAnnotation(Command.class);
+                if (jdb != null || annotation.worksInCoreAPIMode())
                     session.registerCommand(cl);
             }
             for (Class<?> cl : this.functionClasses) {
-                final CliFunction annotation = cl.getAnnotation(CliFunction.class);
-                if (jdb != null ? annotation.worksInJSimpleDBMode() : annotation.worksInCoreAPIMode())
+                final Function annotation = cl.getAnnotation(Function.class);
+                if (jdb != null || annotation.worksInCoreAPIMode())
                     session.registerFunction(cl);
             }
         } catch (IllegalArgumentException e) {
@@ -169,8 +169,8 @@ public class Main extends AbstractMain {
         System.err.println("Options:");
         this.outputFlags(new String[][] {
           { "--schema-file file",   "Load core database schema from XML file" },
-          { "--cmdpkg package",     "Register @CliCommand-annotated classes found under the specified Java package" },
-          { "--funcpkg package",     "Register @CliFunction-annotated classes found under the specified Java package" },
+          { "--cmdpkg package",     "Register @Command-annotated classes found under the specified Java package" },
+          { "--funcpkg package",    "Register @Function-annotated classes found under the specified Java package" },
         });
     }
 

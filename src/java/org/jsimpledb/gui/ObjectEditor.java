@@ -21,8 +21,8 @@ import com.vaadin.ui.VerticalLayout;
 import org.dellroad.stuff.spring.RetryTransaction;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.cli.Session;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.parse.ParseSession;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ObjectEditor extends HorizontalLayout {
 
     private final JTransaction dest;
-    private final Session session;
+    private final ParseSession session;
     private final Class<?> type;
     private final Property<JObject> property;
     private final JObjectContainer.RefLabelPropertyDef refLabelPropertyDef = new JObjectContainer.RefLabelPropertyDef();
@@ -55,7 +55,7 @@ public class ObjectEditor extends HorizontalLayout {
     /**
      * Conveinence constructor. Sets {@code allowNull} to true.
      */
-    public ObjectEditor(JTransaction dest, Session session, Class<?> type, Property<JObject> property) {
+    public ObjectEditor(JTransaction dest, ParseSession session, Class<?> type, Property<JObject> property) {
         this(dest, session, type, property, true);
     }
 
@@ -68,7 +68,7 @@ public class ObjectEditor extends HorizontalLayout {
      * @param property reference property to edit
      * @param allowNull whether null value is allowed
      */
-    public ObjectEditor(JTransaction dest, Session session, Class<?> type, Property<JObject> property, boolean allowNull) {
+    public ObjectEditor(JTransaction dest, ParseSession session, Class<?> type, Property<JObject> property, boolean allowNull) {
 
         // Initialize
         if (dest == null)

@@ -22,7 +22,7 @@ import org.jsimpledb.kv.simple.XMLKVDatabase;
 import org.jsimpledb.spring.JSimpleDBClassScanner;
 
 /**
- * CLI main entry point.
+ * Support superclass for main entry point classes.
  */
 public abstract class AbstractMain extends MainClass {
 

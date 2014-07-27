@@ -7,9 +7,9 @@
 
 package org.jsimpledb.core;
 
+import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
-import org.jsimpledb.util.ParseContext;
 
 /**
  * Non-null type for fields that contain a reference to an object. Null values are not supported by this class.
