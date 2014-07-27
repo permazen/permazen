@@ -1,5 +1,18 @@
 
+- Expression parsing
+    - Make Value interface; add LValue sub-interface
+
+- Integrate CountingKVStore into KVStore, making it mandatory
+    - Create AbstractKVStore, replacing CountingKVStoreAdapter
+
+- @JField
+    - Add boolean cascadeDelete()
+
+- XMLKVDatabase
+    - Provide subclass hook for a default initial XML database
+
 - CLI
+    - Support Comparable with < > <= >=
     - Aggregate functions: min(), max(), avg(), sum()
 
 - @JSimpleClass
