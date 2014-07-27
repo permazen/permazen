@@ -10,10 +10,10 @@ package org.jsimpledb.core;
 import java.util.Date;
 
 import org.dellroad.stuff.string.DateEncoder;
+import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.LongEncoder;
-import org.jsimpledb.util.ParseContext;
 
 /**
  * Non-null {@link Date} type. Null values are not supported by this class.

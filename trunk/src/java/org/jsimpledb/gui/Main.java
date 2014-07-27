@@ -27,9 +27,9 @@ import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.ValidationMode;
-import org.jsimpledb.cli.func.CliFunction;
-import org.jsimpledb.cli.func.Function;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.parse.func.AbstractFunction;
+import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.spring.AnnotatedClassScanner;
 import org.jsimpledb.util.AbstractMain;
 
@@ -68,7 +68,7 @@ public class Main extends AbstractMain implements GUIConfig {
     }
 
     private void scanFunctionClasses(String pkgname) {
-        for (String className : new AnnotatedClassScanner(CliFunction.class).scanForClasses(pkgname.split("[\\s,]")))
+        for (String className : new AnnotatedClassScanner(Function.class).scanForClasses(pkgname.split("[\\s,]")))
             this.functionClasses.add(this.loadClass(className));
     }
 
@@ -79,7 +79,7 @@ public class Main extends AbstractMain implements GUIConfig {
         Main.instance = this;
 
         // Register built-in functions
-        this.scanFunctionClasses(Function.class.getPackage().getName());
+        this.scanFunctionClasses(AbstractFunction.class.getPackage().getName());
 
         // Parse command line
         final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));
@@ -182,8 +182,9 @@ public class Main extends AbstractMain implements GUIConfig {
         System.err.println("  " + this.getName() + " --schema-pkg package [options]");
         System.err.println("Options:");
         this.outputFlags(new String[][] {
-          { "--port port",      "Specify HTTP port (default " + DEFAULT_HTTP_PORT + ")" },
-          { "--root directory", "Specify GUI install directory" },
+          { "--funcpkg package",    "Register @Function-annotated classes found under the specified Java package" },
+          { "--port port",          "Specify HTTP port (default " + DEFAULT_HTTP_PORT + ")" },
+          { "--root directory",     "Specify GUI install directory" },
         });
     }
 

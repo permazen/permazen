@@ -12,7 +12,7 @@ import com.google.common.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.parse.ParseContext;
 
 /**
  * Superclass for all array {@link FieldType}s.

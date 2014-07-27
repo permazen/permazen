@@ -46,6 +46,7 @@ import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.SnapshotTransaction;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaModel;

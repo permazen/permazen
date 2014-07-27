@@ -9,13 +9,12 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
+import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.core.SchemaVersion;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.parse.ParseContext;
 
-@CliCommand
-public class ShowAllSchemasCommand extends Command implements Action {
+@Command
+public class ShowAllSchemasCommand extends AbstractCommand implements CliSession.Action {
 
     public ShowAllSchemasCommand() {
         super("show-all-schemas");
@@ -27,14 +26,14 @@ public class ShowAllSchemasCommand extends Command implements Action {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return this;
     }
 
-// Action
+// CliSession.Action
 
     @Override
-    public void run(Session session) throws Exception {
+    public void run(CliSession session) throws Exception {
         for (Map.Entry<Integer, SchemaVersion> entry : session.getTransaction().getSchema().getSchemaVersions().entrySet()) {
             session.getWriter().println("=== Schema version " + entry.getKey() + " ===\n"
               + entry.getValue().getSchemaModel().toString().replaceAll("^<.xml[^>]+>\\n", ""));

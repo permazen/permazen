@@ -1,0 +1,28 @@
+
+/*
+ * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.
+ *
+ * $Id$
+ */
+
+package org.jsimpledb.parse.expr;
+
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.Parser;
+
+/**
+ * Expression parser.
+ */
+public class ExprParser implements Parser<Node> {
+
+    public static final ExprParser INSTANCE = new ExprParser();
+
+    private final AssignmentExprParser assignmentExprParser = new AssignmentExprParser();
+
+    @Override
+    public Node parse(ParseSession session, ParseContext ctx, boolean complete) {
+        return this.assignmentExprParser.parse(session, ctx, complete);
+    }
+}
+

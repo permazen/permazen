@@ -40,7 +40,7 @@ public interface GUIConfig {
     boolean isReadOnly();
 
     /**
-     * Get any custom {@link org.jsimpledb.cli.func.Function} classes.
+     * Get any custom {@link org.jsimpledb.parse.func.AbstractFunction} classes.
      */
     Iterable<Class<?>> getFunctionClasses();
 }

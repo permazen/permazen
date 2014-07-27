@@ -18,12 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsimpledb.JSimpleDB;
-import org.jsimpledb.cli.parse.CommandListParser;
-import org.jsimpledb.cli.parse.CommandParser;
-import org.jsimpledb.cli.parse.ParseException;
-import org.jsimpledb.cli.util.AddPrefixFunction;
+import org.jsimpledb.Session;
 import org.jsimpledb.core.Database;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseException;
+import org.jsimpledb.parse.util.AddPrefixFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +38,9 @@ public class Console {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final ConsoleReader console;
-    private final Session session;
-    private final CommandParser commandParser;
-    private final CommandListParser commandListParser;
+    private final CliSession session;
+    private final CommandParser commandParser = new CommandParser();
+    private final CommandListParser commandListParser = new CommandListParser(this.commandParser);
 
     private FileHistory history;
 
@@ -65,12 +64,10 @@ public class Console {
         this.console.setHistoryEnabled(true);
         this.console.setHandleUserInterrupt(true);
         final PrintWriter writer = new PrintWriter(console.getOutput(), true);
-        this.session = jdb != null ? new Session(jdb, writer) : new Session(db, writer);
-        this.commandParser = new CommandParser(this.session);
-        this.commandListParser = new CommandListParser(this.commandParser);
+        this.session = jdb != null ? new CliSession(jdb, writer) : new CliSession(db, writer);
     }
 
-    public Session getSession() {
+    public CliSession getSession() {
         return this.session;
     }
 
@@ -97,7 +94,7 @@ public class Console {
         console.addCompleter(new ConsoleCompleter(lineBuffer));
 
         // Open a transaction to load and verify database schema
-        this.session.perform(new Action() {
+        this.session.perform(new Session.Action() {
             @Override
             public void run(Session session) { }
         });
@@ -146,17 +143,17 @@ public class Console {
                     continue;
 
                 // Parse command(s)
-                final ArrayList<Action> actions = new ArrayList<>();
-                if (!this.session.perform(new Action() {
+                final ArrayList<CliSession.Action> actions = new ArrayList<>();
+                if (!this.session.perform(new CliSession.Action() {
                     @Override
-                    public void run(Session session) {
+                    public void run(CliSession session) {
                         actions.addAll(commandListParser.parse(session, ctx, false));
                     }
                 }))
                     continue;
 
                 // Execute commands
-                for (Action action : actions) {
+                for (CliSession.Action action : actions) {
                     if (!this.session.perform(action))
                         break;
                 }
@@ -185,16 +182,16 @@ public class Console {
         @Override
         public int complete(final String buffer, final int cursor, final List<CharSequence> candidates) {
             final int[] result = new int[1];
-            Console.this.session.perform(new Action() {
+            Console.this.session.perform(new CliSession.Action() {
                 @Override
-                public void run(Session session) {
+                public void run(CliSession session) {
                     result[0] = ConsoleCompleter.this.completeInTransaction(session, buffer, cursor, candidates);
                 }
             });
             return result[0];
         }
 
-        private int completeInTransaction(Session session, String buffer, int cursor, List<CharSequence> candidates) {
+        private int completeInTransaction(CliSession session, String buffer, int cursor, List<CharSequence> candidates) {
             final ParseContext ctx = new ParseContext(this.lineBuffer + buffer.substring(0, cursor));
             try {
                 Console.this.commandListParser.parse(session, ctx, true);

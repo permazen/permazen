@@ -9,12 +9,11 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.ParseContext;
 
-@CliCommand
-public class SetAllowNewSchemaCommand extends Command {
+@Command
+public class SetAllowNewSchemaCommand extends AbstractCommand {
 
     public SetAllowNewSchemaCommand() {
         super("set-allow-new-schema allowed:boolean");
@@ -26,11 +25,11 @@ public class SetAllowNewSchemaCommand extends Command {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final boolean allowed = (Boolean)params.get("allowed");
-        return new Action() {
+        return new CliSession.Action() {
             @Override
-            public void run(Session session) throws Exception {
+            public void run(CliSession session) throws Exception {
                 session.setAllowNewSchema(allowed);
                 session.getWriter().println("Set allow new schema to " + allowed);
             }

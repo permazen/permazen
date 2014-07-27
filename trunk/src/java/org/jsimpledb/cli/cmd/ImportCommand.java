@@ -9,13 +9,12 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.ParseException;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseException;
 
-@CliCommand
-public class ImportCommand extends Command {
+@Command
+public class ImportCommand extends AbstractCommand {
 
     public ImportCommand() {
         super("import name");
@@ -27,14 +26,14 @@ public class ImportCommand extends Command {
     }
 
     @Override
-    public Action getAction(Session session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final String name = (String)params.get("name");
         if (!name.matches("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*\\.)+"
           + "(\\*|\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*)"))
             throw new ParseException(ctx, "invalid Java import `" + name + "'");
-        return new Action() {
+        return new CliSession.Action() {
             @Override
-            public void run(Session session) throws Exception {
+            public void run(CliSession session) throws Exception {
                 session.getImports().add(name);
             }
         };

@@ -9,9 +9,9 @@ package org.jsimpledb.core;
 
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.string.StringEncoder;
+import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
-import org.jsimpledb.util.ParseContext;
 
 /**
  * {@link Character} type.

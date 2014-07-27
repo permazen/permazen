@@ -10,9 +10,9 @@ package org.jsimpledb.core;
 import com.google.common.base.Converter;
 
 import org.dellroad.stuff.string.StringEncoder;
+import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
-import org.jsimpledb.util.ParseContext;
 
 /**
  * {@link FieldType} for any Java type that can be encoded and ordered as a {@link String}.

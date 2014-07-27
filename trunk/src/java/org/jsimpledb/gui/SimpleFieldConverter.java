@@ -12,7 +12,7 @@ import com.vaadin.data.util.converter.Converter;
 import java.util.Locale;
 
 import org.jsimpledb.core.FieldType;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.parse.ParseContext;
 
 /**
  * Vaadin {@link Converter} for {@link FieldType}s to/from {@link String}.

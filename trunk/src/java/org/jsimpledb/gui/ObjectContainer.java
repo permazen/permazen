@@ -15,13 +15,12 @@ import org.dellroad.stuff.vaadin7.VaadinApplicationListener;
 import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
-import org.jsimpledb.cli.Action;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.expr.EvalException;
-import org.jsimpledb.cli.parse.expr.ExprParser;
-import org.jsimpledb.cli.parse.expr.Node;
-import org.jsimpledb.cli.util.CastFunction;
-import org.jsimpledb.util.ParseContext;
+import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.EvalException;
+import org.jsimpledb.parse.expr.ExprParser;
+import org.jsimpledb.parse.expr.Node;
+import org.jsimpledb.parse.util.CastFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -33,7 +32,7 @@ import org.springframework.context.event.ApplicationEventMulticaster;
 @VaadinConfigurable(preConstruction = true)
 public class ObjectContainer extends JObjectContainer {
 
-    private final Session session;
+    private final ParseSession session;
 
     private DataChangeListener dataChangeListener;
     private String contentExpression;
@@ -45,7 +44,7 @@ public class ObjectContainer extends JObjectContainer {
     /**
      * Constructor.
      */
-    public <T> ObjectContainer(JSimpleDB jdb, Session session) {
+    public <T> ObjectContainer(JSimpleDB jdb, ParseSession session) {
         this(jdb, null, session);
     }
 
@@ -54,7 +53,7 @@ public class ObjectContainer extends JObjectContainer {
      *
      * @param type type restriction, or null for no restriction
      */
-    public <T> ObjectContainer(JSimpleDB jdb, Class<T> type, Session session) {
+    public <T> ObjectContainer(JSimpleDB jdb, Class<T> type, ParseSession session) {
         super(jdb, type);
         if (session == null)
             throw new IllegalArgumentException("null session");
@@ -70,9 +69,9 @@ public class ObjectContainer extends JObjectContainer {
     }
 
     protected void doInTransaction(final Runnable action) {
-        this.session.perform(new Action() {
+        this.session.perform(new ParseSession.Action() {
             @Override
-            public void run(Session session) {
+            public void run(ParseSession session) {
                 action.run();
             }
         });
@@ -86,7 +85,7 @@ public class ObjectContainer extends JObjectContainer {
             return Collections.<JObject>emptySet();
 
         // Parse and evaluate content expression
-        final Node node = new ExprParser().parse(session, new ParseContext(this.contentExpression), false);
+        final Node node = new ExprParser().parse(this.session, new ParseContext(this.contentExpression), false);
         final Object content = node.evaluate(this.session).get(this.session);
         if (!(content instanceof Iterable)) {
             throw new EvalException("expression must evaluate to an Iterable; found "

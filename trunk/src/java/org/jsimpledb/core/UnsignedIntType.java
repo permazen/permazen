@@ -10,9 +10,9 @@ package org.jsimpledb.core;
 import com.google.common.reflect.TypeToken;
 
 import org.dellroad.stuff.java.Primitive;
+import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
-import org.jsimpledb.util.ParseContext;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**

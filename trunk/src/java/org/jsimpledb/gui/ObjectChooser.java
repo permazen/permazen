@@ -22,9 +22,9 @@ import com.vaadin.ui.TextArea;
 
 import org.jsimpledb.JClass;
 import org.jsimpledb.JSimpleDB;
-import org.jsimpledb.cli.Session;
-import org.jsimpledb.cli.parse.expr.EvalException;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.EvalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class ObjectChooser {
     });
 
     private final JSimpleDB jdb;
-    private final Session session;
+    private final ParseSession session;
     private final TypeContainer typeContainer;
     private final ObjectContainer objectContainer;
     private final ObjectTable objectTable;
@@ -65,7 +65,11 @@ public class ObjectChooser {
      * @param type type restriction, or null for none
      * @param showFields true to show all object fields, false for just reference label
      */
-    public ObjectChooser(JSimpleDB jdb, Session session, Class<?> type, boolean showFields) {
+    public ObjectChooser(JSimpleDB jdb, ParseSession session, Class<?> type, boolean showFields) {
+        if (jdb == null)
+            throw new IllegalArgumentException("null jdb");
+        if (session == null)
+            throw new IllegalArgumentException("null session");
         this.jdb = jdb;
         this.session = session;
         this.typeContainer = new TypeContainer(this.jdb, type);

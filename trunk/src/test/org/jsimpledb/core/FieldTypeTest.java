@@ -14,10 +14,10 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.jsimpledb.TestSupport;
+import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
-import org.jsimpledb.util.ParseContext;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
