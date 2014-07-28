@@ -67,11 +67,19 @@ public class ExceptionLoggingFilter extends OncePerRequestFilter {
      * {@link SocketException} (typically caused by the client disconnecting) and {@link ThreadDeath}
      * (typically caused by virtual machine shutdown).
      * Subclasses should override if necessary.
+     * </p>
+     *
+     * <p>
+     * It also attempts to filter out {@link IOException}s that are really socket exceptions by
+     * searching for the words "connection" or "network" in the exception message.
+     * </p>
      *
      * @param t exception caught by this instance
      */
     protected boolean shouldLogException(Throwable t) {
         if (t instanceof SocketException)
+            return false;
+        if (t instanceof IOException && t.getMessage().matches(".*([Cc]onnection|[Nn]etwork).*"))          // XXX
             return false;
         if (t instanceof ThreadDeath)
             return false;
