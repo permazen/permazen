@@ -69,20 +69,17 @@ public class ExceptionLoggingFilter extends OncePerRequestFilter {
      * Subclasses should override if necessary.
      * </p>
      *
-     * <p>
-     * It also attempts to filter out {@link IOException}s that are really socket exceptions by
-     * searching for the words "connection" or "network" in the exception message.
-     * </p>
-     *
      * @param t exception caught by this instance
      */
     protected boolean shouldLogException(Throwable t) {
-        if (t instanceof SocketException)
-            return false;
-        if (t instanceof IOException && t.getMessage().matches(".*([Cc]onnection|[Nn]etwork).*"))          // XXX
-            return false;
-        if (t instanceof ThreadDeath)
-            return false;
+        for (Throwable e = t; e != null; e = e.getCause()) {
+            if (e instanceof SocketException)
+                return false;
+            if (e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException"))
+                return false;
+            if (e instanceof ThreadDeath)
+                return false;
+        }
         return true;
     }
 
