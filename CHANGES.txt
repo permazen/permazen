@@ -1,4 +1,4 @@
-Version Next
+Version 1.0.905 Released July 29, 2014
 
     - Improvements relating to serialization and HTTP sessions with Vaadin 7
     - Changed VaadinConfigurable.ifSessionNotLocked default to EXCEPTION
