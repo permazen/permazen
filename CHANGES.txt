@@ -1,7 +1,8 @@
 Version Next
 
-    - Improvements relating to serialization and HTTP sessions
+    - Improvements relating to serialization and HTTP sessions with Vaadin 7
     - Changed VaadinConfigurable.ifSessionNotLocked default to EXCEPTION
+    - Fixed VaadinUtil.invokeLater() to run immediately from background
     - Revert previous change to VaadinUtil.invokeLater() (issue #19)
     - Fix bug in Primitive.FLOAT and Primitive.LONG parse pattern
     - Added ParseContext.tryPattern(), equals(), and hashCode()
