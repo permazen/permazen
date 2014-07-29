@@ -35,7 +35,13 @@ import org.slf4j.LoggerFactory;
  * </pre></blockquote>
  * If you are in a clustered environment and are subclassing this class, {@code scope="session"} is recommended;
  * without it, there will be one instance per server+session rather than one unique instance per session. Of course,
- * whether that matters depends on the semantics of the subclass fields.
+ * whether that matters depends on the semantics of the subclass fields. In any case, be aware that no instance will
+ * exist in session until the application context is refreshed.
+ * </p>
+ *
+ * <p>
+ * Note: using {@code scope="session"} requires adding a {@code <listener>} clause registering Spring's
+ * {@link org.springframework.web.context.request.RequestContextListener} in your {@code web.xml}.
  * </p>
  *
  * <p>
@@ -196,7 +202,8 @@ public class VaadinApplication implements Serializable {
         VaadinApplication vaadinApplication = session.getAttribute(ATTRIBUTE_KEY);
         if (vaadinApplication == null) {
             throw new IllegalStateException("there is no VaadinApplication associated with the current VaadinSession"
-              + "; did you declare an instance of VaadinApplication in the Vaadin Spring XML application context?");
+              + "; did you declare an instance of VaadinApplication in the Vaadin Spring XML application context?"
+              + " And if declared scope=\"session\", did you register Spring's RequestContextListener in web.xml?");
         }
 
         // Check type

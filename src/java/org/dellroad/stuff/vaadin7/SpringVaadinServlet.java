@@ -117,6 +117,12 @@ import javax.servlet.ServletException;
  * </div>
  * </p>
  *
+ * <p>
+ * Note: if any beans are declared {@code scope="session"} in your application context, you must register Spring's
+ * {@link org.springframework.web.context.request.RequestContextListener} as a listener in your {@code web.xml}
+ * (normally, Spring's {@link org.springframework.web.servlet.DispatcherServlet} would handle this task).
+ * </p>
+ *
  * @see SpringVaadinSessionListener
  * @see VaadinConfigurable
  * @see VaadinApplication

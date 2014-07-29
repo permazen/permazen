@@ -114,6 +114,11 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * Beans that must truly be "session wide" should be declared {@code scope="session"} as you normally would.
  * </p>
  *
+ * <p>
+ * Note: using {@code scope="session"} requires adding a {@code <listener>} clause registering Spring's
+ * {@link org.springframework.web.context.request.RequestContextListener} in your {@code web.xml}.
+ * </p>
+ *
  * @see VaadinConfigurable
  * @see SpringVaadinServlet
  * @see VaadinApplication
