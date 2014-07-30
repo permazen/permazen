@@ -16,6 +16,7 @@ import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.ExprParser;
@@ -27,6 +28,7 @@ import org.springframework.context.event.ApplicationEventMulticaster;
 
 /**
  * {@link JObjectContainer} whose contents are determined by a Java expression.
+ * Listens for {@link DataChangeEvent}s broadcast by an autowired {@link ApplicationEventMulticaster}.
  */
 @SuppressWarnings("serial")
 @VaadinConfigurable(preConstruction = true)
@@ -84,8 +86,14 @@ public class ObjectContainer extends JObjectContainer {
         if (this.contentExpression == null)
             return Collections.<JObject>emptySet();
 
-        // Parse and evaluate content expression
-        final Node node = new ExprParser().parse(this.session, new ParseContext(this.contentExpression), false);
+        // Parse expression
+        final ParseContext ctx = new ParseContext(this.contentExpression);
+        final Node node = new ExprParser().parse(this.session, ctx, false);
+        ctx.skipWhitespace();
+        if (!ctx.isEOF())
+            throw new ParseException(ctx, "syntax error");
+
+        // Evaluate parsed expression
         final Object content = node.evaluate(this.session).get(this.session);
         if (!(content instanceof Iterable)) {
             throw new EvalException("expression must evaluate to an Iterable; found "
@@ -127,7 +135,7 @@ public class ObjectContainer extends JObjectContainer {
 
         @Override
         protected void onApplicationEventInternal(DataChangeEvent event) {
-            ObjectContainer.this.applyChange(event.getChange());
+            ObjectContainer.this.handleChange(event.getChange());
         }
     }
 }

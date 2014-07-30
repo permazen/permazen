@@ -454,7 +454,7 @@ public class JTransaction {
             return dest.getJObject(dstId);
 
         // Copy "related objects" if a null reference path is given
-        final Iterable<?> relatedObjects = refPaths == null ? this.getJObject(srcId).getRelatedObjects() : null;
+        final Iterable<? extends JObject> relatedObjects = refPaths == null ? this.getJObject(srcId).getRelatedObjects() : null;
         if (refPaths == null)
             refPaths = new String[0];
 
@@ -545,7 +545,7 @@ public class JTransaction {
      * </p>
      *
      * @param dest destination transaction
-     * @param objIds {@link Iterable} returning the object ID's of the objects to copy
+     * @param objIds {@link Iterable} returning the object ID's of the objects to copy; null values are ignored
      * @throws DeletedObjectException if an object ID in {@code objIds} does not exist in this transaction
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to an object ID in
      *  {@code objId}'s object's version is not identical in this instance and {@code dest}
@@ -570,8 +570,10 @@ public class JTransaction {
         // Copy objects
         final HashSet<ObjId> seen = new HashSet<>();
         final ArrayDeque<JReferenceField> emptyFields = new ArrayDeque<>();
-        for (ObjId id : objIds)
-            this.copyTo(seen, dest, id, id, true, emptyFields);
+        for (ObjId id : objIds) {
+            if (id != null)
+                this.copyTo(seen, dest, id, id, true, emptyFields);
+        }
     }
 
     void copyTo(Set<ObjId> seen, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, Deque<JReferenceField> fields) {

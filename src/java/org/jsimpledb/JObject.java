@@ -297,15 +297,10 @@ public interface JObject {
      * Identify any other objects that should be copied along with this object when it is being copied into a
      * different transaction and a null reference path array is specified. This method is consulted whenever
      * {@link #copyIn copyIn()}, {@link #copyOut copyOut()}, or {@link #copyTo copyTo()} is invoked with a null {@code refPaths}.
-     * This allows instances themselves to determine which "closely related" should be included in the copy operation.
-     * The precise definition of "closely related" is application specific, of course.
+     * This allows Java instances themselves to determine which "related" should be included in the copy operation.
+     * The precise definition of "related" is application specific, of course.
      * Common examples include objects in a collection field that need to be referenceable in the destination transaction,
-     * and objects that reference this object, when reference inversion will be used in the destination transaction.
-     *
-     * <p>
-     * This method is only invoked for the "original" object being copied; it is not invoked recursively for other objects in
-     * the returned {@link Iterable}.
-     * </p>
+     * and objects that reference this object when reference inversion will be used in the destination transaction.
      *
      * <p>
      * Unlike the other methods in the {@link JObject} interface, this method is to be (optionally) implemented by the
@@ -318,9 +313,8 @@ public interface JObject {
      * {@link JSimpleDB} will create a stub implementation of this method in the generated subclass that returns null.
      * </p>
      *
-     * @return {@link Iterable} of additional objects to be copied, or null for none; any non-{@link JObject} objects
-     *  (including nulls) in the returned iteration are ignored
+     * @return {@link Iterable} of additional objects to be copied, or null for none; any null values are ignored
      */
-    Iterable<?> getRelatedObjects();
+    Iterable<? extends JObject> getRelatedObjects();
 }
 
