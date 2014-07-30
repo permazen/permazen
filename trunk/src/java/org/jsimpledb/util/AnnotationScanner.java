@@ -153,7 +153,8 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
      * Get "invalid annotation" error message prefix that describes the annotation on the specified method.
      */
     protected String getErrorPrefix(Method method) {
-        return "invalid " + this.getAnnotationDescription() + " annotation on method " + method + ": ";
+        return "invalid " + this.getAnnotationDescription() + " annotation on method " + method
+          + " for type " + this.jclass.getTypeToken() + ": ";
     }
 }
 
