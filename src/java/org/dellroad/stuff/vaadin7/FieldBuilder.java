@@ -172,7 +172,7 @@ public class FieldBuilder {
             Method method = propertyDescriptor.getReadMethod();
 
             // Work around Introspector stupidity where it returns overridden superclass' getter method
-            if (method.getClass() != bean.getClass()) {
+            if (method != null && method.getClass() != bean.getClass()) {
                 for (Class<?> c = bean.getClass(); c != null && c != method.getClass(); c = c.getSuperclass()) {
                     try {
                         method = c.getDeclaredMethod(method.getName(), method.getParameterTypes());
