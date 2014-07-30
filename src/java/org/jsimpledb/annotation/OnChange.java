@@ -121,7 +121,7 @@ public @interface OnChange {
     String[] value() default { };
 
     /**
-     * Specifies the starting type for the {@link org.jsimpledb.ReferencePath} specified by {@code #value}.
+     * Specifies the starting type for the {@link org.jsimpledb.ReferencePath} specified by {@link #value}.
      *
      * <p>
      * This property must be left unset for instance methods. For static methods, if this property is left unset,
