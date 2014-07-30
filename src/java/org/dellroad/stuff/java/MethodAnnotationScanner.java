@@ -263,7 +263,11 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
             try {
                 return this.method.invoke(obj, params);
             } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
+                if (e.getCause() instanceof RuntimeException)
+                    throw (RuntimeException)e.getCause();
+                if (e.getCause() instanceof Error)
+                    throw (Error)e.getCause();
+                throw new RuntimeException(e.getCause());
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
