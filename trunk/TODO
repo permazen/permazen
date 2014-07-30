@@ -2,11 +2,34 @@
 - Expression parsing
     - Make Value interface; add LValue sub-interface
 
+- JTransaction convenience method for "static" index queries:
+
+    public <V, T> NavigableMap<V, NavigableSet<T>> indexQuery(
+      Class<T> startType, String fieldName, Class<V> valueType);
+
 - Integrate CountingKVStore into KVStore, making it mandatory
     - Create AbstractKVStore, replacing CountingKVStoreAdapter
 
-- @JField
-    - Add boolean cascadeDelete()
+- Consider renaming @IndexQuery "startType" to "type"
+
+- Add @JFieldboolean cascadeDelete()
+
+- Add @JField uniqueness constraints:
+    - Field must be indexed (obviously)
+    - boolean unique() default false
+    - boolean uniqueDefault() default false
+        - whether default value included
+        - default value is NaN for float, double, otherwise normal default
+    - boolean uniqueGlobal() default true
+        - for simple fields: must be true, error otherwise
+        - for collection sub-fields: whether constraint is per-object, or global
+    - Verify in deferred manner as follows:
+        - Add validation check for uniqueness
+        - Register SimpleFieldChangeListener on affected fields
+        - When listener invoked (or object created), enqueue object for validation
+    - Note adding unique() in schema upgrade can create unchecked violations
+    - For set element or map key sub-field, error if both uniqueDefault = false
+      and uniqueGlobal = false, because this is redundant
 
 - XMLKVDatabase
     - Provide subclass hook for a default initial XML database
