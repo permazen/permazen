@@ -25,7 +25,6 @@ import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -109,7 +108,7 @@ public class MainPanel extends VerticalLayout {
         this.session = new ParseSession(this.jdb) {
             @Override
             protected void reportException(Exception e) {
-                Notification.show(e.getMessage(), null, Notification.Type.ERROR_MESSAGE);
+                Notification.show("Error: " + e.getMessage(), null, Notification.Type.ERROR_MESSAGE);
             }
         };
         this.session.setReadOnly(this.guiConfig.isReadOnly());
@@ -226,10 +225,10 @@ public class MainPanel extends VerticalLayout {
     @RetryTransaction
     @Transactional("jsimpledbGuiTransactionManager")
     private JObject doCopyForEdit(ObjId id) {
-        final JObject jobj = JTransaction.getCurrent().getJObject(id);
+        JObject jobj = JTransaction.getCurrent().getJObject(id);
         if (!jobj.exists())
             return null;
-        return jobj.copyOut();
+        return jobj.copyOut((String[])null);
     }
 
 // New
@@ -446,10 +445,9 @@ public class MainPanel extends VerticalLayout {
             // Use object choosers for references
             if (jfield instanceof JReferenceField) {
                 final JReferenceField refField = (JReferenceField)jfield;
-                final Method getter = refField.getGetter();
-                final Method setter = refField.getSetter();
-                final ObjectEditor objectEditor = new ObjectEditor(this.jobj.getTransaction(), MainPanel.this.session,
-                  getter.getReturnType(), new MethodProperty<JObject>(JObject.class, this.jobj, getter, setter), allowNull);
+                final ObjectEditor objectEditor = new ObjectEditor(
+                  this.jobj.getTransaction(), MainPanel.this.session, refField.getGetter().getReturnType(),
+                  new MethodProperty<JObject>(JObject.class, this.jobj, refField.getGetter(), refField.getSetter()), allowNull);
                 return objectEditor;
             }
 

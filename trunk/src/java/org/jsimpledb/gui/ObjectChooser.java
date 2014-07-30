@@ -10,7 +10,6 @@ package org.jsimpledb.gui;
 import com.google.common.reflect.TypeToken;
 import com.vaadin.data.Property;
 import com.vaadin.server.Sizeable;
-import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Button;
@@ -24,7 +23,6 @@ import org.jsimpledb.JClass;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.expr.EvalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -234,12 +232,7 @@ public class ObjectChooser {
     }
 
     private void showObjects() {
-        this.exprField.setComponentError(null);
-        try {
-            this.objectContainer.setContentExpression(this.exprField.getValue());
-        } catch (EvalException e) {
-            this.exprField.setComponentError(new UserError(e.getMessage()));
-        }
+        this.objectContainer.setContentExpression(this.exprField.getValue());
     }
 
     private boolean setNewType(Class<?> type) {

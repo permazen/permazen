@@ -12,22 +12,26 @@ import org.jsimpledb.JTransaction;
 
 /**
  * Creates a new {@link Change} object based on an existing one where the {@link JObject}s referred to by the
- * new {@link Change} are copies in a different transaction of the originals.
+ * new {@link Change} are copies in a different transaction of the originals. This is useful to allow database
+ * change information to be accessed after the transaction in which the change occured has completed.
  */
 public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
     protected final JTransaction dest;
+    protected final boolean copyRelated;
 
     /**
      * Primary constructor.
      *
      * @param dest destination transaction for copied {@link JObject}s
+     * @param copyRelated whether to copy just the changed object, or also {@linkplain JObject#getRelatedObjects related objects}
      * @throws IllegalArgumentException if {@code dest} is null
      */
-    public ChangeCopier(JTransaction dest) {
+    public ChangeCopier(JTransaction dest, boolean copyRelated) {
         if (dest == null)
             throw new IllegalArgumentException("null dest");
         this.dest = dest;
+        this.copyRelated = copyRelated;
     }
 
     /**
@@ -37,15 +41,30 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      * <p>
      * This is a convenience constructor, and is equivalent to invoking:
      *  <blockquote><code>
-     *  ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction())
+     *  ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction(), copyRelated)
      *  </code></blockquote>
      * </p>
      *
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread
      */
-    public ChangeCopier() {
-        this(JTransaction.getCurrent().getSnapshotTransaction());
+    public ChangeCopier(boolean copyRelated) {
+        this(JTransaction.getCurrent().getSnapshotTransaction(), copyRelated);
+    }
+
+    /**
+     * Get the destination transaction configured in this instance.
+     */
+    public JTransaction getDestinationTransaction() {
+        return this.dest;
+    }
+
+    /**
+     * Determine whether this instance is configured to copy objects {@linkplain JObject#getRelatedObjects related}
+     * to the changed object as well.
+     */
+    public boolean isCopyRelated() {
+        return this.copyRelated;
     }
 
     @Override
@@ -137,8 +156,13 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      * Copy the given {@link JObject} into the destination transaction.
      *
      * <p>
-     * The implementation in {@link ChangeCopier} just returns {@code jobj.copyTo(this.dest, null)}.
-     * Subclasses may override to copy additional objects referenced by {@code jobj} as needed.
+     * The implementation in {@link ChangeCopier} invokes {@code jobj.copyTo(this.dest, null)}, or
+     * {@code jobj.copyTo(this.dest, null, (String[])null)} if this instance is configured to copy related objects.
+     * Subclasses may override to copy additional or other objects referenced by {@code jobj} as needed.
+     * </p>
+     *
+     * <p>
+     * Note: this method is not invoked for a {@link ObjectDelete} change.
      * </p>
      *
      * @param jobj original object
@@ -149,7 +173,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     protected JObject copy(JObject jobj) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        return jobj.copyTo(this.dest, null);
+        return this.copyRelated ? jobj.copyTo(this.dest, null, (String[])null) : jobj.copyTo(this.dest, null);
     }
 }
 

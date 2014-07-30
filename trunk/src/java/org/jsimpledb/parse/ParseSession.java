@@ -39,6 +39,7 @@ public class ParseSession extends Session {
      */
     public ParseSession(Database db) {
         super(db);
+        this.imports.add("java.lang.*");
     }
 
     /**
@@ -49,6 +50,7 @@ public class ParseSession extends Session {
      */
     public ParseSession(JSimpleDB jdb) {
         super(jdb);
+        this.imports.add("java.lang.*");
     }
 
 // Accessors

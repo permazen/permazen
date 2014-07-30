@@ -29,11 +29,12 @@ public class DataChangeEvent extends ApplicationEvent {
         super(source);
         if (change == null)
             throw new IllegalArgumentException("null change");
-        this.change = change.visit(new ChangeCopier());
+        this.change = change.visit(new ChangeCopier(true));
     }
 
     /**
      * Get the change that occurred, already copied out of the transaction with a {@link ChangeCopier}.
+     * Related objects are also copied.
      */
     public Change<?> getChange() {
         return this.change;
