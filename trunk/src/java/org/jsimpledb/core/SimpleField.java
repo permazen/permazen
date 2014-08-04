@@ -106,7 +106,7 @@ public class SimpleField<T> extends Field<T> {
 
     @Override
     public String toString() {
-        return "field `" + this.name + "' of type " + this.fieldType.typeToken;
+        return (this.indexed ? "indexed " : "") + "field `" + this.name + "' of type " + this.fieldType.typeToken;
     }
 
 // Non-public methods

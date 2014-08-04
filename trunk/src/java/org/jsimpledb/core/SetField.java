@@ -56,7 +56,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
 
     @Override
     public String toString() {
-        return "set field `" + this.name + "' of " + this.elementField.fieldType;
+        return "set field `" + this.name + "' containing " + this.elementField;
     }
 
 // Non-public methods
