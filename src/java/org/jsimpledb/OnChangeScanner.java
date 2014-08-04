@@ -99,7 +99,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                   new Function<JField, String>() {
                     @Override
                     public String apply(JField jfield) {
-                        return jfield.name;
+                        return jfield.name + "#" + jfield.storageId;
                     }
                 });
             }

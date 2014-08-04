@@ -81,6 +81,11 @@ import java.util.HashMap;
  * {@link org.jsimpledb.change.SimpleFieldChange} parameter to the method
  * {@code friendNameChanged()} necessarily has generic type {@code NamedPerson}, not {@code Person}.
  * </p>
+ *
+ * <p>
+ * In cases where multiple sub-types of a common super-type type have fields with the same name but different storage IDs,
+ * the storage ID may be explicitly specified as a suffix, for example, {@code "name#123"}.
+ * </p>
  */
 public class ReferencePath {
 
@@ -142,21 +147,38 @@ public class ReferencePath {
             final String fieldName = fieldNames.removeFirst();
             String description = "field `" + fieldName + "' in type " + currentType;
 
+            // Get explicit storage ID, if any
+            final int hash = fieldName.indexOf('#');
+            int explicitStorageId = 0;
+            final String searchName;
+            if (hash != -1) {
+                try {
+                    explicitStorageId = Integer.parseInt(fieldName.substring(hash + 1));
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException(errorPrefix + "invalid field name `" + fieldName + "'");
+                }
+                searchName = fieldName.substring(0, hash);
+            } else
+                searchName = fieldName;
+
             // Find all JFields matching 'fieldName' in some JClass whose type matches 'typeToken'
             final HashMap<JClass<?>, JField> matchingFields = new HashMap<>();
             for (JClass<?> jclass : jdb.jclasses.values()) {
                 if (!currentType.isAssignableFrom(jclass.typeToken))
                     continue;
-                final JField jfield = jclass.jfieldsByName.get(fieldName);
+                final JField jfield = jclass.jfieldsByName.get(searchName);
                 if (jfield == null)
+                    continue;
+                if (explicitStorageId != 0 && jfield.storageId != explicitStorageId)
                     continue;
                 matchingFields.put(jclass, jfield);
             }
 
             // None found?
             if (matchingFields.isEmpty()) {
-                throw new IllegalArgumentException(errorPrefix + "there is no field named `"
-                  + fieldName + "' in (any sub-type of) " + currentType);
+                throw new IllegalArgumentException(errorPrefix + "there is no field named `" + searchName + "'"
+                  + (explicitStorageId != 0 ? " with storage ID " + explicitStorageId : "")
+                  + " in (any sub-type of) " + currentType);
             }
 
             // Get the field; if multiple fields are found, verify they all are really the same field
