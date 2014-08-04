@@ -17,8 +17,8 @@ import org.jsimpledb.util.ByteWriter;
  * null values sort last.
  *
  * <p>
- * The default value becomes null and {@code "null"} is an accepted string value (therefore, {@code "null"} must not be
- * a valid string value for the wrapped type).
+ * The default value becomes null, for which {@code null} is the parseable {@link String} encoding.
+ * Therefore, {@code null} must not be a valid parseable {@link String} encoding for the wrapped type.
  * </p>
  *
  * <p>
@@ -130,13 +130,25 @@ public class NullSafeType<T> extends FieldType<T> {
     }
 
     @Override
-    public T fromString(ParseContext context) {
-        return context.tryLiteral("null") ? null : this.inner.fromString(context);
+    public T fromString(String string) {
+        return this.inner.fromString(string);
     }
 
     @Override
     public String toString(T value) {
-        return value == null ? "null" : this.inner.toString(value);
+        if (value == null)
+            throw new IllegalArgumentException("null value");
+        return this.inner.toString(value);
+    }
+
+    @Override
+    public T fromParseableString(ParseContext context) {
+        return context.tryLiteral("null") ? null : this.inner.fromParseableString(context);
+    }
+
+    @Override
+    public String toParseableString(T value) {
+        return value == null ? "null" : this.inner.toParseableString(value);
     }
 
     @Override

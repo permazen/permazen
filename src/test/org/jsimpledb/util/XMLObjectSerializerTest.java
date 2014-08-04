@@ -62,7 +62,7 @@ public class XMLObjectSerializerTest extends TestSupport {
         tx.writeSimpleField(id1, 2, 123, false);
         tx.writeSimpleField(id1, 3, true, false);
         tx.writeSimpleField(id1, 4, (byte)-7, false);
-        tx.writeSimpleField(id1, 5, 'e', false);
+        tx.writeSimpleField(id1, 5, '\n', false);
         tx.writeSimpleField(id1, 6, (short)0, false);   // default value
         tx.writeSimpleField(id1, 7, 123.45f, false);
         tx.writeSimpleField(id1, 8, 99999999999L, false);
@@ -119,7 +119,7 @@ public class XMLObjectSerializerTest extends TestSupport {
         list.add(101112);
 
         Map<Integer, String> map = (Map<Integer, String>)tx.readMapField(id2, 25, false);
-        map.put(55, "fifty five");
+        map.put(55, "fifty\nfive");
         map.put(73, "seventy three");
 
         XMLObjectSerializer s2 = new XMLObjectSerializer(tx);

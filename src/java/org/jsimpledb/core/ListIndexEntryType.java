@@ -62,10 +62,10 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
     }
 
     @Override
-    public String toString(ListIndexEntry entry) {
+    public String toParseableString(ListIndexEntry entry) {
         if (entry == null)
             throw new IllegalArgumentException("null entry");
-        return "[" + FieldType.OBJ_ID.toString(entry.getObjId()) + "," + entry.index + "]";
+        return "[" + FieldType.OBJ_ID.toParseableString(entry.getObjId()) + "," + entry.index + "]";
     }
 
     @Override
@@ -82,11 +82,11 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
     }
 
     @Override
-    public ListIndexEntry fromString(ParseContext context) {
+    public ListIndexEntry fromParseableString(ParseContext context) {
         context.expect('[');
-        final ObjId id = FieldType.OBJ_ID.fromString(context);
+        final ObjId id = FieldType.OBJ_ID.fromParseableString(context);
         context.expect(',');
-        final int index = FieldType.INTEGER.fromString(context);
+        final int index = FieldType.INTEGER.fromParseableString(context);
         context.expect(']');
         return new ListIndexEntry(id, index);
     }

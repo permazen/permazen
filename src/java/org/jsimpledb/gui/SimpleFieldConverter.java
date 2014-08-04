@@ -12,10 +12,10 @@ import com.vaadin.data.util.converter.Converter;
 import java.util.Locale;
 
 import org.jsimpledb.core.FieldType;
-import org.jsimpledb.parse.ParseContext;
 
 /**
  * Vaadin {@link Converter} for {@link FieldType}s to/from {@link String}.
+ * Trims whitespace before converting from {@link String}.
  *
  * @param <T> field type
  */
@@ -46,16 +46,11 @@ public class SimpleFieldConverter<T> implements Converter<String, T> {
 
     @Override
     public T convertToModel(String value, Class<? extends T> targetType, Locale locale) {
-        final T result;
-        final ParseContext ctx = new ParseContext(value.trim());
         try {
-            result = this.fieldType.fromString(ctx);
+            return this.fieldType.fromString(value.trim());
         } catch (IllegalArgumentException e) {
             throw new Converter.ConversionException("invalid value of type `" + this.fieldType + "': " + e.getMessage());
         }
-        if (!ctx.isEOF())
-            throw new Converter.ConversionException("extra trailing garbage in value of type `" + this.fieldType + "'");
-        return result;
     }
 }
 

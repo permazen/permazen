@@ -33,12 +33,12 @@ abstract class PrimitiveType<T> extends FieldType<T> {
     }
 
     @Override
-    public T fromString(ParseContext ctx) {
+    public T fromParseableString(ParseContext ctx) {
         return this.primitive.parseValue(ctx.matchPrefix(this.primitive.getParsePattern()).group());
     }
 
     @Override
-    public String toString(T value) {
+    public String toParseableString(T value) {
         if (value == null)
             throw new IllegalArgumentException("illegal null value for primitive type " + this.primitive);
         return String.valueOf(value);

@@ -51,15 +51,30 @@ class CharacterType extends PrimitiveType<Character> {
 
     @Override
     public String toString(Character value) {
+        if (value == null)
+            throw new IllegalArgumentException("null value");
+        return StringEncoder.encode(String.valueOf(value), true);
+    }
+
+    @Override
+    public Character fromString(String string) {
+        final String s = StringEncoder.decode(string);
+        if (s.length() != 1)
+            throw new IllegalArgumentException("more than one character found");
+        return s.charAt(0);
+    }
+
+    @Override
+    public String toParseableString(Character value) {
         return StringEncoder.enquote(String.valueOf(value));
     }
 
     @Override
-    public Character fromString(ParseContext context) {
-        final String s = context.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group();
-        if (s.length() != 3)
+    public Character fromParseableString(ParseContext context) {
+        final String s = StringEncoder.dequote(context.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group());
+        if (s.length() != 1)
             throw new IllegalArgumentException("more than one character found within quotation marks");
-        return s.charAt(1);
+        return s.charAt(0);
     }
 }
 
