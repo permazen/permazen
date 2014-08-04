@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
  */
 final class ReferenceMethodInfoCache {
 
+    static final PropertyInfo<Void> NOT_FOUND = new PropertyInfo<Void>(null, null);
+
     private static final ReferenceMethodInfoCache INSTANCE = new ReferenceMethodInfoCache();
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -56,6 +58,7 @@ final class ReferenceMethodInfoCache {
         return (PropertyInfo<T>)this.cache.getUnchecked(type);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> PropertyInfo<T> findReferenceLablePropertyInfo(Class<T> type) {
         if (type == null)
             throw new IllegalArgumentException("null type");
@@ -66,7 +69,7 @@ final class ReferenceMethodInfoCache {
                 return propertyDef.getName().equals(JObjectContainer.REFERENCE_LABEL_PROPERTY);
             }
         }, null);
-        return propertyDef != null ? new PropertyInfo<T>(propertyDef, scanner.getPropertyExtractor()) : null;
+        return propertyDef != null ? new PropertyInfo<T>(propertyDef, scanner.getPropertyExtractor()) : (PropertyInfo<T>)NOT_FOUND;
     }
 
 // PropertyInfo
