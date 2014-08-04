@@ -682,7 +682,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         public Component extract(JObject jobj) {
             final ReferenceMethodInfoCache.PropertyInfo<?> propertyInfo
               = ReferenceMethodInfoCache.getInstance().getReferenceMethodInfo(jobj.getClass());
-            if (propertyInfo == null)
+            if (propertyInfo == ReferenceMethodInfoCache.NOT_FOUND)
                 return new ObjIdPropertyDef().extract(jobj);
             final Object value = JObjectContainer.extractProperty(
               propertyInfo.getPropertyExtractor(), propertyInfo.getPropertyDef(), jobj);
