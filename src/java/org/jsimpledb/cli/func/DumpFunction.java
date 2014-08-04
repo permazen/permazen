@@ -75,8 +75,10 @@ public class DumpFunction extends SimpleCliFunction {
 
         // Verify object exists
         final ObjInfo info = ObjInfo.getObjInfo(session, id);
-        if (info == null)
+        if (info == null) {
             writer.println("object " + id + " (does not exist)");
+            return;
+        }
 
         // Print headline
         writer.println("object " + info);
@@ -98,7 +100,8 @@ public class DumpFunction extends SimpleCliFunction {
                 @Override
                 public <T> Void caseSimpleField(SimpleField<T> field) {
                     final FieldType<T> fieldType = field.getFieldType();
-                    writer.println(fieldType.toString(fieldType.validate(tx.readSimpleField(id, field.getStorageId(), false))));
+                    writer.println(fieldType.toParseableString(
+                      fieldType.validate(tx.readSimpleField(id, field.getStorageId(), false))));
                     return null;
                 }
 
@@ -136,7 +139,7 @@ public class DumpFunction extends SimpleCliFunction {
                         writer.print(eindent);
                         if (showIndex)
                             writer.print("[" + count + "] ");
-                        writer.println(fieldType.toString(item));
+                        writer.println(fieldType.toParseableString(item));
                         count++;
                     }
                     writer.println(indent + "}");
@@ -155,8 +158,8 @@ public class DumpFunction extends SimpleCliFunction {
                             writer.println(eindent + "...");
                             break;
                         }
-                        writer.println(eindent + keyFieldType.toString(entry.getKey())
-                          + " -> " + valueFieldType.toString(entry.getValue()));
+                        writer.println(eindent + keyFieldType.toParseableString(entry.getKey())
+                          + " -> " + valueFieldType.toParseableString(entry.getValue()));
                         count++;
                     }
                     writer.println(indent + "}");
