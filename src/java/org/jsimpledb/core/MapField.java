@@ -97,7 +97,8 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 
     @Override
     public String toString() {
-        return "map field `" + this.name + "' of " + this.keyField.fieldType + ", " + this.valueField.fieldType;
+        return "map field `" + this.name + "' containing key "
+          + this.keyField.fieldType + " and value " + this.valueField.fieldType;
     }
 
     @Override

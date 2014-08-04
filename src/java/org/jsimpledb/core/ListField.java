@@ -55,7 +55,7 @@ public class ListField<E> extends CollectionField<List<E>, E> {
 
     @Override
     public String toString() {
-        return "list field `" + this.name + "' of " + this.elementField.fieldType;
+        return "list field `" + this.name + "' containing " + this.elementField;
     }
 
 // Non-public methods
