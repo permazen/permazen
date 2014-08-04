@@ -16,6 +16,7 @@ import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.Session;
 import org.jsimpledb.cli.cmd.AbstractCommand;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.core.Transaction;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 
@@ -157,10 +158,33 @@ public class CliSession extends ParseSession {
 // Action
 
     /**
-     * Perform the given action within a transaction.
+     * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}
+     *
+     * @param action action to perform
+     * @throws IllegalArgumentException if {@code action} is null
      */
-    public boolean perform(final Action action) {
-        return this.perform(new Session.Action() {
+    public boolean perform(Action action) {
+        return this.perform(null, action);
+    }
+
+    /**
+     * Perform the given action within the given existing transaction, if any, otherwise within a new transaction.
+     * If {@code tx} is not null, it will used and left open when this method returns. Otherwise,
+     * if there is already an open transaction associated with this instance, it will be used;
+     * otherwise, a new transaction is created for the duration of {@code action} and then committed.
+     *
+     * <p>
+     * If {@code tx} is not null and there is already an open transaction associated with this instance and they
+     * are not the same transaction, an {@link IllegalStateException} is thrown.
+     * </p>
+     *
+     * @param tx transaction in which to perform the action, or null to create a new one (if necessary)
+     * @param action action to perform
+     * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance
+     * @throws IllegalArgumentException if {@code action} is null
+     */
+    public boolean perform(Transaction tx, final Action action) {
+        return this.perform(tx, new Session.Action() {
             @Override
             public void run(Session session) throws Exception {
                 action.run((CliSession)session);

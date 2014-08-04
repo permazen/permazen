@@ -23,6 +23,10 @@ import org.slf4j.LoggerFactory;
  * In the latter mode, no Java model classes are required and only the core API may be used.
  * Of course the core API can also be used in JSimpleDB mode.
  * </p>
+ *
+ * <p>
+ * This class is not thread safe.
+ * </p>
  */
 public class Session {
 
@@ -192,15 +196,48 @@ public class Session {
 // Transactions
 
     /**
-     * Perform the given action within a transaction.
+     * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}
+     *
+     * @param action action to perform
+     * @throws IllegalArgumentException if {@code action} is null
      */
     public boolean perform(Action action) {
+        return this.perform(null, action);
+    }
+
+    /**
+     * Perform the given action within the given existing transaction, if any, otherwise within a new transaction.
+     * If {@code tx} is not null, it will used and left open when this method returns. Otherwise,
+     * if there is already an open transaction associated with this instance, it will be used;
+     * otherwise, a new transaction is created for the duration of {@code action} and then committed.
+     *
+     * <p>
+     * If {@code tx} is not null and there is already an open transaction associated with this instance and they
+     * are not the same transaction, an {@link IllegalStateException} is thrown.
+     * </p>
+     *
+     * @param tx transaction in which to perform the action, or null to create a new one (if necessary)
+     * @param action action to perform
+     * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance
+     * @throws IllegalArgumentException if {@code action} is null
+     */
+    public boolean perform(final Transaction tx, final Action action) {
+
+        // Sanity check
+        if (action == null)
+            throw new IllegalArgumentException("null action");
+        if (this.tx != null && tx != this.tx)
+            throw new IllegalStateException("a transaction is already open in this session");
+
+        // Perform action within (possibly new) transaction
+        final Transaction previousTransaction = this.tx;
         try {
-            final boolean newTransaction = this.tx == null;
+            final boolean newTransaction = tx == null && this.tx == null;
             if (newTransaction) {
                 if (!this.openTransaction())
                     return false;
-            }
+            } else if (this.tx == null)
+                this.tx = tx;
             boolean success = false;
             try {
                 action.run(this);
@@ -217,13 +254,15 @@ public class Session {
         } catch (Exception e) {
             this.reportException(e);
             return false;
+        } finally {
+            this.tx = previousTransaction;
         }
     }
 
     private boolean openTransaction() {
         try {
             if (this.tx != null)
-                throw new IllegalStateException("a transaction is already open");
+                throw new IllegalStateException("a transaction is already open in this session");
             if (this.jdb != null) {
                 boolean exists = true;
                 try {
@@ -232,7 +271,7 @@ public class Session {
                     exists = false;
                 }
                 if (exists)
-                    throw new IllegalStateException("a transaction is already open");
+                    throw new IllegalStateException("a JSimpleDB transaction is already open in the current thread");
                 final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,
                   validationMode != null ? validationMode : ValidationMode.AUTOMATIC);
                 JTransaction.setCurrent(jtx);
