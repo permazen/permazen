@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseUtil;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
 
@@ -34,10 +35,11 @@ import org.jsimpledb.util.ByteWriter;
  *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
  *      sort consistently with the {@linkplain #compare total ordering} of the corresponding Java values.</li>
  *  <li>All possible values can be encoded/decoded to/from {@link String}s without losing information,
- *      using a self-delimiting syntax.</li>
+ *      with both a {@linkplain #toString(Object) regular string form} and a
+ *      {@linkplain #toParseableString self-delimiting string form} (these may be the same).</li>
  *  <li>{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare} and
  *      have binary and string encodings just like any other value. Typically, null sorts last.</li>
- *  <li>There is a {@linkplain #getDefaultValue default value}.</li>
+ *  <li>There is a {@linkplain #getDefaultValue default value}; it must be null for types that support null.</li>
  * </ul>
  * </p>
  *
@@ -270,8 +272,55 @@ public abstract class FieldType<T> implements Comparator<T> {
 
     /**
      * Encode a value as a {@link String} for later decoding by {@link #fromString fromString()}.
-     * The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by
-     * arbitrary additional characters, and must not start with whitespace or closing square bracket ({@code "]"}).
+     *
+     * <p>
+     * Each of the characters in the returned {@link String} must be one of the valid XML characters
+     * (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
+     * </p>
+     *
+     * <p>
+     * The implementation in {@link FieldType} delegates to {@link #toParseableString}.
+     * Subclasses that override this method should also override {@link #fromString fromString()}.
+     * </p>
+     *
+     * @param value actual value, never null
+     * @return string encoding of {@code value}
+     * @throws IllegalArgumentException if {@code value} is null
+     * @see <a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a>
+     */
+    public String toString(T value) {
+        if (value == null)
+            throw new IllegalArgumentException("null value");
+        return this.toParseableString(value);
+    }
+
+    /**
+     * Parse a value previously enoded by {@link #toString(Object)}.
+     *
+     * <p>
+     * The implementation in {@link FieldType} creates a new {@link ParseContext} based on {@code string},
+     * delegates to {@link #toParseableString} to parse it, and verifies that all of {@code string} was consumed
+     * during the parse. Subclasses that override this method should also override {@link #fromString toString()}.
+     * </p>
+     *
+     * @param string string previously encoded by {@link #toString(Object)}
+     * @return actual value
+     * @throws IllegalArgumentException if the input is invalid
+     */
+    public T fromString(String string) {
+        final ParseContext ctx = new ParseContext(string);
+        final T value = this.fromParseableString(ctx);
+        if (!ctx.isEOF()) {
+            throw new IllegalArgumentException("found trailing garbage starting with `"
+              + ParseUtil.truncate(ctx.getInput(), 20) + "'");
+        }
+        return value;
+    }
+
+    /**
+     * Encode a possibly null value as a {@link String} for later decoding by {@link #fromParseableString fromParseableString()}.
+     * The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by arbitrary additional characters,
+     * and must not start with whitespace or closing square bracket ({@code "]"}).
      *
      * <p>
      * In addition, each of the characters in the returned {@link String} must be one of the valid XML characters
@@ -283,16 +332,17 @@ public abstract class FieldType<T> implements Comparator<T> {
      * @throws IllegalArgumentException if {@code value} is null and this type does not support null
      * @see <a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a>
      */
-    public abstract String toString(T value);
+    public abstract String toParseableString(T value);
 
     /**
-     * Parse a value encoded as a self-delimited {@link String}.
+     * Parse a value previously encoded by {@link #toParseableString toParseableString()} as a self-delimited {@link String}
+     * and positioned at the start of the given parsing context.
      *
-     * @param context string parsing context
+     * @param context parse context starting with a string previously encoded via {@link #toParseableString toParseableString()}
      * @return actual value (possibly null)
      * @throws IllegalArgumentException if the input is invalid
      */
-    public abstract T fromString(ParseContext context);
+    public abstract T fromParseableString(ParseContext context);
 
     /**
      * Verify the given object is a valid instance of this {@link FieldType}'s Java type and cast it to that type.

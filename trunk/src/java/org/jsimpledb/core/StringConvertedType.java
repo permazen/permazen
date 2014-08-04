@@ -89,19 +89,28 @@ class StringConvertedType<T> extends FieldType<T> {
     public String toString(T obj) {
         if (obj == null)
             throw new IllegalArgumentException("illegal null " + this.name);
-        return StringEncoder.enquote(this.converter.convert(obj));
+        return this.converter.convert(obj);
     }
 
     @Override
-    public T fromString(ParseContext ctx) {
-        final String string = StringEncoder.dequote(ctx.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group());
+    public T fromString(String string) {
         try {
             return this.converter.reverse().convert(string);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
-            if (e instanceof IllegalArgumentException)
-                throw (IllegalArgumentException)e;
             throw new IllegalArgumentException("conversion from String failed", e);
         }
+    }
+
+    @Override
+    public String toParseableString(T obj) {
+        return StringEncoder.enquote(this.toString(obj));
+    }
+
+    @Override
+    public T fromParseableString(ParseContext ctx) {
+        return this.fromString(StringEncoder.dequote(ctx.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group()));
     }
 
     @Override

@@ -99,11 +99,23 @@ class StringType extends FieldType<String> {
 
     @Override
     public String toString(String value) {
+        if (value == null)
+            throw new IllegalArgumentException("null value");
+        return StringEncoder.encode(value, false);
+    }
+
+    @Override
+    public String fromString(String string) {
+        return StringEncoder.decode(string);
+    }
+
+    @Override
+    public String toParseableString(String value) {
         return StringEncoder.enquote(value);
     }
 
     @Override
-    public String fromString(ParseContext ctx) {
+    public String fromParseableString(ParseContext ctx) {
         return StringEncoder.dequote(ctx.matchPrefix(StringEncoder.ENQUOTE_PATTERN).group());
     }
 

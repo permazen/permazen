@@ -52,12 +52,12 @@ class UUIDType extends FieldType<UUID> {
     }
 
     @Override
-    public UUID fromString(ParseContext ctx) {
+    public UUID fromParseableString(ParseContext ctx) {
         return java.util.UUID.fromString(ctx.matchPrefix(PATTERN).group());
     }
 
     @Override
-    public String toString(UUID uuid) {
+    public String toParseableString(UUID uuid) {
         return uuid.toString();
     }
 

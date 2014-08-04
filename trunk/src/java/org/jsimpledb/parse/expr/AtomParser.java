@@ -142,7 +142,7 @@ public class AtomParser implements Parser<Node> {
             final FieldType<?> fieldType = registry.getFieldType(TypeToken.of(type));
             try {
                 ctx.expect('[');
-                final LiteralNode node = new LiteralNode(fieldType.fromString(ctx));
+                final LiteralNode node = new LiteralNode(fieldType.fromParseableString(ctx));
                 ctx.expect(']');
                 return node;
             } catch (IllegalArgumentException e) {

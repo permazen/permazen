@@ -44,7 +44,7 @@ public class FieldTypeParser<T> implements Parser<T> {
             throw new ParseException(ctx, "no known field type `" + this.typeName + "' registered with database");
         final int start = ctx.getIndex();
         try {
-            return (T)actualFieldType.fromString(ctx);
+            return (T)actualFieldType.fromParseableString(ctx);
         } catch (IllegalArgumentException e) {
             throw new ParseException(ctx, "invalid " + actualFieldType.getName() + " parameter");
         }

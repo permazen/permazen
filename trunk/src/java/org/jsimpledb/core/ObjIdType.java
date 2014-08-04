@@ -43,12 +43,12 @@ class ObjIdType extends FieldType<ObjId> {
     }
 
     @Override
-    public ObjId fromString(ParseContext ctx) {
+    public ObjId fromParseableString(ParseContext ctx) {
         return new ObjId(ctx.matchPrefix(ObjId.PATTERN).group());
     }
 
     @Override
-    public String toString(ObjId value) {
+    public String toParseableString(ObjId value) {
         return value.toString();
     }
 

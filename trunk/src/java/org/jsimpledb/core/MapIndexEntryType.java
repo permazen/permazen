@@ -78,18 +78,18 @@ abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldTyp
     }
 
     @Override
-    public String toString(E entry) {
+    public String toParseableString(E entry) {
         if (entry == null)
             throw new IllegalArgumentException("null entry");
-        return "[" + FieldType.OBJ_ID.toString(entry.id) + "," + this.otherType.toString(entry.other) + "]";
+        return "[" + FieldType.OBJ_ID.toParseableString(entry.id) + "," + this.otherType.toParseableString(entry.other) + "]";
     }
 
     @Override
-    public E fromString(ParseContext ctx) {
+    public E fromParseableString(ParseContext ctx) {
         ctx.expect('[');
-        final ObjId id = FieldType.OBJ_ID.fromString(ctx);
+        final ObjId id = FieldType.OBJ_ID.fromParseableString(ctx);
         ctx.expect(',');
-        final T other = this.otherType.fromString(ctx);
+        final T other = this.otherType.fromParseableString(ctx);
         ctx.expect(']');
         return this.createMapIndexEntry(id, other);
     }

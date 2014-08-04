@@ -50,7 +50,7 @@ class EnumValueType extends FieldType<EnumValue> {
     }
 
     @Override
-    public EnumValue fromString(ParseContext ctx) {
+    public EnumValue fromParseableString(ParseContext ctx) {
         ctx.expect('[');
         final String name = ctx.matchPrefix("[^]#]+").group();
         ctx.expect('#');
@@ -60,7 +60,7 @@ class EnumValueType extends FieldType<EnumValue> {
     }
 
     @Override
-    public String toString(EnumValue value) {
+    public String toParseableString(EnumValue value) {
         return "[" + value.getName() + "#" + value.getOrdinal() + "]";
     }
 

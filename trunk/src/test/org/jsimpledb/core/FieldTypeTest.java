@@ -49,20 +49,37 @@ public class FieldTypeTest extends TestSupport {
             encodings[i] = writer.getBytes();
             final T value2 = fieldType.read(new ByteReader(encodings[i]));
             this.assertEquals(fieldType, value2, value);
-            Assert.assertEquals(fieldType.toString(value2), fieldType.toString(value));
 
             // String encoding
-            final String s = fieldType.toString(value);
-            final T value3 = fieldType.fromString(new ParseContext(s));
-            this.assertEquals(fieldType, value3, value);
+            if (value != null) {
+                Assert.assertEquals(fieldType.toString(value2), fieldType.toString(value));
+                final String s = fieldType.toString(value);
+                final T value3 = fieldType.fromString(s);
+                this.assertEquals(fieldType, value3, value);
+            } else {
+                try {
+                    fieldType.toString(null);
+                    assert false;
+                } catch (IllegalArgumentException e) {
+                    // expected
+                }
+            }
+
+            // Parseable string encoding
+            Assert.assertEquals(fieldType.toParseableString(value2), fieldType.toParseableString(value));
+            final String s2 = fieldType.toParseableString(value);
+            final ParseContext ctx = new ParseContext(s2 + "abcd");
+            final T value4 = fieldType.fromParseableString(ctx);
+            this.assertEquals(fieldType, value4, value);
+            Assert.assertEquals(ctx.getInput(), "abcd");
 
             // Check sort order
             if (i > 0) {
                 final T previous = values[i - 1];
                 Assert.assertTrue(ByteUtil.compare(encodings[i - 1], encodings[i]) < 0,
-                  "binary sort failure: " + fieldType.toString(previous) + " < " + fieldType.toString(value));
+                  "binary sort failure: " + fieldType.toParseableString(previous) + " < " + fieldType.toParseableString(value));
                 Assert.assertTrue(fieldType.compare(previous, value) < 0,
-                  "Java sort failure: " + fieldType.toString(previous) + " < " + fieldType.toString(value));
+                  "Java sort failure: " + fieldType.toParseableString(previous) + " < " + fieldType.toParseableString(value));
             }
         }
     }

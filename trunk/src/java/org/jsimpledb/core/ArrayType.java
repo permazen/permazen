@@ -67,7 +67,7 @@ abstract class ArrayType<T, E> extends FieldType<T> {
     }
 
     @Override
-    public String toString(T array) {
+    public String toParseableString(T array) {
         if (array == null)
             return "null";
         final StringBuilder buf = new StringBuilder();
@@ -76,7 +76,7 @@ abstract class ArrayType<T, E> extends FieldType<T> {
         for (int i = 0; i < length; i++) {
             if (i > 0)
                 buf.append(',').append(' ');
-            buf.append(this.elementType.toString(this.getArrayElement(array, i)));
+            buf.append(this.elementType.toParseableString(this.getArrayElement(array, i)));
         }
         buf.append(']');
         return buf.toString();
@@ -84,7 +84,7 @@ abstract class ArrayType<T, E> extends FieldType<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public T fromString(ParseContext context) {
+    public T fromParseableString(ParseContext context) {
         if (context.tryLiteral("null"))
             return null;
         final ArrayList<E> list = new ArrayList<>();
@@ -97,7 +97,7 @@ abstract class ArrayType<T, E> extends FieldType<T> {
                 context.expect(',');
                 context.skipWhitespace();
             }
-            list.add(this.elementType.fromString(context));
+            list.add(this.elementType.fromParseableString(context));
         }
         return this.createArray(list);
     }

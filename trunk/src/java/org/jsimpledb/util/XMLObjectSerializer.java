@@ -46,7 +46,6 @@ import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.SnapshotTransaction;
 import org.jsimpledb.core.Transaction;
-import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaModel;
@@ -621,7 +620,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
         // Parse field value
         try {
-            return fieldType.fromString(new ParseContext(text));
+            return fieldType.fromString(text);
         } catch (Exception e) {
             throw new XMLStreamException("invalid value `" + text + "' for field `" + field.getName() + "': " + e,
               reader.getLocation(), e);

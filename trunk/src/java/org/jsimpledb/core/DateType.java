@@ -51,12 +51,12 @@ class DateType extends FieldType<Date> {
     }
 
     @Override
-    public Date fromString(ParseContext ctx) {
+    public Date fromParseableString(ParseContext ctx) {
         return DateEncoder.decode(ctx.matchPrefix(DateEncoder.PATTERN).group());
     }
 
     @Override
-    public String toString(Date date) {
+    public String toParseableString(Date date) {
         return DateEncoder.encode(date);
     }
 

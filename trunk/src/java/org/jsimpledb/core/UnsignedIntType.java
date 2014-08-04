@@ -47,14 +47,14 @@ class UnsignedIntType extends FieldType<Integer> {
     }
 
     @Override
-    public String toString(Integer value) {
+    public String toParseableString(Integer value) {
         if (value == null)
             throw new IllegalArgumentException("null value");
         return String.valueOf(value);
     }
 
     @Override
-    public Integer fromString(ParseContext ctx) {
+    public Integer fromParseableString(ParseContext ctx) {
         return Primitive.INTEGER.parseValue(ctx.matchPrefix(Primitive.INTEGER.getParsePattern()).group());
     }
 
