@@ -2138,13 +2138,11 @@ public class Transaction {
         // Invert references for each group of remaining monitors and recurse
         for (Map.Entry<Integer, ArrayList<FieldMonitor>> entry : remainingMonitorsMap.entrySet()) {
             final int storageId = entry.getKey();
-            final boolean hasComplexIndex = this.schema.hasComplexIndex.contains(storageId);
 
             // Gather all objects that refer to any object in our current "objects" set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId object : objects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(storageId,
-                  FieldType.OBJ_ID, FieldType.OBJ_ID, hasComplexIndex).get(object);
+                final NavigableSet<ObjId> refs = this.queryIndex(storageId, FieldType.OBJ_ID, FieldType.OBJ_ID).get(object);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -2190,7 +2188,7 @@ public class Transaction {
             // Gather all objects that refer to any object in our current target objects set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId id : targetObjects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(fieldInfo, FieldType.OBJ_ID, fieldInfo.hasComplexIndex).get(id);
+                final NavigableSet<ObjId> refs = this.queryIndex(fieldInfo, FieldType.OBJ_ID).get(id);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -2228,7 +2226,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId) {
         final SimpleFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo, FieldType.OBJ_ID, fieldInfo.hasComplexIndex);
+        return this.queryIndex(fieldInfo, FieldType.OBJ_ID);
     }
 
     /**
@@ -2252,7 +2250,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId) {
         final SetFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID, false);
+        return this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID);
     }
 
     /**
@@ -2276,7 +2274,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId) {
         final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID, true);
+        return this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID);
     }
 
     /**
@@ -2300,7 +2298,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.keyField, FieldType.OBJ_ID, true);
+        return this.queryIndex(fieldInfo.keyField, FieldType.OBJ_ID);
     }
 
     /**
@@ -2324,7 +2322,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.valueField, FieldType.OBJ_ID, true);
+        return this.queryIndex(fieldInfo.valueField, FieldType.OBJ_ID);
     }
 
     /**
@@ -2343,7 +2341,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ListIndexEntry>> queryListFieldEntries(int storageId) {
         final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.elementField, FieldType.LIST_INDEX_ENTRY, false);
+        return this.queryIndex(fieldInfo.elementField, FieldType.LIST_INDEX_ENTRY);
     }
 
     /**
@@ -2364,7 +2362,7 @@ public class Transaction {
     public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>> queryMapFieldKeyEntries(int storageId) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return (NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>>)this.queryIndex(
-          fieldInfo.keyField, this.createMapKeyIndexEntryType(fieldInfo.valueField.fieldType), false);
+          fieldInfo.keyField, this.createMapKeyIndexEntryType(fieldInfo.valueField.fieldType));
     }
 
     // This method exists solely to bind the generic type parameters
@@ -2390,7 +2388,7 @@ public class Transaction {
     public NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>> queryMapFieldValueEntries(int storageId) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return (NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>>)this.queryIndex(
-          fieldInfo.valueField, this.createMapValueIndexEntryType(fieldInfo.keyField.fieldType), false);
+          fieldInfo.valueField, this.createMapValueIndexEntryType(fieldInfo.keyField.fieldType));
     }
 
     // This method exists solely to bind the generic type parameters
@@ -2399,28 +2397,26 @@ public class Transaction {
     }
 
     // Query an index associated with a simple field assuming the given index entry type
-    private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo fieldInfo, FieldType<E> entryType, boolean trailingGarbage) {
-        return queryIndex(fieldInfo.storageId, fieldInfo.fieldType, entryType, trailingGarbage);
+    private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo fieldInfo, FieldType<E> entryType) {
+        return queryIndex(fieldInfo.storageId, fieldInfo.fieldType, entryType);
     }
 
-    // Query an index associated with a simple field assuming the given field type, index entry type, and index trailing garbage
-    private synchronized <V, E> IndexMap<?, E> queryIndex(int storageId,
-      FieldType<V> fieldType, FieldType<E> entryType, boolean trailingGarbage) {
+    // Query an index associated with a simple field assuming the given field type, index entry type
+    private synchronized <V, E> IndexMap<?, E> queryIndex(int storageId, FieldType<V> fieldType, FieldType<E> entryType) {
 
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
 
         // Create index map view
-        return new IndexMap<V, E>(this, storageId, fieldType, entryType, trailingGarbage);
+        return new IndexMap<V, E>(this, storageId, fieldType, entryType);
     }
 
     // Find objects with the given schema version referring to the given target through the specified reference field
     private NavigableSet<ObjId> findReferrers(ReferenceFieldStorageInfo fieldInfo, ObjId target, int versionNumber) {
 
         // Find objects (having any schema version) wherein the field refers to the target
-        final NavigableSet<ObjId> referringObjects = this.queryIndex(fieldInfo,
-          FieldType.OBJ_ID, fieldInfo.hasComplexIndex).get(target);
+        final NavigableSet<ObjId> referringObjects = this.queryIndex(fieldInfo, FieldType.OBJ_ID).get(target);
         if (referringObjects == null)
             return NavigableSets.<ObjId>empty(FieldType.OBJ_ID);
 
@@ -2435,7 +2431,7 @@ public class Transaction {
 
     // Find objects with any schema version referring to the given target through the specified reference field
     private NavigableSet<ObjId> findReferrers(ReferenceFieldStorageInfo fieldInfo, ObjId target) {
-        final NavigableSet<ObjId> referrers = this.queryIndex(fieldInfo, FieldType.OBJ_ID, fieldInfo.hasComplexIndex).get(target);
+        final NavigableSet<ObjId> referrers = this.queryIndex(fieldInfo, FieldType.OBJ_ID).get(target);
         return referrers != null ? referrers : NavigableSets.<ObjId>empty(FieldType.OBJ_ID);
     }
 

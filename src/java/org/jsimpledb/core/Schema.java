@@ -12,7 +12,6 @@ import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,7 +32,6 @@ public class Schema {
 
     final TreeMap<Integer, SchemaVersion> versions = new TreeMap<>();
     final TreeMap<Integer, StorageInfo> storageInfos = new TreeMap<>();
-    final HashSet<Integer> hasComplexIndex = new HashSet<>();
     final LinkedHashMap<ReferenceFieldStorageInfo, DeleteAction> referenceFieldOnDeletes = new LinkedHashMap<>();
 
     Schema(SortedMap<Integer, SchemaVersion> versions) {
@@ -93,12 +91,6 @@ public class Schema {
                     break;
                 }
             }
-        }
-
-        // Record for each simple field whether its index is simple (object ID only) or complex (object ID plus other junk)
-        for (SimpleFieldStorageInfo storageInfo : Iterables.filter(this.storageInfos.values(), SimpleFieldStorageInfo.class)) {
-            if (storageInfo.hasComplexIndex)
-                this.hasComplexIndex.add(storageInfo.storageId);
         }
     }
 

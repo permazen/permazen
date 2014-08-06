@@ -131,8 +131,7 @@ public class SimpleField<T> extends Field<T> {
 
     @Override
     SimpleFieldStorageInfo toStorageInfo() {
-        return new SimpleFieldStorageInfo(this,
-          this.parent != null ? this.parent.storageId : 0, this.parent != null && this.parent.hasComplexIndex(this));
+        return new SimpleFieldStorageInfo(this, this.parent != null ? this.parent.storageId : 0);
     }
 
     @Override

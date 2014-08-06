@@ -86,11 +86,6 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     }
 
     @Override
-    boolean hasComplexIndex(SimpleField<?> subField) {
-        return true;        // index value = object ID + index
-    }
-
-    @Override
     void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {
         writer.write(value);
         id.writeTo(writer);

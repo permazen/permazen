@@ -117,11 +117,6 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     }
 
     @Override
-    boolean hasComplexIndex(SimpleField<?> subField) {
-        return false;       // index value = object ID
-    }
-
-    @Override
     void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {
         writer.write(reader);
         id.writeTo(writer);
