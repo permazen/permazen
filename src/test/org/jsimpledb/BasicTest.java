@@ -167,6 +167,26 @@ public class BasicTest extends TestSupport {
               Mood.NORMAL,  buildSet(t3),
               null,         buildSet(t2)));
 
+            // Check restricted indexes
+            Assert.assertEquals(i.queryScoresMean(), buildMap(
+              21,           buildSet(t1),
+              22,           buildSet(t1),
+              23,           buildSet(t1)), "ACTUAL = " + i.queryScores());
+            Assert.assertEquals(i.queryScoreEntriesMean(), buildMap(
+              21,           buildSet(new ListIndexEntry<Person>(t1, 1), new ListIndexEntry<Person>(t1, 3)),
+              22,           buildSet(new ListIndexEntry<Person>(t1, 2)),
+              23,           buildSet(new ListIndexEntry<Person>(t1, 0))));
+            Assert.assertEquals(i.queryRatingKeyEntriesMean(), buildMap(
+              t1,           buildSet(new MapKeyIndexEntry<Person, Float>(t1, 100.0f)),
+              t2,           buildSet(new MapKeyIndexEntry<Person, Float>(t1, -99.0f)),
+              null,         buildSet(new MapKeyIndexEntry<Person, Float>(t1, -0.0f))));
+            Assert.assertEquals(i.queryRatingValueEntriesMean(), buildMap(
+              100.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t1)),
+              -99.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t2)),
+              -0.0f,        buildSet(new MapValueIndexEntry<Person, Person>(t1, null))));
+            Assert.assertEquals(i.queryMoodsMean(), buildMap(
+              Mood.HAPPY,   buildSet(t1)));
+
             try {
                 t1.delete();
                 assert false;
@@ -333,14 +353,16 @@ public class BasicTest extends TestSupport {
     @JSimpleClass(storageId = 300)
     public abstract static class Indexer {
 
-        @IndexQuery(startType = Person.class, value = "mood")
-        public abstract NavigableMap<Mood, NavigableSet<Person>> queryMoods();
-
         @IndexQuery(startType = Person.class, value = "nicknames.element")
         public abstract NavigableMap<String, NavigableSet<Person>> queryNicknames();
 
         @IndexQuery(startType = MeanPerson.class, value = "enemies.element")
         public abstract NavigableMap<Person, NavigableSet<MeanPerson>> queryHaters();
+
+    // Person queries
+
+        @IndexQuery(startType = Person.class, value = "mood")
+        public abstract NavigableMap<Mood, NavigableSet<Person>> queryMoods();
 
         @IndexQuery(startType = Person.class, value = "scores.element")
         public abstract NavigableMap<Integer, NavigableSet<Person>> queryScores();
@@ -353,6 +375,23 @@ public class BasicTest extends TestSupport {
 
         @IndexQuery(startType = Person.class, value = "ratings.value")
         public abstract NavigableMap<Float, NavigableSet<MapValueIndexEntry<Person, Person>>> queryRatingValueEntries();
+
+    // MeanPerson queries
+
+        @IndexQuery(startType = MeanPerson.class, value = "mood")
+        public abstract NavigableMap<Mood, NavigableSet<MeanPerson>> queryMoodsMean();
+
+        @IndexQuery(startType = MeanPerson.class, value = "scores.element")
+        public abstract NavigableMap<Integer, NavigableSet<MeanPerson>> queryScoresMean();
+
+        @IndexQuery(startType = MeanPerson.class, value = "scores.element")
+        public abstract NavigableMap<Integer, NavigableSet<ListIndexEntry<MeanPerson>>> queryScoreEntriesMean();
+
+        @IndexQuery(startType = MeanPerson.class, value = "ratings.key")
+        public abstract NavigableMap<Person, NavigableSet<MapKeyIndexEntry<MeanPerson, Float>>> queryRatingKeyEntriesMean();
+
+        @IndexQuery(startType = MeanPerson.class, value = "ratings.value")
+        public abstract NavigableMap<Float, NavigableSet<MapValueIndexEntry<MeanPerson, Person>>> queryRatingValueEntriesMean();
     }
 }
 

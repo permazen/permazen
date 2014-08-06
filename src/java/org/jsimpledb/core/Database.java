@@ -467,8 +467,9 @@ public class Database {
         return writer.getBytes();
     }
 
-    static NavigableMap<Integer, NavigableSet<ObjId>> getVersionIndex(Transaction tx) {
-        return new IndexMap<Integer, ObjId>(tx, VERSION_INDEX_PREFIX, new UnsignedIntType(), FieldType.OBJ_ID);
+    static NavigableMap<Integer, NavigableSet<ObjId>> getVersionIndex(Transaction tx, int[] storageIds) {
+        final IndexMap<Integer, ObjId> map = new IndexMap<>(tx, VERSION_INDEX_PREFIX, new UnsignedIntType(), FieldType.OBJ_ID);
+        return tx.filterIndex(map, storageIds, tx.schema.objTypeStorageIds);
     }
 
     /**

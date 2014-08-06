@@ -10,6 +10,9 @@ package org.jsimpledb.core;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1263,17 +1266,19 @@ public class Transaction {
     /**
      * Query objects by schema version.
      *
+     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of all database objects grouped by schema version
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public synchronized NavigableMap<Integer, NavigableSet<ObjId>> queryVersion() {
+    public synchronized NavigableMap<Integer, NavigableSet<ObjId>> queryVersion(int... objTypeStorageIds) {
 
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
 
         // Create index map view
-        return Database.getVersionIndex(this);
+        return Database.getVersionIndex(this, objTypeStorageIds);
     }
 
     /**
@@ -2215,18 +2220,26 @@ public class Transaction {
      * </p>
      *
      * <p>
+     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
+     * having one of the specified types.
+     * </p>
+     *
+     * <p>
      * Only objects having schema versions in which the field is indexed will be found;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link SimpleField}'s storage ID
+     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of field values mapped to sets of objects with the value in the field
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId) {
+    public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId, int... objTypeStorageIds) {
         final SimpleFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo, FieldType.OBJ_ID);
+        return this.filterIndex(this.queryIndex(fieldInfo, FieldType.OBJ_ID), objTypeStorageIds,
+          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.storageId));
     }
 
     /**
@@ -2239,18 +2252,26 @@ public class Transaction {
      * </p>
      *
      * <p>
+     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
+     * having one of the specified types.
+     * </p>
+     *
+     * <p>
      * Only objects having schema versions in which the set's element field is indexed will be found;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link SetField}'s storage ID
+     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of set element values mapped to sets of objects with the value in the set
      * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId) {
+    public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId, int... objTypeStorageIds) {
         final SetFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID);
+        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID), objTypeStorageIds,
+          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
 
     /**
@@ -2263,18 +2284,26 @@ public class Transaction {
      * </p>
      *
      * <p>
+     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
+     * having one of the specified types.
+     * </p>
+     *
+     * <p>
      * Only objects having schema versions in which the list's element field is indexed will be found;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link ListField}'s storage ID
+     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of list element values mapped to sets of objects with the value in the list
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId) {
+    public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId, int... objTypeStorageIds) {
         final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID);
+        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID), objTypeStorageIds,
+          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
 
     /**
@@ -2287,18 +2316,26 @@ public class Transaction {
      * </p>
      *
      * <p>
+     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
+     * having one of the specified types.
+     * </p>
+     *
+     * <p>
      * Only objects having schema versions in which the map's key field is indexed will be found;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link MapField}'s storage ID
+     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of map keys mapped to sets of objects with the value in the map as a key
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId) {
+    public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId, int... objTypeStorageIds) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.keyField, FieldType.OBJ_ID);
+        return this.filterIndex(this.queryIndex(fieldInfo.keyField, FieldType.OBJ_ID), objTypeStorageIds,
+          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.keyField.storageId));
     }
 
     /**
@@ -2311,18 +2348,26 @@ public class Transaction {
      * </p>
      *
      * <p>
+     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
+     * having one of the specified types.
+     * </p>
+     *
+     * <p>
      * Only objects having schema versions in which the map's value field is indexed will be found;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link MapField}'s storage ID
+     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of map values mapped to sets of objects with the value in the map as a values
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId) {
+    public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId, int... objTypeStorageIds) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.valueField, FieldType.OBJ_ID);
+        return this.filterIndex(this.queryIndex(fieldInfo.valueField, FieldType.OBJ_ID), objTypeStorageIds,
+          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.valueField.storageId));
     }
 
     /**
@@ -2330,18 +2375,26 @@ public class Transaction {
      * the set of all {@link ListIndexEntry} objects, each of which represents an object and a list index.
      *
      * <p>
+     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
+     * having one of the specified types.
+     * </p>
+     *
+     * <p>
      * Only objects having schema versions in which the list's element field is indexed will be found;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link ListField}'s storage ID
+     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of list element values mapped to sets of {@link ListIndexEntry}s
      * @throws UnknownFieldException if no {@link ListField} field corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public NavigableMap<?, NavigableSet<ListIndexEntry>> queryListFieldEntries(int storageId) {
+    public NavigableMap<?, NavigableSet<ListIndexEntry>> queryListFieldEntries(int storageId, int... objTypeStorageIds) {
         final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.queryIndex(fieldInfo.elementField, FieldType.LIST_INDEX_ENTRY);
+        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldType.LIST_INDEX_ENTRY), objTypeStorageIds,
+          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
 
     /**
@@ -2349,20 +2402,28 @@ public class Transaction {
      * the set of all {@link MapKeyIndexEntry} objects, each of which represents an object and a corresponding map value.
      *
      * <p>
+     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
+     * having one of the specified types.
+     * </p>
+     *
+     * <p>
      * Only objects having schema versions in which the map's key field is indexed will be found;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link MapField}'s storage ID
+     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of map key values mapped to sets of {@link MapKeyIndexEntry}s
      * @throws UnknownFieldException if no {@link MapField} field corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
     @SuppressWarnings("unchecked")
-    public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>> queryMapFieldKeyEntries(int storageId) {
+    public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>> queryMapFieldKeyEntries(int storageId, int... objTypeStorageIds) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return (NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>>)this.queryIndex(
-          fieldInfo.keyField, this.createMapKeyIndexEntryType(fieldInfo.valueField.fieldType));
+        return this.filterIndex((IndexMap<?, MapKeyIndexEntry<?>>)this.queryIndex(fieldInfo.keyField,
+          this.createMapKeyIndexEntryType(fieldInfo.valueField.fieldType)), objTypeStorageIds,
+          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.keyField.storageId));
     }
 
     // This method exists solely to bind the generic type parameters
@@ -2375,20 +2436,28 @@ public class Transaction {
      * the set of all {@link MapValueIndexEntry} objects, each of which represents an object and a corresponding map key.
      *
      * <p>
+     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
+     * having one of the specified types.
+     * </p>
+     *
+     * <p>
      * Only objects having schema versions in which the map's value field is indexed will be found;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link MapField}'s storage ID
+     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of map values mapped to sets of {@link MapValueIndexEntry}s
      * @throws UnknownFieldException if no {@link MapField} field corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
     @SuppressWarnings("unchecked")
-    public NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>> queryMapFieldValueEntries(int storageId) {
+    public NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>> queryMapFieldValueEntries(int storageId, int... objTypeStorageIds) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return (NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>>)this.queryIndex(
-          fieldInfo.valueField, this.createMapValueIndexEntryType(fieldInfo.keyField.fieldType));
+        return this.filterIndex((IndexMap<?, MapValueIndexEntry<?>>)this.queryIndex(fieldInfo.valueField,
+          this.createMapValueIndexEntryType(fieldInfo.keyField.fieldType)), objTypeStorageIds,
+          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.valueField.storageId));
     }
 
     // This method exists solely to bind the generic type parameters
@@ -2433,6 +2502,47 @@ public class Transaction {
     private NavigableSet<ObjId> findReferrers(ReferenceFieldStorageInfo fieldInfo, ObjId target) {
         final NavigableSet<ObjId> referrers = this.queryIndex(fieldInfo, FieldType.OBJ_ID).get(target);
         return referrers != null ? referrers : NavigableSets.<ObjId>empty(FieldType.OBJ_ID);
+    }
+
+    // Filter an index map to only contain objects with the specified storageIds
+    <V, E> NavigableMap<V, NavigableSet<E>> filterIndex(IndexMap<V, E> indexMap, int[] storageIds, TreeSet<Integer> allStorageIds) {
+        if (storageIds == null)
+            throw new IllegalArgumentException("null objTypeStorageIds");
+        if (storageIds.length == 0)         // special case, meaning "all"
+            return indexMap;
+        final TreeSet<Integer> storageIdSet = Sets.newTreeSet(Ints.asList(storageIds));
+        for (Iterator<Integer> i = storageIdSet.iterator(); i.hasNext(); ) {
+            if (allStorageIds == null || !allStorageIds.contains(i.next()))
+                i.remove();
+        }
+        if (storageIdSet.isEmpty())
+            return new TreeMap<V, NavigableSet<E>>(indexMap.comparator());
+        return Maps.filterValues(Maps.transformValues(indexMap, new Function<NavigableSet<E>, NavigableSet<E>>() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public NavigableSet<E> apply(NavigableSet<E> set) {
+                final IndexMap<V, E>.IndexSet indexSet = (IndexMap<V, E>.IndexSet)set;
+                final Function<Integer, NavigableSet<E>> restrictor = new Function<Integer, NavigableSet<E>>() {
+                    @Override
+                    public NavigableSet<E> apply(Integer storageId) {
+                        final ByteWriter writer = new ByteWriter();
+                        writer.write(indexSet.prefix);
+                        UnsignedIntEncoder.write(writer, storageId);
+                        final byte[] minKey = writer.getBytes();
+                        final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
+                        return indexSet.restrict(minKey, maxKey);
+                    }
+                };
+                if (storageIdSet.size() == 1)
+                    return restrictor.apply(storageIdSet.iterator().next());
+                return NavigableSets.union(Iterables.transform(storageIdSet, restrictor));
+            }
+        }), new Predicate<NavigableSet<E>>() {
+            @Override
+            public boolean apply(NavigableSet<E> set) {
+                return !set.isEmpty();
+            }
+        });
     }
 
 // Mutation
