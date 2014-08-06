@@ -113,15 +113,31 @@ public class ObjId implements Comparable<ObjId> {
      * Get the smallest (i.e., first) instance having the given storage ID.
      *
      * @param storageId storage ID, must be greater than zero
+     * @return smallest instance with storage ID {@code storageId} (inclusive)
      * @throws IllegalArgumentException if {@code storageId} is zero or negative
      */
     public static ObjId getMin(int storageId) {
+        return ObjId.getFill(storageId, 0x00);
+    }
+
+    /**
+     * Get the largest (i.e., last) instance having the given storage ID.
+     *
+     * @param storageId storage ID, must be greater than zero
+     * @return largest instance with storage ID {@code storageId} (inclusive)
+     * @throws IllegalArgumentException if {@code storageId} is zero or negative
+     */
+    public static ObjId getMax(int storageId) {
+        return ObjId.getFill(storageId, 0xff);
+    }
+
+    private static ObjId getFill(int storageId, int value) {
         if (storageId <= 0)
             throw new IllegalArgumentException("invalid storage ID " + storageId);
         final ByteWriter writer = new ByteWriter(NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
         for (int remain = NUM_BYTES - writer.getLength(); remain > 0; remain--)
-            writer.writeByte(0);
+            writer.writeByte(value);
         return new ObjId(new ByteReader(writer));
     }
 
