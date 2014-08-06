@@ -9,8 +9,8 @@ package org.jsimpledb.core;
 
 class ReferenceFieldStorageInfo extends SimpleFieldStorageInfo {
 
-    ReferenceFieldStorageInfo(ReferenceField field, int superFieldStorageId, boolean hasComplexIndex) {
-        super(field, superFieldStorageId, hasComplexIndex);
+    ReferenceFieldStorageInfo(ReferenceField field, int superFieldStorageId) {
+        super(field, superFieldStorageId);
     }
 
     @Override

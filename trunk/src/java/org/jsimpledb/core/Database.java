@@ -468,7 +468,7 @@ public class Database {
     }
 
     static NavigableMap<Integer, NavigableSet<ObjId>> getVersionIndex(Transaction tx) {
-        return new IndexMap<Integer, ObjId>(tx, VERSION_INDEX_PREFIX, new UnsignedIntType(), FieldType.OBJ_ID, false);
+        return new IndexMap<Integer, ObjId>(tx, VERSION_INDEX_PREFIX, new UnsignedIntType(), FieldType.OBJ_ID);
     }
 
     /**

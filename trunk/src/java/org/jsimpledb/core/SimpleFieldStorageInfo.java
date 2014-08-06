@@ -10,12 +10,10 @@ package org.jsimpledb.core;
 class SimpleFieldStorageInfo extends FieldStorageInfo {
 
     final FieldType<?> fieldType;
-    final boolean hasComplexIndex;
 
-    SimpleFieldStorageInfo(SimpleField<?> field, int superFieldStorageId, boolean hasComplexIndex) {
+    SimpleFieldStorageInfo(SimpleField<?> field, int superFieldStorageId) {
         super(field, superFieldStorageId);
         this.fieldType = field.fieldType;
-        this.hasComplexIndex = hasComplexIndex;
     }
 
     /**

@@ -165,11 +165,6 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
-    boolean hasComplexIndex(SimpleField<?> subField) {
-        return true;        // index value = object ID + (key or value)
-    }
-
-    @Override
     void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {
         if (subField == this.keyField) {
             writer.write(reader);
