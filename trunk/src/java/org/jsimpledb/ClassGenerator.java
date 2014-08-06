@@ -116,10 +116,11 @@ class ClassGenerator<T> {
             GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", ObjId.class);
             UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", ObjId.class);
             REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", ObjId.class);
-            QUERY_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("querySimpleField", int.class);
-            QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class);
-            QUERY_MAP_FIELD_KEY_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldKeyEntries", int.class);
-            QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldValueEntries", int.class);
+            QUERY_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("querySimpleField", int.class, Class.class);
+            QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class, Class.class);
+            QUERY_MAP_FIELD_KEY_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldKeyEntries", int.class, Class.class);
+            QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldValueEntries",
+              int.class, Class.class);
             COPY_TO_METHOD = JTransaction.class.getMethod("copyTo", JTransaction.class, ObjId.class, ObjId.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
         } catch (NoSuchMethodException e) {
@@ -422,6 +423,7 @@ class ClassGenerator<T> {
             this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
             final boolean isEntryQuery = info.targetSuperField != null && info.queryType != 0;
             mv.visitLdcInsn(isEntryQuery ? info.targetSuperField.storageId : info.targetField.storageId);
+            mv.visitLdcInsn(Type.getType(info.startType.getRawType()));
             this.emitInvoke(mv, isEntryQuery ?
               info.targetSuperField.getIndexEntryQueryMethod(info.queryType) : QUERY_SIMPLE_FIELD_METHOD);
             mv.visitInsn(Opcodes.ARETURN);

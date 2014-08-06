@@ -132,7 +132,7 @@ public class QueryEntriesFunction extends AbstractFunction {
 
             @Override
             NavigableMap<?, NavigableSet<org.jsimpledb.ListIndexEntry<?>>> query(JTransaction jtx, int storageId) {
-                return jtx.queryListFieldEntries(storageId);
+                return jtx.queryListFieldEntries(storageId, null);
             }
         },
         MAP_KEY() {
@@ -144,7 +144,7 @@ public class QueryEntriesFunction extends AbstractFunction {
 
             @Override
             NavigableMap<?, NavigableSet<org.jsimpledb.MapKeyIndexEntry<?, ?>>> query(JTransaction jtx, int storageId) {
-                return jtx.queryMapFieldKeyEntries(storageId);
+                return jtx.queryMapFieldKeyEntries(storageId, null);
             }
         },
         MAP_VALUE() {
@@ -156,7 +156,7 @@ public class QueryEntriesFunction extends AbstractFunction {
 
             @Override
             NavigableMap<?, NavigableSet<org.jsimpledb.MapValueIndexEntry<?, ?>>> query(JTransaction jtx, int storageId) {
-                return jtx.queryMapFieldValueEntries(storageId);
+                return jtx.queryMapFieldValueEntries(storageId, null);
             }
         };
 

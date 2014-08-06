@@ -39,7 +39,7 @@ public class QueryVersionFunction extends SimpleFunction {
             @Override
             public Object get(ParseSession session) {
                 return session.hasJSimpleDB() ?
-                  JTransaction.getCurrent().queryVersion() : session.getTransaction().queryVersion();
+                  JTransaction.getCurrent().queryVersion(null) : session.getTransaction().queryVersion();
             }
         };
     }

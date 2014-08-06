@@ -99,6 +99,10 @@ class IndexMap<V, E> extends FieldTypeMap<V, NavigableSet<E>> {
         protected NavigableSet<E> createSubSet(boolean newReversed, byte[] newMinKey, byte[] newMaxKey, Bounds<E> newBounds) {
             return new IndexSet(this.prefixMode, newReversed, this.prefix, newMinKey, newMaxKey, newBounds);
         }
+
+        protected IndexSet restrict(byte[] newMinKey, byte[] newMaxKey) {
+            return new IndexSet(this.prefixMode, this.reversed, this.prefix, newMinKey, newMaxKey, this.bounds);
+        }
     }
 }
 

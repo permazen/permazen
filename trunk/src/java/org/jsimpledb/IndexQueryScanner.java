@@ -40,6 +40,7 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
 
     class IndexMethodInfo extends MethodInfo {
 
+        final TypeToken<?> startType;
         final TypeToken<?> targetType;
         final JSimpleField targetField;
         final JComplexField targetSuperField;
@@ -50,19 +51,19 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
             super(method, annotation);
 
             // Get start type
-            TypeToken<?> startType = TypeToken.of(method.getDeclaringClass());
             if (annotation.startType() != void.class) {
                 if (annotation.startType().isPrimitive() || annotation.startType().isArray()) {
                     throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method)
                       + "invalid startType() " + annotation.startType());
                 }
-                startType = TypeToken.of(annotation.startType());
-            }
+                this.startType = TypeToken.of(annotation.startType());
+            } else
+                this.startType = TypeToken.of(method.getDeclaringClass());
 
             // Parse reference path
             final ReferencePath path;
             try {
-                path = IndexQueryScanner.this.jclass.jdb.parseReferencePath(startType, annotation.value(), true);
+                path = IndexQueryScanner.this.jclass.jdb.parseReferencePath(this.startType, annotation.value(), true);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method) + e.getMessage(), e);
             }

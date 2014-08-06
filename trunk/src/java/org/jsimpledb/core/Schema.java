@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Contains the set of all {@link SchemaVersion}s of objects visible in a {@link Transaction}.
@@ -33,6 +34,8 @@ public class Schema {
     final TreeMap<Integer, SchemaVersion> versions = new TreeMap<>();
     final TreeMap<Integer, StorageInfo> storageInfos = new TreeMap<>();
     final LinkedHashMap<ReferenceFieldStorageInfo, DeleteAction> referenceFieldOnDeletes = new LinkedHashMap<>();
+    final TreeMap<Integer, TreeSet<Integer>> indexedFieldToContainingTypesMap = new TreeMap<>();
+    final TreeSet<Integer> objTypeStorageIds = new TreeSet<>();
 
     Schema(SortedMap<Integer, SchemaVersion> versions) {
 
@@ -89,6 +92,29 @@ public class Schema {
                 if (previous != field.onDelete) {
                     this.referenceFieldOnDeletes.put(storageInfo, null);        // field not consistent across all schema versions
                     break;
+                }
+            }
+        }
+
+        // Gather all object type storage IDs
+        for (SchemaVersion version : this.versions.values()) {
+            for (ObjType objType : Iterables.filter(version.schemaItemMap.values(), ObjType.class))
+                objTypeStorageIds.add(objType.storageId);
+        }
+
+        // Calculate, for each simple field, the storage ID's of all types in which, for some schema version,
+        // the field exists and is indexed.
+        for (SchemaVersion version : this.versions.values()) {
+            for (ObjType objType : Iterables.filter(version.schemaItemMap.values(), ObjType.class)) {
+                for (SimpleField<?> field : Iterables.filter(objType.getFieldsAndSubFields(), SimpleField.class)) {
+                    if (!field.indexed)
+                        continue;
+                    TreeSet<Integer> containingTypes = this.indexedFieldToContainingTypesMap.get(field.storageId);
+                    if (containingTypes == null) {
+                        containingTypes = new TreeSet<>();
+                        this.indexedFieldToContainingTypesMap.put(field.storageId, containingTypes);
+                    }
+                    containingTypes.add(objType.storageId);
                 }
             }
         }
