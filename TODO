@@ -1,4 +1,7 @@
 
+- BUG: Handle JObject constructors that set fields
+    - Currently get "Recursive load" error from CacheLoader
+
 - Expression parsing
     - Make Value interface; add LValue sub-interface
 
@@ -9,6 +12,11 @@
 
 - Integrate CountingKVStore into KVStore, making it mandatory
     - Create AbstractKVStore, replacing CountingKVStoreAdapter
+
+- Change terminology "snapshot" transaction -> "memory" transaction
+
+- @OnChange, @OnCreate, @OnDelete:
+    - Add boolean memoryTransactions() default false
 
 - Consider renaming @IndexQuery "startType" to "type"
 
