@@ -263,7 +263,6 @@
         <dellroad:ivyput pattern="build/gui/libs/[module]-[artifact].[ext]" conf="gui"/>
         <copy tofile="build/gui/log4j.xml" file="src/xml/log4j-gui.xml"/>
         <copy file="build/dist/${ant.project.name}-core-${library.version}.jar" toDir="build/gui/libs"/>
-        <copy file="build/dist/${ant.project.name}-cli-${library.version}.jar" toDir="build/gui/libs"/>
         <copy file="build/dist/${ant.project.name}-gui-${library.version}.jar" toDir="build/gui/libs"/>
         <copy file="build/dist/${ant.project.name}-spring-${library.version}.jar" toDir="build/gui/libs"/>
         <property name="gui.completed" value="true"/>
