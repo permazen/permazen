@@ -40,6 +40,10 @@ import org.slf4j.LoggerFactory;
  * to each {@link Accessor} while it is in use.
  * </p>
  *
+ * <p>
+ * Requires git version at least 1.7.4.
+ * </p>
+ *
  * @see <a href="http://git-scm.com/">Git web site</a>
  */
 public class GitRepository extends AbstractBean {
