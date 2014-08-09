@@ -17,6 +17,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import javax.validation.Constraint;
@@ -27,6 +30,26 @@ import org.jsimpledb.core.ObjId;
  * Utility routines;
  */
 final class Util {
+
+    private static final WildcardType QUESTION_MARK = new WildcardType() {
+
+        @Override
+        public Type[] getUpperBounds() {
+            return new Type[] { Object.class };
+        }
+
+        @Override
+        public Type[] getLowerBounds() {
+            return new Type[0];
+        }
+
+        @Override
+        public String toString() {
+            return "?";
+        }
+    };
+
+    private static Method newParameterizedTypeMethod;
 
     private Util() {
     }
@@ -43,6 +66,20 @@ final class Util {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Parameterize the raw type with wildcards.
+     */
+    public static <T> TypeToken<? extends T> getWildcardedType(Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        final TypeVariable<Class<T>>[] typeVariables = type.getTypeParameters();
+        if (typeVariables.length == 0)
+            return TypeToken.of(type);
+        final WildcardType[] questionMarks = new WildcardType[typeVariables.length];
+        Arrays.fill(questionMarks, QUESTION_MARK);
+        return Util.newParameterizedType(type, questionMarks);
     }
 
     /**
@@ -104,6 +141,33 @@ final class Util {
         if (cause instanceof Error)
             throw (Error)cause;
         throw new JSimpleDBException("can't instantiate object for ID " + id, cause);
+    }
+
+    /**
+     * Convert a raw class back into its generic type.
+     *
+     * @param target raw class
+     * @param params type parameters
+     * @return generic {@link TypeToken} for {@code target}
+     * @see <a href="https://code.google.com/p/guava-libraries/issues/detail?id=1645">Guava Issue #1645</a>
+     */
+    @SuppressWarnings("unchecked")
+    private static <T> TypeToken<? extends T> newParameterizedType(Class<T> target, Type[] params) {
+        Type type;
+        try {
+            if (Util.newParameterizedTypeMethod == null) {
+                Util.newParameterizedTypeMethod = Class.forName("com.google.common.reflect.Types",
+                  false, Thread.currentThread().getContextClassLoader()).getDeclaredMethod(
+                  "newParameterizedType", Class.class, Type[].class);
+                Util.newParameterizedTypeMethod.setAccessible(true);
+            }
+            type = (Type)Util.newParameterizedTypeMethod.invoke(null, target, params);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("unexpected exception", e);
+        }
+        return (TypeToken<T>)TypeToken.of(type);
     }
 }
 

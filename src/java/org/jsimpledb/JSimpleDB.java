@@ -228,7 +228,7 @@ public class JSimpleDB {
             }
             JClass<?> jclass;
             try {
-                jclass = this.createJClass(name, jclassAnnotation.storageId(), TypeToken.of(type));
+                jclass = this.createJClass(name, jclassAnnotation.storageId(), Util.getWildcardedType(type));
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("invalid @" + JSimpleClass.class.getSimpleName()
                   + " annotation on " + type + ": " + e, e);
