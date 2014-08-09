@@ -64,7 +64,7 @@ public class InterfaceTest extends TestSupport {
         public abstract Set<Pet> getPets();
 
         @IndexQuery(startType = Pet.class, value = "enemy")
-        public abstract NavigableMap<Dog, NavigableSet<Cat>> queryEnemies();
+        public abstract NavigableMap<Dog, NavigableSet<Pet>> queryEnemies();
 
         @IndexQuery("pets.element")
         public abstract NavigableMap<Pet, NavigableSet<Person>> queryPets();
