@@ -111,7 +111,13 @@ public class JSimpleDB {
      * This constructor can also be used just to validate the annotations on the given classes.
      * </p>
      *
-     * @param classes classes annotated with {@link JSimpleClass} and/or {@link JFieldType} annotations
+     * <p>
+     * All {@link JSimpleClass &#64;JSimpleClass}-annotated super-classes of any {@link JSimpleClass &#64;JSimpleClass}-annotated
+     * class in {@code classes} will be included even if not explicitly specified.
+     * </p>
+     *
+     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass}
+     *  and/or {@link JFieldType &#64;JFieldType} annotations
      * @throws IllegalArgumentException if {@code classes} is null
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
      * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
@@ -123,10 +129,16 @@ public class JSimpleDB {
     /**
      * Primary constructor. Generates a database schema by introspecting the provided classes.
      *
+     * <p>
+     * All {@link JSimpleClass &#64;JSimpleClass}-annotated super-classes of any {@link JSimpleClass &#64;JSimpleClass}-annotated
+     * class in {@code classes} will be included even if not explicitly specified.
+     * </p>
+     *
      * @param database core database to use
      * @param version schema version number of the schema derived from {@code classes},
      *  or zero to use the highest version already recorded in the database
-     * @param classes classes annotated with {@link JSimpleClass} and/or {@link JFieldType} annotations
+     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass}
+     *  and/or {@link JFieldType &#64;JFieldType} annotations
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code version} is not greater than zero
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
@@ -144,80 +156,87 @@ public class JSimpleDB {
         this.db = database;
         this.version = version;
 
-        // Scan for annotations
-        final HashSet<Class<?>> classesSeen = new HashSet<>();
+        // Inventory classes; automatically add all @JSimpleClass-annotated superclasses of @JSimpleClass-annotated classes
+        final HashSet<Class<?>> jsimpleClasses = new HashSet<>();
+        final HashSet<Class<?>> jfieldTypeClasses = new HashSet<>();
         for (Class<?> type : classes) {
 
             // Sanity check
             if (type == null)
                 throw new IllegalArgumentException("null class found in classes");
 
-            // Ignore duplicates
-            if (this.log.isTraceEnabled())
-                this.log.trace("checking " + type + " for JSimpleDB annotations");
-            if (!classesSeen.add(type)) {
-                if (this.log.isTraceEnabled())
-                    this.log.trace("already seen " + type + ", ignoring");
-                continue;
-            }
+            // Check for @JFieldType
+            if (type.isAnnotationPresent(JFieldType.class))
+                jfieldTypeClasses.add(type);
 
-            // Look for custom field types
-            final JFieldType fieldTypeAnnotation = type.getAnnotation(JFieldType.class);
-            if (fieldTypeAnnotation != null) {
-
-                // Get type name
-                final String name = fieldTypeAnnotation.name().length() != 0 ? fieldTypeAnnotation.name() : type.getName();
-                if (this.log.isTraceEnabled()) {
-                    this.log.trace("found @" + JFieldType.class.getSimpleName()
-                      + " annotation on " + type + " defining field type `" + name + "'");
-                }
-
-                // Instantiate class
-                final Object obj;
-                try {
-                    obj = type.newInstance();
-                } catch (Exception e) {
-                    throw new DatabaseException("can't instantiate " + type, e);
-                }
-                if (!(obj instanceof FieldType)) {
-                    throw new DatabaseException("invalid @" + JFieldType.class.getSimpleName()
-                      + " annotation on " + type + ": not a subclass of " + FieldType.class);
-                }
-
-                // Register field type
-                final FieldType<?> fieldType = (FieldType<?>)obj;
-                this.db.getFieldTypeRegistry().add(fieldType);
-                this.log.debug("registered new field type `" + fieldType.getName() + "' using " + type);
-            }
-
-            // Look for Java model classes
-            final JSimpleClass jclassAnnotation = type.getAnnotation(JSimpleClass.class);
-            if (jclassAnnotation != null) {
+            // Check for @JSimpleClass
+            if (type.isAnnotationPresent(JSimpleClass.class)) {
 
                 // Sanity check type
-                if (type == null || type.isPrimitive() || type.isInterface() || type.isArray()) {
+                if (type.isPrimitive() || type.isInterface() || type.isArray()) {
                     throw new IllegalArgumentException("illegal type " + type + " for @"
                       + JSimpleClass.class.getSimpleName() + " annotation: not a normal class");
                 }
 
-                // Create JClass
-                final String name = jclassAnnotation.name().length() != 0 ? jclassAnnotation.name() : type.getSimpleName();
-                if (this.log.isTraceEnabled()) {
-                    this.log.trace("found @" + JSimpleClass.class.getSimpleName() + " annotation on " + type
-                      + " defining object type `" + name + "'");
+                // Add type and all @JSimpleClass-annotated superclasses
+                jsimpleClasses.add(type);
+                for (Class<?> supertype = type.getSuperclass(); type != null; type = type.getSuperclass()) {
+                    if (supertype.getAnnotation(JSimpleClass.class) != null)
+                        jsimpleClasses.add(supertype);
                 }
-                JClass<?> jclass;
-                try {
-                    jclass = this.createJClass(name, jclassAnnotation.storageId(), TypeToken.of(type));
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("invalid @" + JSimpleClass.class.getSimpleName()
-                      + " annotation on " + type + ": " + e, e);
-                }
-
-                // Add jclass
-                this.addJClass(jclass);
-                this.log.debug("added Java model class `" + jclass.name + "' with storage ID " + jclass.storageId);
             }
+        }
+
+        // Register custom field types
+        for (Class<?> type : jfieldTypeClasses) {
+
+            // Get type name
+            final JFieldType fieldTypeAnnotation = type.getAnnotation(JFieldType.class);
+            final String name = fieldTypeAnnotation.name().length() != 0 ? fieldTypeAnnotation.name() : type.getName();
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("found @" + JFieldType.class.getSimpleName()
+                  + " annotation on " + type + " defining field type `" + name + "'");
+            }
+
+            // Instantiate class
+            final Object obj;
+            try {
+                obj = type.newInstance();
+            } catch (Exception e) {
+                throw new DatabaseException("can't instantiate " + type, e);
+            }
+            if (!(obj instanceof FieldType)) {
+                throw new DatabaseException("invalid @" + JFieldType.class.getSimpleName()
+                  + " annotation on " + type + ": not a subclass of " + FieldType.class);
+            }
+
+            // Register field type
+            final FieldType<?> fieldType = (FieldType<?>)obj;
+            this.db.getFieldTypeRegistry().add(fieldType);
+            this.log.debug("registered new field type `" + fieldType.getName() + "' using " + type);
+        }
+
+        // Add Java model classes
+        for (Class<?> type : jsimpleClasses) {
+
+            // Create JClass
+            final JSimpleClass jclassAnnotation = type.getAnnotation(JSimpleClass.class);
+            final String name = jclassAnnotation.name().length() != 0 ? jclassAnnotation.name() : type.getSimpleName();
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("found @" + JSimpleClass.class.getSimpleName() + " annotation on " + type
+                  + " defining object type `" + name + "'");
+            }
+            JClass<?> jclass;
+            try {
+                jclass = this.createJClass(name, jclassAnnotation.storageId(), TypeToken.of(type));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("invalid @" + JSimpleClass.class.getSimpleName()
+                  + " annotation on " + type + ": " + e, e);
+            }
+
+            // Add jclass
+            this.addJClass(jclass);
+            this.log.debug("added Java model class `" + jclass.name + "' with storage ID " + jclass.storageId);
         }
 
         // Create fields
