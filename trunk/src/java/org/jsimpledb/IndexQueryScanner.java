@@ -56,9 +56,9 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
                     throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method)
                       + "invalid startType() " + annotation.startType());
                 }
-                this.startType = TypeToken.of(annotation.startType());
+                this.startType = Util.getWildcardedType(annotation.startType());
             } else
-                this.startType = TypeToken.of(method.getDeclaringClass());
+                this.startType = Util.getWildcardedType(method.getDeclaringClass());
 
             // Parse reference path
             final ReferencePath path;
