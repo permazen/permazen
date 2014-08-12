@@ -9,8 +9,8 @@ package org.jsimpledb.change;
 
 import java.util.List;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
 
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
@@ -50,8 +50,8 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void apply(JTransaction jtx, ObjId id) {
-        ((List<E>)jtx.readListField(id, this.getStorageId(), false)).set(this.index, this.newValue);
+    public void apply(JTransaction jtx, JObject jobj) {
+        ((List<E>)jtx.readListField(jobj, this.getStorageId(), false)).set(this.index, this.newValue);
     }
 
     /**

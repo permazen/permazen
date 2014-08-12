@@ -403,7 +403,10 @@ public class BaseExprParser implements Parser<Node> {
 
         // Handle properties of database objects (i.e., database fields)
         if (session.hasJSimpleDB() && target instanceof JObject) {
-            final ObjId id = ((JObject)target).getObjId();
+
+            // Get object and ID
+            final JObject jobj = (JObject)target;
+            final ObjId id = jobj.getObjId();
 
             // Resolve JField
             JField jfield0;
@@ -421,7 +424,7 @@ public class BaseExprParser implements Parser<Node> {
                     public void set(ParseSession session, Value value) {
                         final Object obj = value.get(session);
                         try {
-                            ((JSimpleField)jfield).setValue(JTransaction.getCurrent(), id, obj);
+                            ((JSimpleField)jfield).setValue(JTransaction.getCurrent(), jobj, obj);
                         } catch (IllegalArgumentException e) {
                             throw new EvalException("invalid value of type " + (obj != null ? obj.getClass().getName() : "null")
                               + " for field `" + jfield.getName() + "'", e);
@@ -431,7 +434,7 @@ public class BaseExprParser implements Parser<Node> {
                     @Override
                     public Object get(ParseSession session) {
                         try {
-                            return jfield.getValue(JTransaction.getCurrent(), id);
+                            return jfield.getValue(JTransaction.getCurrent(), jobj);
                         } catch (Exception e) {
                             throw new EvalException("error reading field `" + name + "' from object " + id + ": "
                               + (e.getMessage() != null ? e.getMessage() : e));

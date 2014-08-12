@@ -13,7 +13,6 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.CounterSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -30,10 +29,12 @@ public class JCounterField extends JField {
     }
 
     @Override
-    public Counter getValue(JTransaction jtx, ObjId id) {
+    public Counter getValue(JTransaction jtx, JObject jobj) {
         if (jtx == null)
             throw new IllegalArgumentException("null jtx");
-        return jtx.readCounterField(id, this.storageId, false);
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        return jtx.readCounterField(jobj, this.storageId, false);
     }
 
     @Override

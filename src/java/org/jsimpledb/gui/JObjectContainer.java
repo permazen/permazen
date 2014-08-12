@@ -710,19 +710,18 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
 
         @Override
         public Component extract(final JObject jobj) {
-            final ObjId id = jobj.getObjId();
             final JTransaction jtx = jobj.getTransaction();
             try {
                 if (this.jfield instanceof JSimpleField)
-                    return this.handleValue(this.jfield.getValue(jtx, id));
+                    return this.handleValue(this.jfield.getValue(jtx, jobj));
                 else if (this.jfield instanceof JCounterField)
-                    return this.handleValue(((JCounterField)this.jfield).getValue(jtx, id).get());
+                    return this.handleValue(((JCounterField)this.jfield).getValue(jtx, jobj).get());
                 else if (this.jfield instanceof JCollectionField)
-                    return this.handleCollectionField(((JCollectionField)this.jfield).getValue(jtx, id));
+                    return this.handleCollectionField(((JCollectionField)this.jfield).getValue(jtx, jobj));
                 else if (this.jfield instanceof JListField)
-                    return this.handleCollectionField(((JListField)this.jfield).getValue(jtx, id));
+                    return this.handleCollectionField(((JListField)this.jfield).getValue(jtx, jobj));
                 else if (this.jfield instanceof JMapField) {
-                    final NavigableMap<?, ?> map = ((JMapField)this.jfield).getValue(jtx, id);
+                    final NavigableMap<?, ?> map = ((JMapField)this.jfield).getValue(jtx, jobj);
                     return this.handleMultiple(Iterables.transform(map.entrySet(), new Function<Map.Entry<?, ?>, Component>() {
                         @Override
                         public Component apply(Map.Entry<?, ?> entry) {

@@ -9,7 +9,6 @@ package org.jsimpledb.change;
 
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
 
 /**
  * Change notification that indicates an object has been deleted.
@@ -41,8 +40,8 @@ public class ObjectDelete<T> extends Change<T> {
     }
 
     @Override
-    public void apply(JTransaction tx, ObjId id) {
-        tx.delete(id);
+    public void apply(JTransaction jtx, JObject jobj) {
+        jtx.delete(jobj);
     }
 
 // Object

@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jsimpledb.core.CollectionField;
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.CollectionSchemaField;
 
 /**
@@ -38,7 +37,7 @@ public abstract class JCollectionField extends JComplexField {
     }
 
     @Override
-    public abstract Collection<?> getValue(JTransaction jtx, ObjId id);
+    public abstract Collection<?> getValue(JTransaction jtx, JObject jobj);
 
     @Override
     public List<JSimpleField> getSubFields() {

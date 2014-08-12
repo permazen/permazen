@@ -36,10 +36,12 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    public NavigableSet<?> getValue(JTransaction jtx, ObjId id) {
+    public NavigableSet<?> getValue(JTransaction jtx, JObject jobj) {
         if (jtx == null)
             throw new IllegalArgumentException("null jtx");
-        return jtx.readSetField(id, this.storageId, false);
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        return jtx.readSetField(jobj, this.storageId, false);
     }
 
     @Override

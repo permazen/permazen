@@ -103,19 +103,19 @@ class ClassGenerator<T> {
 
             // JTransaction methods
             GET_CURRENT_METHOD = JTransaction.class.getMethod("getCurrent");
-            READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", ObjId.class, int.class, boolean.class);
+            READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", JObject.class, int.class, boolean.class);
             WRITE_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("writeSimpleField",
-              ObjId.class, int.class, Object.class, boolean.class);
-            READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField", ObjId.class, int.class, boolean.class);
-            READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", ObjId.class, int.class, boolean.class);
-            READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", ObjId.class, int.class, boolean.class);
-            READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, int.class, boolean.class);
-            DELETE_METHOD = JTransaction.class.getMethod("delete", ObjId.class);
-            EXISTS_METHOD = JTransaction.class.getMethod("exists", ObjId.class);
-            RECREATE_METHOD = JTransaction.class.getMethod("recreate", ObjId.class);
-            GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", ObjId.class);
-            UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", ObjId.class);
-            REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", ObjId.class);
+              JObject.class, int.class, Object.class, boolean.class);
+            READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField", JObject.class, int.class, boolean.class);
+            READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", JObject.class, int.class, boolean.class);
+            READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", JObject.class, int.class, boolean.class);
+            READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", JObject.class, int.class, boolean.class);
+            DELETE_METHOD = JTransaction.class.getMethod("delete", JObject.class);
+            EXISTS_METHOD = JTransaction.class.getMethod("exists", JObject.class);
+            RECREATE_METHOD = JTransaction.class.getMethod("recreate", JObject.class);
+            GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", JObject.class);
+            UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
+            REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", JObject.class);
             QUERY_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("querySimpleField", int.class, Class.class);
             QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class, Class.class);
             QUERY_MAP_FIELD_KEY_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldKeyEntries", int.class, Class.class);
@@ -273,7 +273,6 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, GET_SCHEMA_VERSION_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -285,7 +284,6 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, DELETE_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -297,7 +295,6 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, EXISTS_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -317,7 +314,6 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, RECREATE_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -329,7 +325,6 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, REVALIDATE_METHOD);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
@@ -341,7 +336,6 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, UPDATE_SCHEMA_VERSION_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -520,7 +514,7 @@ class ClassGenerator<T> {
 
     /**
      * Emit code that overrides a Java bean method. When the {@code emitter} runs, the stack will look like:
-     * {@code ..., tx, id, storageId }.
+     * {@code ..., tx, this, storageId }.
      */
     void overrideBeanMethod(ClassWriter cw, Method method, int storageId, CodeEmitter emitter) {
 
@@ -533,7 +527,6 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         mv.visitLdcInsn(storageId);
 
         // Emit caller-specific stuff

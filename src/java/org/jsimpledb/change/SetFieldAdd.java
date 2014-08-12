@@ -9,8 +9,8 @@ package org.jsimpledb.change;
 
 import java.util.Set;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
 
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
@@ -44,8 +44,8 @@ public class SetFieldAdd<T, E> extends SetFieldChange<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void apply(JTransaction jtx, ObjId id) {
-        ((Set<E>)jtx.readSetField(id, this.getStorageId(), false)).add(this.element);
+    public void apply(JTransaction jtx, JObject jobj) {
+        ((Set<E>)jtx.readSetField(jobj, this.getStorageId(), false)).add(this.element);
     }
 
     /**

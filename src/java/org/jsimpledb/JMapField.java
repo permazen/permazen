@@ -65,10 +65,12 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    public NavigableMap<?, ?> getValue(JTransaction jtx, ObjId id) {
+    public NavigableMap<?, ?> getValue(JTransaction jtx, JObject jobj) {
         if (jtx == null)
             throw new IllegalArgumentException("null jtx");
-        return jtx.readMapField(id, this.storageId, false);
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        return jtx.readMapField(jobj, this.storageId, false);
     }
 
     @Override

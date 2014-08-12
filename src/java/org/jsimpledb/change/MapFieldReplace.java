@@ -9,8 +9,8 @@ package org.jsimpledb.change;
 
 import java.util.Map;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
 
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
@@ -51,8 +51,8 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void apply(JTransaction jtx, ObjId id) {
-        ((Map<K, V>)jtx.readMapField(id, this.getStorageId(), false)).put(this.key, this.newValue);
+    public void apply(JTransaction jtx, JObject jobj) {
+        ((Map<K, V>)jtx.readMapField(jobj, this.getStorageId(), false)).put(this.key, this.newValue);
     }
 
     /**
