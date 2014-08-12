@@ -7,8 +7,8 @@
 
 package org.jsimpledb.change;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
 
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
@@ -45,8 +45,8 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
     }
 
     @Override
-    public void apply(JTransaction jtx, ObjId id) {
-        jtx.readMapField(id, this.getStorageId(), false).remove(this.key);
+    public void apply(JTransaction jtx, JObject jobj) {
+        jtx.readMapField(jobj, this.getStorageId(), false).remove(this.key);
     }
 
     /**

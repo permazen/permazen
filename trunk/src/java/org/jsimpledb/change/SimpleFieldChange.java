@@ -7,8 +7,8 @@
 
 package org.jsimpledb.change;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
 
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
@@ -44,8 +44,8 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
     }
 
     @Override
-    public void apply(JTransaction jtx, ObjId id) {
-        jtx.writeSimpleField(id, this.getStorageId(), this.newValue, false);
+    public void apply(JTransaction jtx, JObject jobj) {
+        jtx.writeSimpleField(jobj, this.getStorageId(), this.newValue, false);
     }
 
     /**

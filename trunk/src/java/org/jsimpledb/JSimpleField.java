@@ -18,7 +18,6 @@ import java.util.NavigableSet;
 
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.change.SimpleFieldChange;
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SimpleSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -82,10 +81,12 @@ public class JSimpleField extends JField {
     }
 
     @Override
-    public Object getValue(JTransaction jtx, ObjId id) {
+    public Object getValue(JTransaction jtx, JObject jobj) {
         if (jtx == null)
             throw new IllegalArgumentException("null jtx");
-        return jtx.readSimpleField(id, this.storageId, false);
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        return jtx.readSimpleField(jobj, this.storageId, false);
     }
 
     /**
@@ -93,17 +94,19 @@ public class JSimpleField extends JField {
      * Does not alter the schema version of the object.
      *
      * @param jtx transaction
-     * @param id object id
+     * @param jobj object containing this field
      * @param value new value
-     * @throws DeletedObjectException if no object with ID equal to {@code id} is found
-     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws DeletedObjectException if {@code jobj} does not exist in {@code jtx}
+     * @throws StaleTransactionException if {@code jtx} is no longer usable
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for this field
-     * @throws IllegalArgumentException if {@code tx} or {@code id} is null
+     * @throws IllegalArgumentException if {@code jtx} or {@code jobj} is null
      */
-    public void setValue(JTransaction jtx, ObjId id, Object value) {
+    public void setValue(JTransaction jtx, JObject jobj, Object value) {
         if (jtx == null)
             throw new IllegalArgumentException("null jtx");
-        jtx.writeSimpleField(id, this.storageId, value, false);
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        jtx.writeSimpleField(jobj, this.storageId, value, false);
     }
 
     /**

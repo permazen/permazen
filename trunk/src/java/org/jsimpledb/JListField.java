@@ -39,10 +39,12 @@ public class JListField extends JCollectionField {
     }
 
     @Override
-    public List<?> getValue(JTransaction jtx, ObjId id) {
+    public List<?> getValue(JTransaction jtx, JObject jobj) {
         if (jtx == null)
             throw new IllegalArgumentException("null jtx");
-        return jtx.readListField(id, this.storageId, false);
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        return jtx.readListField(jobj, this.storageId, false);
     }
 
     @Override

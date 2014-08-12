@@ -7,8 +7,8 @@
 
 package org.jsimpledb.change;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
 
 /**
  * Change notification that indicates a new object has been created.
@@ -40,8 +40,8 @@ public class ObjectCreate<T> extends Change<T> {
     }
 
     @Override
-    public void apply(JTransaction tx, ObjId id) {
-        tx.recreate(id);
+    public void apply(JTransaction jtx, JObject jobj) {
+        jtx.recreate(jobj);
     }
 
 // Object

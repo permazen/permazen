@@ -9,7 +9,6 @@ package org.jsimpledb.change;
 
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjId;
 
 /**
  * Object change notification.
@@ -69,17 +68,17 @@ public abstract class Change<T> {
     /**
      * Apply this change to the given object in the given transaction.
      *
-     * @param id the ID of the target object to which to apply this change
-     * @param tx the transaction in which to apply this change
-     * @throws IllegalArgumentException if {@code tx} is null
-     * @throws org.jsimpledb.core.DeletedObjectException if no object with ID {@code id} exists in {@code tx}
-     * @throws org.jsimpledb.core.UnknownFieldException  if the target object in {@code tx} has a schema version that
+     * @param jobj the target object to which to apply this change
+     * @param jtx the transaction in which to apply this change
+     * @throws NullPointerException if {@code jtx} or {@code jobj} is null
+     * @throws org.jsimpledb.core.DeletedObjectException if {@code jobj} does not exist in {@code jtx}
+     * @throws org.jsimpledb.core.UnknownFieldException  if {@code jobj} has a schema version that
      *  does not contain the affected field, or in which the affected field has a different type
      * @throws RuntimeException if there is some other incompatibility between this change and the target object,
      *  for example, setting a list element at an index that is out of bounds
-     * @throws StaleTransactionException if {@code tx} is no longer usable
+     * @throws StaleTransactionException if {@code jtx} is no longer usable
      */
-    public abstract void apply(JTransaction tx, ObjId id);
+    public abstract void apply(JTransaction jtx, JObject jobj);
 
     /**
      * Apply this change to the object associated with this instance in the given transaction.
@@ -87,16 +86,16 @@ public abstract class Change<T> {
      * <p>
      * This is a convenience method, equivalent to:
      *  <blockquote><code>
-     *  apply(tx, this.getJObject().getObjId());
+     *  apply(jtx, this.getJObject());
      *  </code></blockquote>
      * </p>
      *
-     * @throws IllegalArgumentException if {@code tx} is null
+     * @throws IllegalArgumentException if {@code jtx} is null
      */
-    public void apply(JTransaction tx) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        this.apply(tx, this.getJObject().getObjId());
+    public void apply(JTransaction jtx) {
+        if (jtx == null)
+            throw new IllegalArgumentException("null jtx");
+        this.apply(jtx, this.getJObject());
     }
 
     /**
@@ -131,7 +130,7 @@ public abstract class Change<T> {
     public void apply(JObject jobj) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        this.apply(jobj.getTransaction(), jobj.getObjId());
+        this.apply(jobj.getTransaction(), jobj);
     }
 
 // Object
