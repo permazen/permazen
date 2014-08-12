@@ -112,7 +112,7 @@ import org.slf4j.LoggerFactory;
  * <b>Snapshot Transactions</b>
  * <ul>
  *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default {@link SnapshotJTransaction}</li>
- *  <li>{@link #copyTo(JTransaction, ObjId, ObjId, String[]) copyTo()} - Copy an object
+ *  <li>{@link #copyTo(JTransaction, JObject, ObjId, String[]) copyTo()} - Copy an object
  *      and its related objects into another transaction</li>
  *  <li>{@link #copyTo(JTransaction, Iterable) copyTo()} - Copy explicitly specified objects into another transaction</li>
  * </ul>
@@ -430,12 +430,12 @@ public class JTransaction {
      * </p>
      *
      * @param dest destination transaction
-     * @param srcId source object ID
-     * @param dstId target object ID, or null for same as {@code srcId}
+     * @param srcObj source object
+     * @param dstId target object ID, or null for the object ID of {@code srcObj}
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the copied object, i.e., the object having ID {@code dstId} in {@code dest}
-     * @throws DeletedObjectException if {@code srcId} does not exist in this transaction
-     * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcId}'s object's version
+     * @throws DeletedObjectException if {@code srcObj} does not exist in this transaction
+     * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcObj}'s object's version
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
@@ -447,13 +447,14 @@ public class JTransaction {
      * @see JObject#copyIn JObject.copyIn()
      * @see #copyTo(JTransaction, Iterable)
      */
-    public JObject copyTo(JTransaction dest, ObjId srcId, ObjId dstId, String... refPaths) {
+    public JObject copyTo(JTransaction dest, JObject srcObj, ObjId dstId, String... refPaths) {
 
         // Sanity check
         if (dest == null)
             throw new IllegalArgumentException("null destination transaction");
-        if (srcId == null)
-            throw new IllegalArgumentException("null srcId");
+        if (srcObj == null)
+            throw new IllegalArgumentException("null srcObj");
+        final ObjId srcId = srcObj.getObjId();
         if (dstId == null)
             dstId = srcId;
 
@@ -462,7 +463,7 @@ public class JTransaction {
             return dest.getJObject(dstId);
 
         // Copy "related objects" if a null reference path is given
-        final Iterable<? extends JObject> relatedObjects = refPaths == null ? this.getJObject(srcId).getRelatedObjects() : null;
+        final Iterable<? extends JObject> relatedObjects = refPaths == null ? srcObj.getRelatedObjects() : null;
         if (refPaths == null)
             refPaths = new String[0];
 
