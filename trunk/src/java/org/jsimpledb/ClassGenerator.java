@@ -121,7 +121,7 @@ class ClassGenerator<T> {
             QUERY_MAP_FIELD_KEY_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldKeyEntries", int.class, Class.class);
             QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldValueEntries",
               int.class, Class.class);
-            COPY_TO_METHOD = JTransaction.class.getMethod("copyTo", JTransaction.class, ObjId.class, ObjId.class, String[].class);
+            COPY_TO_METHOD = JTransaction.class.getMethod("copyTo", JTransaction.class, JObject.class, ObjId.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("internal error", e);
@@ -348,7 +348,6 @@ class ClassGenerator<T> {
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         mv.visitVarInsn(Opcodes.ALOAD, 2);
         mv.visitVarInsn(Opcodes.ALOAD, 3);
         this.emitInvoke(mv, COPY_TO_METHOD);
