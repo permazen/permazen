@@ -454,6 +454,11 @@ public class JTransaction {
             throw new IllegalArgumentException("null destination transaction");
         if (srcObj == null)
             throw new IllegalArgumentException("null srcObj");
+
+        // Handle possible re-entrant object cache load
+        srcObj.getTransaction().getJObjectCache().registerJObject(srcObj);
+
+        // Get source and dest ID
         final ObjId srcId = srcObj.getObjId();
         if (dstId == null)
             dstId = srcId;
@@ -562,7 +567,7 @@ public class JTransaction {
      * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
      *  is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if {@code dest} or {@code jobjs} is null
-     * @see #copyTo(JTransaction, ObjId, ObjId, String[])
+     * @see #copyTo(JTransaction, JObject, ObjId, String[])
      */
     public void copyTo(JTransaction dest, Iterable<? extends JObject> jobjs) {
 
@@ -580,8 +585,15 @@ public class JTransaction {
         final HashSet<ObjId> seen = new HashSet<>();
         final ArrayDeque<JReferenceField> emptyFields = new ArrayDeque<>();
         for (JObject jobj : jobjs) {
+
+            // Get next object
             if (jobj == null)
                 continue;
+
+            // Handle possible re-entrant object cache load
+            jobj.getTransaction().getJObjectCache().registerJObject(jobj);
+
+            // Copy object
             final ObjId id = jobj.getObjId();
             this.copyTo(seen, dest, id, id, true, emptyFields);
         }
@@ -622,21 +634,27 @@ public class JTransaction {
      * Get the Java model object with the given object ID and whose state derives from this transaction.
      *
      * <p>
-     * Note that while a non-null object is always returned, the corresponding object may not exist in this transaction.
+     * It is guaranteed that for any particular {@code id}, the same Java instance will always be returned by this instance.
+     * Note: while for any {@link ObjId} there is only one globally unique {@link JObject} per {@link JSimpleDB},
+     * each {@link SnapshotJTransaction} maintains its own pool of unique "snapshot" {@link JObject}s.
+     * </p>
+     *
+     * <p>
+     * A non-null object is always returned; however, the corresponding object may not exist in this transaction.
      * If not, attempts to access its fields will throw {@link DeletedObjectException}.
      * </p>
      *
      * @param id object ID
      * @return Java model object
-     * @throws IllegalArgumentException if {@code id} is null
      * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
      *  associated with this instance's {@link JSimpleDB}
+     * @throws IllegalArgumentException if {@code id} is null
      * @see #getJObject(ObjId, Class)
      * @see #getJObject(JObject)
      * @see JSimpleDB#getJObject JSimpleDB.getJObject()
      */
     public JObject getJObject(ObjId id) {
-        return this.jdb.getJObject(id);
+        return this.getJObjectCache().getJObject(id);
     }
 
     /**
@@ -721,6 +739,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean delete(JObject jobj) {
+        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
         return this.tx.delete(jobj.getObjId());
     }
 
@@ -754,6 +773,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean recreate(JObject jobj) {
+        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
         return this.tx.create(jobj.getObjId());
     }
 
@@ -843,6 +863,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean updateSchemaVersion(JObject jobj) {
+        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
         return this.tx.updateSchemaVersion(jobj.getObjId());
     }
 
@@ -890,6 +911,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public void writeSimpleField(JObject jobj, int storageId, Object value, boolean updateVersion) {
+        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
         final Converter<?, ?> converter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
         if (converter != null)
             value = this.convert(converter.reverse(), value);
@@ -1307,6 +1329,12 @@ public class JTransaction {
             for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods)
                 Util.invoke(info.getMethod(), jobj);
         }
+    }
+
+// Object Cache
+
+    JObjectCache getJObjectCache() {
+        return this.jdb.jobjectCache;
     }
 
 // InternalCreateListener
