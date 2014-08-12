@@ -7,10 +7,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SnapshotTransaction;
 
@@ -42,16 +38,7 @@ import org.jsimpledb.core.SnapshotTransaction;
  */
 public class SnapshotJTransaction extends JTransaction {
 
-    private final LoadingCache<ObjId, JObject> objectCache = CacheBuilder.newBuilder().weakValues().build(
-      new CacheLoader<ObjId, JObject>() {
-        @Override
-        public JObject load(ObjId id) throws Exception {
-            final JClass<?> jclass = SnapshotJTransaction.this.jdb.getJClass(id.getStorageId());
-            if (jclass == null)
-                throw new UnknownTypeException(id, SnapshotJTransaction.this.jdb.version);
-            return (JObject)jclass.getSnapshotConstructor().newInstance(id, SnapshotJTransaction.this);
-        }
-    });
+    final JObjectCache jobjectCache;
 
     /**
      * Create a new instance based on the specified transaction. This new instance will be initially empty
@@ -69,29 +56,13 @@ public class SnapshotJTransaction extends JTransaction {
      * @throws org.jsimpledb.core.StaleTransactionException if {@code jtx} is no longer usable
      */
     public SnapshotJTransaction(JTransaction jtx, ValidationMode validationMode) {
-        super(jtx.getJSimpleDB(), jtx.tx.createSnapshotTransaction(), validationMode);
-    }
-
-    /**
-     * Get the snapshot {@link JObject} associated with this instance and having the specified {@link ObjId}.
-     * The returned {@link JObject} does not necessarily exist in this snapshot; if not, attempts to
-     * access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
-     *
-     * <p>
-     * It is guaranteed that for any particular {@code id}, the same Java instance will always be returned by this instance.
-     * Note: while for any {@link ObjId} there is only one globally unique {@link JObject} per {@link JSimpleDB},
-     * each {@link SnapshotJTransaction} maintains its own pool of unique "snapshot" {@link JObject}s.
-     * </p>
-     *
-     * @param id object ID
-     * @return snapshot Java model object
-     * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
-     *  associated with this instance's {@link JSimpleDB}
-     * @throws IllegalArgumentException if {@code id} is null
-     */
-    @Override
-    public JObject getJObject(ObjId id) {
-        return Util.getJObject(this.objectCache, id);
+        super(jtx.jdb, jtx.tx.createSnapshotTransaction(), validationMode);
+        this.jobjectCache = new JObjectCache(jtx.jdb) {
+            @Override
+            protected JObject instantiate(JClass<?> jclass, ObjId id) throws Exception {
+                return (JObject)jclass.getSnapshotConstructor().newInstance(id, SnapshotJTransaction.this);
+            }
+        };
     }
 
     /**
@@ -146,6 +117,12 @@ public class SnapshotJTransaction extends JTransaction {
     @Override
     public boolean isValid() {
         return true;
+    }
+
+// Object Cache
+
+    JObjectCache getJObjectCache() {
+        return this.jobjectCache;
     }
 }
 

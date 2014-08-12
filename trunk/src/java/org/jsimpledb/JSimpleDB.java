@@ -7,9 +7,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayList;
@@ -86,19 +83,14 @@ public class JSimpleDB {
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final Database db;
     final int version;
-
-    volatile int lastVersion;
-
-    private final LoadingCache<ObjId, JObject> objectCache = CacheBuilder.newBuilder().weakValues().build(
-      new CacheLoader<ObjId, JObject>() {
+    final JObjectCache jobjectCache = new JObjectCache(this) {
         @Override
-        public JObject load(ObjId id) throws Exception {
-            final JClass<?> jclass = JSimpleDB.this.getJClass(id.getStorageId());
-            if (jclass == null)
-                throw new UnknownTypeException(id, JSimpleDB.this.version);
+        protected JObject instantiate(JClass<?> jclass, ObjId id) throws Exception {
             return (JObject)jclass.getConstructor().newInstance(id);
         }
-    });
+    };
+
+    volatile int lastVersion;
 
     private SchemaModel schemaModel;
     private NameIndex nameIndex;
@@ -472,7 +464,7 @@ public class JSimpleDB {
      *  associated with this instance
      */
     public JObject getJObject(ObjId id) {
-        return Util.getJObject(this.objectCache, id);
+        return this.jobjectCache.getJObject(id);
     }
 
     /**
