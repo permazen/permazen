@@ -554,23 +554,23 @@ public class JTransaction {
      * </p>
      *
      * @param dest destination transaction
-     * @param objIds {@link Iterable} returning the object ID's of the objects to copy; null values are ignored
-     * @throws DeletedObjectException if an object ID in {@code objIds} does not exist in this transaction
-     * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to an object ID in
-     *  {@code objId}'s object's version is not identical in this instance and {@code dest}
+     * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
+     * @throws DeletedObjectException if an object in {@code jobjs} does not exist in this transaction
+     * @throws org.jsimpledb.core.SchemaMismatchException if the schema version corresponding to an object in
+     *  {@code jobjs} is not identical in this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
      *  is {@linkplain Transaction#setReadOnly set read-only}
-     * @throws IllegalArgumentException if {@code dest} or {@code objIds} is null
+     * @throws IllegalArgumentException if {@code dest} or {@code jobjs} is null
      * @see #copyTo(JTransaction, ObjId, ObjId, String[])
      */
-    public void copyTo(JTransaction dest, Iterable<? extends ObjId> objIds) {
+    public void copyTo(JTransaction dest, Iterable<? extends JObject> jobjs) {
 
         // Sanity check
         if (dest == null)
             throw new IllegalArgumentException("null dest");
-        if (objIds == null)
-            throw new IllegalArgumentException("null objIds");
+        if (jobjs == null)
+            throw new IllegalArgumentException("null jobjs");
 
         // Check trivial case
         if (this.tx == dest.tx)
@@ -579,9 +579,11 @@ public class JTransaction {
         // Copy objects
         final HashSet<ObjId> seen = new HashSet<>();
         final ArrayDeque<JReferenceField> emptyFields = new ArrayDeque<>();
-        for (ObjId id : objIds) {
-            if (id != null)
-                this.copyTo(seen, dest, id, id, true, emptyFields);
+        for (JObject jobj : jobjs) {
+            if (jobj == null)
+                continue;
+            final ObjId id = jobj.getObjId();
+            this.copyTo(seen, dest, id, id, true, emptyFields);
         }
     }
 

@@ -469,12 +469,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
                 }
             });
             final SnapshotJTransaction sjtx = jtx.getSnapshotTransaction();
-            jtx.copyTo(sjtx, Iterables.transform(relatedObjects, new Function<JObject, ObjId>() {
-                @Override
-                public ObjId apply(JObject jobj) {
-                    return jobj.getObjId();
-                }
-            }));
+            jtx.copyTo(sjtx, relatedObjects);
             for (JObject jobj : relatedObjects) {
                 final ObjId id = jobj.getObjId();
                 HashSet<ObjId> affectedIds = this.relatedObjectMap.get(id);
