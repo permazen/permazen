@@ -29,5 +29,13 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Documented
 public @interface OnDelete {
+
+    /**
+     * Determines whether this annotation should be enabled for
+     * {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transactions}.
+     *
+     * @see org.jsimpledb.SnapshotJTransaction
+     */
+    boolean snapshotTransactions() default false;
 }
 

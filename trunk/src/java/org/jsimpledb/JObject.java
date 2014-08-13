@@ -168,7 +168,8 @@ public interface JObject {
      * object) already exists in {@code dest}, it will have its schema version updated first, if necessary, otherwise it will
      * be created. Any {@link org.jsimpledb.annotation.OnCreate &#64;OnVersionChange}, {@link org.jsimpledb.annotation.OnCreate
      * &#64;OnCreate}, and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} methods will be notified accordingly as usual
-     * (in {@code dest}).
+     * (in {@code dest}); however, for {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}.
      * </p>
      *
      * <p>
@@ -225,7 +226,7 @@ public interface JObject {
      * {@linkplain JTransaction#getSnapshotTransaction corresponding} to this instance's associated transaction.
      * If any object already exists there, it will be overwritten, otherwise it will be created.
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
-     * notifications will be delivered accordingly.
+     * notifications will be delivered accordingly; however, the annotation must have {@code snapshotTransactions = true}.
      * </p>
      *
      * <p>
@@ -263,7 +264,7 @@ public interface JObject {
      * with the current thread.
      * If any object already exists in the current thread's transaction, it will be overwritten, otherwise it will be created.
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
-     * notifications will be delivered accordingly.
+     * notifications will be delivered accordingly; however, the annotation must have {@code snapshotTransactions = true}.
      * </p>
      *
      * <p>

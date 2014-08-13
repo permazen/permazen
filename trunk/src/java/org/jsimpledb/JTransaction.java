@@ -207,6 +207,8 @@ public class JTransaction {
         this.tx.addVersionChangeListener(this.internalVersionChangeListener);
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
+                if (this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
+                    continue;
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
                 changeInfo.registerChangeListener(this);
             }
@@ -396,18 +398,23 @@ public class JTransaction {
     /**
      * Get the default {@link SnapshotJTransaction} associated with this instance.
      *
+     * <p>
+     * The default {@link SnapshotJTransaction} uses {@link ValidationMode#MANUAL}.
+     * </p>
+     *
      * @see JObject#copyOut JObject.copyOut()
      */
     public synchronized SnapshotJTransaction getSnapshotTransaction() {
         if (this.snapshotTransaction == null)
-            this.snapshotTransaction = new SnapshotJTransaction(this, ValidationMode.AUTOMATIC);
+            this.snapshotTransaction = new SnapshotJTransaction(this, ValidationMode.MANUAL);
         return this.snapshotTransaction;
     }
 
     /**
      * Copy the specified object into the specified destination transaction. The destination object will
      * be created if necessary. {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly.
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly;
+     * however, the annotation must have {@code snapshotTransactions = true}.
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
@@ -541,7 +548,8 @@ public class JTransaction {
     /**
      * Copy the objects in the specified {@link Iterable} into the specified destination transaction.
      * Destination objects will be created if necessary, and {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly.
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly;
+     * however, the annotation must have {@code snapshotTransactions = true}.
      *
      * <p>
      * If an object is encountered more than once, it is not copied again.
@@ -1353,6 +1361,8 @@ public class JTransaction {
         private <T> void doOnCreate(JClass<T> jclass, ObjId id) {
             Object jobj = null;
             for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods) {
+                if (JTransaction.this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
+                    continue;
                 if (jobj == null)
                     jobj = JTransaction.this.getJObject(id);
                 Util.invoke(info.getMethod(), jobj);
@@ -1378,6 +1388,8 @@ public class JTransaction {
         private <T> void doOnDelete(JClass<T> jclass, ObjId id) {
             Object jobj = null;
             for (OnDeleteScanner<T>.MethodInfo info : jclass.onDeleteMethods) {
+                if (JTransaction.this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
+                    continue;
                 if (jobj == null)
                     jobj = JTransaction.this.getJObject(id);
                 Util.invoke(info.getMethod(), jobj);
