@@ -7,6 +7,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
@@ -36,7 +37,6 @@ import org.jsimpledb.core.Field;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ReferenceField;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.Transaction;
@@ -389,8 +389,19 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         /**
          * Convert {@link ObjId} to {@link JObject} as necessary for the specified field.
          */
+        @SuppressWarnings("unchecked")
         private Object convert(SimpleField<?> field, Object obj) {
-            return obj != null && field instanceof ReferenceField ? this.jtx.getJObject((ObjId)obj) : obj;
+
+            // Get the JField that corresponds to the core API field
+            final JSimpleField jfield = (JSimpleField)this.jtx.jdb.jfields.get(field.getStorageId());
+
+            // Get converter
+            final Converter<Object, Object> converter = (Converter<Object, Object>)jfield.getConverter(this.jtx);
+            if (converter == null)
+                return obj;
+
+            // Convert
+            return converter.convert(obj);
         }
 
         /**
