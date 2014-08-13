@@ -12,9 +12,6 @@
 - Integrate CountingKVStore into KVStore, making it mandatory
     - Create AbstractKVStore, replacing CountingKVStoreAdapter
 
-- @OnChange, @OnCreate, @OnDelete:
-    - Add boolean snapshotTransactions() default false
-
 - Consider renaming @IndexQuery "startType" to "type"
 
 - Add new @JField property: boolean cascadeDelete()

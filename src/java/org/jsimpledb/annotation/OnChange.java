@@ -131,5 +131,13 @@ public @interface OnChange {
      * @see org.jsimpledb.ReferencePath
      */
     Class<?> startType() default void.class;
+
+    /**
+     * Determines whether this annotation should be enabled for
+     * {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transactions}.
+     *
+     * @see org.jsimpledb.SnapshotJTransaction
+     */
+    boolean snapshotTransactions() default false;
 }
 
