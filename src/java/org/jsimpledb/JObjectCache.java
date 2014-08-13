@@ -12,6 +12,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -67,6 +68,8 @@ abstract class JObjectCache {
         }
 
         // Handle exception
+        if (cause instanceof InvocationTargetException)
+            cause = ((InvocationTargetException)cause).getTargetException();
         if (cause instanceof JSimpleDBException)
             throw (JSimpleDBException)cause;
         if (cause instanceof Error)
