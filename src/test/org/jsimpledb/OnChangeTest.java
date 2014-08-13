@@ -132,6 +132,33 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testColorChange() {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(ColorHolder.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final ColorHolder obj = jtx.create(ColorHolder.class);
+
+            obj.setColor(Color.BLUE);
+            Assert.assertSame(obj.getOldColor(), null);
+            Assert.assertSame(obj.getNewColor(), Color.BLUE);
+
+            obj.setColor(Color.GREEN);
+            Assert.assertSame(obj.getOldColor(), Color.BLUE);
+            Assert.assertSame(obj.getNewColor(), Color.GREEN);
+
+            obj.setColor(null);
+            Assert.assertSame(obj.getOldColor(), Color.GREEN);
+            Assert.assertSame(obj.getNewColor(), null);
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
     private void verify(FieldChange<?>... changes) {
         Assert.assertEquals(EVENTS.get(), Arrays.asList(changes), "\nACTUAL: " + EVENTS.get()
           + "\nEXPECTED: " + Arrays.asList(changes));
@@ -380,6 +407,37 @@ public class OnChangeTest extends TestSupport {
             OnChangeTest.verifyCopy(change);
             OnChangeTest.recordChange(change);
         }
+    }
+
+    @JSimpleClass(storageId = 400)
+    public abstract static class ColorHolder implements JObject {
+
+        private Color oldColor;
+        private Color newColor;
+
+        public Color getOldColor() {
+            return this.oldColor;
+        }
+        public Color getNewColor() {
+            return this.newColor;
+        }
+
+        @JField(storageId = 401)
+        public abstract Color getColor();
+        public abstract void setColor(Color color);
+
+        @OnChange("color")
+        private void colorChange(SimpleFieldChange<ColorHolder, Color> change) {
+            Assert.assertSame(change.getObject(), this);
+            this.oldColor = change.getOldValue();
+            this.newColor = change.getNewValue();
+        }
+    }
+
+    public static enum Color {
+        RED,
+        GREEN,
+        BLUE;
     }
 }
 
