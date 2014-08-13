@@ -120,7 +120,7 @@ public abstract class Change<T> {
      * <p>
      * This is a convenience method, equivalent to:
      *  <blockquote><code>
-     *  apply(obj.getTransaction(), jobj.getObjId());
+     *  apply(obj.getTransaction(), jobj);
      *  </code></blockquote>
      * </p>
      *
