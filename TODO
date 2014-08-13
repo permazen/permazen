@@ -1,6 +1,8 @@
 
 - Expression parsing
     - Make Value interface; add LValue sub-interface
+    - Support Comparable with < > <= >=
+    - Aggregate functions: min(), max(), avg(), sum()
 
 - JTransaction convenience method for "static" index queries:
 
@@ -10,14 +12,12 @@
 - Integrate CountingKVStore into KVStore, making it mandatory
     - Create AbstractKVStore, replacing CountingKVStoreAdapter
 
-- Change terminology "snapshot" transaction -> "memory" transaction
-
 - @OnChange, @OnCreate, @OnDelete:
-    - Add boolean memoryTransactions() default false
+    - Add boolean snapshotTransactions() default false
 
 - Consider renaming @IndexQuery "startType" to "type"
 
-- Add @JFieldboolean cascadeDelete()
+- Add new @JField property: boolean cascadeDelete()
 
 - Add @JField uniqueness constraints:
     - Field must be indexed (obviously)
@@ -39,24 +39,19 @@
 - XMLKVDatabase
     - Provide subclass hook for a default initial XML database
 
-- CLI
-    - Support Comparable with < > <= >=
-    - Aggregate functions: min(), max(), avg(), sum()
-
 - Composite indexes on multiple fields?
     - @CompositeIndex(storageId = 123, fields = { 15, 16 })
     - public NavigableSet<?> queryIndex(int... storageId)
 
 - Add Vaadin GUI editor generator
 
-- Bug: if same simple field storage ID used in two different Java classes,
-  an @IndexQuery on one could return sets containing instances of the other
-  Fix: require method return type to have common ancestor as set element type.
-
 - Ant task for easy validation of JLayer annotations during a build
 
 - Reimplement LockManager using Guava ranges?
     - https://code.google.com/p/guava-libraries/wiki/RangesExplained
+
+- Schema cleanup method: Transaction.removeSchemaVersion(int)
+    - Performs version index query to verify, then removes unused schema version
 
 - More built-in field types:
     - BigInteger, BigDecimal
