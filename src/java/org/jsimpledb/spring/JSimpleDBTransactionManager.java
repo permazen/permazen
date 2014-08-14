@@ -187,7 +187,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
         // Suspend it
         if (this.logger.isTraceEnabled())
-            this.logger.trace("suspending current JSimpleDB transaction" + jtx);
+            this.logger.trace("suspending current JSimpleDB transaction " + jtx);
         JTransaction.setCurrent(null);
 
         // Done
@@ -207,7 +207,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         // Resume transaction
         final JTransaction jtx = (JTransaction)suspendedResources;
         if (this.logger.isTraceEnabled())
-            this.logger.trace("resuming JSimpleDB transaction" + jtx);
+            this.logger.trace("resuming JSimpleDB transaction " + jtx);
         JTransaction.setCurrent(jtx);
     }
 
