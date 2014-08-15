@@ -32,7 +32,9 @@ import org.springframework.transaction.support.TransactionSynchronization;
 
 /**
  * JSimpleDB implementation of Spring's
- * {@link org.springframework.transaction.PlatformTransactionManager PlatformTransactionManager} interface.
+ * {@link org.springframework.transaction.PlatformTransactionManager PlatformTransactionManager} interface,
+ * allowing methods annotated with Spring's {@link org.springframework.transaction.annotation.Transactional &#64;Transactional}
+ * annotation to perform transactions on a {@link JSimpleDB} database.
  *
  * <p>
  * Properly integrates with {@link JTransaction#getCurrent JTransaction.getCurrent()} to participate in
