@@ -13,7 +13,6 @@ import java.util.Enumeration;
 
 import javax.servlet.ServletContextEvent;
 
-import org.dellroad.stuff.spring.ThreadLocalContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.IntrospectorCleanupListener;
@@ -33,11 +32,6 @@ public class ContextCleanupListener extends IntrospectorCleanupListener {
     /**
      * Unregisters any JDBC drivers registered under the current class loader after
      * first invoking the superclass version of this method.
-     *
-     * <p>
-     * Also resets the {@link ThreadLocalContext} singleton instance
-     * so Tomcat won't complain about the lingering ThreadLocal variables.
-     * </p>
      */
     @Override
     public void contextDestroyed(ServletContextEvent event) {
@@ -61,9 +55,6 @@ public class ContextCleanupListener extends IntrospectorCleanupListener {
                 if (driver.getClass().getClassLoader() == thisClassLoader)
                     DriverManager.deregisterDriver(driver);
             }
-
-            // Reset the ThreadLocalContext singleton instance to make Tomcat happy
-            ThreadLocalContext.setInstance(new ThreadLocalContext());
         } catch (Throwable e) {
             log.error("exception cleaning up servlet context", e);
         }

@@ -1,3 +1,11 @@
+Version Next
+
+    - Rewrote PersistentObjectTransactionManager as a Spring PlatformTransactionManager;
+      removed @PersistentObjectTransactional and associated AOP aspect
+    - Removed arcane @ThreadConfigurable and @ThreadTransactional
+      NOTE: the above are backward-incompatible changes
+    - Update to Spring 4.0.x
+
 Version 1.0.905 Released July 29, 2014
 
     - Improvements relating to serialization and HTTP sessions with Vaadin 7
