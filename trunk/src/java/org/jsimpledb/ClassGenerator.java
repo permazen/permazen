@@ -404,8 +404,9 @@ class ClassGenerator<T> {
 
         // Add methods that override @IndexQuery methods
         for (IndexQueryScanner<?>.MethodInfo i : jclass.indexQueryMethods) {
-            final IndexQueryScanner<?>.IndexMethodInfo info = (IndexQueryScanner<?>.IndexMethodInfo)i;
-            final Method method = info.getMethod();
+            final IndexQueryScanner<?>.IndexMethodInfo indexMethodInfo = (IndexQueryScanner<?>.IndexMethodInfo)i;
+            final IndexQueryScanner.IndexInfo indexInfo = indexMethodInfo.indexInfo;
+            final Method method = indexMethodInfo.getMethod();
 
             // Generate initial stuff
             mv = cw.visitMethod(method.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PRIVATE | Opcodes.ACC_PROTECTED),
@@ -414,11 +415,11 @@ class ClassGenerator<T> {
             // Invoke this.getTransaction().queryXXX()
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
-            final boolean isEntryQuery = info.targetSuperField != null && info.queryType != 0;
-            mv.visitLdcInsn(isEntryQuery ? info.targetSuperField.storageId : info.targetField.storageId);
-            mv.visitLdcInsn(Type.getType(info.startType.getRawType()));
+            final boolean isEntryQuery = indexInfo.targetSuperField != null && indexMethodInfo.queryType != 0;
+            mv.visitLdcInsn(isEntryQuery ? indexInfo.targetSuperField.storageId : indexInfo.targetField.storageId);
+            mv.visitLdcInsn(Type.getType(indexInfo.startType.getRawType()));
             this.emitInvoke(mv, isEntryQuery ?
-              info.targetSuperField.getIndexEntryQueryMethod(info.queryType) : QUERY_SIMPLE_FIELD_METHOD);
+              indexInfo.targetSuperField.getIndexEntryQueryMethod(indexMethodInfo.queryType) : QUERY_SIMPLE_FIELD_METHOD);
             mv.visitInsn(Opcodes.ARETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
