@@ -52,6 +52,7 @@ import org.jsimpledb.kv.util.XMLSerializer;
  *
  * @see XMLSerializer
  * @see AtomicUpdateFileOutputStream
+ * @see org.jsimpledb.spring.SpringXMLKVDatabase
  */
 public class XMLKVDatabase extends SimpleKVDatabase {
 
@@ -97,7 +98,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      *
      * <p>
      * The implementation in {@link XMLKVDatabase} opens and returns the {@link File} configured by
-     * {@link #setInitialContentFile setInitialContentFile()}, if any.
+     * {@link #setInitialContentFile setInitialContentFile()}, if any, otherwise null.
      * </p>
      *
      * @return default initial XML database content, or null for none
