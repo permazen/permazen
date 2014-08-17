@@ -70,6 +70,10 @@ public class XMLSerializer extends AbstractXMLStreaming {
     /**
      * Import key/value pairs into the {@link KVStore} associated with this instance from the given XML input.
      *
+     * <p>
+     * The {@code input} is not closed by this method.
+     * </p>
+     *
      * @param input XML input
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code input} is null
@@ -83,8 +87,8 @@ public class XMLSerializer extends AbstractXMLStreaming {
     /**
      * Import key/value pairs into the {@link KVStore} associated with this instance from the given XML input.
      * This method expects to see an opening {@code <entries>} as the next event (not counting whitespace, comments, etc.),
-     * which is then consumed up through the closing {@code </entries>} event. Therefore this tag could be part of a
-     * larger XML document.
+     * which is then consumed up through the closing {@code </entries>} event. The {@code reader} is not closed by this method.
+     * Therefore, this tag could be part of a larger XML document.
      *
      * @param reader XML reader
      * @throws XMLStreamException if an error occurs
@@ -120,6 +124,10 @@ public class XMLSerializer extends AbstractXMLStreaming {
     /**
      * Export all key/value pairs from the {@link KVStore} associated with this instance to the given output.
      *
+     * <p>
+     * The {@code output} is not closed by this method.
+     * </p>
+     *
      * @param output XML output; will not be closed by this method
      * @param indent true to indent output, false for all on one line
      * @throws XMLStreamException if an error occurs
@@ -137,6 +145,10 @@ public class XMLSerializer extends AbstractXMLStreaming {
 
     /**
      * Export all key/value pairs from the {@link KVStore} associated with this instance to the given writer.
+     *
+     * <p>
+     * The {@code writer} is not closed by this method.
+     * </p>
      *
      * @param writer XML output; will not be closed by this method
      * @param indent true to indent output, false for all on one line
@@ -160,6 +172,10 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * This method writes a start element as its first action, allowing the output to be embedded into a larger XML document.
      * Callers not embedding the output may with to precede invocation of this method with a call to
      * {@link XMLStreamWriter#writeStartDocument writer.writeStartDocument()}.
+     * </p>
+     *
+     * <p>
+     * The {@code writer} is not closed by this method.
      * </p>
      *
      * @param writer XML writer; will not be closed by this method
