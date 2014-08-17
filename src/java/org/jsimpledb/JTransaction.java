@@ -716,7 +716,9 @@ public class JTransaction {
     public <T extends JObject> T getJObject(T jobj) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        return (T)jobj.getClass().cast(this.getJObject(jobj.getObjId()));
+        final ObjId id = jobj.getObjId();
+        final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
+        return (T)jclass.typeToken.getRawType().cast(this.getJObject(id));
     }
 
     /**
