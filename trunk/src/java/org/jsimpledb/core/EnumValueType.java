@@ -13,7 +13,7 @@ import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
- * Raw {@link Enum} type. Does not support null values, but generates them when a value cannot be decoded.
+ * Raw {@link Enum} type. Does not support null values.
  */
 class EnumValueType extends FieldType<EnumValue> {
 

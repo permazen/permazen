@@ -8,7 +8,9 @@
 package org.jsimpledb.core;
 
 /**
- * Holds a non-null {@link Enum} value without utilizing or referencing any Java {@link Enum} type.
+ * Holds a non-null {@link Enum} value without actually referencing any Java {@link Enum} type.
+ *
+ * @see org.jsimpledb.EnumConverter
  */
 public class EnumValue {
 
