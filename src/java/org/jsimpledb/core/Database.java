@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Includes support for:
  * <ul>
- *  <li>Objects and fields defined by a {@link SchemaModel}</li>
- *  <li>Simple values fields containing any atomic type</li>
- *  <li>User-defined custom {@link FieldType}s</li>
+ *  <li>Objects and fields defined by a {@link SchemaModel}, with positive schema verification</li>
+ *  <li>Simple values fields containing any atomic type, reference or custom {@link FieldType}</li>
+ *  <li>Complex fields of type {@link java.util.List}, {@link java.util.NavigableSet}, and {@link java.util.NavigableMap}</li>
  *  <li>Invertable reference fields with strong referential integrity and configurable delete cascading</li>
- *  <li>Complex fields of type {@link java.util.NavigableSet}, {@link java.util.List}, and {@link java.util.NavigableMap}</li>
- *  <li>Configurable indexing of any simple or complex field</li>
- *  <li>Notification of field changes as seen through an arbitrary path of references</li>
+ *  <li>Configurable indexing of any simple field or complex sub-field</li>
+ *  <li>Notification of object creation and deletion</li>
+ *  <li>Notification of object field changes, as seen through an arbitrary path of references</li>
  *  <li>Automatic schema tracking and object versioning with schema change notification support</li>
  * </ul>
  * </p>
@@ -57,9 +57,11 @@ import org.slf4j.LoggerFactory;
  * independent of {@link org.jsimpledb.JSimpleDB} and can be used on its own.
  * Compared to {@link org.jsimpledb.JSimpleDB}, a {@link Database} has these differences:
  * <ul>
- *  <li>A {@link SchemaModel} must be explicitly provided to define the schema in use</li>
- *  <li>Database objects are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type</li>
- *  <li>All object types and fields must be referenced by storage ID using a {@link Transaction} object</li>
+ *  <li>A {@link SchemaModel} must be explicitly provided to define the schema in use, whereas when using a
+ *      {@link org.jsimpledb.JSimpleDB} the schema is derived automatically from the corresponding Java model classes</li>
+ *  <li>Object references are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type</li>
+ *  <li>All object types and fields are referenced by storage ID</li>
+ *  <li>Enum values are represented by {@link EnumValue} objects</li>
  *  <li>There is no automatic validation support</li>
  * </ul>
  * </p>
