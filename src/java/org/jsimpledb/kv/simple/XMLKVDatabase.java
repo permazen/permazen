@@ -9,8 +9,10 @@ package org.jsimpledb.kv.simple;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.xml.stream.XMLStreamException;
@@ -30,7 +32,9 @@ import org.jsimpledb.kv.util.XMLSerializer;
  *
  * <p>
  * If a {@link FileNotFoundException} is caught when trying to read the XML file, we assume that the underlying file has
- * not yet been created and the database will initially be empty.
+ * not yet been created and the database will initially be empty. Alternately, you can configure a file containing
+ * default initial content via {@link #setInitialContentFile setInitialContentFile()}, or override {@link #getInitialContent}
+ * to create the initial content more dynamically.
  * </p>
  *
  * <p>
@@ -57,6 +61,9 @@ public class XMLKVDatabase extends SimpleKVDatabase {
 
     private int generation;
     private long timestamp;
+    private File initialContentFile;
+
+// Constructors
 
     /**
      * Normal constructor. Uses a {@link FileStreamRepository} backed by the specified file.
@@ -81,6 +88,32 @@ public class XMLKVDatabase extends SimpleKVDatabase {
         this.serializer = new XMLSerializer(this.kv);
         this.reload();
         this.file = repository instanceof FileStreamRepository ? ((FileStreamRepository)repository).getFile() : null;
+    }
+
+    /**
+     * Get the initial content for an uninitialized database. This method is invoked when, on the first load,
+     * the backing XML file is not found. It should return a stream that reads initial content for the database,
+     * if any, otherwise null.
+     *
+     * <p>
+     * The implementation in {@link XMLKVDatabase} opens and returns the {@link File} configured by
+     * {@link #setInitialContentFile setInitialContentFile()}, if any.
+     * </p>
+     *
+     * @return default initial XML database content, or null for none
+     */
+    protected InputStream getInitialContent() throws IOException {
+        return this.initialContentFile != null ? new FileInputStream(this.initialContentFile) : null;
+    }
+
+    /**
+     * Configure the {@link File} containing default initial content for an uninitialized database. This method is invoked
+     * by {@link #getInitialContent} when, on the first load, the backing XML file is not found.
+     *
+     * @return default initial XML database file, or null for none
+     */
+    public void setInitialContentFile(File initialContentFile) {
+        this.initialContentFile = initialContentFile;
     }
 
     @Override
@@ -156,20 +189,53 @@ public class XMLKVDatabase extends SimpleKVDatabase {
     }
 
     protected synchronized void readXML() {
-        this.generation++;
+
+        // Clear all existing keys
         this.kv.removeRange(null, null);
-        if (this.file != null)
-            this.timestamp = this.file.lastModified();
+
+        // Snapshot file's current modification timestamp
+        final long newTimestamp = this.file != null ? this.file.lastModified() : 0;
+
+        // Open file input
+        InputStream input;
         try {
-            final BufferedInputStream input = new BufferedInputStream(this.repository.getInputStream());
-            this.serializer.read(input);
+            input = this.repository.getInputStream();
         } catch (FileNotFoundException e) {
-            // no problem, we'll create a new file
+
+            // If this is not the first load, file must have mysteriously disappeared
+            if (this.generation != 0)
+                throw new KVDatabaseException(this, "error reading XML content: file not longer available", e);
+
+            // Get default initial content instead, if any
+            try {
+                input = this.getInitialContent();
+            } catch (IOException e2) {
+                throw new KVDatabaseException(this, "error opening initial XML content", e2);
+            }
+            if (input == null)
+                throw new KVDatabaseException(this, "file `" + this.file + "' not found and no initial content is configured", e);
+            this.log.info("file `" + this.file + "' not found; applying default initial content");
         } catch (IOException e) {
-            throw new KVDatabaseException(this, "error reading XML content", e);
+            throw new KVDatabaseException(this, "error opening XML content", e);
+        }
+
+        // Read XML
+        try {
+            this.serializer.read(new BufferedInputStream(input));
         } catch (XMLStreamException e) {
             throw new KVDatabaseException(this, "error reading XML content", e);
+        } finally {
+            try {
+                input.close();
+            } catch (IOException e) {
+                // ignore
+            }
         }
+
+        // Update timestamp and generation number
+        if (newTimestamp != 0)
+            this.timestamp = newTimestamp;
+        this.generation++;
     }
 
     protected synchronized void writeXML() {
