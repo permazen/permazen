@@ -128,7 +128,7 @@ public class JSimpleField extends JField {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Converter<?, ?> getConverter(JTransaction jtx) {
         if (Enum.class.isAssignableFrom(this.typeToken.getRawType()))
-            return this.createEnumConverter((TypeToken<Enum>)this.typeToken);
+            return new EnumConverter(this.typeToken.getRawType());
         return null;
     }
 
@@ -207,11 +207,6 @@ public class JSimpleField extends JField {
         types.add(new TypeToken<NavigableMap<V, NavigableSet<T>>>() { }
           .where(new TypeParameter<V>() { }, fieldType.wrap())
           .where(new TypeParameter<T>() { }, targetType));
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <T extends Enum<T>> EnumConverter<T> createEnumConverter(TypeToken<T> etype) {
-        return new EnumConverter<T>(etype);
     }
 }
 

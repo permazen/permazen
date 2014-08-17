@@ -8,7 +8,6 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
-import com.google.common.reflect.TypeToken;
 
 import java.util.HashMap;
 
@@ -19,23 +18,29 @@ import org.jsimpledb.core.EnumValue;
  * Converts between core database {@link EnumValue} objects and the corresponding Java {@link Enum} model values.
  *
  * <p>
- * When converting in the forward direction from {@link EnumValue} to {@link Enum}, it is possible no value in the
- * {@link Enum} type matches. In that case, an {@link UnmatchedEnumException} will be thrown.
+ * When converting in the forward direction from {@link EnumValue} to {@link Enum}, the corresponding {@link Enum} value
+ * is chosen by first attempting to match by {@linkplain EnumValue#getName name}, then by
+ * {@linkplain EnumValue#getOrdinal ordinal value}. If neither match succeeds, an {@link UnmatchedEnumException} is thrown.
  * </p>
  */
 public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
 
-    private final TypeToken<T> typeToken;
-
+    private final Class<T> enumType;
     private final HashMap<Integer, T> ordinalMap = new HashMap<>();
     private final HashMap<String, T> nameMap = new HashMap<>();
 
-    EnumConverter(TypeToken<T> typeToken) {
-        if (typeToken == null)
-            throw new IllegalArgumentException("null typeToken");
-        typeToken.getRawType().asSubclass(Enum.class);                  // verify it's really an Enum
-        this.typeToken = typeToken;
-        for (T value : EnumUtil.getValues(this.getType())) {
+    /**
+     * Constructor.
+     *
+     * @param enumType {@link Enum} type
+     * @throws IllegalArgumentException if {@code enumType} is null
+     */
+    public EnumConverter(Class<T> enumType) {
+        if (enumType == null)
+            throw new IllegalArgumentException("null enumType");
+        enumType.asSubclass(Enum.class);                            // verify it's really an Enum
+        this.enumType = enumType;
+        for (T value : EnumUtil.getValues(this.enumType)) {
             this.ordinalMap.put(value.ordinal(), value);
             this.nameMap.put(value.name(), value);
         }
@@ -49,7 +54,7 @@ public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
         final T ordinalMatch = this.ordinalMap.get(enumValue.getOrdinal());
         final T value = nameMatch != null ? nameMatch : ordinalMatch;
         if (value == null)
-            throw new UnmatchedEnumException(this.getType(), enumValue);
+            throw new UnmatchedEnumException(this.enumType, enumValue);
         return value;
     }
 
@@ -60,9 +65,11 @@ public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
         return new EnumValue(value);
     }
 
-    @SuppressWarnings("unchecked")
-    protected Class<T> getType() {
-        return (Class<T>)this.typeToken.getRawType();
+    /**
+     * Get the {@link Enum} type associated with this instance.
+     */
+    public Class<T> getEnumType() {
+        return this.enumType;
     }
 }
 
