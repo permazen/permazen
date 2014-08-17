@@ -37,10 +37,6 @@ public class TypeTable extends TreeTable {
         this.setColumnCollapsingAllowed(true);
         this.setColumnCollapsed(TypeContainer.STORAGE_ID_PROPERTY, true);
         this.setColumnCollapsed(TypeContainer.TYPE_PROPERTY, true);
-
-        // Expand all root nodes
-        for (TypeToken<?> typeToken : container.rootItemIds())
-            this.setCollapsed(typeToken, false);
     }
 
     protected void addColumn(String property, String name, int width, Table.Align alignment) {
@@ -60,6 +56,10 @@ public class TypeTable extends TreeTable {
     public void attach() {
         super.attach();
         this.getContainer().connect();
+
+        // Expand all root nodes
+        for (TypeToken<?> typeToken : this.getContainer().rootItemIds())
+            this.setCollapsed(typeToken, false);
     }
 
     @Override
