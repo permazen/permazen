@@ -38,10 +38,10 @@ import org.jsimpledb.util.XMLObjectSerializer;
 import jline.console.completer.FileNameCompleter;
 
 @Command
-public class ExportCommand extends AbstractCommand {
+public class SaveCommand extends AbstractCommand {
 
-    public ExportCommand() {
-        super("export --storage-id-format:storageIdFormat file.xml:file expr:expr");
+    public SaveCommand() {
+        super("save --storage-id-format:storageIdFormat file.xml:file expr:expr");
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ExportCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "Evaluates the expression, which must evaluate to an Iterator (or Iterable) of database objects,"
-          + " and writes the objects to the specified XML file.";
+          + " and writes the objects to the specified XML file. Objects can be read back in later via `load'.";
     }
 
     @Override
@@ -68,12 +68,12 @@ public class ExportCommand extends AbstractCommand {
         final File file = (File)params.get("file.xml");
         final Node expr = (Node)params.get("expr");
 
-        // Return export action
+        // Return action
         return new CliSession.Action() {
             @Override
             public void run(CliSession session) throws Exception {
                 final Value value = expr.evaluate(session);
-                final Iterable<?> i = value.checkType(session, "export", Iterable.class);
+                final Iterable<?> i = value.checkType(session, "save", Iterable.class);
                 final AtomicUpdateFileOutputStream updateOutput = new AtomicUpdateFileOutputStream(file);
                 final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
                 boolean success = false;
