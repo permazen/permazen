@@ -167,6 +167,22 @@ public class BasicTest extends TestSupport {
               Mood.NORMAL,  buildSet(t3),
               null,         buildSet(t2)));
 
+            // JTransaction index queries
+            Assert.assertEquals(tx.queryIndex(Person.class, "mood", Mood.class),
+              i.queryMoods());
+            Assert.assertEquals(tx.queryIndex(Person.class, "nicknames.element", String.class),
+              i.queryNicknames());
+            Assert.assertEquals(tx.queryIndex(Person.class, "scores.element", Integer.class),
+              i.queryScores());
+            Assert.assertEquals(tx.queryIndex(MeanPerson.class, "scores.element", Integer.class),
+              i.queryScoresMean());
+            Assert.assertEquals(tx.queryListFieldEntries(Person.class, "scores.element", Integer.class),
+              i.queryScoreEntries());
+            Assert.assertEquals(tx.queryMapFieldKeyEntries(Person.class, "ratings.key", Person.class, Float.class),
+              i.queryRatingKeyEntries());
+            Assert.assertEquals(tx.queryMapFieldValueEntries(Person.class, "ratings.value", Person.class, Float.class),
+              i.queryRatingValueEntries());
+
             // Check restricted indexes
             Assert.assertEquals(i.queryScoresMean(), buildMap(
               21,           buildSet(t1),

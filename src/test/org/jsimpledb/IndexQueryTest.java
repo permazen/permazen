@@ -46,6 +46,8 @@ public class IndexQueryTest extends TestSupport {
             b1.setAccount(a1);
             b2.setAccount(a2);
 
+        // @IndexQuery's
+
             Assert.assertEquals(a1.getFoos(), buildSet(f1));
             Assert.assertEquals(a1.getBars(), buildSet(b1));
             Assert.assertEquals(a1.getHasAccounts(), buildSet(f1, b1, j1));
@@ -56,6 +58,30 @@ public class IndexQueryTest extends TestSupport {
 
             Assert.assertEquals(a1.getFooBars(), buildSet(f1, b1));
             Assert.assertEquals(a2.getFooBars(), buildSet(f2, b2));
+
+        // JTransaction queries
+
+            try {
+                jtx.queryIndex(HasAccount.class, "name", Account.class);
+                assert false;
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
+
+            Assert.assertEquals(jtx.queryIndex(HasAccount.class, "account", Account.class),
+              a1.queryHasAccount());
+
+            Assert.assertEquals(jtx.queryIndex(Foo.class, "account", Account.class),
+              a1.queryFoo());
+
+            Assert.assertEquals(jtx.queryIndex(Bar.class, "account", Account.class),
+              a1.queryBar());
+
+            Assert.assertEquals(jtx.queryIndex(FooBar.class, "account", Account.class),
+              a1.queryFooBar());
+
+            Assert.assertEquals(jtx.queryIndex(Jam.class, "account", Account.class),
+              buildMap(a1, buildSet(j1)));
 
             jtx.commit();
 

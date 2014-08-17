@@ -4,11 +4,6 @@
     - Support Comparable with < > <= >=
     - Aggregate functions: min(), max(), avg(), sum()
 
-- JTransaction convenience method for "static" index queries:
-
-    public <V, T> NavigableMap<V, NavigableSet<T>> indexQuery(
-      Class<T> startType, String fieldName, Class<V> valueType);
-
 - Integrate CountingKVStore into KVStore, making it mandatory
     - Create AbstractKVStore, replacing CountingKVStoreAdapter
 

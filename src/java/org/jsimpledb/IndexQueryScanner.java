@@ -36,47 +36,70 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
         return new IndexMethodInfo(method, annotation);
     }
 
-// ChangeMethodInfo
+// IndexMethodInfo
 
     class IndexMethodInfo extends MethodInfo {
 
-        final TypeToken<?> startType;
-        final TypeToken<?> targetType;
-        final JSimpleField targetField;
-        final JComplexField targetSuperField;
+        final IndexInfo indexInfo;
         final int queryType;
 
         @SuppressWarnings("unchecked")
         IndexMethodInfo(Method method, IndexQuery annotation) {
             super(method, annotation);
 
-            // Get start type
-            if (annotation.startType() != void.class) {
-                if (annotation.startType().isPrimitive() || annotation.startType().isArray()) {
-                    throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method)
-                      + "invalid startType() " + annotation.startType());
-                }
-                this.startType = Util.getWildcardedType(annotation.startType());
-            } else
-                this.startType = Util.getWildcardedType(method.getDeclaringClass());
-
-            // Parse reference path
-            final ReferencePath path;
+            // Get index info
             try {
-                path = IndexQueryScanner.this.jclass.jdb.parseReferencePath(this.startType, annotation.value(), true);
+                this.indexInfo = new IndexInfo(IndexQueryScanner.this.jclass.jdb,
+                  annotation.startType() != void.class ? annotation.startType() : method.getDeclaringClass(),
+                  annotation.value());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method) + e.getMessage(), e);
             }
-            if (path.getReferenceFields().length > 0) {
-                throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method) + "reference path `"
-                  + annotation.value() + "' contains " + path.getReferenceFields().length + " intermediate reference(s)");
-            }
+
+            // Check method's return type
+            IndexQueryScanner.this.checkReturnType(method, this.indexInfo.indexReturnTypes);
+
+            // Determine the query type (normal object query or some kind of index entry query) from method return type
+            final TypeToken<?> queryObjectType = Util.getTypeParameter(
+              Util.getTypeParameter(TypeToken.of(method.getGenericReturnType()), 1), 0);
+            this.queryType = this.indexInfo.targetSuperField != null ?
+              this.indexInfo.targetSuperField.getIndexEntryQueryType(queryObjectType) : 0;
+        }
+    }
+
+// IndexInfo
+
+    static class IndexInfo {
+
+        final TypeToken<?> startType;
+        final TypeToken<?> targetType;
+        final JSimpleField targetField;
+        final JComplexField targetSuperField;
+        final ArrayList<TypeToken<?>> indexReturnTypes = new ArrayList<TypeToken<?>>();
+
+        IndexInfo(JSimpleDB jdb, Class<?> startType, String fieldName) {
+
+            // Sanity check
+            if (jdb == null)
+                throw new IllegalArgumentException("null jdb");
+            if (startType == null)
+                throw new IllegalArgumentException("null startType");
+            if (fieldName == null)
+                throw new IllegalArgumentException("null fieldName");
+
+            // Get start type
+            if (startType.isPrimitive() || startType.isArray())
+                throw new IllegalArgumentException("invalid starting type " + startType);
+            this.startType = Util.getWildcardedType(startType);
+
+            // Parse reference path
+            final ReferencePath path = jdb.parseReferencePath(this.startType, fieldName, true);
+            if (path.getReferenceFields().length > 0)
+                throw new IllegalArgumentException("invalid field name `" + fieldName + "': contains intermediate reference(s)");
 
             // Verify target field is simple
-            if (!(path.targetField instanceof JSimpleField)) {
-                throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method)
-                  + path.targetField + " does not support indexing; it is not a simple field");
-            }
+            if (!(path.targetField instanceof JSimpleField))
+                throw new IllegalArgumentException(path.targetField + " does not support indexing; it is not a simple field");
 
             // Get target object, field, and complex super-field (if any)
             this.targetType = path.targetType;
@@ -84,27 +107,19 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
             this.targetSuperField = path.targetSuperField;
 
             // Verify the field is actually indexed
-            if (!this.targetField.indexed) {
-                throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method)
-                  + this.targetField + " is not indexed");
-            }
+            if (!this.targetField.indexed)
+                throw new IllegalArgumentException(this.targetField + " is not indexed");
 
-            // Validate the method's return type
-            final ArrayList<TypeToken<?>> indexReturnTypes = new ArrayList<TypeToken<?>>();
+            // Get valid index return types for this field
             try {
-                this.targetField.addIndexReturnTypes(indexReturnTypes, this.startType);
+                this.targetField.addIndexReturnTypes(this.indexReturnTypes, this.startType);
             } catch (UnsupportedOperationException e) {
-                throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method)
-                  + "indexing is not supported for " + this.targetField, e);
+                throw new IllegalArgumentException("indexing is not supported for " + this.targetField, e);
             }
-            if (this.targetSuperField != null)
-                this.targetSuperField.addIndexEntryReturnTypes(indexReturnTypes, this.startType, this.targetField);
-            IndexQueryScanner.this.checkReturnType(method, indexReturnTypes);
 
-            // Determine the query type (normal object query or some kind of index entry query) from method return type
-            final TypeToken<?> queryObjectType = Util.getTypeParameter(
-              Util.getTypeParameter(TypeToken.of(method.getGenericReturnType()), 1), 0);
-            this.queryType = this.targetSuperField != null ? this.targetSuperField.getIndexEntryQueryType(queryObjectType) : 0;
+            // If field is a complex sub-field, determine add complex index entry type(s)
+            if (this.targetSuperField != null)
+                this.targetSuperField.addIndexEntryReturnTypes(this.indexReturnTypes, this.startType, this.targetField);
         }
     }
 }
