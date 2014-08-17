@@ -74,7 +74,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
     @Override
     public <T> ObjectDelete<T> caseObjectDelete(ObjectDelete<T> change) {
-        return new ObjectDelete<T>(change.getObject());             // don't bother try to copy a deleted object!
+        return new ObjectDelete<T>(this.copyIfReference(change.getObject()));
     }
 
     @Override
@@ -158,6 +158,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      * <p>
      * The implementation in {@link ChangeCopier} invokes {@code jobj.copyTo(this.dest, null)}, or
      * {@code jobj.copyTo(this.dest, null, (String[])null)} if this instance is configured to copy related objects.
+     * If the given {@link JObject} does not exist, it is not copied (but the corresponding {@link JObject} is still returned).
      * Subclasses may override to copy additional or other objects referenced by {@code jobj} as needed.
      * </p>
      *
@@ -173,7 +174,8 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     protected JObject copy(JObject jobj) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        return this.copyRelated ? jobj.copyTo(this.dest, null, (String[])null) : jobj.copyTo(this.dest, null);
+        return !jobj.exists() ? this.dest.getJObject(jobj) :
+          this.copyRelated ? jobj.copyTo(this.dest, null, (String[])null) : jobj.copyTo(this.dest, null);
     }
 }
 
