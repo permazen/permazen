@@ -238,7 +238,8 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     }
 
     /**
-     * Change the type restriction associated with this instance. Typically requires a reload.
+     * Change the type restriction associated with this instance.
+     * Triggers a {@link com.vaadin.data.Container.PropertySetChangeEvent} and typically requires a reload.
      *
      * @param type Java type restriction, or null for none
      */
@@ -254,6 +255,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
             }
         }));
         this.setProperties(propertyDefs);
+        this.fireContainerPropertySetChange();
     }
 
     /**
