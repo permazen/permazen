@@ -213,22 +213,25 @@ public class XMLKVDatabase extends SimpleKVDatabase {
                 throw new KVDatabaseException(this, "error opening initial XML content", e2);
             }
             if (input == null)
-                throw new KVDatabaseException(this, "file `" + this.file + "' not found and no initial content is configured", e);
-            this.log.info("file `" + this.file + "' not found; applying default initial content");
+                this.log.info("file `" + this.file + "' not found and no initial content is configured; starting out empty");
+            else
+                this.log.info("file `" + this.file + "' not found; applying default initial content");
         } catch (IOException e) {
             throw new KVDatabaseException(this, "error opening XML content", e);
         }
 
         // Read XML
-        try {
-            this.serializer.read(new BufferedInputStream(input));
-        } catch (XMLStreamException e) {
-            throw new KVDatabaseException(this, "error reading XML content", e);
-        } finally {
+        if (input != null) {
             try {
-                input.close();
-            } catch (IOException e) {
-                // ignore
+                this.serializer.read(new BufferedInputStream(input));
+            } catch (XMLStreamException e) {
+                throw new KVDatabaseException(this, "error reading XML content", e);
+            } finally {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    // ignore
+                }
             }
         }
 
