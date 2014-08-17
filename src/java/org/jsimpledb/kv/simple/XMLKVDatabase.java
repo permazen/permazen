@@ -110,7 +110,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      * Configure the {@link File} containing default initial content for an uninitialized database. This method is invoked
      * by {@link #getInitialContent} when, on the first load, the backing XML file is not found.
      *
-     * @return default initial XML database file, or null for none
+     * @param initialContentFile file containing default initial XML database content, or null for none
      */
     public void setInitialContentFile(File initialContentFile) {
         this.initialContentFile = initialContentFile;
