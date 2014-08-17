@@ -38,10 +38,10 @@ import org.jsimpledb.util.XMLObjectSerializer;
 import jline.console.completer.FileNameCompleter;
 
 @Command
-public class DumpCommand extends AbstractCommand {
+public class ExportCommand extends AbstractCommand {
 
-    public DumpCommand() {
-        super("dump --storage-id-format:storageIdFormat file.xml:file expr:expr");
+    public ExportCommand() {
+        super("export --storage-id-format:storageIdFormat file.xml:file expr:expr");
     }
 
     @Override
@@ -73,7 +73,7 @@ public class DumpCommand extends AbstractCommand {
             @Override
             public void run(CliSession session) throws Exception {
                 final Value value = expr.evaluate(session);
-                final Iterable<?> i = value.checkType(session, "dump", Iterable.class);
+                final Iterable<?> i = value.checkType(session, "export", Iterable.class);
                 final AtomicUpdateFileOutputStream updateOutput = new AtomicUpdateFileOutputStream(file);
                 final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
                 boolean success = false;
