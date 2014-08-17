@@ -24,8 +24,10 @@ import java.lang.annotation.Target;
  *  <li>{@code int newVersion} - new schema version (always equal to
  *      {@link org.jsimpledb.core.Transaction}.{@link org.jsimpledb.core.Transaction#getSchemaVersion getSchemaVersion()});
  *      should be present only if {@link #newVersion} is zero</li>
- *  <li>{@code Map<Integer, Object> oldFieldValues} - contains all field values from the previous version of the object
- *      indexed by storage ID</li>
+ *  <li>{@code Map<Integer, Object> oldFieldValues} - contains all field values from the previous version of the object,
+ *      indexed by storage ID. As a special case, for {@link Enum} fields the old values are represented as
+ *      {@link org.jsimpledb.core.EnumValue} objects rather than {@link Enum} values (this allows for arbitrary
+ *      changes to the {@link Enum} Java model type).</li>
  *  </ol>
  * </p>
  *
