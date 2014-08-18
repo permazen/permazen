@@ -80,7 +80,7 @@
 <tr>  <td class="numLine">&nbsp;31</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param id the ID of the affected object (i.e., the object containing the field that changed)</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;32</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param storageId the storage ID of the field that changed</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param field the field that changed</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;33</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param path path of reference fields (represented by storage IDs) that lead to {@code id}</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;34</td>  <td class="nbHits">&nbsp;</td>
@@ -92,7 +92,7 @@
 <tr>  <td class="numLine">&nbsp;37</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;38</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;    &lt;E&gt; <span class="keyword">void</span> onSetFieldAdd(Transaction tx, ObjId id, <span class="keyword">int</span> storageId, <span class="keyword">int</span>[] path, NavigableSet&lt;ObjId&gt; referrers, E value);</pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;    &lt;E&gt; <span class="keyword">void</span> onSetFieldAdd(Transaction tx, ObjId id, SetField&lt;E&gt; field, <span class="keyword">int</span>[] path, NavigableSet&lt;ObjId&gt; referrers, E value);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;39</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;40</td>  <td class="nbHits">&nbsp;</td>
@@ -122,7 +122,7 @@
 <tr>  <td class="numLine">&nbsp;52</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param id the ID of the affected object (i.e., the object containing the field that changed)</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;53</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param storageId the storage ID of the field that changed</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param field the field that changed</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;54</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param path path of reference fields (represented by storage IDs) that lead to {@code id}</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;55</td>  <td class="nbHits">&nbsp;</td>
@@ -134,7 +134,7 @@
 <tr>  <td class="numLine">&nbsp;58</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;59</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;    &lt;E&gt; <span class="keyword">void</span> onSetFieldRemove(Transaction tx, ObjId id, <span class="keyword">int</span> storageId, <span class="keyword">int</span>[] path, NavigableSet&lt;ObjId&gt; referrers, E value);</pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;    &lt;E&gt; <span class="keyword">void</span> onSetFieldRemove(Transaction tx, ObjId id, SetField&lt;E&gt; field, <span class="keyword">int</span>[] path, NavigableSet&lt;ObjId&gt; referrers, E value);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;60</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;61</td>  <td class="nbHits">&nbsp;</td>
@@ -174,7 +174,7 @@
 <tr>  <td class="numLine">&nbsp;78</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param id the ID of the affected object (i.e., the object containing the field that was cleared)</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;79</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param storageId the storage ID of the field that changed</span></pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param field the field that changed</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;80</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * @param path path of reference fields (represented by storage IDs) that lead to {@code id}</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;81</td>  <td class="nbHits">&nbsp;</td>
@@ -182,13 +182,13 @@
 <tr>  <td class="numLine">&nbsp;82</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;83</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;    <span class="keyword">void</span> onSetFieldClear(Transaction tx, ObjId id, <span class="keyword">int</span> storageId, <span class="keyword">int</span>[] path, NavigableSet&lt;ObjId&gt; referrers);</pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;    <span class="keyword">void</span> onSetFieldClear(Transaction tx, ObjId id, SetField&lt;?&gt; field, <span class="keyword">int</span>[] path, NavigableSet&lt;ObjId&gt; referrers);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;84</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;}</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;85</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/16/14 4:39 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 8/18/14 11:45 AM.</div>
 </body>
 </html>

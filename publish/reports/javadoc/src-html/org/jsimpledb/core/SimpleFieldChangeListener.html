@@ -37,14 +37,14 @@
 <span class="sourceLineNo">029</span>     *<a name="line.29"></a>
 <span class="sourceLineNo">030</span>     * @param tx associated transaction<a name="line.30"></a>
 <span class="sourceLineNo">031</span>     * @param id the ID of the affected object (i.e., the object containing the field that changed)<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * @param storageId the storage ID of the field that changed<a name="line.32"></a>
+<span class="sourceLineNo">032</span>     * @param field the field that changed<a name="line.32"></a>
 <span class="sourceLineNo">033</span>     * @param path path of reference fields (represented by storage IDs) that lead to {@code id}<a name="line.33"></a>
 <span class="sourceLineNo">034</span>     * @param referrers all objects that (indirectly) refer to the affected object via the {@code path}<a name="line.34"></a>
 <span class="sourceLineNo">035</span>     * @param oldValue the field's previous value<a name="line.35"></a>
 <span class="sourceLineNo">036</span>     * @param newValue the field's new value<a name="line.36"></a>
 <span class="sourceLineNo">037</span>     * @param &lt;V&gt; Java type for {@code field}'s values<a name="line.37"></a>
 <span class="sourceLineNo">038</span>     */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    &lt;V&gt; void onSimpleFieldChange(Transaction tx, ObjId id, int storageId,<a name="line.39"></a>
+<span class="sourceLineNo">039</span>    &lt;V&gt; void onSimpleFieldChange(Transaction tx, ObjId id, SimpleField&lt;V&gt; field,<a name="line.39"></a>
 <span class="sourceLineNo">040</span>      int[] path, NavigableSet&lt;ObjId&gt; referrers, V oldValue, V newValue);<a name="line.40"></a>
 <span class="sourceLineNo">041</span>}<a name="line.41"></a>
 <span class="sourceLineNo">042</span><a name="line.42"></a>
