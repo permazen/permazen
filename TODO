@@ -1,4 +1,9 @@
 
+- CLI
+    - Automatic promotion: e.g., $foo.longField = 0 fails (int != long)
+    - Easy way to enter field type value in string form (e.g., UUID)
+    - New command "schema-diff vers1 vers2"
+
 - Expression parsing
     - Make Value interface; add LValue sub-interface
     - Support Comparable with < > <= >=
@@ -6,6 +11,9 @@
 
 - Integrate CountingKVStore into KVStore, making it mandatory
     - Create AbstractKVStore, replacing CountingKVStoreAdapter
+
+- Schema comparator
+    - Shows only differences
 
 - Consider renaming @IndexQuery "startType" to "type"
 
