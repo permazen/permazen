@@ -92,6 +92,29 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
             schemaObject.validate();
     }
 
+    /**
+     * Determine whether this schema is compatible with the given schema for use with the core API.
+     * Two instances are compatible if they are identical in all respects except for object and field names
+     * (to also include object and field names in the comparison, use {@link #equals equals()}).
+     * The core API uses storage IDs, not names, to identify objects and fields.
+     *
+     * @param that other schema
+     * @throws IllegalArgumentException if {@code that} is null
+     */
+    public boolean isCompatibleWith(SchemaModel that) {
+        if (that == null)
+            throw new IllegalArgumentException("null that");
+        if (!this.schemaObjects.keySet().equals(that.schemaObjects.keySet()))
+            return false;
+        for (int storageId : this.schemaObjects.keySet()) {
+            final SchemaObject thisSchemaObject = this.schemaObjects.get(storageId);
+            final SchemaObject thatSchemaObject = that.schemaObjects.get(storageId);
+            if (!thisSchemaObject.isCompatibleWith(thatSchemaObject))
+                return false;
+        }
+        return true;
+    }
+
     void readXML(XMLStreamReader reader) throws XMLStreamException {
         this.expect(reader, false, SCHEMA_MODEL_TAG);
         while (this.expect(reader, true, OBJECT_TAG)) {

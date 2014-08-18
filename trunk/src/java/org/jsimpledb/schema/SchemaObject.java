@@ -84,6 +84,20 @@ public class SchemaObject extends AbstractSchemaItem {
             writer.writeEndElement();
     }
 
+    @Override
+    boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
+        final SchemaObject that = (SchemaObject)that0;
+        if (!this.schemaFields.keySet().equals(that.schemaFields.keySet()))
+            return false;
+        for (int storageId : this.schemaFields.keySet()) {
+            final SchemaField thisSchemaField = this.schemaFields.get(storageId);
+            final SchemaField thatSchemaField = that.schemaFields.get(storageId);
+            if (!thisSchemaField.isCompatibleWith(thatSchemaField))
+                return false;
+        }
+        return true;
+    }
+
 // Object
 
     @Override

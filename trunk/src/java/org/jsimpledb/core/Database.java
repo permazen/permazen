@@ -133,31 +133,48 @@ public class Database {
      * Within each {@link Database} is stored a record of all schema versions previously used with the database.
      * When creating a new transaction, the caller provides an expected schema version and corresponding {@link SchemaModel}.
      * Both of these are optional: a schema version of zero means "use the highest version recorded in the
-     * database", and a null {@link SchemaModel} measn "use the {@link SchemaModel} already recorded in the database under
-     * {@code version}". When this method is invoked, the following checks are applied:
+     * database", and a null {@link SchemaModel} means "use the {@link SchemaModel} already recorded in the database under
+     * {@code version}".
+     * </p>
+     *
+     * <p>
+     * When this method is invoked, the following checks are applied:
      * <ul>
      *  <li>If a schema with version number {@code version != 0} is recorded in the database, and {@code schemaModel} is null or
      *      matches it, then this method succeeds, and the {@link Transaction} will use that schema.</li>
      *  <li>If a schema with version number {@code version} (or the highest numbered schema if {@code version == 0})
      *      is recorded in the database, and {@code schemaModel} is not null and does not match it, then this method fails
-     *      and throws {@link SchemaMismatchException}.</li>
+     *      and throws a {@link SchemaMismatchException}.</li>
      *  <li>If {@code allowNewSchema} is false, and no schema with version number {@code version != 0} has yet been
-     *      recorded in the database, then this method fails and throws {@link SchemaMismatchException}.</li>
+     *      recorded in the database, then this method fails and throws a {@link SchemaMismatchException}.</li>
      *  <li>If {@code allowNewSchema} is true, and no schema with version number {@code version != 0} has yet been
-     *      recorded in the database, then if {@code schemaModel} is null an {@link SchemaMismatchException} is thrown;
-     *      otherwise {@code schemaModel} is checked for compabitility with all of the other schemas recorded in the database;
-     *      if compatible, this method succeeds, {@code schema} is recorded in the database with version number {@code version},
-     *      and the {@link Transaction} will use schema version {@code version}; otherwise an {@link SchemaMismatchException}
-     *      is thrown.</li>
+     *      recorded in the database, then if {@code schemaModel} is null a {@link SchemaMismatchException} is thrown;
+     *      otherwise {@code schemaModel} is checked for compabitility with the schemas previously recorded in the database;
+     *      if compatible, this method succeeds, {@code schema} is recorded in the database under the new version number
+     *      {@code version}, and the {@link Transaction} will use schema version {@code version};
+     *      otherwise a {@link SchemaMismatchException} is thrown.</li>
      *  <li>If the database is uninitialized and {@code version == 0} or {@code schemaModel} is null,
      *      a {@link SchemaMismatchException} is thrown.</li>
      * </ul>
      * </p>
      *
      * <p>
-     * Fields and objects have assigned storage IDs, and these identify the schema object across all schema versions.
-     * Once a storage ID is assigned, it cannot be re-assigned to a different schema object. Fields must have a consistent
-     * type and parent entity (object type or complex field) in all schema versions in which they appear.
+     * For two schemas to "match", they must be identical in all respects, except that object and field names may differ.
+     * In the core API, objects and fields are identified by storage ID, not name.
+     * </p>
+     *
+     * <p>
+     * Schemas must also be compatible with all other schemas previously recorded in the database.
+     * Basically this means storage IDs must be used consistently from a structural point of view:
+     * <ul>
+     *  <li>Once a storage ID is assigned, it cannot be re-assigned to a different type of item (object or field).</li>
+     *  <li>Fields must have a consistent type and structural parent (object type or complex field).</li>
+     * </ul>
+     * </p>
+     *
+     * <p>
+     * However, object types and fields may be added or removed across schema versions, field indexing may change,
+     * and reference field {@link DeleteAction}s may change.
      * </p>
      *
      * <p>
@@ -179,8 +196,8 @@ public class Database {
      * method is invoked, the object version may be automatically updated to {@code version}. This will cause fields to be added
      * or removed, as follows:
      * <ul>
-     *  <li>Compatible fields that are common to both schema versions remain unchanged; fields are compatible
-     *      if they have the same storage ID and type. For complex fields, sub-fields must also be compatible.</li>
+     *  <li>Fields that are common to both schema versions remain unchanged (necessarily such fields have the same storage ID,
+     *      type, and structural parent).</li>
      *  <li>Fields that exist in {@code oldVersion} but not in {@code version} are removed.</li>
      *  <li>Fields that exist in {@code version} but not in {@code oldVersion} are initialized to their default values.</li>
      *  <li>All {@link VersionChangeListener}s registered with the {@link Transaction} are notified.</li>
@@ -188,15 +205,17 @@ public class Database {
      * </p>
      *
      * <p>
-     * Note that compatibility between schema versions does not depend on the field name, or whether the field is indexed.
-     * Fields are identified by storage ID, not name. A field's index may be added or removed between schema versions
-     * without losing information. Note, however, that querying a field's index will only return objects whose schema version
-     * corresponds to a schema in which the field is indexed.
+     * Note that compatibility between schema versions does not depend on the field name, nor does it depend on whether the field
+     * is indexed, or its {@link DeleteAction} (for reference fields). A field's index may be added or removed between schema
+     * versions without losing information, however, querying a field's index will only return those objects whose schema
+     * version corresponds to a schema in which the field is indexed. Similarly, the {@link DeleteAction} taken when a
+     * referenced object is deleted depends on the {@link DeleteAction} configured in the schema version of the object
+     * containing the reference.
      * </p>
      *
      * <p>
-     * Note that an object's current schema version can go up as well as down, and may change by any amount.
-     * Also, nothing requires schema version numbers to be consecutive.
+     * Note that an object's current schema version can go up as well as down, may change non-consecutively, and in fact
+     * nothing requires schema version numbers to be consecutive.
      * </p>
      *
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
@@ -389,7 +408,7 @@ public class Database {
                 // Compare transaction schema with the schema of the same version found in the database
                 this.log.debug("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
                 final SchemaModel dbSchemaModel = schema.getVersion(version).getSchemaModel();
-                if (schemaModel != null && !schemaModel.equals(schema.getVersion(version).getSchemaModel())) {
+                if (schemaModel != null && !schemaModel.isCompatibleWith(schema.getVersion(version).getSchemaModel())) {
                     this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}",
                       dbSchemaModel, schemaModel);
                     throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "

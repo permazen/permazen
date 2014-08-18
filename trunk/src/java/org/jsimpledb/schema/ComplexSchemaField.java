@@ -39,6 +39,20 @@ public abstract class ComplexSchemaField extends SchemaField {
 
     public abstract Map<String, SimpleSchemaField> getSubFields();
 
+    @Override
+    boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
+        final ComplexSchemaField that = (ComplexSchemaField)that0;
+        if (!this.getSubFields().keySet().equals(that.getSubFields().keySet()))
+            return false;
+        for (String subFieldName : this.getSubFields().keySet()) {
+            final SimpleSchemaField thisSubField = this.getSubFields().get(subFieldName);
+            final SimpleSchemaField thatSubField = that.getSubFields().get(subFieldName);
+            if (!thisSubField.isCompatibleWith(thatSubField))
+                return false;
+        }
+        return true;
+    }
+
     SimpleSchemaField readSubField(XMLStreamReader reader) throws XMLStreamException {
         this.expect(reader, false, REFERENCE_FIELD_TAG, SIMPLE_FIELD_TAG);
         SimpleSchemaField field;

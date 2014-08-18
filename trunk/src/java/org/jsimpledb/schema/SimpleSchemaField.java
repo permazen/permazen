@@ -54,6 +54,16 @@ public class SimpleSchemaField extends SchemaField {
     }
 
     @Override
+    boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
+        final SimpleSchemaField that = (SimpleSchemaField)that0;
+        if (!this.type.equals(that.type))
+            return false;
+        if (this.indexed != that.indexed)
+            return false;
+        return true;
+    }
+
+    @Override
     void readAttributes(XMLStreamReader reader) throws XMLStreamException {
         super.readAttributes(reader);
         final String text1 = reader.getAttributeValue(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart());

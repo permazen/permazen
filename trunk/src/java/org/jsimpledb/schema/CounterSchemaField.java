@@ -35,6 +35,11 @@ public class CounterSchemaField extends SchemaField {
         this.writeAttributes(writer);
     }
 
+    @Override
+    boolean isCompatibleWithInternal(AbstractSchemaItem that) {
+        return true;
+    }
+
 // Object
 
     @Override
