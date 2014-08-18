@@ -1,8 +1,8 @@
 Version Next
 
     - Rewrote PersistentObjectTransactionManager as a Spring PlatformTransactionManager;
-      removed @PersistentObjectTransactional and associated AOP aspect
-    - Removed arcane @ThreadConfigurable and @ThreadTransactional
+      removed obsolete @PersistentObjectTransactional and associated AOP aspect
+    - Removed arcane @ThreadConfigurable and @ThreadTransactional nobody was using
       NOTE: the above are backward-incompatible changes
     - Update to Spring 4.0.x
 
