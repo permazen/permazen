@@ -19,6 +19,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextArea;
 
+import java.util.HashSet;
+
 import org.jsimpledb.JClass;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.core.ObjId;
@@ -29,8 +31,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Contains widgets that allow choosing an object reference. Supports searching and filtering.
  */
-@SuppressWarnings("serial")
-public class ObjectChooser {
+@SuppressWarnings({ "serial", "deprecation" })
+public class ObjectChooser implements Property.ValueChangeNotifier {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -43,9 +45,10 @@ public class ObjectChooser {
 
     private final JSimpleDB jdb;
     private final ParseSession session;
+    private final boolean showFields;
     private final TypeContainer typeContainer;
     private final ObjectContainer objectContainer;
-    private final ObjectTable objectTable;
+    private final HashSet<Property.ValueChangeListener> listeners = new HashSet<>();
 
     private final HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
     private final FormLayout showForm = new FormLayout();
@@ -53,6 +56,7 @@ public class ObjectChooser {
     private final TextArea exprField = new TextArea();
     private final ComboBox sortComboBox = new ComboBox();
 
+    private ObjectTable objectTable;
     private SortKeyContainer sortKeyContainer;
 
     /**
@@ -70,17 +74,16 @@ public class ObjectChooser {
             throw new IllegalArgumentException("null session");
         this.jdb = jdb;
         this.session = session;
+        this.showFields = showFields;
         this.typeContainer = new TypeContainer(this.jdb, type);
         this.typeTable = new TypeTable(this.typeContainer);
         this.objectContainer = new ObjectContainer(this.jdb, type, this.session);
-        this.objectTable = new ObjectTable(this.jdb, this.objectContainer, this.session, showFields);
-        this.sortKeyContainer = new SortKeyContainer(this.jdb, (Class<?>)null);
 
         // Build object panel
         this.splitPanel.setWidth("100%");
         this.splitPanel.setHeight(300, Sizeable.Unit.PIXELS);
-        this.splitPanel.addComponent(this.typeTable);
-        this.splitPanel.addComponent(this.objectTable);
+        this.splitPanel.setFirstComponent(this.typeTable);
+        this.splitPanel.setSecondComponent(new SizedLabel(" "));
         this.splitPanel.setSplitPosition(20);
 
         // Build show form
@@ -127,7 +130,7 @@ public class ObjectChooser {
         });
 
         // Populate table
-        this.selectType(TypeToken.of(Object.class), true);
+        this.selectType(TypeToken.of(type != null ? type : Object.class), true);
     }
 
     /**
@@ -159,17 +162,10 @@ public class ObjectChooser {
     }
 
     /**
-     * Get the object table.
-     */
-    public ObjectTable getObjectTable() {
-        return this.objectTable;
-    }
-
-    /**
      * Get the currently selected object, if any.
      */
     public ObjId getObjId() {
-        return (ObjId)this.objectTable.getValue();
+        return this.objectTable != null ? (ObjId)this.objectTable.getValue() : null;
     }
 
     /**
@@ -193,6 +189,36 @@ public class ObjectChooser {
         }
     }
 
+// Property.ValueChangeNotifier
+
+    @Override
+    public void addValueChangeListener(Property.ValueChangeListener listener) {
+        if (listener == null)
+            throw new IllegalArgumentException("null listener");
+        this.listeners.add(listener);
+        if (this.objectTable != null)
+            this.objectTable.addValueChangeListener(listener);
+    }
+
+    @Override
+    public void removeValueChangeListener(Property.ValueChangeListener listener) {
+        if (listener == null)
+            return;
+        this.listeners.remove(listener);
+        if (this.objectTable != null)
+            this.objectTable.removeValueChangeListener(listener);
+    }
+
+    @Override
+    public void addListener(Property.ValueChangeListener listener) {
+        this.addValueChangeListener(listener);
+    }
+
+    @Override
+    public void removeListener(Property.ValueChangeListener listener) {
+        this.removeValueChangeListener(listener);
+    }
+
 // GUI Updates
 
     // Invoked when a type is clicked on
@@ -201,7 +227,7 @@ public class ObjectChooser {
         // Anything to do?
         if (typeToken == null)
             return;
-        if (!force && !this.setNewType(!typeToken.equals(TypeToken.of(Object.class)) ? typeToken.getRawType() : null))
+        if (!this.setNewType(!typeToken.equals(TypeToken.of(Object.class)) ? typeToken.getRawType() : null, force))
             return;
 
         // Rebuild the sort combobox
@@ -226,7 +252,7 @@ public class ObjectChooser {
 
     // Invoked when "Show" button is clicked
     private void showButtonClicked() {
-        this.setNewType(null);
+        this.setNewType(null, false);
         this.typeTable.setValue(null);
         this.showObjects();
     }
@@ -235,12 +261,34 @@ public class ObjectChooser {
         this.objectContainer.setContentExpression(this.exprField.getValue());
     }
 
-    private boolean setNewType(Class<?> type) {
+    private boolean setNewType(Class<?> type, boolean force) {
         final Class<?> currentType = this.objectContainer.getType();
-        if (currentType != null ? currentType.equals(type) : type == null)
+        if (!force && (currentType != null ? currentType.equals(type) : type == null))
             return false;
+        if (this.objectTable != null) {
+            for (Property.ValueChangeListener listener : this.listeners)
+                this.objectTable.removeValueChangeListener(listener);
+            this.splitPanel.removeComponent(this.objectTable);
+        }
         this.objectContainer.setType(type);
+        this.objectTable = new ObjectTable(this.jdb, this.objectContainer, this.session, this.showFields);
+        for (Property.ValueChangeListener listener : this.listeners)
+            this.objectTable.addValueChangeListener(listener);
+        this.splitPanel.setSecondComponent(this.objectTable);
         this.objectTable.setValue(null);
+        final Property.ValueChangeEvent event = new Property.ValueChangeEvent() {
+            @Override
+            public Property getProperty() {
+                return ObjectChooser.this.objectTable;
+            }
+        };
+        for (Property.ValueChangeListener listener : new HashSet<Property.ValueChangeListener>(this.listeners)) {
+            try {
+                listener.valueChange(event);
+            } catch (Exception e) {
+                this.log.error("exception thrown by value change listener", e);
+            }
+        }
         return true;
     }
 }

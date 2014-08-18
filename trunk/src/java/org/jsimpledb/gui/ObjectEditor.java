@@ -117,7 +117,7 @@ public class ObjectEditor extends HorizontalLayout {
         final JObject jobj = this.property.getValue();
         final boolean readOnly = this.property.isReadOnly();
         final Component newLabel = jobj != null ?
-          this.refLabelPropertyDef.extract(jobj) : new Label("<i>Null</i>", ContentMode.HTML);
+          this.refLabelPropertyDef.extract(jobj) : new SizedLabel("<i>Null</i>&#160;", ContentMode.HTML);
         this.replaceComponent(this.refLabel, newLabel);
         this.refLabel = newLabel;
         this.changeButton.setEnabled(!readOnly);
@@ -142,7 +142,7 @@ public class ObjectEditor extends HorizontalLayout {
 
         ChangeWindow() {
             super(ObjectEditor.this.getUI(), "Select Object");
-            this.setWidth(500, Sizeable.Unit.PIXELS);
+            this.setWidth(800, Sizeable.Unit.PIXELS);
             this.setHeight(500, Sizeable.Unit.PIXELS);
             this.objectChooser = new ObjectChooser(ObjectEditor.this.dest.getJSimpleDB(),
               ObjectEditor.this.session, ObjectEditor.this.type, false);

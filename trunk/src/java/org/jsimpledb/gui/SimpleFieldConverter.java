@@ -41,11 +41,15 @@ public class SimpleFieldConverter<T> implements Converter<String, T> {
 
     @Override
     public String convertToPresentation(T value, Class<? extends String> targetType, Locale locale) {
+        if (value == null)
+            return null;
         return this.fieldType.toString(value);
     }
 
     @Override
     public T convertToModel(String value, Class<? extends T> targetType, Locale locale) {
+        if (value == null)
+            return null;
         try {
             return this.fieldType.fromString(value.trim());
         } catch (IllegalArgumentException e) {

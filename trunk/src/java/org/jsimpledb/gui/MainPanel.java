@@ -7,7 +7,11 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
 import com.vaadin.data.Property;
+import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.MethodProperty;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinSession;
@@ -15,6 +19,7 @@ import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.FormLayout;
@@ -44,6 +49,7 @@ import org.jsimpledb.JReferenceField;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleField;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.ValidationException;
 import org.jsimpledb.change.ObjectCreate;
 import org.jsimpledb.change.ObjectDelete;
 import org.jsimpledb.core.DeletedObjectException;
@@ -55,6 +61,7 @@ import org.jsimpledb.parse.ParseSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -70,7 +77,9 @@ public class MainPanel extends VerticalLayout {
     private final Button editButton = new Button("Edit", new Button.ClickListener() {
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            MainPanel.this.editButtonClicked(MainPanel.this.objectChooser.getObjId());
+            final ObjId id = MainPanel.this.objectChooser.getObjId();
+            if (id != null)
+                MainPanel.this.editButtonClicked(id);
         }
     });
     private final Button newButton = new Button("New", new Button.ClickListener() {
@@ -82,13 +91,17 @@ public class MainPanel extends VerticalLayout {
     private final Button deleteButton = new Button("Delete", new Button.ClickListener() {
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            MainPanel.this.deleteButtonClicked(MainPanel.this.objectChooser.getObjId());
+            final ObjId id = MainPanel.this.objectChooser.getObjId();
+            if (id != null)
+                MainPanel.this.deleteButtonClicked(id);
         }
     });
     private final Button upgradeButton = new Button("Upgrade", new Button.ClickListener() {
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            MainPanel.this.upgradeButtonClicked(MainPanel.this.objectChooser.getObjId());
+            final ObjId id = MainPanel.this.objectChooser.getObjId();
+            if (id != null)
+                MainPanel.this.upgradeButtonClicked(id);
         }
     });
 
@@ -127,7 +140,7 @@ public class MainPanel extends VerticalLayout {
         this.objectChooser = new ObjectChooser(this.jdb, this.session, null, true);
 
         // Listen to object selections
-        this.objectChooser.getObjectTable().addValueChangeListener(new Property.ValueChangeListener() {
+        this.objectChooser.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
                 MainPanel.this.selectObject(MainPanel.this.objectChooser.getObjId());
@@ -254,15 +267,21 @@ public class MainPanel extends VerticalLayout {
 
     private void deleteButtonClicked(ObjId id) {
         this.log.info("deleting object " + id);
+        final boolean deleted;
         try {
-            this.doDelete(id);
+            deleted = this.doDelete(id);
         } catch (DeletedObjectException e) {
-            Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
+            Notification.show("Object " + e.getId() + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
+            return;
         } catch (ReferencedObjectException e) {
             Notification.show("Object " + id + " is referenced by " + e.getReferrer(),
               e.getMessage(), Notification.Type.ERROR_MESSAGE);
+            return;
         }
-        Notification.show("Removed object " + id);
+        if (deleted)
+            Notification.show("Removed object " + id);
+        else
+            Notification.show("Could not delete object " + id, null, Notification.Type.WARNING_MESSAGE);
         this.selectObject(null);
     }
 
@@ -325,7 +344,8 @@ public class MainPanel extends VerticalLayout {
         private final JObject jobj;
         private final JClass<?> jclass;
         private final boolean create;
-        private final LinkedHashMap<String, Component> editorMap = new LinkedHashMap<>();
+        private final FieldGroup fieldGroup = new FieldGroup();
+        private final LinkedHashMap<String, Editor> editorMap = new LinkedHashMap<>();
 
         EditWindow(JObject jobj, JClass<?> jclass, boolean create) {
             super(MainPanel.this.getUI(), (create ? "New" : "Edit") + " " + jclass.getName());
@@ -335,31 +355,39 @@ public class MainPanel extends VerticalLayout {
             this.jclass = jclass;
             this.create = create;
 
-            // Get the names of all database properties
-            final SortedMap<String, JField> fieldMap = jclass.getJFieldsByName();
-
-            // First introspect for any @FieldBuilder.* annotations
-            final Map<String, AbstractField<?>> fieldBuilderFields = new FieldBuilder().buildBeanPropertyFields(this.jobj);
-            for (Map.Entry<String, AbstractField<?>> entry : fieldBuilderFields.entrySet()) {
+            // Introspect for any @FieldBuilder.* annotations
+            for (Map.Entry<String, AbstractField<?>> entry : new FieldBuilder().buildBeanPropertyFields(this.jobj).entrySet()) {
                 final String fieldName = entry.getKey();
-                if (!fieldMap.keySet().contains(fieldName))
-                    continue;
                 final AbstractField<?> field = entry.getValue();
-                this.editorMap.put(fieldName, this.buildFieldFieldEditor(fieldName, field));
+                this.editorMap.put(fieldName, new Editor(field));
             }
 
-            // Now build editors for the remaining properties
-            for (Map.Entry<String, JField> entry : fieldMap.entrySet()) {
+            // Build editors for all remaining database properties
+            final SortedMap<String, JField> jfieldMap = jclass.getJFieldsByName();
+            for (Map.Entry<String, JField> entry : jfieldMap.entrySet()) {
                 final String fieldName = entry.getKey();
                 if (this.editorMap.containsKey(fieldName))
                     continue;
                 final JField jfield = entry.getValue();
-                final Component editor;
-                if (jfield instanceof JSimpleField)
-                    editor = this.buildSimpleFieldEditor((JSimpleField)jfield);
-                else
-                    editor = new Label("TODO: " + jfield);       // TODO
-                this.editorMap.put(fieldName, editor);
+                final Editor editor = jfield instanceof JSimpleField ?
+                  this.buildSimpleFieldEditor((JSimpleField)jfield) : new Editor(new Label("TODO: " + jfield));       // TODO
+                editorMap.put(fieldName, editor);
+            }
+
+            // Create BeanItem exposing fields' properties
+            this.fieldGroup.setItemDataSource(new BeanItem<JObject>(this.jobj,
+              Maps.filterValues(this.editorMap, new Predicate<Editor>() {
+                @Override
+                public boolean apply(Editor editor) {
+                    return editor.getField() != null;
+                }
+            }).keySet()));
+
+            // Bind fields into FieldGroup
+            for (Map.Entry<String, Editor> entry : this.editorMap.entrySet()) {
+                final Editor editor = entry.getValue();
+                if (editor.getField() != null)
+                    this.fieldGroup.bind(editor.getField(), entry.getKey());
             }
         }
 
@@ -370,15 +398,34 @@ public class MainPanel extends VerticalLayout {
                   this.jobj.getObjId(), JObjectContainer.REFERENCE_LABEL_PROPERTY).getValue());
             }
             final FormLayout formLayout = new FormLayout();
-            for (Component component : this.editorMap.values())
-                formLayout.addComponent(component);
+            for (Editor editor : this.editorMap.values())
+                formLayout.addComponent(editor.getComponent());
             layout.addComponent(formLayout);
         }
 
         @Override
+        protected boolean execute() {
+
+            // Commit fields in field group
+            try {
+                this.fieldGroup.commit();
+            } catch (FieldGroup.CommitException e) {
+                Notification.show("Invalid value(s)", null, Notification.Type.WARNING_MESSAGE);
+                throw new RuntimeException(e);
+            }
+
+            // Commit transaction, if possible
+            try {
+                return this.writeBack();
+            } catch (UnexpectedRollbackException e) {
+                MainPanel.this.log.debug("ignoring UnexpectedRollbackException presumably caused by validation failure");
+                return false;
+            }
+        }
+
         @RetryTransaction
         @Transactional("jsimpledbGuiTransactionManager")
-        protected boolean execute() {
+        protected boolean writeBack() {
             final JTransaction jtx = JTransaction.getCurrent();
 
             // Find/create object
@@ -392,7 +439,16 @@ public class MainPanel extends VerticalLayout {
             }
 
             // Copy fields
-            this.jobj.copyTo(jtx, id);
+            this.jobj.copyTo(jtx, target.getObjId());
+
+            // Run validation queue
+            try {
+                jtx.validate();
+            } catch (ValidationException e) {
+                Notification.show("Validation failed", e.getMessage(), Notification.Type.ERROR_MESSAGE);
+                jtx.getTransaction().setRollbackOnly();
+                return false;
+            }
 
             // Broadcast update event after successful commit
             if (MainPanel.this.changePublisher != null) {
@@ -418,26 +474,25 @@ public class MainPanel extends VerticalLayout {
             return true;
         }
 
-        protected Component buildFieldFieldEditor(String fieldName, AbstractField<?> field) {
-            return field;
-        }
+    // Editors
 
-        protected Component buildSimpleFieldEditor(JSimpleField jfield) {
+        protected Editor buildSimpleFieldEditor(JSimpleField jfield) {
 
             // Get field info
-            final boolean allowNull = jfield.getGetter().getAnnotation(NotNull.class) == null;
+            final boolean allowNull = jfield.getGetter().getAnnotation(NotNull.class) == null
+              && !jfield.getGetter().getReturnType().isPrimitive();
 
             // Get the property we want to edit
             final Property<?> property = this.buildProperty(jfield);
 
             // Build editor
-            final Component editor = this.buildSimpleFieldEditor(jfield, property, allowNull);
-            editor.setCaption(this.buildCaption(jfield.getName()));
+            final Editor editor = this.buildSimpleFieldEditor(jfield, property, allowNull);
+            editor.getComponent().setCaption(this.buildCaption(jfield.getName(), !(editor.getComponent() instanceof CheckBox)));
             return editor;
         }
 
         @SuppressWarnings("unchecked")
-        protected Component buildSimpleFieldEditor(JSimpleField jfield, Property<?> property, boolean allowNull) {
+        protected Editor buildSimpleFieldEditor(JSimpleField jfield, Property<?> property, boolean allowNull) {
 
             // Get property type
             final Class<?> propertyType = jfield.getGetter().getReturnType();
@@ -445,40 +500,74 @@ public class MainPanel extends VerticalLayout {
             // Use object choosers for references
             if (jfield instanceof JReferenceField) {
                 final JReferenceField refField = (JReferenceField)jfield;
-                final ObjectEditor objectEditor = new ObjectEditor(
-                  this.jobj.getTransaction(), MainPanel.this.session, refField.getGetter().getReturnType(),
-                  new MethodProperty<JObject>(JObject.class, this.jobj, refField.getGetter(), refField.getSetter()), allowNull);
-                return objectEditor;
+                final ObjectEditor objectEditor = new ObjectEditor(this.jobj.getTransaction(),
+                  MainPanel.this.session, refField.getGetter().getReturnType(), (Property<JObject>)property, allowNull);
+                return new Editor(objectEditor);
             }
 
             // Use ComboBox for Enum's
             if (Enum.class.isAssignableFrom(propertyType)) {
                 final EnumComboBox comboBox = this.createEnumComboBox(propertyType.asSubclass(Enum.class), allowNull);
                 comboBox.setPropertyDataSource(property);
-                if (allowNull)
-                    comboBox.setInputPrompt("Null");
-                return comboBox;
+                comboBox.setInputPrompt("Null");
+                return new Editor(comboBox);
             }
 
             // Use DatePicker for dates
             if (Date.class.isAssignableFrom(propertyType)) {
                 final PopupDateField dateField = new PopupDateField();
-                dateField.setImmediate(true);
                 dateField.setResolution(Resolution.SECOND);
                 dateField.setPropertyDataSource(property);
-                return dateField;
+                return new Editor(dateField, allowNull ? this.addNullCheckbox(dateField) : dateField);
+            }
+
+            // Use CheckBox for booleans
+            if (propertyType == boolean.class || propertyType == Boolean.class) {
+                final CheckBox checkBox = new CheckBox();
+                checkBox.setPropertyDataSource(property);
+                return new Editor(checkBox, allowNull ? this.addNullCheckbox(checkBox) : checkBox);
             }
 
             // Use text field for all other field types
             final TextField textField = new TextField();
             textField.setWidth("100%");
-            if (allowNull)
-                textField.setNullRepresentation("");
-            textField.setPropertyDataSource(property);
+            textField.setNullRepresentation("");
             final FieldType<?> fieldType = this.getFieldType(jfield);
-            if (fieldType.getTypeToken().getRawType() != String.class)
-                textField.setConverter(this.buildSimpleFieldConverter(fieldType));
-            return textField;
+            textField.setConverter(this.buildSimpleFieldConverter(fieldType));
+            textField.setPropertyDataSource(property);
+            return new Editor(textField, allowNull ? this.addNullCheckbox(textField) : textField);
+        }
+
+        private HorizontalLayout addNullCheckbox(final AbstractField<?> field) {
+
+            // Set up checkbox
+            final CheckBox checkBox = new CheckBox("Null");
+            checkBox.addValueChangeListener(new Property.ValueChangeListener() {
+                @Override
+                public void valueChange(Property.ValueChangeEvent event) {
+                    final boolean setNull = checkBox.getValue();
+                    field.setEnabled(!setNull);
+                    if (setNull)
+                        field.setValue(null);
+                }
+            });
+
+            // Build layout
+            final HorizontalLayout layout = new HorizontalLayout() {
+                @Override
+                public void attach() {
+                    super.attach();
+                    final Property<?> property = field.getPropertyDataSource();
+                    final boolean isNull = property.getValue() == null;
+                    checkBox.setValue(isNull);
+                    field.setEnabled(!isNull);
+                }
+            };
+            layout.setSpacing(true);
+            layout.setMargin(false);
+            layout.addComponent(field);
+            layout.addComponent(checkBox);
+            return layout;
         }
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -499,8 +588,37 @@ public class MainPanel extends VerticalLayout {
             return MainPanel.this.jdb.getDatabase().getFieldTypeRegistry().getFieldType(jfield.getTypeName());
         }
 
-        private String buildCaption(String fieldName) {
-            return DefaultFieldFactory.createCaptionByPropertyId(fieldName) + ":";
+        private String buildCaption(String fieldName, boolean includeColon) {
+            return DefaultFieldFactory.createCaptionByPropertyId(fieldName) + (includeColon ? ":" : "");
+        }
+    }
+
+    private static class Editor {
+
+        private final AbstractField<?> field;
+        private final Component component;
+
+        Editor(Component component) {
+            this(null, component);
+        }
+
+        Editor(AbstractField<?> field) {
+            this(field, field);
+        }
+
+        Editor(AbstractField<?> field, Component component) {
+            if (component == null)
+                throw new IllegalArgumentException("null component");
+            this.field = field;
+            this.component = component;
+        }
+
+        public AbstractField<?> getField() {
+            return this.field;
+        }
+
+        public Component getComponent() {
+            return this.component;
         }
     }
 }
