@@ -45,9 +45,9 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;14</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    FieldStorageInfo(Field&lt;?&gt; field, <span class="keyword">int</span> superFieldStorageId) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;15</td>  <td class="nbHitsCovered">&nbsp;911</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(field.storageId);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;16</td>  <td class="nbHitsCovered">&nbsp;911</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.superFieldStorageId = superFieldStorageId;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;17</td>  <td class="nbHitsCovered">&nbsp;911</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;15</td>  <td class="nbHitsCovered">&nbsp;937</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(field.storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;16</td>  <td class="nbHitsCovered">&nbsp;937</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.superFieldStorageId = superFieldStorageId;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;17</td>  <td class="nbHitsCovered">&nbsp;937</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;18</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;19</td>  <td class="nbHits">&nbsp;</td>
@@ -58,7 +58,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;22</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">boolean</span> isSubField() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;23</td>  <td class="nbHitsCovered"><a title="Line 23: Conditional coverage 100% (2/2).">&nbsp;123</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 23: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> <span class="keyword">this</span>.superFieldStorageId != 0;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;23</td>  <td class="nbHitsCovered"><a title="Line 23: Conditional coverage 100% (2/2).">&nbsp;126</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 23: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> <span class="keyword">this</span>.superFieldStorageId != 0;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;24</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;25</td>  <td class="nbHits">&nbsp;</td>
@@ -67,10 +67,10 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;27</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">boolean</span> canShareStorageId(StorageInfo obj) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered"><a title="Line 28: Conditional coverage 100% (2/2).">&nbsp;389</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 28: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!<span class="keyword">super</span>.canShareStorageId(obj))</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered"><a title="Line 28: Conditional coverage 100% (2/2).">&nbsp;397</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 28: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!<span class="keyword">super</span>.canShareStorageId(obj))</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">false</span>;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsCovered">&nbsp;388</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> FieldStorageInfo that = (FieldStorageInfo)obj;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsUncovered"><a title="Line 31: Conditional coverage 50% (1/2).">&nbsp;388</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 31: Conditional coverage 50% (1/2).">        <span class="keyword">return</span> <span class="keyword">this</span>.superFieldStorageId == that.superFieldStorageId;</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsCovered">&nbsp;396</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> FieldStorageInfo that = (FieldStorageInfo)obj;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsUncovered"><a title="Line 31: Conditional coverage 50% (1/2).">&nbsp;396</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 31: Conditional coverage 50% (1/2).">        <span class="keyword">return</span> <span class="keyword">this</span>.superFieldStorageId == that.superFieldStorageId;</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;32</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;33</td>  <td class="nbHits">&nbsp;</td>
@@ -79,6 +79,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/16/14 4:39 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 8/18/14 11:45 AM.</div>
 </body>
 </html>
