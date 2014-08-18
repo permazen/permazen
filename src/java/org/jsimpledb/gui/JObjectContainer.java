@@ -220,7 +220,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * @param type type restriction, or null for no restriction
      * @throws IllegalArgumentException if {@code jdb} is null
      */
-    protected <T> JObjectContainer(JSimpleDB jdb, Class<T> type) {
+    protected JObjectContainer(JSimpleDB jdb, Class<?> type) {
         if (jdb == null)
             throw new IllegalArgumentException("null jdb");
         this.jdb = jdb;
