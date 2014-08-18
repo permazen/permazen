@@ -70,7 +70,9 @@ public interface KVStore {
      *
      * <p>
      * The returned {@link Iterator} must not throw {@link java.util.ConcurrentModificationException};
-     * however, it is undefined whether or not the {@link Iterator} reflects any modifications made after its creation.
+     * however, whether or not a "live" {@link Iterator} reflects any modifications made after its creation is
+     * implementation dependent. Implementations that do update automatically, even if the update occurs after some delay,
+     * must appear to preserve the order in which the modifications actually occurred.
      * </p>
      *
      * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
