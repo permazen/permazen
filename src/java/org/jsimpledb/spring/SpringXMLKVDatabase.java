@@ -17,7 +17,8 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 /**
- * {@link XMLKVDatabase} that adds support for loading the default initial content from a Spring {@link Resource}.
+ * {@link XMLKVDatabase} that adds support for loading the default initial content from any Spring {@link Resource}.
+ * For example, this allows initial content to be loaded from the classpath.
  *
  * @see XMLKVDatabase
  */

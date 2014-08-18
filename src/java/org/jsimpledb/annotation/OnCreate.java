@@ -52,7 +52,7 @@ import java.lang.annotation.Target;
  *  &#64;JSimpleClass(storageId = 10)
  *  public abstract class Event {
  *
- *      &#64;OnCreate
+ *      &#64;OnCreate(snapshotTransactions = true)
  *      private void initialize() {
  *          this.setUUID(UUID.randomUUID());
  *      }
@@ -80,8 +80,9 @@ import java.lang.annotation.Target;
 public @interface OnCreate {
 
     /**
-     * Determines whether this annotation should be enabled for
-     * {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transactions}.
+     * Determines whether this annotation should also be enabled for
+     * {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transaction} objects.
+     * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
      *
      * @see org.jsimpledb.SnapshotJTransaction
      */

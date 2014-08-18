@@ -32,8 +32,9 @@ import java.lang.annotation.Target;
 public @interface OnDelete {
 
     /**
-     * Determines whether this annotation should be enabled for
-     * {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transactions}.
+     * Determines whether this annotation should also be enabled for
+     * {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transaction} objects.
+     * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
      *
      * @see org.jsimpledb.SnapshotJTransaction
      */
