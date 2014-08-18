@@ -207,8 +207,8 @@ public class Session {
 
     /**
      * Perform the given action within the given existing transaction, if any, otherwise within a new transaction.
-     * If {@code tx} is not null, it will used and left open when this method returns. Otherwise,
-     * if there is already an open transaction associated with this instance, it will be used;
+     * If {@code tx} is not null, it will used and left open when this method returns. Otherwise, if there is already
+     * an open transaction associated with this instance, it will be used and left open when this method returns;
      * otherwise, a new transaction is created for the duration of {@code action} and then committed.
      *
      * <p>
@@ -226,7 +226,7 @@ public class Session {
         // Sanity check
         if (action == null)
             throw new IllegalArgumentException("null action");
-        if (this.tx != null && tx != this.tx)
+        if (tx != null && this.tx != null && tx != this.tx)
             throw new IllegalStateException("a transaction is already open in this session");
 
         // Perform action within (possibly new) transaction
