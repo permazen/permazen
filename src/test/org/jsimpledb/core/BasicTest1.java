@@ -93,6 +93,20 @@ public class BasicTest1 extends TestSupport {
         }
         tx.rollback();
 
+        // Change all the names - should still work
+
+        final SchemaModel schema1a = SchemaModel.fromXML(new ByteArrayInputStream((
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema>\n"
+          + "  <Object name=\"AAAA\" storageId=\"1\">\n"
+          + "    <SimpleField name=\"BBB\" type=\"int\" storageId=\"2\"/>\n"
+          + "  </Object>\n"
+          + "  <Object name=\"CCC\" storageId=\"20\"/>\n"
+          + "</Schema>\n"
+          ).getBytes("UTF-8")));
+        tx = db.createTransaction(schema1a, 1, false);
+        tx.rollback();
+
         // Do schema update that adds new fields
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
