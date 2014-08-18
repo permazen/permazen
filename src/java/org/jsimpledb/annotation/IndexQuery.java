@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * For example:
  * <pre>
  * &#64;JSimpleClass(storageId = 10)
- * public class <b>Person</b> {
+ * public abstract class <b>Person</b> {
  *
  *     &#64;JSetField(storageId = 11, element = @JField(storageId = 12, <b>indexed = true</b>))
  *     public abstract Set&lt;<b>String</b>&gt; getNicknames();
@@ -58,7 +58,8 @@ import java.lang.annotation.Target;
  * The returned {@link java.util.NavigableMap NavigableMap} contains an entry for every value that is actually present
  * in the field in some object, with the corresponding value being the set of those objects. It represents a "live" view:
  * if an indexed field is modified, any previously returned {@link java.util.NavigableMap NavigableMap} updates itself
- * immediately (including any live iterators).
+ * immediately (whether "live" iterators update depends on the behavior of the underlying key/value database; see
+ * {@link org.jsimpledb.kv.KVStore#getRange KVStore.getRange()}).
  * </p>
  *
  * <p>

@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
+ * It may have any level of access, including {@code private}.
  * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
