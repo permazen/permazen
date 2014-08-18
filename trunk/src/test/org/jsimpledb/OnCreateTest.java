@@ -7,6 +7,10 @@
 
 package org.jsimpledb;
 
+import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
+
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnCreate;
@@ -18,7 +22,7 @@ public class OnCreateTest extends TestSupport {
     static boolean createFriend;
 
     @Test
-    public void testOnCreate() {
+    public void testOnCreate1() {
 
         final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
         final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
@@ -38,6 +42,24 @@ public class OnCreateTest extends TestSupport {
             Assert.assertNotNull(p3);
             Assert.assertEquals(p2.getCreateInvokes(), 1);
             Assert.assertEquals(p3.getCreateInvokes(), 1);
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+    @Test
+    public void testOnCreate2() {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(HasUUID.class);
+        final JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(tx);
+        try {
+
+            HasUUID h1 = tx.create(HasUUID.class);
+            Assert.assertNotNull(h1.getUUID());
+
+            tx.commit();
 
         } finally {
             JTransaction.setCurrent(null);
@@ -71,6 +93,20 @@ public class OnCreateTest extends TestSupport {
         }
         public void setFriend(Person friend) {
             this.friend = friend;
+        }
+    }
+
+    @JSimpleClass(storageId = 100)
+    public abstract static class HasUUID {
+
+        @JField(storageId = 101)
+        @NotNull
+        public abstract UUID getUUID();
+        public abstract void setUUID(UUID uuid);
+
+        @OnCreate
+        private void initialize() {
+            this.setUUID(UUID.randomUUID());
         }
     }
 }
