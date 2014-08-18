@@ -56,6 +56,16 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
 
     @Override
+    boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
+        final ReferenceSchemaField that = (ReferenceSchemaField)that0;
+        if (!super.isCompatibleWithInternal(that))
+            return false;
+        if (!this.onDelete.equals(that.onDelete))
+            return false;
+        return true;
+    }
+
+    @Override
     void readAttributes(XMLStreamReader reader) throws XMLStreamException {
         super.readAttributes(reader);
         final String text = reader.getAttributeValue(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart());

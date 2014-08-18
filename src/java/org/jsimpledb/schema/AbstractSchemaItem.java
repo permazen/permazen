@@ -53,6 +53,27 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
             throw new InvalidSchemaException(this + " has an invalid storage ID; must be greater than zero");
     }
 
+    /**
+     * Determine whether this instance is compatible with the given instance for use with the core API.
+     * Two instances are compatible if they are identical in all respects except for object and field names
+     * (to also include object and field names in the comparison, use {@link #equals equals()}).
+     * The core API uses storage IDs, not names, to identify objects and fields.
+     *
+     * @param that other schema object
+     * @throws IllegalArgumentException if {@code that} is null
+     */
+    public final boolean isCompatibleWith(AbstractSchemaItem that) {
+        if (that == null)
+            throw new IllegalArgumentException("null that");
+        if (this.storageId != that.storageId)
+            return false;
+        if (this.getClass() != that.getClass())
+            return false;
+        return this.isCompatibleWithInternal(that);
+    }
+
+    abstract boolean isCompatibleWithInternal(AbstractSchemaItem that);
+
     void readXML(XMLStreamReader reader) throws XMLStreamException {
         this.readAttributes(reader);
         this.readSubElements(reader);
