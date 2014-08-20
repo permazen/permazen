@@ -334,7 +334,7 @@
     </macrodef>
 
     <!--
-        JPA schema generation
+        JPA 2.0 schema generation
 
         Requires:
             path "javac.classpath"
@@ -354,7 +354,7 @@
             <delete dir="build/schemagen"/>
             <mkdir dir="build/schemagen/META-INF"/>
             <copy file="@{log4j}" tofile="build/schemagen/log4j.xml"/>
-            <copy file="@{jpaxml}" todir="build/schemagen/META-INF"/>
+            <copy file="@{jpaxml}" toFile="build/schemagen/META-INF/persistence.xml"/>
             <jar destfile="build/schemagen.jar">
                 <fileset dir="build/schemagen" includes="**/*"/>
                 <fileset dir="build/classes" includes="**/*.class"/>
@@ -373,6 +373,68 @@
                   outputfilename="@{file}" delimiter=";" haltonerror="true"/>
             </hibernatetool>
             <delete file="build/schemagen.jar"/>
+
+            <!-- Apply fixups -->
+            <fixups/>
+        </sequential>
+    </macrodef>
+
+    <!--
+        JPA 2.1 schema generation
+
+        Requires:
+            path "javac.classpath"
+            path "schema.classpath"
+
+        Required JARs: hibernate, JPA persistence API, dellroad-stuff
+    -->
+    <macrodef uri="urn:org.dellroad.ant" name="jpaschemagen">
+        <attribute name="jpaxml" description="JPA persistence.xml file"/>
+        <attribute name="log4j" description="Log4J XML config file"/>
+        <attribute name="unit" description="JPA persistence unit name"/>
+        <attribute name="outputFile" description="Output file"/>
+        <attribute name="create" default="true" description="Output create statements"/>
+        <attribute name="drop" default="false" description="Output drop statements"/>
+        <attribute name="delimiter" default=";" description="SQL command delimiter"/>
+        <attribute name="driver" default="com.mysql.jdbc.Driver" description="Database driver class"/>
+        <attribute name="url" default="" description="Database JDBC URL"/>
+        <attribute name="username" default="root" description="Database connection username"/>
+        <attribute name="password" default="" description="Database connection password"/>
+        <attribute name="databaseProductName" default="MySQL" description="Database product name"/>
+        <attribute name="databaseMajorVersion" default="5" description="Database major version"/>
+        <attribute name="databaseMinorVersion" default="0" description="Database minor version"/>
+        <element name="fixups" optional="yes" description="Schema fixups (optional)"/>
+        <sequential>
+
+            <!-- Build JAR file for schema generation -->
+            <delete file="build/schemagen.jar"/>
+            <delete dir="build/schemagen"/>
+            <mkdir dir="build/schemagen/META-INF"/>
+            <copy file="@{log4j}" tofile="build/schemagen/log4j.xml"/>
+            <copy file="@{jpaxml}" toFile="build/schemagen/META-INF/persistence.xml"/>
+            <jar destfile="build/schemagen.jar">
+                <fileset dir="build/schemagen" includes="**/*"/>
+                <fileset dir="build/classes" includes="**/*.class"/>
+            </jar>
+
+            <!-- Generate DDL -->
+            <taskdef uri="urn:org.dellroad.ant" name="jpaschemagen" classpathref="schema.classpath" classname="org.dellroad.stuff.ant.JPASchemaGeneratorTask"/>
+            <dellroad:jpaschemagen unit="@{unit}" file="build/schemagen/jpaddl.sql" create="@{create}" drop="@{drop}"
+              driver="@{driver}" url="@{url}" username="@{username}" password="@{password}"
+              databaseProductName="@{databaseProductName}" databaseMajorVersion="@{databaseMajorVersion}" databaseMinorVersion="@{databaseMinorVersion}">
+                <classpath>
+                    <fileset dir="build" includes="schemagen.jar"/>
+                    <path refid="javac.classpath"/>
+                </classpath>
+            </dellroad:jpaschemagen>
+            <delete file="build/schemagen.jar"/>
+
+            <!-- Format DDL -->
+            <taskdef uri="urn:org.dellroad.ant" name="hibernateddl" classpathref="schema.classpath" classname="org.dellroad.stuff.ant.HibernateDDLFormatterTask"/>
+            <dellroad:hibernateddl inputFile="build/schemagen/jpaddl.sql" outputFile="@{outputFile}" delimiter="@{delimiter}"/>
+
+            <!-- Clean up -->
+            <delete dir="build/schemagen"/>
 
             <!-- Apply fixups -->
             <fixups/>

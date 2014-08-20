@@ -1,5 +1,6 @@
 Version Next
 
+    - Added JPASchemaGeneratorTask and HibernateDDLFormatterTask ant tasks
     - Rewrote PersistentObjectTransactionManager as a Spring PlatformTransactionManager;
       removed obsolete @PersistentObjectTransactional and associated AOP aspect
     - Removed arcane @ThreadConfigurable and @ThreadTransactional nobody was using
