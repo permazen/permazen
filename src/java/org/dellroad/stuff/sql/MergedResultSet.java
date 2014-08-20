@@ -51,6 +51,7 @@ import java.util.PriorityQueue;
  * {@link #getHoldability}, and {@link #findColumn findColumn()} is derived from the first {@link ResultSet} provided.
  * </p>
  */
+@SuppressWarnings("deprecation")
 public class MergedResultSet implements ResultSet {
 
     private final ResultSet representative;

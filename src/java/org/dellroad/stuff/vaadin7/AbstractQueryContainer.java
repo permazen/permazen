@@ -80,7 +80,7 @@ import java.util.Set;
  * @see WindowQueryList
  * @see AbstractUnsizedContainer
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 public abstract class AbstractQueryContainer<T> extends AbstractContainer implements PropertyExtractor<T>,
   Container.Ordered, Container.Indexed, Container.PropertySetChangeNotifier, Container.ItemSetChangeNotifier, Connectable {
 

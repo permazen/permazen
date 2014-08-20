@@ -18,7 +18,7 @@ import java.util.EventObject;
  *
  * @param <V> the type of the property
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 public abstract class ReadOnlyProperty<V> implements
   Property<V>, Property.ValueChangeNotifier, Property.ReadOnlyStatusChangeNotifier {
 
