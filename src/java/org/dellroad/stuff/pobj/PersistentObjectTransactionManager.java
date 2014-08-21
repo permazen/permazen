@@ -468,7 +468,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
     private static class TxInfo<S> {
 
         private PersistentObject<S>.Snapshot snapshot;
-        private boolean readOnly;
+        private final boolean readOnly;
 
         TxInfo(PersistentObject<S>.Snapshot snapshot, boolean readOnly) {
             this.setSnapshot(snapshot);
