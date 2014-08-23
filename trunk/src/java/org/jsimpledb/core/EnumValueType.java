@@ -14,6 +14,10 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
  * Raw {@link Enum} type. Does not support null values.
+ *
+ * <p>
+ * Instances sort by ordinal value, then name.
+ * </p>
  */
 class EnumValueType extends FieldType<EnumValue> {
 
@@ -29,7 +33,7 @@ class EnumValueType extends FieldType<EnumValue> {
     public EnumValue read(ByteReader reader) {
         final int ordinal = UnsignedIntEncoder.read(reader);
         final String name = this.stringType.read(reader);
-        return new EnumValue(ordinal, name);
+        return new EnumValue(name, ordinal);
     }
 
     @Override
@@ -52,14 +56,13 @@ class EnumValueType extends FieldType<EnumValue> {
     @Override
     public EnumValue fromParseableString(ParseContext ctx) {
         final String name = ctx.matchPrefix("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*").group();
-        ctx.expect('#');
-        final int ordinal = FieldType.INTEGER.fromParseableString(ctx);
-        return new EnumValue(ordinal, name);
+        final int ordinal = ctx.tryLiteral("#") ? FieldType.INTEGER.fromParseableString(ctx) : -1;
+        return new EnumValue(name, ordinal);
     }
 
     @Override
     public String toParseableString(EnumValue value) {
-        return value.getName() + "#" + value.getOrdinal();
+        return value.toString();
     }
 
     @Override
