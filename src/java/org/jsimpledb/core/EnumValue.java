@@ -9,29 +9,40 @@ package org.jsimpledb.core;
 
 /**
  * Holds a non-null {@link Enum} value without actually referencing any Java {@link Enum} type.
+ * Instead, instances hold a name and an optional ordinal value.
  *
  * @see org.jsimpledb.EnumConverter
  */
 public class EnumValue {
 
-    private final int ordinal;
+    private final int ordinal;          // -1 means unspecified
     private final String name;
 
     /**
-     * Constructor.
+     * Constructor taking only name. Ordinal value will remain unspecified.
      *
-     * @param ordinal enum ordinal value
      * @param name enum name
-     * @throws IllegalArgumentException if {@code ordinal} is negative
      * @throws IllegalArgumentException if {@code name} is null
      */
-    public EnumValue(int ordinal, String name) {
-        if (ordinal < 0)
-            throw new IllegalArgumentException("null ordinal");
+    public EnumValue(String name) {
+        this(name, -1);
+    }
+
+    /**
+     * Constructor taking name and ordinal value.
+     *
+     * @param name enum name
+     * @param ordinal enum ordinal value, or -1 to leave ordinal value unspecified
+     * @throws IllegalArgumentException if {@code ordinal} is less than -1
+     * @throws IllegalArgumentException if {@code name} is null
+     */
+    public EnumValue(String name, int ordinal) {
         if (name == null)
             throw new IllegalArgumentException("null name");
-        this.ordinal = ordinal;
+        if (ordinal < -1)
+            throw new IllegalArgumentException("invalid ordinal " + ordinal);
         this.name = name;
+        this.ordinal = ordinal;
     }
 
     /**
@@ -43,12 +54,14 @@ public class EnumValue {
     public EnumValue(Enum<?> value) {
         if (value == null)
             throw new IllegalArgumentException("null value");
-        this.ordinal = value.ordinal();
         this.name = value.name();
+        this.ordinal = value.ordinal();
     }
 
     /**
      * Get the enum name.
+     *
+     * @return enum value name
      */
     public String getName() {
         return this.name;
@@ -56,6 +69,8 @@ public class EnumValue {
 
     /**
      * Get the enum ordinal value.
+     *
+     * @return enum value ordinal, or -1 if ordinal is unspecified
      */
     public int getOrdinal() {
         return this.ordinal;
@@ -65,7 +80,7 @@ public class EnumValue {
 
     @Override
     public String toString() {
-        return this.name + "#" + this.ordinal;
+        return this.name + (this.ordinal != -1 ? "#" + this.ordinal : "");
     }
 
     @Override
