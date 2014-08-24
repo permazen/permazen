@@ -87,8 +87,9 @@ public abstract class AbstractMain extends MainClass {
             } else if (option.equals("--scan-pkg")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.scanSchemaClasses(params.removeFirst());
-                this.scanTypeClasses(params.removeFirst());
+                final String packageName = params.removeFirst();
+                this.scanSchemaClasses(packageName);
+                this.scanTypeClasses(packageName);
             } else if (option.equals("--new-schema"))
                 this.allowNewSchema = true;
             else if (option.equals("--mem"))
