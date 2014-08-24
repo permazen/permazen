@@ -17,16 +17,17 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.TypeFilter;
 
-class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?>>> implements ResourceLoaderAware, EnvironmentAware {
+abstract class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?>>>
+  implements ResourceLoaderAware, EnvironmentAware {
 
-    private Environment environment;
-    private ResourceLoader resourceLoader;
+    protected Environment environment;
+    protected ResourceLoader resourceLoader;
 
-    private String[] basePackages;
-    private boolean useDefaultFilters = true;
-    private String resourcePattern;
-    private List<TypeFilter> includeFilters;
-    private List<TypeFilter> excludeFilters;
+    protected String[] basePackages;
+    protected boolean useDefaultFilters = true;
+    protected String resourcePattern;
+    protected List<TypeFilter> includeFilters;
+    protected List<TypeFilter> excludeFilters;
 
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
@@ -73,7 +74,7 @@ class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?>>> imple
     protected List<Class<?>> createInstance() {
 
         // Build and configure scanner
-        final JSimpleDBClassScanner scanner = new JSimpleDBClassScanner(this.useDefaultFilters, this.environment);
+        final AnnotatedClassScanner scanner = this.createScanner();
         scanner.setResourceLoader(this.resourceLoader);
         if (this.resourcePattern != null)
             scanner.setResourcePattern(this.resourcePattern);
@@ -107,5 +108,7 @@ class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?>>> imple
     public Class<?> getObjectType() {
         return List.class;
     }
+
+    abstract AnnotatedClassScanner createScanner();
 }
 

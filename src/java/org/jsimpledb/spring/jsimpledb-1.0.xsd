@@ -16,10 +16,55 @@
         ]]></xsd:documentation>
     </xsd:annotation>
 
-	<xsd:element name="scan-classpath">
+	<xsd:element name="scan-classes">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
-    Scans the classpath and builds a list of @JSimpleClass and @JFieldType-annotated classes.
+    Scans the classpath and builds a list of @JSimpleClass-annotated classes.
+    Works just like &lt;context:component-scan/&gt;.
+			]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="include-filter" type="context:filterType"
+					minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[
+	Controls which eligible types to include for component scanning.
+							]]></xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="exclude-filter" type="context:filterType"
+					minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[
+	Controls which eligible types to exclude for component scanning.
+						]]></xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+			<xsd:attribute name="base-package" type="xsd:string"
+				use="required">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	The comma-separated list of packages to scan for annotated components.
+					]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="resource-pattern" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	Controls the class files eligible for component detection. Defaults to "**/*.class", the recommended value.
+	Consider use of the include-filter and exclude-filter elements for a more fine-grained approach.
+					]]></xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="scan-field-types">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[
+    Scans the classpath and builds a list of @JFieldType-annotated classes.
     Works just like &lt;context:component-scan/&gt;.
 			]]></xsd:documentation>
 		</xsd:annotation>

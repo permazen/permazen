@@ -208,7 +208,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      */
-    FieldType(String name, TypeToken<T> typeToken) {
+    protected FieldType(String name, TypeToken<T> typeToken) {
         if (name == null)
             throw new IllegalArgumentException("null name");
         if (typeToken == null)
@@ -217,7 +217,14 @@ public abstract class FieldType<T> implements Comparator<T> {
         this.typeToken = typeToken;
     }
 
-    FieldType(Class<T> type) {
+    /**
+     * Constructor taking a {@link Class} object.
+     * The {@linkplain #getName name} of this instance will be the {@linkplain Class#getName name} of the given class.
+     *
+     * @param type Java type for the field's values
+     * @throws NullPointerException if {@code type} is null
+     */
+    protected FieldType(Class<T> type) {
         this(type.getName(), TypeToken.of(type));
     }
 

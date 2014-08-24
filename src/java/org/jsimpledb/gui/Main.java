@@ -120,8 +120,15 @@ public class Main extends AbstractMain implements GUIConfig {
         this.startupKVDatabase();
         try {
 
+            // Create Database
+            final Database db = new Database(this.kvdb);
+
+            // Register custom field types
+            if (this.fieldTypeClasses != null)
+                db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
+
             // Create JSimpleDB instance
-            this.jdb = new JSimpleDB(new Database(this.kvdb), this.schemaVersion, this.schemaClasses);
+            this.jdb = new JSimpleDB(db, this.schemaVersion, this.schemaClasses);
 
             // Verify schema
             this.verifySchema();

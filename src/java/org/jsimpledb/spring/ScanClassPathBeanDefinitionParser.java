@@ -22,9 +22,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Parses <code>&lt;jsimpledb:scan-classpath&gt;</code> tags.
+ * Support superclass for XML bean definition parsers.
  */
-class ScanClassPathBeanDefinitionParser extends ComponentScanBeanDefinitionParser {
+abstract class ScanClassPathBeanDefinitionParser extends ComponentScanBeanDefinitionParser {
 
     private static final String BASE_PACKAGE_ATTRIBUTE = "base-package";
     private static final String RESOURCE_PATTERN_ATTRIBUTE = "resource-pattern";
@@ -40,7 +40,7 @@ class ScanClassPathBeanDefinitionParser extends ComponentScanBeanDefinitionParse
         final ClassLoader classLoader = readerContext.getResourceLoader().getClassLoader();
 
         // Build bean definition
-        final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ScanClassPathFactoryBean.class);
+        final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(this.getBeanClass());
         builder.getRawBeanDefinition().setSource(parserContext.extractSource(element));
         if (parserContext.isNested())
             builder.setScope(parserContext.getContainingBeanDefinition().getScope());
@@ -78,5 +78,7 @@ class ScanClassPathBeanDefinitionParser extends ComponentScanBeanDefinitionParse
         // Done
         return builder.getBeanDefinition();
     }
+
+    abstract Class<?> getBeanClass();
 }
 

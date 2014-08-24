@@ -7,6 +7,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Function;
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
@@ -15,11 +17,14 @@ import java.util.Comparator;
 import java.util.HashSet;
 
 import org.dellroad.stuff.main.MainClass;
+import org.jsimpledb.annotation.JFieldType;
+import org.jsimpledb.core.FieldType;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
 import org.jsimpledb.spring.JSimpleDBClassScanner;
+import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
 
 /**
  * Support superclass for main entry point classes.
@@ -36,6 +41,7 @@ public abstract class AbstractMain extends MainClass {
     protected byte[] keyPrefix;
     protected int schemaVersion;
     protected HashSet<Class<?>> schemaClasses;
+    protected HashSet<Class<? extends FieldType<?>>> fieldTypeClasses;
     protected boolean allowNewSchema;
     protected boolean verbose;
     protected boolean readOnly;
@@ -74,6 +80,15 @@ public abstract class AbstractMain extends MainClass {
                 if (params.isEmpty())
                     this.usageError();
                 this.scanSchemaClasses(params.removeFirst());
+            } else if (option.equals("--types-pkg")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.scanTypeClasses(params.removeFirst());
+            } else if (option.equals("--scan-pkg")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.scanSchemaClasses(params.removeFirst());
+                this.scanTypeClasses(params.removeFirst());
             } else if (option.equals("--new-schema"))
                 this.allowNewSchema = true;
             else if (option.equals("--mem"))
@@ -145,6 +160,30 @@ public abstract class AbstractMain extends MainClass {
             this.schemaClasses.add(this.loadClass(className));
     }
 
+    private void scanTypeClasses(String pkgname) {
+
+        // Check types of annotated classes as we scan them
+        final Function<Class<?>, Class<? extends FieldType<?>>> checkFunction
+          = new Function<Class<?>, Class<? extends FieldType<?>>>() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public Class<? extends FieldType<?>> apply(Class<?> type) {
+                try {
+                    return (Class<? extends FieldType<?>>)type.asSubclass(FieldType.class);
+                } catch (ClassCastException e) {
+                    throw new IllegalArgumentException("invalid @" + JFieldType.class.getSimpleName() + " annotation on "
+                      + type + ": type is not a subclass of " + FieldType.class);
+                }
+            }
+        };
+
+        // Scan classes
+        if (this.fieldTypeClasses == null)
+            this.fieldTypeClasses = new HashSet<>();
+        for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]")))
+            this.fieldTypeClasses.add(checkFunction.apply(this.loadClass(className)));
+    }
+
     /**
      * Load a class.
      *
@@ -214,7 +253,9 @@ public abstract class AbstractMain extends MainClass {
             { "--new-schema",           "Allow recording of a new database schema version" },
             { "--xml file",             "Use the specified XML flat file database" },
             { "--version num",          "Specify database schema version (default highest recorded)" },
-            { "--schema-pkg package",   "Scan for @JSimpleClass classes under Java package to build schema" },
+            { "--schema-pkg package",   "Scan for @JSimpleClass types under Java package to build schema (=> JSimpleDB mode)" },
+            { "--types-pkg package",    "Scan for @JFieldType types under Java package to register custom types" },
+            { "--scan-pkg package",     "Equivalent to `--schema-pkg package --types-pkg package'" },
             { "--help, -h",             "Show this help message" },
             { "--verbose, -v",          "Show verbose error messages" },
         };

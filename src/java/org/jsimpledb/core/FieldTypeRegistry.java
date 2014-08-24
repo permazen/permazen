@@ -97,6 +97,48 @@ public class FieldTypeRegistry {
     }
 
     /**
+     * Add multiple user-defined {@link FieldType} to this registry, using newly created instances of the specified classes.
+     *
+     * @param classes implementations of types to add
+     * @throws IllegalArgumentException if {@code classes} is null
+     * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
+     * @throws IllegalArgumentException if {@code classes} contains an invalid {@link FieldType} class
+     */
+    public void addClasses(Iterable<? extends Class<? extends FieldType<?>>> classes) {
+        if (classes == null)
+            throw new IllegalArgumentException("null classes");
+        for (Class<? extends FieldType<?>> type : classes)
+            this.addClass(type);
+    }
+
+    /**
+     * Add a user-defined {@link FieldType} to this registry, using a newly created instance of the specified class.
+     *
+     * @param typeClass implementation of type to add
+     * @throws IllegalArgumentException if {@code typeClass} is null
+     * @throws IllegalArgumentException if {@code typeClass} cannot be instantiated
+     * @throws IllegalArgumentException if the {@linkplain FieldType#getName type name} conflicts with an existing type
+     * @throws IllegalArgumentException if the {@linkplain FieldType#getName type name} ends with {@code []} (array name)
+     */
+    public void addClass(Class<? extends FieldType<?>> typeClass) {
+
+        // Sanity check
+        if (typeClass == null)
+            throw new IllegalArgumentException("null typeClass");
+
+        // Instantiate class
+        final FieldType<?> fieldType;
+        try {
+            fieldType = (FieldType<?>)typeClass.newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("can't instantiate " + typeClass, e);
+        }
+
+        // Register it
+        this.add(fieldType);
+    }
+
+    /**
      * Add a user-defined {@link FieldType} to the registry.
      *
      * @param type type to add
