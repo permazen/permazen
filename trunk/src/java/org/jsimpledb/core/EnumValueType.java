@@ -56,13 +56,14 @@ class EnumValueType extends FieldType<EnumValue> {
     @Override
     public EnumValue fromParseableString(ParseContext ctx) {
         final String name = ctx.matchPrefix("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*").group();
-        final int ordinal = ctx.tryLiteral("#") ? FieldType.INTEGER.fromParseableString(ctx) : -1;
+        ctx.expect('#');
+        final int ordinal = FieldType.INTEGER.fromParseableString(ctx);
         return new EnumValue(name, ordinal);
     }
 
     @Override
     public String toParseableString(EnumValue value) {
-        return value.toString();
+        return value.getName() + "#" + value.getOrdinal();
     }
 
     @Override
