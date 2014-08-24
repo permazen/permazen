@@ -24,9 +24,9 @@
 
     <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1">
         <constructor-arg>
-            <jsimpledb:scan-classpath base-package="org.jsimpledb.spring">
+            <jsimpledb:scan-classes base-package="org.jsimpledb.spring">
                 <jsimpledb:exclude-filter type="regex" expression=".*Banana.*"/>
-            </jsimpledb:scan-classpath>
+            </jsimpledb:scan-classes>
         </constructor-arg>
     </bean>
 

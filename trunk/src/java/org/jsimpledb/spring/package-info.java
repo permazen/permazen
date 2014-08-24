@@ -11,9 +11,10 @@
  * <p>
  * This package provides the following features to facilitate use with Spring:
  * <ul>
- *  <li>The {@code <jsimpledb:scan-classpath>} XML tag, which works just like Spring's {@code <context:component-scan>}
- *      to find {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} and
- *      {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType}-annotated classes.</li>
+ *  <li>The {@code <jsimpledb:scan-classes>} XML tag, which works just like Spring's {@code <context:component-scan>}
+ *      to find {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated classes.</li>
+ *  <li>The {@code <jsimpledb:scan-field-types>} XML tag, which works just like Spring's {@code <context:component-scan>}
+ *      to find {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType}-annotated classes.</li>
  *  <li>A Spring {@link org.springframework.transaction.PlatformTransactionManager PlatformTransactionManager} that integrates
  *      into Spring's transaction infrastructure and enables the
  *      {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation for
@@ -45,12 +46,21 @@
  *     &lt;!-- Define the core Database layer on top of that --&gt;
  *     &lt;bean id="database" class="org.jsimpledb.core.Database" c:kvdb-ref="kvdb"/&gt;
  *
- *     &lt;!-- Define the Java "JSimpleDB" on top of the core database --&gt;
- *     &lt;bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1"&gt;
+ *     &lt;!-- Register some custom field types (this would only be required if you define custom field types) --&gt;
+ *     &lt;bean id="fieldTypeRegistry" factory-bean="database" factory-method="getFieldTypeRegistry"/&gt;
+ *     &lt;bean id="registerCustomFieldTypes" factory-instance="fieldTypeRegistry" factory-method="addClasses"&gt;
  *         &lt;constructor-arg&gt;
- *             &lt;<b>jsimpledb:scan-classpath</b> base-package="com.example.myapp"&gt;
+ *             &lt;<b>jsimpledb:scan-field-types</b> base-package="com.example.myapp.fieldtype"/&gt;
+ *         &lt;/constructor-arg&gt;
+ *     &lt;/bean&gt;
+ *
+ *     &lt;!-- Define the Java "JSimpleDB" on top of the core database --&gt;
+ *     &lt;bean id="jsimpledb" depends-on="registerCustomFieldTypes"
+ *       class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1"&gt;
+ *         &lt;constructor-arg&gt;
+ *             &lt;<b>jsimpledb:scan-classes</b> base-package="com.example.myapp"&gt;
  *                 &lt;<b>jsimpledb:exclude-filter</b> type="regex" expression="com\.example\.myapp\.test\..*"/&gt;
- *             &lt;/<b>jsimpledb:scan-classpath</b>&gt;
+ *             &lt;/<b>jsimpledb:scan-classes</b>&gt;
  *         &lt;/constructor-arg&gt;
  *     &lt;/bean&gt;
  *

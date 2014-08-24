@@ -7,14 +7,13 @@
 
 package org.jsimpledb.spring;
 
-import org.jsimpledb.annotation.JFieldType;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.ClassMetadata;
 
 /**
- * Scans the classpath for types annotated as {@link JSimpleClass &#64;JSimpleClass} or {@link JFieldType &#64;JFieldType}.
+ * Scans the classpath for types annotated as {@link JSimpleClass &#64;JSimpleClass}.
  */
 public class JSimpleDBClassScanner extends AnnotatedClassScanner {
 
@@ -22,18 +21,17 @@ public class JSimpleDBClassScanner extends AnnotatedClassScanner {
      * Constructor.
      */
     public JSimpleDBClassScanner() {
-        super(JSimpleClass.class, JFieldType.class);
+        super(JSimpleClass.class);
     }
 
     /**
      * Constructor.
      *
-     * @param useDefaultFilters whether to register the default filters for {@link JSimpleClass &#64;JSimpleClass}
-     *  and {@link JFieldType &#64;JFieldType} type annotations
+     * @param useDefaultFilters whether to register the default filters for {@link JSimpleClass &#64;JSimpleClass} type annotations
      * @param environment environment to use
      */
     public JSimpleDBClassScanner(boolean useDefaultFilters, Environment environment) {
-        super(useDefaultFilters, environment, JSimpleClass.class, JFieldType.class);
+        super(useDefaultFilters, environment, JSimpleClass.class);
     }
 
     /**

@@ -34,16 +34,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Documented
 public @interface JFieldType {
-
-    /**
-     * The name under which to register this field type. Must be unique among all field types in any
-     * {@link org.jsimpledb.core.FieldTypeRegistry}.
-     *
-     * <p>
-     * If equal to the empty string (default value),
-     * the string value of the value returned by {@linkplain org.jsimpledb.core.FieldType#getTypeToken} is used.
-     * </p>
-     */
-    String name() default "";
 }
 

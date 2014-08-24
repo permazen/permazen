@@ -106,6 +106,10 @@ public class Main extends AbstractMain {
         this.startupKVDatabase();
         final Database db = new Database(this.kvdb);
 
+        // Register custom field types
+        if (this.fieldTypeClasses != null)
+            db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
+
         // Load JSimpleDB layer, if specified
         final JSimpleDB jdb = this.schemaClasses != null ? new JSimpleDB(db, this.schemaVersion, this.schemaClasses) : null;
 

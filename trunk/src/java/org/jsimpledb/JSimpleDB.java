@@ -18,11 +18,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.jsimpledb.annotation.JFieldType;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
-import org.jsimpledb.core.DatabaseException;
-import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
@@ -108,13 +105,12 @@ public class JSimpleDB {
      * class in {@code classes} will be included even if not explicitly specified.
      * </p>
      *
-     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass}
-     *  and/or {@link JFieldType &#64;JFieldType} annotations
+     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations
      * @throws IllegalArgumentException if {@code classes} is null
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
      * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    public JSimpleDB(Iterable<Class<?>> classes) {
+    public JSimpleDB(Iterable<? extends Class<?>> classes) {
         this(new Database(new SimpleKVDatabase()), 1, classes);
     }
 
@@ -129,14 +125,13 @@ public class JSimpleDB {
      * @param database core database to use
      * @param version schema version number of the schema derived from {@code classes},
      *  or zero to use the highest version already recorded in the database
-     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass}
-     *  and/or {@link JFieldType &#64;JFieldType} annotations
+     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations; non-annotated classes are ignored
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code version} is not greater than zero
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
      * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    public JSimpleDB(Database database, int version, Iterable<Class<?>> classes) {
+    public JSimpleDB(Database database, int version, Iterable<? extends Class<?>> classes) {
 
         // Initialize
         if (database == null)
@@ -150,16 +145,11 @@ public class JSimpleDB {
 
         // Inventory classes; automatically add all @JSimpleClass-annotated superclasses of @JSimpleClass-annotated classes
         final HashSet<Class<?>> jsimpleClasses = new HashSet<>();
-        final HashSet<Class<?>> jfieldTypeClasses = new HashSet<>();
         for (Class<?> type : classes) {
 
             // Sanity check
             if (type == null)
                 throw new IllegalArgumentException("null class found in classes");
-
-            // Check for @JFieldType
-            if (type.isAnnotationPresent(JFieldType.class))
-                jfieldTypeClasses.add(type);
 
             // Check for @JSimpleClass
             if (type.isAnnotationPresent(JSimpleClass.class)) {
@@ -177,35 +167,6 @@ public class JSimpleDB {
                         jsimpleClasses.add(supertype);
                 }
             }
-        }
-
-        // Register custom field types
-        for (Class<?> type : jfieldTypeClasses) {
-
-            // Get type name
-            final JFieldType fieldTypeAnnotation = type.getAnnotation(JFieldType.class);
-            final String name = fieldTypeAnnotation.name().length() != 0 ? fieldTypeAnnotation.name() : type.getName();
-            if (this.log.isTraceEnabled()) {
-                this.log.trace("found @" + JFieldType.class.getSimpleName()
-                  + " annotation on " + type + " defining field type `" + name + "'");
-            }
-
-            // Instantiate class
-            final Object obj;
-            try {
-                obj = type.newInstance();
-            } catch (Exception e) {
-                throw new DatabaseException("can't instantiate " + type, e);
-            }
-            if (!(obj instanceof FieldType)) {
-                throw new DatabaseException("invalid @" + JFieldType.class.getSimpleName()
-                  + " annotation on " + type + ": not a subclass of " + FieldType.class);
-            }
-
-            // Register field type
-            final FieldType<?> fieldType = (FieldType<?>)obj;
-            this.db.getFieldTypeRegistry().add(fieldType);
-            this.log.debug("registered new field type `" + fieldType.getName() + "' using " + type);
         }
 
         // Add Java model classes
