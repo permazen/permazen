@@ -9,38 +9,28 @@ package org.jsimpledb.core;
 
 /**
  * Holds a non-null {@link Enum} value without actually referencing any Java {@link Enum} type.
- * Instead, instances hold a name and an optional ordinal value.
+ * Instead, instances hold a name and ordinal value.
  *
  * @see org.jsimpledb.EnumConverter
  */
 public class EnumValue {
 
-    private final int ordinal;          // -1 means unspecified
     private final String name;
-
-    /**
-     * Constructor taking only name. Ordinal value will remain unspecified.
-     *
-     * @param name enum name
-     * @throws IllegalArgumentException if {@code name} is null
-     */
-    public EnumValue(String name) {
-        this(name, -1);
-    }
+    private final int ordinal;
 
     /**
      * Constructor taking name and ordinal value.
      *
      * @param name enum name
-     * @param ordinal enum ordinal value, or -1 to leave ordinal value unspecified
-     * @throws IllegalArgumentException if {@code ordinal} is less than -1
+     * @param ordinal enum ordinal value
+     * @throws IllegalArgumentException if {@code ordinal} is negative
      * @throws IllegalArgumentException if {@code name} is null
      */
     public EnumValue(String name, int ordinal) {
         if (name == null)
             throw new IllegalArgumentException("null name");
-        if (ordinal < -1)
-            throw new IllegalArgumentException("invalid ordinal " + ordinal);
+        if (ordinal < 0)
+            throw new IllegalArgumentException("invalid negative ordinal " + ordinal);
         this.name = name;
         this.ordinal = ordinal;
     }
@@ -70,7 +60,7 @@ public class EnumValue {
     /**
      * Get the enum ordinal value.
      *
-     * @return enum value ordinal, or -1 if ordinal is unspecified
+     * @return enum value ordinal
      */
     public int getOrdinal() {
         return this.ordinal;
@@ -80,7 +70,7 @@ public class EnumValue {
 
     @Override
     public String toString() {
-        return this.name + (this.ordinal != -1 ? "#" + this.ordinal : "");
+        return this.name + "#" + this.ordinal;
     }
 
     @Override
