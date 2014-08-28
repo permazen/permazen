@@ -1,4 +1,6 @@
 
+- JObject.getRelatedObjects() - make into separate interface?
+
 - CLI
     - Automatic promotion: e.g., $foo.longField = 0 fails (int != long)
     - Easy way to enter field type value in string form (e.g., UUID)
