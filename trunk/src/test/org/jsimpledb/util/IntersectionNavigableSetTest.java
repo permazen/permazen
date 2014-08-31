@@ -140,6 +140,22 @@ public class IntersectionNavigableSetTest extends TestSupport {
         Assert.assertEquals(intersect2.subSet(16, true, 21, false), buildSet(16, 18));
         Assert.assertEquals(intersect2.subSet(16, false, 21, true), buildSet(18));
 
+        NavigableSet<Integer> set3 = new TreeSet<>();
+        set3.add(100);
+        set3.add(200);
+        set3 = set3.subSet(100, true, 250, false);
+        NavigableSet<Integer> set4 = new TreeSet<>();
+        set4.add(100);
+        set4.add(200);
+        set4.add(300);
+        set4.add(400);
+        set4 = set4.subSet(100, true, 450, false);
+
+        final NavigableSet<Integer> intersect3 = NavigableSets.intersection(set3, set4);
+        Assert.assertEquals(intersect3, buildSet(100, 200));
+
+        final NavigableSet<Integer> intersect4 = NavigableSets.intersection(set4, set3);
+        Assert.assertEquals(intersect4, buildSet(100, 200));
     }
 
     private void verifyIntersection(List<NavigableSet<Integer>> sets) {
