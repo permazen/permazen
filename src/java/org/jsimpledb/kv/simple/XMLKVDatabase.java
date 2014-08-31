@@ -87,8 +87,8 @@ public class XMLKVDatabase extends SimpleKVDatabase {
             throw new IllegalArgumentException("null repository");
         this.repository = repository;
         this.serializer = new XMLSerializer(this.kv);
-        this.reload();
         this.file = repository instanceof FileStreamRepository ? ((FileStreamRepository)repository).getFile() : null;
+        this.reload();
     }
 
     /**
@@ -213,10 +213,11 @@ public class XMLKVDatabase extends SimpleKVDatabase {
             } catch (IOException e2) {
                 throw new KVDatabaseException(this, "error opening initial XML content", e2);
             }
+            final String desc = this.file != null ? "file `" + this.file + "'" : "database file";
             if (input == null)
-                this.log.info("file `" + this.file + "' not found and no initial content is configured; starting out empty");
+                this.log.info(desc + " not found and no initial content is configured; starting out empty");
             else
-                this.log.info("file `" + this.file + "' not found; applying default initial content");
+                this.log.info(desc + " not found; applying default initial content");
         } catch (IOException e) {
             throw new KVDatabaseException(this, "error opening XML content", e);
         }
