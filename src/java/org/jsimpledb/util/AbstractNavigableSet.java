@@ -7,7 +7,6 @@
 
 package org.jsimpledb.util;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NavigableSet;
@@ -183,21 +182,13 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     }
 
     /**
-     * Get an {@link Comparator} that sorts consistently with (and optionally reversed from) this instance.
+     * Get a non-null {@link Comparator} that sorts consistently with, and optionally reversed from, this instance.
      *
      * @param reversed whether to return a reversed {@link Comparator}
      * @return a non-null {@link Comparator}
      */
     protected Comparator<? super E> getComparator(boolean reversed) {
-        final Comparator<? super E> comparator = this.comparator();
-        if (comparator != null)
-            return AbstractNavigableSet.possiblyReverse(comparator, reversed);
-        return reversed ? Collections.<E>reverseOrder() : new NaturalComparator();
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private static <T> Comparator<T> possiblyReverse(Comparator<T> comparator, boolean reverse) {
-        return reverse ? Collections.reverseOrder(comparator) : comparator;
+        return NavigableSets.getComparator(this.comparator(), reversed);
     }
 
     /**
@@ -211,16 +202,5 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      * @throws IllegalArgumentException if a bound in {@code newBounds} is null and this set does not permit null elements
      */
     protected abstract NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds);
-
-// NaturalComparator
-
-    private class NaturalComparator implements Comparator<E> {
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public int compare(E e1, E e2) {
-            return ((Comparable<E>)e1).compareTo(e2);
-        }
-    }
 }
 
