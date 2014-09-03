@@ -8,6 +8,7 @@
 package org.jsimpledb.util;
 
 import java.util.AbstractMap;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -238,6 +239,16 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
             throw new IllegalArgumentException("bound(s) are out of range");
         return this.createSubMap(false, newBounds);
+    }
+
+    /**
+     * Get a non-null {@link Comparator} that sorts consistently with, and optionally reversed from, this instance.
+     *
+     * @param reversed whether to return a reversed {@link Comparator}
+     * @return a non-null {@link Comparator}
+     */
+    protected Comparator<? super K> getComparator(boolean reversed) {
+        return NavigableSets.getComparator(this.comparator(), reversed);
     }
 
     /**

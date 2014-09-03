@@ -8,6 +8,7 @@
 package org.jsimpledb.util;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.NavigableSet;
 
@@ -147,6 +148,30 @@ public final class NavigableSets {
      */
     public static <E> NavigableSet<E> empty(Comparator<? super E> comparator) {
         return new EmptyNavigableSet<E>(comparator);
+    }
+
+    /**
+     * Get a non-null {@link Comparator} that sorts consistently with, and optionally reversed from, the given {@link Comparator}.
+     *
+     * @param comparator comparator, or null for natural ordering
+     * @param reversed whether to return a reversed {@link Comparator}
+     * @return a non-null {@link Comparator}
+     */
+    static <T> Comparator<T> getComparator(Comparator<T> comparator, boolean reversed) {
+        return comparator != null ?
+          (reversed ? Collections.<T>reverseOrder(comparator) : comparator) :
+          (reversed ? Collections.<T>reverseOrder() : new NaturalComparator<T>());
+    }
+
+// NaturalComparator
+
+    private static class NaturalComparator<T> implements Comparator<T> {
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public int compare(T e1, T e2) {
+            return ((Comparable<T>)e1).compareTo(e2);
+        }
     }
 }
 
