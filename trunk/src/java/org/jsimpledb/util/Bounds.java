@@ -218,16 +218,17 @@ public class Bounds<T> {
     }
 
     /**
-     * Check whether the given value is outside of the bounds of this instance.
+     * Check whether the given value is outside one of the bounds of this instance.
      *
      * @param comparator comparator used to compare values, or null for natural ordering
      * @param value value to check
+     * @param requireInclusive whether value should not be considered included when it is exactly equal to an exclusive bound
      * @param upper true to check against upper bound, false to check against lower bound
      * @throws IllegalArgumentException if {@link newBound} is out of range
      * @throws IllegalArgumentException if {@link newBoundType} is null
      */
     @SuppressWarnings("unchecked")
-    private boolean isWithinBound(Comparator<? super T> comparator, T value, boolean valueInclusive, boolean upper) {
+    private boolean isWithinBound(Comparator<? super T> comparator, T value, boolean requireInclusive, boolean upper) {
 
         // Check bound type
         final BoundType boundType = upper ? this.upperBoundType : this.lowerBoundType;
@@ -240,7 +241,7 @@ public class Bounds<T> {
 
         // Handle value equal to bound
         if (diff == 0) {
-            if (boundType == BoundType.INCLUSIVE || !valueInclusive)
+            if (boundType == BoundType.INCLUSIVE || !requireInclusive)
                 return true;
             return false;
         }
