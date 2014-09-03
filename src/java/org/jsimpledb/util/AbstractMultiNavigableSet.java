@@ -75,22 +75,55 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
 
     @Override
     protected final NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds) {
+        final Comparator<? super E> nonNullComparator = NavigableSets.getComparator(this.comparator(), false);
         final ArrayList<NavigableSet<E>> newList = new ArrayList<NavigableSet<E>>(this.list.size());
         for (NavigableSet<E> set : this.list) {
+
+            // Apply lower bound
             if (newBounds.getLowerBoundType() != BoundType.NONE) {
                 try {
                     set = set.tailSet(newBounds.getLowerBound(), newBounds.getLowerBoundType().isInclusive());
                 } catch (IllegalArgumentException e) {
-                    // ignore - lower bound is out of range
+
+                    // Bound is out of range; it must be either too low or too high
+                    if (set.isEmpty())
+                        set = new EmptyNavigableSet<E>(this.comparator());
+                    else {
+                        final int diff = nonNullComparator.compare(newBounds.getLowerBound(), set.last());
+                        if (diff > 0)
+                            set = new EmptyNavigableSet<E>(this.comparator());
+                        else if (diff == 0) {
+                            if (newBounds.getLowerBoundType().isInclusive())
+                                throw e;                            // this indicates faulty logic in the underlying set
+                            set = new EmptyNavigableSet<E>(this.comparator());
+                        }
+                    }
                 }
             }
+
+            // Apply upper bound
             if (newBounds.getUpperBoundType() != BoundType.NONE) {
                 try {
                     set = set.headSet(newBounds.getUpperBound(), newBounds.getUpperBoundType().isInclusive());
                 } catch (IllegalArgumentException e) {
-                    // ignore - upper bound is out of range
+
+                    // Bound is out of range; it must be either too low or too high
+                    if (set.isEmpty())
+                        set = new EmptyNavigableSet<E>(this.comparator());
+                    else {
+                        final int diff = nonNullComparator.compare(newBounds.getUpperBound(), set.first());
+                        if (diff < 0)
+                            set = new EmptyNavigableSet<E>(this.comparator());
+                        else if (diff == 0) {
+                            if (newBounds.getUpperBoundType().isInclusive())
+                                throw e;                            // this indicates faulty logic in the underlying set
+                            set = new EmptyNavigableSet<E>(this.comparator());
+                        }
+                    }
                 }
             }
+
+            // Add restricted set
             newList.add(set);
         }
         return this.createSubSet(reverse, newBounds, newList);
