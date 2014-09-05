@@ -17,7 +17,6 @@ import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.ObjId;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -60,7 +59,6 @@ class ClassGenerator<T> {
     static final Method JOBJECT_COPY_OUT_METHOD;
     static final Method JOBJECT_COPY_IN_METHOD;
     static final Method JOBJECT_COPY_TO_METHOD;
-    static final Method JOBJECT_GET_RELATED_OBJECTS_METHOD;
 
     // JTransaction method handles
     static final Method GET_CURRENT_METHOD;
@@ -96,10 +94,10 @@ class ClassGenerator<T> {
             JOBJECT_RECREATE_METHOD = JObject.class.getMethod("recreate");
             JOBJECT_UPGRADE_METHOD = JObject.class.getMethod("upgrade");
             JOBJECT_REVALIDATE_METHOD = JObject.class.getMethod("revalidate");
-            JOBJECT_COPY_TO_METHOD = JObject.class.getMethod("copyTo", JTransaction.class, ObjId.class, String[].class);
+            JOBJECT_COPY_TO_METHOD = JObject.class.getMethod("copyTo",
+              JTransaction.class, ObjId.class, ObjIdSet.class, String[].class);
             JOBJECT_COPY_OUT_METHOD = JObject.class.getMethod("copyOut", String[].class);
             JOBJECT_COPY_IN_METHOD = JObject.class.getMethod("copyIn", String[].class);
-            JOBJECT_GET_RELATED_OBJECTS_METHOD = JObject.class.getMethod("getRelatedObjects");
 
             // JTransaction methods
             GET_CURRENT_METHOD = JTransaction.class.getMethod("getCurrent");
@@ -121,7 +119,8 @@ class ClassGenerator<T> {
             QUERY_MAP_FIELD_KEY_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldKeyEntries", int.class, Class.class);
             QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldValueEntries",
               int.class, Class.class);
-            COPY_TO_METHOD = JTransaction.class.getMethod("copyTo", JTransaction.class, JObject.class, ObjId.class, String[].class);
+            COPY_TO_METHOD = JTransaction.class.getMethod("copyTo",
+              JTransaction.class, JObject.class, ObjId.class, ObjIdSet.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("internal error", e);
@@ -350,6 +349,7 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitVarInsn(Opcodes.ALOAD, 2);
         mv.visitVarInsn(Opcodes.ALOAD, 3);
+        mv.visitVarInsn(Opcodes.ALOAD, 4);
         this.emitInvoke(mv, COPY_TO_METHOD);
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
@@ -363,6 +363,9 @@ class ClassGenerator<T> {
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         this.emitInvoke(mv, GET_SNAPSHOT_TRANSACTION_METHOD);
         mv.visitInsn(Opcodes.ACONST_NULL);
+        mv.visitTypeInsn(Opcodes.NEW, Type.getType(ObjIdSet.class).getInternalName());
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(ObjIdSet.class).getInternalName(), "<init>", "()V");
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         this.emitInvoke(mv, JOBJECT_COPY_TO_METHOD);
         mv.visitInsn(Opcodes.ARETURN);
@@ -375,26 +378,12 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, GET_CURRENT_METHOD);
         mv.visitInsn(Opcodes.ACONST_NULL);
+        mv.visitTypeInsn(Opcodes.NEW, Type.getType(ObjIdSet.class).getInternalName());
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(ObjIdSet.class).getInternalName(), "<init>", "()V");
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         this.emitInvoke(mv, JOBJECT_COPY_TO_METHOD);
         mv.visitInsn(Opcodes.ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.getRelatedObjects()
-        mv = this.startMethod(cw, JOBJECT_GET_RELATED_OBJECTS_METHOD);
-        mv.visitCode();
-        final Label theTry = new Label();
-        final Label theCatch = new Label();
-        mv.visitLabel(theTry);
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getSuperclassName(),
-          JOBJECT_GET_RELATED_OBJECTS_METHOD.getName(), Type.getMethodDescriptor(Type.getType(Iterable.class)));
-        mv.visitInsn(Opcodes.ARETURN);
-        mv.visitLabel(theCatch);
-        mv.visitInsn(Opcodes.ACONST_NULL);
-        mv.visitInsn(Opcodes.ARETURN);
-        mv.visitTryCatchBlock(theTry, theCatch, theCatch, Type.getInternalName(AbstractMethodError.class));
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 

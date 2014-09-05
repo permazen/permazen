@@ -29,7 +29,7 @@ public class DataChangeEvent extends ApplicationEvent {
         super(source);
         if (change == null)
             throw new IllegalArgumentException("null change");
-        this.change = change.visit(new ChangeCopier(true));
+        this.change = change.visit(new ChangeCopier());
     }
 
     /**

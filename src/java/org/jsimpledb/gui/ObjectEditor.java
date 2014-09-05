@@ -21,6 +21,7 @@ import com.vaadin.ui.VerticalLayout;
 import org.dellroad.stuff.spring.RetryTransaction;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.ObjIdSet;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.parse.ParseSession;
 import org.springframework.transaction.annotation.Transactional;
@@ -169,7 +170,7 @@ public class ObjectEditor extends HorizontalLayout {
                 Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
                 return false;
             }
-            ObjectEditor.this.property.setValue(jobj.copyTo(ObjectEditor.this.dest, id, (String[])null));
+            ObjectEditor.this.property.setValue(jobj.copyTo(ObjectEditor.this.dest, id, new ObjIdSet(), (String[])null));
             return true;
         }
     }

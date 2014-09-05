@@ -43,7 +43,7 @@ public class ChangePublisher {
      */
     public void publishChangeOnCommit(JObject jobj) {
 
-        // We rely on the fact that publishing a change in any property reloads all properties for that object
+        // We rely here on the fact that publishing a change in any property reloads all properties for that object
         this.publishChangeOnCommit(new SimpleFieldChange<Object, ObjId>(jobj,
           Integer.MAX_VALUE, ObjectContainer.OBJECT_ID_PROPERTY, jobj.getObjId(), jobj.getObjId()));
     }
