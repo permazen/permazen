@@ -7,10 +7,13 @@
 
 package org.jsimpledb.schema;
 
+import java.util.regex.Pattern;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.InvalidSchemaException;
 
 /**
@@ -46,6 +49,10 @@ public class SimpleSchemaField extends SchemaField {
         super.validate();
         if (this.type == null)
             throw new InvalidSchemaException("invalid " + this + ": no type specified");
+        if (!Pattern.compile(FieldType.NAME_PATTERN).matcher(this.type).matches()) {
+            throw new InvalidSchemaException("invalid " + super.toString() + " type `" + this.type
+              + "': does not match pattern \"" + FieldType.NAME_PATTERN + "\"");
+        }
     }
 
     @Override

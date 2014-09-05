@@ -58,6 +58,13 @@ import org.jsimpledb.util.ByteWriter;
 public abstract class FieldType<T> implements Comparator<T> {
 
     /**
+     * The regular expression that {@link FieldType} names must match. This pattern is the same as is required
+     * for Java identifiers, except that the following additional characters are allowed after the first character:
+     * dot (`.') and dash (`-'), and lastly up to 255 pairs of square brackets (`[]') to indicate an array type.
+     */
+    public static final String NAME_PATTERN = "\\p{javaJavaIdentifierStart}[-.\\p{javaJavaIdentifierPart}]*(\\[\\]){0,255}";
+
+    /**
      * Type name for reference types.
      */
     public static final String REFERENCE_TYPE_NAME = "reference";

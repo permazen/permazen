@@ -7,9 +7,6 @@
 
 package org.jsimpledb.parse.expr;
 
-import com.google.common.reflect.TypeToken;
-
-import java.util.Date;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,7 +15,6 @@ import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.string.StringEncoder;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.FieldType;
-import org.jsimpledb.core.FieldTypeRegistry;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.parse.ObjIdParser;
 import org.jsimpledb.parse.ParseContext;
@@ -136,18 +132,22 @@ public class AtomParser implements Parser<Node> {
         if (stringMatch != null)
             return new LiteralNode(new String(StringEncoder.dequote(stringMatch.group())));
 
-        // Try to match some types from type registry within square brackets
-        final FieldTypeRegistry registry = session.getDatabase().getFieldTypeRegistry();
-        for (Class<?> type : new Class<?>[] { String.class, Date.class }) {
-            final FieldType<?> fieldType = registry.getFieldType(TypeToken.of(type));
+        // Try to type from type registry within curly braces
+        int fieldTypeStart = ctx.getIndex();
+        final Matcher braceMatch = ctx.tryPattern("\\{(" + FieldType.NAME_PATTERN + ")\\}");
+        if (braceMatch != null) {
+            final String fieldTypeName = braceMatch.group(1);
+            final FieldType<?> fieldType = session.getDatabase().getFieldTypeRegistry().getFieldType(fieldTypeName);
+            if (fieldType == null) {
+                ctx.setIndex(fieldTypeStart);
+                throw new ParseException(ctx, "unknown simple field type `" + fieldTypeName + "'");
+            }
+            fieldTypeStart = ctx.getIndex();
             try {
-                ctx.expect('[');
-                final LiteralNode node = new LiteralNode(fieldType.fromParseableString(ctx));
-                ctx.expect(']');
-                return node;
+                return new LiteralNode(fieldType.fromParseableString(ctx));
             } catch (IllegalArgumentException e) {
-                ctx.setIndex(mark);
-                continue;
+                ctx.setIndex(fieldTypeStart);
+                throw new ParseException(ctx, "invalid value for type `" + fieldTypeName + "'");
             }
         }
 
