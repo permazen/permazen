@@ -41,8 +41,8 @@ public class EvalCommand extends AbstractCommand {
                     result = (value = expr.evaluate(session)).get(session);
                 } catch (EvalException e) {
                     writer.println("Error: " + e.getMessage());
-                    for (Throwable t = e.getCause(); t != null; t = t.getCause())
-                        writer.println("Caused by: " + t);
+                    if (session.isVerbose())
+                        e.printStackTrace(writer);
                     return;
                 }
                 if (value != Value.NO_VALUE)
