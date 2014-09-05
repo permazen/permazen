@@ -122,10 +122,8 @@ public class Value {
         final Object value = this.checkNotNull(session, operation);
         if (value instanceof Character)
             return (int)(Character)value;
-        if (!(value instanceof Byte) && !(value instanceof Short) && !(value instanceof Integer)) {
-            throw new EvalException("invalid " + operation
-              + " operation on non-integral value of type " + value.getClass().getName());
-        }
+        if (!(value instanceof Byte) && !(value instanceof Short) && !(value instanceof Integer))
+            throw new EvalException("invalid " + operation + " operation on " + Value.describeType(value, "non-integral"));
         return ((Number)value).intValue();
     }
 
@@ -142,8 +140,8 @@ public class Value {
             throw new IllegalArgumentException("null type");
         final Object value = this.checkNotNull(session, operation);
         if (!type.isInstance(value)) {
-            throw new EvalException("invalid " + operation + " operation on non-"
-              + type.getSimpleName() + " value of type " + value.getClass().getName());
+            throw new EvalException("invalid " + operation + " operation on "
+              + Value.describeType(value, "non-" + type.getSimpleName()));
         }
         return type.cast(value);
     }
@@ -180,7 +178,7 @@ public class Value {
         else if (num instanceof BigDecimal)
             num = ((BigDecimal)num).add(increment ? BigDecimal.ONE : BigDecimal.ONE.negate());
         else
-            throw new EvalException("invalid " + operation + " operation on value of type " + num.getClass().getName());
+            throw new EvalException("invalid " + operation + " operation on " + Value.describeType(num));
         final Value result = new Value(num);
         this.setter.set(session, result);
         return result;
@@ -205,7 +203,7 @@ public class Value {
             return new Value(-(Long)num);
         if (num instanceof Integer)
             return new Value(-(Integer)num);
-        throw new EvalException("invalid negate operation on value of type " + num.getClass().getName());
+        throw new EvalException("invalid negate operation on " + Value.describeType(num));
     }
 
     /**
@@ -219,7 +217,7 @@ public class Value {
             return new Value(~(Integer)num);
         if (num instanceof Long)
             return new Value(~(Long)num);
-        throw new EvalException("invalid invert operation on value of type " + num.getClass().getName());
+        throw new EvalException("invalid invert operation on " + Value.describeType(num));
     }
 
     /**
@@ -382,15 +380,15 @@ public class Value {
         final Number target = Value.promoteNumeric(session, thisValue, "left shift");
         final Number shift = Value.promoteNumeric(session, thatValue, "left shift");
         if (!(target instanceof Integer) && !(target instanceof Long))
-            throw new EvalException("invalid left shift value of type " + target.getClass().getName());
+            throw new EvalException("invalid left shift target " + Value.describeType(target));
         if (!(shift instanceof Integer) && !(shift instanceof Long))
-            throw new EvalException("invalid left shift amount of type " + shift.getClass().getName());
+            throw new EvalException("invalid left shift " + Value.describeType(shift));
         if (target instanceof Long)
             return new Value((Long)target << (shift.intValue() & 0x1f));
         if (target instanceof Integer)
             return new Value((Integer)target << (shift.intValue() & 0x3f));
-        throw new EvalException("invalid left shift operation on values of type "
-          + target.getClass().getName() + " and " + shift.getClass().getName());
+        throw new EvalException("invalid left shift operation on "
+          + Value.describeType(target) + " and " + Value.describeType(shift));
     }
 
     /**
@@ -404,15 +402,15 @@ public class Value {
         final Number target = Value.promoteNumeric(session, thisValue, "right shift");
         final Number shift = Value.promoteNumeric(session, thatValue, "right shift");
         if (!(target instanceof Integer) && !(target instanceof Long))
-            throw new EvalException("invalid right shift value of type " + target.getClass().getName());
+            throw new EvalException("invalid right shift target " + Value.describeType(target));
         if (!(shift instanceof Integer) && !(shift instanceof Long))
-            throw new EvalException("invalid right shift amount of type " + shift.getClass().getName());
+            throw new EvalException("invalid right shift " + Value.describeType(shift));
         if (target instanceof Long)
             return new Value((Long)target >> (shift.intValue() & 0x1f));
         if (target instanceof Integer)
             return new Value((Integer)target >> (shift.intValue() & 0x3f));
-        throw new EvalException("invalid right shift operation on values of type "
-          + target.getClass().getName() + " and " + shift.getClass().getName());
+        throw new EvalException("invalid right shift operation on "
+          + Value.describeType(target) + " and " + Value.describeType(shift));
     }
 
     /**
@@ -426,15 +424,15 @@ public class Value {
         final Number target = Value.promoteNumeric(session, thisValue, "unsigned right shift");
         final Number shift = Value.promoteNumeric(session, thatValue, "unsigned right shift");
         if (!(target instanceof Integer) && !(target instanceof Long))
-            throw new EvalException("invalid right shift value of type " + target.getClass().getName());
+            throw new EvalException("invalid unsigned right shift target " + Value.describeType(target));
         if (!(shift instanceof Integer) && !(shift instanceof Long))
-            throw new EvalException("invalid right shift amount of type " + shift.getClass().getName());
+            throw new EvalException("invalid unsigned right shift " + Value.describeType(shift));
         if (target instanceof Long)
             return new Value((Long)target >>> (shift.intValue() & 0x1f));
         if (target instanceof Integer)
             return new Value((Integer)target >>> (shift.intValue() & 0x3f));
-        throw new EvalException("invalid right shift operation on values of type "
-          + target.getClass().getName() + " and " + shift.getClass().getName());
+        throw new EvalException("invalid unsigned right shift operation on "
+          + Value.describeType(target) + " and " + Value.describeType(shift));
     }
 
     /**
@@ -467,7 +465,7 @@ public class Value {
         final Number lnum = Value.promoteNumeric(session, thisValue, "`and'", thatValue);
         final Number rnum = Value.promoteNumeric(session, thatValue, "`and'", thisValue);
         if (!(lnum instanceof Integer) && !(lnum instanceof Long) && !(lnum instanceof BigInteger))
-            throw new EvalException("invalid `and' operation on value of type " + lnum.getClass().getName());
+            throw new EvalException("invalid `and' operation on " + Value.describeType(lnum));
         if (lnum instanceof BigInteger)
             return new Value(((BigInteger)lnum).and((BigInteger)rnum));
         if (lnum instanceof Long)
@@ -505,7 +503,7 @@ public class Value {
         final Number lnum = Value.promoteNumeric(session, thisValue, "`or'", thatValue);
         final Number rnum = Value.promoteNumeric(session, thatValue, "`or'", thisValue);
         if (!(lnum instanceof Integer) && !(lnum instanceof Long) && !(lnum instanceof BigInteger))
-            throw new EvalException("invalid `or' operation on value of type " + lnum.getClass().getName());
+            throw new EvalException("invalid `or' operation on " + Value.describeType(lnum));
         if (lnum instanceof BigInteger)
             return new Value(((BigInteger)lnum).or((BigInteger)rnum));
         if (lnum instanceof Long)
@@ -543,7 +541,7 @@ public class Value {
         final Number lnum = Value.promoteNumeric(session, thisValue, "exclusive `or'", thatValue);
         final Number rnum = Value.promoteNumeric(session, thatValue, "exclusive `or'", thisValue);
         if (!(lnum instanceof Integer) && !(lnum instanceof Long) && !(lnum instanceof BigInteger))
-            throw new EvalException("invalid exclusive `or' operation on value of type " + lnum.getClass().getName());
+            throw new EvalException("invalid exclusive `or' operation on " + Value.describeType(lnum));
         if (lnum instanceof BigInteger)
             return new Value(((BigInteger)lnum).xor((BigInteger)rnum));
         if (lnum instanceof Long)
@@ -576,8 +574,8 @@ public class Value {
         else if (lnum instanceof Integer)
             result = Integer.compare((Integer)lnum, (Integer)rnum);
         else {
-            throw new EvalException("invalid comparison operation between values of type "
-              + lnum.getClass().getName() + " and " + rnum.getClass().getName());
+            throw new EvalException("invalid comparison operation between "
+              + Value.describeType(lnum) + " and " + Value.describeType(rnum));
         }
         result = result < 0 ? LT : result > 0 ? GT : EQ;
         return new Value((result & mask) != 0);
@@ -646,10 +644,8 @@ public class Value {
      * @return numeric value
      */
     static Number checkNumeric(ParseSession session, Object obj, String operation) {
-        if (!(obj instanceof Number)) {
-            throw new EvalException("invalid " + operation + " operation on "
-              + (obj != null ? "non-numeric value of type " + obj.getClass().getName() : "null value"));
-        }
+        if (!(obj instanceof Number))
+            throw new EvalException("invalid " + operation + " operation on " + Value.describeType(obj, "non-numeric"));
         return (Number)obj;
     }
 
@@ -667,7 +663,7 @@ public class Value {
             return new BigDecimal(num.doubleValue());
         if (num instanceof Long || num instanceof Integer || num instanceof Short || num instanceof Byte)
             return new BigDecimal(num.longValue());
-        throw new EvalException("can't convert value of type " + num.getClass().getName() + " to BigDecimal");
+        throw new EvalException("can't convert " + Value.describeType(num) + " to BigDecimal");
     }
 
     /**
@@ -677,6 +673,12 @@ public class Value {
      */
     static BigInteger toBigInteger(Number num) {
         return Value.toBigDecimal(num).toBigInteger();
+    }
+
+    static String describeType(Object obj, String... prefix) {
+        if (obj == null)
+            return "null value";
+        return (prefix.length > 0 ? prefix[0] + " " : "") + "value of type " + obj.getClass().getName();
     }
 
     /**
