@@ -488,7 +488,7 @@ public class Database {
         return writer.getBytes();
     }
 
-    static NavigableMap<Integer, NavigableSet<ObjId>> getVersionIndex(Transaction tx, int[] storageIds) {
+    static NavigableMap<Integer, NavigableSet<ObjId>> getVersionIndex(Transaction tx, int... storageIds) {
         final IndexMap<Integer, ObjId> map = new IndexMap<>(tx, VERSION_INDEX_PREFIX, new UnsignedIntType(), FieldType.OBJ_ID);
         return tx.filterIndex(map, storageIds, tx.schema.objTypeStorageIds);
     }
@@ -543,10 +543,21 @@ public class Database {
         }
 
         // Write XML
+        kvt.put(this.getSchemaKey(version), buf.toByteArray());
+    }
+
+    /**
+     * Delete a schema version. Caller must verify no objects exist.
+     */
+    void deleteSchema(KVTransaction kvt, int version) {
+        kvt.remove(this.getSchemaKey(version));
+    }
+
+    private byte[] getSchemaKey(int version) {
         final ByteWriter writer = new ByteWriter();
         writer.write(SCHEMA_KEY_PREFIX);
         UnsignedIntEncoder.write(writer, version);
-        kvt.put(writer.getBytes(), buf.toByteArray());
+        return writer.getBytes();
     }
 }
 

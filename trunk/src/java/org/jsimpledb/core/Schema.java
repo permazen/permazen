@@ -38,14 +38,17 @@ public class Schema {
     final TreeSet<Integer> objTypeStorageIds = new TreeSet<>();
 
     Schema(SortedMap<Integer, SchemaVersion> versions) {
+        this.initialize(versions);
+    }
 
-        // Copy versions
+    private void initialize(SortedMap<Integer, SchemaVersion> versions) {
+
+        // Sanity check
         if (versions == null)
             throw new IllegalArgumentException("null versions");
-        this.versions.putAll(versions);
 
         // Verify Versions have the right version numbers
-        for (Map.Entry<Integer, SchemaVersion> entry : this.versions.entrySet()) {
+        for (Map.Entry<Integer, SchemaVersion> entry : versions.entrySet()) {
             final int versionNumber = entry.getKey();
             final SchemaVersion version = entry.getValue();
             if (version == null)
@@ -55,6 +58,16 @@ public class Schema {
                   + versionNumber + " has version " + version.versionNumber);
             }
         }
+
+        // Reset state
+        this.versions.clear();
+        this.storageInfos.clear();
+        this.referenceFieldOnDeletes.clear();
+        this.indexedFieldToContainingTypesMap.clear();
+        this.objTypeStorageIds.clear();
+
+        // Copy versions
+        this.versions.putAll(versions);
 
         // Verify all schema versions use storage IDs in a compatible way
         final HashMap<StorageInfo, Integer> versionMap = new HashMap<>();
@@ -139,6 +152,14 @@ public class Schema {
         if (FieldStorageInfo.class.isAssignableFrom(expectedType))
             throw new UnknownFieldException(storageId, message);
         throw new IllegalArgumentException(message);
+    }
+
+    boolean deleteVersion(int version) {
+        final TreeMap<Integer, SchemaVersion> newVersions = new TreeMap<>(this.versions);
+        if (newVersions.remove(version) == null)
+            return false;
+        this.initialize(newVersions);
+        return true;
     }
 
     private String getDescription(Class<? extends StorageInfo> type) {

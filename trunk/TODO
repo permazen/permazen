@@ -9,9 +9,6 @@
     - Support Comparable with < > <= >=
     - Aggregate functions: min(), max(), avg(), sum()
 
-- Integrate CountingKVStore into KVStore, making it mandatory
-    - Create AbstractKVStore, replacing CountingKVStoreAdapter
-
 - Schema comparator
     - Shows only differences
 
@@ -48,9 +45,6 @@
 
 - Reimplement LockManager using Guava ranges?
     - https://code.google.com/p/guava-libraries/wiki/RangesExplained
-
-- Schema cleanup method: Transaction.removeSchemaVersion(int)
-    - Performs version index query to verify, then removes unused schema version
 
 - More built-in field types:
     - BigInteger, BigDecimal
