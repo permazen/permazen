@@ -174,8 +174,8 @@ public class OnChangeTest extends TestSupport {
     private static void verifyCopy(Change<?> change) {
         if (change.getJObject().getTransaction() != JTransaction.getCurrent())      // ignore snapshot changes
             return;
-        final Change<?> copy1 = change.visit(new ChangeCopier(false));
-        final Change<?> copy2 = copy1.visit(new ChangeCopier(JTransaction.getCurrent(), false));
+        final Change<?> copy1 = change.visit(new ChangeCopier());
+        final Change<?> copy2 = copy1.visit(new ChangeCopier(JTransaction.getCurrent()));
         Assert.assertEquals(copy2, change);
     }
 

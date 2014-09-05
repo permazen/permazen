@@ -7,6 +7,9 @@
 
 package org.jsimpledb;
 
+import com.google.common.collect.Iterables;
+
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +153,7 @@ public class SnapshotTest extends TestSupport {
             Assert.assertFalse(p1.exists());
             Assert.assertFalse(p1.isSnapshot());
 
-            snapshot.copyTo(tx2, null);
+            snapshot.copyTo(tx2, null, new ObjIdSet());
             Assert.assertTrue(p1.exists());
 
             Assert.assertEquals(p1.getName(), "Foobar");
@@ -191,7 +194,7 @@ public class SnapshotTest extends TestSupport {
             snapshot.getMap2().put(33.33f, p2);
             snapshot.getMap2().put(null, p3);
 
-            snapshot.copyTo(tx2, null);
+            snapshot.copyTo(tx2, null, new ObjIdSet());
 
             Assert.assertEquals(p1.getName(), "Another Name");
             Assert.assertEquals(p1.getAge(), 123);
@@ -272,8 +275,8 @@ public class SnapshotTest extends TestSupport {
             Assert.assertEquals(f2.getReferrers(), buildSet(f1));
             Assert.assertEquals(f3.getReferrers(), buildSet(f2));
 
-            final Foo f1s = (Foo)f1.copyOut((String[])null);
-            Assert.assertEquals(f1s, stx.getJObject(f1.getObjId()));
+            tx.copyTo(stx, new ObjIdSet(), f1.getWithRelatedObjects());
+            final Foo f1s = stx.getJObject(f1.getObjId(), Foo.class);
 
             final Foo f2s = (Foo)stx.getJObject(f2.getObjId());
             final Foo f3s = (Foo)stx.getJObject(f3.getObjId());
@@ -370,9 +373,8 @@ public class SnapshotTest extends TestSupport {
         @IndexQuery("ref")
         public abstract NavigableMap<Foo, NavigableSet<Foo>> queryFoo();
 
-        @Override
-        public Iterable<Foo> getRelatedObjects() {
-            return this.getReferrers();
+        public Iterable<Foo> getWithRelatedObjects() {
+            return Iterables.concat(Collections.singleton(this), this.getReferrers());
         }
     }
 
@@ -380,8 +382,8 @@ public class SnapshotTest extends TestSupport {
     public abstract static class Foo2 extends Foo {
 
         @Override
-        public Iterable<Foo> getRelatedObjects() {
-            return Collections.singleton(this.getRef());
+        public Iterable<Foo> getWithRelatedObjects() {
+            return Arrays.<Foo>asList(this, this.getRef());
         }
     }
 }

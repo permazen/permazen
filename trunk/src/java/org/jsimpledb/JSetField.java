@@ -15,7 +15,6 @@ import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.List;
 import java.util.NavigableSet;
-import java.util.Set;
 
 import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.change.SetFieldAdd;
@@ -111,7 +110,7 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    void copyRecurse(Set<ObjId> seen, JTransaction srcTx, JTransaction dstTx,
+    void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
       ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
         assert subField == this.elementField;
         this.copyRecurse(seen, srcTx, dstTx, srcTx.tx.readSetField(id, this.storageId, false), nextFields);

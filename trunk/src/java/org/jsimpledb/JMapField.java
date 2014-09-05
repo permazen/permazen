@@ -17,7 +17,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
-import java.util.Set;
 
 import org.jsimpledb.change.MapFieldAdd;
 import org.jsimpledb.change.MapFieldClear;
@@ -206,7 +205,7 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    void copyRecurse(Set<ObjId> seen, JTransaction srcTx, JTransaction dstTx,
+    void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
       ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
         final NavigableMap<?, ?> map = srcTx.tx.readMapField(id, this.storageId, false);
         if (subField == this.keyField)

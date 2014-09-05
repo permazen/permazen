@@ -7,6 +7,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
@@ -94,6 +96,39 @@ public class FieldTypeRegistry {
         this.add(FieldType.URI);
         this.add(FieldType.FILE);
         this.add(FieldType.PATTERN);
+    }
+
+    /**
+     * Add multiple user-defined {@link FieldType} to this registry, using newly created instances of the named classes.
+     *
+     * @param classNames names of classes that implement {@link FieldType}
+     * @throws IllegalArgumentException if {@code classNames} is null
+     * @throws IllegalArgumentException if {@code classNames} contains a null class or a class with invalid annotation(s)
+     * @throws IllegalArgumentException if {@code classNames} contains an invalid {@link FieldType} class
+     * @throws RuntimeException if instantiation of a class fails
+     */
+    public void addNamedClasses(Iterable<String> classNames) {
+        if (classNames == null)
+            throw new IllegalArgumentException("null classNames");
+        this.addClasses(Iterables.transform(classNames, new Function<String, Class<? extends FieldType<?>>>() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public Class<? extends FieldType<?>> apply(String name) {
+                final Class<?> c;
+                try {
+                    c = Class.forName(name, false, Thread.currentThread().getContextClassLoader());
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    return (Class<? extends FieldType<?>>)(Object)c.asSubclass(FieldType.class);
+                } catch (ClassCastException e) {
+                    throw new IllegalArgumentException("class `" + name + "' does not implement " + FieldType.class, e);
+                }
+            }
+        }));
     }
 
     /**

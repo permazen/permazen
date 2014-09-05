@@ -42,6 +42,7 @@ import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleField;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.ObjIdSet;
 import org.jsimpledb.SnapshotJTransaction;
 import org.jsimpledb.change.Change;
 import org.jsimpledb.change.ChangeAdapter;
@@ -115,11 +116,10 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * When {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated methods are present on Java
- * model classes, these properyy values may derive from other objects related to the backing instance. In order for these
+ * model classes, these property values may derive from other objects related to the backing instance. In order for these
  * methods to work on the in-memory instance, the related objects must be copied into memory as well. The
- * {@link #getRelatedObjects getRelatedObjects()} method allows the subclass to specify what objects relate to each
- * backing object; the default behavior of delegating to {@link JObject#getRelatedObjects} is usually best, because
- * it allows the backing object itself, rather than the container, to specify related objects.
+ * {@link #getDependencies getDependencies()} method allows the subclass to specify what other database objects
+ * some Vaadin property depends on.
  * </p>
  *
  * <p><b>Updating Items</b></p>
@@ -133,8 +133,9 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * Moreover, this container keeps track of which related objects are associated with each backing object.
- * {@link Change} events that affect a related object automatically cause the corresponding backing object(s) to update.
+ * Moreover, this container keeps track of which related objects are associated with each backing object (according to
+ * {@link #getDependencies getDependencies()}). {@link Change} events that affect a related object automatically cause
+ * the corresponding backing object(s) to update.
  * </p>
  *
  * <p>
@@ -162,8 +163,8 @@ import org.slf4j.LoggerFactory;
  * Secondly, because the values of reference fields (including complex sub-fields) are displayed using reference labels,
  * and these are typically derived from the referenced object's fields, those indirectly referenced objects need to be
  * copied into the container's {@link org.jsimpledb.SnapshotJTransaction} as well. The easiest way to ensure these indirectly
- * referenced objects are copied is by overriding {@link JObject#getRelatedObjects} as described above. Alternately,
- * the subclass may override {@link #copyOut copyOut()} to take responsibility for copying objects into memory.
+ * referenced objects are copied is by overriding {@link #getDependencies getDependencies()} as described above. Alternately,
+ * the subclass may override {@link #copyOut copyOut()} to take complete control of copying objects into memory.
  * </p>
  */
 @SuppressWarnings("serial")
@@ -206,7 +207,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     private final ObjVersionPropertyDef objVersionPropertyDef = new ObjVersionPropertyDef();
     private final RefLabelPropertyDef refLabelPropertyDef = new RefLabelPropertyDef();
 
-    private final HashMap<ObjId, HashSet<ObjId>> relatedObjectMap = new HashMap<>();
+    private final HashMap<ObjId, ObjIdSet> dependenciesMap = new HashMap<>();
 
     private Class<?> type;
     private int maxObjects = DEFAULT_MAX_OBJECTS;
@@ -380,12 +381,12 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         final JObject target = change.getJObject();
         final SimpleItem<JObject> item = (SimpleItem<JObject>)this.getItem(target.getObjId());
         if (item != null) {
-            target.copyTo(item.getObject().getTransaction(), null);
+            target.copyTo(item.getObject().getTransaction(), null, new ObjIdSet());
             item.fireValueChange();
         }
 
         // Update any other affected objects
-        final HashSet<ObjId> affectedIds = relatedObjectMap.get(target.getObjId());
+        final ObjIdSet affectedIds = dependenciesMap.get(target.getObjId());
         if (affectedIds != null) {
             for (ObjId affectedId : affectedIds) {
                 final SimpleItem<JObject> affectedItem = (SimpleItem<JObject>)this.getItem(affectedId);
@@ -411,22 +412,14 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
             });
         }
 
-        // Filter out any duplicate objects
-        jobjs = Iterables.filter(jobjs, new Predicate<JObject>() {
-
-            private final HashSet<ObjId> seen = new HashSet<>();
-
-            @Override
-            public boolean apply(JObject jobj) {
-                return this.seen.add(jobj.getObjId());
-            }
-        });
+        // Filter out any duplicate objects using ObjId set
+        final ObjIdSet seen = new ObjIdSet();
 
         // Copy database objects out of the database transaction into my in-memory transaction as we load them
         jobjs = Iterables.transform(jobjs, new Function<JObject, JObject>() {
             @Override
             public JObject apply(JObject jobj) {
-                return JObjectContainer.this.copyOut(jobj);
+                return JObjectContainer.this.copyOut(jobj, seen);
             }
         });
 
@@ -434,7 +427,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         jobjs = Iterables.limit(jobjs, this.maxObjects);
 
         // Now actually load them
-        this.relatedObjectMap.clear();
+        this.dependenciesMap.clear();
         this.load(jobjs);
     }
 
@@ -445,39 +438,32 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      *
      * <p>
      * The implementation in {@link JObjectContainer} copies {@code jobj}, and all of {@code jobj}'s related objects returned
-     * by {@link #getRelatedObjects getRelatedObjects()},
-     * via {@link JTransaction#copyTo(JTransaction, Iterable)} and updates the
+     * by {@link #getDependencies getDependencies()}, via {@link JTransaction#copyTo(JTransaction, ObjIdSet, Iterable)}.
      * </p>
      *
      * @param target the object to copy
+     * @param seen object ID's already copied
      * @return the copy of {@code target} in the current {@link org.jsimpledb.SnapshotJTransaction}
      */
-    protected JObject copyOut(JObject target) {
+    protected JObject copyOut(JObject target, ObjIdSet seen) {
 
         // Copy out object
         final ObjId targetId = target.getObjId();
         final JTransaction jtx = JTransaction.getCurrent();
-        final JObject copy = target.copyOut();
+        final SnapshotJTransaction sjtx = jtx.getSnapshotTransaction();
+        final JObject copy = target.copyTo(sjtx, null, seen);
 
         // Copy out (and track) related objects
-        Iterable<? extends JObject> relatedObjects = this.getRelatedObjects(target);
-        if (relatedObjects != null) {
-            relatedObjects = Iterables.filter(relatedObjects, new Predicate<JObject>() {
-                @Override
-                public boolean apply(JObject jobj) {
-                    return jobj != null                                                         // don't copy nulls
-                      && !jobj.getObjId().equals(targetId)                                      // already copied it
-                      && !JObjectContainer.this.relatedObjectMap.containsKey(jobj.getObjId());  // already copied it
-                }
-            });
-            final SnapshotJTransaction sjtx = jtx.getSnapshotTransaction();
-            jtx.copyTo(sjtx, relatedObjects);
-            for (JObject jobj : relatedObjects) {
+        Iterable<? extends JObject> dependencies = this.getDependencies(target);
+        if (dependencies != null) {
+            dependencies = Iterables.filter(dependencies, JObject.class);                       // filter out nulls
+            jtx.copyTo(sjtx, seen, dependencies);
+            for (JObject jobj : dependencies) {
                 final ObjId id = jobj.getObjId();
-                HashSet<ObjId> affectedIds = this.relatedObjectMap.get(id);
+                ObjIdSet affectedIds = this.dependenciesMap.get(id);
                 if (affectedIds == null) {
-                    affectedIds = new HashSet<ObjId>();
-                    this.relatedObjectMap.put(id, affectedIds);
+                    affectedIds = new ObjIdSet();
+                    this.dependenciesMap.put(id, affectedIds);
                 }
                 affectedIds.add(targetId);
             }
@@ -494,15 +480,14 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * all of the other objects on which any container property of {@code jobj} may depend.
      *
      * <p>
-     * The implementation in {@link JObjectContainer} just delegates to
-     * {@link JObject#getRelatedObjects JObject.getRelatedObjects()}.
+     * The implementation in {@link JObjectContainer} returns an empty collection.
      * </p>
      *
      * @param jobj the object being copied
      * @return {@link Iterable} of additional objects to be copied, or null for none; any null values are ignored
      */
-    protected Iterable<? extends JObject> getRelatedObjects(JObject jobj) {
-        return jobj.getRelatedObjects();
+    protected Iterable<? extends JObject> getDependencies(JObject jobj) {
+        return Collections.<JObject>emptySet();
     }
 
     /**

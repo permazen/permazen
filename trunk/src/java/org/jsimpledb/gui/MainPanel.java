@@ -49,6 +49,7 @@ import org.jsimpledb.JReferenceField;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleField;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.ObjIdSet;
 import org.jsimpledb.ValidationException;
 import org.jsimpledb.change.ObjectCreate;
 import org.jsimpledb.change.ObjectDelete;
@@ -439,7 +440,7 @@ public class MainPanel extends VerticalLayout {
             }
 
             // Copy fields
-            this.jobj.copyTo(jtx, target.getObjId());
+            this.jobj.copyTo(jtx, target.getObjId(), new ObjIdSet());
 
             // Run validation queue
             try {

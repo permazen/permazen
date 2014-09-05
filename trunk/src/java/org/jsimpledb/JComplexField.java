@@ -12,7 +12,6 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.List;
-import java.util.Set;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.ComplexSchemaField;
@@ -78,11 +77,11 @@ public abstract class JComplexField extends JField {
      * @param subField sub-field of this field containing reference values
      * @param nextFields remaining fields to follow in the reference path
      */
-    abstract void copyRecurse(Set<ObjId> seen, JTransaction srcTx, JTransaction dstTx,
+    abstract void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
       ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields);
 
     // Recurse on the iteration of references
-    void copyRecurse(Set<ObjId> seen, JTransaction srcTx, JTransaction dstTx, Iterable<?> it, Deque<JReferenceField> nextFields) {
+    void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx, Iterable<?> it, Deque<JReferenceField> nextFields) {
         for (Object obj : it) {
             if (obj != null) {
                 final ObjId id = (ObjId)obj;
