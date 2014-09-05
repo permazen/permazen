@@ -87,7 +87,7 @@ import java.lang.annotation.Target;
  * The annotation {@link #value} contains the name of the indexed field to query (also known as a relative
  * {@link org.jsimpledb.ReferencePath} with zero intermediate references).
  * The field is assumed to be contained in the class containing the annotated method; however, a different
- * "starting type" may be specified via {@link #startType}.
+ * type may be specified via {@link #type}.
  * </p>
  *
  * <p>
@@ -126,7 +126,7 @@ public @interface IndexQuery {
     String value();
 
     /**
-     * Specifies the starting type for the {@link org.jsimpledb.ReferencePath} specified by {@code #value}.
+     * Specifies the Java type containing the field specified by {@code #value}.
      * This may also be any super-type (e.g., an interface type), as long as the specified field is not ambiguous
      * among all sub-types.
      *
@@ -136,6 +136,6 @@ public @interface IndexQuery {
      *
      * @see org.jsimpledb.ReferencePath
      */
-    Class<?> startType() default void.class;
+    Class<?> type() default void.class;
 }
 

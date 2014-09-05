@@ -50,7 +50,7 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
             // Get index info
             try {
                 this.indexInfo = new IndexInfo(IndexQueryScanner.this.jclass.jdb,
-                  annotation.startType() != void.class ? annotation.startType() : method.getDeclaringClass(),
+                  annotation.type() != void.class ? annotation.type() : method.getDeclaringClass(),
                   annotation.value());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method) + e.getMessage(), e);
@@ -71,29 +71,29 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
 
     static class IndexInfo {
 
-        final TypeToken<?> startType;
+        final TypeToken<?> type;
         final TypeToken<?> targetType;
         final JSimpleField targetField;
         final JComplexField targetSuperField;
         final ArrayList<TypeToken<?>> indexReturnTypes = new ArrayList<TypeToken<?>>();
 
-        IndexInfo(JSimpleDB jdb, Class<?> startType, String fieldName) {
+        IndexInfo(JSimpleDB jdb, Class<?> type, String fieldName) {
 
             // Sanity check
             if (jdb == null)
                 throw new IllegalArgumentException("null jdb");
-            if (startType == null)
-                throw new IllegalArgumentException("null startType");
+            if (type == null)
+                throw new IllegalArgumentException("null type");
             if (fieldName == null)
                 throw new IllegalArgumentException("null fieldName");
 
             // Get start type
-            if (startType.isPrimitive() || startType.isArray())
-                throw new IllegalArgumentException("invalid starting type " + startType);
-            this.startType = Util.getWildcardedType(startType);
+            if (type.isPrimitive() || type.isArray())
+                throw new IllegalArgumentException("invalid type " + type);
+            this.type = Util.getWildcardedType(type);
 
             // Parse reference path
-            final ReferencePath path = jdb.parseReferencePath(this.startType, fieldName, true);
+            final ReferencePath path = jdb.parseReferencePath(this.type, fieldName, true);
             if (path.getReferenceFields().length > 0)
                 throw new IllegalArgumentException("invalid field name `" + fieldName + "': contains intermediate reference(s)");
 
@@ -112,14 +112,14 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
 
             // Get valid index return types for this field
             try {
-                this.targetField.addIndexReturnTypes(this.indexReturnTypes, this.startType);
+                this.targetField.addIndexReturnTypes(this.indexReturnTypes, this.type);
             } catch (UnsupportedOperationException e) {
                 throw new IllegalArgumentException("indexing is not supported for " + this.targetField, e);
             }
 
             // If field is a complex sub-field, determine add complex index entry type(s)
             if (this.targetSuperField != null)
-                this.targetSuperField.addIndexEntryReturnTypes(this.indexReturnTypes, this.startType, this.targetField);
+                this.targetSuperField.addIndexEntryReturnTypes(this.indexReturnTypes, this.type, this.targetField);
         }
     }
 }

@@ -209,6 +209,7 @@ public interface JObject {
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      * @see #copyOut copyOut()
+     * @see JTransaction#copyTo(JTransaction, JObject, ObjId, ObjIdSet, String[]) JTransaction.copyTo()
      */
     JObject copyTo(JTransaction dest, ObjId target, ObjIdSet seen, String... refPaths);
 

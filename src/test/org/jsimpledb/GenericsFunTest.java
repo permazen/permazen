@@ -55,7 +55,7 @@ public class GenericsFunTest extends TestSupport {
     @JSimpleClass(storageId = 200)
     public abstract static class Account extends AbstractData<Account> {
 
-        @IndexQuery(startType = AccountEvent.class, value = "account")
+        @IndexQuery(type = AccountEvent.class, value = "account")
         protected abstract NavigableMap<Account, NavigableSet<AccountEvent>> queryAccountEvents();
     }
 

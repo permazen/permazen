@@ -129,16 +129,16 @@ public class IndexQueryTest extends TestSupport {
             return fooBars != null ? fooBars : NavigableSets.<FooBar>empty();
         }
 
-        @IndexQuery(startType = HasAccount.class, value = "account")
+        @IndexQuery(type = HasAccount.class, value = "account")
         protected abstract NavigableMap<Account, NavigableSet<HasAccount>> queryHasAccount();
 
-        @IndexQuery(startType = Foo.class, value = "account")
+        @IndexQuery(type = Foo.class, value = "account")
         protected abstract NavigableMap<Account, NavigableSet<Foo>> queryFoo();
 
-        @IndexQuery(startType = Bar.class, value = "account")
+        @IndexQuery(type = Bar.class, value = "account")
         protected abstract NavigableMap<Account, NavigableSet<Bar>> queryBar();
 
-        @IndexQuery(startType = FooBar.class, value = "account")
+        @IndexQuery(type = FooBar.class, value = "account")
         protected abstract NavigableMap<Account, NavigableSet<FooBar>> queryFooBar();
     }
 

@@ -406,7 +406,7 @@ class ClassGenerator<T> {
             this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
             final boolean isEntryQuery = indexInfo.targetSuperField != null && indexMethodInfo.queryType != 0;
             mv.visitLdcInsn(isEntryQuery ? indexInfo.targetSuperField.storageId : indexInfo.targetField.storageId);
-            mv.visitLdcInsn(Type.getType(indexInfo.startType.getRawType()));
+            mv.visitLdcInsn(Type.getType(indexInfo.type.getRawType()));
             this.emitInvoke(mv, isEntryQuery ?
               indexInfo.targetSuperField.getIndexEntryQueryMethod(indexMethodInfo.queryType) : QUERY_SIMPLE_FIELD_METHOD);
             mv.visitInsn(Opcodes.ARETURN);

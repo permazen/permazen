@@ -16,11 +16,8 @@
     - Shows only differences
 
 - Transaction schema check
-    - Record the equivalent of serial version UUID's for field types
-      in the database, mapped by type name
-    - Add method to FieldType returning this UUID and document semantics
-
-- Consider renaming @IndexQuery "startType" to "type"
+    - Add encoding version number to FieldType
+    - Record encoding version in database schema
 
 - Add new @JField property: boolean cascadeDelete()
 
