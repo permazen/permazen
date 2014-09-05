@@ -31,7 +31,7 @@ public class RawTypeTest extends TestSupport {
         public abstract String getName();
         public abstract void setName(String name);
 
-        @IndexQuery(startType = AbstractData.class, value = "name")
+        @IndexQuery(type = AbstractData.class, value = "name")
         protected abstract NavigableMap<String, NavigableSet<AbstractData<?>>> queryByName();
     }
 

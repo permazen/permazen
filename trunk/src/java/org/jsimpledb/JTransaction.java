@@ -400,8 +400,8 @@ public class JTransaction {
     public byte[] getKey(JObject jobj, String fieldName) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        final TypeToken<?> startType = this.jdb.getJClass(jobj.getObjId().getStorageId()).typeToken;
-        final ReferencePath refPath = this.jdb.parseReferencePath(startType, fieldName, false);
+        final TypeToken<?> type = this.jdb.getJClass(jobj.getObjId().getStorageId()).typeToken;
+        final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, false);
         if (refPath.getReferenceFields().length > 0)
             throw new IllegalArgumentException("invalid field `" + fieldName + "'");
         if (!refPath.targetType.getRawType().isInstance(jobj))
@@ -1126,7 +1126,7 @@ public class JTransaction {
     public <S, V> NavigableMap<V, NavigableSet<S>> queryIndex(Class<S> startType, String fieldName, Class<V> valueType) {
         final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(startType, fieldName, valueType);
         return (NavigableMap<V, NavigableSet<S>>)(Object)this.querySimpleField(indexInfo.targetField.storageId,
-          indexInfo.startType.getRawType());
+          indexInfo.type.getRawType());
     }
 
     /**
@@ -1154,7 +1154,7 @@ public class JTransaction {
         if (!(indexInfo.targetSuperField instanceof JListField))
             throw new IllegalArgumentException("field `" + fieldName + "' is not a list element field");
         return (NavigableMap<V, NavigableSet<ListIndexEntry<S>>>)(Object)this.queryListFieldEntries(
-          indexInfo.targetSuperField.storageId, indexInfo.startType.getRawType());
+          indexInfo.targetSuperField.storageId, indexInfo.type.getRawType());
     }
 
     /**
@@ -1189,7 +1189,7 @@ public class JTransaction {
               + jfield.valueField.typeToken.wrap() + " instead of " + valueType);
         }
         return (NavigableMap<K, NavigableSet<MapKeyIndexEntry<S, V>>>)(Object)this.queryMapFieldKeyEntries(
-          jfield.storageId, indexInfo.startType.getRawType());
+          jfield.storageId, indexInfo.type.getRawType());
     }
 
     /**
@@ -1224,7 +1224,7 @@ public class JTransaction {
               + jfield.keyField.typeToken.wrap() + " instead of " + keyType);
         }
         return (NavigableMap<V, NavigableSet<MapValueIndexEntry<S, K>>>)(Object)this.queryMapFieldValueEntries(
-          jfield.storageId, indexInfo.startType.getRawType());
+          jfield.storageId, indexInfo.type.getRawType());
     }
 
     private <S, V> IndexQueryScanner.IndexInfo getIndexInfo(Class<S> startType, String fieldName, Class<V> valueType) {

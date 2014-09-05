@@ -63,7 +63,7 @@ public class InterfaceTest extends TestSupport {
         @JSetField(storageId = 120, element = @JField(storageId = 121, indexed = true))
         public abstract Set<Pet> getPets();
 
-        @IndexQuery(startType = Pet.class, value = "enemy")
+        @IndexQuery(type = Pet.class, value = "enemy")
         public abstract NavigableMap<Dog, NavigableSet<Pet>> queryEnemies();
 
         @IndexQuery("pets.element")

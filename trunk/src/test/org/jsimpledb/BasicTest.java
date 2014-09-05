@@ -369,44 +369,44 @@ public class BasicTest extends TestSupport {
     @JSimpleClass(storageId = 300)
     public abstract static class Indexer {
 
-        @IndexQuery(startType = Person.class, value = "nicknames.element")
+        @IndexQuery(type = Person.class, value = "nicknames.element")
         public abstract NavigableMap<String, NavigableSet<Person>> queryNicknames();
 
-        @IndexQuery(startType = MeanPerson.class, value = "enemies.element")
+        @IndexQuery(type = MeanPerson.class, value = "enemies.element")
         public abstract NavigableMap<Person, NavigableSet<MeanPerson>> queryHaters();
 
     // Person queries
 
-        @IndexQuery(startType = Person.class, value = "mood")
+        @IndexQuery(type = Person.class, value = "mood")
         public abstract NavigableMap<Mood, NavigableSet<Person>> queryMoods();
 
-        @IndexQuery(startType = Person.class, value = "scores.element")
+        @IndexQuery(type = Person.class, value = "scores.element")
         public abstract NavigableMap<Integer, NavigableSet<Person>> queryScores();
 
-        @IndexQuery(startType = Person.class, value = "scores.element")
+        @IndexQuery(type = Person.class, value = "scores.element")
         public abstract NavigableMap<Integer, NavigableSet<ListIndexEntry<Person>>> queryScoreEntries();
 
-        @IndexQuery(startType = Person.class, value = "ratings.key")
+        @IndexQuery(type = Person.class, value = "ratings.key")
         public abstract NavigableMap<Person, NavigableSet<MapKeyIndexEntry<Person, Float>>> queryRatingKeyEntries();
 
-        @IndexQuery(startType = Person.class, value = "ratings.value")
+        @IndexQuery(type = Person.class, value = "ratings.value")
         public abstract NavigableMap<Float, NavigableSet<MapValueIndexEntry<Person, Person>>> queryRatingValueEntries();
 
     // MeanPerson queries
 
-        @IndexQuery(startType = MeanPerson.class, value = "mood")
+        @IndexQuery(type = MeanPerson.class, value = "mood")
         public abstract NavigableMap<Mood, NavigableSet<MeanPerson>> queryMoodsMean();
 
-        @IndexQuery(startType = MeanPerson.class, value = "scores.element")
+        @IndexQuery(type = MeanPerson.class, value = "scores.element")
         public abstract NavigableMap<Integer, NavigableSet<MeanPerson>> queryScoresMean();
 
-        @IndexQuery(startType = MeanPerson.class, value = "scores.element")
+        @IndexQuery(type = MeanPerson.class, value = "scores.element")
         public abstract NavigableMap<Integer, NavigableSet<ListIndexEntry<MeanPerson>>> queryScoreEntriesMean();
 
-        @IndexQuery(startType = MeanPerson.class, value = "ratings.key")
+        @IndexQuery(type = MeanPerson.class, value = "ratings.key")
         public abstract NavigableMap<Person, NavigableSet<MapKeyIndexEntry<MeanPerson, Float>>> queryRatingKeyEntriesMean();
 
-        @IndexQuery(startType = MeanPerson.class, value = "ratings.value")
+        @IndexQuery(type = MeanPerson.class, value = "ratings.value")
         public abstract NavigableMap<Float, NavigableSet<MapValueIndexEntry<MeanPerson, Person>>> queryRatingValueEntriesMean();
     }
 }
