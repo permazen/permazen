@@ -341,6 +341,8 @@ public class Database {
 
                     // Decode schema version and get XML
                     final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
+                    if (vers == 0)
+                        throw new InconsistentDatabaseException("database contains an invalid schema version zero");
                     bytesMap.put(vers, pair.getValue());
                 }
 
@@ -388,8 +390,8 @@ public class Database {
                         if (version == 0)
                             throw new SchemaMismatchException("uninitialized database and no schema model was provided");
                         else {
-                            throw new SchemaMismatchException("no schema model was provided but database does not contain"
-                              + " a recorded schema version " + version);
+                            throw new SchemaMismatchException("no schema model was provided for schema version " + version
+                              + " and there is no schema version " + version + " recorded in the database");
                         }
                     }
                     if (version == 0)
