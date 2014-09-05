@@ -13,7 +13,11 @@ import java.util.Iterator;
  * General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.
  *
  * <p>
- * Implementations of this interface are not required to support accessing keys that start with {@code 0xff}.
+ * Implementations are not required to support accessing keys that start with {@code 0xff}.
+ * </p>
+ *
+ * <p>
+ * Implementations are encouraged to also implement {@link CountingKVStore}.
  * </p>
  */
 public interface KVStore {
