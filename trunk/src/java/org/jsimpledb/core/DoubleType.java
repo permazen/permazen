@@ -53,5 +53,15 @@ class DoubleType extends PrimitiveType<Double> {
     public byte[] getDefaultValue() {
         return DEFAULT_VALUE;
     }
+
+    @Override
+    public Double validate(Object obj) {
+        if (obj instanceof Character)
+            return (double)((Character)obj).charValue();
+        if (obj instanceof Byte || obj instanceof Short
+          || obj instanceof Integer || obj instanceof Float || obj instanceof Long)
+            return ((Number)obj).doubleValue();
+        return super.validate(obj);
+    }
 }
 

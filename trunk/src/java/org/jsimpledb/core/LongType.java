@@ -22,5 +22,14 @@ class LongType extends IntegralType<Long> {
     protected Long downCast(long value) {
         return value;
     }
+
+    @Override
+    public Long validate(Object obj) {
+        if (obj instanceof Character)
+            return (long)((Character)obj).charValue();
+        if (obj instanceof Byte || obj instanceof Short || obj instanceof Integer)
+            return ((Number)obj).longValue();
+        return super.validate(obj);
+    }
 }
 
