@@ -1092,9 +1092,9 @@ public class JTransaction {
      *  <th align="left">{@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} equivalent</th>
      * </tr>
      * <tr>
-     *  <td><code>startType</code></td>
+     *  <td><code>type</code></td>
      *  <td>Which type of object(s) to search for that contain the field</td>
-     *  <td>{@link org.jsimpledb.annotation.IndexQuery#startType &#64;IndexQuery.startType()} property</td>
+     *  <td>{@link org.jsimpledb.annotation.IndexQuery#type &#64;IndexQuery.type()} property</td>
      * </tr>
      * <tr>
      *  <td><code>fieldName</code></td>
@@ -1110,21 +1110,21 @@ public class JTransaction {
      * </div>
      * </p>
      *
-     * @param startType type containing the indexed field; may also be any super-type (e.g., an interface type),
+     * @param type type containing the indexed field; may also be any super-type (e.g., an interface type),
      *  as long as the specified field is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; must include sub-field name for complex fields (e.g., {@code "mylist.element"},
      *  {@code "mymap.key"})
      * @param valueType the Java type corresponding to the field value
      * @return read-only, real-time view of field values mapped to sets of objects having that value in the field
      * @throws IllegalArgumentException if {@code valueType} is the wrong type for the specified field
-     * @throws IllegalArgumentException if {@code startType}, {@code fieldName}, and/or {@code valueType} is invalid
-     * @throws IllegalArgumentException if {@code startType}, {@code fieldName}, or {@code valueType} is null
+     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, and/or {@code valueType} is invalid
+     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, or {@code valueType} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      * @see org.jsimpledb.annotation.IndexQuery &#64;IndexQuery
      */
     @SuppressWarnings("unchecked")
-    public <S, V> NavigableMap<V, NavigableSet<S>> queryIndex(Class<S> startType, String fieldName, Class<V> valueType) {
-        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(startType, fieldName, valueType);
+    public <S, V> NavigableMap<V, NavigableSet<S>> queryIndex(Class<S> type, String fieldName, Class<V> valueType) {
+        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
         return (NavigableMap<V, NavigableSet<S>>)(Object)this.querySimpleField(indexInfo.targetField.storageId,
           indexInfo.type.getRawType());
     }
@@ -1137,20 +1137,20 @@ public class JTransaction {
      * object containing the list field, but also the index of the value in the list.
      * </p>
      *
-     * @param startType type containing the indexed field; may also be any super-type (e.g., an interface type),
+     * @param type type containing the indexed field; may also be any super-type (e.g., an interface type),
      *  as long as the specified field is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; must include {@code "element"} sub-field name (e.g., {@code "mylist.element"})
      * @param valueType the Java type corresponding to list elements
      * @return read-only, real-time view of list element values mapped to sets of {@link ListIndexEntry}s
      *  corresponding to all occurrences of the element value in some object's list field
-     * @throws IllegalArgumentException if {@code startType}, {@code fieldName}, and/or {@code valueType} is invalid
-     * @throws IllegalArgumentException if {@code startType}, {@code fieldName}, or {@code valueType} is null
+     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, and/or {@code valueType} is invalid
+     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, or {@code valueType} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
-    public <S, V> NavigableMap<V, NavigableSet<ListIndexEntry<S>>> queryListFieldEntries(Class<S> startType,
+    public <S, V> NavigableMap<V, NavigableSet<ListIndexEntry<S>>> queryListFieldEntries(Class<S> type,
       String fieldName, Class<V> valueType) {
-        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(startType, fieldName, valueType);
+        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
         if (!(indexInfo.targetSuperField instanceof JListField))
             throw new IllegalArgumentException("field `" + fieldName + "' is not a list element field");
         return (NavigableMap<V, NavigableSet<ListIndexEntry<S>>>)(Object)this.queryListFieldEntries(
@@ -1165,21 +1165,21 @@ public class JTransaction {
      * object containing the map field, but also the value corresponding to the key in the map.
      * </p>
      *
-     * @param startType type containing the indexed field; may also be any super-type (e.g., an interface type),
+     * @param type type containing the indexed field; may also be any super-type (e.g., an interface type),
      *  as long as the specified field is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; must include {@code "key"} sub-field name (e.g., {@code "mymap.key"})
      * @param keyType the Java type corresponding to the map field's key field
      * @param valueType the Java type corresponding to the map field's value field
      * @return read-only, real-time view of all keys mapped to the sets of {@link MapKeyIndexEntry}s
      *  corresponding to all occurrences of the key in some object's map field
-     * @throws IllegalArgumentException if {@code startType}, {@code fieldName}, {@code keyType} and/or {@code valueType} is invalid
-     * @throws IllegalArgumentException if {@code startType}, {@code fieldName}, {@code keyType} or {@code valueType} is null
+     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} and/or {@code valueType} is invalid
+     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} or {@code valueType} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
-    public <S, K, V> NavigableMap<K, NavigableSet<MapKeyIndexEntry<S, V>>> queryMapFieldKeyEntries(Class<S> startType,
+    public <S, K, V> NavigableMap<K, NavigableSet<MapKeyIndexEntry<S, V>>> queryMapFieldKeyEntries(Class<S> type,
       String fieldName, Class<K> keyType, Class<V> valueType) {
-        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(startType, fieldName, keyType);
+        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, keyType);
         if (!(indexInfo.targetSuperField instanceof JMapField)
           || indexInfo.targetField != ((JMapField)indexInfo.targetSuperField).getSubField(MapField.KEY_FIELD_NAME))
             throw new IllegalArgumentException("field `" + fieldName + "' is not a map key field");
@@ -1200,21 +1200,21 @@ public class JTransaction {
      * object containing the map field, but also the key corresponding to the value in the map.
      * </p>
      *
-     * @param startType type containing the indexed field; may also be any super-type (e.g., an interface type),
+     * @param type type containing the indexed field; may also be any super-type (e.g., an interface type),
      *  as long as the specified field is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; must include {@code "value"} sub-field name (e.g., {@code "mymap.value"})
      * @param keyType the Java type corresponding to the map field's key field
      * @param valueType the Java type corresponding to the map field's value field
      * @return read-only, real-time view of all keys mapped to the sets of {@link MapKeyIndexEntry}s
      *  corresponding to all occurrences of the key in some object's map field
-     * @throws IllegalArgumentException if {@code startType}, {@code fieldName}, {@code keyType} and/or {@code valueType} is invalid
-     * @throws IllegalArgumentException if {@code startType}, {@code fieldName}, {@code keyType} or {@code valueType} is null
+     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} and/or {@code valueType} is invalid
+     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} or {@code valueType} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
-    public <S, K, V> NavigableMap<V, NavigableSet<MapValueIndexEntry<S, K>>> queryMapFieldValueEntries(Class<S> startType,
+    public <S, K, V> NavigableMap<V, NavigableSet<MapValueIndexEntry<S, K>>> queryMapFieldValueEntries(Class<S> type,
       String fieldName, Class<K> keyType, Class<V> valueType) {
-        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(startType, fieldName, valueType);
+        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
         if (!(indexInfo.targetSuperField instanceof JMapField)
           || indexInfo.targetField != ((JMapField)indexInfo.targetSuperField).getSubField(MapField.VALUE_FIELD_NAME))
             throw new IllegalArgumentException("field `" + fieldName + "' is not a map value field");
@@ -1227,14 +1227,14 @@ public class JTransaction {
           jfield.storageId, indexInfo.type.getRawType());
     }
 
-    private <S, V> IndexQueryScanner.IndexInfo getIndexInfo(Class<S> startType, String fieldName, Class<V> valueType) {
+    private <S, V> IndexQueryScanner.IndexInfo getIndexInfo(Class<S> type, String fieldName, Class<V> valueType) {
 
         // Sanity check
         if (valueType == null)
             throw new IllegalArgumentException("null valueType");
 
         // Get index info
-        final IndexQueryScanner.IndexInfo indexInfo = new IndexQueryScanner.IndexInfo(this.jdb, startType, fieldName);
+        final IndexQueryScanner.IndexInfo indexInfo = new IndexQueryScanner.IndexInfo(this.jdb, type, fieldName);
 
         // Verify value type
         final JSimpleField jfield = (JSimpleField)this.jdb.jfields.get(indexInfo.targetField.storageId);
