@@ -555,30 +555,49 @@ public class Value {
      * @param session current session
      * @param mask bit mask with bits {@link #LT}, {@link #GT}, and/or {@link #EQ}
      */
+    @SuppressWarnings("unchecked")
     public Value compare(ParseSession session, Value that, int mask) {
         final Object thisValue = this.get(session);
         final Object thatValue = that.get(session);
-        final Number lnum = Value.promoteNumeric(session, thisValue, "comparison", thatValue);
-        final Number rnum = Value.promoteNumeric(session, thatValue, "comparison", thisValue);
-        int result;
-        if (lnum instanceof BigDecimal)
-            result = ((BigDecimal)lnum).compareTo((BigDecimal)rnum);
-        else if (lnum instanceof Double)
-            result = Double.compare((Double)lnum, (Double)rnum);
-        else if (lnum instanceof Float)
-            result = Float.compare((Float)lnum, (Float)rnum);
-        else if (lnum instanceof BigInteger)
-            result = ((BigInteger)lnum).compareTo((BigInteger)rnum);
-        else if (lnum instanceof Long)
-            result = Long.compare((Long)lnum, (Long)rnum);
-        else if (lnum instanceof Integer)
-            result = Integer.compare((Integer)lnum, (Integer)rnum);
-        else {
-            throw new EvalException("invalid comparison operation between "
-              + Value.describeType(lnum) + " and " + Value.describeType(rnum));
+
+        // Try numeric comparison
+        while (thisValue instanceof Number && thatValue instanceof Number) {
+            final Number lnum = Value.promoteNumeric(session, thisValue, "comparison", thatValue);
+            final Number rnum = Value.promoteNumeric(session, thatValue, "comparison", thisValue);
+            int result;
+            if (lnum instanceof BigDecimal)
+                result = ((BigDecimal)lnum).compareTo((BigDecimal)rnum);
+            else if (lnum instanceof Double)
+                result = Double.compare((Double)lnum, (Double)rnum);
+            else if (lnum instanceof Float)
+                result = Float.compare((Float)lnum, (Float)rnum);
+            else if (lnum instanceof BigInteger)
+                result = ((BigInteger)lnum).compareTo((BigInteger)rnum);
+            else if (lnum instanceof Long)
+                result = Long.compare((Long)lnum, (Long)rnum);
+            else if (lnum instanceof Integer)
+                result = Integer.compare((Integer)lnum, (Integer)rnum);
+            else
+                break;
+            result = result < 0 ? LT : result > 0 ? GT : EQ;
+            return new Value((result & mask) != 0);
         }
-        result = result < 0 ? LT : result > 0 ? GT : EQ;
-        return new Value((result & mask) != 0);
+
+        // Try natural ordering using Comparable
+        while (thisValue instanceof Comparable && thatValue instanceof Comparable) {
+            int result;
+            try {
+                result = ((Comparable<Object>)thisValue).compareTo(thatValue);
+            } catch (ClassCastException e) {
+                break;
+            }
+            result = result < 0 ? LT : result > 0 ? GT : EQ;
+            return new Value((result & mask) != 0);
+        }
+
+        // We don't know how to order these
+        throw new EvalException("invalid comparison operation between "
+          + Value.describeType(thisValue) + " and " + Value.describeType(thatValue));
     }
 
     /**

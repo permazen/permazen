@@ -5,7 +5,6 @@
 
 - Expression parsing
     - Make Value interface; add LValue sub-interface
-    - Support Comparable with < > <= >=
     - Aggregate functions: min(), max(), avg(), sum()
 
 - Schema comparator
