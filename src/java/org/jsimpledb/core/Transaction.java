@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getDatabase getDatabase()} - Get the associated {@link Database}</li>
  *  <li>{@link #getSchema getSchema()} - Get the database {@link Schema}, as seen by this transaction</li>
  *  <li>{@link #getSchemaVersion() getSchemaVersion()} - Get the {@link SchemaVersion} that will be used by this transaction</li>
+ *  <li>{@link #deleteSchemaVersion deleteSchemaVersion()} - Delete a schema version that is no longer being used</li>
  * </ul>
  * </p>
  *
@@ -236,6 +237,37 @@ public class Transaction {
      */
     public SchemaVersion getSchemaVersion() {
         return this.version;
+    }
+
+    /**
+     * Delete a schema version that is no longer being used. There must be no objects with the given version
+     * in the database, and {@code version} must not be the version being used by this transaction.
+     *
+     * @param version schema version to remove
+     * @return true if schema version was found and removed, false if schema version does not exist in database
+     * @throws InvalidSchemaException if one or more objects with schema version {@code version} still exist
+     * @throws InvalidSchemaException if {@code version} is equal to this transaction's version
+     * @throws IllegalArgumentException if {@code version} is zero or negative
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    public synchronized boolean deleteSchemaVersion(int version) {
+
+        // Sanity check
+        if (version <= 0)
+            throw new IllegalArgumentException("invalid schema version " + version);
+        if (version == this.version.getVersionNumber())
+            throw new InvalidSchemaException("version " + version + " is this transaction's version");
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        final NavigableSet<ObjId> objects = Database.getVersionIndex(this).get(version);
+        if (objects != null)
+            throw new InvalidSchemaException("one or more version " + version + " objects still exist in database");
+
+        // Delete schema version
+        if (!this.schema.deleteVersion(version))
+            return false;
+        this.db.deleteSchema(this.kvt, version);
+        return true;
     }
 
     /**
