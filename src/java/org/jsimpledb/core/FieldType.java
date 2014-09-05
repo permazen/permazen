@@ -363,7 +363,12 @@ public abstract class FieldType<T> implements Comparator<T> {
      *
      * <p>
      * Note that this method must throw {@link IllegalArgumentException}, not {@link ClassCastException}
-     * or {@code NullPointerException}, if {@code obj} does not have the correct type, or is an illegal null value.
+     * or {@link NullPointerException}, if {@code obj} does not have the correct type, or is an illegal null value.
+     * </p>
+     *
+     * <p>
+     * This method is allowed to perform widening conversions of the object that lose no information, e.g.,
+     * from {@link Integer} to {@link Long}.
      * </p>
      *
      * <p>

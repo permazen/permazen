@@ -22,5 +22,14 @@ class IntegerType extends IntegralType<Integer> {
     protected Integer downCast(long value) {
         return (int)value;
     }
+
+    @Override
+    public Integer validate(Object obj) {
+        if (obj instanceof Character)
+            return (int)((Character)obj).charValue();
+        if (obj instanceof Byte || obj instanceof Short)
+            return ((Number)obj).intValue();
+        return super.validate(obj);
+    }
 }
 

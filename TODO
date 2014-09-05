@@ -1,14 +1,11 @@
 
-- CLI
-    - Automatic promotion: e.g., $foo.longField = 0 fails (int != long)
-    - New command "schema-diff vers1 vers2"
-
 - Expression parsing
     - Make Value interface; add LValue sub-interface
     - Aggregate functions: min(), max(), avg(), sum()
 
 - Schema comparator
     - Shows only differences
+    - New CLI command "schema-diff vers1 vers2"
 
 - Transaction schema check
     - Add encoding version number to FieldType

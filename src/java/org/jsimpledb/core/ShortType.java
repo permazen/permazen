@@ -22,5 +22,12 @@ class ShortType extends IntegralType<Short> {
     protected Short downCast(long value) {
         return (short)value;
     }
+
+    @Override
+    public Short validate(Object obj) {
+        if (obj instanceof Byte)
+            return ((Number)obj).shortValue();
+        return super.validate(obj);
+    }
 }
 
