@@ -1,6 +1,6 @@
 #summary Comparison of JSimpleDB with JPA
 
-=== Feature Comparison ===
+= Feature Comparison =
 
 Here's a quick comparison between JSimpleDB and JPA, the most common Java persistence technology:
 
@@ -33,7 +33,7 @@ Here's a quick comparison between JSimpleDB and JPA, the most common Java persis
 || CLI parses Java expressions || Not supported || Supported ||
 || Vaadin GUI auto-generator || Not supported || Supported ||
 
-=== Problems & Solutions ===
+= Problems & Solutions =
 
 If your application is written in Java, and you need to persist data onto disk, then there are certain issues and challenges that will always be present no matter what persistence layer you use. These issues are inherent in the problem that all of the persistence layers are trying to solve.
 
