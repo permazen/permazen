@@ -7,15 +7,15 @@ Here's a quick comparison between JSimpleDB and JPA, the most common Java persis
 || *Feature/Issue* || *JPA* || *JSimpleDB* ||
 || Maturity level || Mature; since 2006 || New; since 2014 ||
 || Underlying database || SQL only || Any key/value store (including SQL) ||
-|| Query language || JPQL, SQL, Criteria || Regular Java ||
-|| Compile-time type safety || Only via Criteria || Always ||
+|| Query language || JPQL, SQL, Criteria || None; use regular Java ||
+|| Compile-time type safety || Only with Criteria || Always ||
 || Configuration || Java Annotations + XML || Java Annotations ||
 || Number of annotation classes || 89 || 12 ||
 || Simple data types || SQL data types || Primitives, Date, etc. + any user-definable ||
-|| Array types || `byte[]` only || Any simple type & multi-dimensional ||
-|| Indexable data types || SQL data types || Any simple or array type ||
+|| Array types || `byte[]` only || Any type including multi-dimensional ||
+|| Indexable data types || SQL data types || Any type ||
 || Collection types || Sets, lists, maps || Sets, lists, maps ||
-|| Lockless counter type || Not supported || Supported ||
+|| Lockless counter type || Not supported || Supported (if key/value does) ||
 || Snapshot Transactions || Partial/implicit || Supported ||
 || Query indexes in snapshots || Not supported || Supported ||
 || Field change notifications || Simple types only || Supported ||
