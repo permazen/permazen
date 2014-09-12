@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
  * Support superclass for clients that want to maintain a persistent connection to some server.
  *
  * <p>
- * This class is suitable for use with any abstract notion of "client", "server", and "connection". Typically though
- * it would be used to maintain a persistent network connection to a remote server over the network. This class
+ * This class is suitable for use with any abstract notion of "client", "server", and "connection". Typically
+ * it would be used to maintain a persistent connection to a remote server over the network. This class
  * mainly serves to implement the connection state machine, including an exponential back-off retry timer,
  * subclass notifications for state transitions, and guaranteed thread safety.
  * </p>
@@ -216,7 +216,7 @@ public abstract class PersistentConnection<C> {
 // Connection Callbacks
 
     /**
-     * Initialize a new server connection.
+     * Create a new server connection.
      *
      * <p>
      * If this method throws an unchecked exception, {@link #stopped stopped()} will be invoked with the exception
@@ -255,7 +255,7 @@ public abstract class PersistentConnection<C> {
     protected abstract void handleConnection(C connectionContext) throws InterruptedException, IOException;
 
     /**
-     * Perform any cleanup after a server connection terminates. This method should close any open sockets, etc.
+     * Perform cleanup after a server connection ends. This method should close any open sockets, etc.
      *
      * <p>
      * For each successful invocation of {@link #createConnection} there is guaranteed be exactly

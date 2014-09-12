@@ -5,7 +5,7 @@ Version Next
       removed obsolete @PersistentObjectTransactional and associated AOP aspect
     - Removed arcane @ThreadConfigurable and @ThreadTransactional nobody was using
       NOTE: the above are backward-incompatible changes
-    - Added PersistentConnection
+    - Added PersistentConnection and PersistentSocketConnection
     - Update to Spring 4.0.x
 
 Version 1.0.905 Released July 29, 2014
