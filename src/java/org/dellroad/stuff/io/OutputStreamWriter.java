@@ -89,7 +89,7 @@ public class OutputStreamWriter extends FilterOutputStream {
      * {@linkplain #stop stopped}.
      *
      * <p>
-     * This ends the current {@link OutputStream} and closes the underlying input.
+     * This ends the current {@link OutputStream} and closes the underlying output.
      * </p>
      *
      * @throws IOException if an there is an error closing the underlying {@link OutputStream}
