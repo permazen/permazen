@@ -7,6 +7,7 @@
 
 package org.dellroad.stuff.io;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,10 +25,9 @@ import org.dellroad.stuff.java.TimedWait;
  * </p>
  *
  * <p>
- * This class may also be used to allow testing the state of an {@link InputStream} without actually reading
- * from it, via {@link #available}, which guarantees an immediate exception will be thrown if the underlying
- * {@link InputStream} has been closed, reached EOF, or thrown an exception (this is a stronger guarantee than
- * required by the {@link InputStream} interface).
+ * This class may also be used to allow testing the real-time state of an {@link InputStream} without actually reading
+ * from it, via {@link #checkConnection}, which guarantees an immediate exception will be thrown if the underlying
+ * {@link InputStream} has been closed, reached EOF, or itself thrown an exception.
  * </p>
  *
  * <p>
@@ -88,7 +88,7 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
     public synchronized int read() throws IOException {
 
         // Wait for some data
-        if (!this.waitForData(this.timeout))
+        if (!this.waitForData(this.timeout, false))
             return -1;
 
         // Wake up sleeping writer, if any
@@ -113,7 +113,7 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
             throw new IndexOutOfBoundsException("off + len > buf.length");
 
         // Wait for some data
-        if (!this.waitForData(this.timeout))
+        if (!this.waitForData(this.timeout, false))
             return -1;
 
         // Wake up sleeping writer, if any
@@ -128,7 +128,7 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
     }
 
     // Wait up to 'duration' milliseconds for something to happen; or if negative, just check status
-    private synchronized boolean waitForData(final long duration) throws IOException {
+    private synchronized boolean waitForData(final long duration, boolean exceptionOnEOF) throws IOException {
 
         // Wait for data or exception
         for (boolean timedOut = false; !timedOut; ) {
@@ -140,6 +140,8 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
                     return true;
                 break;
             case EOF:
+                if (exceptionOnEOF)
+                    throw new EOFException();
                 return false;
             case EXCEPTION:
                 if (this.exception instanceof IOException)
@@ -194,20 +196,25 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
         }
     }
 
+    @Override
+    public synchronized int available() throws IOException {
+        return this.waitForData(-1, false) ? this.xferLen : 0;
+    }
+
     /**
-     * Check how may bytes may be read from this instance without blocking.
+     * Check the status of the underlying {@link InputStream}.
      *
      * <p>
-     * The {@link IdleTimeoutInputStream} guarantees that if the underlying {@link InputStream} has been closed,
+     * This method guarantees that if the underlying {@link InputStream} has been closed,
      * reached EOF, or thrown an exception, then this method will throw an immediate exception.
      * </p>
      *
-     * @return the number of bytes may be read immediately without blocking
+     * @throws EOFException if the underlying {@link InputStream} has reached EOF
      * @throws IOException if the underlying {@link InputStream} threw an {@link IOException}
+     * @throws IOException if the underlying {@link InputStream} has been closed
      */
-    @Override
-    public synchronized int available() throws IOException {
-        return this.waitForData(-1) ? this.xferLen : 0;
+    public synchronized void checkConnection() throws IOException {
+        this.waitForData(-1, true);
     }
 
 // AsyncInputStream.Listener
