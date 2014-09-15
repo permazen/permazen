@@ -6,6 +6,7 @@ Version Next
     - Removed arcane @ThreadConfigurable and @ThreadTransactional nobody was using
       NOTE: the above are backward-incompatible changes
     - Added PersistentConnection and PersistentSocketConnection
+    - Enhanced IdleTimeoutInputStream.available() to throw immediate exception
     - Update to Spring 4.0.x
 
 Version 1.0.905 Released July 29, 2014

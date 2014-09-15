@@ -24,6 +24,13 @@ import org.dellroad.stuff.java.TimedWait;
  * </p>
  *
  * <p>
+ * This class may also be used to allow testing the state of an {@link InputStream} without actually reading
+ * from it, via {@link #available}, which guarantees an immediate exception will be thrown if the underlying
+ * {@link InputStream} has been closed, reached EOF, or thrown an exception (this is a stronger guarantee than
+ * required by the {@link InputStream} interface).
+ * </p>
+ *
+ * <p>
  * All methods in this class are thread safe.
  * </p>
  */
@@ -49,7 +56,7 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
      *
      * @param in input source
      * @param threadName name for the reader thread, or null for default
-     * @param timeout maximum input idle time
+     * @param timeout maximum input idle time, or zero for infinity
      * @throws IllegalArgumentException if {@code timeout} is negative
      */
     public IdleTimeoutInputStream(InputStream in, String threadName, long timeout) {
@@ -81,7 +88,7 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
     public synchronized int read() throws IOException {
 
         // Wait for some data
-        if (!this.waitForData())
+        if (!this.waitForData(this.timeout))
             return -1;
 
         // Wake up sleeping writer, if any
@@ -106,7 +113,7 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
             throw new IndexOutOfBoundsException("off + len > buf.length");
 
         // Wait for some data
-        if (!this.waitForData())
+        if (!this.waitForData(this.timeout))
             return -1;
 
         // Wake up sleeping writer, if any
@@ -120,9 +127,11 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
         return len;
     }
 
-    // Wait up to timeout milliseconds for something to happen
-    private synchronized boolean waitForData() throws IOException {
-        while (true) {
+    // Wait up to 'duration' milliseconds for something to happen; or if negative, just check status
+    private synchronized boolean waitForData(final long duration) throws IOException {
+
+        // Wait for data or exception
+        for (boolean timedOut = false; !timedOut; ) {
 
             // Check state
             switch (this.state) {
@@ -144,27 +153,28 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
                 throw new RuntimeException("internal error");
             }
 
-            // Wait for some data to appear, timeout to occur, EOF, exception, or closure
-            boolean timedOut = false;
+            // Not waiting, just checking status?
+            if (duration < 0)
+                return false;
+
+            // Wait for some data to appear, timeout, EOF, exception, or closure
             try {
-                timedOut = !TimedWait.wait(this, this.timeout, new Predicate() {
+                timedOut = !TimedWait.wait(this, duration, new Predicate() {
                     @Override
                     public boolean test() {
                         return IdleTimeoutInputStream.this.state != OPEN || IdleTimeoutInputStream.this.xferLen > 0;
                     }
                 });
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-
-            // Did we time out? If so throw exception.
-            if (timedOut) {
-                this.asyncInputStream.close();
-                this.exception = new IdleTimeoutException(this.timeout);
-                this.state = EXCEPTION;
-                throw (IOException)this.exception;
+                Thread.currentThread().interrupt();                         // start over waiting!
             }
         }
+
+        // We timed out; throw IdleTimeoutException
+        this.asyncInputStream.close();
+        this.exception = new IdleTimeoutException(duration);
+        this.state = EXCEPTION;
+        throw (IOException)this.exception;
     }
 
     @Override
@@ -184,9 +194,20 @@ public class IdleTimeoutInputStream extends InputStream implements AsyncInputStr
         }
     }
 
+    /**
+     * Check how may bytes may be read from this instance without blocking.
+     *
+     * <p>
+     * The {@link IdleTimeoutInputStream} guarantees that if the underlying {@link InputStream} has been closed,
+     * reached EOF, or thrown an exception, then this method will throw an immediate exception.
+     * </p>
+     *
+     * @return the number of bytes may be read immediately without blocking
+     * @throws IOException if the underlying {@link InputStream} threw an {@link IOException}
+     */
     @Override
-    public synchronized int available() {
-        return this.xferLen;
+    public synchronized int available() throws IOException {
+        return this.waitForData(-1) ? this.xferLen : 0;
     }
 
 // AsyncInputStream.Listener
