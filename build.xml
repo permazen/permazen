@@ -258,12 +258,12 @@
                 <path refid="vaadin7.classpath"/>
             </additional-classpath>
             <links>
-                <link href="http://download.oracle.com/javase/6/docs/api/"/>
-                <link href="http://download.oracle.com/javaee/6/api/"/>
-                <link href="http://docs.spring.io/spring/docs/3.2.x/javadoc-api/"/>
+                <link href="http://download.oracle.com/javase/7/docs/api/"/>
+                <link href="http://download.oracle.com/javaee/7/api/"/>
+                <link href="http://docs.spring.io/spring/docs/4.0.x/javadoc-api/"/>
                 <link href="http://jibx.sourceforge.net/api/"/>
                 <link href="http://opencsv.sourceforge.net/apidocs/"/>
-                <link href="http://vaadin.com/download/release/7.0/7.0.3/docs/api/"/>
+                <link href="http://vaadin.com/download/release/7.1/7.1.15/docs/api/"/>
                 <link href="http://www.slf4j.org/api/"/>
                 <link href="http://www.eclipse.org/aspectj/doc/released/runtime-api/"/>
             </links>
