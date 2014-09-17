@@ -61,9 +61,9 @@ public class HibernateDDLFormatterTask extends Task {
 
         // Format DDL
         final Formatter formatter = FormatStyle.DDL.getFormatter();
-        try (final BufferedReader reader = new BufferedReader(
+        try (/*final*/ BufferedReader reader = new BufferedReader(
               new InputStreamReader(new FileInputStream(this.inputFile), Charset.defaultCharset()));
-            final PrintWriter writer = new PrintWriter(new FileWriter(this.outputFile))) {
+            /*final*/ PrintWriter writer = new PrintWriter(new FileWriter(this.outputFile))) {
             for (String line; (line = reader.readLine()) != null; ) {
                 line = line.trim();
                 final String[] sqls = (formatter.format(line) + this.delimiter).split("\n");
