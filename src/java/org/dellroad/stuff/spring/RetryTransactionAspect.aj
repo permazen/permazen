@@ -134,8 +134,10 @@ public aspect RetryTransactionAspect extends AbstractBean implements RetryTransa
             return proceed(txObject);
         }
 
-        // Get @RetryTransaction annotation
-        final RetryTransaction retryTransaction = AnnotationUtils.getAnnotation(method, RetryTransaction.class);
+        // Find @RetryTransaction annotation
+        RetryTransaction retryTransaction = AnnotationUtils.getAnnotation(method, RetryTransaction.class);
+        if (retryTransaction == null)
+            retryTransaction = AnnotationUtils.findAnnotation(method.getDeclaringClass(), RetryTransaction.class);
         if (retryTransaction == null)
             throw new RuntimeException("internal error: no @RetryTransaction annotation found for method " + method);
 

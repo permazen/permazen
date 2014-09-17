@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed bug causing class-level @RetryTransaction annotations to not be found
+
 Version 1.0.925 Released September 16, 2014
 
     - Added JPASchemaGeneratorTask and HibernateDDLFormatterTask ant tasks
