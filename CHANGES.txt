@@ -1,4 +1,4 @@
-Version 1.0.922 Released September 16, 2014
+Version 1.0.924 Released September 16, 2014
 
     - Added JPASchemaGeneratorTask and HibernateDDLFormatterTask ant tasks
     - Rewrote PersistentObjectTransactionManager as a Spring PlatformTransactionManager;
