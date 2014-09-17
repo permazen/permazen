@@ -271,27 +271,31 @@
 <span class="sourceLineNo">263</span>            try {<a name="line.263"></a>
 <span class="sourceLineNo">264</span>                return this.method.invoke(obj, params);<a name="line.264"></a>
 <span class="sourceLineNo">265</span>            } catch (InvocationTargetException e) {<a name="line.265"></a>
-<span class="sourceLineNo">266</span>                throw new RuntimeException(e);<a name="line.266"></a>
-<span class="sourceLineNo">267</span>            } catch (IllegalAccessException e) {<a name="line.267"></a>
-<span class="sourceLineNo">268</span>                throw new RuntimeException(e);<a name="line.268"></a>
-<span class="sourceLineNo">269</span>            }<a name="line.269"></a>
-<span class="sourceLineNo">270</span>        }<a name="line.270"></a>
-<span class="sourceLineNo">271</span><a name="line.271"></a>
-<span class="sourceLineNo">272</span>        @Override<a name="line.272"></a>
-<span class="sourceLineNo">273</span>        public boolean equals(Object obj) {<a name="line.273"></a>
-<span class="sourceLineNo">274</span>            if (obj == null || obj.getClass() != this.getClass())<a name="line.274"></a>
-<span class="sourceLineNo">275</span>                return false;<a name="line.275"></a>
-<span class="sourceLineNo">276</span>            final MethodAnnotationScanner&lt;?, ?&gt;.MethodInfo that = (MethodAnnotationScanner&lt;?, ?&gt;.MethodInfo)obj;<a name="line.276"></a>
-<span class="sourceLineNo">277</span>            return this.method.equals(that.method) &amp;&amp; this.annotation.equals(that.annotation);<a name="line.277"></a>
-<span class="sourceLineNo">278</span>        }<a name="line.278"></a>
-<span class="sourceLineNo">279</span><a name="line.279"></a>
-<span class="sourceLineNo">280</span>        @Override<a name="line.280"></a>
-<span class="sourceLineNo">281</span>        public int hashCode() {<a name="line.281"></a>
-<span class="sourceLineNo">282</span>            return this.method.hashCode() ^ this.annotation.hashCode();<a name="line.282"></a>
-<span class="sourceLineNo">283</span>        }<a name="line.283"></a>
-<span class="sourceLineNo">284</span>    }<a name="line.284"></a>
-<span class="sourceLineNo">285</span>}<a name="line.285"></a>
-<span class="sourceLineNo">286</span><a name="line.286"></a>
+<span class="sourceLineNo">266</span>                if (e.getCause() instanceof RuntimeException)<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                    throw (RuntimeException)e.getCause();<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                if (e.getCause() instanceof Error)<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                    throw (Error)e.getCause();<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                throw new RuntimeException(e.getCause());<a name="line.270"></a>
+<span class="sourceLineNo">271</span>            } catch (IllegalAccessException e) {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>                throw new RuntimeException(e);<a name="line.272"></a>
+<span class="sourceLineNo">273</span>            }<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        }<a name="line.274"></a>
+<span class="sourceLineNo">275</span><a name="line.275"></a>
+<span class="sourceLineNo">276</span>        @Override<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        public boolean equals(Object obj) {<a name="line.277"></a>
+<span class="sourceLineNo">278</span>            if (obj == null || obj.getClass() != this.getClass())<a name="line.278"></a>
+<span class="sourceLineNo">279</span>                return false;<a name="line.279"></a>
+<span class="sourceLineNo">280</span>            final MethodAnnotationScanner&lt;?, ?&gt;.MethodInfo that = (MethodAnnotationScanner&lt;?, ?&gt;.MethodInfo)obj;<a name="line.280"></a>
+<span class="sourceLineNo">281</span>            return this.method.equals(that.method) &amp;&amp; this.annotation.equals(that.annotation);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        }<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>        @Override<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        public int hashCode() {<a name="line.285"></a>
+<span class="sourceLineNo">286</span>            return this.method.hashCode() ^ this.annotation.hashCode();<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        }<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    }<a name="line.288"></a>
+<span class="sourceLineNo">289</span>}<a name="line.289"></a>
+<span class="sourceLineNo">290</span><a name="line.290"></a>
 
 
 

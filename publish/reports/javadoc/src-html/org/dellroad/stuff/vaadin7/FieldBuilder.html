@@ -180,7 +180,7 @@
 <span class="sourceLineNo">172</span>            Method method = propertyDescriptor.getReadMethod();<a name="line.172"></a>
 <span class="sourceLineNo">173</span><a name="line.173"></a>
 <span class="sourceLineNo">174</span>            // Work around Introspector stupidity where it returns overridden superclass' getter method<a name="line.174"></a>
-<span class="sourceLineNo">175</span>            if (method.getClass() != bean.getClass()) {<a name="line.175"></a>
+<span class="sourceLineNo">175</span>            if (method != null &amp;&amp; method.getClass() != bean.getClass()) {<a name="line.175"></a>
 <span class="sourceLineNo">176</span>                for (Class&lt;?&gt; c = bean.getClass(); c != null &amp;&amp; c != method.getClass(); c = c.getSuperclass()) {<a name="line.176"></a>
 <span class="sourceLineNo">177</span>                    try {<a name="line.177"></a>
 <span class="sourceLineNo">178</span>                        method = c.getDeclaredMethod(method.getName(), method.getParameterTypes());<a name="line.178"></a>
