@@ -15,7 +15,6 @@ import org.springframework.dao.support.PersistenceExceptionTranslator;
 /**
  * {@link PersistentObject} implementation of Spring's {@link PersistenceExceptionTranslator} interface.
  */
-@SuppressWarnings("serial")
 public class PersistentObjectExceptionTranslator implements PersistenceExceptionTranslator {
 
     @Override
