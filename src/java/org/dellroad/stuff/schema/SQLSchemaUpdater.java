@@ -314,7 +314,7 @@ public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connecti
                         resultSet = s.executeQuery(this.getSQL());
                     } catch (SQLException e) {
                         if (SQLSchemaUpdater.this.indicatesUninitializedDatabase(c, e)) {
-                            SQLSchemaUpdater.this.log.warn("detected an uninitialized database");
+                            SQLSchemaUpdater.this.log.info("detected an uninitialized database");
                             result[0] = true;
                             return;
                         }
