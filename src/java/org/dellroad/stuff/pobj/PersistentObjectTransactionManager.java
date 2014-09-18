@@ -85,6 +85,13 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
 // Properties
 
     /**
+     * Get the {@link PersistentObject} that this instance will operate on.
+     */
+    public PersistentObject<T> getPersistentObject() {
+        return this.persistentObject;
+    }
+
+    /**
      * Configure the {@link PersistentObject} that this instance will operate on.
      *
      * <p>
@@ -93,6 +100,14 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
      */
     public void setPersistentObject(PersistentObject<T> persistentObject) {
         this.persistentObject = persistentObject;
+    }
+
+    /**
+     * Get whether, during read-only transactions, {@link #getRoot} returns a new copy of the
+     * {@link PersistentObject} object graph or the {@linkplain PersistentObject#getSharedRoot shared root}.
+     */
+    public boolean isReadOnlySharedRoot() {
+        return this.readOnlySharedRoot;
     }
 
     /**
