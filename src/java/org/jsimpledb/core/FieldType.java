@@ -25,6 +25,17 @@ import org.jsimpledb.util.ByteWriter;
  * Defines the encoding, ordering, and range of possible values for a {@link SimpleField}.
  *
  * <p>
+ * A {@link FieldType} maps between instances of its supported Java type and the self-delimited {@code byte[]} encoding of
+ * those instances used in the database. The {@code byte[]} encoding also implicitly defines database the sort order
+ * (from unsigned lexicographical ordering) which is also reflected via {@link #compare Comparator.compare()}.
+ * </p>
+ *
+ * <p>
+ * A {@link FieldType} also defines a mapping between Java instances and {@link String} values;
+ * there are actually two separate {@link String} forms, one of which is self-delimiting.
+ * </p>
+ *
+ * <p>
  * {@link FieldType}s have these requirements and properties:
  * <ul>
  *  <li>They have a unique {@linkplain #getName name}; typically the same as their {@linkplain #getTypeToken supported type}.</li>
@@ -33,7 +44,7 @@ import org.jsimpledb.util.ByteWriter;
  *      then the two orderings do not necessarily have to match, but they should if possible.</li>
  *  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)
  *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
- *      sort consistently with the {@linkplain #compare total ordering} of the corresponding Java values.</li>
+ *      sort consistently with the total ordering of the corresponding Java values defined by {@link #compare compare()}.</li>
  *  <li>All possible values can be encoded/decoded to/from {@link String}s without losing information,
  *      with both a {@linkplain #toString(Object) regular string form} and a
  *      {@linkplain #toParseableString self-delimiting string form} (these may be the same).</li>
@@ -314,7 +325,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * <p>
      * The implementation in {@link FieldType} creates a new {@link ParseContext} based on {@code string},
      * delegates to {@link #toParseableString} to parse it, and verifies that all of {@code string} was consumed
-     * during the parse. Subclasses that override this method should also override {@link #fromString toString()}.
+     * during the parse. Subclasses that override this method should also override {@link #toString(Object)}.
      * </p>
      *
      * @param string string previously encoded by {@link #toString(Object)}
@@ -393,7 +404,7 @@ public abstract class FieldType<T> implements Comparator<T> {
     /**
      * Compare two values. This method must provide a total ordering of all supported Java values.
      * If null is a supported Java value, then this method must accept it without throwing an exception
-     * (note, this is a stronger requirement than {@link Comparator} requires).
+     * (note, this is a stronger requirement than {@link Comparator} requires). By convention, null usually sorts last.
      *
      * @throws IllegalArgumentException if {@code value1} or {@code value2} is null and this type does not support null
      */
@@ -405,7 +416,8 @@ public abstract class FieldType<T> implements Comparator<T> {
      * Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
      *
      * <p>
-     * Note: changing the return value of this method usually means changing the binary encoding.
+     * Note: changing the return value of this method usually means changing the binary encoding, resulting in
+     * an incompatible type.
      * </p>
      *
      * <p>
@@ -421,7 +433,8 @@ public abstract class FieldType<T> implements Comparator<T> {
      * Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
      *
      * <p>
-     * Note: changing the return value of this method usually means changing the binary encoding.
+     * Note: changing the return value of this method usually means changing the binary encoding, resulting in
+     * an incompatible type.
      * </p>
      *
      * <p>
