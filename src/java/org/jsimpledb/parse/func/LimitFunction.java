@@ -13,6 +13,7 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
@@ -43,7 +44,7 @@ public class LimitFunction extends SimpleFunction {
             throw new EvalException("invalid limit() value " + limit);
 
         // Apply limit
-        return new Value(null) {
+        return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
                 final Object obj = value.checkNotNull(session, "limit()");

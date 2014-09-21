@@ -61,11 +61,11 @@ public class UnaryExprParser implements Parser<Node> {
         };
     }
 
-    private Node createPrecrementNode(final String operation, final Node arg, final boolean increment) {
+    private Node createPrecrementNode(final String operation, final Node node, final boolean increment) {
         return new Node() {
             @Override
             public Value evaluate(ParseSession session) {
-                return arg.evaluate(session).xxcrement(session, "pre-" + operation, increment);
+                return node.evaluate(session).xxcrement(session, "pre-" + operation, increment);
             }
         };
     }

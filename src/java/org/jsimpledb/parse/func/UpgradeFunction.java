@@ -12,6 +12,7 @@ import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
@@ -45,7 +46,7 @@ public class UpgradeFunction extends SimpleFunction {
 
         // Upgrade object
         try {
-            return new Value(session.hasJSimpleDB() ?
+            return new ConstValue(session.hasJSimpleDB() ?
               JTransaction.getCurrent().getJObject(id).upgrade() : session.getTransaction().updateSchemaVersion(id));
         } catch (DeletedObjectException e) {
             throw new EvalException("invalid upgrade() operation on non-existent object " + id);

@@ -16,6 +16,7 @@ import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.SpaceParser;
 import org.jsimpledb.parse.expr.AssignmentExprParser;
+import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 
@@ -83,7 +84,7 @@ public class CreateFunction extends AbstractFunction {
         final Transaction tx = session.getTransaction();
         final ObjId id = version != null ?
           tx.create(storageId, version.evaluate(session).checkIntegral(session, "create()")) : tx.create(storageId);
-        return new Value(session.hasJSimpleDB() ? JTransaction.getCurrent().getJObject(id) : id);
+        return new ConstValue(session.hasJSimpleDB() ? JTransaction.getCurrent().getJObject(id) : id);
     }
 
 // ParamInfo

@@ -18,6 +18,7 @@ import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.SpaceParser;
+import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.IdentNode;
@@ -109,7 +110,7 @@ public class InvertFunction extends AbstractFunction {
     @Override
     public Value apply(ParseSession session, Object params) {
         final InvertInfo info = (InvertInfo)params;
-        return new Value(null) {
+        return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
 

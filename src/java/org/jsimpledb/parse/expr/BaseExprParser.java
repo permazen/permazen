@@ -33,7 +33,6 @@ import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.JField;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleField;
-import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.parse.ParseContext;
@@ -134,7 +133,7 @@ public class BaseExprParser implements Parser<Node> {
                             if (ptypes.length != params.length)
                                 continue;
                             try {
-                                return new Value(constructor.newInstance(params));
+                                return new ConstValue(constructor.newInstance(params));
                             } catch (IllegalArgumentException e) {
                                 continue;                               // wrong method, a parameter type didn't match
                             } catch (Exception e) {
@@ -161,7 +160,7 @@ public class BaseExprParser implements Parser<Node> {
                     @Override
                     public Value evaluate(final ParseSession session) {
                         final Class<?> elemType = BaseExprParser.this.getArrayClass(baseClass, dims.size() - 1);
-                        return new Value(literal != null ?
+                        return new ConstValue(literal != null ?
                           this.createLiteral(session, elemType, literal) : this.createEmpty(session, elemType, dims));
                     }
 
@@ -301,13 +300,7 @@ public class BaseExprParser implements Parser<Node> {
                         }
 
                         // Return node accessing it
-                        final Class<?> cl2 = cl;
-                        node = new Node() {
-                            @Override
-                            public Value evaluate(ParseSession session) {
-                                return BaseExprParser.this.evaluateStaticField(session, cl2, field);
-                            }
-                        };
+                        node = new ConstNode(new StaticFieldValue(field));
                         break;
                     }
 
@@ -322,8 +315,9 @@ public class BaseExprParser implements Parser<Node> {
                 }
 
                 // Handle method call
-                node = this.createMethodInvokeNode(cl != null ? cl : node,
-                  member, BaseExprParser.parseParams(session, ctx, complete));
+                node = cl != null ?
+                  new MethodInvokeNode(cl, member, BaseExprParser.parseParams(session, ctx, complete)) :
+                  new MethodInvokeNode(node, member, BaseExprParser.parseParams(session, ctx, complete));
                 break;
             }
             case "[":
@@ -414,34 +408,6 @@ public class BaseExprParser implements Parser<Node> {
         return params;
     }
 
-    private Value evaluateStaticField(ParseSession session, final Class<?> cl, final Field field) {
-        return new Value(null, new Setter() {
-            @Override
-            public void set(ParseSession session, Value value) {
-                final Object obj = value.get(session);
-                try {
-                    field.set(null, obj);
-                } catch (IllegalArgumentException e) {
-                    throw new EvalException("invalid " + Value.describeType(obj) + " for static field `"
-                      + field.getName() + "' in class `" + cl.getName() + "'", e);
-                } catch (Exception e) {
-                    throw new EvalException("error writing static field `" + field.getName()
-                      + "' in class `" + cl.getName() + "': " + e, e);
-                }
-            }
-        }) {
-            @Override
-            public Object get(ParseSession session) {
-                try {
-                    return field.get(null);
-                } catch (Exception e) {
-                    throw new EvalException("error reading static field `" + field.getName()
-                      + "' in class `" + cl.getName() + "': " + e, e);
-                }
-            }
-        };
-    }
-
     private Value evaluateProperty(ParseSession session, Value value, final String name) {
 
         // Evaluate target
@@ -464,31 +430,11 @@ public class BaseExprParser implements Parser<Node> {
             }
             final JField jfield = jfield0;
 
-            // Return value if found
-            if (jfield != null) {
-                return new Value(null, jfield instanceof JSimpleField ? new Setter() {
-                    @Override
-                    public void set(ParseSession session, Value value) {
-                        final Object obj = value.get(session);
-                        try {
-                            ((JSimpleField)jfield).setValue(JTransaction.getCurrent(), jobj, obj);
-                        } catch (IllegalArgumentException e) {
-                            throw new EvalException("invalid " + Value.describeType(obj)
-                              + " for field `" + jfield.getName() + "'", e);
-                        }
-                    }
-                } : null) {
-                    @Override
-                    public Object get(ParseSession session) {
-                        try {
-                            return jfield.getValue(JTransaction.getCurrent(), jobj);
-                        } catch (Exception e) {
-                            throw new EvalException("error reading field `" + name + "' from object " + id + ": "
-                              + (e.getMessage() != null ? e.getMessage() : e));
-                        }
-                    }
-                };
-            }
+            // Return value reflecting the field if the field was found
+            if (jfield instanceof JSimpleField)
+                return new JSimpleFieldValue(jobj, (JSimpleField)jfield);
+            else if (jfield != null)
+                return new JFieldValue(jobj, jfield);
         } else if (!session.hasJSimpleDB() && target instanceof ObjId) {
             final ObjId id = (ObjId)target;
 
@@ -501,30 +447,11 @@ public class BaseExprParser implements Parser<Node> {
             }
             final org.jsimpledb.core.Field<?> field = field0;
 
-            // Return value if found
-            if (field != null) {
-                return new Value(null, field instanceof SimpleField ? new Setter() {
-                    @Override
-                    public void set(ParseSession session, Value value) {
-                        final Object obj = value.get(session);
-                        try {
-                            session.getTransaction().writeSimpleField(id, field.getStorageId(), obj, false);
-                        } catch (IllegalArgumentException e) {
-                            throw new EvalException("invalid " + Value.describeType(obj) + " for " + field, e);
-                        }
-                    }
-                } : null) {
-                    @Override
-                    public Object get(ParseSession session) {
-                        try {
-                            return field.getValue(session.getTransaction(), id);
-                        } catch (Exception e) {
-                            throw new EvalException("error reading field `" + name + "' from object " + id + ": "
-                              + (e.getMessage() != null ? e.getMessage() : e));
-                        }
-                    }
-                };
-            }
+            // Return value reflecting the field if the field was found
+            if (field instanceof SimpleField)
+                return new SimpleFieldValue(id, (SimpleField<?>)field);
+            else if (field != null)
+                return new FieldValue(id, field);
         }
 
         // Try bean property accessed via bean methods
@@ -534,39 +461,15 @@ public class BaseExprParser implements Parser<Node> {
         } catch (IntrospectionException e) {
             throw new EvalException("error introspecting class `" + cl.getName() + "': " + e, e);
         }
-        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            if (pd instanceof IndexedPropertyDescriptor)
+        for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
+            if (propertyDescriptor instanceof IndexedPropertyDescriptor)
                 continue;
-            if (!pd.getName().equals(name))
+            if (!propertyDescriptor.getName().equals(name))
                 continue;
-            final Method readMethod = pd.getReadMethod();
-            final Method writeMethod = pd.getWriteMethod();
-            return new Value(null, writeMethod != null ? new Setter() {
-                @Override
-                public void set(ParseSession session, Value value) {
-                    final Object obj = value.get(session);
-                    try {
-                        writeMethod.invoke(target, obj);
-                    } catch (Exception e) {
-                        final Throwable t = e instanceof InvocationTargetException ?
-                          ((InvocationTargetException)e).getTargetException() : e;
-                        throw new EvalException("error writing property `" + name + "' to object of type "
-                          + cl.getName() + ": " + t, t);
-                    }
-                }
-            } : null) {
-                @Override
-                public Object get(ParseSession session) {
-                    try {
-                        return readMethod.invoke(target);
-                    } catch (Exception e) {
-                        final Throwable t = e instanceof InvocationTargetException ?
-                          ((InvocationTargetException)e).getTargetException() : e;
-                        throw new EvalException("error reading property `" + name + "' from object of type "
-                          + cl.getName() + ": " + t, t);
-                    }
-                }
-            };
+            if (propertyDescriptor.getReadMethod() != null && propertyDescriptor.getWriteMethod() != null)
+                return new MutableBeanPropertyValue(target, propertyDescriptor);
+            else if (propertyDescriptor.getReadMethod() != null)
+                return new BeanPropertyValue(target, propertyDescriptor);
         }
 
         // Try instance field
@@ -576,34 +479,12 @@ public class BaseExprParser implements Parser<Node> {
         } catch (NoSuchFieldException e) {
             javaField = null;
         }
-        if (javaField != null) {
-            final Field javaField2 = javaField;
-            return new DynamicValue() {
-                @Override
-                public void set(ParseSession session, Value value) {
-                    final Object obj = value.get(session);
-                    try {
-                        javaField2.set(target, obj);
-                    } catch (Exception e) {
-                        throw new EvalException("error setting field `" + name + "' in object of type "
-                          + cl.getName() + ": " + e, e);
-                    }
-                }
-                @Override
-                public Object get(ParseSession session) {
-                    try {
-                        return javaField2.get(target);
-                    } catch (Exception e) {
-                        throw new EvalException("error reading field `" + name + "' in object of type "
-                          + cl.getName() + ": " + e, e);
-                    }
-                }
-            };
-        }
+        if (javaField != null)
+            return new ObjectFieldValue(target, javaField);
 
-        // Handle array.length
+        // Try array.length
         if (target.getClass().isArray() && name.equals("length"))
-            return new Value(Array.getLength(target));
+            return new ConstValue(Array.getLength(target));
 
         // Not found
         throw new EvalException("property `" + name + "' not found in " + cl);
@@ -689,7 +570,7 @@ public class BaseExprParser implements Parser<Node> {
                     throw new EvalException("error invoking method `" + name + "()' on "
                       + (obj != null ? "object of type " + obj.getClass().getName() : method.getDeclaringClass()) + ": " + t, t);
                 }
-                return result != null || method.getReturnType() != Void.TYPE ? new Value(result) : Value.NO_VALUE;
+                return result != null || method.getReturnType() != Void.TYPE ? new ConstValue(result) : Value.NO_VALUE;
             }
         };
     }
@@ -698,9 +579,7 @@ public class BaseExprParser implements Parser<Node> {
         return new Node() {
             @Override
             public Value evaluate(ParseSession session) {
-                final Value oldValue = node.evaluate(session);
-                oldValue.xxcrement(session, "post-" + operation, increment);
-                return oldValue;
+                return node.evaluate(session).xxcrement(session, "post-" + operation, increment);
             }
         };
     }

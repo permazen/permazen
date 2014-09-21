@@ -24,6 +24,7 @@ import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.SpaceParser;
+import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.Value;
 
 @Function
@@ -93,7 +94,7 @@ public class QueryEntriesFunction extends AbstractFunction {
     @Override
     public Value apply(ParseSession session, Object params) {
         final Query query = (Query)params;
-        return new Value(null) {
+        return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
                 return query.query(session);

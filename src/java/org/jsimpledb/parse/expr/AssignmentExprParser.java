@@ -25,22 +25,19 @@ public class AssignmentExprParser extends BinaryExprParser {
             @Override
             public Value evaluate(ParseSession session) {
 
-                // Get left-hand value
-                final Value oldValue = lhs.evaluate(session);
-                final Setter setter = oldValue.getSetter();
-                if (setter == null)
-                    throw new EvalException("invalid assignment to non-assignable value");
+                // Get left-hand value, which must be an LValue
+                final LValue lvalue = lhs.evaluate(session).asLValue("assignment");
 
                 // Calculate new value
-                Value newValue = rhs.evaluate(session);
+                Value value = rhs.evaluate(session);
                 if (op != Op.EQUALS)
-                    newValue = Op.forSymbol(op.getSymbol().replaceAll("=", "")).apply(session, oldValue, newValue);
+                    value = Op.forSymbol(op.getSymbol().replaceAll("=", "")).apply(session, lvalue, value);
 
-                // Assign new value
-                setter.set(session, newValue);
+                // Assign new value to lvalue
+                lvalue.set(session, value);
 
                 // Done
-                return newValue;
+                return value;
             }
         };
     }

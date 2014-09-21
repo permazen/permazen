@@ -10,6 +10,7 @@ package org.jsimpledb.parse.func;
 import com.google.common.collect.Iterables;
 
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
@@ -39,7 +40,7 @@ public class ConcatFunction extends SimpleFunction {
     @Override
     protected Value apply(ParseSession session, Value[] params) {
         final Value value = params[0];
-        return new Value(null) {
+        return new AbstractValue() {
             @Override
             public Object get(final ParseSession session) {
                 return Iterables.concat(Iterables.transform((Iterable<?>)value.checkType(session, "concat()", Iterable.class),

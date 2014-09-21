@@ -13,6 +13,7 @@ import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.SpaceParser;
+import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.Value;
 
 @Function
@@ -60,7 +61,7 @@ public class QueryFunction extends AbstractFunction {
     @Override
     public Value apply(ParseSession session, Object params) {
         final int storageId = (Integer)params;
-        return new Value(null) {
+        return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
                 return session.hasJSimpleDB() ?

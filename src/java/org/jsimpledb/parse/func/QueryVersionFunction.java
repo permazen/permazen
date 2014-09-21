@@ -9,6 +9,7 @@ package org.jsimpledb.parse.func;
 
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.Value;
 
 @Function
@@ -35,7 +36,7 @@ public class QueryVersionFunction extends SimpleFunction {
 
     @Override
     public Value apply(ParseSession session, Value[] params) {
-        return new Value(null) {
+        return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
                 return session.hasJSimpleDB() ?

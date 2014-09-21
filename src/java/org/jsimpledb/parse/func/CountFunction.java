@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
@@ -38,14 +39,14 @@ public class CountFunction extends SimpleFunction {
         if (obj instanceof Map)
             obj = ((Map<?, ?>)obj).entrySet();
         if (obj instanceof Collection)
-            return new Value(((Collection<?>)obj).size());
+            return new ConstValue(((Collection<?>)obj).size());
         if (obj instanceof Iterable)
             obj = ((Iterable<?>)obj).iterator();
         if (obj instanceof Iterator) {
             int count = 0;
             for (Iterator<?> i = (Iterator<?>)obj; i.hasNext(); )
                 count++;
-            return new Value(count);
+            return new ConstValue(count);
         }
         throw new EvalException("count() cannot be applied to object of type " + obj.getClass().getName());
     }

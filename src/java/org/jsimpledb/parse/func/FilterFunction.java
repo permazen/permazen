@@ -13,6 +13,8 @@ import com.google.common.collect.Iterables;
 import java.util.Map;
 
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.AbstractValue;
+import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
@@ -42,7 +44,7 @@ public class FilterFunction extends ApplyExprFunction {
 
     @Override
     protected Value apply(ParseSession session, final ParamInfo params) {
-        return new Value(null) {
+        return new AbstractValue() {
             @Override
             public Object get(final ParseSession session) {
 
@@ -60,7 +62,7 @@ public class FilterFunction extends ApplyExprFunction {
                     @Override
                     public boolean apply(Object item) {
                         return FilterFunction.this.evaluate(session, params.getVariable(),
-                          new Value(item), params.getExpr()).checkBoolean(session, "filter()");
+                          new ConstValue(item), params.getExpr()).checkBoolean(session, "filter()");
                     }
                 });
             }

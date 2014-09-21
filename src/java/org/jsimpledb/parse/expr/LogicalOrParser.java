@@ -25,9 +25,9 @@ public class LogicalOrParser extends BinaryExprParser {
             public Value evaluate(ParseSession session) {
                 for (Node node : new Node[] { lhNode, rhNode }) {
                     if (node.evaluate(session).checkBoolean(session, "logical `or'"))
-                        return new Value(true);
+                        return new ConstValue(true);
                 }
-                return new Value(false);
+                return new ConstValue(false);
             }
         };
     }

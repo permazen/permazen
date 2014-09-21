@@ -34,56 +34,74 @@ public enum Op {
             if (target instanceof Map) {
                 final Map map = (Map)target;
                 final Object key = targetValue.get(session);
-                return new Value(map.get(key), new Setter() {
+                return new AbstractLValue() {
+                    @Override
+                    public Object get(ParseSession session) {
+                        return map.get(key);
+                    }
                     @Override
                     public void set(ParseSession session, Value value) {
                         final Object obj = value.get(session);
                         try {
                             map.put(key, obj);
                         } catch (RuntimeException e) {
-                            throw new EvalException("invalid map put operation", e);
+                            throw new EvalException("invalid map put operation"
+                              + (e.getMessage() != null ? ": " + e.getMessage() : ""), e);
                         }
                     }
-                });
+                };
             }
-
-            // Get array index
-            final int index = itemValue.checkIntegral(session, "array access");
 
             // Handle list
             if (target instanceof List) {
                 final List list = (List)target;
-                return new Value(list.get(index), new Setter() {
+                final int index = itemValue.checkIntegral(session, "list index");
+                return new AbstractLValue() {
+                    @Override
+                    public Object get(ParseSession session) {
+                        return list.get(index);
+                    }
                     @Override
                     public void set(ParseSession session, Value value) {
                         final Object obj = value.get(session);
                         try {
                             list.set(index, obj);
                         } catch (RuntimeException e) {
-                            throw new EvalException("invalid list set operation", e);
+                            throw new EvalException("invalid list set operation"
+                              + (e.getMessage() != null ? ": " + e.getMessage() : ""), e);
                         }
                     }
-                });
+                };
             }
 
-            // Try array
-            final Object element;
-            try {
-                element = Array.get(target, index);
-            } catch (IllegalArgumentException e) {
-                throw new EvalException("invalid array access operation on non-array", e);
-            }
-            return new Value(element, new Setter() {
+            // Assume it must be an array
+            final int index = itemValue.checkIntegral(session, "array index");
+            return new AbstractLValue() {
+                @Override
+                public Object get(ParseSession session) {
+                    try {
+                        return Array.get(target, index);
+                    } catch (IllegalArgumentException e) {
+                        throw new EvalException("invalid array access operation on non-array", e);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        throw new EvalException("array index out of bounds"
+                          + (e.getMessage() != null ? ": " + e.getMessage() : ""), e);
+                    }
+                }
                 @Override
                 public void set(ParseSession session, Value value) {
                     final Object obj = value.get(session);
                     try {
                         Array.set(target, index, obj);
-                    } catch (RuntimeException e) {
-                        throw new EvalException("invalid array set operation", e);
+                    } catch (IllegalArgumentException e) {
+                        throw new EvalException("invalid array set operation"
+                          + (e.getMessage() != null ? ": " + e.getMessage() : ""), e);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        throw new EvalException("array index out of bounds"
+                          + (e.getMessage() != null ? ": " + e.getMessage() : ""), e);
                     }
                 }
-            });
+            };
         }
     },
 
@@ -105,7 +123,7 @@ public enum Op {
     UNARY_PLUS(1, "+") {
         @Override
         Value apply(ParseSession session, Value value) {
-            return new Value(value.checkNumeric(session, "unary plus"));        // note: returned value is not an L-value
+            return new ConstValue(value.checkNumeric(session, "unary plus"));        // note: returned value is not an L-value
         }
     },
 
@@ -119,7 +137,7 @@ public enum Op {
     LOGICAL_NOT(1, "!") {
         @Override
         Value apply(ParseSession session, Value value) {
-            return new Value(!value.checkBoolean(session, "logical `not'"));
+            return new ConstValue(!value.checkBoolean(session, "logical `not'"));
         }
     },
 
@@ -240,21 +258,21 @@ public enum Op {
             final Object lval = lhs.get(session);
             final Object rval = rhs.get(session);
             if (lval == null || rval == null)
-                return new Value(lval == rval);
+                return new ConstValue(lval == rval);
             if (lval instanceof Boolean && rval instanceof Boolean)
-                return new Value((Boolean)lval == (Boolean)rval);
+                return new ConstValue((Boolean)lval == (Boolean)rval);
             if (lval instanceof Character && rval instanceof Character)
-                return new Value((Character)lval == (Character)rval);
+                return new ConstValue((Character)lval == (Character)rval);
             if (lval instanceof Number || rval instanceof Number)
                 return lhs.compare(session, rhs, Value.EQ);
-            return new Value(lval.equals(rval));
+            return new ConstValue(lval.equals(rval));
         }
     },
 
     NOT_EQUAL(2, "!=") {
         @Override
         Value apply(ParseSession session, Value lhs, Value rhs) {
-            return new Value(!(Boolean)Op.EQUAL.apply(session, lhs, rhs).get(session));
+            return new ConstValue(!(Boolean)Op.EQUAL.apply(session, lhs, rhs).get(session));
         }
     },
 
