@@ -357,7 +357,7 @@ public class Database {
                         if (firstAttempt)
                             throw new InconsistentDatabaseException("database contains invalid schema information", e);
                         else
-                            throw new InvalidSchemaException("schema is not valid", e);
+                            throw new InvalidSchemaException("schema is not valid: " + e.getMessage(), e);
                     }
                 }
 
