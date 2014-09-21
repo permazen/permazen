@@ -134,7 +134,7 @@ JSimpleDB sets and maps implement `NavigableSet` and `NavgiableMap`, and the JSi
 
 == Problem #4: Indexes ==
 
-Fundamental to any database is support for indexing. Indexing is simply the automated creation of derived information that makes it efficient to perform certain queries that would otherwise be too too slow. More precisely, whereas objects represent a mapping from object ID to property values, an index is a (sorted) mapping from property value(s) back to object ID.
+Fundamental to any database is support for indexing. Indexing is simply the automated creation of derived information that makes it efficient to perform certain queries that would otherwise be too slow. More precisely, whereas objects represent a mapping from object ID to property values, an index is a (sorted) mapping from property value(s) back to object ID.
 
 The Java language itself does not have any built-in notion of an "index". In regular Java, if for example you want to be able to efficiently search for `Person` objects by name, you will have to programmatically create and maintain an index on the `name` property yourself using `TreeMap` or whatever. In other words, you have to homebrew your own index. Since indexing is core to the function of databases, this leaves the question of how indexes should be exposed to Java.
 
