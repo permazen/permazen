@@ -39,6 +39,8 @@ If your application is written in Java, and you need to persist data onto disk, 
 
 So it's instructive to compare persistence layers by looking at these inherent problems and how they are addressed.
 
+Note that JPA does a great job solving the problem it's designed to solve: allow Java object-oriented access to an underlying SQL database. However, what's not always obvious until you are deep in the weeds trying to debug some hairy problem are the sacrifices JPA makes because it is based on SQL. When you free a persistence layer from that requirement, as JSimpleDB is, the experience at the Java level can be greatly improved.
+
 == Problem #1: Transactions ==
 
 Most persistence layers support a notion of transactions. From a Java programming point of view however, there is often minimal need to directly interact with transactions.
@@ -81,7 +83,56 @@ In addition, snapshot transactions have all of the functionality of normal trans
 
 In addition, if necessary you can create multiple snapshot transactions, and they will persist for as long as you hold a refernence to them. The support for copying objects between a "real" transaction and snapshot transaction works in general between any two transactions, whether real or snapshot.
 
-== Problem #3: Indexes ==
+== Problem #3: Relationships and Collections ==
+
+All databases must support some notion of relationships, or "pointers", between database records. Pointers in some form are required to represent one-to-one, one-to-many, many-to-one, and many-to-many relationships. For example, if a database stores readings for water meters, there must be some pointer that links a meter reading to the associated water meter, and in this case the relationship is many-to-one, because a single meter can have multiple readings.
+
+JPA and JSimpleDB represent relationships and collections to the programmer in a similar way, though with important differences. Both use normal Java object references to represent relationships, and normal Java `Set`, `List`, and `Map` interfaces to represent collections. These references and collection classes are meant to be Java reflections of the underlying database reality.
+
+However, the JPA representation, as a reflection of the underlying database reality, is both less precise and less accurate than JSimpleDB's.
+
+=== Settable Collection Fields ===
+
+JPA allows a programmer to set a collection field to `null`, e.g., `meter.setReadings(null)`, but this makes no sense - even though the relationship can sometimes be empty, it always exists. In addition, in newly created objects the programmer must remember to initialize the field (whereas in objects returned by queries, JPA will populate the field automatically).
+
+These problems simply don't exist with JSimpleDB, because collection fields have only getter methods, are declared as `abstract` methods, and JSimpleDB guarantees that the returned value is never null.
+
+=== The "inverse" problem ===
+
+For collection relationships between entities, JPA defines a notion of the "forward" direction and the "inverse" direction. For example, you might be able to access both `parent.getChildren()` and `child.getParent()`. In this case `child -> parent` is the forward direction and `parent -> child` is the "inverse" direction. What this really means is that the `parent -> child` relationship represented by `parent.getChildren()` is a phantom that does not necessarily represent reality. In the underlying database, there is only one pointer - from child to parent, but JPA presents two versions of it.
+
+Only one can be right, so it begs the question: what happens when you say both `parent1.getChildren().add(child)` and `child.setParent(parent2)` where `parent1 != parent2`? (Answer: `parent2` becomes the parent.) This creates an opportunity for hard-to-find bugs when application code somewhere forgets to update both sides of the relationship.
+
+JSimpleDB solves this problem by not creating two representations of the same relationship in the first place. With JSimpleDB only the `child -> parent` database relationship (the "real" one) is defined. To access the "inverse" direction from `parent -> child`, you query the index associated with that relationship:
+
+<code language="java">
+    // class Child
+    
+    @JField(storageId = 10)
+    public abstract Parent getParent();
+    public abstract void setParent(Parent parent);
+    
+    // class Parent
+        
+    @IndexQuery("Child.parent")
+    protected abstract NavigableMap<Parent, NavigableSet<Child>> queryChildren();
+     
+    public NavigableSet<Child> getChildren() {
+        final NavigableSet<Person> kids = this.queryChildren().get(this);
+        return kids != null ? kids : NavigableSets.empty();
+    }</code>
+
+What gets returned from `parent.getChildren()` is not a copy or snapshot of the relationship, it is a real-time view into the relationship. Because `child.getParent()` and `parent.getChildren()` are accessing the same data, it's not possible for them to get out of sync. Invoking `child.setParent(parent1)` always means that `parent1.getChildren().contains(child)` becomes immediately true.
+
+=== Collections and Sorting ===
+
+JPA sets and maps normally implement the `Set` and `Map` interfaces. You can improve this to `SortedSet` and `SortedMap` with the right magic annotations and caveats, such as having to ensure your Java sort order matches your database sort order.
+
+However the semantics that databases actually provide are those of the more powerful `NavigableSet` and `NavgiableMap` interfaces. For example, these allow you to view the collection in reverse order.
+
+JSimpleDB sets and maps implement `NavigableSet` and `NavgiableMap`, and the JSimpleDB type system guarantees that the Java ordering (which is defined by the type) always matches the database ordering.
+
+== Problem #4: Indexes ==
 
 Fundamental to any database is support for indexing. Indexing is simply the automated creation of derived information that makes it efficient to perform certain queries that would otherwise be too too slow. More precisely, whereas objects represent a mapping from object ID to property values, an index is a (sorted) mapping from property value(s) back to object ID.
 
@@ -91,7 +142,7 @@ JPA does not directly provide access to indexes; neither does SQL itself. Instea
 
 In contrast, JSimpleDB provides a direct Java-level view into your defined indexes using the `NavigableMap` interface. As a result, JSimpleDB doesn't have or need a "query language". All queries are performed using normal Java, and their efficiency (or lack thereof) will be obvious when looking at the code.
 
-== Problem #4: Database Types ==
+== Problem #5: Database Types ==
 
 The first inherent problem with persisting Java objects in any database is the potential for mismatch between Java types and the database's supported types. For example, you can map a `java.util.Date` property to a database `TIMESTAMP` column, but those types are not the same; e.g., MySQL does not support `TIMESTAMP` value prior to `1970-01-01 00:00:01`. You can map your object's `String` properties to `VARCHAR()` columns, but in MySQL the total length of those strings will be limited to 65,535 bytes. This kind of type mismatch creates lots of opportunities for subtle bugs.
 
@@ -101,7 +152,7 @@ JPA has no solution to the type mismatch problem because it only works with SQL 
 
 JSimpleDB supports Java types precisely and sorts them naturally. It requires that all types have a well defined range of values, sort order, and equality semantics that behave identically both for Java instances and database-encoded values. JSimpleDB allows you to define your own custom types; these are first-class types that may be indexed, form collections, etc.
 
-== Problem #5: Database Schema and Upgrades ==
+== Problem #6: Database Schema and Upgrades ==
 
 A more challenging inherent problem with database persistence, no matter what language the application is written in, is that application code and the structure of the data it persists changes and evolves over time. The challenge is how to safely manage changes to the structure of data when the application is upgraded.
 
@@ -113,7 +164,7 @@ Instead of going backward into schemaless anarchy, the more correct fix for the 
 
 JSimpleDB does exactly this, and it does it (as always) in a Java-centric way. All objects are versioned, and you are allowed to change your object hierarchy any way you want. When an new application version encounters an object with an older schema version, the object is notified via any `@OnVersionChange`-annotated methods with all of the information it needs to migrate the object. The rest of the application need not be aware that any schema change has occurred. Object are also indexed by version, which facilitates schema migration by, for example, making it easy to write an object version migration background thread.
 
-== Problem #6: Command Line Access ==
+== Problem #7: Command Line Access ==
 
 The next inherent problem with Java and persistence is that Java is not the most convenient tool for various administration tasks relating to databases. Some kind of command line tool is needed that allows _ad hoc_ data manipulation, queries, dump/restore, etc.
 
@@ -129,7 +180,7 @@ It can evaluate arbitrary Java expressions, including those that invoke your own
 
 In addition, you can also extend the functionality of the command line tool with your own Java-defined commands and functions, even further aligning the CLI utility with your Java application. Conversely, all of the CLI functionality can be included in your own application if desired.
 
-== Problem #7: GUI Tools ==
+== Problem #8: GUI Tools ==
 
 In addition to command line tools, for most databases there is some graphical user interface (GUI) tool as well. These tools are more or less the GUI equivalent of the corresponding CLI tools. Therefore, they have the same advantages and disadvantages. In particular, like the CLI tools, they are also detached from the world of Java.
 
