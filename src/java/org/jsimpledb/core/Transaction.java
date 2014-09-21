@@ -1123,6 +1123,8 @@ public class Transaction {
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws IllegalArgumentException if {@code id} is null
+     * @throws TypeNotInSchemaException if the object version could not be updated because the object's type
+     *   does not exist in the schema version associated with this transaction
      * @see #getSchemaVersion
      */
     public synchronized boolean updateSchemaVersion(ObjId id) {
@@ -1170,7 +1172,7 @@ public class Transaction {
         try {
             newType = targetVersion.getSchemaItem(id.getStorageId(), ObjType.class);
         } catch (IllegalArgumentException e) {
-            throw new InconsistentDatabaseException("object " + id + " has an unrecognized storage ID", e);
+            throw (TypeNotInSchemaException)new TypeNotInSchemaException(id, newVersion).initCause(e);
         }
 
         // Gather removed fields' values here for user migration
@@ -1415,6 +1417,8 @@ public class Transaction {
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
+     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
      */
     public synchronized Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
 
@@ -1456,6 +1460,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
+     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -1538,6 +1544,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
+     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized long readCounterField(ObjId id, int storageId, boolean updateVersion) {
@@ -1580,6 +1588,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
+     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized void writeCounterField(final ObjId id, final int storageId, final long value, final boolean updateVersion) {
@@ -1624,6 +1634,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
+     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized void adjustCounterField(ObjId id, int storageId, long offset, boolean updateVersion) {
@@ -1666,6 +1678,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists in the object
+     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
     public NavigableSet<?> readSetField(ObjId id, int storageId, boolean updateVersion) {
@@ -1686,6 +1700,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists in the object
+     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
     public List<?> readListField(ObjId id, int storageId, boolean updateVersion) {
@@ -1706,6 +1722,8 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists in the object
+     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
     public NavigableMap<?, ?> readMapField(ObjId id, int storageId, boolean updateVersion) {
