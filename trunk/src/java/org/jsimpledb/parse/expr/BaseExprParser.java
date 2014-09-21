@@ -20,6 +20,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -273,17 +274,47 @@ public class BaseExprParser implements Parser<Node> {
                 }
 
                 // Handle property access
-                if (ctx.tryPattern("\\s*\\(") == null) {
+                if (ctx.tryPattern("\\s*\\(") == null) {                                        // not a method call
                     final String propertyName = member;
                     final Node target = node;
-                    final Class<?> cl2 = cl;
+
+                    // Handle "class" when preceded by a class name
+                    if (cl != null && propertyName.equals("class")) {
+                        node = new LiteralNode(cl);
+                        break;
+                    }
+
+                    // Handle static fields
+                    if (cl != null) {
+
+                        // Get static field
+                        final Field field;
+                        try {
+                            field = cl.getField(propertyName);
+                        } catch (NoSuchFieldException e) {
+                            throw new ParseException(ctx, "class `" + cl.getName() + "' has no field named `"
+                              + propertyName + "'", e);
+                        }
+                        if ((field.getModifiers() & Modifier.STATIC) == 0) {
+                            throw new ParseException(ctx, "field `" + propertyName + "' in class `" + cl.getName()
+                              + "' is not a static field");
+                        }
+
+                        // Return node accessing it
+                        final Class<?> cl2 = cl;
+                        node = new Node() {
+                            @Override
+                            public Value evaluate(ParseSession session) {
+                                return BaseExprParser.this.evaluateStaticField(session, cl2, field);
+                            }
+                        };
+                        break;
+                    }
+
+                    // Must be object property access
                     node = new Node() {
                         @Override
                         public Value evaluate(ParseSession session) {
-                            if (cl2 != null) {
-                                return new Value(propertyName.equals("class") ?
-                                  cl2 : BaseExprParser.this.readStaticField(cl2, propertyName));
-                            }
                             return BaseExprParser.this.evaluateProperty(session, target.evaluate(session), propertyName);
                         }
                     };
@@ -383,16 +414,32 @@ public class BaseExprParser implements Parser<Node> {
         return params;
     }
 
-    private Object readStaticField(Class<?> cl, String name) {
-        try {
-            return cl.getField(name).get(null);
-        } catch (NoSuchFieldException e) {
-            throw new EvalException("no field `" + name + "' found in class `" + cl.getName() + "'", e);
-        } catch (NullPointerException e) {
-            throw new EvalException("field `" + name + "' in class `" + cl.getName() + "' is not a static field");
-        } catch (Exception e) {
-            throw new EvalException("error reading field `" + name + "' in class `" + cl.getName() + "': " + e, e);
-        }
+    private Value evaluateStaticField(ParseSession session, final Class<?> cl, final Field field) {
+        return new Value(null, new Setter() {
+            @Override
+            public void set(ParseSession session, Value value) {
+                final Object obj = value.get(session);
+                try {
+                    field.set(null, obj);
+                } catch (IllegalArgumentException e) {
+                    throw new EvalException("invalid " + Value.describeType(obj) + " for static field `"
+                      + field.getName() + "' in class `" + cl.getName() + "'", e);
+                } catch (Exception e) {
+                    throw new EvalException("error writing static field `" + field.getName()
+                      + "' in class `" + cl.getName() + "': " + e, e);
+                }
+            }
+        }) {
+            @Override
+            public Object get(ParseSession session) {
+                try {
+                    return field.get(null);
+                } catch (Exception e) {
+                    throw new EvalException("error reading static field `" + field.getName()
+                      + "' in class `" + cl.getName() + "': " + e, e);
+                }
+            }
+        };
     }
 
     private Value evaluateProperty(ParseSession session, Value value, final String name) {
@@ -426,7 +473,7 @@ public class BaseExprParser implements Parser<Node> {
                         try {
                             ((JSimpleField)jfield).setValue(JTransaction.getCurrent(), jobj, obj);
                         } catch (IllegalArgumentException e) {
-                            throw new EvalException("invalid value of type " + (obj != null ? obj.getClass().getName() : "null")
+                            throw new EvalException("invalid " + Value.describeType(obj)
                               + " for field `" + jfield.getName() + "'", e);
                         }
                     }
@@ -456,15 +503,14 @@ public class BaseExprParser implements Parser<Node> {
 
             // Return value if found
             if (field != null) {
-                return new Value(field instanceof SimpleField ? new Setter() {
+                return new Value(null, field instanceof SimpleField ? new Setter() {
                     @Override
                     public void set(ParseSession session, Value value) {
                         final Object obj = value.get(session);
                         try {
                             session.getTransaction().writeSimpleField(id, field.getStorageId(), obj, false);
                         } catch (IllegalArgumentException e) {
-                            throw new EvalException("invalid value of type " + (obj != null ? obj.getClass().getName() : "null")
-                              + " for " + field, e);
+                            throw new EvalException("invalid " + Value.describeType(obj) + " for " + field, e);
                         }
                     }
                 } : null) {
