@@ -1071,12 +1071,13 @@ public class JTransaction {
      *
      * <p>
      * This method provides the same functionality as the {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery}
-     * annotation with runtime flexibility while still remaining type-safe.
+     * annotation with runtime flexibility, while still remaining type-safe.
      * </p>
      *
      * <p>
-     * This method returns an index containing {@link JObject}s; for complex fields, additional information associated
-     * with the particular index is available via {@link #queryListFieldEntries(Class, String, Class) queryListFieldEntries()},
+     * This method returns an index containing {@link JObject}s; for complex fields (other than {@link Set} fields),
+     * additional information associated with the particular index is available via
+     * {@link #queryListFieldEntries(Class, String, Class) queryListFieldEntries()},
      * {@link #queryMapFieldKeyEntries(Class, String, Class, Class) queryMapFieldKeyEntries()}, and
      * {@link #queryMapFieldValueEntries(Class, String, Class, Class) queryMapFieldValueEntries()}.
      * </p>
@@ -1103,8 +1104,8 @@ public class JTransaction {
      * </tr>
      * <tr>
      *  <td><code>valueType</code></td>
-     *  <td>The indexed field's type</td>
-     *  <td>{@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} method's {@link NavigableMap} return type key type</td>
+     *  <td>The type of the indexed field</td>
+     *  <td>Method's return type (i.e., {@link NavigableMap}) key type</td>
      * </tr>
      * </table>
      * </div>
