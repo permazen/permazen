@@ -39,7 +39,7 @@ public class InstanceofParser implements Parser<Node> {
         return new Node() {
             @Override
             public Value evaluate(final ParseSession session) {
-                return new Value(cl.isInstance(node.evaluate(session).get(session)));
+                return new ConstValue(cl.isInstance(node.evaluate(session).get(session)));
             }
         };
     }

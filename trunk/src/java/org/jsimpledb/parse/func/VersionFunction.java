@@ -11,6 +11,7 @@ import org.jsimpledb.JObject;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
@@ -44,7 +45,7 @@ public class VersionFunction extends SimpleFunction {
 
         // Return version
         try {
-            return new Value(session.getTransaction().getSchemaVersion(id));
+            return new ConstValue(session.getTransaction().getSchemaVersion(id));
         } catch (DeletedObjectException e) {
             throw new EvalException("invalid version() operation on non-existent object " + id);
         }

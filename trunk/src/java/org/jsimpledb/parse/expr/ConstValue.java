@@ -10,24 +10,29 @@ package org.jsimpledb.parse.expr;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * A parsed literal value.
+ * A constant, read-only {@link Value}.
  */
-public class LiteralNode implements Node {
+public final class ConstValue extends AbstractValue {
 
     private final Object value;
 
-    public LiteralNode(Object value) {
+    /**
+     * Constructor.
+     *
+     * @param value constant result of evaluating this value
+     */
+    public ConstValue(Object value) {
         this.value = value;
     }
 
     @Override
-    public Value evaluate(ParseSession session) {
-        return new ConstValue(this.value);
+    public Object get(ParseSession session) {
+        return this.value;
     }
 
     @Override
     public String toString() {
-        return "LiteralNode[" + this.value + "]";
+        return "ConstValue[" + this.value + "]";
     }
 
     @Override
@@ -36,7 +41,7 @@ public class LiteralNode implements Node {
             return true;
         if (obj == null || obj.getClass() != this.getClass())
             return false;
-        final LiteralNode that = (LiteralNode)obj;
+        final ConstValue that = (ConstValue)obj;
         return this.value != null ? this.value.equals(that.value) : that.value == null;
     }
 

@@ -14,6 +14,7 @@ import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.SpaceParser;
+import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.IdentNode;
@@ -85,7 +86,7 @@ public class AllFunction extends AbstractFunction {
 
         // Handle null
         if (param == null) {
-            return new Value(null) {
+            return new AbstractValue() {
                 @Override
                 public Object get(ParseSession session) {
                     return session.hasJSimpleDB() ?
@@ -104,7 +105,7 @@ public class AllFunction extends AbstractFunction {
             if (obj instanceof Number)
                 return this.getAll(session, ((Number)obj).intValue());
             if (obj instanceof Class && session.hasJSimpleDB()) {
-                return new Value(null) {
+                return new AbstractValue() {
                     @Override
                     public Object get(ParseSession session) {
                         return JTransaction.getCurrent().getAll((Class<?>)obj);
@@ -122,7 +123,7 @@ public class AllFunction extends AbstractFunction {
 
         // Handle core-only case
         if (!session.hasJSimpleDB()) {
-            return new Value(null) {
+            return new AbstractValue() {
                 @Override
                 public Object get(ParseSession session) {
                     try {
@@ -142,7 +143,7 @@ public class AllFunction extends AbstractFunction {
             throw new EvalException("no type with storage ID " + storageId + " exists in schema version "
               + JTransaction.getCurrent().getJSimpleDB().getLastVersion());
         }
-        return new Value(null) {
+        return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
                 return JTransaction.getCurrent().getAll(jclass);

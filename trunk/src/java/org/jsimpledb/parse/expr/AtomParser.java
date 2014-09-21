@@ -153,13 +153,13 @@ public class AtomParser implements Parser<Node> {
 
         // Try to match variable
         if (ctx.tryLiteral("$")) {
-            final Matcher varMatcher = ctx.tryPattern(VarNode.NAME_PATTERN);
+            final Matcher varMatcher = ctx.tryPattern(AbstractNamed.NAME_PATTERN);
             if (varMatcher == null)
                 throw new ParseException(ctx).addCompletions(session.getVars().keySet());
             final String name = varMatcher.group();
             if (ctx.isEOF() && complete)
                 throw new ParseException(ctx).addCompletions(ParseUtil.complete(session.getVars().keySet(), name));
-            return new VarNode(name);
+            return new ConstNode(new VarValue(name));
         }
 
         // Try to match object literal
@@ -168,7 +168,7 @@ public class AtomParser implements Parser<Node> {
             return !session.hasJSimpleDB() ? new LiteralNode(id) : new Node() {
                 @Override
                 public Value evaluate(ParseSession session) {
-                    return new Value(JTransaction.getCurrent().getJObject(id));
+                    return new ConstValue(JTransaction.getCurrent().getJObject(id));
                 }
             };
         }

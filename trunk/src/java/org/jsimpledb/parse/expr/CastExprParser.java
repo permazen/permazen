@@ -45,10 +45,10 @@ public class CastExprParser implements Parser<Node> {
                         if (obj == null)
                             throw new EvalException("invalid cast of null value to " + className);
                         if (primitive == Primitive.BOOLEAN)
-                            return new Value(new Value(obj).checkBoolean(session, "cast to " + className));
+                            return new ConstValue(new ConstValue(obj).checkBoolean(session, "cast to " + className));
                         final Number num = obj instanceof Character ?
-                          (int)(Character)obj : new Value(obj).checkNumeric(session, "cast to " + className);
-                        return new Value(primitive.visit(new PrimitiveSwitch<Object>() {
+                          (int)(Character)obj : new ConstValue(obj).checkNumeric(session, "cast to " + className);
+                        return new ConstValue(primitive.visit(new PrimitiveSwitch<Object>() {
                             @Override
                             public Object caseVoid() {
                                 throw new RuntimeException("internal error");
@@ -94,7 +94,7 @@ public class CastExprParser implements Parser<Node> {
                         throw new EvalException("unknown class `" + className + "'");     // TODO: tab-completions
                     if (obj != null && !cl.isInstance(obj))
                         throw new EvalException("can't cast object of type " + obj.getClass().getName() + " to " + className);
-                    return new Value(obj);
+                    return new ConstValue(obj);
                 }
             };
         }

@@ -7,12 +7,10 @@
 
 package org.jsimpledb.parse.expr;
 
-import org.jsimpledb.parse.ParseSession;
-
 /**
  * Runtime value representing a session variable.
  */
-public class VarNode extends AbstractNamed implements Node {
+public class VarNode extends ConstNode {
 
     /**
      * Constructor.
@@ -22,30 +20,14 @@ public class VarNode extends AbstractNamed implements Node {
      * @throws IllegalArgumentException if name is not a valid Java identifier
      */
     public VarNode(String name) {
-        super(name);
+        super(new VarValue(name));
     }
 
-// Node
-
-    @Override
-    public Value evaluate(ParseSession session) {
-        return new DynamicValue() {
-
-            @Override
-            public Object get(ParseSession session) {
-                final Value value = session.getVars().get(VarNode.this.name);
-                if (value == null)
-                    throw new EvalException("variable `" + name + "' is not defined");
-                return value.get(session);
-            }
-
-            @Override
-            public void set(ParseSession session, Value value) {
-                if (value == null)
-                    throw new IllegalArgumentException("null value");
-                session.getVars().put(VarNode.this.name, value);
-            }
-        };
+    /**
+     * Get the variable name.
+     */
+    public String getName() {
+        return ((VarValue)this.evaluate(null)).getName();
     }
 }
 

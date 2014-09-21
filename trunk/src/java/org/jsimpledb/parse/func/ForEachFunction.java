@@ -10,6 +10,7 @@ package org.jsimpledb.parse.func;
 import java.util.Map;
 
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
@@ -48,7 +49,7 @@ public class ForEachFunction extends ApplyExprFunction {
         if (!(items instanceof Iterable))
             throw new EvalException("invalid foreach() operation over non-Iterable object of type " + items.getClass().getName());
         for (Object item : ((Iterable<?>)items))
-            this.evaluate(session, params.getVariable(), new Value(item), params.getExpr());
+            this.evaluate(session, params.getVariable(), new ConstValue(item), params.getExpr());
 
         // Done
         return Value.NO_VALUE;

@@ -10,14 +10,14 @@ package org.jsimpledb.parse.expr;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Provided by {@link Value}s that are capable of assignment.
+ * Extension of the {@link Value} interface for instances that are capable of assignment.
  */
-public interface Setter {
+public interface LValue extends Value {
 
     /**
-     * Make assignment.
+     * Make assignment to this instance.
      *
-     * @param value new value
+     * @param value new value for this instance
      * @throws IllegalArgumentException if {@code value} is null or otherwise invalid
      */
     void set(ParseSession session, Value value);

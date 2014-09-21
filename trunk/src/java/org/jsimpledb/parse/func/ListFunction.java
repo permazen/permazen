@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import java.util.Arrays;
 
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.Value;
 
 @Function
@@ -33,7 +34,7 @@ public class ListFunction extends SimpleFunction {
 
     @Override
     protected Value apply(final ParseSession session, Value[] params) {
-        return new Value(Lists.transform(Arrays.asList(params), new Value.GetFunction(session)));
+        return new ConstValue(Lists.transform(Arrays.asList(params), new Value.GetFunction(session)));
     }
 }
 

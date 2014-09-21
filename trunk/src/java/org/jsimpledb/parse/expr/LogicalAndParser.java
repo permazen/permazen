@@ -25,9 +25,9 @@ public class LogicalAndParser extends BinaryExprParser {
             public Value evaluate(ParseSession session) {
                 for (Node node : new Node[] { lhNode, rhNode }) {
                     if (!node.evaluate(session).checkBoolean(session, "logical `and'"))
-                        return new Value(false);
+                        return new ConstValue(false);
                 }
-                return new Value(true);
+                return new ConstValue(true);
             }
         };
     }
