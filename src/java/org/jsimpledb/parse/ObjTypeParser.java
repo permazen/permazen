@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjType;
+import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaObject;
@@ -58,18 +59,21 @@ public class ObjTypeParser implements Parser<ObjType> {
         final String typeName = matcher.group(1);
         final String versionString = matcher.group(3);
 
-        // Get name index
+        // Get specified schema version and corresponding name index
+        final SchemaVersion version;
         final NameIndex nameIndex;
         if (versionString != null) {
-            final int version;
             try {
-                nameIndex = new NameIndex(tx.getSchema().getVersion(Integer.parseInt(versionString)).getSchemaModel());
+                version = tx.getSchema().getVersion(Integer.parseInt(versionString));
             } catch (IllegalArgumentException e) {
                 ctx.setIndex(startIndex);
                 throw new ParseException(ctx, "invalid object type schema version `" + versionString + "'");
             }
-        } else
+            nameIndex = new NameIndex(version.getSchemaModel());
+        } else {
+            version = tx.getSchemaVersion();
             nameIndex = session.getNameIndex();
+        }
 
         // Find type by name
         final Set<SchemaObject> schemaObjects = nameIndex.getSchemaObjects(typeName);
@@ -78,7 +82,7 @@ public class ObjTypeParser implements Parser<ObjType> {
             throw new ParseException(ctx, "unknown object type `" + typeName + "'")
                .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectNames(), typeName));
         case 1:
-            return tx.getSchemaVersion().getSchemaItem(schemaObjects.iterator().next().getStorageId(), ObjType.class);
+            return version.getSchemaItem(schemaObjects.iterator().next().getStorageId(), ObjType.class);
         default:
             throw new ParseException(ctx, "ambiguous object type `" + typeName + "': there are multiple matching object types"
               + " having storage IDs " + Lists.transform(Lists.newArrayList(schemaObjects),
