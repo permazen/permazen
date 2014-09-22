@@ -159,7 +159,7 @@ public class AtomParser implements Parser<Node> {
             final String name = varMatcher.group();
             if (ctx.isEOF() && complete)
                 throw new ParseException(ctx).addCompletions(ParseUtil.complete(session.getVars().keySet(), name));
-            return new ConstNode(new VarValue(name));
+            return new VarNode(name);
         }
 
         // Try to match object literal
