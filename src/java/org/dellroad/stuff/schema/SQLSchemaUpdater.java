@@ -44,7 +44,7 @@ import javax.sql.DataSource;
 public class SQLSchemaUpdater extends AbstractSchemaUpdater<DataSource, Connection> {
 
     /**
-     * Default nefault name of the table that tracks schema updates, <code>{@value}</code>.
+     * Default name of the table that tracks schema updates, <code>{@value}</code>.
      */
     public static final String DEFAULT_UPDATE_TABLE_NAME = "SchemaUpdate";
 
