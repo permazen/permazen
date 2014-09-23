@@ -1,4 +1,50 @@
 
+- Add support for XA transactions
+    - But only if KVStore supports them
+
+- Annotation enhancements:
+    - Allow storageId's to default to zero; if so, auto-generate them:
+        - Object type: hash object type name
+        - Complex field: hash field name+field type (i.e., "list", "set", or "map")
+        - Simple field: hash field name+field type
+            - For sub-fields, name is "parent.element", "parent.key", or "parent.value"
+        - Hash to a value in the range 0xfb-0x100fa (so max 3 bytes encoded)
+    - @JSimpleClass: add autoProperties() default true
+        - All bean properties not marked @JTransient are added automatically
+    - @JSimpleClass: add abstract() default false
+        - If true then no corresponding object type is generated
+        - Alows autoProperties to work for subtypes without creating supertype
+
+- Bug: JSimpleDB reference field's target type can change across schema
+  versions, resulting in possible ClassCastExceptions at runtime.
+    - Core API changes:
+        - Add optional <ReferenceField> child tag <AllowedStorageIds> that limits
+          storage IDs of referenced object to the specified list.
+        - Enforce with IllegalReferenceException when:
+            - Writing reference field
+            - Upgrading object version
+                - For collection fields, need to iterate only for un-indexed map value refs
+    - JSimpleDB changes:
+        - Add "plain" JObject class to represent objects in a prior schema version
+          for which the current schema has no representing Java type; these objects
+          will only appear as "old" fields given to a @OnVersionChange method
+            - This class should not auto-upgrade object when fields accessed
+        - ReferenceConverter for unknown types, fallback to "plain" JObject instead
+          of throwing exception
+        - Generate schemas to include <AllowedStorageIds> list containing storage IDs
+          of all object types that are sub-types of the reference's Java type
+        - On every new JSimpleDB transaction, for all reference fields:
+            - Calculate union of all storage ID's possibly referenced by the reference
+              field in ALL schema versions (using <AllowedStorageIds> lists)
+            - Ensure Java type of reference is super-type of all these
+                - For unknown prior schema version storage IDs, substitute JObject.class
+
+- Build and distribute binary distribution
+    - lib subdirectory with dependencies
+    - add Main-Class and Classpath manifest headers to CLI and GUI jars
+    - Example database and commands to run CLI and GUI
+    - README's etc.
+
 - Expression parsing
     - Aggregate functions: min(), max(), avg(), sum()
 
