@@ -13,7 +13,7 @@ package org.jsimpledb.core;
  * @see Transaction#updateSchemaVersion Transaction.updateSchemaVersion()
  */
 @SuppressWarnings("serial")
-public class TypeNotInSchemaException extends DatabaseException {
+public class TypeNotInSchemaVersionException extends DatabaseException {
 
     private final ObjId id;
     private final int version;
@@ -21,14 +21,14 @@ public class TypeNotInSchemaException extends DatabaseException {
     /**
      * Constructor.
      */
-    public TypeNotInSchemaException(ObjId id, int version) {
+    public TypeNotInSchemaVersionException(ObjId id, int version) {
         this(id, version, "no object type with storage ID " + id.getStorageId() + " exists in database schema version " + version);
     }
 
     /**
      * Constructor.
      */
-    public TypeNotInSchemaException(ObjId id, int version, String message) {
+    public TypeNotInSchemaVersionException(ObjId id, int version, String message) {
         super(message);
         this.id = id;
         this.version = version;

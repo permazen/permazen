@@ -56,10 +56,11 @@ public class DroppedTypeTest extends TestSupport {
 
         tx.readSimpleField(foo, 3, true);
 
+        tx.readSimpleField(bar, 4, false);
         try {
             tx.readSimpleField(bar, 4, true);
             assert false;
-        } catch (TypeNotInSchemaException e) {
+        } catch (TypeNotInSchemaVersionException e) {
             // expected
         }
 
