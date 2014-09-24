@@ -9,6 +9,16 @@ package org.jsimpledb;
 
 import org.jsimpledb.core.EnumValue;
 
+/**
+ * Thrown when an orphaned {@link Enum} value that cannot be mapped is encountered.
+ *
+ * <p>
+ * This exception is thrown when a field having {@link Enum} type is read, but the previously stored {@link Enum} value
+ * no longer exists in the newer {@link Enum} type associated with the field, and it cannot be mapped by name or ordinal.
+ * </p>
+ *
+ * @see EnumConverter
+ */
 @SuppressWarnings("serial")
 public class UnmatchedEnumException extends JSimpleDBException {
 
