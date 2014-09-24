@@ -1123,7 +1123,7 @@ public class Transaction {
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws IllegalArgumentException if {@code id} is null
-     * @throws TypeNotInSchemaException if the object version could not be updated because the object's type
+     * @throws TypeNotInSchemaVersionException if the object version could not be updated because the object's type
      *   does not exist in the schema version associated with this transaction
      * @see #getSchemaVersion
      */
@@ -1172,7 +1172,7 @@ public class Transaction {
         try {
             newType = targetVersion.getSchemaItem(id.getStorageId(), ObjType.class);
         } catch (IllegalArgumentException e) {
-            throw (TypeNotInSchemaException)new TypeNotInSchemaException(id, newVersion).initCause(e);
+            throw (TypeNotInSchemaVersionException)new TypeNotInSchemaVersionException(id, newVersion).initCause(e);
         }
 
         // Gather removed fields' values here for user migration
@@ -1417,7 +1417,7 @@ public class Transaction {
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
-     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      */
     public synchronized Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
@@ -1460,7 +1460,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
      * @throws IllegalArgumentException if {@code id} is null
@@ -1544,7 +1544,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -1588,7 +1588,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -1633,8 +1633,9 @@ public class Transaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -1678,7 +1679,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -1700,7 +1701,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -1722,7 +1723,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists in the object
-     * @throws TypeNotInSchemaException {@code updateVersion} is true and the object could not be updated because
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      * @throws IllegalArgumentException if {@code id} is null
      */
