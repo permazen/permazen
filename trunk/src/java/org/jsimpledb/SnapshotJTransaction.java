@@ -59,8 +59,8 @@ public class SnapshotJTransaction extends JTransaction {
         super(jtx.jdb, jtx.tx.createSnapshotTransaction(), validationMode);
         this.jobjectCache = new JObjectCache(jtx.jdb) {
             @Override
-            protected JObject instantiate(JClass<?> jclass, ObjId id) throws Exception {
-                return (JObject)jclass.getSnapshotConstructor().newInstance(id, SnapshotJTransaction.this);
+            protected JObject instantiate(ClassGenerator<?> classGenerator, ObjId id) throws Exception {
+                return (JObject)classGenerator.getSnapshotConstructor().newInstance(id, SnapshotJTransaction.this);
             }
         };
     }

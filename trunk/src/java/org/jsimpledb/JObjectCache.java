@@ -85,7 +85,6 @@ abstract class JObjectCache {
      */
     void registerJObject(JObject jobj) {
 
-        // Sanity check
         // Are we currently instantiating this JObject?
         if (jobj == null)
             return;
@@ -104,10 +103,11 @@ abstract class JObjectCache {
 
     private JObject createJObject(ObjId id) throws Exception {
 
-        // Get JClass
+        // Get ClassGenerator
         final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
         if (jclass == null)
             throw new UnknownTypeException(id, this.jdb.version);
+        final ClassGenerator<?> classGenerator = jclass.getClassGenerator();
 
         // Set up currently instantiating objects map, if not already set up
         HashMap<ObjId, JObject> currentInvocations = this.instantiating.get();
@@ -123,7 +123,7 @@ abstract class JObjectCache {
 
         // Instantiate new JObject
         try {
-            return this.instantiate(jclass, id);
+            return this.instantiate(classGenerator, id);
         } finally {
             if (cleanup)
                 this.instantiating.remove();
@@ -132,6 +132,6 @@ abstract class JObjectCache {
         }
     }
 
-    protected abstract JObject instantiate(JClass<?> jclass, ObjId id) throws Exception;
+    protected abstract JObject instantiate(ClassGenerator<?> classGenerator, ObjId id) throws Exception;
 }
 

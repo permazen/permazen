@@ -82,8 +82,8 @@ public class JSimpleDB {
     final int version;
     final JObjectCache jobjectCache = new JObjectCache(this) {
         @Override
-        protected JObject instantiate(JClass<?> jclass, ObjId id) throws Exception {
-            return (JObject)jclass.getConstructor().newInstance(id);
+        protected JObject instantiate(ClassGenerator<?> classGenerator, ObjId id) throws Exception {
+            return (JObject)classGenerator.getConstructor().newInstance(id);
         }
     };
 
