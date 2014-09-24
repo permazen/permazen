@@ -9,7 +9,6 @@ package org.jsimpledb;
 
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +25,6 @@ import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaObject;
@@ -45,6 +43,7 @@ public class JClass<T> extends JSchemaObject {
 
     final JSimpleDB jdb;
     final TypeToken<T> typeToken;
+    final ClassGenerator<T> classGenerator;
     final TreeMap<Integer, JField> jfields = new TreeMap<>();
     final TreeMap<String, JField> jfieldsByName = new TreeMap<>();
 
@@ -56,10 +55,6 @@ public class JClass<T> extends JSchemaObject {
     Set<IndexQueryScanner<T>.MethodInfo> indexQueryMethods;
 
     int[] subtypeStorageIds;
-    Class<? extends T> subclass;
-    Class<? extends T> snapshotSubclass;
-    Constructor<? extends T> constructor;
-    Constructor<? extends T> snapshotConstructor;
 
     /**
      * Constructor.
@@ -79,46 +74,12 @@ public class JClass<T> extends JSchemaObject {
             throw new IllegalArgumentException("null name");
         this.jdb = jdb;
         this.typeToken = typeToken;
+        this.classGenerator = new ClassGenerator<T>(this);
     }
 
-    // Get generated subclass' constructor
-    Constructor<? extends T> getConstructor() {
-        if (this.constructor == null) {
-            try {
-                this.constructor = this.getSubclass().getConstructor(ObjId.class);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("internal error", e);
-            }
-            this.constructor.setAccessible(true);
-        }
-        return this.constructor;
-    }
-
-    // Get generated snapshot subclass' constructor
-    Constructor<? extends T> getSnapshotConstructor() {
-        if (this.snapshotConstructor == null) {
-            try {
-                this.snapshotConstructor = this.getSnapshotSubclass().getConstructor(ObjId.class, SnapshotJTransaction.class);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("internal error", e);
-            }
-            this.snapshotConstructor.setAccessible(true);
-        }
-        return this.snapshotConstructor;
-    }
-
-    // Get generated subclass
-    Class<? extends T> getSubclass() {
-        if (this.subclass == null)
-            this.subclass = new ClassGenerator<T>(this).generateClass();
-        return this.subclass;
-    }
-
-    // Get generated snapshot subclass
-    Class<? extends T> getSnapshotSubclass() {
-        if (this.snapshotSubclass == null)
-            this.snapshotSubclass = new ClassGenerator<T>(this).generateSnapshotClass();
-        return this.snapshotSubclass;
+    // Get class generator
+    ClassGenerator<T> getClassGenerator() {
+        return this.classGenerator;
     }
 
 // Public API

@@ -8,6 +8,7 @@
 package org.jsimpledb;
 
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -129,17 +130,36 @@ class ClassGenerator<T> {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    final JClass<T> jclass;
-    final ClassLoader loader;
+    protected final JClass<T> jclass;
+    protected final Class<? super T> superclass;
+    protected final ClassLoader loader;
+
+    private Class<? extends T> subclass;
+    private Class<? extends T> snapshotSubclass;
+    private Constructor<? extends T> constructor;
+    private Constructor<? extends T> snapshotConstructor;
 
     /**
-     * Constructor.
+     * Constructor for application classes.
      */
     public ClassGenerator(JClass<T> jclass) {
-        if (jclass == null)
-            throw new IllegalArgumentException("null jclass");
+        this(jclass, jclass.typeToken.getRawType());
+    }
+
+    /**
+     * Constructor for a "JObject" class with no fields.
+     */
+    public ClassGenerator(Class<T> superclass) {
+        this(null, superclass);
+    }
+
+    /**
+     * Internal constructor.
+     */
+    public ClassGenerator(JClass<T> jclass, Class<? super T> superclass) {
         this.jclass = jclass;
-        this.loader = new ClassLoader(this.jclass.typeToken.getRawType().getClassLoader()) {
+        this.superclass = superclass;
+        this.loader = new ClassLoader(superclass.getClassLoader()) {
             @Override
             protected Class<?> findClass(String name) throws ClassNotFoundException {
                 final byte[] bytes;
@@ -153,6 +173,40 @@ class ClassGenerator<T> {
                 return this.defineClass(null, bytes, 0, bytes.length);
             }
         };
+    }
+
+    /**
+     * Get generated subclass' constructor.
+     */
+    public Constructor<? extends T> getConstructor() {
+        if (this.constructor == null) {
+            if (this.subclass == null)
+                this.subclass = this.generateClass();
+            try {
+                this.constructor = this.subclass.getConstructor(ObjId.class);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("internal error", e);
+            }
+            this.constructor.setAccessible(true);
+        }
+        return this.constructor;
+    }
+
+    /**
+     * Get generated snapshot subclass' constructor.
+     */
+    public Constructor<? extends T> getSnapshotConstructor() {
+        if (this.snapshotConstructor == null) {
+            if (this.snapshotSubclass == null)
+                this.snapshotSubclass = this.generateSnapshotClass();
+            try {
+                this.snapshotConstructor = this.snapshotSubclass.getConstructor(ObjId.class, SnapshotJTransaction.class);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("internal error", e);
+            }
+            this.snapshotConstructor.setAccessible(true);
+        }
+        return this.snapshotConstructor;
     }
 
     /**
@@ -197,7 +251,7 @@ class ClassGenerator<T> {
      * Get superclass internal name.
      */
     private String getSuperclassName() {
-        return Type.getInternalName(this.jclass.typeToken.getRawType());
+        return Type.getInternalName(this.superclass);
     }
 
 // Database class
@@ -387,12 +441,16 @@ class ClassGenerator<T> {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
+        // If no associated JClass, we're done
+        if (this.jclass == null)
+            return;
+
         // Add methods that override field getters & setters
         for (JField jfield : this.jclass.jfields.values())
             jfield.outputMethods(this, cw);
 
         // Add methods that override @IndexQuery methods
-        for (IndexQueryScanner<?>.MethodInfo i : jclass.indexQueryMethods) {
+        for (IndexQueryScanner<?>.MethodInfo i : this.jclass.indexQueryMethods) {
             final IndexQueryScanner<?>.IndexMethodInfo indexMethodInfo = (IndexQueryScanner<?>.IndexMethodInfo)i;
             final IndexQueryScanner.IndexInfo indexInfo = indexMethodInfo.indexInfo;
             final Method method = indexMethodInfo.getMethod();
