@@ -13,6 +13,7 @@
  * It's targeted at Java data structures that are small enough to fit in memory and
  * which are read much more often than they are written, and can be persisted as an XML file.
  * A good example would be configuration information for an application.
+ * </p>
  *
  * <p>
  * Attributes and features:
@@ -27,12 +28,19 @@
  * <li>Support for automatic re-indexing on change</li>
  * <li>Support for listener notifications on update</li>
  * <li>Support for schema updates via XSLT transforms using the {@link org.dellroad.stuff.schema} classes</li>
+ * <li>Support for JTA/XA transactions</li>
  * </ul>
+ * </p>
  *
  * <p>
  * The primary class is {@link org.dellroad.stuff.pobj.PersistentObject}. Typically this class would be accessed through a
  * {@link org.dellroad.stuff.pobj.PersistentObjectSchemaUpdater} which allows for evolution of the XML schema over time;
  * see {@link org.dellroad.stuff.pobj.SpringPersistentObjectSchemaUpdater} for an example of Spring configuration.
+ * </p>
+ *
+ * <p>
+ * A {@link org.dellroad.stuff.pobj.PersistentObjectTransactionManager} for use with Spring's transaction support is also provided.
+ * </p>
  *
  * @see <a href="http://dellroad-stuff.googlecode.com/">The dellroad-stuff Project</a>
  */

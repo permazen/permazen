@@ -8,6 +8,10 @@
 package org.dellroad.stuff.pobj;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
@@ -21,7 +25,6 @@ import org.springframework.transaction.TransactionUsageException;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.ResourceTransactionManager;
-import org.springframework.transaction.support.SmartTransactionObject;
 
 /**
  * {@link PersistentObject} implementation of Spring's
@@ -39,10 +42,20 @@ import org.springframework.transaction.support.SmartTransactionObject;
  * </p>
  *
  * <p>
+ * Transactions are associated with threads; the {@link PersistentObjectTransactionManager} associated with the current thread's
+ * transaction is available via {@link #getCurrent()} (or {@link #getCurrent(String)} if there is more than one).
+ * </p>
+ *
+ * <p>
  * The {@code persistentObject} property is required. The {@code readOnlySharedRoot} property is optional and configures whether,
  * during read-only transactions only, {@link #getRoot} returns the {@linkplain PersistentObject#getSharedRoot shared root} object.
  * In this mode, root object graph copies are avoided entirely for read-only transactions, but the application code must be
  * careful to not modify the object graph returned by {@link #getRoot} at any time, either during or after the transaction.
+ * </p>
+ *
+ * <p>
+ * This class also provides an {@link XAResource} for use with JTA/XA tranasactions. Once elisted in a JTA transaction,
+ * the usage described above using {@link #getRoot} and {@link #setRoot setRoot()} is identical.
  * </p>
  *
  * @param <T> type of the root object
@@ -60,12 +73,21 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
      */
     protected transient PersistentObject<T> persistentObject;
 
+    final ConcurrentHashMap<Xid, TxInfo<T>> xaMap = new ConcurrentHashMap<>();
+
     private final ThreadLocal<TxInfo<T>> currentInfo = new ThreadLocal<>();
 
     private String beanName;
     private boolean readOnlySharedRoot;
 
 // BeanNameAware
+
+    /**
+     * Get this instance's assigned bean name.
+     */
+    public String getBeanName() {
+        return this.beanName;
+    }
 
     @Override
     public void setBeanName(String beanName) {
@@ -122,6 +144,13 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
         this.readOnlySharedRoot = readOnlySharedRoot;
     }
 
+    /**
+     * Get the {@link XAResource} corresponding to this instance.
+     */
+    public XAResource getXAResource() {
+        return new PersistentObjectXAResource<T>(this);
+    }
+
 // Current Instance
 
     /**
@@ -143,6 +172,8 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
             throw new IllegalStateException("no PersistentObjectTransactionManager named `" + beanName
               + "' has an open transaction in the current thread");
         }
+        if (manager.logger.isTraceEnabled())
+            manager.logger.trace("PersistentObjectTransactionManager.getCurrent(\"" + beanName + "\"): returning " + manager);
         return (PersistentObjectTransactionManager<T>)manager;
     }
 
@@ -170,7 +201,11 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
             throw new IllegalStateException("there are multiple PersistentObjectTransactionManager transactions open"
               + " in the current thread: " + managerMap.keySet() + "; invoke getCurrent() with explicitly specified bean name");
         }
-        return (PersistentObjectTransactionManager<T>)managerMap.values().iterator().next();
+        final PersistentObjectTransactionManager<T> manager
+          = (PersistentObjectTransactionManager<T>)managerMap.values().iterator().next();
+        if (manager.logger.isTraceEnabled())
+            manager.logger.trace("PersistentObjectTransactionManager.getCurrent(): returning " + manager);
+        return manager;
     }
 
     private static HashMap<String, PersistentObjectTransactionManager<?>> getManagerMap(boolean create) {
@@ -244,6 +279,10 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
         info.setSnapshot(this.persistentObject.new Snapshot(root, info.getSnapshot().getVersion()));
     }
 
+    TxInfo<T> getCurrentTxInfo() {
+        return this.currentInfo.get();
+    }
+
 // ResourceTransactionManager
 
     @Override
@@ -266,6 +305,10 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
     @Override
     @SuppressWarnings("unchecked")
     protected void doBegin(Object txObj, TransactionDefinition txDef) {
+
+        // Logging
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("PersistentObjectTransactionManager.doBegin(): txObj=" + txObj + " txDef=" + txDef);
 
         // Sanity check
         if (this.currentInfo.get() != null)
@@ -292,7 +335,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
         }
         managerMap.put(this.beanName, this);
 
-        // Associate new transation with the current thread
+        // Associate new transaction with the current thread
         final TxInfo<T> info = new TxInfo<T>(snapshot, txDef.isReadOnly());
         this.currentInfo.set(info);
 
@@ -307,6 +350,10 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
     @SuppressWarnings("unchecked")
     protected Object doSuspend(Object txObj) {
 
+        // Logging
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("PersistentObjectTransactionManager.doSuspend(): txObj=" + txObj);
+
         // Sanity check
         final TxWrapper<T> tx = (TxWrapper<T>)txObj;
         final TxInfo<T> info = tx.getInfo();
@@ -317,7 +364,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
 
         // Suspend it
         if (this.logger.isTraceEnabled())
-            this.logger.trace("suspending current PersistentObject transaction" + info.getSnapshot());
+            this.logger.trace("PersistentObjectTransactionManager.doSuspend(): suspending " + info.getSnapshot());
         this.currentInfo.remove();
         tx.setInfo(null);
         PersistentObjectTransactionManager.getManagerMap(true).remove(this.beanName);
@@ -333,6 +380,10 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
     @SuppressWarnings("unchecked")
     protected void doResume(Object txObj, Object suspendedResources) {
 
+        // Logging
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("PersistentObjectTransactionManager.doResume(): txObj=" + txObj + " res=" + suspendedResources);
+
         // Sanity check
         if (this.currentInfo.get() != null)
             throw new TransactionUsageException("there is already a transaction associated with the current thread");
@@ -345,7 +396,7 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
 
         // Resume transaction
         if (this.logger.isTraceEnabled())
-            this.logger.trace("resuming PersistentObject transaction " + info.getSnapshot());
+            this.logger.trace("PersistentObjectTransactionManager.doSuspend(): resuming " + info.getSnapshot());
         final HashMap<String, PersistentObjectTransactionManager<?>> managerMap
           = PersistentObjectTransactionManager.getManagerMap(true);
         if (managerMap.containsKey(this.beanName)) {
@@ -361,6 +412,8 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
     @SuppressWarnings("unchecked")
     protected void prepareForCommit(DefaultTransactionStatus status) {
         final TxInfo<T> info = ((TxWrapper<T>)status.getTransaction()).getInfo();
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("PersistentObjectTransactionManager.prepareForCommit(): status=" + status + " info=" + info);
         if (info == null)
             throw new NoTransactionException("no current transaction exists");
     }
@@ -368,6 +421,10 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
     @Override
     @SuppressWarnings("unchecked")
     protected void doCommit(DefaultTransactionStatus status) {
+
+        // Logging
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("PersistentObjectTransactionManager.doCommit(): status=" + status);
 
         // Get transaction
         final TxWrapper<T> tx = (TxWrapper<T>)status.getTransaction();
@@ -380,10 +437,10 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
         try {
             if (!info.isReadOnly()) {
                 if (this.logger.isTraceEnabled())
-                    this.logger.trace("committing PersistentObject transaction " + snapshot);
+                    this.logger.trace("PersistentObjectTransactionManager.doCommit(): committing " + info);
                 this.persistentObject.setRoot(snapshot.getRoot(), snapshot.getVersion());
             } else
-                this.logger.trace("not committing read-only PersistentObject transaction " + snapshot);
+                this.logger.trace("PersistentObjectTransactionManager.doCommit(): not committing read-only " + info);
         } catch (PersistentObjectVersionException e) {
             throw new OptimisticLockingFailureException(null, e);
         } catch (PersistentObjectValidationException e) {
@@ -397,6 +454,10 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
     @SuppressWarnings("unchecked")
     protected void doRollback(DefaultTransactionStatus status) {
 
+        // Logging
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("PersistentObjectTransactionManager.doRollback(): status=" + status);
+
         // Get transaction
         final TxWrapper<T> tx = (TxWrapper<T>)status.getTransaction();
         final TxInfo<T> info = tx.getInfo();
@@ -406,13 +467,17 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
 
         // Rollback
         if (this.logger.isTraceEnabled())
-            this.logger.trace("rolling back PersistentObject transaction " + snapshot);
+            this.logger.trace("PersistentObjectTransactionManager.doRollback(): rolling back " + info);
         // no action required to rollback a PersistentObject transaction
     }
 
     @Override
     @SuppressWarnings("unchecked")
     protected void doSetRollbackOnly(DefaultTransactionStatus status) {
+
+        // Logging
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("PersistentObjectTransactionManager.doSetRollbackOnly(): status=" + status);
 
         // Get transaction
         final TxWrapper<T> tx = (TxWrapper<T>)status.getTransaction();
@@ -422,13 +487,17 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
 
         // Set rollback only
         if (this.logger.isTraceEnabled())
-            this.logger.trace("marking PersistentObject transaction " + info.getSnapshot() + " for rollback-only");
-        tx.setRollbackOnly(true);
+            this.logger.trace("PersistentObjectTransactionManager.doSetRollbackOnly(): setting rollback-only: " + info);
+        info.setRollbackOnly(true);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     protected void doCleanupAfterCompletion(Object txObj) {
+
+        // Logging
+        if (this.logger.isTraceEnabled())
+            this.logger.trace("PersistentObjectTransactionManager.doCleanupAfterCompletion(): txObj=" + txObj);
 
         // Get transaction
         final TxWrapper<T> tx = (TxWrapper<T>)txObj;
@@ -442,65 +511,6 @@ public class PersistentObjectTransactionManager<T> extends AbstractPlatformTrans
             managerMap.remove(this.beanName);
             if (managerMap.isEmpty())
                 MANAGER_MAP.remove();
-        }
-    }
-
-// TxWrapper
-
-    // Information passed to/from superclass about a transaction
-    private static class TxWrapper<S> implements SmartTransactionObject {
-
-        private TxInfo<S> info;
-        private boolean rollbackOnly;
-
-        TxWrapper(TxInfo<S> info) {
-            this.info = info;
-        }
-
-        public TxInfo<S> getInfo() {
-            return this.info;
-        }
-        public void setInfo(TxInfo<S> info) {
-            this.info = info;
-        }
-
-        @Override
-        public boolean isRollbackOnly() {
-            return this.rollbackOnly;
-        }
-        public void setRollbackOnly(boolean rollbackOnly) {
-            this.rollbackOnly = rollbackOnly;
-        }
-
-        @Override
-        public void flush() {
-        }
-    }
-
-// TxInfo
-
-    // Information about the transaction associated with the current thread
-    private static class TxInfo<S> {
-
-        private PersistentObject<S>.Snapshot snapshot;
-        private final boolean readOnly;
-
-        TxInfo(PersistentObject<S>.Snapshot snapshot, boolean readOnly) {
-            this.setSnapshot(snapshot);
-            this.readOnly = readOnly;
-        }
-
-        public PersistentObject<S>.Snapshot getSnapshot() {
-            return this.snapshot;
-        }
-        public void setSnapshot(PersistentObject<S>.Snapshot snapshot) {
-            if (snapshot == null)
-                throw new IllegalArgumentException("null snapshot");
-            this.snapshot = snapshot;
-        }
-
-        public boolean isReadOnly() {
-            return this.readOnly;
         }
     }
 }

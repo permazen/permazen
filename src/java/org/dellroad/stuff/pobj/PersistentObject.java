@@ -193,9 +193,17 @@ import org.slf4j.LoggerFactory;
  * way to apply and manage schema updates using XSLT transforms.
  * </p>
  *
+ * <h3>Transaction Manager</h3>
+ *
+ * <p>
+ * If using Spring, consider using a {@link PersistentObjectTransactionManager} for transactional access to a
+ * {@link PersistentObject}.
+ * </p>
+ *
  * @param <T> type of the root object
  * @see PersistentObjectDelegate
  * @see PersistentObjectSchemaUpdater
+ * @see PersistentObjectTransactionManager
  * @see AbstractConfiguredBean
  */
 public class PersistentObject<T> {
