@@ -55,6 +55,8 @@ public abstract class Field<T> extends SchemaItem {
      * @param tx transaction
      * @param id object id
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
+     * @throws UnknownFieldException if this field does not exist in the specified object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if either parameter is null
      */
@@ -67,6 +69,7 @@ public abstract class Field<T> extends SchemaItem {
      * @param id object ID
      * @return true if this field is set to its initial default value in object {@code id}, otherwise false
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if either parameter is null
      */

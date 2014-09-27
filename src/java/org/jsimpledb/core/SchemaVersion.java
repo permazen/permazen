@@ -88,19 +88,21 @@ public class SchemaVersion {
      * @param storageId storage ID
      * @param type expected type
      * @return the {@link SchemaItem} with storage ID {@code storageID} and having type {@code type}
-     * @throws IllegalArgumentException if none such exists or it is not of type {@code type}
+     * @throws UnknownFieldException if type doesn't match and {@code type} is a {@link FieldStorageInfo} sub-type
+     * @throws UnknownTypeException if type doesn't match and {@code type} is {@link ObjectStorageInfo}
      */
     public <T extends SchemaItem> T getSchemaItem(int storageId, Class<T> type) {
         final SchemaItem schemaItem = this.schemaItemMap.get(storageId);
-        if (schemaItem == null)
-            throw new IllegalArgumentException("storage ID " + storageId + " does not exist in " + this);
-        try {
+        if (schemaItem != null && type.isInstance(schemaItem))
             return type.cast(schemaItem);
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException("storage ID " + storageId + " does not correspond to any "
-              + this.getDescription(type) + " in " + this + " (found " + this.getDescription(schemaItem.getClass())
-              + " instead)");
-        }
+        String message = "no " + this.getDescription(type) + " with storage ID " + storageId + " exists";
+        if (schemaItem != null)
+            message += " (found " + schemaItem + " instead)";
+        if (Field.class.isAssignableFrom(type))
+            throw new UnknownFieldException(storageId, message);
+        if (ObjType.class.isAssignableFrom(type))
+            throw new UnknownTypeException(storageId, message);
+        throw new IllegalArgumentException(message);                        // should never get here
     }
 
     @Override
@@ -145,21 +147,11 @@ public class SchemaVersion {
     }
 
     private String getDescription(Class<? extends SchemaItem> type) {
-        if (type == ObjType.class)
-            return "object";
-        if (type == CounterField.class)
-            return "counter field";
-        if (type == SimpleField.class)
-            return "simple field";
-        if (type == ReferenceField.class)
-            return "reference field";
-        if (type == SetField.class)
-            return "set field";
-        if (type == ListField.class)
-            return "list field";
-        if (type == MapField.class)
-            return "map field";
-        return type.getSimpleName();
+        if (Field.class.isAssignableFrom(type))
+            return type.getSimpleName().replaceAll("^(.*)Field.*$", "$1").toLowerCase() + " field";
+        if (ObjType.class.isAssignableFrom(type))
+            return "object type";
+        return type.getSimpleName();    // ???
     }
 }
 
