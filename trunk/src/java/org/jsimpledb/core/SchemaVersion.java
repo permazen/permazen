@@ -89,7 +89,7 @@ public class SchemaVersion {
      * @param type expected type
      * @return the {@link SchemaItem} with storage ID {@code storageID} and having type {@code type}
      * @throws UnknownFieldException if type doesn't match and {@code type} is a {@link FieldStorageInfo} sub-type
-     * @throws UnknownTypeException if type doesn't match and {@code type} is {@link ObjectStorageInfo}
+     * @throws UnknownTypeException if type doesn't match and {@code type} is {@link ObjTypeStorageInfo}
      */
     public <T extends SchemaItem> T getSchemaItem(int storageId, Class<T> type) {
         final SchemaItem schemaItem = this.schemaItemMap.get(storageId);

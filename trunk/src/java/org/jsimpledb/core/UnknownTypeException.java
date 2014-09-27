@@ -19,7 +19,6 @@ public class UnknownTypeException extends DatabaseException {
      * Constructor.
      *
      * @param storageId unknown type storage ID
-     * @param message exception message
      */
     public UnknownTypeException(int storageId) {
         this.storageId = storageId;

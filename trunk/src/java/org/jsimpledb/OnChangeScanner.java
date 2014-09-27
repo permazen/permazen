@@ -375,11 +375,13 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
     // Internal methods
 
         private JObject getJObject(ObjId id) {
-            try {
-                return this.jtx.getJObject(id);
-            } catch (UnknownTypeException e) {
+
+            // If changed object is not representable via Java model class, don't propagate the change
+            if (!this.jtx.jdb.jclasses.containsKey(id.getStorageId()))
                 return null;
-            }
+
+            // Get JObject
+            return this.jtx.getJObject(id);
         }
 
         private boolean canInvokeWith(Class<?> paramType) {
