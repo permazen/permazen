@@ -52,7 +52,8 @@ public abstract class JComplexField extends JField {
     /**
      * Add any valid index entry return types for @IndexQuery-annotated methods that query the given indexed sub-field.
      */
-    abstract <T> void addIndexEntryReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType, JSimpleField subField);
+    abstract <T, V> void addIndexEntryReturnTypes(List<TypeToken<?>> types,
+      TypeToken<T> targetType, JSimpleField subField, TypeToken<V> valueType);
 
     /**
      * Determine the type of index query from the method return type, i.e., normal object query or some kind of index entry query.

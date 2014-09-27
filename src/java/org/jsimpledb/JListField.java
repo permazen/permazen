@@ -85,14 +85,10 @@ public class JListField extends JCollectionField {
     }
 
     @Override
-    <T> void addIndexEntryReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType, JSimpleField subField) {
-        assert subField == this.elementField;
-        this.addIndexEntryReturnTypes(types, targetType, this.elementField.typeToken);
-    }
-
-    // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
-    private <T, E> void addIndexEntryReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<E> elementType) {
+    <T, E> void addIndexEntryReturnTypes(List<TypeToken<?>> types,
+      TypeToken<T> targetType, JSimpleField subField, TypeToken<E> elementType) {
+        assert subField == this.elementField;
         types.add(new TypeToken<NavigableMap<E, NavigableSet<ListIndexEntry<T>>>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));

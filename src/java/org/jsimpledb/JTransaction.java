@@ -502,7 +502,7 @@ public class JTransaction {
         final HashSet<ReferencePath> paths = new HashSet<>(refPaths.length);
         for (String refPath : refPaths) {
 
-            // Parse refernce path
+            // Parse reference path
             if (refPath == null)
                 throw new IllegalArgumentException("null refPath");
             final ReferencePath path = this.jdb.parseReferencePath(startType, refPath, null);
@@ -1186,8 +1186,8 @@ public class JTransaction {
             throw new IllegalArgumentException("field `" + fieldName + "' is not a map key field");
         final JMapField jfield = (JMapField)indexInfo.targetSuperField;
         if (!jfield.valueField.typeToken.wrap().getRawType().equals(valueType)) {
-            throw new IllegalArgumentException("incorrect valueType for index query on `" + fieldName + "': should be "
-              + jfield.valueField.typeToken.wrap() + " instead of " + valueType);
+            throw new IllegalArgumentException("incorrect valueType for index query on `" + fieldName + "' starting from "
+              + type + ": should be " + jfield.valueField.typeToken.wrap() + " instead of " + valueType);
         }
         return (NavigableMap<K, NavigableSet<MapKeyIndexEntry<S, V>>>)(Object)this.queryMapFieldKeyEntries(
           jfield.storageId, indexInfo.type.getRawType());
@@ -1221,8 +1221,8 @@ public class JTransaction {
             throw new IllegalArgumentException("field `" + fieldName + "' is not a map value field");
         final JMapField jfield = (JMapField)indexInfo.targetSuperField;
         if (!jfield.keyField.typeToken.wrap().getRawType().equals(keyType)) {
-            throw new IllegalArgumentException("incorrect keyType for index query on `" + fieldName + "': should be "
-              + jfield.keyField.typeToken.wrap() + " instead of " + keyType);
+            throw new IllegalArgumentException("incorrect keyType for index query on `" + fieldName + "' starting from "
+              + type + ": should be " + jfield.keyField.typeToken.wrap() + " instead of " + keyType);
         }
         return (NavigableMap<V, NavigableSet<MapValueIndexEntry<S, K>>>)(Object)this.queryMapFieldValueEntries(
           jfield.storageId, indexInfo.type.getRawType());
@@ -1238,10 +1238,11 @@ public class JTransaction {
         final IndexQueryScanner.IndexInfo indexInfo = new IndexQueryScanner.IndexInfo(this.jdb, type, fieldName);
 
         // Verify value type
-        final JSimpleField jfield = (JSimpleField)this.jdb.jfields.get(indexInfo.targetField.storageId);
-        if (!jfield.typeToken.wrap().getRawType().equals(valueType)) {
-            throw new IllegalArgumentException("incorrect valueType for index query on `" + fieldName + "': should be "
-              + jfield.typeToken.wrap() + " instead of " + valueType);
+        final TypeToken<?> valueTypeToken = indexInfo.targetField instanceof JReferenceField ?
+          indexInfo.targetReferenceType : indexInfo.targetField.typeToken.wrap();
+        if (!valueType.equals(valueTypeToken.getRawType())) {
+            throw new IllegalArgumentException("incorrect valueType for index query on `" + fieldName + "' starting from "
+              + type + ": should be " + valueTypeToken.getRawType() + " instead of " + valueType);
         }
 
         // Done

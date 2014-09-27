@@ -197,15 +197,10 @@ public class JSimpleField extends JField {
     /**
      * Add valid return types for @IndexQuery-annotated methods that query this indexed field.
      */
-    <T> void addIndexReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
-        this.addIndexReturnTypes(types, targetType, this.typeToken);
-    }
-
-    // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
-    private <T, V> void addIndexReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<V> fieldType) {
+    <T, V> void addIndexReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<V> valueType) {
         types.add(new TypeToken<NavigableMap<V, NavigableSet<T>>>() { }
-          .where(new TypeParameter<V>() { }, fieldType.wrap())
+          .where(new TypeParameter<V>() { }, valueType.wrap())
           .where(new TypeParameter<T>() { }, targetType));
     }
 }

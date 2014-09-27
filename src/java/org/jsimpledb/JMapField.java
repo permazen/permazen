@@ -141,11 +141,12 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    <T> void addIndexEntryReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType, JSimpleField subField) {
+    <T, R> void addIndexEntryReturnTypes(List<TypeToken<?>> types,
+      TypeToken<T> targetType, JSimpleField subField, TypeToken<R> valueType) {
         if (subField == this.keyField)
-            this.addKeyIndexEntryReturnTypes(types, targetType, this.keyField.typeToken, this.valueField.typeToken);
+            this.addKeyIndexEntryReturnTypes(types, targetType, valueType, this.valueField.typeToken);
         else if (subField == this.valueField)
-            this.addValueIndexEntryReturnTypes(types, targetType, this.keyField.typeToken, this.valueField.typeToken);
+            this.addValueIndexEntryReturnTypes(types, targetType, this.keyField.typeToken, valueType);
         else
             throw new RuntimeException();
     }

@@ -7,11 +7,19 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Reference paths.
@@ -91,9 +99,12 @@ public class ReferencePath {
 
     final TypeToken<?> startType;
     final TypeToken<?> targetType;
-    final JField targetField;
-    final JComplexField targetSuperField;
-    final ArrayList<JReferenceField> referenceFields = new ArrayList<>();
+    final TypeToken<?> targetReferenceType;
+    final JField targetField;                                               // this is a REPRESENTATIVE target field
+    final JComplexField targetSuperField;                                   // this is a REPRESENTATIVE target super-field
+    final ArrayList<JReferenceField> referenceFields = new ArrayList<>();   // these are REPRESENTATIVE intermediate fields
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Constructor.
@@ -138,8 +149,13 @@ public class ReferencePath {
 
         // Initialize loop state
         TypeToken<?> currentType = this.startType;
-        JField currentField = null;
-        JComplexField currentSuperField = null;
+        TypeToken<?> referenceType = null;
+        JField representativeField = null;
+        JComplexField representativeSuperField = null;
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("RefPath: START: startType=" + this.startType + " path=" + fieldNames
+              + " lastIsSubField=" + lastIsSubField);
+        }
 
         // Parse field names
         final ArrayList<Integer> storageIds = new ArrayList<>();
@@ -161,6 +177,10 @@ public class ReferencePath {
             } else
                 searchName = fieldName;
 
+            // Logging
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath: currentType=" + currentType + " name=" + searchName + " storageId=" + explicitStorageId);
+
             // Find all JFields matching 'fieldName' in some JClass whose type matches 'typeToken'
             final HashMap<JClass<?>, JField> matchingFields = new HashMap<>();
             for (JClass<?> jclass : jdb.jclasses.values()) {
@@ -174,41 +194,49 @@ public class ReferencePath {
                 matchingFields.put(jclass, jfield);
             }
 
-            // None found?
-            if (matchingFields.isEmpty()) {
+            // Logging
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath: matching fields: " + matchingFields);
+
+            // Check matching fields
+            final int fieldStorageId;
+            switch (matchingFields.size()) {
+            case 0:
                 throw new IllegalArgumentException(errorPrefix + "there is no field named `" + searchName + "'"
                   + (explicitStorageId != 0 ? " with storage ID " + explicitStorageId : "")
                   + " in (any sub-type of) " + currentType);
-            }
-
-            // Get the field; if multiple fields are found, verify they all are really the same field
-            currentField = matchingFields.values().iterator().next();
-            for (JField otherField : matchingFields.values()) {
-                if (otherField.storageId != currentField.storageId) {
-                    throw new IllegalArgumentException(errorPrefix + "there are multiple different fields named `"
-                      + fieldName + "' in sub-types of type " + currentType);
-                }
-            }
-            currentSuperField = null;
-
-            // Get the lowest common super-type among the matching JClass's
-            for (JClass<?> jclass : matchingFields.keySet()) {
-                boolean commonSupertype = true;
-                for (JClass<?> other : matchingFields.keySet()) {
-                    if (!jclass.typeToken.isAssignableFrom(other.typeToken)) {
-                        commonSupertype = false;
-                        break;
+            case 1:
+                representativeField = matchingFields.values().iterator().next();
+                break;
+            default:                // verify they all are the same field
+                representativeField = matchingFields.values().iterator().next();
+                for (JField jfield : matchingFields.values()) {
+                    if (jfield.storageId != representativeField.storageId) {
+                        throw new IllegalArgumentException(errorPrefix + "there are multiple, non-equal fields named `"
+                          + fieldName + "' in sub-types of type " + currentType);
                     }
                 }
-                if (commonSupertype) {
-                    currentType = jclass.typeToken;
-                    break;
-                }
+                break;
             }
 
+            // Get common supertype of all types containing the field
+            currentType = this.findLowestCommonAncestor(Iterables.transform(matchingFields.keySet(), new JClassTypeFunction()));
+
+            // Get common supertype of reference field's reference type (if field is a reference field)
+            if (representativeField instanceof JReferenceField) {
+                referenceType = this.findLowestCommonAncestor(Iterables.transform(
+                  Iterables.transform(matchingFields.values(), new CastFunction<JReferenceField>(JReferenceField.class)),
+                  new JFieldTypeFunction()));
+            }
+
+            // Logging
+            if (this.log.isTraceEnabled())
+                this.log.trace("RefPath: updated currentType=" + currentType + " referenceType=" + referenceType);
+
             // Handle complex fields
-            if (currentField instanceof JComplexField) {
-                final JComplexField complexField = (JComplexField)currentField;
+            representativeSuperField = null;
+            if (representativeField instanceof JComplexField) {
+                final JComplexField representativeComplexField = (JComplexField)representativeField;
 
                 // Last field?
                 if (fieldNames.isEmpty()) {
@@ -218,21 +246,36 @@ public class ReferencePath {
                     }
                     break;
                 }
-                currentSuperField = complexField;
+                representativeSuperField = representativeComplexField;
 
                 // Get sub-field
                 final String subFieldName = fieldNames.removeFirst();
                 description = "sub-field `" + subFieldName + "' of complex " + description;
                 try {
-                    currentField = complexField.getSubField(subFieldName);
+                    representativeField = representativeComplexField.getSubField(subFieldName);
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(errorPrefix + "invalid " + description + ": " + e.getMessage(), e);
                 }
+
+                // Update common supertype of reference field's reference type (if sub-field is a reference field)
+                if (representativeField instanceof JReferenceField) {
+                    referenceType = this.findLowestCommonAncestor(Iterables.transform(matchingFields.values(),
+                      new Function<JField, TypeToken<?>>() {
+                        @Override
+                        public TypeToken<?> apply(JField jfield) {
+                            return ((JReferenceField)((JComplexField)jfield).getSubField(subFieldName)).typeToken;
+                        }
+                    }));
+                }
+
+                // Logging
+                if (this.log.isTraceEnabled())
+                    this.log.trace("RefPath: complex field: referenceType=" + referenceType);
             }
 
             // Last field?
             if (fieldNames.isEmpty()) {
-                if (currentField.parent instanceof JComplexField && lastIsSubField != null && !lastIsSubField) {
+                if (representativeField.parent instanceof JComplexField && lastIsSubField != null && !lastIsSubField) {
                     throw new IllegalArgumentException(errorPrefix + "path may not end on " + description
                       + "; specify the complex field itself instead");
                 }
@@ -240,21 +283,30 @@ public class ReferencePath {
             }
 
             // Field is not last, so it must be a reference field
-            if (!(currentField instanceof JReferenceField))
+            if (!(representativeField instanceof JReferenceField))
                 throw new IllegalArgumentException(errorPrefix + description + " is not a reference field");
-            final JReferenceField referenceField = (JReferenceField)currentField;
+            final JReferenceField representativeReferenceField = (JReferenceField)representativeField;
+            assert referenceType != null;
 
             // Add reference field to the reference field list
-            this.referenceFields.add(referenceField);
+            this.referenceFields.add(representativeReferenceField);
 
             // Advance through the reference
-            currentType = referenceField.typeToken;
+            currentType = referenceType;
         }
 
         // Done
         this.targetType = currentType;
-        this.targetField = currentField;
-        this.targetSuperField = currentSuperField;
+        this.targetField = representativeField;
+        this.targetReferenceType = referenceType;
+        this.targetSuperField = representativeSuperField;
+
+        // Logging
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("RefPath: DONE: targetType=" + this.targetType + " targetField=" + this.targetField
+              + " targetSuperField=" + this.targetSuperField + " targetReferenceType=" + this.targetReferenceType
+              + " references=" + this.referenceFields);
+        }
     }
 
     /**
@@ -281,6 +333,18 @@ public class ReferencePath {
      */
     public TypeToken<?> getTargetType() {
         return this.targetType;
+    }
+
+    /**
+     * Get the Java type referred to by the reference field at which this path ends, if any.
+     *
+     * <p>
+     * If this path does not end in a reference field, this will return null. Otherwise, it returns the
+     * Java type of object referred to by that field.
+     * </p>
+     */
+    public TypeToken<?> getTargetReferenceType() {
+        return this.targetReferenceType;
     }
 
     /**
@@ -349,6 +413,113 @@ public class ReferencePath {
             }
         }
         buf.append(field.name);
+    }
+
+    /**
+     * Find the narrowest type that is a supertype of all of the given types.
+     */
+    private TypeToken<?> findLowestCommonAncestor(Iterable<TypeToken<?>> types) {
+
+        // Gather all supertypes of types recursively
+        final HashSet<TypeToken<?>> supertypes = new HashSet<>();
+        for (TypeToken<?> type : types)
+            this.addSupertypes(supertypes, type);
+
+        // Throw out all supertypes that are not supertypes of every type
+        for (Iterator<TypeToken<?>> i = supertypes.iterator(); i.hasNext(); ) {
+            final TypeToken<?> supertype = i.next();
+            for (TypeToken<?> type : types) {
+                if (!supertype.isAssignableFrom(type)) {
+                    i.remove();
+                    break;
+                }
+            }
+        }
+
+        // Throw out all supertypes that are supertypes of some other supertype
+        for (Iterator<TypeToken<?>> i = supertypes.iterator(); i.hasNext(); ) {
+            final TypeToken<?> supertype = i.next();
+            for (TypeToken<?> supertype2 : supertypes) {
+                if (supertype2 != supertype && supertype.isAssignableFrom(supertype2)) {
+                    i.remove();
+                    break;
+                }
+            }
+        }
+
+        // Pick the best candidate that's not Object, if possible
+        final TypeToken<Object> objectType = TypeToken.of(Object.class);
+        supertypes.remove(objectType);
+        switch (supertypes.size()) {
+        case 0:
+            return objectType;
+        case 1:
+            return supertypes.iterator().next();
+        default:
+            break;
+        }
+
+        // Pick the one that's not an interface, if any (it will be the the only non-interface type)
+        for (TypeToken<?> supertype : supertypes) {
+            if (!supertype.getRawType().isInterface())
+                return supertype;
+        }
+
+        // There are now only interfaces to choose from (or Object)... try JObject
+        final TypeToken<JObject> jobjectType = TypeToken.of(JObject.class);
+        if (supertypes.contains(jobjectType))
+            return jobjectType;
+
+        // Last resort is Object
+        return objectType;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> void addSupertypes(Set<TypeToken<?>> types, TypeToken<T> type) {
+        if (type == null || !types.add(type))
+            return;
+        final Class<? super T> rawType = type.getRawType();
+        types.add(TypeToken.of(rawType));
+        types.add(Util.getWildcardedType(rawType));
+        final Class<? super T> superclass = rawType.getSuperclass();
+        if (superclass != null) {
+            this.addSupertypes(types, TypeToken.of(superclass));
+            this.addSupertypes(types, type.getSupertype(superclass));
+        }
+        for (Class<?> iface : rawType.getInterfaces())
+            this.addSupertypes(types, type.getSupertype((Class<? super T>)iface));
+    }
+
+// Functions
+
+    private static class CastFunction<T> implements Function<Object, T> {
+
+        private final Class<? extends T> type;
+
+        CastFunction(Class<? extends T> type) {
+            this.type = type;
+        }
+
+        @Override
+        public T apply(Object obj) {
+            return this.type.cast(obj);
+        }
+    }
+
+    private static class JFieldTypeFunction implements Function<JReferenceField, TypeToken<?>> {
+
+        @Override
+        public TypeToken<?> apply(JReferenceField jfield) {
+            return jfield.typeToken;
+        }
+    }
+
+    private static class JClassTypeFunction implements Function<JClass<?>, TypeToken<?>> {
+
+        @Override
+        public TypeToken<?> apply(JClass<?> jclass) {
+            return jclass.typeToken;
+        }
     }
 }
 
