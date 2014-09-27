@@ -22,6 +22,7 @@ import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
@@ -78,6 +79,7 @@ public class JSimpleDB {
     final HashMap<TypeToken<?>, JClass<?>> jclassesByType = new HashMap<>();
     final HashMap<Integer, JField> jfields = new HashMap<>();
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
+    final ClassGenerator<UntypedJObject> untypedClassGenerator = new ClassGenerator<UntypedJObject>(UntypedJObject.class);
     final Database db;
     final int version;
     final JObjectCache jobjectCache = new JObjectCache(this) {
@@ -421,8 +423,6 @@ public class JSimpleDB {
      * @return Java model object
      * @throws IllegalArgumentException if {@code id} is null
      * @see JTransaction#getJObject JTransaction.getJObject()
-     * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
-     *  associated with this instance
      */
     public JObject getJObject(ObjId id) {
         return this.jobjectCache.getJObject(id);
@@ -434,8 +434,6 @@ public class JSimpleDB {
      * @param id object ID
      * @return Java model object
      * @see #getJObject(ObjId)
-     * @throws UnknownTypeException if no Java model class corresponding to {@code id} exists in the schema
-     *  associated with this instance
      * @throws ClassCastException if the Java model object does not have type {@code type}
      * @throws IllegalArgumentException if {@code type} is null
      */
@@ -466,20 +464,24 @@ public class JSimpleDB {
 
 // Internal Stuff
 
+    // Get class generator for "untyped" JObject's
+    ClassGenerator<UntypedJObject> getUntypedClassGenerator() {
+        return this.untypedClassGenerator;
+    }
+
     /**
      * Get the {@link JField} associated with the given storage ID.
      *
      * @param storageId field storage ID
-     * @param type required type, or null
+     * @param type required type
      * @return {@link JFiedl} instance
-     * @throws IllegalArgumentException if {@code storageId} does not represent a field
+     * @throws UnknownFieldException if {@code storageId} does not represent a field
      */
-    @SuppressWarnings("unchecked")
     <T extends JField> T getJField(int storageId, Class<T> type) {
         final JField jfield = this.jfields.get(storageId);
         if (jfield == null)
-            throw new IllegalArgumentException("no JSimpleDB field associated with storage ID " + storageId);
-        return type != null ? type.cast(jfield) : (T)jfield;
+            throw new UnknownFieldException(storageId, "no JSimpleDB field associated with storage ID " + storageId);
+        return type.cast(jfield);
     }
 
     // Add new JClass, checking for storage ID conflicts

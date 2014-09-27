@@ -13,6 +13,7 @@ import org.jsimpledb.TestSupport;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.SchemaModel;
 import org.testng.Assert;
@@ -84,7 +85,7 @@ public class GeneratedIdCacheTest extends TestSupport {
         try {
             c.getGeneratedId(tx, 3, "aaa");
             assert false;
-        } catch (IllegalArgumentException e) {
+        } catch (UnknownTypeException e) {
             // expected
         }
 
