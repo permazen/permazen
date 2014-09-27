@@ -17,27 +17,9 @@
 
 - Bug: JSimpleDB reference field's target type can change across schema
   versions, resulting in possible ClassCastExceptions at runtime.
-    - Core API changes:
-        - Add optional <ReferenceField> child tag <AllowedStorageIds> that limits
-          storage IDs of referenced object to the specified list.
-        - Enforce with IllegalReferenceException when:
-            - Writing reference field
-            - Upgrading object version
-                - For collection fields, need to iterate only for un-indexed map value refs
-    - JSimpleDB changes:
-        - Add "plain" JObject class to represent objects in a prior schema version
-          for which the current schema has no representing Java type
-            - This class should not auto-upgrade object when fields accessed
-        - ReferenceConverter: for unknown types, fallback to "plain" JObject instead
-          of throwing exception
-        - Generate schemas to include <AllowedStorageIds> list containing storage IDs
-          of all object types that are sub-types of the reference's Java type
-        - On every new JSimpleDB transaction:
-            - For all reference fields:
-                - Calculate union of all storage ID's possibly referenced by the reference
-                  field in ALL schema versions (using <AllowedStorageIds> lists)
-                - Ensure Java type of reference is super-type of all these
-                    - For unknown prior schema version storage IDs, substitute JObject.class
+    - On version change notification, apply the configured DeleteAction
+      to all such references.
+    - Use the corresponding index to quickly locate offending references.
 
 - Build and distribute binary distribution
     - lib subdirectory with dependencies
