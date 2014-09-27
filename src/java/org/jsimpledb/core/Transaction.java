@@ -902,6 +902,7 @@ public class Transaction {
      * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
      * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if any {@code source} and {@code target} have different object types
      * @throws ReadOnlyTransactionException if {@code dest} has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws SchemaMismatchException if the schema version associated with {@code source} differs between
@@ -952,6 +953,12 @@ public class Transaction {
         final ObjId srcId = srcInfo.getId();
         if (srcId.equals(dstId) && srcTx == dstTx)
             throw new RuntimeException("internal error");
+
+        // Verify objects have the same type
+        if (srcId.getStorageId() != dstId.getStorageId()) {
+            throw new IllegalArgumentException("can't copy " + srcId + " to " + dstId
+              + " due to non-equal object types (" + srcId.getStorageId() + " != " + dstId.getStorageId() + ")");
+        }
 
         // Find and verify source object's schema version in destination transaction
         final int objectVersion = srcInfo.getVersionNumber();
