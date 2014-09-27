@@ -16,13 +16,26 @@ public class UnknownFieldException extends DatabaseException {
     private final ObjType type;
     private final int storageId;
 
-    UnknownFieldException(ObjType type, int storageId, String description) {
+    /**
+     * Constructor.
+     *
+     * @param type containing object type, or null for none
+     * @param storageId unknown field storage ID
+     * @param description description of the unknown field
+     */
+    public UnknownFieldException(ObjType type, int storageId, String description) {
         super(type + " has no " + description + " with storage ID " + storageId);
         this.type = type;
         this.storageId = storageId;
     }
 
-    UnknownFieldException(int storageId, String message) {
+    /**
+     * Constructor.
+     *
+     * @param storageId unknown field storage ID
+     * @param message exception message
+     */
+    public UnknownFieldException(int storageId, String message) {
         super(message);
         this.type = null;
         this.storageId = storageId;

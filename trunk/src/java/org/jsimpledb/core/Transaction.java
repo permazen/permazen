@@ -511,8 +511,7 @@ public class Transaction {
      *
      * @param id object ID
      * @return true if the object did not exist and was created, false if the object already existed
-     * @throws IllegalArgumentException if the storage ID associated with {@code id}
-     *  does not correspond to a known object type in this transaction's schema
+     * @throws UnknownTypeException if {@code id} does not correspond to a known object type in this transaction's schema version
      * @throws IllegalArgumentException if {@code id} is null
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -532,8 +531,7 @@ public class Transaction {
      * @param id object ID
      * @param versionNumber schema version number to use for newly created object
      * @return true if the object did not exist and was created, false if the object already existed
-     * @throws IllegalArgumentException if the storage ID associated with {@code id}
-     *  does not correspond to a known object type in schema version {@code versionNumber}
+     * @throws UnknownTypeException if {@code id} does not correspond to a known object type in the specified schema version
      * @throws IllegalArgumentException if {@code id} is null
      * @throws IllegalArgumentException if {@code versionNumber} is invalid or unknown
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
@@ -568,7 +566,7 @@ public class Transaction {
      *
      * @param storageId object type storage ID
      * @return object id of newly created object
-     * @throws IllegalArgumentException if {@code storageId} does not correspond to a known object type in this transaction's schema
+     * @throws UnknownTypeException if {@code storageId} does not correspond to a known object type in this transaction's schema
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
@@ -587,8 +585,7 @@ public class Transaction {
      * @param storageId object type storage ID
      * @param versionNumber schema version number to use for newly created object
      * @return object id of newly created object
-     * @throws IllegalArgumentException if {@code storageId} does not correspond to a known object type
-     *  in the specified schema version
+     * @throws UnknownTypeException if {@code storageId} does not correspond to a known object type in the specified schema version
      * @throws IllegalArgumentException if {@code versionNumber} is invalid or unknown
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -615,8 +612,7 @@ public class Transaction {
      *
      * @param storageId object type storage ID
      * @return random unassigned object id
-     * @throws IllegalArgumentException if {@code storageId} does not correspond to a known object type
-     *  in the specified schema version
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized ObjId generateId(int storageId) {
@@ -687,7 +683,7 @@ public class Transaction {
      * </p>
      *
      * @param id object ID of the object to delete
-     * @return true if object was found and deleted, false if object was not found
+     * @return true if object was found and deleted, false if object was not found, or if {@code id} specifies an unknown object type
      * @throws ReferencedObjectException if the object is referenced by some other object
      *  through a reference field configured for {@link DeleteAction#EXCEPTION}
      * @throws IllegalArgumentException if {@code id} is null
@@ -704,6 +700,13 @@ public class Transaction {
         if (this.readOnly)
             throw new ReadOnlyTransactionException(this);
 
+        // Get object info
+        try {
+            this.getObjectInfo(id, false);
+        } catch (DeletedObjectException | UnknownTypeException e) {
+            return false;
+        }
+
         // Handle recurive DeleteAction.DELETE without hogging Java stack
         final ArrayList<ObjId> deletables = new ArrayList<>(1);
         deletables.add(id);
@@ -715,6 +718,8 @@ public class Transaction {
             id = deletables.remove(size - 1);
             found |= this.doDelete(id, deletables);
         }
+
+        // Done
         return found;
     }
 
@@ -729,6 +734,8 @@ public class Transaction {
                 info = this.getObjectInfo(id, false);
             } catch (DeletedObjectException e) {                    // possibly due to a cycle of DeleteAction.DELETE references
                 return false;
+            } catch (UnknownTypeException e) {
+                throw new InconsistentDatabaseException("encountered reference with unknown type during delete cascade: " + id, e);
             }
 
             // Determine if any EXCEPTION reference fields refer to the object (from some other object); if so, throw exception
@@ -862,14 +869,14 @@ public class Transaction {
      * </p>
      *
      * @param id object ID of the object to find
-     * @return true if object was found, false if object was not found
+     * @return true if object was found, false if object was not found, or if {@code id} specifies an unknown object type
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized boolean exists(ObjId id) {
         try {
             this.getObjectInfo(id, false);
-        } catch (DeletedObjectException e) {
+        } catch (DeletedObjectException | UnknownTypeException e) {
             return false;
         }
         return true;
@@ -901,6 +908,8 @@ public class Transaction {
      * @param dest destination transaction containing {@code target} (possibly same as this transaction)
      * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
+     * @throws UnknownTypeException if {@code source} or {@code target} specifies an unknown object type
+     * @throws IllegalArgumentException if {@code source} and {@code target} specify different object types
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if any {@code source} and {@code target} have different object types
      * @throws ReadOnlyTransactionException if {@code dest} has been {@linkplain #setReadOnly set read-only}
@@ -1099,8 +1108,9 @@ public class Transaction {
      *
      * @param id object id
      * @return object's current schema version
-     * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
+     * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized int getSchemaVersion(ObjId id) {
@@ -1129,6 +1139,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws IllegalArgumentException if {@code id} is null
      * @throws TypeNotInSchemaVersionException if the object version could not be updated because the object's type
      *   does not exist in the schema version associated with this transaction
@@ -1178,7 +1189,7 @@ public class Transaction {
         final ObjType newType;
         try {
             newType = targetVersion.getSchemaItem(id.getStorageId(), ObjType.class);
-        } catch (IllegalArgumentException e) {
+        } catch (UnknownTypeException e) {
             throw (TypeNotInSchemaVersionException)new TypeNotInSchemaVersionException(id, newVersion).initCause(e);
         }
 
@@ -1422,6 +1433,7 @@ public class Transaction {
      * @return value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
      * @throws IllegalArgumentException if {@code id} is null
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
@@ -1466,6 +1478,7 @@ public class Transaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists in the object
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
@@ -1550,6 +1563,7 @@ public class Transaction {
      * @return value of the counter in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
@@ -1594,6 +1608,7 @@ public class Transaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws UnknownFieldException if no {@link CounterField} corresponding to {@code storageId} exists in the object
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
@@ -1685,6 +1700,7 @@ public class Transaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists in the object
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
@@ -1707,6 +1723,7 @@ public class Transaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists in the object
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
@@ -1729,6 +1746,7 @@ public class Transaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
+     * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists in the object
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
@@ -1744,7 +1762,7 @@ public class Transaction {
      * <p>
      * Notes:
      * <ul>
-     *  <li>This method does not check whether the object actually exists.</li>
+     *  <li>This method does not check whether {@code id} is valid or the object actually exists.</li>
      *  <li>Objects utilize mutiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link org.jsimpledb.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
@@ -1766,7 +1784,8 @@ public class Transaction {
      * <p>
      * Notes:
      * <ul>
-     *  <li>This method does not check whether the object exists or the field actually exists in the object.</li>
+     *  <li>This method does not check whether {@code id} is valid, the object exists,
+     *      or the field actually exists in the object.</li>
      *  <li>Complex fields utilize mutiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link org.jsimpledb.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
@@ -1835,15 +1854,19 @@ public class Transaction {
     }
 
     /**
-     * Read an object's simple fields, updating its schema version it in the process if requested.
+     * Read an object's meta-data, updating its schema version it in the process if requested.
      *
      * @param id object ID of the object
      * @param update true to update object's schema version to match this transaction, false to leave it alone
      * @return object info
+     * @throws UnknownTypeException object ID specifies an unknown object type
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws IllegalArgumentException if {@code id} is null
      */
     private ObjInfo getObjectInfo(ObjId id, boolean update) {
+
+        // Check object type
+        this.schema.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.class);
 
         // Check schema version
         final ObjInfo info = new ObjInfo(this, id);
