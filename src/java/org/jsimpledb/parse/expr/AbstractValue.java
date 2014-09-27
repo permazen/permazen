@@ -39,41 +39,16 @@ public abstract class AbstractValue implements Value {
         return value;
     }
 
-    /**
-     * Evaluate this value, verify that it has boolean type, and return it.
-     *
-     * @param session current session
-     * @param operation description of operation for error messages
-     * @return boolean value
-     * @throws EvalException if this value is not boolean
-     */
     @Override
     public boolean checkBoolean(ParseSession session, String operation) {
         return this.checkType(session, operation, Boolean.class);
     }
 
-    /**
-     * Evaluate this value, verify that it has numeric type (i.e., {@link Number}), and return it.
-     *
-     * @param session current session
-     * @param operation description of operation for error messages
-     * @return numeric value
-     * @throws EvalException if this value is not numeric
-     */
     @Override
     public Number checkNumeric(ParseSession session, String operation) {
         return AbstractValue.checkNumeric(session, this.get(session), operation);
     }
 
-    /**
-     * Evaluate this value, verify that it has integral type (i.e., byte, char, short, or int), and return it.
-     * Return its integer value.
-     *
-     * @param session current session
-     * @param operation description of operation for error messages
-     * @return integer value
-     * @throws EvalException if this value is not integral
-     */
     @Override
     public int checkIntegral(ParseSession session, String operation) {
         final Object value = this.checkNotNull(session, operation);
@@ -84,15 +59,6 @@ public abstract class AbstractValue implements Value {
         return ((Number)value).intValue();
     }
 
-    /**
-     * Evaluate this value, verify that it has the expected type (or any sub-type), and return it.
-     * Return its value cast to that type.
-     *
-     * @param session current session
-     * @param operation description of operation for error messages
-     * @return typed value
-     * @throws EvalException if this value does not have the expected type
-     */
     @Override
     public <T> T checkType(ParseSession session, String operation, Class<T> type) {
         if (type == null)
@@ -105,17 +71,6 @@ public abstract class AbstractValue implements Value {
         return type.cast(value);
     }
 
-    /**
-     * Increment/decrement this value. Also supports {@link BigInteger} and {@link BigDecimal}.
-     * This value must be an {@link LValue}.
-     *
-     * @param session current session
-     * @param operation description of operation for error messages
-     * @param increment true to increment, false to decrement
-     * @return the adjusted value (which will not be an {@link LValue})
-     * @throws EvalException if this value is not an {@link LValue}
-     * @throws EvalException if this value is not numeric, {@link BigInteger} or {@link BigDecimal}
-     */
     @Override
     public Value xxcrement(ParseSession session, String operation, boolean increment) {
         final int amount = increment ? 1 : -1;
@@ -147,12 +102,6 @@ public abstract class AbstractValue implements Value {
         return result;
     }
 
-    /**
-     * Negate this value.
-     *
-     * @param session current session
-     * @throws EvalException if this value is not numeric
-     */
     @Override
     public Value negate(ParseSession session) {
         final Number num = AbstractValue.promoteNumeric(session, this.get(session), "negate");
@@ -171,12 +120,6 @@ public abstract class AbstractValue implements Value {
         throw new EvalException("invalid negate operation on " + AbstractValue.describeType(num));
     }
 
-    /**
-     * Bitwise invert this value.
-     *
-     * @param session current session
-     * @throws EvalException if this value is not numeric
-     */
     @Override
     public Value invert(ParseSession session) {
         final Number num = AbstractValue.promoteNumeric(session, this.get(session), "invert");
@@ -187,13 +130,6 @@ public abstract class AbstractValue implements Value {
         throw new EvalException("invalid invert operation on " + AbstractValue.describeType(num));
     }
 
-    /**
-     * Multiply this value.
-     *
-     * @param session current session
-     * @param that multiplicand
-     * @throws EvalException if value(s) are not numeric
-     */
     @Override
     public Value multiply(ParseSession session, Value that) {
         final Object thisValue = this.get(session);
@@ -216,13 +152,6 @@ public abstract class AbstractValue implements Value {
           + lnum.getClass().getName() + " and " + rnum.getClass().getName());
     }
 
-    /**
-     * Divide this value.
-     *
-     * @param session current session
-     * @param that divisor
-     * @throws EvalException if value(s) are not numeric
-     */
     @Override
     public Value divide(ParseSession session, Value that) {
         final Object thisValue = this.get(session);
@@ -245,13 +174,6 @@ public abstract class AbstractValue implements Value {
           + lnum.getClass().getName() + " and " + rnum.getClass().getName());
     }
 
-    /**
-     * Modulo this value.
-     *
-     * @param session current session
-     * @param that divisor
-     * @throws EvalException if value(s) are not numeric
-     */
     @Override
     public Value mod(ParseSession session, Value that) {
         final Object thisValue = this.get(session);
@@ -272,13 +194,6 @@ public abstract class AbstractValue implements Value {
           + lnum.getClass().getName() + " and " + rnum.getClass().getName());
     }
 
-    /**
-     * Add this value.
-     *
-     * @param session current session
-     * @param that addend
-     * @throws EvalException if value(s) are not numeric or {@link String}
-     */
     @Override
     public Value add(ParseSession session, Value that) {
 
@@ -307,13 +222,6 @@ public abstract class AbstractValue implements Value {
           + lnum.getClass().getName() + " and " + rnum.getClass().getName());
     }
 
-    /**
-     * Subtract this value. Also supports {@link Set} and {@link NavigableSet} difference.
-     *
-     * @param session current session
-     * @param that subtrahend
-     * @throws EvalException if value(s) are not numeric or {@link Set}
-     */
     @Override
     @SuppressWarnings("unchecked")
     public Value subtract(ParseSession session, Value that) {
@@ -351,13 +259,6 @@ public abstract class AbstractValue implements Value {
           + lnum.getClass().getName() + " and " + rnum.getClass().getName());
     }
 
-    /**
-     * Left shift this value.
-     *
-     * @param session current session
-     * @param that shift amount
-     * @throws EvalException if value(s) are not numeric
-     */
     @Override
     public Value lshift(ParseSession session, Value arg) {
         final Object thisValue = this.get(session);
@@ -376,13 +277,6 @@ public abstract class AbstractValue implements Value {
           + AbstractValue.describeType(target) + " and " + AbstractValue.describeType(shift));
     }
 
-    /**
-     * Right shift this value.
-     *
-     * @param session current session
-     * @param that shift amount
-     * @throws EvalException if value(s) are not numeric
-     */
     @Override
     public Value rshift(ParseSession session, Value arg) {
         final Object thisValue = this.get(session);
@@ -401,13 +295,6 @@ public abstract class AbstractValue implements Value {
           + AbstractValue.describeType(target) + " and " + AbstractValue.describeType(shift));
     }
 
-    /**
-     * Unsigned right shift this value.
-     *
-     * @param session current session
-     * @param that shift amount
-     * @throws EvalException if value(s) are not numeric
-     */
     @Override
     public Value urshift(ParseSession session, Value arg) {
         final Object thisValue = this.get(session);
@@ -426,13 +313,6 @@ public abstract class AbstractValue implements Value {
           + AbstractValue.describeType(target) + " and " + AbstractValue.describeType(shift));
     }
 
-    /**
-     * And this value. Also supports {@link Set} and {@link NavigableSet} intersection.
-     *
-     * @param session current session
-     * @param that and value
-     * @throws EvalException if value(s) are not numeric, boolean, or {@link Set}
-     */
     @Override
     @SuppressWarnings("unchecked")
     public Value and(ParseSession session, Value that) {
@@ -467,13 +347,6 @@ public abstract class AbstractValue implements Value {
         return new ConstValue(((Integer)lnum).intValue() & ((Integer)rnum).intValue());
     }
 
-    /**
-     * Or this value. Also supports {@link Set} and {@link NavigableSet} union.
-     *
-     * @param session current session
-     * @param that or value
-     * @throws EvalException if value(s) are not numeric, boolean, or {@link Set}
-     */
     @Override
     @SuppressWarnings("unchecked")
     public Value or(ParseSession session, Value that) {
@@ -508,13 +381,6 @@ public abstract class AbstractValue implements Value {
         return new ConstValue(((Integer)lnum).intValue() | ((Integer)rnum).intValue());
     }
 
-    /**
-     * Xor this value.
-     *
-     * @param session current session
-     * @param that xor value
-     * @throws EvalException if value(s) are not numeric or boolean
-     */
     @Override
     @SuppressWarnings("unchecked")
     public Value xor(ParseSession session, Value that) {
@@ -551,14 +417,6 @@ public abstract class AbstractValue implements Value {
         return new ConstValue(((Integer)lnum).intValue() ^ ((Integer)rnum).intValue());
     }
 
-    /**
-     * Compare to another value, returning boolean. Also supports {@link Comparable} comparison.
-     *
-     * @param session current session
-     * @param that value to compare to
-     * @param mask bit mask with bits {@link #LT}, {@link #GT}, and/or {@link #EQ}
-     * @throws EvalException if value(s) are not numeric or mutually {@link Comparable}
-     */
     @Override
     @SuppressWarnings("unchecked")
     public Value compare(ParseSession session, Value that, int mask) {
@@ -605,13 +463,6 @@ public abstract class AbstractValue implements Value {
           + AbstractValue.describeType(thisValue) + " and " + AbstractValue.describeType(thatValue));
     }
 
-    /**
-     * Verify that this instance is actually an {@link LValue}.
-     *
-     * @param operation description of operation for error messages
-     * @return this instance cast to {@link LValue}
-     * @throws EvalException if this instance is not an {@link LValue}
-     */
     @Override
     public LValue asLValue(String operation) {
         try {
