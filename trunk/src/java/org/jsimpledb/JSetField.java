@@ -82,7 +82,8 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    <T> void addIndexEntryReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType, JSimpleField subField) {
+    <T, V> void addIndexEntryReturnTypes(List<TypeToken<?>> types,
+      TypeToken<T> targetType, JSimpleField subField, TypeToken<V> valueType) {
         // there are no index entry types for sets
     }
 
