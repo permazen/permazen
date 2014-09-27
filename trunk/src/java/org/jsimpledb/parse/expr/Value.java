@@ -92,7 +92,7 @@ public interface Value {
     <T> T checkType(ParseSession session, String operation, Class<T> type);
 
     /**
-     * Increment/decrement this value. Also supports {@link BigInteger} and {@link BigDecimal}.
+     * Increment/decrement this value. Also supports {@link java.math.BigInteger} and {@link java.math.BigDecimal}.
      * This value must be an {@link LValue}.
      *
      * @param session current session
@@ -100,7 +100,7 @@ public interface Value {
      * @param increment true to increment, false to decrement
      * @return the adjusted value (which will not be an {@link LValue})
      * @throws EvalException if this value is not an {@link LValue}
-     * @throws EvalException if this value is not numeric, {@link BigInteger} or {@link BigDecimal}
+     * @throws EvalException if this value is not numeric, {@link java.math.BigInteger} or {@link java.math.BigDecimal}
      */
     Value xxcrement(ParseSession session, String operation, boolean increment);
 
@@ -157,11 +157,11 @@ public interface Value {
     Value add(ParseSession session, Value that);
 
     /**
-     * Subtract this value. Also supports {@link Set} and {@link NavigableSet} difference.
+     * Subtract this value. Also supports {@link java.util.Set} and {@link java.util.NavigableSet} difference.
      *
      * @param session current session
      * @param that subtrahend
-     * @throws EvalException if value(s) are not numeric or {@link Set}
+     * @throws EvalException if value(s) are not numeric or {@link java.util.Set}
      */
     Value subtract(ParseSession session, Value that);
 
@@ -169,7 +169,7 @@ public interface Value {
      * Left shift this value.
      *
      * @param session current session
-     * @param that shift amount
+     * @param arg shift amount
      * @throws EvalException if value(s) are not numeric
      */
     Value lshift(ParseSession session, Value arg);
@@ -178,7 +178,7 @@ public interface Value {
      * Right shift this value.
      *
      * @param session current session
-     * @param that shift amount
+     * @param arg shift amount
      * @throws EvalException if value(s) are not numeric
      */
     Value rshift(ParseSession session, Value arg);
@@ -187,26 +187,26 @@ public interface Value {
      * Unsigned right shift this value.
      *
      * @param session current session
-     * @param that shift amount
+     * @param arg shift amount
      * @throws EvalException if value(s) are not numeric
      */
     Value urshift(ParseSession session, Value arg);
 
     /**
-     * And this value. Also supports {@link Set} and {@link NavigableSet} intersection.
+     * And this value. Also supports {@link java.util.Set} and {@link java.util.NavigableSet} intersection.
      *
      * @param session current session
      * @param that and value
-     * @throws EvalException if value(s) are not numeric, boolean, or {@link Set}
+     * @throws EvalException if value(s) are not numeric, boolean, or {@link java.util.Set}
      */
     Value and(ParseSession session, Value that);
 
     /**
-     * Or this value. Also supports {@link Set} and {@link NavigableSet} union.
+     * Or this value. Also supports {@link java.util.Set} and {@link java.util.NavigableSet} union.
      *
      * @param session current session
      * @param that or value
-     * @throws EvalException if value(s) are not numeric, boolean, or {@link Set}
+     * @throws EvalException if value(s) are not numeric, boolean, or {@link java.util.Set}
      */
     Value or(ParseSession session, Value that);
 
