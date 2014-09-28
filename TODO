@@ -17,9 +17,7 @@
 
 - Bug: JSimpleDB reference field's target type can change across schema
   versions, resulting in possible ClassCastExceptions at runtime.
-    - On version change notification, apply the configured DeleteAction
-      to all such references.
-    - Use the corresponding index to quickly locate offending references.
+    - Need to throw TypeNotInSchemaException if appropriate when converting
 
 - Build and distribute binary distribution
     - lib subdirectory with dependencies
