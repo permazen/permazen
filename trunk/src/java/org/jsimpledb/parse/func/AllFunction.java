@@ -141,7 +141,7 @@ public class AllFunction extends AbstractFunction {
             jclass = JTransaction.getCurrent().getJSimpleDB().getJClass(storageId);
         } catch (IllegalArgumentException e) {
             throw new EvalException("no type with storage ID " + storageId + " exists in schema version "
-              + JTransaction.getCurrent().getJSimpleDB().getLastVersion());
+              + JTransaction.getCurrent().getJSimpleDB().getActualVersion());
         }
         return new AbstractValue() {
             @Override

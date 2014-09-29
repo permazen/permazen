@@ -81,7 +81,7 @@ public class JSimpleDB {
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final ClassGenerator<UntypedJObject> untypedClassGenerator = new ClassGenerator<UntypedJObject>(UntypedJObject.class);
     final Database db;
-    final int version;
+    final int configuredVersion;
     final JObjectCache jobjectCache = new JObjectCache(this) {
         @Override
         protected JObject instantiate(ClassGenerator<?> classGenerator, ObjId id) throws Exception {
@@ -89,7 +89,7 @@ public class JSimpleDB {
         }
     };
 
-    volatile int lastVersion;
+    volatile int actualVersion;
 
     private SchemaModel schemaModel;
     private NameIndex nameIndex;
@@ -143,7 +143,7 @@ public class JSimpleDB {
         if (classes == null)
             throw new IllegalArgumentException("null classes");
         this.db = database;
-        this.version = version;
+        this.configuredVersion = version;
 
         // Inventory classes; automatically add all @JSimpleClass-annotated superclasses of @JSimpleClass-annotated classes
         final HashSet<Class<?>> jsimpleClasses = new HashSet<>();
@@ -233,29 +233,39 @@ public class JSimpleDB {
     }
 
     /**
-     * Get the schema version that this instance will use.
+     * Get the schema version that this instance was configured to use. This will either be a specific non-zero
+     * schema version number, or else zero, indicating that the highest schema version found in the database should
+     * be used.
      *
      * @return the schema version that this instance will use when opening transactions via
      *  {@link Database#createTransaction Database.createTransaction()}
      */
-    public int getVersion() {
-        return this.version;
+    public int getConfiguredVersion() {
+        return this.configuredVersion;
     }
 
     /**
      * Get the schema version that this instance used for the most recently created transaction.
      *
      * <p>
-     * If no transations have been created yet, this returns zero. Otherwise, it returns the schema version
-     * used by the most recently created transaction. If the {@code version} passed to the constructor was zero,
-     * this method can be used to get the highest schema version recorded in the database;
-     * otherwise, this will necessarily be the same non-zero value.
+     * If no transactions have been created yet, this returns zero. Otherwise, it returns the schema version
+     * used by the most recently created transaction.
      * </p>
      *
-     * @return the schema version that this instance used in the most recent transaction
+     * <p>
+     * If the {@code version} passed to the constructor was zero, this method can be used to read the highest schema
+     * version seen in the database by the most recently created transaction.
+     * </p>
+     *
+     * <p>
+     * If the {@code version} passed to the constructor was non-zero, and at least one transaction has been created,
+     * this method will return the same value.
+     * </p>
+     *
+     * @return the schema version that this instance used in the most recently created transaction
      */
-    public int getLastVersion() {
-        return this.lastVersion;
+    public int getActualVersion() {
+        return this.actualVersion;
     }
 
     /**
@@ -300,8 +310,8 @@ public class JSimpleDB {
     public JTransaction createTransaction(boolean allowNewSchema, ValidationMode validationMode) {
         if (validationMode == null)
             throw new IllegalArgumentException("null validationMode");
-        final Transaction tx = this.db.createTransaction(this.getSchemaModel(), this.version, allowNewSchema);
-        this.lastVersion = tx.getSchema().getSchemaVersions().lastKey();
+        final Transaction tx = this.db.createTransaction(this.getSchemaModel(), this.configuredVersion, allowNewSchema);
+        this.actualVersion = tx.getSchema().getSchemaVersions().lastKey();
         return new JTransaction(this, tx, validationMode);
     }
 
