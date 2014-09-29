@@ -163,7 +163,7 @@ public class MainPanel extends VerticalLayout {
         final HorizontalLayout buttonRow = new HorizontalLayout();
         buttonRow.setSpacing(true);
         buttonRow.setWidth("100%");
-        final SizedLabel versionLabel = new SizedLabel("Schema Version " + this.jdb.getLastVersion());
+        final SizedLabel versionLabel = new SizedLabel("Schema Version " + this.jdb.getActualVersion());
         buttonRow.addComponent(versionLabel);
         buttonRow.setComponentAlignment(versionLabel, Alignment.MIDDLE_LEFT);
         final Label spacer1 = new Label();
@@ -227,7 +227,7 @@ public class MainPanel extends VerticalLayout {
             jclass = this.jdb.getJClass(storageId);
         } catch (IllegalArgumentException e) {
             Notification.show("Can't edit object " + id + " having unknown type",
-              "The type with storage ID " + storageId + " does not exist in schema version " + this.jdb.getLastVersion(),
+              "The type with storage ID " + storageId + " does not exist in schema version " + this.jdb.getActualVersion(),
               Notification.Type.WARNING_MESSAGE);
             return;
         }
@@ -299,7 +299,7 @@ public class MainPanel extends VerticalLayout {
 // Upgrade
 
     private void upgradeButtonClicked(ObjId id) {
-        final int newVersion = this.jdb.getLastVersion();
+        final int newVersion = this.jdb.getActualVersion();
         this.log.info("upgrading object " + id + " to schema version " + newVersion);
         final int oldVersion = this.doUpgrade(id);
         switch (oldVersion) {
@@ -335,7 +335,7 @@ public class MainPanel extends VerticalLayout {
     @Transactional("jsimpledbGuiTransactionManager")
     private boolean canUpgrade(ObjId id) {
         final JObject jobj = JTransaction.getCurrent().getJObject(id);
-        return jobj.exists() && jobj.getSchemaVersion() != this.jdb.getLastVersion();
+        return jobj.exists() && jobj.getSchemaVersion() != this.jdb.getActualVersion();
     }
 
 // EditWindow
