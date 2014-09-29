@@ -49,5 +49,10 @@ class ConvertedComparator<E, W> implements Comparator<E> {
     public int hashCode() {
         return (this.comparator != null ? this.comparator.hashCode() : 0) ^ this.converter.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[converter=" + this.converter + ",comparator=" + this.comparator + "]";
+    }
 }
 

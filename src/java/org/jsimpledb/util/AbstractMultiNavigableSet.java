@@ -67,8 +67,10 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
         final Comparator<? super E> comparator = i.next().comparator();
         while (i.hasNext()) {
             final Comparator<? super E> comparator2 = i.next().comparator();
-            if (!(comparator == null ? comparator2 == null : comparator.equals(comparator2)))
-                throw new IllegalArgumentException("sets have unequal comparators");
+            if (!(comparator == null ? comparator2 == null : comparator.equals(comparator2))) {
+                throw new IllegalArgumentException("sets have unequal comparators (e.g., "
+                  + comparator + " and " + comparator2 + ")");
+            }
         }
         return comparator;
     }
