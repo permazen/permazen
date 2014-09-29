@@ -10,6 +10,7 @@ package org.jsimpledb;
 import com.google.common.base.Converter;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.dellroad.stuff.java.EnumUtil;
 import org.jsimpledb.core.EnumValue;
@@ -26,8 +27,8 @@ import org.jsimpledb.core.EnumValue;
 public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
 
     private final Class<T> enumType;
-    private final HashMap<Integer, T> ordinalMap = new HashMap<>();
-    private final HashMap<String, T> nameMap = new HashMap<>();
+    private final HashMap<Integer, T> ordinalMap;
+    private final HashMap<String, T> nameMap;
 
     /**
      * Constructor.
@@ -40,7 +41,10 @@ public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
             throw new IllegalArgumentException("null enumType");
         enumType.asSubclass(Enum.class);                            // verify it's really an Enum
         this.enumType = enumType;
-        for (T value : EnumUtil.getValues(this.enumType)) {
+        final List<T> values = EnumUtil.getValues(this.enumType);
+        this.ordinalMap = new HashMap<>(values.size());
+        this.nameMap = new HashMap<>(values.size());
+        for (T value : values) {
             this.ordinalMap.put(value.ordinal(), value);
             this.nameMap.put(value.name(), value);
         }
@@ -70,6 +74,28 @@ public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
      */
     public Class<T> getEnumType() {
         return this.enumType;
+    }
+
+// Object
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+        final EnumConverter<?> that = (EnumConverter<?>)obj;
+        return this.enumType == that.enumType;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.enumType.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[type=" + this.enumType.getName() + "]";
     }
 }
 
