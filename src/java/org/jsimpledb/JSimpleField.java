@@ -117,7 +117,7 @@ public class JSimpleField extends JField {
      * Currently, these are the only field types that require conversion:
      * <ul>
      *  <li>Reference fields require conversion from {@link org.jsimpledb.core.ObjId} to Java model object
-     *  (i.e., {@link JObject})</li>
+     *  (i.e., the generated subclass that implements {@link JObject})</li>
      *  <li>{@link Enum} types require conversion from {@link org.jsimpledb.core.EnumValue} to Java {@link Enum} values</li>
      * </ul>
      * </p>

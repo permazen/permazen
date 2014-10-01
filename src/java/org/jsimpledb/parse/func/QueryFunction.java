@@ -65,7 +65,7 @@ public class QueryFunction extends AbstractFunction {
             @Override
             public Object get(ParseSession session) {
                 return session.hasJSimpleDB() ?
-                  JTransaction.getCurrent().querySimpleField(storageId, null) :
+                  JTransaction.getCurrent().queryIndex(storageId, null) :
                   session.getTransaction().querySimpleField(storageId);
             }
         };

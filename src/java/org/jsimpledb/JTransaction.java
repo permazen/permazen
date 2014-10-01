@@ -156,7 +156,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #readSetField readSetField()} - Access a set field</li>
  *  <li>{@link #readListField readListField()} - Access a list field</li>
  *  <li>{@link #readMapField readMapField()} - Access a map field</li>
- *  <li>{@link #querySimpleField(int, Class) querySimpleField()} - Query a simple field index by storage ID</li>
+ *  <li>{@link #queryIndex(int, Class) queryIndex()} - Query a simple field index by storage ID</li>
  *  <li>{@link #queryListFieldEntries(int, Class) queryListFieldEntries()} - Query a list field entry index by storage ID</li>
  *  <li>{@link #queryMapFieldKeyEntries(int, Class) queryMapFieldKeyEntries()}
  *      - Query a map field key entry index by storage ID</li>
@@ -865,7 +865,7 @@ public class JTransaction {
 
     /**
      * Update the schema version of the specified object, if necessary, so that its version matches
-     * the schema version associated with this {@link JSimpleDB}.
+     * the schema version associated with this instance's {@link JSimpleDB}.
      *
      * <p>
      * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange} methods will be invoked prior
@@ -1122,7 +1122,7 @@ public class JTransaction {
     @SuppressWarnings("unchecked")
     public <S, V> NavigableMap<V, NavigableSet<S>> queryIndex(Class<S> type, String fieldName, Class<V> valueType) {
         final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
-        return (NavigableMap<V, NavigableSet<S>>)(Object)this.querySimpleField(indexInfo.targetField.storageId,
+        return (NavigableMap<V, NavigableSet<S>>)(Object)this.queryIndex(indexInfo.targetField.storageId,
           indexInfo.type.getRawType());
     }
 
@@ -1130,7 +1130,7 @@ public class JTransaction {
      * Access an indexed list field's index for {@link ListIndexEntry}s.
      *
      * <p>
-     * This method is a variant of {@link #queryIndex queryIndex()} that returns information not only about the
+     * This method is a variant of {@link #queryIndex queryIndex(Class, String, Class)} that returns information not only about the
      * object containing the list field, but also the index of the value in the list.
      * </p>
      *
@@ -1158,7 +1158,7 @@ public class JTransaction {
      * Access an indexed map field's index for {@link MapKeyIndexEntry}s.
      *
      * <p>
-     * This method is a variant of {@link #queryIndex queryIndex()} that returns information not only about the
+     * This method is a variant of {@link #queryIndex queryIndex(Class, String, Class)} that returns information not only about the
      * object containing the map field, but also the value corresponding to the key in the map.
      * </p>
      *
@@ -1193,7 +1193,7 @@ public class JTransaction {
      * Access an indexed map field's index for {@link MapValueIndexEntry}s.
      *
      * <p>
-     * This method is a variant of {@link #queryIndex queryIndex()} that returns information not only about the
+     * This method is a variant of {@link #queryIndex queryIndex(Class, String, Class)} that returns information not only about the
      * object containing the map field, but also the key corresponding to the value in the map.
      * </p>
      *
@@ -1264,7 +1264,7 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, NavigableSet<JObject>> querySimpleField(int storageId, Class<?> type) {
+    public NavigableMap<?, NavigableSet<JObject>> queryIndex(int storageId, Class<?> type) {
         Converter<?, ?> keyConverter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
         final NavigableSetConverter<JObject, ObjId> valueConverter = new NavigableSetConverter(this.referenceConverter);
@@ -1611,7 +1611,7 @@ public class JTransaction {
         // This method exists solely to bind the generic type parameters
         private <T> void doOnVersionChange(JClass<T> jclass, ObjId id,
           int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-            Object jobj = null;
+            JObject jobj = null;
             final SchemaVersion oldSchema = JTransaction.this.tx.getSchema().getVersion(oldVersion);
             for (OnVersionChangeScanner<T>.MethodInfo info : jclass.onVersionChangeMethods) {
                 final OnVersionChange annotation = info.getAnnotation();
