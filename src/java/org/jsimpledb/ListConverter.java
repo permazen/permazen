@@ -24,6 +24,8 @@ class ListConverter<E, W> extends Converter<List<E>, List<W>> {
     private final Converter<E, W> elementConverter;
 
     ListConverter(Converter<E, W> elementConverter) {
+        if (elementConverter == null)
+            throw new IllegalArgumentException("null elementConverter");
         this.elementConverter = elementConverter;
     }
 
@@ -39,6 +41,28 @@ class ListConverter<E, W> extends Converter<List<E>, List<W>> {
         if (set == null)
             return null;
         return new ConvertedList<E, W>(set, this.elementConverter);
+    }
+
+// Object
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+        final ListConverter<?, ?> that = (ListConverter<?, ?>)obj;
+        return this.elementConverter.equals(that.elementConverter);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.elementConverter.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[elementConverter=" + this.elementConverter + "]";
     }
 }
 

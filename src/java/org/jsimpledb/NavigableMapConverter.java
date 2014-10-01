@@ -27,6 +27,10 @@ class NavigableMapConverter<K, V, WK, WV> extends Converter<NavigableMap<K, V>, 
     private final Converter<V, WV> valueConverter;
 
     NavigableMapConverter(Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
+        if (keyConverter == null)
+            throw new IllegalArgumentException("null keyConverter");
+        if (valueConverter == null)
+            throw new IllegalArgumentException("null valueConverter");
         this.keyConverter = keyConverter;
         this.valueConverter = valueConverter;
     }
@@ -43,6 +47,29 @@ class NavigableMapConverter<K, V, WK, WV> extends Converter<NavigableMap<K, V>, 
         if (map == null)
             return null;
         return new ConvertedNavigableMap<K, V, WK, WV>(map, this.keyConverter, this.valueConverter);
+    }
+
+// Object
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+        final NavigableMapConverter<?, ?, ?, ?> that = (NavigableMapConverter<?, ?, ?, ?>)obj;
+        return this.keyConverter.equals(that.keyConverter) && this.valueConverter.equals(that.valueConverter);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.keyConverter.hashCode() ^ this.valueConverter.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[keyConverter=" + this.keyConverter
+          + ",valueConverter=" + this.valueConverter + "]";
     }
 }
 
