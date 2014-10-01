@@ -14,6 +14,8 @@ class ListIndexEntryConverter<T> extends Converter<ListIndexEntry<T>, org.jsimpl
     private final ReferenceConverter referenceConverter;
 
     ListIndexEntryConverter(ReferenceConverter referenceConverter) {
+        if (referenceConverter == null)
+            throw new IllegalArgumentException("null referenceConverter");
         this.referenceConverter = referenceConverter;
     }
 
@@ -31,6 +33,28 @@ class ListIndexEntryConverter<T> extends Converter<ListIndexEntry<T>, org.jsimpl
         if (entry == null)
             return null;
         return new ListIndexEntry<T>((T)this.referenceConverter.reverse().convert(entry.getObjId()), entry.getIndex());
+    }
+
+// Object
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+        final ListIndexEntryConverter<?> that = (ListIndexEntryConverter<?>)obj;
+        return this.referenceConverter.equals(that.referenceConverter);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.referenceConverter.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[referenceConverter=" + this.referenceConverter + "]";
     }
 }
 

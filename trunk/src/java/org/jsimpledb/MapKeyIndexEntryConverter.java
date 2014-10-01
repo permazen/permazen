@@ -15,6 +15,10 @@ class MapKeyIndexEntryConverter<T, V, WV> extends Converter<MapKeyIndexEntry<T, 
     private final Converter<V, WV> valueConverter;
 
     MapKeyIndexEntryConverter(ReferenceConverter referenceConverter, Converter<V, WV> valueConverter) {
+        if (referenceConverter == null)
+            throw new IllegalArgumentException("null referenceConverter");
+        if (valueConverter == null)
+            throw new IllegalArgumentException("null valueConverter");
         this.referenceConverter = referenceConverter;
         this.valueConverter = valueConverter;
     }
@@ -34,6 +38,29 @@ class MapKeyIndexEntryConverter<T, V, WV> extends Converter<MapKeyIndexEntry<T, 
             return null;
         return new MapKeyIndexEntry<T, V>((T)this.referenceConverter.reverse().convert(entry.getObjId()),
           this.valueConverter.reverse().convert(entry.getValue()));
+    }
+
+// Object
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+        final MapKeyIndexEntryConverter<?, ?, ?> that = (MapKeyIndexEntryConverter<?, ?, ?>)obj;
+        return this.referenceConverter.equals(that.referenceConverter) && this.valueConverter.equals(that.valueConverter);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.referenceConverter.hashCode() ^ this.valueConverter.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[referenceConverter=" + this.referenceConverter
+          + ",valueConverter=" + this.valueConverter + "]";
     }
 }
 

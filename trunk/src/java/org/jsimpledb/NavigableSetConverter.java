@@ -24,6 +24,8 @@ class NavigableSetConverter<E, W> extends Converter<NavigableSet<E>, NavigableSe
     private final Converter<E, W> elementConverter;
 
     NavigableSetConverter(Converter<E, W> elementConverter) {
+        if (elementConverter == null)
+            throw new IllegalArgumentException("null elementConverter");
         this.elementConverter = elementConverter;
     }
 
@@ -39,6 +41,28 @@ class NavigableSetConverter<E, W> extends Converter<NavigableSet<E>, NavigableSe
         if (set == null)
             return null;
         return new ConvertedNavigableSet<E, W>(set, this.elementConverter);
+    }
+
+// Object
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass())
+            return false;
+        final NavigableSetConverter<?, ?> that = (NavigableSetConverter<?, ?>)obj;
+        return this.elementConverter.equals(that.elementConverter);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.elementConverter.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[elementConverter=" + this.elementConverter + "]";
     }
 }
 
