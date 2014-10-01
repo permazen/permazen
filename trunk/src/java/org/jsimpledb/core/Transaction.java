@@ -612,7 +612,7 @@ public class Transaction {
      *
      * @param storageId object type storage ID
      * @return random unassigned object id
-     * @throws UnknownTypeException if {@code id} specifies an unknown object type
+     * @throws UnknownTypeException if {@code storageId} does not correspond to any known object type
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized ObjId generateId(int storageId) {
@@ -1859,7 +1859,7 @@ public class Transaction {
      * @param id object ID of the object
      * @param update true to update object's schema version to match this transaction, false to leave it alone
      * @return object info
-     * @throws UnknownTypeException object ID specifies an unknown object type
+     * @throws UnknownTypeException if object ID specifies an unknown object type
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws IllegalArgumentException if {@code id} is null
      */

@@ -75,7 +75,7 @@ class ClassGenerator<T> {
     static final Method GET_SCHEMA_VERSION_METHOD;
     static final Method UPDATE_SCHEMA_VERSION_METHOD;
     static final Method REVALIDATE_METHOD;
-    static final Method QUERY_SIMPLE_FIELD_METHOD;
+    static final Method QUERY_INDEX_METHOD;
     static final Method QUERY_LIST_FIELD_ENTRIES_METHOD;
     static final Method QUERY_MAP_FIELD_KEY_ENTRIES_METHOD;
     static final Method QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD;
@@ -115,7 +115,7 @@ class ClassGenerator<T> {
             GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", JObject.class);
             UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
             REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", JObject.class);
-            QUERY_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("querySimpleField", int.class, Class.class);
+            QUERY_INDEX_METHOD = JTransaction.class.getMethod("queryIndex", int.class, Class.class);
             QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class, Class.class);
             QUERY_MAP_FIELD_KEY_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldKeyEntries", int.class, Class.class);
             QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldValueEntries",
@@ -466,7 +466,7 @@ class ClassGenerator<T> {
             mv.visitLdcInsn(isEntryQuery ? indexInfo.targetSuperField.storageId : indexInfo.targetField.storageId);
             mv.visitLdcInsn(Type.getType(indexInfo.type.getRawType()));
             this.emitInvoke(mv, isEntryQuery ?
-              indexInfo.targetSuperField.getIndexEntryQueryMethod(indexMethodInfo.queryType) : QUERY_SIMPLE_FIELD_METHOD);
+              indexInfo.targetSuperField.getIndexEntryQueryMethod(indexMethodInfo.queryType) : QUERY_INDEX_METHOD);
             mv.visitInsn(Opcodes.ARETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();

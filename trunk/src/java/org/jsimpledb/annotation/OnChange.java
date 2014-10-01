@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * In all cases the annotated method must return void and take a single parameter, which is compatible with one or more
  * of the {@link org.jsimpledb.change.FieldChange} sub-types appropriate for the field being watched.
  * The method may have any level of access, including {@code private}.
- * The methdo parameter type can be used to restrict which notifications are delivered. For example, an annotated method
+ * The method parameter type can be used to restrict which notifications are delivered. For example, an annotated method
  * taking a {@link org.jsimpledb.change.SetFieldChange} will receive notifications about all changes to a set field,
  * while a method taking a {@link org.jsimpledb.change.SetFieldAdd} will receive notification only when an element
  * is added to the set.
