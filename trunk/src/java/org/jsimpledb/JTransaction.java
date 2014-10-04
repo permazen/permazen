@@ -280,21 +280,6 @@ public class JTransaction {
     }
 
     /**
-     * Get all instances of the given {@link JClass} (or any sub-type). The ordering of the returned set is based on the object IDs.
-     *
-     * @param jclass Java model type
-     * @return read-only view of all instances of {@code type}
-     * @throws IllegalArgumentException if {@code jclass} is null
-     * @throws StaleTransactionException if this transaction is no longer usable
-     */
-    @SuppressWarnings("unchecked")
-    public <T> NavigableSet<T> getAll(JClass<T> jclass) {
-        if (jclass == null)
-            throw new IllegalArgumentException("null jclass");
-        return this.getAll(jclass.getTypeToken());
-    }
-
-    /**
      * Get all instances of the given type (or any sub-type). The ordering of the returned set is based on the object IDs.
      *
      * @param type any Java type, or null to get all objects
@@ -303,19 +288,9 @@ public class JTransaction {
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(Class<T> type) {
-        return this.getAll(type != null ? TypeToken.of(type) : (TypeToken<T>)null);
-    }
-
-    /**
-     * Get all instances of the given type (or any sub-type). The ordering of the returned set is based on the object IDs.
-     *
-     * @param type any Java type, or null to get all objects
-     * @return read-only view of all instances of {@code type}
-     * @throws StaleTransactionException if this transaction is no longer usable
-     */
-    @SuppressWarnings("unchecked")
-    public <T> NavigableSet<T> getAll(TypeToken<T> type) {
-        final List<NavigableSet<ObjId>> sets = Lists.transform(this.jdb.getJClasses(type),
+        if (!this.tx.isValid())
+            throw new StaleTransactionException(this.tx);
+        final List<NavigableSet<ObjId>> sets = Lists.transform(this.jdb.getJClasses(TypeToken.of(type)),
           new Function<JClass<? extends T>, NavigableSet<ObjId>>() {
             @Override
             public NavigableSet<ObjId> apply(JClass<? extends T> jclass) {
@@ -329,17 +304,14 @@ public class JTransaction {
     /**
      * Get all instances having exactly the given type. The ordering of the returned set is based on the object IDs.
      *
-     * @param jclass object {@link JClass}
-     * @return read-only view of all instances having exactly type {@code jclass}
-     * @throws IllegalArgumentException if {@code jclass} is null
+     * @param storageId object type storage ID
+     * @return read-only view of all instances having exactly the type coresponding to {@code storageId}
+     * @throws UnknownTypeException if {@code storageId} does not correspond to any known object type
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
-    public <T> NavigableSet<T> getAllOfType(JClass<T> jclass) {
-        if (jclass == null)
-            throw new IllegalArgumentException("null jclass");
-        return (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(
-          JTransaction.this.tx.getAll(jclass.storageId), this.referenceConverter);
+    public NavigableSet<JObject> getAllOfType(int storageId) {
+        return new ConvertedNavigableSet<JObject, ObjId>(this.tx.getAll(storageId), this.referenceConverter);
     }
 
     /**
