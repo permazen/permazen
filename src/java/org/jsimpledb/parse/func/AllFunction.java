@@ -146,7 +146,7 @@ public class AllFunction extends AbstractFunction {
         return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
-                return JTransaction.getCurrent().getAll(jclass);
+                return JTransaction.getCurrent().getAll(jclass.getTypeToken().getRawType());
             }
         };
     }
