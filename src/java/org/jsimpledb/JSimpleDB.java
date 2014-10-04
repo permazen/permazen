@@ -495,7 +495,7 @@ public class JSimpleDB {
     }
 
     // Add new JClass, checking for storage ID conflicts
-    void addJClass(JClass<?> jclass) {
+    private void addJClass(JClass<?> jclass) {
 
         // Check for storage ID conflict
         final JClass<?> other = this.jclasses.get(jclass.storageId);
