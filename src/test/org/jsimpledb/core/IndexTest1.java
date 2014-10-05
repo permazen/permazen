@@ -43,7 +43,7 @@ public class IndexTest1 extends TestSupport {
           + "    <SimpleField name=\"f\" type=\"float\" storageId=\"15\" indexed=\"true\"/>\n"
           + "    <SimpleField name=\"j\" type=\"long\" storageId=\"16\" indexed=\"true\"/>\n"
           + "    <SimpleField name=\"d\" type=\"double\" storageId=\"17\" indexed=\"true\"/>\n"
-          + "    <SimpleField name=\"s\" type=\"java.lang.String\" storageId=\"18\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"str\" type=\"java.lang.String\" storageId=\"18\" indexed=\"true\"/>\n"
           + "    <ReferenceField name=\"r\" storageId=\"19\"/>\n"
           + "  </Object>\n"
           + "</Schema>\n"

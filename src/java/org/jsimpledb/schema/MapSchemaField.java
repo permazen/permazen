@@ -48,8 +48,8 @@ public class MapSchemaField extends ComplexSchemaField {
 
     @Override
     void readSubElements(XMLStreamReader reader) throws XMLStreamException {
-        this.keyField = this.readSubField(reader);
-        this.valueField = this.readSubField(reader);
+        this.keyField = this.readSubField(reader, MapField.KEY_FIELD_NAME);
+        this.valueField = this.readSubField(reader, MapField.VALUE_FIELD_NAME);
         this.expect(reader, true);
     }
 

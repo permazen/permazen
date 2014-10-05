@@ -91,14 +91,18 @@ public class SimpleSchemaField extends SchemaField {
     }
 
     @Override
-    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
+    final void writeXML(XMLStreamWriter writer) throws XMLStreamException {
+        this.writeXML(writer, true);
+    }
+
+    void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
         writer.writeEmptyElement(SIMPLE_FIELD_TAG.getNamespaceURI(), SIMPLE_FIELD_TAG.getLocalPart());
-        this.writeAttributes(writer);
+        this.writeAttributes(writer, includeName);
     }
 
     @Override
-    void writeAttributes(XMLStreamWriter writer) throws XMLStreamException {
-        super.writeAttributes(writer);
+    final void writeAttributes(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
+        super.writeAttributes(writer, includeName);
         this.writeSimpleAttributes(writer);
     }
 

@@ -33,12 +33,13 @@ public class SchemaObject extends AbstractSchemaItem {
     @Override
     public void validate() {
         super.validate();
-        if (this.getName() == null || this.getName().length() == 0)
-            throw new InvalidSchemaException(this + " must have a name");
+        final TreeMap<String, SchemaField> fieldsByName = new TreeMap<>();
         for (SchemaField field : this.schemaFields.values()) {
-            if (field.getName() == null || field.getName().length() == 0)
-                throw new InvalidSchemaException(field + " of " + this + " must have a name");
             field.validate();
+            final String fieldName = field.getName();
+            final SchemaField otherField = fieldsByName.put(fieldName, field);
+            if (otherField != null)
+                throw new InvalidSchemaException("duplicate field name `" + fieldName + "'");
         }
     }
 

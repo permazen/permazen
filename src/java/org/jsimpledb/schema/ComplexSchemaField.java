@@ -24,16 +24,16 @@ public abstract class ComplexSchemaField extends SchemaField {
     @Override
     public void validate() {
         super.validate();
-        if (this.getName() == null || this.getName().length() == 0)
-            throw new InvalidSchemaException(this + " must specify a name");
         for (Map.Entry<String, SimpleSchemaField> entry : this.getSubFields().entrySet()) {
             final String subFieldName = entry.getKey();
             final SimpleSchemaField subField = entry.getValue();
+            subField.validate();
             if (subField == null)
                 throw new InvalidSchemaException("invalid " + this + ": missing sub-field `" + subFieldName + "'");
-            if (subField.getName() != null)
-                throw new InvalidSchemaException("sub-" + subField + " of " + this + " must not specify a name");
-            subField.validate();
+            if (!subFieldName.equals(subField.getName())) {
+                throw new InvalidSchemaException("sub-" + subField + " of " + this + " has the wrong name `"
+                  + subField.getName() + "' != `" + subFieldName + "'");
+            }
         }
     }
 
@@ -53,9 +53,9 @@ public abstract class ComplexSchemaField extends SchemaField {
         return true;
     }
 
-    SimpleSchemaField readSubField(XMLStreamReader reader) throws XMLStreamException {
+    SimpleSchemaField readSubField(XMLStreamReader reader, String name) throws XMLStreamException {
         this.expect(reader, false, REFERENCE_FIELD_TAG, SIMPLE_FIELD_TAG);
-        SimpleSchemaField field;
+        final SimpleSchemaField field;
         if (reader.getName().equals(REFERENCE_FIELD_TAG))
             field = new ReferenceSchemaField();
         else if (reader.getName().equals(SIMPLE_FIELD_TAG))
@@ -63,6 +63,8 @@ public abstract class ComplexSchemaField extends SchemaField {
         else
             throw new RuntimeException("internal error");
         field.readXML(reader);
+        if (field.getName() == null)
+            field.setName(name);
         return field;
     }
 
@@ -72,7 +74,7 @@ public abstract class ComplexSchemaField extends SchemaField {
         writer.writeStartElement(tag.getNamespaceURI(), tag.getLocalPart());
         this.writeAttributes(writer);
         for (SimpleSchemaField subField : this.getSubFields().values())
-            subField.writeXML(writer);
+            subField.writeXML(writer, false);                               // omit (redundant) names for sub-fields
         writer.writeEndElement();
     }
 

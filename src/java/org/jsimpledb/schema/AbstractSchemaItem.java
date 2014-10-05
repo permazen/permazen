@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.jsimpledb.core.InvalidSchemaException;
+import org.jsimpledb.core.SchemaItem;
 import org.jsimpledb.util.AbstractXMLStreaming;
 
 /**
@@ -49,8 +50,12 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
      * @throws InvalidSchemaException if this instance in invalid
      */
     public void validate() {
+        if (name == null)
+            throw new InvalidSchemaException(this + " must specify a name");
+        if (!name.matches(SchemaItem.NAME_PATTERN))
+            throw new InvalidSchemaException(this + " has an invalid name `" + name + "'");
         if (this.storageId <= 0)
-            throw new InvalidSchemaException(this + " has an invalid storage ID; must be greater than zero");
+            throw new InvalidSchemaException(this + " has an invalid storage ID " + this.storageId + "; must be greater than zero");
     }
 
     /**
@@ -99,9 +104,13 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 
     abstract void writeXML(XMLStreamWriter writer) throws XMLStreamException;
 
-    void writeAttributes(XMLStreamWriter writer) throws XMLStreamException {
+    final void writeAttributes(XMLStreamWriter writer) throws XMLStreamException {
+        this.writeAttributes(writer, true);
+    }
+
+    void writeAttributes(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
         writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + this.storageId);
-        if (this.name != null)
+        if (includeName && this.name != null)
             writer.writeAttribute(NAME_ATTRIBUTE.getNamespaceURI(), NAME_ATTRIBUTE.getLocalPart(), this.name);
     }
 

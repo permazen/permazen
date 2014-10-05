@@ -88,8 +88,14 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * @throws InvalidSchemaException if this instance is invalid
      */
     public void validate() {
-        for (SchemaObject schemaObject : this.schemaObjects.values())
+        final TreeMap<String, SchemaObject> schemaObjectsByName = new TreeMap<>();
+        for (SchemaObject schemaObject : this.schemaObjects.values()) {
             schemaObject.validate();
+            final String schemaObjectName = schemaObject.getName();
+            final SchemaObject otherSchemaObject = schemaObjectsByName.put(schemaObjectName, schemaObject);
+            if (otherSchemaObject != null)
+                throw new InvalidSchemaException("duplicate object name `" + schemaObjectName + "'");
+        }
     }
 
     /**

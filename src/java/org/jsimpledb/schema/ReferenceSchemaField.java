@@ -80,9 +80,9 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
 
     @Override
-    void writeXML(XMLStreamWriter writer) throws XMLStreamException {
+    void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
         writer.writeEmptyElement(REFERENCE_FIELD_TAG.getNamespaceURI(), REFERENCE_FIELD_TAG.getLocalPart());
-        this.writeAttributes(writer);
+        this.writeAttributes(writer, includeName);
         if (this.onDelete != null)
             writer.writeAttribute(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart(), this.onDelete.name());
     }

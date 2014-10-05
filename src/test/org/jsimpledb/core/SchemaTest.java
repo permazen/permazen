@@ -103,8 +103,8 @@ public class SchemaTest extends TestSupport {
           + "<Object name=\"Foo\" storageId=\"123\"/>\n"
           },
 
-          // Allow duplicate object names
-          { true,
+          // Disallow duplicate object names
+          { false,
             "<!-- test 7 -->\n"
           + "<Object name=\"Foo\" storageId=\"123\"/>\n"
           + "<Object name=\"Foo\" storageId=\"456\"/>\n"
@@ -175,8 +175,8 @@ public class SchemaTest extends TestSupport {
           + "</Object>\n"
           },
 
-          // Allow duplicate field names
-          { true,
+          // Disallow duplicate field names in the same object
+          { false,
             "<!-- test 17 -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
           + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
@@ -204,6 +204,7 @@ public class SchemaTest extends TestSupport {
           + "</Object>\n"
           },
 
+          // Allow duplicate fields in different objects
           { true,
             "<!-- test 20 -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
@@ -237,6 +238,7 @@ public class SchemaTest extends TestSupport {
           + "</Object>\n"
           },
 
+            // Inconsistent sub-field storage ID
           { false,
             "<!-- test 23 -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
@@ -246,6 +248,21 @@ public class SchemaTest extends TestSupport {
           + "</Object>\n"
           + "<Object name=\"Bar\" storageId=\"20\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"int\" storageId=\"22\"/>\n"
+          + "  </SetField>\n"
+          + "</Object>\n"
+          },
+
+            // Inconsistent super-field storage ID
+          { false,
+            "<!-- test 23.5 -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <SetField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"int\" storageId=\"22\"/>\n"
+          + "  </SetField>\n"
+          + "</Object>\n"
+          + "<Object name=\"Bar\" storageId=\"20\">\n"
+          + "  <SetField name=\"set\" storageId=\"21\">\n"
           + "    <SimpleField type=\"int\" storageId=\"22\"/>\n"
           + "  </SetField>\n"
           + "</Object>\n"
@@ -265,6 +282,7 @@ public class SchemaTest extends TestSupport {
           + "</Object>\n"
           },
 
+          // Counter fields cannot be sub-fields
           { false,
             "<!-- test 26 -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
@@ -290,6 +308,71 @@ public class SchemaTest extends TestSupport {
           + "<Object name=\"Bar\" storageId=\"20\">\n"
           + "  <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
           + "</Object>\n"
+          },
+
+          // Invalid names
+          { false,
+            "<!-- test 29 -->\n"
+          + "<Object name=\" Foo\" storageId=\"10\"/>\n"
+          },
+
+          // Invalid names
+          { false,
+            "<!-- test 30 -->\n"
+          + "<Object name=\"\" storageId=\"10\"/>\n"
+          },
+
+          // Invalid names
+          { false,
+            "<!-- test 31 -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"2foo\" type=\"int\" storageId=\"2\"/>\n"
+          + "</Object>\n"
+          },
+
+          // Sub-fields can have names but they must be the right ones
+          { true,
+            "<!-- test 32 -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <SetField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField name=\"element\" type=\"int\" storageId=\"22\"/>\n"
+          + "  </SetField>\n"
+          + "</Object>\n"
+          },
+
+          { true,
+            "<!-- test 33 -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <MapField name=\"map\" storageId=\"20\">\n"
+          + "    <SimpleField name=\"key\" type=\"int\" storageId=\"22\"/>\n"
+          + "    <SimpleField name=\"value\" type=\"int\" storageId=\"23\"/>\n"
+          + "  </MapField>\n"
+          + "</Object>\n"
+          },
+
+          { false,
+            "<!-- test 34 -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <SetField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField name=\"item\" type=\"int\" storageId=\"22\"/>\n"
+          + "  </SetField>\n"
+          + "</Object>\n"
+          },
+
+          { false,
+            "<!-- test 35 -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <MapField name=\"map\" storageId=\"20\">\n"
+          + "    <SimpleField name=\"KEY\" type=\"int\" storageId=\"22\"/>\n"
+          + "    <SimpleField name=\"VALUE\" type=\"int\" storageId=\"23\"/>\n"
+          + "  </MapField>\n"
+          + "</Object>\n"
+          },
+
+          // Missing name
+          { false,
+            "<!-- test 36 -->\n"
+          + "<Object storageId=\"10\"/>\n"
           },
 
         };
