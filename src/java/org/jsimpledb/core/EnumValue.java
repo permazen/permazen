@@ -36,7 +36,7 @@ public class EnumValue {
     }
 
     /**
-     * Constructor taking an actual enum value.
+     * Constructor taking an {@link Enum} value.
      *
      * @param value enum value
      * @throws IllegalArgumentException if {@code value} is null

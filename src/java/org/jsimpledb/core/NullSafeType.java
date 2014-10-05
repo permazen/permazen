@@ -23,7 +23,7 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * This class will automatically "inline" the {@code 0xff} for null values if the wrapped {@link FieldType}'s
- * {@link FieldType#hasPrefix0xff} returns false.
+ * {@link FieldType#hasPrefix0xff} method returns false.
  * </p>
  */
 public class NullSafeType<T> extends FieldType<T> {
