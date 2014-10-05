@@ -128,7 +128,7 @@ public class SimpleSchemaField extends SchemaField {
 
     @Override
     public int hashCode() {
-        return (this.type != null ? this.type.hashCode() : 0) ^ (this.indexed ? 1 : 0);
+        return super.hashCode() ^ (this.type != null ? this.type.hashCode() : 0) ^ (this.indexed ? 1 : 0);
     }
 
 // Cloneable
