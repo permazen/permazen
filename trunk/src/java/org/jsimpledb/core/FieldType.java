@@ -46,8 +46,8 @@ import org.jsimpledb.util.ByteWriter;
  *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
  *      sort consistently with the total ordering of the corresponding Java values defined by {@link #compare compare()}.</li>
  *  <li>All possible values can be encoded/decoded to/from {@link String}s without losing information,
- *      with both a {@linkplain #toString(Object) regular string form} and a
- *      {@linkplain #toParseableString self-delimiting string form} (these may be the same).</li>
+ *      with both a {@linkplain #toString(Object) regular string form} for non-null values and a
+ *      {@linkplain #toParseableString self-delimiting string form} for any value (these may be the same).</li>
  *  <li>{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare} and
  *      have binary and string encodings just like any other value. Typically, null sorts last.</li>
  *  <li>There is a {@linkplain #getDefaultValue default value}; it must be null for types that support null.</li>
@@ -296,7 +296,7 @@ public abstract class FieldType<T> implements Comparator<T> {
     public abstract void skip(ByteReader reader);
 
     /**
-     * Encode a value as a {@link String} for later decoding by {@link #fromString fromString()}.
+     * Encode a non-null value as a {@link String} for later decoding by {@link #fromString fromString()}.
      *
      * <p>
      * Each of the characters in the returned {@link String} must be one of the valid XML characters
@@ -304,7 +304,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * </p>
      *
      * <p>
-     * The implementation in {@link FieldType} delegates to {@link #toParseableString}.
+     * The implementation in {@link FieldType} checks that {@code value} is not null, then delegates to {@link #toParseableString}.
      * Subclasses that override this method should also override {@link #fromString fromString()}.
      * </p>
      *
@@ -320,7 +320,7 @@ public abstract class FieldType<T> implements Comparator<T> {
     }
 
     /**
-     * Parse a value previously enoded by {@link #toString(Object)}.
+     * Parse a non-null value previously encoded by {@link #toString(Object)}.
      *
      * <p>
      * The implementation in {@link FieldType} creates a new {@link ParseContext} based on {@code string},
@@ -328,7 +328,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * during the parse. Subclasses that override this method should also override {@link #toString(Object)}.
      * </p>
      *
-     * @param string string previously encoded by {@link #toString(Object)}
+     * @param string non-null value previously encoded as a {@link String} by {@link #toString(Object)}
      * @return actual value
      * @throws IllegalArgumentException if the input is invalid
      */

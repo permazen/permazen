@@ -82,7 +82,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseField caseField()}.
      * </p>
-     * </p>
      */
     @Override
     public R caseCounterField(CounterField field) {
