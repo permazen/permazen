@@ -36,7 +36,7 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
 
     @Override
     void readSubElements(XMLStreamReader reader) throws XMLStreamException {
-        this.elementField = this.readSubField(reader);
+        this.elementField = this.readSubField(reader, CollectionField.ELEMENT_FIELD_NAME);
         this.expect(reader, true);
     }
 

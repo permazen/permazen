@@ -10,19 +10,10 @@ package org.jsimpledb.schema;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.jsimpledb.core.InvalidSchemaException;
-
 /**
  * A counter field in a {@link SchemaObject}.
  */
 public class CounterSchemaField extends SchemaField {
-
-    @Override
-    public void validate() {
-        super.validate();
-        if (this.getName() == null || this.getName().length() == 0)
-            throw new InvalidSchemaException(this + " must specify a name");
-    }
 
     @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {

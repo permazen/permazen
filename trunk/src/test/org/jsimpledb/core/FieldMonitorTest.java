@@ -43,7 +43,7 @@ public class FieldMonitorTest extends TestSupport {
           + "    <SimpleField name=\"j\" type=\"long\" storageId=\"107\"/>\n"
           + "    <SimpleField name=\"d\" type=\"double\" storageId=\"108\"/>\n"
           + "    <ReferenceField name=\"ref\" storageId=\"109\"/>\n"
-          + "    <SimpleField name=\"s\" type=\"java.lang.String\" storageId=\"110\"/>\n"
+          + "    <SimpleField name=\"str\" type=\"java.lang.String\" storageId=\"110\"/>\n"
           + "    <SetField name=\"set\" storageId=\"120\">\n"
           + "        <ReferenceField storageId=\"121\"/>\n"
           + "    </SetField>"

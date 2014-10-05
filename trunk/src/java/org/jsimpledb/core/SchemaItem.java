@@ -11,12 +11,18 @@ package org.jsimpledb.core;
  * Superclass for the {@link ObjType} and {@link Field} classes which make up a {@link Schema} version.
  *
  * <p>
- * Instances have a {@linkplain #getName name} (which is mostly ignored) and a unique {@linkplain #getStorageId storage ID}
- * which is used to allocate a storage area for the schema object in the key/value store's key namespace.
+ * Instances have a {@linkplain #getStorageId storage ID} which must be unique across the {@link Schema} version.
+ * Instances also have a {@linkplain #getName name} which must be a {@linkplain #NAME_PATTERN valid Java identifier}.
  * Instances are also associated with a {@linkplain #getVersion specific} {@link SchemaVersion}.
  * </p>
  */
 public abstract class SchemaItem {
+
+    /**
+     * The regular expression that all {@link SchemaItem} names must match. This pattern is the same as is required
+     * for Java identifiers.
+     */
+    public static final String NAME_PATTERN = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
 
     final String name;
     final int storageId;
@@ -24,7 +30,9 @@ public abstract class SchemaItem {
 
     SchemaItem(String name, int storageId, SchemaVersion version) {
         if (name == null)
-            throw new IllegalArgumentException("null name");
+            throw new IllegalArgumentException("invalid null name");
+        if (!name.matches(NAME_PATTERN))
+            throw new IllegalArgumentException("invalid name `" + name + "'");
         if (storageId <= 0)
             throw new IllegalArgumentException("invalid storageId " + storageId);
         if (version == null)

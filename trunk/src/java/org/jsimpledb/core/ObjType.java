@@ -26,6 +26,7 @@ public class ObjType extends SchemaItem {
 
     final FieldTypeRegistry fieldTypeRegistry;
     final TreeMap<Integer, Field<?>> fields = new TreeMap<>();
+    final TreeMap<String, Field<?>> fieldsByName = new TreeMap<>();
     final TreeMap<Integer, SimpleField<?>> simpleFields = new TreeMap<>();
     final TreeMap<Integer, ComplexField<?>> complexFields = new TreeMap<>();
     final TreeMap<Integer, CounterField> counterFields = new TreeMap<>();
@@ -101,10 +102,15 @@ public class ObjType extends SchemaItem {
     }
 
     private void addField(Field<?> field) {
-        final Field<?> previous = this.fields.put(field.storageId, field);
+        Field<?> previous = this.fields.put(field.storageId, field);
         if (previous != null) {
             throw new InconsistentDatabaseException("duplicate use of storage ID " + field.storageId
               + " by fields `" + previous.name + "' and `" + field.name + "' in " + this);
+        }
+        previous = this.fieldsByName.put(field.name, field);
+        if (previous != null) {
+            throw new InconsistentDatabaseException("duplicate use of name `" + field.storageId
+              + "' by `" + previous + "' and `" + field + "' in " + this);
         }
     }
 }
