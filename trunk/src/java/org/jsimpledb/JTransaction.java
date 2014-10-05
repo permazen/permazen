@@ -11,6 +11,7 @@ import com.google.common.base.Converter;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
@@ -27,7 +28,6 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.validation.ConstraintViolation;
@@ -1599,18 +1599,15 @@ public class JTransaction {
                     jobj = JTransaction.this.getJObject(id);
 
                 // Convert old field values so ObjId's become JObjects
-                final TreeMap<Integer, Object> convertedValues = new TreeMap<>();
-                for (Map.Entry<Integer, Object> entry : oldFieldValues.entrySet()) {
-                    final int storageId = entry.getKey();
-                    Object oldValue = entry.getValue();
-
-                    // Convert old field value as needed; we only convert ObjId -> JObject
-                    final Field<?> field = oldSchema.getSchemaItem(storageId, Field.class);
-                    oldValue = JTransaction.this.convertOldValue(field, oldValue);
-
-                    // Update value
-                    convertedValues.put(storageId, oldValue);
-                }
+                final Maps.EntryTransformer<Integer, Object, Object> transformer
+                  = new Maps.EntryTransformer<Integer, Object, Object>() {
+                    @Override
+                    public Object transformEntry(Integer storageId, Object oldValue) {
+                        final Field<?> field = oldSchema.getSchemaItem(storageId, Field.class);
+                        return JTransaction.this.convertOldValue(field, oldValue);
+                    }
+                };
+                final Map<Integer, Object> convertedValues = Maps.transformEntries(oldFieldValues, transformer);
 
                 // Invoke method
                 switch ((annotation.oldVersion() != 0 ? 2 : 0) + (annotation.newVersion() != 0 ? 1 : 0)) {
