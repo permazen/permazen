@@ -7,11 +7,8 @@
 
 package org.jsimpledb.parse;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
-import java.util.Set;
 import java.util.regex.Matcher;
 
 import org.jsimpledb.core.Database;
@@ -76,23 +73,12 @@ public class ObjTypeParser implements Parser<ObjType> {
         }
 
         // Find type by name
-        final Set<SchemaObject> schemaObjects = nameIndex.getSchemaObjects(typeName);
-        switch (schemaObjects.size()) {
-        case 0:
+        final SchemaObject schemaObject = nameIndex.getSchemaObject(typeName);
+        if (schemaObject == null) {
             throw new ParseException(ctx, "unknown object type `" + typeName + "'")
                .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectNames(), typeName));
-        case 1:
-            return version.getSchemaItem(schemaObjects.iterator().next().getStorageId(), ObjType.class);
-        default:
-            throw new ParseException(ctx, "ambiguous object type `" + typeName + "': there are multiple matching object types"
-              + " having storage IDs " + Lists.transform(Lists.newArrayList(schemaObjects),
-                new Function<SchemaObject, Integer>() {
-                    @Override
-                    public Integer apply(SchemaObject schemaObject) {
-                        return schemaObject.getStorageId();
-                    }
-               }));
         }
+        return version.getSchemaItem(schemaObject.getStorageId(), ObjType.class);
     }
 }
 
