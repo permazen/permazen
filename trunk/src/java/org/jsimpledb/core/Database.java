@@ -291,7 +291,8 @@ public class Database {
                         throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
 
                     // Initialize database
-                    this.log.info("detected an uninitialized database; initializing");
+                    this.log.info("detected an uninitialized database; writing initial meta-data (format version "
+                      + CURRENT_FORMAT_VERSION + ")");
                     final ByteWriter writer = new ByteWriter();
                     UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);
                     kvt.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
