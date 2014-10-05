@@ -36,24 +36,34 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
 
     @Override
     public SetField<?> caseSetSchemaField(SetSchemaField field) {
-        return this.buildSetField(field, this.buildSimpleField(field.getElementField(), SetField.ELEMENT_FIELD_NAME));
+        return this.buildSetField(field, (SimpleField<?>)field.getElementField().visit(this));
     }
 
     @Override
     public ListField<?> caseListSchemaField(ListSchemaField field) {
-        return this.buildListField(field, this.buildSimpleField(field.getElementField(), ListField.ELEMENT_FIELD_NAME));
+        return this.buildListField(field, (SimpleField<?>)field.getElementField().visit(this));
     }
 
     @Override
     public MapField<?, ?> caseMapSchemaField(MapSchemaField field) {
         return this.buildMapField(field,
-          this.buildSimpleField(field.getKeyField(), MapField.KEY_FIELD_NAME),
-          this.buildSimpleField(field.getValueField(), MapField.VALUE_FIELD_NAME));
+          (SimpleField<?>)field.getKeyField().visit(this), (SimpleField<?>)field.getValueField().visit(this));
     }
 
     @Override
     public SimpleField<?> caseSimpleSchemaField(SimpleSchemaField field) {
-        return this.buildSimpleField(field, field.getName());
+        final String fieldTypeName = field.getType();
+        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(fieldTypeName);
+        if (fieldType == null) {
+            throw new IllegalArgumentException("unknown field type `" + fieldTypeName
+              + "' for field `" + field.getName() + "' in " + this);
+        }
+        return this.buildSimpleField(field, field.getName(), fieldType);
+    }
+
+    @Override
+    public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
+        return new ReferenceField(field.getName(), field.getStorageId(), this.version, field.getOnDelete());
     }
 
     @Override
@@ -62,20 +72,6 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
     }
 
 // Internal methods
-
-    private SimpleField<?> buildSimpleField(SimpleSchemaField simpleField, String fieldName) {
-        if (simpleField instanceof ReferenceSchemaField) {
-            final ReferenceSchemaField refField = (ReferenceSchemaField)simpleField;
-            return new ReferenceField(fieldName, refField.getStorageId(), this.version, refField.getOnDelete());
-        }
-        final String fieldTypeName = simpleField.getType();
-        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(fieldTypeName);
-        if (fieldType == null) {
-            throw new IllegalArgumentException("unknown field type `" + fieldTypeName
-              + "' for field `" + fieldName + "' in " + this);
-        }
-        return this.buildSimpleField(simpleField, fieldName, fieldType);
-    }
 
     // This method exists solely to bind the generic type parameters
     private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, String fieldName, FieldType<T> fieldType) {
