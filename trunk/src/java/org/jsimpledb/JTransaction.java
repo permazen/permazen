@@ -290,6 +290,8 @@ public class JTransaction {
     public <T> NavigableSet<T> getAll(Class<T> type) {
         if (!this.tx.isValid())
             throw new StaleTransactionException(this.tx);
+        if (type == null || type.isAssignableFrom(JObject.class))
+            return (NavigableSet<T>)this.tx.getAll();
         final List<NavigableSet<ObjId>> sets = Lists.transform(this.jdb.getJClasses(TypeToken.of(type)),
           new Function<JClass<? extends T>, NavigableSet<ObjId>>() {
             @Override
