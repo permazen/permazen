@@ -215,7 +215,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
             }
             final String desc = this.file != null ? "file `" + this.file + "'" : "database file";
             if (input == null)
-                this.log.info(desc + " not found and no initial content is configured; starting out empty");
+                this.log.info(desc + " not found and no initial content is configured; creating new, empty database");
             else
                 this.log.info(desc + " not found; applying default initial content");
         } catch (IOException e) {
