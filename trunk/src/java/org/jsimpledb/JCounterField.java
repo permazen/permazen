@@ -38,6 +38,11 @@ public class JCounterField extends JField {
     }
 
     @Override
+    public <R> R visit(JFieldSwitch<R> target) {
+        return target.caseJCounterField(this);
+    }
+
+    @Override
     CounterSchemaField toSchemaItem() {
         final CounterSchemaField schemaField = new CounterSchemaField();
         this.initialize(schemaField);

@@ -73,6 +73,11 @@ public class JMapField extends JComplexField {
     }
 
     @Override
+    public <R> R visit(JFieldSwitch<R> target) {
+        return target.caseJMapField(this);
+    }
+
+    @Override
     public List<JSimpleField> getSubFields() {
         return Arrays.asList(this.keyField, this.valueField);
     }

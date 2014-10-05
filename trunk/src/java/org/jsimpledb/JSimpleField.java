@@ -89,6 +89,11 @@ public class JSimpleField extends JField {
         return jtx.readSimpleField(jobj, this.storageId, false);
     }
 
+    @Override
+    public <R> R visit(JFieldSwitch<R> target) {
+        return target.caseJSimpleField(this);
+    }
+
     /**
      * Set the Java value of this field in the given object.
      * Does not alter the schema version of the object.

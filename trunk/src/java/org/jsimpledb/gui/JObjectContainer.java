@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.SortedMap;
 
 import org.dellroad.stuff.vaadin7.PropertyDef;
@@ -36,7 +35,7 @@ import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
 import org.jsimpledb.JCollectionField;
 import org.jsimpledb.JCounterField;
 import org.jsimpledb.JField;
-import org.jsimpledb.JListField;
+import org.jsimpledb.JFieldSwitchAdapter;
 import org.jsimpledb.JMapField;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
@@ -694,30 +693,40 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         public Component extract(final JObject jobj) {
             final JTransaction jtx = jobj.getTransaction();
             try {
-                if (this.jfield instanceof JSimpleField)
-                    return this.handleValue(this.jfield.getValue(jtx, jobj));
-                else if (this.jfield instanceof JCounterField)
-                    return this.handleValue(((JCounterField)this.jfield).getValue(jtx, jobj).get());
-                else if (this.jfield instanceof JCollectionField)
-                    return this.handleCollectionField(((JCollectionField)this.jfield).getValue(jtx, jobj));
-                else if (this.jfield instanceof JListField)
-                    return this.handleCollectionField(((JListField)this.jfield).getValue(jtx, jobj));
-                else if (this.jfield instanceof JMapField) {
-                    final NavigableMap<?, ?> map = ((JMapField)this.jfield).getValue(jtx, jobj);
-                    return this.handleMultiple(Iterables.transform(map.entrySet(), new Function<Map.Entry<?, ?>, Component>() {
-                        @Override
-                        public Component apply(Map.Entry<?, ?> entry) {
-                            final HorizontalLayout layout = new HorizontalLayout();
-                            layout.setMargin(false);
-                            layout.setSpacing(false);
-                            layout.addComponent(ObjFieldPropertyDef.this.handleValue(entry.getKey()));
-                            layout.addComponent(new SizedLabel(" \u21d2 "));        // RIGHTWARDS DOUBLE ARROW
-                            layout.addComponent(ObjFieldPropertyDef.this.handleValue(entry.getValue()));
-                            return layout;
-                        }
-                    }));
-                } else
-                    throw new RuntimeException("internal error");
+                return this.jfield.visit(new JFieldSwitchAdapter<Component>() {
+
+                    @Override
+                    public Component caseJSimpleField(JSimpleField field) {
+                        return ObjFieldPropertyDef.this.handleValue(jfield.getValue(jtx, jobj));
+                    }
+
+                    @Override
+                    public Component caseJCounterField(JCounterField field) {
+                        return ObjFieldPropertyDef.this.handleValue(field.getValue(jtx, jobj).get());
+                    }
+
+                    @Override
+                    protected Component caseJCollectionField(JCollectionField field) {
+                        return ObjFieldPropertyDef.this.handleCollectionField(field.getValue(jtx, jobj));
+                    }
+
+                    @Override
+                    public Component caseJMapField(JMapField field) {
+                        return ObjFieldPropertyDef.this.handleMultiple(Iterables.transform(field.getValue(jtx, jobj).entrySet(),
+                          new Function<Map.Entry<?, ?>, Component>() {
+                            @Override
+                            public Component apply(Map.Entry<?, ?> entry) {
+                                final HorizontalLayout layout = new HorizontalLayout();
+                                layout.setMargin(false);
+                                layout.setSpacing(false);
+                                layout.addComponent(ObjFieldPropertyDef.this.handleValue(entry.getKey()));
+                                layout.addComponent(new SizedLabel(" \u21d2 "));        // RIGHTWARDS DOUBLE ARROW
+                                layout.addComponent(ObjFieldPropertyDef.this.handleValue(entry.getValue()));
+                                return layout;
+                            }
+                        }));
+                    }
+                });
             } catch (UnknownFieldException e) {
                 return new SizedLabel("<i>NA</i>", ContentMode.HTML);
             }

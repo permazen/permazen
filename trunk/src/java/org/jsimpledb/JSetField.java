@@ -44,6 +44,11 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
+    public <R> R visit(JFieldSwitch<R> target) {
+        return target.caseJSetField(this);
+    }
+
+    @Override
     SetSchemaField toSchemaItem() {
         final SetSchemaField schemaField = new SetSchemaField();
         super.initialize(schemaField);

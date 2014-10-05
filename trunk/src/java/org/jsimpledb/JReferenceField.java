@@ -29,6 +29,11 @@ public class JReferenceField extends JSimpleField {
         this.onDelete = onDelete;
     }
 
+    @Override
+    public <R> R visit(JFieldSwitch<R> target) {
+        return target.caseJReferenceField(this);
+    }
+
     /**
      * Get the {@link DeleteAction} configured for this field.
      */
