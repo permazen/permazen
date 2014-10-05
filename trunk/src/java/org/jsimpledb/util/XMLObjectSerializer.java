@@ -255,13 +255,11 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     throw new XMLStreamException("unexpected element <" + name.getPrefix() + ":"
                       + name.getLocalPart() + ">; expected object type name", reader.getLocation());
                 }
-                final SchemaObject schemaObject;
-                try {
-                    schemaObject = nameIndex.getSchemaObject(name.getLocalPart());
-                } catch (IllegalArgumentException e) {
+                final SchemaObject schemaObject = nameIndex.getSchemaObject(name.getLocalPart());
+                if (schemaObject == null) {
                     throw new XMLStreamException("unexpected element <" + name.getLocalPart()
-                      + ">; object type name `" + name.getLocalPart() + "' is invalid for schema version "
-                      + schemaVersion.getVersionNumber() + ": " + e, reader.getLocation(), e);
+                      + ">; no object type named `" + name.getLocalPart() + "' found in schema version "
+                      + schemaVersion.getVersionNumber(), reader.getLocation());
                 }
                 objType = schemaVersion.getSchemaItem(schemaObject.getStorageId(), ObjType.class);
             }
@@ -320,19 +318,12 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                         throw new XMLStreamException("unexpected element <" + name.getPrefix() + ":"
                           + name.getLocalPart() + ">; expected field name", reader.getLocation());
                     }
-                    final SchemaField schemaField;
-                    try {
-                        schemaField = nameIndex.getSchemaField(schemaObject, name.getLocalPart());
-                    } catch (IllegalArgumentException e) {
+                    final SchemaField schemaField = nameIndex.getSchemaField(schemaObject, name.getLocalPart());
+                    if (schemaField == null) {
                         throw new XMLStreamException("unexpected element <" + name.getLocalPart() + ">; unknown field `"
                           + name.getLocalPart() + "' in object type `" + objType.getName() + "' #"
                           + objType.getStorageId() + " in schema version " + schemaVersion.getVersionNumber(),
                           reader.getLocation());
-                    }
-                    if (schemaField == null) {
-                        throw new XMLStreamException("unknown field `" + name.getLocalPart() + "' in object type `"
-                          + objType.getName() + "' #" + objType.getStorageId() + " in schema version "
-                          + schemaVersion.getVersionNumber(), reader.getLocation());
                     }
                     field = objType.getFields().get(schemaField.getStorageId());
                     assert field != null : "field=" + schemaField + " fields=" + objType.getFields();

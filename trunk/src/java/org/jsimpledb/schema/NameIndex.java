@@ -8,8 +8,6 @@
 package org.jsimpledb.schema;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 
@@ -23,8 +21,8 @@ import java.util.TreeMap;
 public class NameIndex {
 
     private final SchemaModel schemaModel;
-    private final TreeMap<String, LinkedHashSet<SchemaObject>> typeMap = new TreeMap<>();
-    private final TreeMap<Integer, TreeMap<String, LinkedHashSet<SchemaField>>> typeFieldMap = new TreeMap<>();
+    private final TreeMap<String, SchemaObject> typeMap = new TreeMap<>();
+    private final TreeMap<Integer, TreeMap<String, SchemaField>> typeFieldMap = new TreeMap<>();
 
     /**
      * Constructor.
@@ -42,25 +40,15 @@ public class NameIndex {
         for (SchemaObject type : schemaModel.getSchemaObjects().values()) {
 
             // Index type name
-            LinkedHashSet<SchemaObject> typeSet = this.typeMap.get(type.getName());
-            if (typeSet == null) {
-                typeSet = new LinkedHashSet<SchemaObject>();
-                this.typeMap.put(type.getName(), typeSet);
-            }
-            typeSet.add(type);
+            if (this.typeMap.put(type.getName(), type) != null)
+                throw new IllegalArgumentException("schema model is invalid");
 
             // Index field names
-            final TreeMap<String, LinkedHashSet<SchemaField>> fieldMap = new TreeMap<>();
+            final TreeMap<String, SchemaField> fieldMap = new TreeMap<>();
             this.typeFieldMap.put(type.getStorageId(), fieldMap);
             for (SchemaField field : type.getSchemaFields().values()) {
-
-                // Index field name
-                LinkedHashSet<SchemaField> fieldSet = fieldMap.get(field.getName());
-                if (fieldSet == null) {
-                    fieldSet = new LinkedHashSet<SchemaField>();
-                    fieldMap.put(field.getName(), fieldSet);
-                }
-                fieldSet.add(field);
+                if (fieldMap.put(field.getName(), field) != null)
+                    throw new IllegalArgumentException("schema model is invalid");
             }
         }
     }
@@ -73,41 +61,20 @@ public class NameIndex {
     }
 
     /**
-     * Get all {@link SchemaObject}(s) with the given name.
+     * Get the {@link SchemaObject} with the given name.
      *
      * @param name type name
      * @throws IllegalArgumentException if {@code name} is null
-     * @return unmodifiable set containing zero or more {@link SchemaObject}s with name {@code name}
-     */
-    public Set<SchemaObject> getSchemaObjects(String name) {
-        if (name == null)
-            throw new IllegalArgumentException("null name");
-        final LinkedHashSet<SchemaObject> typeSet = this.typeMap.get(name);
-        return typeSet != null ? Collections.unmodifiableSet(typeSet) : Collections.<SchemaObject>emptySet();
-    }
-
-    /**
-     * Get the unique {@link SchemaObject} with the given name.
-     *
-     * @param name type name
-     * @return the unique {@link SchemaObject} with name {@code name}
-     * @throws IllegalArgumentException if {@code name} is null
-     * @throws IllegalArgumentException if zero, or more than one, {@link SchemaObject}s exist with name {@code name}
+     * @return the unique {@link SchemaObject} with name {@code name}, or null if not found
      */
     public SchemaObject getSchemaObject(String name) {
-        final Set<SchemaObject> typeSet = this.getSchemaObjects(name);
-        switch (typeSet.size()) {
-        case 0:
-            throw new IllegalArgumentException("no object type exists with name `" + name + "'");
-        case 1:
-            return typeSet.iterator().next();
-        default:
-            throw new IllegalArgumentException("mulitple object types exist with name `" + name + "'");
-        }
+        if (name == null)
+            throw new IllegalArgumentException("null name");
+        return this.typeMap.get(name);
     }
 
     /**
-     * Get all of the names of {@link SchemaObject}s.
+     * Get the names of all {@link SchemaObject}s.
      *
      * @return unmodifiable set of {@link SchemaObject} names
      */
@@ -116,46 +83,23 @@ public class NameIndex {
     }
 
     /**
-     * Get all {@link SchemaField}(s) with the given name in the given {@link SchemaObject}.
+     * Get the {@link SchemaField} with the given name in the given {@link SchemaObject}.
      *
      * @param type object type
      * @param name field name
      * @throws IllegalArgumentException if either paramter is null
-     * @return unmodifiable set containing zero or more {@link SchemaField}s with name {@code name} in {@code type}
+     * @return the unique {@link SchemaField} with name {@code name} in {@code type}, or null if not found
      * @throws IllegalArgumentException if {@code type} is not indexed by this instance
      */
-    public Set<SchemaField> getSchemaFields(SchemaObject type, String name) {
+    public SchemaField getSchemaField(SchemaObject type, String name) {
         if (type == null)
             throw new IllegalArgumentException("null type");
         if (name == null)
             throw new IllegalArgumentException("null name");
-        final TreeMap<String, LinkedHashSet<SchemaField>> fieldMap = this.typeFieldMap.get(type.getStorageId());
+        final TreeMap<String, SchemaField> fieldMap = this.typeFieldMap.get(type.getStorageId());
         if (fieldMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
-        final LinkedHashSet<SchemaField> fieldSet = fieldMap.get(name);
-        return fieldSet != null ? Collections.unmodifiableSet(fieldSet) : Collections.<SchemaField>emptySet();
-    }
-
-    /**
-     * Get the unique {@link SchemaField} with the given name.
-     *
-     * @param type object type
-     * @param name field name
-     * @throws IllegalArgumentException if either paramter is null
-     * @return the unique {@link SchemaField} with name {@code name} in {@code type}
-     * @throws IllegalArgumentException if {@code type} is not indexed by this instance
-     * @throws IllegalArgumentException if zero, or more than one, {@link SchemaField}s exist with name {@code name} in {@code type}
-     */
-    public SchemaField getSchemaField(SchemaObject type, String name) {
-        final Set<SchemaField> fieldSet = this.getSchemaFields(type, name);
-        switch (fieldSet.size()) {
-        case 0:
-            throw new IllegalArgumentException("no field exists with name `" + name + "' in type `" + type.getName() + "'");
-        case 1:
-            return fieldSet.iterator().next();
-        default:
-            throw new IllegalArgumentException("mulitple fields exist with name `" + name + "' in type `" + type.getName() + "'");
-        }
+        return fieldMap.get(name);
     }
 
     /**
@@ -168,7 +112,7 @@ public class NameIndex {
     public SortedSet<String> getSchemaFieldNames(SchemaObject type) {
         if (type == null)
             throw new IllegalArgumentException("null type");
-        final TreeMap<String, LinkedHashSet<SchemaField>> fieldMap = this.typeFieldMap.get(type.getStorageId());
+        final TreeMap<String, SchemaField> fieldMap = this.typeFieldMap.get(type.getStorageId());
         if (fieldMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
         return Collections.unmodifiableSortedSet(fieldMap.navigableKeySet());
