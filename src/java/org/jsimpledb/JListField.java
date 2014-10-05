@@ -47,6 +47,11 @@ public class JListField extends JCollectionField {
     }
 
     @Override
+    public <R> R visit(JFieldSwitch<R> target) {
+        return target.caseJListField(this);
+    }
+
+    @Override
     ListSchemaField toSchemaItem() {
         final ListSchemaField schemaField = new ListSchemaField();
         super.initialize(schemaField);

@@ -72,6 +72,15 @@ public abstract class JField extends JSchemaObject {
      */
     public abstract Object getValue(JTransaction jtx, JObject jobj);
 
+    /**
+     * Apply visitor pattern.
+     *
+     * @param target target to invoke
+     * @return value from the method of {@code target} corresponding to this instance's type
+     * @throws NullPointerException if {@code target} is null
+     */
+    public abstract <R> R visit(JFieldSwitch<R> target);
+
     abstract void outputMethods(ClassGenerator<?> generator, ClassWriter cw);
 
     /**
