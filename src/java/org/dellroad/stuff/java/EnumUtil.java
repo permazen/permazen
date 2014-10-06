@@ -25,7 +25,7 @@ public final class EnumUtil {
      * @return unmodifiable list of enum values
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Enum<T>> List<T> getValues(Class<T> enumClass) {
+    public static <T extends Enum<?>> List<T> getValues(Class<T> enumClass) {
 
         // Generate ClassCastException if type is not an enum type
         enumClass.asSubclass(Enum.class);
