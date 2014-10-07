@@ -63,34 +63,6 @@ public abstract class ComplexField<T> extends Field<T> {
     @Override
     abstract ComplexFieldStorageInfo toStorageInfo();
 
-    /**
-     * Check compatibility with another {@link ComplexField} across a schema change.
-     * To be compatible, the two enties must be exactly the same in terms of data layouts and Java representations.
-     * This is in effect an {@code #equals equals()} test with respect to those aspects. Note that compatibililty
-     * does not necessarily imply the same sub-fields are indexed.
-     *
-     * <p>
-     * The implementation in {@link ComplexField} checks that {@code that} has the same Java type and as this instance
-     * and that all sub-fields are themselves {@link SimpleField#isSchemaChangeCompatible schema change compatible}.
-     * </p>
-     *
-     * @param that field to check for compatibility
-     * @throws NullPointerException if {@code that} is null
-     */
-    boolean isSchemaChangeCompatible(ComplexField<?> that) {
-        if (that.getClass() != this.getClass() || that.storageId != this.storageId)
-            return false;
-        final List<? extends SimpleField<?>> thisSubFields = this.getSubFields();
-        final List<? extends SimpleField<?>> thatSubFields = that.getSubFields();
-        if (thisSubFields.size() != thatSubFields.size())
-            return false;
-        for (int i = 0; i < thisSubFields.size(); i++) {
-            if (!thisSubFields.get(i).isSchemaChangeCompatible(thatSubFields.get(i)))
-                return false;
-        }
-        return true;
-    }
-
     @Override
     boolean isEquivalent(Field<?> field) {
         if (field.getClass() != this.getClass())

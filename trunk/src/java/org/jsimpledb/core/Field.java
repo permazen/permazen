@@ -92,6 +92,19 @@ public abstract class Field<T> extends SchemaItem {
     abstract FieldStorageInfo toStorageInfo();
 
     /**
+     * Determine if field is compatible to the given new field across a schema change.
+     * TODO: make this always be true if the two schemas themselves are compatible
+     */
+    boolean isSchemaChangeCompatible(Field<?> that) {
+        try {
+            this.toStorageInfo().verifySharedStorageId(that.toStorageInfo());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Copy field value between transactions.
      *
      * <p>

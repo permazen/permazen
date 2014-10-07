@@ -39,19 +39,21 @@ abstract class ComplexFieldStorageInfo extends FieldStorageInfo {
     abstract void initializeSubFields(List<SimpleFieldStorageInfo> subFieldInfos);
 
     @Override
-    public boolean canShareStorageId(StorageInfo obj) {
-        if (!super.canShareStorageId(obj))
-            return false;
+    public void verifySharedStorageId(FieldStorageInfo obj) {
         final ComplexFieldStorageInfo that = (ComplexFieldStorageInfo)obj;
         final List<SimpleFieldStorageInfo> thisSubFields = this.getSubFields();
         final List<SimpleFieldStorageInfo> thatSubFields = that.getSubFields();
         if (thisSubFields.size() != thatSubFields.size())
-            return false;
+            throw new IllegalArgumentException("fields have different sub-fields");             // should never happen
         for (int i = 0; i < thisSubFields.size(); i++) {
-            if (!thisSubFields.get(i).canShareStorageId(thatSubFields.get(i)))
-                return false;
+            final SimpleFieldStorageInfo thisSubField = this.getSubFields().get(i);
+            final SimpleFieldStorageInfo thatSubField = that.getSubFields().get(i);
+            try {
+                thisSubField.verifySharedStorageId(thatSubField);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("fields have incompatible sub-fields: " + e.getMessage(), e);
+            }
         }
-        return true;
     }
 
     /**

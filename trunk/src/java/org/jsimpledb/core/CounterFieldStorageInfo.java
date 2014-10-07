@@ -17,5 +17,9 @@ class CounterFieldStorageInfo extends FieldStorageInfo {
     public String toString() {
         return "counter field";
     }
+
+    protected void verifySharedStorageId(FieldStorageInfo other) {
+        // nothing else to check
+    }
 }
 

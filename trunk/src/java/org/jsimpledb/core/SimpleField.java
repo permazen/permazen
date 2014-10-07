@@ -111,24 +111,6 @@ public class SimpleField<T> extends Field<T> {
 
 // Non-public methods
 
-    /**
-     * Check compatibility with another {@link SimpleField} across a schema change.
-     * To be compatible, the two fields must be exactly the same in terms of binary encoding, Java representation,
-     * and default value.
-     * This is in effect an {@code #equals equals()} test with respect to those aspects. Note that compatibililty
-     * does not necessarily imply the fields are both indexed or both not indexed.
-     *
-     * <p>
-     * The implementation in {@link SimpleField} checks that the two fields have equivalent {@link FieldType}s.
-     * </p>
-     *
-     * @param that field to check for compatibility
-     * @throws NullPointerException if {@code that} is null
-     */
-    boolean isSchemaChangeCompatible(SimpleField<?> that) {
-        return this.fieldType.equals(that.fieldType);
-    }
-
     @Override
     SimpleFieldStorageInfo toStorageInfo() {
         return new SimpleFieldStorageInfo(this, this.parent != null ? this.parent.storageId : 0);

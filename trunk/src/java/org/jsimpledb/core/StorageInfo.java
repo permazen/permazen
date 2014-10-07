@@ -14,7 +14,7 @@ import java.util.Comparator;
  * independent of any specific schema version. This is exactly the information that must
  * be consistent across schema versions.
  *
- * @see #canShareStorageId canShareStorageId()
+ * @see #verifySharedStorageId verifySharedStorageId()
  */
 abstract class StorageInfo {
 
@@ -48,9 +48,17 @@ abstract class StorageInfo {
      * <p>
      * Subclasses must override as required.
      * </p>
+     *
+     * @param that other instance
+     * @throws IllegalArgumentException if this instance and {@code that} cannot use the same storage ID
      */
-    public boolean canShareStorageId(StorageInfo that) {
-        return this.getClass() == that.getClass() && this.storageId == that.storageId;
+    public void verifySharedStorageId(StorageInfo that) {
+        if (this.getClass() != that.getClass()) {
+            throw new IllegalArgumentException("types " + this.getClass().getName()
+              + " and " + that.getClass().getName() + " are not compatible");
+        }
+        if (this.storageId != that.storageId)
+            throw new IllegalArgumentException("storage ID " + this.storageId + " != " + that.storageId);
     }
 
     @Override
