@@ -15,10 +15,6 @@
         - If true then no corresponding object type is generated
         - Alows autoProperties to work for subtypes without creating supertype
 
-- Bug: JSimpleDB reference field's target type can change across schema
-  versions, resulting in possible ClassCastExceptions at runtime.
-    - Need to throw TypeNotInSchemaException if appropriate when converting
-
 - Build and distribute binary distribution
     - lib subdirectory with dependencies
     - add Main-Class and Classpath manifest headers to CLI and GUI jars
