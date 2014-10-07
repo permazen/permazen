@@ -34,7 +34,7 @@ class FloatArrayType extends ArrayType<float[], Float> {
 
     @SuppressWarnings("serial")
     FloatArrayType() {
-        super(FieldType.FLOAT, new TypeToken<float[]>() { });
+        super(FieldTypeRegistry.FLOAT, new TypeToken<float[]>() { });
     }
 
     @Override

@@ -41,7 +41,7 @@ class ObjInfo {
         this.versionNumber = UnsignedIntEncoder.read(reader);
         if (this.versionNumber == 0)
             throw new InvalidObjectVersionException(this.id, this.versionNumber);
-        this.deleteNotified = FieldType.BOOLEAN.read(reader);
+        this.deleteNotified = FieldTypeRegistry.BOOLEAN.read(reader);
     }
 
     public ObjId getId() {
@@ -86,7 +86,7 @@ class ObjInfo {
         final ByteWriter writer = new ByteWriter();
         UnsignedIntEncoder.write(writer, META_DATA_VERSION);
         UnsignedIntEncoder.write(writer, versionNumber);
-        FieldType.BOOLEAN.write(writer, deleteNotified);
+        FieldTypeRegistry.BOOLEAN.write(writer, deleteNotified);
         tx.kvt.put(id.getBytes(), writer.getBytes());
     }
 }

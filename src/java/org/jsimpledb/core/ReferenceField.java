@@ -34,7 +34,7 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @throws IllegalArgumentException if {@code storageId} is invalid
      */
     ReferenceField(String name, int storageId, SchemaVersion version, DeleteAction onDelete) {
-        super(name, storageId, version, FieldType.OBJ_ID, true);
+        super(name, storageId, version, FieldTypeRegistry.OBJ_ID, true);
         if (onDelete == null)
             throw new IllegalArgumentException("null onDelete");
         this.onDelete = onDelete;

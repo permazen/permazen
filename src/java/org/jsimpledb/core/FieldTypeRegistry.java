@@ -12,11 +12,16 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.java.PrimitiveSwitch;
@@ -63,6 +68,141 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
  */
 public class FieldTypeRegistry {
 
+    /**
+     * {@code void} primitive wrapper type (null values not allowed).
+     */
+    static final VoidType VOID = new VoidType();
+
+    /**
+     * {@code Void} primitive wrapper type (null values allowed).
+     */
+    static final PrimitiveWrapperType<Void> VOID_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.VOID);
+
+    /**
+     * {@code boolean} primitive wrapper type (null values not allowed).
+     */
+    static final BooleanType BOOLEAN = new BooleanType();
+
+    /**
+     * {@code Boolean} primitive wrapper type (null values allowed).
+     */
+    static final PrimitiveWrapperType<Boolean> BOOLEAN_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.BOOLEAN);
+
+    /**
+     * {@code byte} primitive wrapper type (null values not allowed).
+     */
+    static final ByteType BYTE = new ByteType();
+
+    /**
+     * {@code Byte} primitive wrapper type (null values allowed).
+     */
+    static final PrimitiveWrapperType<Byte> BYTE_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.BYTE);
+
+    /**
+     * {@code char} primitive wrapper type (null values not allowed).
+     */
+    static final CharacterType CHARACTER = new CharacterType();
+
+    /**
+     * {@code Character} primitive wrapper type (null values allowed).
+     */
+    static final PrimitiveWrapperType<Character> CHARACTER_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.CHARACTER);
+
+    /**
+     * {@code short} primitive wrapper type (null values not allowed).
+     */
+    static final ShortType SHORT = new ShortType();
+
+    /**
+     * {@code Short} primitive wrapper type (null values allowed).
+     */
+    static final PrimitiveWrapperType<Short> SHORT_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.SHORT);
+
+    /**
+     * {@code int} primitive type (null values not allowed).
+     */
+    static final IntegerType INTEGER = new IntegerType();
+
+    /**
+     * {@code Integer} primitive wrapper type (null values allowed).
+     */
+    static final PrimitiveWrapperType<Integer> INTEGER_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.INTEGER);
+
+    /**
+     * {@code float} primitive wrapper type (null values not allowed).
+     */
+    static final FloatType FLOAT = new FloatType();
+
+    /**
+     * {@code Float} primitive wrapper type (null values allowed).
+     */
+    static final PrimitiveWrapperType<Float> FLOAT_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.FLOAT);
+
+    /**
+     * {@code long} primitive wrapper type (null values not allowed).
+     */
+    static final LongType LONG = new LongType();
+
+    /**
+     * {@code Long} primitive wrapper type (null values allowed).
+     */
+    static final PrimitiveWrapperType<Long> LONG_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.LONG);
+
+    /**
+     * {@code double} primitive wrapper type (null values not allowed).
+     */
+    static final DoubleType DOUBLE = new DoubleType();
+
+    /**
+     * {@code Double} primitive wrapper type (null values allowed).
+     */
+    static final PrimitiveWrapperType<Double> DOUBLE_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.DOUBLE);
+
+    /**
+     * Type for {@link ObjId}s.
+     */
+    static final NullSafeType<ObjId> OBJ_ID = new NullSafeType<>(new ObjIdType());
+
+    /**
+     * Type for {@link String}s.
+     */
+    static final NullSafeType<String> STRING = new NullSafeType<>(new StringType());
+
+    /**
+     * Type for {@link Date}s.
+     */
+    static final NullSafeType<Date> DATE = new NullSafeType<>(new DateType());
+
+    /**
+     * Type for {@link ListIndexEntry}s.
+     */
+    static final FieldType<ListIndexEntry> LIST_INDEX_ENTRY = new ListIndexEntryType();
+
+    /**
+     * Type for {@link EnumValue}s.
+     */
+    static final NullSafeType<EnumValue> ENUM_VALUE = new NullSafeType<>(new EnumValueType());
+
+    /**
+     * Type for {@link UUID}s.
+     */
+    static final NullSafeType<UUID> UUID = new NullSafeType<>(new UUIDType());
+
+    /**
+     * Type for {@link URI}s.
+     */
+    static final NullSafeType<URI> URI = new URIType();
+
+    /**
+     * Type for {@link File}s.
+     */
+    static final NullSafeType<File> FILE = new FileType();
+
+    /**
+     * Type for {@link Pattern}s.
+     */
+    static final NullSafeType<Pattern> PATTERN = new PatternType();
+
     private final HashMap<String, FieldType<?>> typesByName = new HashMap<>();
     private final HashMap<TypeToken<?>, ArrayList<FieldType<?>>> typesByType = new HashMap<>();
 
@@ -71,31 +211,31 @@ public class FieldTypeRegistry {
      * types such as primitive types, {@link String}, etc.) already registered.
      */
     public FieldTypeRegistry() {
-        this.add(FieldType.VOID_WRAPPER);
-        this.add(FieldType.BOOLEAN);
-        this.add(FieldType.BOOLEAN_WRAPPER);
-        this.add(FieldType.BYTE);
-        this.add(FieldType.BYTE_WRAPPER);
-        this.add(FieldType.SHORT);
-        this.add(FieldType.SHORT_WRAPPER);
-        this.add(FieldType.CHARACTER);
-        this.add(FieldType.CHARACTER_WRAPPER);
-        this.add(FieldType.INTEGER);
-        this.add(FieldType.INTEGER_WRAPPER);
-        this.add(FieldType.FLOAT);
-        this.add(FieldType.FLOAT_WRAPPER);
-        this.add(FieldType.LONG);
-        this.add(FieldType.LONG_WRAPPER);
-        this.add(FieldType.DOUBLE);
-        this.add(FieldType.DOUBLE_WRAPPER);
-        this.add(FieldType.OBJ_ID);
-        this.add(FieldType.STRING);
-        this.add(FieldType.DATE);
-        this.add(FieldType.ENUM_VALUE);
-        this.add(FieldType.UUID);
-        this.add(FieldType.URI);
-        this.add(FieldType.FILE);
-        this.add(FieldType.PATTERN);
+        this.add(FieldTypeRegistry.VOID_WRAPPER);
+        this.add(FieldTypeRegistry.BOOLEAN);
+        this.add(FieldTypeRegistry.BOOLEAN_WRAPPER);
+        this.add(FieldTypeRegistry.BYTE);
+        this.add(FieldTypeRegistry.BYTE_WRAPPER);
+        this.add(FieldTypeRegistry.SHORT);
+        this.add(FieldTypeRegistry.SHORT_WRAPPER);
+        this.add(FieldTypeRegistry.CHARACTER);
+        this.add(FieldTypeRegistry.CHARACTER_WRAPPER);
+        this.add(FieldTypeRegistry.INTEGER);
+        this.add(FieldTypeRegistry.INTEGER_WRAPPER);
+        this.add(FieldTypeRegistry.FLOAT);
+        this.add(FieldTypeRegistry.FLOAT_WRAPPER);
+        this.add(FieldTypeRegistry.LONG);
+        this.add(FieldTypeRegistry.LONG_WRAPPER);
+        this.add(FieldTypeRegistry.DOUBLE);
+        this.add(FieldTypeRegistry.DOUBLE_WRAPPER);
+        this.add(FieldTypeRegistry.OBJ_ID);
+        this.add(FieldTypeRegistry.STRING);
+        this.add(FieldTypeRegistry.DATE);
+        this.add(FieldTypeRegistry.ENUM_VALUE);
+        this.add(FieldTypeRegistry.UUID);
+        this.add(FieldTypeRegistry.URI);
+        this.add(FieldTypeRegistry.FILE);
+        this.add(FieldTypeRegistry.PATTERN);
     }
 
     /**
