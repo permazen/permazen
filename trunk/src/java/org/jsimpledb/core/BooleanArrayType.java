@@ -31,7 +31,7 @@ class BooleanArrayType extends ArrayType<boolean[], Boolean> {
 
     @SuppressWarnings("serial")
     BooleanArrayType() {
-        super(FieldType.BOOLEAN, new TypeToken<boolean[]>() { });
+        super(FieldTypeRegistry.BOOLEAN, new TypeToken<boolean[]>() { });
     }
 
     @Override

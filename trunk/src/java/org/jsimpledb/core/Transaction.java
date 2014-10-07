@@ -2228,7 +2228,8 @@ public class Transaction {
             // Gather all objects that refer to any object in our current "objects" set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId object : objects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(storageId, FieldType.OBJ_ID, FieldType.OBJ_ID).get(object);
+                final NavigableSet<ObjId> refs = this.queryIndex(storageId,
+                  FieldTypeRegistry.OBJ_ID, FieldTypeRegistry.OBJ_ID).get(object);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -2274,7 +2275,7 @@ public class Transaction {
             // Gather all objects that refer to any object in our current target objects set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId id : targetObjects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(fieldInfo, FieldType.OBJ_ID).get(id);
+                final NavigableSet<ObjId> refs = this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID).get(id);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -2319,7 +2320,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId, int... objTypeStorageIds) {
         final SimpleFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo, FieldType.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.storageId));
     }
 
@@ -2351,7 +2352,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId, int... objTypeStorageIds) {
         final SetFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
 
@@ -2383,7 +2384,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId, int... objTypeStorageIds) {
         final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldType.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
 
@@ -2415,7 +2416,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId, int... objTypeStorageIds) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.keyField, FieldType.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo.keyField, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.keyField.storageId));
     }
 
@@ -2447,7 +2448,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId, int... objTypeStorageIds) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.valueField, FieldType.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo.valueField, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.valueField.storageId));
     }
 
@@ -2474,7 +2475,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ListIndexEntry>> queryListFieldEntries(int storageId, int... objTypeStorageIds) {
         final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldType.LIST_INDEX_ENTRY), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldTypeRegistry.LIST_INDEX_ENTRY), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
 
@@ -2566,14 +2567,14 @@ public class Transaction {
     private NavigableSet<ObjId> findReferrers(ReferenceFieldStorageInfo fieldInfo, ObjId target, int versionNumber) {
 
         // Find objects (having any schema version) wherein the field refers to the target
-        final NavigableSet<ObjId> referringObjects = this.queryIndex(fieldInfo, FieldType.OBJ_ID).get(target);
+        final NavigableSet<ObjId> referringObjects = this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID).get(target);
         if (referringObjects == null)
-            return NavigableSets.<ObjId>empty(FieldType.OBJ_ID);
+            return NavigableSets.<ObjId>empty(FieldTypeRegistry.OBJ_ID);
 
         // Find all objects with the specified schema version
         final NavigableSet<ObjId> versionObjects = this.queryVersion().get(versionNumber);
         if (versionObjects == null)
-            return NavigableSets.<ObjId>empty(FieldType.OBJ_ID);
+            return NavigableSets.<ObjId>empty(FieldTypeRegistry.OBJ_ID);
 
         // Return the intersection of the two sets
         return NavigableSets.intersection(versionObjects, referringObjects);
@@ -2581,8 +2582,8 @@ public class Transaction {
 
     // Find objects with any schema version referring to the given target through the specified reference field
     private NavigableSet<ObjId> findReferrers(ReferenceFieldStorageInfo fieldInfo, ObjId target) {
-        final NavigableSet<ObjId> referrers = this.queryIndex(fieldInfo, FieldType.OBJ_ID).get(target);
-        return referrers != null ? referrers : NavigableSets.<ObjId>empty(FieldType.OBJ_ID);
+        final NavigableSet<ObjId> referrers = this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID).get(target);
+        return referrers != null ? referrers : NavigableSets.<ObjId>empty(FieldTypeRegistry.OBJ_ID);
     }
 
     // Filter an index map to only contain objects with the specified storageIds

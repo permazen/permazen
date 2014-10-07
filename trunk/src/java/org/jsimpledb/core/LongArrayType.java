@@ -17,7 +17,7 @@ import java.util.List;
 class LongArrayType extends IntegralArrayType<long[], Long> {
 
     LongArrayType() {
-       super(FieldType.LONG);
+       super(FieldTypeRegistry.LONG);
     }
 
     @Override

@@ -28,7 +28,7 @@ class CharacterArrayType extends ArrayType<char[], Character> {
 
     @SuppressWarnings("serial")
     CharacterArrayType() {
-        super(FieldType.CHARACTER, new TypeToken<char[]>() { });
+        super(FieldTypeRegistry.CHARACTER, new TypeToken<char[]>() { });
     }
 
     @Override

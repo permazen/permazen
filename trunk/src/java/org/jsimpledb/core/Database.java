@@ -492,7 +492,8 @@ public class Database {
     }
 
     static NavigableMap<Integer, NavigableSet<ObjId>> getVersionIndex(Transaction tx, int... storageIds) {
-        final IndexMap<Integer, ObjId> map = new IndexMap<>(tx, VERSION_INDEX_PREFIX, new UnsignedIntType(), FieldType.OBJ_ID);
+        final IndexMap<Integer, ObjId> map = new IndexMap<>(tx,
+          VERSION_INDEX_PREFIX, new UnsignedIntType(), FieldTypeRegistry.OBJ_ID);
         return tx.filterIndex(map, storageIds, tx.schema.objTypeStorageIds);
     }
 

@@ -34,7 +34,7 @@ class DoubleArrayType extends ArrayType<double[], Double> {
 
     @SuppressWarnings("serial")
     DoubleArrayType() {
-        super(FieldType.DOUBLE, new TypeToken<double[]>() { });
+        super(FieldTypeRegistry.DOUBLE, new TypeToken<double[]>() { });
     }
 
     @Override
