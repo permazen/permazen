@@ -142,8 +142,13 @@ public class SchemaVersion {
     private void addStorageInfo(StorageInfo storageInfo) {
         final int storageId = storageInfo.getStorageId();
         final StorageInfo previous = this.storageInfoMap.put(storageId, storageInfo);
-        if (previous != null && !previous.canShareStorageId(storageInfo))
-            throw new IllegalArgumentException("duplicate use of storage ID " + storageId);     // should never happen
+        if (previous != null) {
+            try {
+                previous.verifySharedStorageId(storageInfo);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("duplicate use of storage ID " + storageId, e);     // should never happen
+            }
+        }
     }
 
     private String getDescription(Class<? extends SchemaItem> type) {
