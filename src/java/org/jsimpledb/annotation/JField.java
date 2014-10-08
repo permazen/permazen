@@ -37,26 +37,6 @@ import org.jsimpledb.core.DeleteAction;
  * or inferred from the annotated method, must be supported by a some {@link org.jsimpledb.core.FieldType}
  * registered in the {@link org.jsimpledb.core.FieldTypeRegistry} (perhaps via {@link JFieldType &#64;JFieldType}).
  * </p>
- *
- * <p>
- * {@link Enum} properties present a problem because they have both a {@link Enum#name name()} and an {@link Enum#ordinal ordinal()}
- * value, and either or both of these might change over time due code refactoring, spelling corrections, etc.
- * Therefore, it's possible to encounter unknown values when decoding enum constants encoded by older code versions.
- * To gracefully handle these situations, the binary encoding includes both the constant's {@link Enum#ordinal ordinal()}s
- * and its {@link Enum#name name()}, and when decoding an enum constant the following logic applies:
- * <ol>
- *  <li>If the name matches an enum constant, that constant is returned, regardless of whether the ordinal matches or not</li>
- *  <li>If the name does not match but the ordinal matches an enum constant, that constant is returned</li>
- *  <li>Otherwise, neither the name nor the ordinal matches, and null is returned</li>
- * </ol>
- * </p>
- *
- * <p>
- * When an {@link Enum} property changes, the safest approach is to create a new schema version. As a special case,
- * when old field values are presented to {@link OnVersionChange &#64;OnVersionChange} methods, for any old fields that
- * had {@link Enum} type, their old values will be {@link org.jsimpledb.core.EnumValue} objects, allowing visibility
- * into old values that may have changed or been removed in the current schema.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

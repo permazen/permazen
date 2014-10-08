@@ -40,6 +40,11 @@ public interface SchemaFieldSwitch<R> {
     R caseReferenceSchemaField(ReferenceSchemaField field);
 
     /**
+     * Handle a {@link EnumSchemaField}.
+     */
+    R caseEnumSchemaField(EnumSchemaField field);
+
+    /**
      * Handle a {@link CounterSchemaField}.
      */
     R caseCounterSchemaField(CounterSchemaField field);

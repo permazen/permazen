@@ -11,6 +11,10 @@ package org.jsimpledb.core;
  * Holds a non-null {@link Enum} value without actually referencing any Java {@link Enum} type.
  * Instead, instances hold a name and ordinal value.
  *
+ * <p>
+ * Instances are immutable.
+ * </p>
+ *
  * @see org.jsimpledb.EnumConverter
  */
 public class EnumValue {

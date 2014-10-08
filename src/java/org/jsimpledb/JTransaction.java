@@ -37,6 +37,7 @@ import org.jsimpledb.annotation.OnVersionChange;
 import org.jsimpledb.core.CreateListener;
 import org.jsimpledb.core.DeleteListener;
 import org.jsimpledb.core.DeletedObjectException;
+import org.jsimpledb.core.EnumField;
 import org.jsimpledb.core.Field;
 import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.ListField;
@@ -879,8 +880,6 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
      * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
-     * @throws UnmatchedEnumException if field has {@link Enum} type and the previously stored instance cannot be
-     *  mapped to an instance in the newer {@link Enum} type
      * @throws NullPointerException if {@code jobj} is null
      */
     public Object readSimpleField(JObject jobj, int storageId, boolean updateVersion) {
@@ -1607,7 +1606,7 @@ public class JTransaction {
                   new Maps.EntryTransformer<Integer, Object, Object>() {
                     @Override
                     public Object transformEntry(Integer storageId, Object oldValue) {
-                        return JTransaction.this.convertOldValue(objType.getField(storageId), oldValue);
+                        return JTransaction.this.convertCoreValue(objType.getField(storageId), oldValue);
                     }
                 });
 
@@ -1638,55 +1637,71 @@ public class JTransaction {
         return converter != null ? converter.convert((X)value) : (Y)value;
     }
 
-    // Convert an old value from core database in prior schema version
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private Object convertOldValue(Field<?> field, Object value) {
-        if (value == null)
-            return null;
-        final Converter converter = field.visit(new FieldSwitchAdapter<Converter>() {
+    /**
+     * Convert a value read from a core API field, possibly in an older version object, to the
+     * corresponding {@link JSimpleDB} value, to the extent possible.
+     */
+    Object convertCoreValue(Field<?> field, Object value) {
+        return value != null ? this.convert(field.visit(new CoreValueConverterBuilder()), value) : null;
+    }
 
-            @Override
-            public Converter caseReferenceField(ReferenceField field) {
-                return JTransaction.this.referenceConverter;
-            }
+// CoreValueConverterBuilder
 
-            @Override
-            public <E> Converter caseSetField(SetField<E> field) {
-                return field.getElementField() instanceof ReferenceField ?
-                  new NavigableSetConverter(JTransaction.this.referenceConverter) : null;
-            }
+    /**
+     * Builds a {@link Converter} for any core API {@link Field} that converts, in the forward direction, core API values
+     * into {@link JSimpleDB} values, to the extent possible. In the case of reference and enum fields, the
+     * original Java type may no longer be available; if not, values are converted to {@link UntypedJObject}
+     * or left as {@link org.jsimpledb.core.EnumValue}s.
+     *
+     * <p>
+     * Returns null if no conversion is necessary.
+     * </p>
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    class CoreValueConverterBuilder extends FieldSwitchAdapter<Converter<?, ?>> {
 
-            @Override
-            public <E> Converter caseListField(ListField<E> field) {
-                return field.getElementField() instanceof ReferenceField ?
-                  new ListConverter(JTransaction.this.referenceConverter) : null;
-            }
-
-            @Override
-            public <K, V> Converter caseMapField(MapField<K, V> field) {
-                if (field.getKeyField() instanceof ReferenceField || field.getValueField() instanceof ReferenceField) {
-                    final Converter keyConverter = field.getKeyField() instanceof ReferenceField ?
-                      JTransaction.this.referenceConverter : Converter.identity();
-                    final Converter valueConverter = field.getValueField() instanceof ReferenceField ?
-                      JTransaction.this.referenceConverter : Converter.identity();
-                    return new NavigableMapConverter(keyConverter, valueConverter);
-                }
-                return null;
-            }
-
-            @Override
-            public <T> Converter caseField(Field<T> field) {
-                return null;
-            }
-        });
-        if (converter != null) {
-            try {
-                value = converter.reverse().convert(value);
-            } catch (UnmatchedEnumException e) {
-                // ignore - give them the EnumValue object instead
-            }
+        // We can only convert EnumValue -> Enum if the Enum type is known and matches the old field's original type
+        @Override
+        public Converter<?, ?> caseEnumField(EnumField field) {
+            final Class<? extends Enum<?>> enumType = field.getFieldType().getEnumType();
+            return enumType != null ? EnumConverter.createEnumConverter(enumType).reverse() : null;
         }
-        return value;
+
+        @Override
+        public Converter<?, ?> caseReferenceField(ReferenceField field) {
+            return JTransaction.this.referenceConverter.reverse();
+        }
+
+        @Override
+        public <E> Converter<?, ?> caseSetField(SetField<E> field) {
+            final Converter elementConverter = field.getElementField().visit(this);
+            return elementConverter != null ? new NavigableSetConverter(elementConverter) : null;
+        }
+
+        @Override
+        public <E> Converter<?, ?> caseListField(ListField<E> field) {
+            final Converter elementConverter = field.getElementField().visit(this);
+            return elementConverter != null ? new ListConverter(elementConverter) : null;
+        }
+
+        @Override
+        public <K, V> Converter<?, ?> caseMapField(MapField<K, V> field) {
+            Converter keyConverter = field.getKeyField().visit(this);
+            Converter valueConverter = field.getValueField().visit(this);
+            if (keyConverter != null || valueConverter != null) {
+                if (keyConverter == null)
+                    keyConverter = Converter.identity();
+                if (valueConverter == null)
+                    valueConverter = Converter.identity();
+                return new NavigableMapConverter(keyConverter, valueConverter);
+            }
+            return null;
+        }
+
+        @Override
+        public <T> Converter caseField(Field<T> field) {
+            return null;
+        }
     }
 
 // ValidationListener

@@ -40,6 +40,11 @@ public interface JFieldSwitch<R> {
     R caseJReferenceField(JReferenceField field);
 
     /**
+     * Handle a {@link JEnumField}.
+     */
+    R caseJEnumField(JEnumField field);
+
+    /**
      * Handle a {@link JCounterField}.
      */
     R caseJCounterField(JCounterField field);

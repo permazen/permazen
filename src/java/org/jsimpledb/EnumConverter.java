@@ -8,27 +8,21 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Function;
+import com.google.common.collect.EnumHashBiMap;
+import com.google.common.collect.Maps;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.EnumSet;
 
-import org.dellroad.stuff.java.EnumUtil;
 import org.jsimpledb.core.EnumValue;
 
 /**
  * Converts between core database {@link EnumValue} objects and the corresponding Java {@link Enum} model values.
- *
- * <p>
- * When converting in the forward direction from {@link EnumValue} to {@link Enum}, the corresponding {@link Enum} value
- * is chosen by first attempting to match by {@linkplain EnumValue#getName name}, then by
- * {@linkplain EnumValue#getOrdinal ordinal value}. If neither match succeeds, an {@link UnmatchedEnumException} is thrown.
- * </p>
  */
-public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
+public class EnumConverter<T extends Enum<T>> extends Converter<T, EnumValue> {
 
     private final Class<T> enumType;
-    private final HashMap<Integer, T> ordinalMap;
-    private final HashMap<String, T> nameMap;
+    private final EnumHashBiMap<T, EnumValue> valueMap;
 
     /**
      * Constructor.
@@ -41,32 +35,32 @@ public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
             throw new IllegalArgumentException("null enumType");
         enumType.asSubclass(Enum.class);                            // verify it's really an Enum
         this.enumType = enumType;
-        final List<T> values = EnumUtil.getValues(this.enumType);
-        this.ordinalMap = new HashMap<>(values.size());
-        this.nameMap = new HashMap<>(values.size());
-        for (T value : values) {
-            this.ordinalMap.put(value.ordinal(), value);
-            this.nameMap.put(value.name(), value);
-        }
+        this.valueMap = EnumHashBiMap.<T, EnumValue>create(Maps.asMap(EnumSet.allOf(this.enumType), new Function<T, EnumValue>() {
+            @Override
+            public EnumValue apply(T value) {
+                return new EnumValue(value);
+            }
+        }));
     }
 
     @Override
-    protected T doForward(EnumValue enumValue) {
+    protected EnumValue doForward(T value) {
+        if (value == null)
+            return null;
+        final EnumValue enumValue = this.valueMap.get(value);
+        if (enumValue == null)
+            throw new IllegalArgumentException("invalid enum value " + value + " not an instance of " + this.enumType);
+        return enumValue;
+    }
+
+    @Override
+    protected T doBackward(EnumValue enumValue) {
         if (enumValue == null)
             return null;
-        final T nameMatch = this.nameMap.get(enumValue.getName());
-        final T ordinalMatch = this.ordinalMap.get(enumValue.getOrdinal());
-        final T value = nameMatch != null ? nameMatch : ordinalMatch;
+        final T value = this.valueMap.inverse().get(enumValue);
         if (value == null)
-            throw new UnmatchedEnumException(this.enumType, enumValue);
+            throw new IllegalArgumentException("invalid value " + enumValue + " not found in " + this.enumType);
         return value;
-    }
-
-    @Override
-    protected EnumValue doBackward(T value) {
-        if (value == null)
-            return null;
-        return new EnumValue(value);
     }
 
     /**
@@ -74,6 +68,14 @@ public class EnumConverter<T extends Enum<T>> extends Converter<EnumValue, T> {
      */
     public Class<T> getEnumType() {
         return this.enumType;
+    }
+
+    /**
+     * Convenience "constructor" allowing wildcard caller {@link Enum} types.
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static EnumConverter<?> createEnumConverter(Class<? extends Enum<?>> enumType) {
+        return new EnumConverter(enumType);
     }
 
 // Object

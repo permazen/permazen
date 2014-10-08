@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
-import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
@@ -354,6 +353,7 @@ public class JClass<T> extends JSchemaObject {
     }
 
     // Create a simple field, either regular object field or sub-field of complex field
+    @SuppressWarnings("unchecked")
     private JSimpleField createSimpleField(String description, TypeToken<?> fieldTypeToken, String fieldName,
       String typeName, int storageId, boolean indexed, DeleteAction onDelete, Method getter, Method setter,
       String fieldDescription) {
@@ -403,18 +403,19 @@ public class JClass<T> extends JSchemaObject {
             default:
                 if (!isReferenceType) {
                     throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"
-                      + " because type " + fieldTypeToken + " is supported by more than one registered simple field type");
+                      + " because type " + fieldTypeToken + " is supported by multiple registered simple field types: "
+                      + fieldTypes);
                 }
                 break;
             }
-
-            // Check for enum types
-            if (nonReferenceType == null && Enum.class.isAssignableFrom(fieldTypeToken.getRawType()))
-                nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(TypeToken.of(EnumValue.class));
         }
 
-        // If field type neither refers to a JClass type, or is a registered field type, fail
-        if (!isReferenceType && nonReferenceType == null) {
+        // Detect enum types
+        final Class<? extends Enum<?>> enumType = Enum.class.isAssignableFrom(fieldTypeToken.getRawType()) ?
+          (Class<? extends Enum<?>>)fieldTypeToken.getRawType().asSubclass(Enum.class) : null;
+
+        // If field type neither refers to a JClass type, nor is a registered field type, nor is an enum type, fail
+        if (!isReferenceType && nonReferenceType == null && enumType == null) {
             throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"
               + " because no known type supports values of type " + fieldTypeToken);
         }
@@ -432,12 +433,15 @@ public class JClass<T> extends JSchemaObject {
             }
         }
 
-        // Create simple or reference field
+        // Create simple, enum, or reference field
         try {
-            return isReferenceType ?
-              new JReferenceField(fieldName, storageId, fieldDescription, fieldTypeToken, onDelete, getter, setter) :
-              new JSimpleField(fieldName, storageId, fieldTypeToken,
-                nonReferenceType.getName(), indexed, fieldDescription, getter, setter);
+            return
+              isReferenceType ?
+                new JReferenceField(fieldName, storageId, fieldDescription, fieldTypeToken, onDelete, getter, setter) :
+              enumType != null ?
+                new JEnumField(fieldName, storageId, enumType, indexed, fieldDescription, getter, setter) :
+                new JSimpleField(fieldName, storageId, fieldTypeToken,
+                 nonReferenceType.getName(), indexed, fieldDescription, getter, setter);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("invalid " + description + ": " + e, e);
         }
