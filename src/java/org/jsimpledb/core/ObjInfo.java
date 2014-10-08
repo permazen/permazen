@@ -74,7 +74,7 @@ class ObjInfo {
     public ObjType getObjType() {
         if (this.objType == null) {
             try {
-                this.objType = this.getSchemaVersion().getSchemaItem(this.getStorageId(), ObjType.class);
+                this.objType = this.getSchemaVersion().getObjType(this.getStorageId());
             } catch (IllegalArgumentException e) {
                 throw new InconsistentDatabaseException("object " + this.id + " has invalid storage ID", e);
             }

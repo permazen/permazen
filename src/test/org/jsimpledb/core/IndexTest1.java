@@ -141,8 +141,7 @@ public class IndexTest1 extends TestSupport {
 
     @SuppressWarnings("unchecked")
     private <T extends Comparable<T>> void verifyValues(Transaction tx, int storageId, Class<?> type0, int max, Object[] values) {
-        final FieldType<T> fieldType = (FieldType<T>)tx.getSchemaVersion().getSchemaItem(storageId,
-          SimpleField.class).getFieldType();
+        final FieldType<T> fieldType = ((SimpleField<T>)tx.getSchemaVersion().getObjType(1).getField(storageId)).getFieldType();
         final Class<T> type = (Class<T>)type0;
         final ArrayList<T> actual = new ArrayList<T>((NavigableSet<T>)tx.querySimpleField(storageId).navigableKeySet());
         final ArrayList<T> sorted = new ArrayList<T>(actual);

@@ -50,7 +50,6 @@ import org.jsimpledb.change.ObjectCreate;
 import org.jsimpledb.change.ObjectDelete;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.UnknownFieldException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -627,7 +626,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         @Override
         public SizedLabel extract(JObject jobj) {
             return new SizedLabel(jobj.getTransaction().getTransaction().getSchema()
-              .getVersion(jobj.getSchemaVersion()).getSchemaItem(jobj.getObjId().getStorageId(), ObjType.class).getName());
+              .getVersion(jobj.getSchemaVersion()).getObjType(jobj.getObjId().getStorageId()).getName());
         }
     }
 

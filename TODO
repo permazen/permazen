@@ -15,6 +15,14 @@
         - If true then no corresponding object type is generated
         - Alows autoProperties to work for subtypes without creating supertype
 
+- Eliminate all "representative" fields
+    - Allow same field in different objects to be indexed or not
+    - Allow same field in different objects to have different DeleteActions
+    - Eliminate Field.isEquivalent(); use Field.verifySharedStorageId() instead
+    - Obviate Field.isSchemaChangeCompatible() by making it always true if the
+      containing schemas are compatible.
+    - gui.Util.getCommonJFields()
+
 - Build and distribute binary distribution
     - lib subdirectory with dependencies
     - add Main-Class and Classpath manifest headers to CLI and GUI jars

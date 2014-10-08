@@ -550,7 +550,7 @@ public class Transaction {
             return false;
 
         // Initialize object
-        this.initialize(id, this.schema.getVersion(versionNumber).getSchemaItem(id.getStorageId(), ObjType.class));
+        this.initialize(id, this.schema.getVersion(versionNumber).getObjType(id.getStorageId()));
 
         // Done
         return true;
@@ -595,7 +595,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        final ObjType objType = this.schema.getVersion(versionNumber).getSchemaItem(storageId, ObjType.class);
+        final ObjType objType = this.schema.getVersion(versionNumber).getObjType(storageId);
 
         // Generate object ID
         final ObjId id = this.generateIdValidated(objType.storageId);
@@ -739,22 +739,15 @@ public class Transaction {
             }
 
             // Determine if any EXCEPTION reference fields refer to the object (from some other object); if so, throw exception
-            for (Map.Entry<ReferenceFieldStorageInfo, DeleteAction> entry : this.schema.referenceFieldOnDeletes.entrySet()) {
-                final ReferenceFieldStorageInfo fieldInfo = entry.getKey();
-                final DeleteAction onDelete = entry.getValue();
-                if (onDelete != null) {                             // field's onDelete is consistent across schema versions
-                    if (onDelete == DeleteAction.EXCEPTION)
-                        this.scanDeleteException(fieldInfo, id, this.findReferrers(fieldInfo, id));
-                } else {                                            // field's onDelete differs across schema versions
-                    for (SchemaVersion schemaVersion : this.schema.versions.values()) {
-                        final ReferenceField field = schemaVersion.referenceFields.get(fieldInfo.storageId);
-                        if (field != null && field.onDelete == DeleteAction.EXCEPTION)
-                            this.scanDeleteException(fieldInfo, id, this.findReferrers(fieldInfo, id, schemaVersion.versionNumber));
-                    }
+            for (ReferenceFieldStorageInfo fieldInfo :
+              Iterables.filter(this.schema.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
+                for (ObjId referrer : this.findReferrers(id, DeleteAction.EXCEPTION, fieldInfo.storageId)) {
+                    if (!referrer.equals(id))
+                        throw new ReferencedObjectException(id, referrer, fieldInfo.storageId);
                 }
             }
 
-            // Need to issue delete notifications?
+            // Do we need to issue delete notifications for the object being deleted?
             if (info.isDeleteNotified() || this.deleteListeners.isEmpty())
                 break;
 
@@ -765,75 +758,33 @@ public class Transaction {
         }
 
         // Actually delete the object
-        this.deleteObject(info);
+        this.deleteObjectData(info);
 
         // Find all UNREFERENCE references and unreference them
-        for (Map.Entry<ReferenceFieldStorageInfo, DeleteAction> entry : this.schema.referenceFieldOnDeletes.entrySet()) {
-            final ReferenceFieldStorageInfo fieldInfo = entry.getKey();
-            final DeleteAction onDelete = entry.getValue();
-            if (onDelete != null) {                             // field's onDelete is consistent across schema versions
-                if (onDelete == DeleteAction.UNREFERENCE)
-                    this.scanDeleteUnreference(fieldInfo, id, this.findReferrers(fieldInfo, id));
-            } else {                                            // field's onDelete differs across schema versions
-                for (SchemaVersion schemaVersion : this.schema.versions.values()) {
-                    final ReferenceField field = schemaVersion.referenceFields.get(fieldInfo.storageId);
-                    if (field != null && field.onDelete == DeleteAction.UNREFERENCE)
-                        this.scanDeleteUnreference(fieldInfo, id, this.findReferrers(fieldInfo, id, schemaVersion.versionNumber));
-                }
+        for (ReferenceFieldStorageInfo fieldInfo :
+          Iterables.filter(this.schema.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
+            final NavigableSet<ObjId> referrers = this.findReferrers(id, DeleteAction.UNREFERENCE, fieldInfo.storageId);
+            if (fieldInfo.isSubField()) {
+                final ComplexFieldStorageInfo superFieldInfo = this.schema.verifyStorageInfo(
+                  fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
+                superFieldInfo.unreferenceAll(this, fieldInfo.storageId, id, referrers);
+            } else {
+                final int storageId = fieldInfo.storageId;
+                for (ObjId referrer : referrers)
+                    this.writeSimpleField(referrer, storageId, null, false);
             }
         }
 
         // Find all DELETE references and mark the containing object for deletion (caller will call us back to actually delete)
-        for (Map.Entry<ReferenceFieldStorageInfo, DeleteAction> entry : this.schema.referenceFieldOnDeletes.entrySet()) {
-            final ReferenceFieldStorageInfo fieldInfo = entry.getKey();
-            final DeleteAction onDelete = entry.getValue();
-            if (onDelete != null) {                             // field's onDelete is consistent across schema versions
-                if (onDelete == DeleteAction.DELETE)
-                    this.scanDeleteDelete(fieldInfo, this.findReferrers(fieldInfo, id), deletables);
-            } else {                                            // field's onDelete differs across schema versions
-                for (SchemaVersion schemaVersion : this.schema.versions.values()) {
-                    final ReferenceField field = schemaVersion.referenceFields.get(fieldInfo.storageId);
-                    if (field != null && field.onDelete == DeleteAction.DELETE) {
-                        this.scanDeleteDelete(fieldInfo,
-                          this.findReferrers(fieldInfo, id, schemaVersion.versionNumber), deletables);
-                    }
-                }
-            }
-        }
+        for (ObjId referrer : this.findReferrers(id, DeleteAction.DELETE, -1))
+            deletables.add(referrer);
 
         // Done
         return true;
     }
 
-    // Scan referrers for DeleteAction.EXCEPTION
-    private void scanDeleteException(ReferenceFieldStorageInfo fieldInfo, ObjId id, NavigableSet<ObjId> referrers) {
-        for (ObjId referrer : referrers) {
-            if (!referrer.equals(id))
-                throw new ReferencedObjectException(id, referrer, fieldInfo.storageId);
-        }
-    }
-
-    // Scan referrers for DeleteAction.UNREFERENCE
-    private void scanDeleteUnreference(ReferenceFieldStorageInfo fieldInfo, ObjId id, NavigableSet<ObjId> referrers) {
-        if (fieldInfo.isSubField()) {
-            final ComplexFieldStorageInfo superFieldInfo = this.schema.verifyStorageInfo(
-              fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
-            superFieldInfo.unreferenceAll(this, fieldInfo.storageId, id, referrers);
-        } else {
-            final int storageId = fieldInfo.storageId;
-            for (ObjId referrer : referrers)
-                this.writeSimpleField(referrer, storageId, null, false);
-        }
-    }
-
-    // Scan referrers for DeleteAction.DELETE
-    private void scanDeleteDelete(ReferenceFieldStorageInfo fieldInfo, NavigableSet<ObjId> referrers, List<ObjId> deletables) {
-        for (ObjId referrer : referrers)        // avoid list.addAll() to avoid invoking size() on 'referrers'
-            deletables.add(referrer);
-    }
-
     // Delete all of an object's data
-    private void deleteObject(ObjInfo info) {
+    private void deleteObjectData(ObjInfo info) {
 
         // Delete object's simple field index entries
         final ObjId id = info.getId();
@@ -999,7 +950,7 @@ public class Transaction {
         } else {
 
             // Delete pre-existing object's field content, if any
-            dstTx.deleteObject(dstInfo);
+            dstTx.deleteObjectData(dstInfo);
 
             // Add schema version index entry
             dstTx.kvt.put(Database.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
@@ -1188,7 +1139,7 @@ public class Transaction {
         final ObjType oldType = info.getObjType();
         final ObjType newType;
         try {
-            newType = targetVersion.getSchemaItem(id.getStorageId(), ObjType.class);
+            newType = targetVersion.getObjType(id.getStorageId());
         } catch (UnknownTypeException e) {
             throw (TypeNotInSchemaVersionException)new TypeNotInSchemaVersionException(id, newVersion).initCause(e);
         }
@@ -2563,27 +2514,28 @@ public class Transaction {
         return new IndexMap<V, E>(this, storageId, fieldType, entryType);
     }
 
-    // Find objects with the given schema version referring to the given target through the specified reference field
-    private NavigableSet<ObjId> findReferrers(ReferenceFieldStorageInfo fieldInfo, ObjId target, int versionNumber) {
-
-        // Find objects (having any schema version) wherein the field refers to the target
-        final NavigableSet<ObjId> referringObjects = this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID).get(target);
-        if (referringObjects == null)
-            return NavigableSets.<ObjId>empty(FieldTypeRegistry.OBJ_ID);
-
-        // Find all objects with the specified schema version
-        final NavigableSet<ObjId> versionObjects = this.queryVersion().get(versionNumber);
-        if (versionObjects == null)
-            return NavigableSets.<ObjId>empty(FieldTypeRegistry.OBJ_ID);
-
-        // Return the intersection of the two sets
-        return NavigableSets.intersection(versionObjects, referringObjects);
-    }
-
-    // Find objects with any schema version referring to the given target through the specified reference field
-    private NavigableSet<ObjId> findReferrers(ReferenceFieldStorageInfo fieldInfo, ObjId target) {
-        final NavigableSet<ObjId> referrers = this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID).get(target);
-        return referrers != null ? referrers : NavigableSets.<ObjId>empty(FieldTypeRegistry.OBJ_ID);
+    // Find all objects that refer to the given target object through the/any reference field with the specified DeleteAction
+    @SuppressWarnings("unchecked")
+    private NavigableSet<ObjId> findReferrers(ObjId target, DeleteAction onDelete, int fieldStorageId) {
+        final ArrayList<NavigableSet<ObjId>> refSets = new ArrayList<>();
+        for (SchemaVersion schemaVersion : this.schema.versions.values()) {
+            final NavigableSet<ObjId> versionObjects = this.queryVersion().get(schemaVersion.versionNumber);
+            if (versionObjects == null)
+                continue;
+            for (ObjType objType : schemaVersion.objTypeMap.values()) {
+                for (ReferenceField field : Iterables.filter(objType.getFieldsAndSubFields(), ReferenceField.class)) {
+                    if (field.onDelete != onDelete || (fieldStorageId != -1 && field.storageId != fieldStorageId))
+                        continue;
+                    IndexMap<ObjId, ObjId>.IndexSet refs = (IndexMap<ObjId, ObjId>.IndexSet)this.queryIndex(
+                      field.storageId, FieldTypeRegistry.OBJ_ID, FieldTypeRegistry.OBJ_ID).get(target);
+                    if (refs == null)
+                        continue;
+                    refs = refs.forObjType(objType.storageId);                              // restrict to object type
+                    refSets.add(NavigableSets.intersection(versionObjects, refs));          // restrict to schema version
+                }
+            }
+        }
+        return !refSets.isEmpty() ? NavigableSets.union(refSets) : NavigableSets.empty(FieldTypeRegistry.OBJ_ID);
     }
 
     // Filter an index map to only contain objects with the specified storageIds
