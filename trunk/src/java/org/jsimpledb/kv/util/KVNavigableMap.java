@@ -77,16 +77,6 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
     }
 
     @Override
-    public byte[] get(Object obj) {
-        if (!(obj instanceof byte[]))
-            return null;
-        final byte[] key = (byte[])obj;
-        if (!this.inRange(key))
-            return null;
-        return this.kv.get((byte[])obj);
-    }
-
-    @Override
     public byte[] put(byte[] key, byte[] value) {
         if (!this.inRange(key))
             throw new IllegalArgumentException("key is out of range");
