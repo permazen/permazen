@@ -68,10 +68,10 @@ public class FieldTypeTest extends TestSupport {
             // Parseable string encoding
             Assert.assertEquals(fieldType.toParseableString(value2), fieldType.toParseableString(value));
             final String s2 = fieldType.toParseableString(value);
-            final ParseContext ctx = new ParseContext(s2 + "abcd");
+            final ParseContext ctx = new ParseContext(s2 + ",abcd");
             final T value4 = fieldType.fromParseableString(ctx);
             this.assertEquals(fieldType, value4, value);
-            Assert.assertEquals(ctx.getInput(), "abcd");
+            Assert.assertEquals(ctx.getInput(), ",abcd");
 
             // Check sort order
             if (i > 0) {

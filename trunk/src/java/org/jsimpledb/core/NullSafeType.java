@@ -40,7 +40,11 @@ public class NullSafeType<T> extends FieldType<T> {
 
     private static final byte[] DEFAULT_VALUE = new byte[] { (byte)NULL_SENTINEL };
 
-    private final FieldType<T> inner;
+    /**
+     * The inner {@link FieldType} that this instance wraps.
+     */
+    protected final FieldType<T> inner;
+
     private final boolean inline;
 
     /**
@@ -143,7 +147,7 @@ public class NullSafeType<T> extends FieldType<T> {
 
     @Override
     public T fromParseableString(ParseContext context) {
-        return context.tryLiteral("null") ? null : this.inner.fromParseableString(context);
+        return context.tryPattern("null\\b") != null ? null : this.inner.fromParseableString(context);
     }
 
     @Override
