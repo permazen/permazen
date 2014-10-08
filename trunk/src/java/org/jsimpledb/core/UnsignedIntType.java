@@ -21,7 +21,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 class UnsignedIntType extends FieldType<Integer> {
 
     UnsignedIntType() {
-        super("unsigned int", TypeToken.of(Integer.class));
+        super("uint", TypeToken.of(Integer.class));
     }
 
     @Override
