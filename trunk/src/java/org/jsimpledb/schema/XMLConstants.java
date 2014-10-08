@@ -19,6 +19,8 @@ public interface XMLConstants {
     QName MAP_FIELD_TAG = new QName("MapField");
     QName OBJECT_TAG = new QName("Object");
     QName REFERENCE_FIELD_TAG = new QName("ReferenceField");
+    QName ENUM_FIELD_TAG = new QName("EnumField");
+    QName ENUM_IDENT_TAG = new QName("ident");
     QName SCHEMA_MODEL_TAG = new QName("Schema");
     QName SET_FIELD_TAG = new QName("SetField");
     QName SIMPLE_FIELD_TAG = new QName("SimpleField");

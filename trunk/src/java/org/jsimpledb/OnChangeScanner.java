@@ -7,7 +7,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Converter;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
@@ -33,7 +32,6 @@ import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
 import org.jsimpledb.change.SimpleFieldChange;
-import org.jsimpledb.core.Field;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
@@ -212,8 +210,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.getJObject(id);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new SimpleFieldChange(jobj, field.getStorageId(),
-              this.getFieldName(field), this.convert(field, oldValue), this.convert(field, newValue)));
+            this.invoke(referrers, new SimpleFieldChange(jobj, field.getStorageId(), field.getName(),
+              this.jtx.convertCoreValue(field, oldValue), this.jtx.convertCoreValue(field, newValue)));
         }
 
     // SetFieldChangeListener
@@ -228,7 +226,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             if (jobj == null)
                 return;
             this.invoke(referrers, new SetFieldAdd(jobj, field.getStorageId(),
-              this.getFieldName(field), this.convert(field.getElementField(), value)));
+              field.getName(), this.jtx.convertCoreValue(field.getElementField(), value)));
         }
 
         @Override
@@ -241,7 +239,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             if (jobj == null)
                 return;
             this.invoke(referrers, new SetFieldRemove(jobj, field.getStorageId(),
-              this.getFieldName(field), this.convert(field.getElementField(), value)));
+              field.getName(), this.jtx.convertCoreValue(field.getElementField(), value)));
         }
 
         @Override
@@ -251,7 +249,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.getJObject(id);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new SetFieldClear<JObject>(jobj, field.getStorageId(), this.getFieldName(field)));
+            this.invoke(referrers, new SetFieldClear<JObject>(jobj, field.getStorageId(), field.getName()));
         }
 
     // ListFieldChangeListener
@@ -266,7 +264,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             if (jobj == null)
                 return;
             this.invoke(referrers, new ListFieldAdd(jobj, field.getStorageId(),
-              this.getFieldName(field), index, this.convert(field.getElementField(), value)));
+              field.getName(), index, this.jtx.convertCoreValue(field.getElementField(), value)));
         }
 
         @Override
@@ -279,7 +277,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             if (jobj == null)
                 return;
             this.invoke(referrers, new ListFieldRemove(jobj, field.getStorageId(),
-              this.getFieldName(field), index, this.convert(field.getElementField(), value)));
+              field.getName(), index, this.jtx.convertCoreValue(field.getElementField(), value)));
         }
 
         @Override
@@ -291,8 +289,9 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.getJObject(id);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new ListFieldReplace(jobj, field.getStorageId(), this.getFieldName(field),
-              index, this.convert(field.getElementField(), oldValue), this.convert(field.getElementField(), newValue)));
+            this.invoke(referrers, new ListFieldReplace(jobj, field.getStorageId(), field.getName(), index,
+              this.jtx.convertCoreValue(field.getElementField(), oldValue),
+              this.jtx.convertCoreValue(field.getElementField(), newValue)));
         }
 
         @Override
@@ -302,7 +301,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.getJObject(id);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new ListFieldClear<JObject>(jobj, field.getStorageId(), this.getFieldName(field)));
+            this.invoke(referrers, new ListFieldClear<JObject>(jobj, field.getStorageId(), field.getName()));
         }
 
     // MapFieldChangeListener
@@ -316,8 +315,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.getJObject(id);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new MapFieldAdd(jobj, field.getStorageId(), this.getFieldName(field),
-              this.convert(field.getKeyField(), key), this.convert(field.getValueField(), value)));
+            this.invoke(referrers, new MapFieldAdd(jobj, field.getStorageId(), field.getName(),
+              this.jtx.convertCoreValue(field.getKeyField(), key), this.jtx.convertCoreValue(field.getValueField(), value)));
         }
 
         @Override
@@ -329,8 +328,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.getJObject(id);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new MapFieldRemove(jobj, field.getStorageId(), this.getFieldName(field),
-              this.convert(field.getKeyField(), key), this.convert(field.getValueField(), value)));
+            this.invoke(referrers, new MapFieldRemove(jobj, field.getStorageId(), field.getName(),
+              this.jtx.convertCoreValue(field.getKeyField(), key), this.jtx.convertCoreValue(field.getValueField(), value)));
         }
 
         @Override
@@ -342,9 +341,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.getJObject(id);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new MapFieldReplace(jobj, field.getStorageId(), this.getFieldName(field),
-              this.convert(field.getKeyField(), key),
-              this.convert(field.getValueField(), oldValue), this.convert(field.getValueField(), newValue)));
+            this.invoke(referrers, new MapFieldReplace(jobj, field.getStorageId(), field.getName(),
+              this.jtx.convertCoreValue(field.getKeyField(), key),
+              this.jtx.convertCoreValue(field.getValueField(), oldValue),
+              this.jtx.convertCoreValue(field.getValueField(), newValue)));
         }
 
         @Override
@@ -354,7 +354,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             final JObject jobj = this.getJObject(id);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new MapFieldClear<JObject>(jobj, field.getStorageId(), this.getFieldName(field)));
+            this.invoke(referrers, new MapFieldClear<JObject>(jobj, field.getStorageId(), field.getName()));
         }
 
         @Override
@@ -386,33 +386,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
         private boolean canInvokeWith(Class<?> paramType) {
             return this.method.getParameterTypes()[0].isAssignableFrom(paramType);
-        }
-
-        /**
-         * Convert {@link ObjId} to {@link JObject} as necessary for the specified field.
-         */
-        @SuppressWarnings("unchecked")
-        private Object convert(SimpleField<?> field, Object obj) {
-
-            // Get the JField that corresponds to the core API field
-            final JSimpleField jfield = (JSimpleField)this.jtx.jdb.jfields.get(field.getStorageId());
-
-            // Get converter
-            final Converter<Object, Object> converter = (Converter<Object, Object>)jfield.getConverter(this.jtx);
-            if (converter == null)
-                return obj;
-
-            // Convert
-            return converter.convert(obj);
-        }
-
-        /**
-         * Get the name of the field <i>in our schema version</i>, if the field exists in our schema version,
-         * otherwise the name of the field in its own schema versin.
-         */
-        private String getFieldName(Field<?> field) {
-            final JField jfield = this.jtx.jdb.jfields.get(field.getStorageId());
-            return jfield != null ? jfield.name : field.getName();
         }
 
         private void invoke(NavigableSet<ObjId> referrers, FieldChange<JObject> change) {

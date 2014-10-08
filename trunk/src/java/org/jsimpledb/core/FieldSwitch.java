@@ -43,5 +43,10 @@ public interface FieldSwitch<R> {
      * Handle a {@link CounterField}.
      */
     R caseCounterField(CounterField field);
+
+    /**
+     * Handle an {@link EnumField}.
+     */
+    R caseEnumField(EnumField field);
 }
 

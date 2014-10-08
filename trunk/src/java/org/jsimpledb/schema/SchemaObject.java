@@ -45,11 +45,13 @@ public class SchemaObject extends AbstractSchemaItem {
 
     @Override
     void readSubElements(XMLStreamReader reader) throws XMLStreamException {
-        while (this.expect(reader, true, COUNTER_FIELD_TAG, LIST_FIELD_TAG, MAP_FIELD_TAG,
+        while (this.expect(reader, true, COUNTER_FIELD_TAG, ENUM_FIELD_TAG, LIST_FIELD_TAG, MAP_FIELD_TAG,
           REFERENCE_FIELD_TAG, SET_FIELD_TAG, SIMPLE_FIELD_TAG)) {
             SchemaField field;
             if (reader.getName().equals(COUNTER_FIELD_TAG))
                 field = new CounterSchemaField();
+            else if (reader.getName().equals(ENUM_FIELD_TAG))
+                field = new EnumSchemaField();
             else if (reader.getName().equals(LIST_FIELD_TAG))
                 field = new ListSchemaField();
             else if (reader.getName().equals(MAP_FIELD_TAG))

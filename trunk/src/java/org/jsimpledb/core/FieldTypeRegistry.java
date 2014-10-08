@@ -179,11 +179,6 @@ public class FieldTypeRegistry {
     static final FieldType<ListIndexEntry> LIST_INDEX_ENTRY = new ListIndexEntryType();
 
     /**
-     * Type for {@link EnumValue}s.
-     */
-    static final NullSafeType<EnumValue> ENUM_VALUE = new NullSafeType<>(new EnumValueType());
-
-    /**
      * Type for {@link UUID}s.
      */
     static final NullSafeType<UUID> UUID = new NullSafeType<>(new UUIDType());
@@ -231,7 +226,6 @@ public class FieldTypeRegistry {
         this.add(FieldTypeRegistry.OBJ_ID);
         this.add(FieldTypeRegistry.STRING);
         this.add(FieldTypeRegistry.DATE);
-        this.add(FieldTypeRegistry.ENUM_VALUE);
         this.add(FieldTypeRegistry.UUID);
         this.add(FieldTypeRegistry.URI);
         this.add(FieldTypeRegistry.FILE);
@@ -317,24 +311,29 @@ public class FieldTypeRegistry {
      * Add a user-defined {@link FieldType} to the registry.
      *
      * @param type type to add
+     * @return true if type was added, false if type was already registered
      * @throws IllegalArgumentException if {@code type} is null
-     * @throws IllegalArgumentException if {@code type} has a name that conflicts with an existing type
+     * @throws IllegalArgumentException if {@code type} has a name that conflicts with an existing, but different, type
      * @throws IllegalArgumentException if {@code type} has a name that ends with {@code []} (array name)
      */
-    public synchronized void add(FieldType<?> type) {
+    public synchronized boolean add(FieldType<?> type) {
         if (type == null)
             throw new IllegalArgumentException("null type");
         if (type.name.endsWith(ArrayType.ARRAY_SUFFIX))
             throw new IllegalArgumentException("illegal array type name `" + type.name + "'");
         final FieldType<?> other = this.typesByName.get(type.name);
-        if (other != null)
+        if (other != null) {
+            if (other.equals(type))
+                return false;
             throw new IllegalArgumentException("type name `" + type.name + "' conflicts with existing type " + other);
+        }
         this.typesByName.put(type.name, type);
         final TypeToken<?> typeToken = type.getTypeToken();
         if (!this.typesByType.containsKey(typeToken))
             this.typesByType.put(typeToken, Lists.newArrayList(Collections.<FieldType<?>>singleton(type)));
         else
             this.typesByType.get(typeToken).add(type);
+        return true;
     }
 
     /**

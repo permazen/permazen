@@ -16,7 +16,6 @@ import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnVersionChange;
 import org.jsimpledb.core.Database;
-import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.testng.Assert;
@@ -77,6 +76,12 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertEquals(p1.getSchemaVersion(), 1);
             Assert.assertEquals(tx.queryVersion(null), buildMap(
               1, buildSet(p1, p2, p3, p4, p5)));
+            Assert.assertEquals(tx.queryIndex(Person1.class, "enum1", Enum1.class), buildMap(
+              Enum1.AAA, buildSet(p1),
+              Enum1.BBB, buildSet(p2),
+              Enum1.CCC, buildSet(p3),
+              Enum1.DDD, buildSet(p4),
+              Enum1.EEE, buildSet(p5)));
 
             tx.commit();
 
@@ -133,19 +138,19 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertEquals(p2.getAge(), 0);
             Assert.assertEquals(p3.getAge(), 0);
 
-            Assert.assertSame(p1.getEnum2(), Enum2.CCC);
+            Assert.assertNull(p1.getEnum2());
             Assert.assertSame(p2.getEnum2(), Enum2.BBB);
             Assert.assertSame(p3.getEnum2(), Enum2.CCC);
             Assert.assertSame(p4.getEnum2(), Enum2.DDD);
-            try {
-                p5.getEnum2();
-                assert false : "expected UnmatchedEnumException";
-            } catch (UnmatchedEnumException e) {
-                // expected
-            }
+            Assert.assertNull(p5.getEnum2());
 
             Assert.assertEquals(tx.queryVersion(null), buildMap(
               2, buildSet(p1, p2, p3, p4, p5)));
+            Assert.assertEquals(tx.queryIndex(Person2.class, "enum2", Enum2.class), buildMap(
+              null, buildSet(p1, p5),
+              Enum2.BBB, buildSet(p2),
+              Enum2.CCC, buildSet(p3),
+              Enum2.DDD, buildSet(p4)));
 
             p1.setAge(10);
             p2.setAge(20);
@@ -260,7 +265,7 @@ public class OnVersionChangeTest extends TestSupport {
         public abstract int getIndex();
         public abstract void setIndex(int index);
 
-        @JField(storageId = 98)
+        @JField(storageId = 98, indexed = true)
         public abstract Enum1 getEnum1();
         public abstract void setEnum1(Enum1 enum1);
 
@@ -288,7 +293,7 @@ public class OnVersionChangeTest extends TestSupport {
         public abstract int getIndex();
         public abstract void setIndex(int index);
 
-        @JField(storageId = 98)
+        @JField(storageId = 198, indexed = true)
         public abstract Enum2 getEnum2();
         public abstract void setEnum2(Enum2 enum2);
 
@@ -313,7 +318,23 @@ public class OnVersionChangeTest extends TestSupport {
 
             // Verify enum old value
             final int index = this.getIndex();
-            Assert.assertEquals(oldValues.get(98), new EnumValue(Enum1.values()[index - 1]), "wrong enum for index " + index);
+            final Enum1 oldEnumValue = Enum1.values()[index - 1];
+            Assert.assertEquals(oldValues.get(98), oldEnumValue, "wrong enum for index " + index);
+
+            // Update enum value
+            switch (oldEnumValue) {
+            case CCC:
+                this.setEnum2(Enum2.CCC);
+                break;
+            case BBB:
+                this.setEnum2(Enum2.BBB);
+                break;
+            case DDD:
+                this.setEnum2(Enum2.DDD);
+                break;
+            default:
+                break;
+            }
 
             // Get old name
             final String name = (String)oldValues.get(101);

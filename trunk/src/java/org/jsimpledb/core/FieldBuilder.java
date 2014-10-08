@@ -8,6 +8,7 @@
 package org.jsimpledb.core;
 
 import org.jsimpledb.schema.CounterSchemaField;
+import org.jsimpledb.schema.EnumSchemaField;
 import org.jsimpledb.schema.ListSchemaField;
 import org.jsimpledb.schema.MapSchemaField;
 import org.jsimpledb.schema.ReferenceSchemaField;
@@ -64,6 +65,12 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
     @Override
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
         return new ReferenceField(field.getName(), field.getStorageId(), this.version, field.getOnDelete());
+    }
+
+    @Override
+    public EnumField caseEnumSchemaField(EnumSchemaField field) {
+        return new EnumField(field.getName(), field.getStorageId(), this.version,
+          field.isIndexed(), field.getType(), field.getIdentifiers());
     }
 
     @Override
