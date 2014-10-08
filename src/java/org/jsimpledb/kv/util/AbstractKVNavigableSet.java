@@ -186,6 +186,52 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         return new Iterator();
     }
 
+    /**
+     * Create a subset of this instance that is restricted by {@code byte[]} keys instead of set elements.
+     * The {@link #bounds} will not change, but all elements outside of the specified key range will effectively disappear.
+     *
+     * @param newMinKey new minimum key (inclusive), or null to not change the minimum key
+     * @param newMaxKey new maximum key (exclusive), or null to not change the maximum key
+     * @throws IllegalArgumentException if {@code newMinKey} is less than the current {@link #minKey}
+     * @throws IllegalArgumentException if {@code newMaxKey} is greater than the current {@link #maxKey}
+     * @throws IllegalArgumentException if {@code newMinKey > newMmaxKey}
+     */
+    public NavigableSet<E> keyedSubSet(byte[] newMinKey, byte[] newMaxKey) {
+        if (newMinKey == null)
+            newMinKey = this.minKey;
+        if (newMaxKey == null)
+            newMaxKey = this.maxKey;
+        if (newMinKey != null && newMaxKey != null && ByteUtil.compare(newMinKey, newMaxKey) > 0)
+            throw new IllegalArgumentException("newMinKey > newMaxKey");
+        if (newMinKey != null && ByteUtil.compare(newMinKey, this.minKey) < 0)
+            throw new IllegalArgumentException("newMinKey < minKey");
+        if (newMaxKey != null && ByteUtil.compare(newMaxKey, this.maxKey) > 0)
+            throw new IllegalArgumentException("newMaxKey > maxKey");
+        return this.createSubSet(this.reversed, newMinKey, newMaxKey, this.bounds);
+    }
+
+    @Override
+    protected boolean isWithinLowerBound(E elem) {
+        if (!super.isWithinLowerBound(elem))
+            return false;
+        if (this.minKey == null)
+            return true;
+        final ByteWriter writer = new ByteWriter();
+        this.encode(writer, elem);
+        return ByteUtil.compare(writer.getBytes(), this.minKey) >= 0;
+    }
+
+    @Override
+    protected boolean isWithinUpperBound(E elem) {
+        if (!super.isWithinUpperBound(elem))
+            return false;
+        if (this.maxKey == null)
+            return true;
+        final ByteWriter writer = new ByteWriter();
+        this.encode(writer, elem);
+        return ByteUtil.compare(writer.getBytes(), this.maxKey) < 0;
+    }
+
     @Override
     protected final NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds) {
 

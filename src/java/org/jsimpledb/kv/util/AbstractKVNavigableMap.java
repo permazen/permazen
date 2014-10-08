@@ -219,6 +219,52 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         return this.new KeySet(this.reversed, this.minKey, this.maxKey, this.bounds);
     }
 
+    /**
+     * Create a submap of this instance that is restricted by {@code byte[]} keys instead of map keys.
+     * The {@link #bounds} will not change, but all elements outside of the specified key range will effectively disappear.
+     *
+     * @param newMinKey new minimum key (inclusive), or null to not change the minimum key
+     * @param newMaxKey new maximum key (exclusive), or null to not change the maximum key
+     * @throws IllegalArgumentException if {@code newMinKey} is less than the current {@link #minKey}
+     * @throws IllegalArgumentException if {@code newMaxKey} is greater than the current {@link #maxKey}
+     * @throws IllegalArgumentException if {@code newMinKey > newMmaxKey}
+     */
+    public NavigableMap<K, V> keyedSubMap(byte[] newMinKey, byte[] newMaxKey) {
+        if (newMinKey == null)
+            newMinKey = this.minKey;
+        if (newMaxKey == null)
+            newMaxKey = this.maxKey;
+        if (newMinKey != null && newMaxKey != null && ByteUtil.compare(newMinKey, newMaxKey) > 0)
+            throw new IllegalArgumentException("newMinKey > newMaxKey");
+        if (newMinKey != null && ByteUtil.compare(newMinKey, this.minKey) < 0)
+            throw new IllegalArgumentException("newMinKey < minKey");
+        if (newMaxKey != null && ByteUtil.compare(newMaxKey, this.maxKey) > 0)
+            throw new IllegalArgumentException("newMaxKey > maxKey");
+        return this.createSubMap(this.reversed, newMinKey, newMaxKey, this.bounds);
+    }
+
+    @Override
+    protected boolean isWithinLowerBound(K key) {
+        if (!super.isWithinLowerBound(key))
+            return false;
+        if (this.minKey == null)
+            return true;
+        final ByteWriter writer = new ByteWriter();
+        this.encodeKey(writer, key);
+        return ByteUtil.compare(writer.getBytes(), this.minKey) >= 0;
+    }
+
+    @Override
+    protected boolean isWithinUpperBound(K key) {
+        if (!super.isWithinUpperBound(key))
+            return false;
+        if (this.maxKey == null)
+            return true;
+        final ByteWriter writer = new ByteWriter();
+        this.encodeKey(writer, key);
+        return ByteUtil.compare(writer.getBytes(), this.maxKey) < 0;
+    }
+
     @Override
     protected final NavigableMap<K, V> createSubMap(boolean reverse, Bounds<K> newBounds) {
 

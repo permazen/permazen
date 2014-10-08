@@ -89,10 +89,9 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public Map.Entry<K, V> lowerEntry(K maxKey) {
-        if (!this.bounds.isWithinLowerBound(this.comparator(), maxKey))
+        if (!this.isWithinLowerBound(maxKey))
             return null;
-        final NavigableMap<K, V> subMap = this.bounds.isWithinUpperBound(this.comparator(), maxKey) ?
-          this.headMap(maxKey, false) : this;
+        final NavigableMap<K, V> subMap = this.isWithinUpperBound(maxKey) ? this.headMap(maxKey, false) : this;
         try {
             return subMap.lastEntry();
         } catch (NoSuchElementException e) {
@@ -102,10 +101,9 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public Map.Entry<K, V> floorEntry(K maxKey) {
-        if (!this.bounds.isWithinLowerBound(this.comparator(), maxKey))
+        if (!this.isWithinLowerBound(maxKey))
             return null;
-        final NavigableMap<K, V> subMap = this.bounds.isWithinUpperBound(this.comparator(), maxKey) ?
-          this.headMap(maxKey, true) : this;
+        final NavigableMap<K, V> subMap = this.isWithinUpperBound(maxKey) ? this.headMap(maxKey, true) : this;
         try {
             return subMap.lastEntry();
         } catch (NoSuchElementException e) {
@@ -115,10 +113,9 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public Map.Entry<K, V> ceilingEntry(K minKey) {
-        if (!this.bounds.isWithinUpperBound(this.comparator(), minKey))
+        if (!this.isWithinUpperBound(minKey))
             return null;
-        final NavigableMap<K, V> subMap = this.bounds.isWithinLowerBound(this.comparator(), minKey) ?
-          this.tailMap(minKey, true) : this;
+        final NavigableMap<K, V> subMap = this.isWithinLowerBound(minKey) ? this.tailMap(minKey, true) : this;
         try {
             return subMap.firstEntry();
         } catch (NoSuchElementException e) {
@@ -128,10 +125,9 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public Map.Entry<K, V> higherEntry(K minKey) {
-        if (!this.bounds.isWithinUpperBound(this.comparator(), minKey))
+        if (!this.isWithinUpperBound(minKey))
             return null;
-        final NavigableMap<K, V> subMap = this.bounds.isWithinLowerBound(this.comparator(), minKey) ?
-          this.tailMap(minKey, false) : this;
+        final NavigableMap<K, V> subMap = this.isWithinLowerBound(minKey) ? this.tailMap(minKey, false) : this;
         try {
             return subMap.firstEntry();
         } catch (NoSuchElementException e) {
@@ -262,5 +258,33 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
      * @throws IllegalArgumentException if a bound in {@code newBounds} is null and this set does not permit null elements
      */
     protected abstract NavigableMap<K, V> createSubMap(boolean reverse, Bounds<K> newBounds);
+
+    /**
+     * Determine if the given element is within this instance's lower bound (if any).
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableMap} returns {@code this.bounds.isWithinLowerBound(this.comparator(), elem)}.
+     * </p>
+     *
+     * @param key map key
+     * @return true if {@code elem} is within this instance's lower bound, or this instance has no lower bound
+     */
+    protected boolean isWithinLowerBound(K key) {
+        return this.bounds.isWithinLowerBound(this.comparator(), key);
+    }
+
+    /**
+     * Determine if the given element is within this instance's upper bound (if any).
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableMap} returns {@code this.bounds.isWithinUpperBound(this.comparator(), elem)}.
+     * </p>
+     *
+     * @param key map key
+     * @return true if {@code elem} is within this instance's upper bound, or this instance has no upper bound
+     */
+    protected boolean isWithinUpperBound(K key) {
+        return this.bounds.isWithinUpperBound(this.comparator(), key);
+    }
 }
 

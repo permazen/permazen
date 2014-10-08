@@ -14,6 +14,7 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
@@ -95,13 +96,24 @@ class IndexMap<V, E> extends FieldTypeMap<V, NavigableSet<E>> {
             super(IndexMap.this.tx, IndexMap.this.entryType, prefixMode, reversed, prefix, minKey, maxKey, bounds);
         }
 
+        /**
+         * Restrict this instance so that it only contains objects of the specified type.
+         *
+         * @param storageId object type storage ID
+         */
+        @SuppressWarnings("unchecked")
+        public IndexSet forObjType(int storageId) {
+            final ByteWriter writer = new ByteWriter();
+            writer.write(this.prefix);
+            UnsignedIntEncoder.write(writer, storageId);
+            final byte[] minKey = writer.getBytes();
+            final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
+            return (IndexMap<V, E>.IndexSet)this.keyedSubSet(minKey, maxKey);
+        }
+
         @Override
         protected NavigableSet<E> createSubSet(boolean newReversed, byte[] newMinKey, byte[] newMaxKey, Bounds<E> newBounds) {
             return new IndexSet(this.prefixMode, newReversed, this.prefix, newMinKey, newMaxKey, newBounds);
-        }
-
-        protected IndexSet restrict(byte[] newMinKey, byte[] newMaxKey) {
-            return new IndexSet(this.prefixMode, this.reversed, this.prefix, newMinKey, newMaxKey, this.bounds);
         }
     }
 }

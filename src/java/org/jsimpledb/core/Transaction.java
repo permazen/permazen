@@ -2549,7 +2549,7 @@ public class Transaction {
 
     // Query an index associated with a simple field assuming the given index entry type
     private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo fieldInfo, FieldType<E> entryType) {
-        return queryIndex(fieldInfo.storageId, fieldInfo.fieldType, entryType);
+        return this.queryIndex(fieldInfo.storageId, fieldInfo.fieldType, entryType);
     }
 
     // Query an index associated with a simple field assuming the given field type, index entry type
@@ -2604,15 +2604,10 @@ public class Transaction {
             @SuppressWarnings("unchecked")
             public NavigableSet<E> apply(NavigableSet<E> set) {
                 final IndexMap<V, E>.IndexSet indexSet = (IndexMap<V, E>.IndexSet)set;
-                final Function<Integer, NavigableSet<E>> restrictor = new Function<Integer, NavigableSet<E>>() {
+                final Function<Integer, IndexMap<V, E>.IndexSet> restrictor = new Function<Integer, IndexMap<V, E>.IndexSet>() {
                     @Override
-                    public NavigableSet<E> apply(Integer storageId) {
-                        final ByteWriter writer = new ByteWriter();
-                        writer.write(indexSet.prefix);
-                        UnsignedIntEncoder.write(writer, storageId);
-                        final byte[] minKey = writer.getBytes();
-                        final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
-                        return indexSet.restrict(minKey, maxKey);
+                    public IndexMap<V, E>.IndexSet apply(Integer storageId) {
+                        return indexSet.forObjType(storageId);
                     }
                 };
                 if (storageIdSet.size() == 1)

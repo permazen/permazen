@@ -90,9 +90,9 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
 
     @Override
     public E lower(E elem) {
-        if (!this.bounds.isWithinLowerBound(this.comparator(), elem))
+        if (!this.isWithinLowerBound(elem))
             return null;
-        final NavigableSet<E> subSet = this.bounds.isWithinUpperBound(this.comparator(), elem) ? this.headSet(elem, false) : this;
+        final NavigableSet<E> subSet = this.isWithinUpperBound(elem) ? this.headSet(elem, false) : this;
         try {
             return subSet.last();
         } catch (NoSuchElementException e) {
@@ -102,9 +102,9 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
 
     @Override
     public E floor(E elem) {
-        if (!this.bounds.isWithinLowerBound(this.comparator(), elem))
+        if (!this.isWithinLowerBound(elem))
             return null;
-        final NavigableSet<E> subSet = this.bounds.isWithinUpperBound(this.comparator(), elem) ? this.headSet(elem, true) : this;
+        final NavigableSet<E> subSet = this.isWithinUpperBound(elem) ? this.headSet(elem, true) : this;
         try {
             return subSet.last();
         } catch (NoSuchElementException e) {
@@ -114,9 +114,9 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
 
     @Override
     public E ceiling(E elem) {
-        if (!this.bounds.isWithinUpperBound(this.comparator(), elem))
+        if (!this.isWithinUpperBound(elem))
             return null;
-        final NavigableSet<E> subSet = this.bounds.isWithinLowerBound(this.comparator(), elem) ? this.tailSet(elem, true) : this;
+        final NavigableSet<E> subSet = this.isWithinLowerBound(elem) ? this.tailSet(elem, true) : this;
         try {
             return subSet.first();
         } catch (NoSuchElementException e) {
@@ -126,9 +126,9 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
 
     @Override
     public E higher(E elem) {
-        if (!this.bounds.isWithinUpperBound(this.comparator(), elem))
+        if (!this.isWithinUpperBound(elem))
             return null;
-        final NavigableSet<E> subSet = this.bounds.isWithinLowerBound(this.comparator(), elem) ? this.tailSet(elem, false) : this;
+        final NavigableSet<E> subSet = this.isWithinLowerBound(elem) ? this.tailSet(elem, false) : this;
         try {
             return subSet.first();
         } catch (NoSuchElementException e) {
@@ -202,5 +202,33 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      * @throws IllegalArgumentException if a bound in {@code newBounds} is null and this set does not permit null elements
      */
     protected abstract NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds);
+
+    /**
+     * Determine if the given element is within this instance's lower bound (if any).
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableSet} returns {@code this.bounds.isWithinLowerBound(this.comparator(), elem)}.
+     * </p>
+     *
+     * @param elem set element
+     * @return true if {@code elem} is within this instance's lower bound, or this instance has no lower bound
+     */
+    protected boolean isWithinLowerBound(E elem) {
+        return this.bounds.isWithinLowerBound(this.comparator(), elem);
+    }
+
+    /**
+     * Determine if the given element is within this instance's upper bound (if any).
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableSet} returns {@code this.bounds.isWithinUpperBound(this.comparator(), elem)}.
+     * </p>
+     *
+     * @param elem set element
+     * @return true if {@code elem} is within this instance's upper bound, or this instance has no upper bound
+     */
+    protected boolean isWithinUpperBound(E elem) {
+        return this.bounds.isWithinUpperBound(this.comparator(), elem);
+    }
 }
 
