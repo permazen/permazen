@@ -81,14 +81,6 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
     }
 
     @Override
-    public boolean contains(Object obj) {
-        if (!(obj instanceof byte[]))
-            return false;
-        final byte[] key = (byte[])obj;
-        return this.kv.get(key) != null;
-    }
-
-    @Override
     public boolean remove(Object obj) {
         if (!(obj instanceof byte[]))
             return false;
