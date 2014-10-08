@@ -89,6 +89,8 @@ public abstract class FieldType<T> implements Comparator<T> {
     protected FieldType(String name, TypeToken<T> typeToken) {
         if (name == null)
             throw new IllegalArgumentException("null name");
+        if (!name.matches(FieldType.NAME_PATTERN))
+            throw new IllegalArgumentException("invalid type name `" + name + "'");
         if (typeToken == null)
             throw new IllegalArgumentException("null typeToken");
         this.name = name;
@@ -140,7 +142,7 @@ public abstract class FieldType<T> implements Comparator<T> {
     public abstract void write(ByteWriter writer, T value);
 
     /**
-     * Get the default value for this field encoded as a {@code byte[]} array.
+     * Get the default value for this field type encoded as a {@code byte[]} array.
      *
      * @return encoded default value
      */
@@ -324,6 +326,8 @@ public abstract class FieldType<T> implements Comparator<T> {
     void validateAndWrite(ByteWriter writer, Object obj) {
         this.write(writer, this.validate(obj));
     }
+
+// Object
 
     @Override
     public int hashCode() {
