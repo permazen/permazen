@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -33,7 +32,6 @@ public class Schema {
 
     final TreeMap<Integer, SchemaVersion> versions = new TreeMap<>();
     final TreeMap<Integer, StorageInfo> storageInfos = new TreeMap<>();
-    final LinkedHashMap<ReferenceFieldStorageInfo, DeleteAction> referenceFieldOnDeletes = new LinkedHashMap<>();
     final TreeMap<Integer, TreeSet<Integer>> indexedFieldToContainingTypesMap = new TreeMap<>();
     final TreeSet<Integer> objTypeStorageIds = new TreeSet<>();
 
@@ -62,7 +60,6 @@ public class Schema {
         // Reset state
         this.versions.clear();
         this.storageInfos.clear();
-        this.referenceFieldOnDeletes.clear();
         this.indexedFieldToContainingTypesMap.clear();
         this.objTypeStorageIds.clear();
 
@@ -89,40 +86,16 @@ public class Schema {
             }
         }
 
-        // Record the reference fields' onDelete values if consistent across all versions, or null otherwise
-        for (ReferenceFieldStorageInfo storageInfo : Iterables.filter(this.storageInfos.values(),
-          ReferenceFieldStorageInfo.class)) {
-            for (SchemaVersion version : this.versions.values()) {
-
-                // Get the reference field as it appears in this schema version
-                final ReferenceField field = version.referenceFields.get(storageInfo.storageId);
-                if (field == null)
-                    continue;
-
-                // Compare to other schema versions of this field
-                if (!this.referenceFieldOnDeletes.containsKey(storageInfo)) {                   // first encounter of field
-                    this.referenceFieldOnDeletes.put(storageInfo, field.onDelete);
-                    continue;
-                }
-                final DeleteAction previous = this.referenceFieldOnDeletes.get(storageInfo);    // subsequent encounter of field
-                assert previous != null;
-                if (previous != field.onDelete) {
-                    this.referenceFieldOnDeletes.put(storageInfo, null);        // field not consistent across all schema versions
-                    break;
-                }
-            }
-        }
-
         // Gather all object type storage IDs
         for (SchemaVersion version : this.versions.values()) {
-            for (ObjType objType : Iterables.filter(version.schemaItemMap.values(), ObjType.class))
+            for (ObjType objType : version.objTypeMap.values())
                 objTypeStorageIds.add(objType.storageId);
         }
 
         // Calculate, for each simple field, the storage ID's of all types in which, for some schema version,
         // the field exists and is indexed.
         for (SchemaVersion version : this.versions.values()) {
-            for (ObjType objType : Iterables.filter(version.schemaItemMap.values(), ObjType.class)) {
+            for (ObjType objType : version.objTypeMap.values()) {
                 for (SimpleField<?> field : Iterables.filter(objType.getFieldsAndSubFields(), SimpleField.class)) {
                     if (!field.indexed)
                         continue;

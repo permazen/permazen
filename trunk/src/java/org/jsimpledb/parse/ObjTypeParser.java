@@ -40,7 +40,7 @@ public class ObjTypeParser implements Parser<ObjType> {
         final int startIndex = ctx.getIndex();
         try {
             final int storageId = db.getFieldTypeRegistry().getFieldType(TypeToken.of(Integer.TYPE)).fromParseableString(ctx);
-            return tx.getSchemaVersion().getSchemaItem(storageId, ObjType.class);
+            return tx.getSchemaVersion().getObjType(storageId);
         } catch (IllegalArgumentException e) {
             // ignore
         }
@@ -78,7 +78,7 @@ public class ObjTypeParser implements Parser<ObjType> {
             throw new ParseException(ctx, "unknown object type `" + typeName + "'")
                .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectNames(), typeName));
         }
-        return version.getSchemaItem(schemaObject.getStorageId(), ObjType.class);
+        return version.getObjType(schemaObject.getStorageId());
     }
 }
 

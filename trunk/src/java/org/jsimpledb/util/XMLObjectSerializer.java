@@ -234,7 +234,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             final ObjType objType;
             if (storageIdAttr != null) {
                 try {
-                    objType = schemaVersion.getSchemaItem(Integer.parseInt(storageIdAttr), ObjType.class);
+                    objType = schemaVersion.getObjType(Integer.parseInt(storageIdAttr));
                 } catch (IllegalArgumentException e) {
                     throw new XMLStreamException("invalid object type storage ID `" + storageIdAttr + "': " + e,
                       reader.getLocation(), e);
@@ -261,7 +261,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                       + ">; no object type named `" + name.getLocalPart() + "' found in schema version "
                       + schemaVersion.getVersionNumber(), reader.getLocation());
                 }
-                objType = schemaVersion.getSchemaItem(schemaObject.getStorageId(), ObjType.class);
+                objType = schemaVersion.getObjType(schemaObject.getStorageId());
             }
             final SchemaObject schemaObject = schemaModel.getSchemaObjects().get(objType.getStorageId());
 
@@ -480,7 +480,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             final int typeStorageId = id.getStorageId();
             final int version = this.tx.getSchemaVersion(id);
             final SchemaVersion schemaVersion = this.tx.getSchema().getVersion(version);
-            final ObjType objType = schemaVersion.getSchemaItem(typeStorageId, ObjType.class);
+            final ObjType objType = schemaVersion.getObjType(typeStorageId);
 
             // Get format info
             final QName objectElement = nameFormat ? new QName(objType.getName()) : OBJECT_TAG;
@@ -599,7 +599,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                       + text + "': " + e, reader.getLocation(), e);
                 }
                 try {
-                    field.getVersion().getSchemaItem(storageId, ObjType.class);
+                    field.getVersion().getObjType(storageId);
                 } catch (IllegalArgumentException e) {
                     throw new XMLStreamException("invalid object type storage ID `" + typeAttr + "' in generated object ID `"
                       + text + "': " + e, reader.getLocation(), e);

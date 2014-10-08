@@ -30,7 +30,7 @@ public class ObjInfo {
     public ObjInfo(Transaction tx, ObjId id) {
         this.id = id;
         this.schemaVersion = tx.getSchema().getVersion(tx.getSchemaVersion(id));
-        this.type = this.schemaVersion.getSchemaItem(id.getStorageId(), ObjType.class);
+        this.type = this.schemaVersion.getObjType(id.getStorageId());
     }
 
     public ObjId getObjId() {

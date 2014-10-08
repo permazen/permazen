@@ -42,6 +42,7 @@ import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.ReferenceField;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.core.SetField;
@@ -1587,6 +1588,7 @@ public class JTransaction {
           int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
             JObject jobj = null;
             final SchemaVersion oldSchema = JTransaction.this.tx.getSchema().getVersion(oldVersion);
+            final ObjType objType = oldSchema.getObjType(id.getStorageId());
             for (OnVersionChangeScanner<T>.MethodInfo info : jclass.onVersionChangeMethods) {
                 final OnVersionChange annotation = info.getAnnotation();
                 final Method method = info.getMethod();
@@ -1601,15 +1603,13 @@ public class JTransaction {
                     jobj = JTransaction.this.getJObject(id);
 
                 // Convert old field values so ObjId's become JObjects
-                final Maps.EntryTransformer<Integer, Object, Object> transformer
-                  = new Maps.EntryTransformer<Integer, Object, Object>() {
+                final Map<Integer, Object> convertedValues = Maps.transformEntries(oldFieldValues,
+                  new Maps.EntryTransformer<Integer, Object, Object>() {
                     @Override
                     public Object transformEntry(Integer storageId, Object oldValue) {
-                        final Field<?> field = oldSchema.getSchemaItem(storageId, Field.class);
-                        return JTransaction.this.convertOldValue(field, oldValue);
+                        return JTransaction.this.convertOldValue(objType.getField(storageId), oldValue);
                     }
-                };
-                final Map<Integer, Object> convertedValues = Maps.transformEntries(oldFieldValues, transformer);
+                });
 
                 // Invoke method
                 switch ((annotation.oldVersion() != 0 ? 2 : 0) + (annotation.newVersion() != 0 ? 1 : 0)) {

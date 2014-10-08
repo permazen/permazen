@@ -66,6 +66,20 @@ public class ObjType extends SchemaItem {
     }
 
     /**
+     * Get the {@link Field} in this instance with the given storage ID.
+     *
+     * @param storageId storage ID
+     * @return the {@link Field} with storage ID {@code storageID}
+     * @throws UnknownFieldException if no {@link Field} with storage ID {@code storageId} exists
+     */
+    public Field<?> getField(int storageId) {
+        final Field<?> field = this.fields.get(storageId);
+        if (field == null)
+            throw new UnknownFieldException(this, storageId, "field");
+        return field;
+    }
+
+    /**
      * Get all fields, including sub-fields.
      */
     Iterable<Field<?>> getFieldsAndSubFields() {
