@@ -50,6 +50,7 @@ import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.StaleTransactionException;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.core.VersionChangeListener;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
@@ -403,10 +404,13 @@ public class JTransaction {
     }
 
     /**
-     * Copy the specified object into the specified destination transaction. The destination object will
-     * be created if necessary. {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly;
-     * however, the annotation must have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}.
+     * Copy the specified object into the specified destination transaction. If the target object already exists, it's
+     * schema version will be updated to match the source object if necessary, otherwise it will be created.
+     * {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange},
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly
+     * (however, for create and change notifications in {@code dest}, these annotations must have
+     * {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
@@ -439,6 +443,8 @@ public class JTransaction {
      * @throws DeletedObjectException if {@code srcObj} does not exist in this transaction
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcObj}'s object's version
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
+     * @throws org.jsimpledb.core.TypeNotInSchemaVersionException
+     *  if the current schema version does not contain the source object's type
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
      *  is {@linkplain Transaction#setReadOnly set read-only}
@@ -474,7 +480,7 @@ public class JTransaction {
             return dest.getJObject(dstId);
 
         // Parse paths
-        final TypeToken<?> startType = this.jdb.getJClass(srcId.getStorageId()).typeToken;
+        final TypeToken<?> startType = this.jdb.getJClass(srcId).typeToken;
         final HashSet<ReferencePath> paths = new HashSet<>(refPaths.length);
         for (String refPath : refPaths) {
 
@@ -532,9 +538,13 @@ public class JTransaction {
 
     /**
      * Copy the objects in the specified {@link Iterable} into the specified destination transaction.
-     * Destination objects will be created if necessary, and {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly;
-     * however, the annotation must have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}.
+     * If a target object already exists, it's schema version will be updated to match the source object if necessary,
+     * otherwise it will be created.
+     * {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange},
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly
+     * (however, for create and change notifications in {@code dest}, these annotations must have
+     * {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
@@ -1524,9 +1534,12 @@ public class JTransaction {
 
         @Override
         public void onCreate(Transaction tx, ObjId id) {
-            final JClass<?> jclass = JTransaction.this.jdb.getJClass(id.getStorageId());
-            if (jclass == null)             // object type does not exist in our schema
-                return;
+            final JClass<?> jclass;
+            try {
+                jclass = JTransaction.this.jdb.getJClass(id);
+            } catch (TypeNotInSchemaVersionException e) {
+                return;                                             // object type does not exist in our schema
+            }
             this.doOnCreate(jclass, id);
         }
 
@@ -1551,9 +1564,12 @@ public class JTransaction {
 
         @Override
         public void onDelete(Transaction tx, ObjId id) {
-            final JClass<?> jclass = JTransaction.this.jdb.getJClass(id.getStorageId());
-            if (jclass == null)             // object type does not exist in our schema
-                return;
+            final JClass<?> jclass;
+            try {
+                jclass = JTransaction.this.jdb.getJClass(id);
+            } catch (TypeNotInSchemaVersionException e) {
+                return;                                             // object type does not exist in our schema
+            }
             this.doOnDelete(jclass, id);
         }
 
@@ -1576,9 +1592,12 @@ public class JTransaction {
 
         @Override
         public void onVersionChange(Transaction tx, ObjId id, int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-            final JClass<?> jclass = JTransaction.this.jdb.getJClass(id.getStorageId());
-            if (jclass == null)             // object type does not exist in our schema
-                return;
+            final JClass<?> jclass;
+            try {
+                jclass = JTransaction.this.jdb.getJClass(id);
+            } catch (TypeNotInSchemaVersionException e) {
+                return;                                             // object type does not exist in our schema
+            }
             this.doOnVersionChange(jclass, id, oldVersion, newVersion, oldFieldValues);
         }
 
