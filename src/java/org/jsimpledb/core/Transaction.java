@@ -840,7 +840,7 @@ public class Transaction {
      * The schema version associated with the {@code source} object must be identical in this transaction and {@code dest}.
      * Only the object's fields are copied; any other objects they reference are not copied. If the {@code target} object
      * does not exist in {@code dest}, it will be created first (and {@link CreateListener}s notified); if {@code target}
-     * does exist in {@code dest}, it's schema version will be upgraded if necessary to match {@code target} (and any registered
+     * does exist in {@code dest}, it's schema version will be upgraded if necessary to match {@code source} (and any registered
      * {@link VersionChangeListener}s notified).
      * (Meaningful) changes to {@code target}'s fields generate change listener notifications.
      * </p>
@@ -2540,10 +2540,16 @@ public class Transaction {
 
     // Filter an index map to only contain objects with the specified storageIds
     <V, E> NavigableMap<V, NavigableSet<E>> filterIndex(IndexMap<V, E> indexMap, int[] storageIds, TreeSet<Integer> allStorageIds) {
+
+        // Sanity check
         if (storageIds == null)
             throw new IllegalArgumentException("null objTypeStorageIds");
-        if (storageIds.length == 0)         // special case, meaning "all"
+
+        // Handle special case meaning "all types"
+        if (storageIds.length == 0)
             return indexMap;
+
+        // Calculate intersection of specified storage IDs with all compatible storage IDs
         final TreeSet<Integer> storageIdSet = Sets.newTreeSet(Ints.asList(storageIds));
         for (Iterator<Integer> i = storageIdSet.iterator(); i.hasNext(); ) {
             if (allStorageIds == null || !allStorageIds.contains(i.next()))
@@ -2551,7 +2557,9 @@ public class Transaction {
         }
         if (storageIdSet.isEmpty())
             return new TreeMap<V, NavigableSet<E>>(indexMap.comparator());
-        return Maps.filterValues(Maps.transformValues(indexMap, new Function<NavigableSet<E>, NavigableSet<E>>() {
+
+        // Transform map so each map value, i.e., set of entries, contains entries for only the desired types
+        NavigableMap<V, NavigableSet<E>> map = Maps.transformValues(indexMap, new Function<NavigableSet<E>, NavigableSet<E>>() {
             @Override
             @SuppressWarnings("unchecked")
             public NavigableSet<E> apply(NavigableSet<E> set) {
@@ -2566,12 +2574,18 @@ public class Transaction {
                     return restrictor.apply(storageIdSet.iterator().next());
                 return NavigableSets.union(Iterables.transform(storageIdSet, restrictor));
             }
-        }), new Predicate<NavigableSet<E>>() {
+        });
+
+        // Filter out map entries where the set is empty, to keep consistent behavior
+        map = Maps.filterValues(map, new Predicate<NavigableSet<E>>() {
             @Override
             public boolean apply(NavigableSet<E> set) {
                 return !set.isEmpty();
             }
         });
+
+        // Done
+        return map;
     }
 
 // Mutation
