@@ -25,6 +25,7 @@ import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.SetField;
+import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaObject;
 import org.jsimpledb.util.AnnotationScanner;
@@ -113,6 +114,29 @@ public class JClass<T> extends JSchemaObject {
      */
     public SortedMap<String, JField> getJFieldsByName() {
         return Collections.unmodifiableSortedMap(this.jfieldsByName);
+    }
+
+    /**
+     * Get the {@link JField} in this instance associated with the specified storage ID, cast to the given type.
+     *
+     * @param storageId field storage ID
+     * @param type required type
+     * @return {@link JField} in this instance corresponding to {@code storageId}
+     * @throws UnknownFieldException if {@code storageId} does not correspond to any field in this instance
+     * @throws UnknownFieldException if the field is not an instance of of {@code type}
+     */
+    public <T extends JField> T getJField(int storageId, Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        final JField jfield = this.jfields.get(storageId);
+        if (jfield == null)
+            throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID " + storageId);
+        try {
+            return type.cast(jfield);
+        } catch (ClassCastException e) {
+            throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID "
+              + storageId + " of type " + type.getName() + " (found field of type " + jfield.getClass().getName() + " instead)");
+        }
     }
 
 // Internal methods
