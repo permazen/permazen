@@ -22,6 +22,7 @@ import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.NameIndex;
@@ -389,6 +390,23 @@ public class JSimpleDB {
     }
 
     /**
+     * Get the {@link JClass} associated with the object ID.
+     *
+     * @param id object ID
+     * @return {@link JClass} instance
+     * @throws TypeNotInSchemaVersionException if {@code id} has a type that does not exist in this instance's schema version
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public JClass<?> getJClass(ObjId id) {
+        if (id == null)
+            throw new IllegalArgumentException("null id");
+        final JClass<?> jclass = this.jclasses.get(id.getStorageId());
+        if (jclass == null)
+            throw new TypeNotInSchemaVersionException(id, this.actualVersion);
+        return jclass;
+    }
+
+    /**
      * Get the {@link JClass} associated with the given storage ID.
      *
      * @param storageId object type storage ID
@@ -442,6 +460,7 @@ public class JSimpleDB {
      * Get the Java object used to represent the given object ID, cast to the given type.
      *
      * @param id object ID
+     * @param type expected type
      * @return Java model object
      * @see #getJObject(ObjId)
      * @throws ClassCastException if the Java model object does not have type {@code type}
