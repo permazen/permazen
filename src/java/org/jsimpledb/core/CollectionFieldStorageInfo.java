@@ -12,10 +12,11 @@ import java.util.List;
 
 abstract class CollectionFieldStorageInfo extends ComplexFieldStorageInfo {
 
-    SimpleFieldStorageInfo elementField;
+    final SimpleFieldStorageInfo elementField;
 
     CollectionFieldStorageInfo(CollectionField<?, ?> field) {
         super(field);
+        this.elementField = field.elementField.toStorageInfo();
     }
 
     @Override
@@ -23,15 +24,25 @@ abstract class CollectionFieldStorageInfo extends ComplexFieldStorageInfo {
         return Collections.singletonList(this.elementField);
     }
 
-    @Override
-    void initializeSubFields(List<SimpleFieldStorageInfo> subFieldInfos) {
-        if (subFieldInfos.size() != 1)
-            throw new IllegalArgumentException();
-        this.elementField = subFieldInfos.get(0);
-    }
-
     public SimpleFieldStorageInfo getElementField() {
         return this.elementField;
+    }
+
+// Object
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        final CollectionFieldStorageInfo that = (CollectionFieldStorageInfo)obj;
+        return this.elementField.equals(that.elementField);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() ^ this.elementField.hashCode();
     }
 }
 

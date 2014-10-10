@@ -89,6 +89,7 @@ public class ObjType extends SchemaItem {
         return i;
     }
 
+    @Override
     ObjTypeStorageInfo toStorageInfo() {
         return new ObjTypeStorageInfo(this);
     }

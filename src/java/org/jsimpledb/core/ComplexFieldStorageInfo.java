@@ -7,9 +7,6 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
 import java.util.List;
 import java.util.NavigableSet;
 
@@ -20,41 +17,12 @@ abstract class ComplexFieldStorageInfo extends FieldStorageInfo {
 
     ComplexFieldStorageInfo(ComplexField<?> field) {
         super(field, 0);
-        this.initializeSubFields(Lists.transform(field.getSubFields(), new Function<SimpleField<?>, SimpleFieldStorageInfo>() {
-            @Override
-            public SimpleFieldStorageInfo apply(SimpleField<?> subField) {
-                return subField.toStorageInfo();
-            }
-        }));
     }
 
     /**
      * Get the sub-fields associated with this instance.
      */
     public abstract List<SimpleFieldStorageInfo> getSubFields();
-
-    /**
-     * Initialize the sub-fields associated with this instance.
-     */
-    abstract void initializeSubFields(List<SimpleFieldStorageInfo> subFieldInfos);
-
-    @Override
-    public void verifySharedStorageId(FieldStorageInfo obj) {
-        final ComplexFieldStorageInfo that = (ComplexFieldStorageInfo)obj;
-        final List<SimpleFieldStorageInfo> thisSubFields = this.getSubFields();
-        final List<SimpleFieldStorageInfo> thatSubFields = that.getSubFields();
-        if (thisSubFields.size() != thatSubFields.size())
-            throw new IllegalArgumentException("fields have different sub-fields");             // should never happen
-        for (int i = 0; i < thisSubFields.size(); i++) {
-            final SimpleFieldStorageInfo thisSubField = this.getSubFields().get(i);
-            final SimpleFieldStorageInfo thatSubField = that.getSubFields().get(i);
-            try {
-                thisSubField.verifySharedStorageId(thatSubField);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("fields have incompatible sub-fields: " + e.getMessage(), e);
-            }
-        }
-    }
 
     /**
      * Find all objects in the given referring for in which the specified sub-field of this field references

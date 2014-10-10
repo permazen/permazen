@@ -194,7 +194,8 @@ public class SchemaTest extends TestSupport {
           + "</Object>\n"
           },
 
-          { false,
+          // Allow duplicate fields in different objects
+          { true,
             "<!-- test 19 -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
           + "  <ReferenceField name=\"i\" storageId=\"2\"/>\n"  // default onDelete is EXCEPTION
@@ -204,7 +205,6 @@ public class SchemaTest extends TestSupport {
           + "</Object>\n"
           },
 
-          // Allow duplicate fields in different objects
           { true,
             "<!-- test 20 -->\n"
           + "<Object name=\"Foo\" storageId=\"10\">\n"
@@ -234,6 +234,20 @@ public class SchemaTest extends TestSupport {
           + "<Object name=\"Bar\" storageId=\"11\">\n"
           + "  <SetField name=\"set\" storageId=\"20\">\n"
           + "    <SimpleField type=\"int\" storageId=\"21\"/>\n"
+          + "  </SetField>\n"
+          + "</Object>\n"
+          },
+
+          { true,
+            "<!-- test 22.5 -->\n"
+          + "<Object name=\"Foo\" storageId=\"10\">\n"
+          + "  <SetField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"int\" storageId=\"21\" indexed=\"true\"/>\n"       // indexed
+          + "  </SetField>\n"
+          + "</Object>\n"
+          + "<Object name=\"Bar\" storageId=\"11\">\n"
+          + "  <SetField name=\"set\" storageId=\"20\">\n"
+          + "    <SimpleField type=\"int\" storageId=\"21\" indexed=\"false\"/>\n"      // not indexed
           + "  </SetField>\n"
           + "</Object>\n"
           },

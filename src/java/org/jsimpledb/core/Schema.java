@@ -73,14 +73,10 @@ public class Schema {
                 final int storageId = entry.getKey();
                 final StorageInfo current = entry.getValue();
                 final StorageInfo previous = this.storageInfos.put(storageId, current);
-                if (previous != null) {
-                    try {
-                        previous.verifySharedStorageId(current);
-                    } catch (IllegalArgumentException e) {
-                        throw new InvalidSchemaException("incompatible use of storage ID " + storageId + " for both "
-                          + previous + " in schema version " + versionMap.get(previous) + " and "
-                          + current + " in schema version " + version.versionNumber + ": " + e.getMessage(), e);
-                    }
+                if (previous != null && !previous.equals(current)) {
+                    throw new InvalidSchemaException("incompatible use of storage ID " + storageId + " for both "
+                      + previous + " in schema version " + versionMap.get(previous) + " and "
+                      + current + " in schema version " + version.versionNumber);
                 }
                 versionMap.put(current, version.versionNumber);
             }

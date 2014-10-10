@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -521,12 +520,9 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         // Add properties for all fields common to all sub-types of our configured type
         final SortedMap<Integer, JField> jfields = Util.getCommonJFields(
           this.jdb.getJClasses(this.type != null ? TypeToken.of(this.type) : null));
-        final HashSet<String> fieldNames = new HashSet<>();
         if (jfields != null) {
-            for (JField jfield : jfields.values()) {
-                fieldNames.add(jfield.getName());
-                pdefs.setPropertyDef(new ObjFieldPropertyDef(jfield));
-            }
+            for (JField jfield : jfields.values())
+                pdefs.setPropertyDef(new ObjFieldPropertyDef(jfield.getStorageId(), jfield.getName()));
         }
 
         // Apply any @ProvidesProperty-annotated method properties, possibly overridding jfields
@@ -677,26 +673,27 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     /**
      * Implements a property reflecting the value of a {@link JSimpleDB} field.
      */
-    public static class ObjFieldPropertyDef extends ObjPropertyDef<Component> {
+    public class ObjFieldPropertyDef extends ObjPropertyDef<Component> {
 
         private static final int MAX_ITEMS = 3;
 
-        private final JField jfield;
+        private final int storageId;
 
-        public ObjFieldPropertyDef(JField jfield) {
-            super(jfield.getName(), Component.class);
-            this.jfield = jfield;
+        public ObjFieldPropertyDef(int storageId, String name) {
+            super(name, Component.class);
+            this.storageId = storageId;
         }
 
         @Override
         public Component extract(final JObject jobj) {
+            final JField jfield = JObjectContainer.this.jdb.getJClass(jobj.getObjId()).getJField(this.storageId, JField.class);
             final JTransaction jtx = jobj.getTransaction();
             try {
-                return this.jfield.visit(new JFieldSwitchAdapter<Component>() {
+                return jfield.visit(new JFieldSwitchAdapter<Component>() {
 
                     @Override
                     public Component caseJSimpleField(JSimpleField field) {
-                        return ObjFieldPropertyDef.this.handleValue(jfield.getValue(jtx, jobj));
+                        return ObjFieldPropertyDef.this.handleValue(field.getValue(jtx, jobj));
                     }
 
                     @Override

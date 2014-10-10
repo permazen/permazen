@@ -20,16 +20,22 @@ class EnumFieldStorageInfo extends SimpleFieldStorageInfo {
         this.identList = identList;
     }
 
-    @Override
-    protected void verifySharedStorageId(SimpleFieldStorageInfo that0) {
-        final EnumFieldStorageInfo that = (EnumFieldStorageInfo)that0;
-        if (!this.identList.equals(that.identList))
-            throw new IllegalArgumentException("enum identifier lists differ: " + this.identList + " != " + that.identList);
-    }
+// Object
 
     @Override
     public String toString() {
-        return "enum field";
+        return "enum field with identifiers " + this.identList;
+    }
+
+    @Override
+    protected boolean equalsSimple(SimpleFieldStorageInfo obj) {
+        final EnumFieldStorageInfo that = (EnumFieldStorageInfo)obj;
+        return this.identList.equals(that.identList);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() ^ this.identList.hashCode();
     }
 }
 
