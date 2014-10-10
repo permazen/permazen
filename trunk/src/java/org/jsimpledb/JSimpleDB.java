@@ -538,7 +538,7 @@ public class JSimpleDB {
 
     // Add new JFieldInfo, checking for field conflicts
     private void addJFieldInfo(JField jfield, JFieldInfo jfieldInfo, Map<Integer, String> descriptionMap) {
-        final JFieldInfo previous = jfieldInfos.put(jfieldInfo.storageId, jfieldInfo);
+        final JFieldInfo previous = this.jfieldInfos.put(jfieldInfo.storageId, jfieldInfo);
         if (previous != null && !previous.equals(jfieldInfo)) {
             throw new IllegalArgumentException("invalid duplicate use of storage ID " + jfield.storageId
               + " for both " + descriptionMap.get(jfieldInfo.storageId) + " and " + jfield.description);
