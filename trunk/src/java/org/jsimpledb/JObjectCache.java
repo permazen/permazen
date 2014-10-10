@@ -104,7 +104,7 @@ abstract class JObjectCache {
     private JObject createJObject(ObjId id) throws Exception {
 
         // Get ClassGenerator
-        final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
+        final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
         final ClassGenerator<?> classGenerator = jclass != null ?
           jclass.getClassGenerator() : this.jdb.getUntypedClassGenerator();
 
