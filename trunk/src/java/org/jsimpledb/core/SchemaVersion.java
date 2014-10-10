@@ -121,7 +121,6 @@ public class SchemaVersion {
                     this.addStorageInfo(subFieldInfo);
             }
             this.addStorageInfo(fieldInfo);
-            objInfo.getFields().put(field.storageId, fieldInfo);
         }
         this.addStorageInfo(objInfo);
     }
