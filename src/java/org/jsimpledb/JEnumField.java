@@ -7,7 +7,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
@@ -21,13 +20,10 @@ import org.jsimpledb.schema.SimpleSchemaField;
  */
 public class JEnumField extends JSimpleField {
 
-    private final EnumConverter<?> converter;
-
     JEnumField(String name, int storageId, Class<? extends Enum<?>> enumType,
       boolean indexed, String description, Method getter, Method setter) {
         super(name, storageId, TypeToken.of(enumType.asSubclass(Enum.class)),
           enumType.getName(), indexed, description, getter, setter);
-        this.converter = EnumConverter.createEnumConverter(enumType);
     }
 
     @Override
@@ -39,11 +35,6 @@ public class JEnumField extends JSimpleField {
     @SuppressWarnings("unchecked")
     public TypeToken<? extends Enum<?>> getType() {
         return (TypeToken<? extends Enum<?>>)this.typeToken;
-    }
-
-    @Override
-    public Converter<?, ?> getConverter(JTransaction jtx) {
-        return this.converter.reverse();
     }
 
     @Override
@@ -60,6 +51,11 @@ public class JEnumField extends JSimpleField {
         schemaField.getIdentifiers().clear();
         for (Enum<?> value : (Iterable<Enum<?>>)EnumUtil.getValues((Class<Enum>)this.getType().getRawType()))
             schemaField.getIdentifiers().add(value.name());
+    }
+
+    @Override
+    JEnumFieldInfo toJFieldInfo(JComplexFieldInfo parentInfo) {
+        return new JEnumFieldInfo(this, parentInfo);
     }
 }
 

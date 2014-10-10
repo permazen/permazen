@@ -10,10 +10,8 @@ package org.jsimpledb;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
-import java.util.Deque;
 import java.util.List;
 
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.ComplexSchemaField;
 
 /**
@@ -66,29 +64,5 @@ public abstract class JComplexField extends JField {
      * Get the {@link JTransaction} method to invoke from generated classes for the given index entry query type.
      */
     abstract Method getIndexEntryQueryMethod(int queryType);
-
-    /**
-     * Recurse for copying between transactions. Copies all objects referred to by any reference in the given
-     * subfield of the given object from {@code srcTx} to {@code dstTx}.
-     *
-     * @param seen IDs of objects already copied
-     * @param srcTx source transaction
-     * @param dstTx destination transaction
-     * @param id ID of the object containing this complex field in {@code srcTx}
-     * @param subField sub-field of this field containing reference values
-     * @param nextFields remaining fields to follow in the reference path
-     */
-    abstract void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
-      ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields);
-
-    // Recurse on the iteration of references
-    void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx, Iterable<?> it, Deque<JReferenceField> nextFields) {
-        for (Object obj : it) {
-            if (obj != null) {
-                final ObjId id = (ObjId)obj;
-                srcTx.copyTo(seen, dstTx, id, id, false, nextFields);
-            }
-        }
-    }
 }
 

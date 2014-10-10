@@ -7,7 +7,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
@@ -122,11 +121,6 @@ public class JSimpleField extends JField {
     }
 
     @Override
-    public Converter<?, ?> getConverter(JTransaction jtx) {
-        return null;                                        // there are no "normal" simple types that require conversion
-    }
-
-    @Override
     SimpleSchemaField toSchemaItem() {
         final SimpleSchemaField schemaField = new SimpleSchemaField();
         this.initialize(schemaField);
@@ -194,6 +188,15 @@ public class JSimpleField extends JField {
         types.add(new TypeToken<NavigableMap<V, NavigableSet<T>>>() { }
           .where(new TypeParameter<V>() { }, valueType.wrap())
           .where(new TypeParameter<T>() { }, targetType));
+    }
+
+    @Override
+    final JSimpleFieldInfo toJFieldInfo() {
+        return this.toJFieldInfo(null);
+    }
+
+    JSimpleFieldInfo toJFieldInfo(JComplexFieldInfo parentInfo) {
+        return new JSimpleFieldInfo(this, parentInfo);
     }
 }
 

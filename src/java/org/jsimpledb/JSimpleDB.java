@@ -78,7 +78,7 @@ public class JSimpleDB {
 
     final TreeMap<Integer, JClass<?>> jclasses = new TreeMap<>();
     final HashMap<TypeToken<?>, JClass<?>> jclassesByType = new HashMap<>();
-    final HashMap<Integer, JField> jfields = new HashMap<>();
+    final TreeMap<Integer, JFieldInfo> jfieldInfos = new TreeMap<>();
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final ClassGenerator<UntypedJObject> untypedClassGenerator = new ClassGenerator<UntypedJObject>(UntypedJObject.class);
     final Database db;
@@ -203,14 +203,16 @@ public class JSimpleDB {
         for (JClass<?> jclass : this.jclasses.values())
             jclass.scanAnnotations();
 
-        // Index fields by storage ID
+        // Create field info structures and check for conflicts
+        final HashMap<Integer, String> descriptionMap = new HashMap<>();
         for (JClass<?> jclass : this.jclasses.values()) {
             for (JField jfield : jclass.jfields.values()) {
-                this.jfields.put(jfield.storageId, jfield);
+                final JFieldInfo jfieldInfo = jfield.toJFieldInfo();
+                this.addJFieldInfo(jfield, jfieldInfo, descriptionMap);
                 if (jfield instanceof JComplexField) {
                     final JComplexField complexField = (JComplexField)jfield;
                     for (JSimpleField subField : complexField.getSubFields())
-                        this.jfields.put(subField.storageId, subField);
+                        this.addJFieldInfo(subField, subField.toJFieldInfo((JComplexFieldInfo)jfieldInfo), descriptionMap);
                 }
             }
         }
@@ -499,18 +501,25 @@ public class JSimpleDB {
     }
 
     /**
-     * Get the {@link JField} associated with the given storage ID.
+     * Get the {@link JFieldInfo} associated with the given storage ID.
      *
      * @param storageId field storage ID
      * @param type required type
      * @return {@link JFiedl} instance
      * @throws UnknownFieldException if {@code storageId} does not represent a field
      */
-    <T extends JField> T getJField(int storageId, Class<T> type) {
-        final JField jfield = this.jfields.get(storageId);
-        if (jfield == null)
-            throw new UnknownFieldException(storageId, "no JSimpleDB field associated with storage ID " + storageId);
-        return type.cast(jfield);
+    <T extends JFieldInfo> T getJFieldInfo(int storageId, Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        final JFieldInfo jfieldInfo = this.jfieldInfos.get(storageId);
+        if (jfieldInfo == null)
+            throw new UnknownFieldException(storageId, "no JSimpleDB field exists with storage ID " + storageId);
+        try {
+            return type.cast(jfieldInfo);
+        } catch (ClassCastException e) {
+            throw new UnknownFieldException(storageId, "no JSimpleDB fields exist with storage ID " + storageId
+              + " (found field " + jfieldInfo + " instead)");
+        }
     }
 
     // Add new JClass, checking for storage ID conflicts
@@ -524,6 +533,16 @@ public class JSimpleDB {
         }
         this.jclasses.put(jclass.storageId, jclass);
         this.jclassesByType.put(jclass.typeToken, jclass);      // this can never conflict, no need to check
+    }
+
+    // Add new JFieldInfo, checking for field conflicts
+    private void addJFieldInfo(JField jfield, JFieldInfo jfieldInfo, Map<Integer, String> descriptionMap) {
+        final JFieldInfo previous = jfieldInfos.put(jfieldInfo.storageId, jfieldInfo);
+        if (previous != null && !previous.equals(jfieldInfo)) {
+            throw new IllegalArgumentException("invalid duplicate use of storage ID " + jfield.storageId
+              + " for both " + descriptionMap.get(jfieldInfo.storageId) + " and " + jfield.description);
+        }
+        descriptionMap.put(jfieldInfo.storageId, jfield.description);
     }
 }
 

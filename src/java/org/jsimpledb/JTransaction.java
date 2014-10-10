@@ -51,6 +51,7 @@ import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.StaleTransactionException;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
+import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.core.VersionChangeListener;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
@@ -491,23 +492,23 @@ public class JTransaction {
 
             // Verify target field is a reference field; convert a complex target field into its reference sub-field(s)
             final String lastFieldName = refPath.substring(refPath.lastIndexOf('.') + 1);
-            final JField targetField = this.jdb.jfields.get(path.getTargetField());
-            if (targetField instanceof JComplexField) {
-                final JComplexField superField = (JComplexField)targetField;
-                boolean foundReferenceSubField = false;
-                for (JSimpleField subField : superField.getSubFields()) {
-                    if (subField instanceof JReferenceField) {
+            final JFieldInfo targetFieldInfo = this.jdb.jfieldInfos.get(path.getTargetField());
+            if (targetFieldInfo instanceof JComplexFieldInfo) {
+                final JComplexFieldInfo superFieldInfo = (JComplexFieldInfo)targetFieldInfo;
+                boolean foundReferenceSubFieldInfo = false;
+                for (JSimpleFieldInfo subFieldInfo : superFieldInfo.getSubFieldInfos()) {
+                    if (subFieldInfo instanceof JReferenceFieldInfo) {
                         paths.add(this.jdb.parseReferencePath(startType,
-                          refPath + "." + superField.getSubFieldName(subField), true));
-                        foundReferenceSubField = true;
+                          refPath + "." + superFieldInfo.getSubFieldInfoName(subFieldInfo), true));
+                        foundReferenceSubFieldInfo = true;
                     }
                 }
-                if (!foundReferenceSubField) {
+                if (!foundReferenceSubFieldInfo) {
                     throw new IllegalArgumentException("the last field `" + lastFieldName
                       + "' of path `" + refPath + "' does not contain any reference sub-fields");
                 }
             } else {
-                if (!(targetField instanceof JReferenceField)) {
+                if (!(targetFieldInfo instanceof JReferenceFieldInfo)) {
                     throw new IllegalArgumentException("the last field `" + lastFieldName
                       + "' of path `" + path + "' is not a reference field");
                 }
@@ -516,17 +517,16 @@ public class JTransaction {
         }
 
         // Ensure object is copied even when there are zero reference paths
-        this.copyTo(seen, dest, srcId, dstId, true, new ArrayDeque<JReferenceField>());
+        this.copyTo(seen, dest, srcId, dstId, true, new ArrayDeque<Integer>());
 
         // Recurse over each reference path
         for (ReferencePath path : paths) {
             final int[] storageIds = path.getReferenceFields();
 
             // Convert reference path, including final target field, into a list of JReferenceFields
-            final ArrayDeque<JReferenceField> fields = new ArrayDeque<>(storageIds.length + 1);
-            for (int storageId : storageIds)
-                fields.add((JReferenceField)this.jdb.jfields.get(storageId));
-            fields.add((JReferenceField)this.jdb.jfields.get(path.getTargetField()));
+            final ArrayDeque<Integer> fields = new ArrayDeque<>(storageIds.length + 1);
+            fields.addAll(Ints.asList(storageIds));
+            fields.add(path.getTargetField());
 
             // Recurse over this path
             this.copyTo(seen, dest, srcId, dstId, false/*doesn't matter*/, fields);
@@ -595,7 +595,6 @@ public class JTransaction {
             return;
 
         // Copy objects
-        final ArrayDeque<JReferenceField> emptyFields = new ArrayDeque<>();
         for (JObject jobj : jobjs) {
 
             // Get next object
@@ -607,11 +606,11 @@ public class JTransaction {
 
             // Copy object
             final ObjId id = jobj.getObjId();
-            this.copyTo(seen, dest, id, id, true, emptyFields);
+            this.copyTo(seen, dest, id, id, true, new ArrayDeque<Integer>());
         }
     }
 
-    void copyTo(ObjIdSet seen, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, Deque<JReferenceField> fields) {
+    void copyTo(ObjIdSet seen, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, Deque<Integer> fields) {
 
         // Already copied this object?
         if (!seen.add(dstId))
@@ -628,13 +627,13 @@ public class JTransaction {
         // Recurse through the next reference field in the path
         if (fields.isEmpty())
             return;
-        final JReferenceField jfield = fields.removeFirst();
-        if (jfield.parent instanceof JComplexField) {
-            final JComplexField superField = (JComplexField)jfield.parent;
-            superField.copyRecurse(seen, this, dest, srcId, jfield, fields);
-        } else {
-            assert jfield instanceof JReferenceField;
-            final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, jfield.storageId, false);
+        final int storageId = fields.removeFirst();
+        final JReferenceFieldInfo referenceFieldInfo = this.jdb.getJFieldInfo(storageId, JReferenceFieldInfo.class);
+        if (referenceFieldInfo.getParent() != null)
+            referenceFieldInfo.getParent().copyRecurse(seen, this, dest, srcId, storageId, fields);
+        else {
+            assert referenceFieldInfo instanceof JReferenceFieldInfo;
+            final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, storageId, false);
             if (referrent != null)
                 this.copyTo(seen, dest, referrent, referrent, false, fields);
         }
@@ -893,7 +892,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public Object readSimpleField(JObject jobj, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJField(storageId, JSimpleField.class).getConverter(this),
+        return this.convert(this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this),
           this.tx.readSimpleField(jobj.getObjId(), storageId, updateVersion));
     }
 
@@ -919,7 +918,7 @@ public class JTransaction {
      */
     public void writeSimpleField(JObject jobj, int storageId, Object value, boolean updateVersion) {
         jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
-        final Converter<?, ?> converter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
+        final Converter<?, ?> converter = this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this);
         if (converter != null)
             value = this.convert(converter.reverse(), value);
         this.tx.writeSimpleField(jobj.getObjId(), storageId, value, updateVersion);
@@ -943,7 +942,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public Counter readCounterField(JObject jobj, int storageId, boolean updateVersion) {
-        this.jdb.getJField(storageId, JCounterField.class);
+        this.jdb.getJFieldInfo(storageId, JCounterFieldInfo.class);
         if (updateVersion)
             this.tx.updateSchemaVersion(jobj.getObjId());
         return new Counter(this.tx, jobj.getObjId(), storageId, updateVersion);
@@ -967,7 +966,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public NavigableSet<?> readSetField(JObject jobj, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJField(storageId, JSetField.class).getConverter(this),
+        return this.convert(this.jdb.getJFieldInfo(storageId, JSetFieldInfo.class).getConverter(this),
           this.tx.readSetField(jobj.getObjId(), storageId, updateVersion));
     }
 
@@ -989,7 +988,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public List<?> readListField(JObject jobj, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJField(storageId, JListField.class).getConverter(this),
+        return this.convert(this.jdb.getJFieldInfo(storageId, JListFieldInfo.class).getConverter(this),
           this.tx.readListField(jobj.getObjId(), storageId, updateVersion));
     }
 
@@ -1011,7 +1010,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public NavigableMap<?, ?> readMapField(JObject jobj, int storageId, boolean updateVersion) {
-        return this.convert(this.jdb.getJField(storageId, JMapField.class).getConverter(this),
+        return this.convert(this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class).getConverter(this),
           this.tx.readMapField(jobj.getObjId(), storageId, updateVersion));
     }
 
@@ -1034,9 +1033,11 @@ public class JTransaction {
             throw new IllegalArgumentException("null targetObjects");
         final ReferencePath refPath = this.jdb.parseReferencePath(TypeToken.of(startType), path, true);
         final int targetField = refPath.getTargetField();
-        if (!(this.jdb.jfields.get(targetField) instanceof JReferenceField)) {
+        try {
+            this.jdb.getJFieldInfo(targetField, JReferenceFieldInfo.class);
+        } catch (UnknownFieldException e) {
             final String fieldName = path.substring(path.lastIndexOf('.') + 1);
-            throw new IllegalArgumentException("last field `" + fieldName + "' of path `" + path + "' is not a reference field");
+            throw new IllegalArgumentException("last field `" + fieldName + "' of path `" + path + "' is not a reference field", e);
         }
         final int[] refs = Ints.concat(refPath.getReferenceFields(), new int[] { targetField });
         final NavigableSet<ObjId> ids = this.tx.invertReferencePath(refs,
@@ -1249,7 +1250,7 @@ public class JTransaction {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<JObject>> queryIndex(int storageId, Class<?> type) {
-        Converter<?, ?> keyConverter = this.jdb.getJField(storageId, JSimpleField.class).getConverter(this);
+        Converter<?, ?> keyConverter = this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
         final NavigableSetConverter<JObject, ObjId> valueConverter = new NavigableSetConverter(this.referenceConverter);
         final NavigableMap<?, NavigableSet<ObjId>> map = this.tx.querySimpleField(storageId, this.getTypeStorageIds(type));
@@ -1277,8 +1278,7 @@ public class JTransaction {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<ListIndexEntry<?>>> queryListFieldEntries(int storageId, Class<?> type) {
-        final JListField listField = this.jdb.getJField(storageId, JListField.class);
-        Converter<?, ?> keyConverter = listField.elementField.getConverter(this);
+        Converter<?, ?> keyConverter = this.jdb.getJFieldInfo(storageId, JListFieldInfo.class).elementFieldInfo.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
         final NavigableSetConverter valueConverter = new NavigableSetConverter(
           new ListIndexEntryConverter(this.referenceConverter));
@@ -1308,10 +1308,10 @@ public class JTransaction {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?, ?>>> queryMapFieldKeyEntries(int storageId, Class<?> type) {
-        final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
-        Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
+        final JMapFieldInfo mapFieldInfo = this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class);
+        Converter<?, ?> keyConverter = mapFieldInfo.keyFieldInfo.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        Converter<?, ?> valueConverter = mapField.valueField.getConverter(this);
+        Converter<?, ?> valueConverter = mapFieldInfo.valueFieldInfo.getConverter(this);
         valueConverter = valueConverter != null ? valueConverter.reverse() : Converter.identity();
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapKeyIndexEntry<?>>> map
           = this.tx.queryMapFieldKeyEntries(storageId, this.getTypeStorageIds(type));
@@ -1340,10 +1340,10 @@ public class JTransaction {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NavigableMap<?, NavigableSet<MapValueIndexEntry<?, ?>>> queryMapFieldValueEntries(int storageId, Class<?> type) {
-        final JMapField mapField = this.jdb.getJField(storageId, JMapField.class);
-        Converter<?, ?> keyConverter = mapField.keyField.getConverter(this);
+        final JMapFieldInfo mapFieldInfo = this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class);
+        Converter<?, ?> keyConverter = mapFieldInfo.keyFieldInfo.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        Converter<?, ?> valueConverter = mapField.valueField.getConverter(this);
+        Converter<?, ?> valueConverter = mapFieldInfo.valueFieldInfo.getConverter(this);
         valueConverter = valueConverter != null ? valueConverter.reverse() : Converter.identity();
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapValueIndexEntry<?>>> map
           = this.tx.queryMapFieldValueEntries(storageId, this.getTypeStorageIds(type));

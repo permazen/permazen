@@ -7,13 +7,11 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Deque;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -23,7 +21,6 @@ import org.jsimpledb.change.MapFieldClear;
 import org.jsimpledb.change.MapFieldRemove;
 import org.jsimpledb.change.MapFieldReplace;
 import org.jsimpledb.core.MapField;
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.MapSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -195,31 +192,8 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    NavigableMapConverter<?, ?, ?, ?> getConverter(JTransaction jtx) {
-        final Converter<?, ?> keyConverter = this.keyField.getConverter(jtx);
-        final Converter<?, ?> valueConverter = this.valueField.getConverter(jtx);
-        if (keyConverter == null && valueConverter == null)
-            return null;
-        return this.createConverter(keyConverter != null ? keyConverter : Converter.identity(),
-          valueConverter != null ? valueConverter : Converter.identity());
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <K, V, WK, WV> NavigableMapConverter<K, V, WK, WV> createConverter(
-      Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
-        return new NavigableMapConverter<K, V, WK, WV>(keyConverter, valueConverter);
-    }
-
-    @Override
-    void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
-      ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
-        final NavigableMap<?, ?> map = srcTx.tx.readMapField(id, this.storageId, false);
-        if (subField == this.keyField)
-            this.copyRecurse(seen, srcTx, dstTx, map.keySet(), nextFields);
-        else if (subField == this.valueField)
-            this.copyRecurse(seen, srcTx, dstTx, map.values(), nextFields);
-        else
-            throw new RuntimeException();
+    JMapFieldInfo toJFieldInfo() {
+        return new JMapFieldInfo(this);
     }
 }
 
