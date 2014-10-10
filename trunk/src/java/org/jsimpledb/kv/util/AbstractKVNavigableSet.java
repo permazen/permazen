@@ -330,7 +330,9 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             final ByteWriter writer = new ByteWriter();
             this.encode(writer, bounds.getLowerBound());
             result[0] = writer.getBytes();
-            if (!bounds.getLowerBoundType().isInclusive())
+            if (ByteUtil.compare(result[0], this.minKey) < 0)
+                result[0] = this.minKey.clone();
+            else if (!bounds.getLowerBoundType().isInclusive())
                 result[0] = this.prefixMode ? ByteUtil.getKeyAfterPrefix(result[0]) : ByteUtil.getNextKey(result[0]);
             break;
         }
@@ -342,7 +344,9 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             final ByteWriter writer = new ByteWriter();
             this.encode(writer, bounds.getUpperBound());
             result[1] = writer.getBytes();
-            if (bounds.getUpperBoundType().isInclusive())
+            if (ByteUtil.compare(result[1], this.maxKey) > 0)
+                result[1] = this.maxKey.clone();
+            else if (bounds.getUpperBoundType().isInclusive())
                 result[1] = this.prefixMode ? ByteUtil.getKeyAfterPrefix(result[1]) : ByteUtil.getNextKey(result[1]);
             break;
         }
