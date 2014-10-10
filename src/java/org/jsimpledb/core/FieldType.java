@@ -308,14 +308,6 @@ public abstract class FieldType<T> implements Comparator<T> {
     }
 
     /**
-     * Returns this instance's {@linkplain #getName name}.
-     */
-    @Override
-    public String toString() {
-        return this.name;
-    }
-
-    /**
      * Convenience method for generic type binding.
      *
      * @param obj object to validate
@@ -328,6 +320,11 @@ public abstract class FieldType<T> implements Comparator<T> {
     }
 
 // Object
+
+    @Override
+    public String toString() {
+        return "field type `" + this.name + "'";
+    }
 
     @Override
     public int hashCode() {
