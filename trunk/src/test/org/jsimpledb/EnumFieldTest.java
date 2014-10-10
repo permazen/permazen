@@ -115,6 +115,20 @@ public class EnumFieldTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testEnumConflict() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+
+        try {
+            new JSimpleDB(db, 1, Arrays.<Class<?>>asList(EnumConflict1.class, EnumConflict2.class));
+            assert false : "expected exception";
+        } catch (IllegalArgumentException e) {
+            log.info("got expected exception: " + e);
+        }
+    }
+
 // Model Classes
 
     public enum MyEnum {
@@ -140,5 +154,36 @@ public class EnumFieldTest extends TestSupport {
             Assert.assertEquals(oldValues.get(3), new EnumValue("BAR", 1));
         }
     }
+
+// EnumConflict
+
+    public enum Enum1 {
+        AAA,
+        BBB,
+        CCC;
+    }
+
+    public enum Enum2 {
+        AAA,
+        BBB,
+        CCC;
+    }
+
+    @JSimpleClass(storageId = 10)
+    public abstract static class EnumConflict1 implements JObject {
+
+        @JField(storageId = 2)
+        public abstract Enum1 getEnumField();
+        public abstract void setEnumField(Enum1 value);
+    }
+
+    @JSimpleClass(storageId = 20)
+    public abstract static class EnumConflict2 implements JObject {
+
+        @JField(storageId = 2)
+        public abstract Enum2 getEnumField();
+        public abstract void setEnumField(Enum2 value);
+    }
+
 }
 

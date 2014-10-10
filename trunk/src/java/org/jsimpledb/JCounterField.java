@@ -7,7 +7,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
@@ -65,8 +64,8 @@ public class JCounterField extends JField {
     }
 
     @Override
-    Converter<?, ?> getConverter(JTransaction jtx) {
-        return null;
+    JCounterFieldInfo toJFieldInfo() {
+        return new JCounterFieldInfo(this);
     }
 }
 

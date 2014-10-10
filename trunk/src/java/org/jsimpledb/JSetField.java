@@ -7,12 +7,10 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
-import java.util.Deque;
 import java.util.List;
 import java.util.NavigableSet;
 
@@ -20,7 +18,6 @@ import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SetSchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -103,23 +100,8 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    NavigableSetConverter<?, ?> getConverter(JTransaction jtx) {
-        final Converter<?, ?> elementConverter = this.elementField.getConverter(jtx);
-        if (elementConverter == null)
-            return null;
-        return this.createConverter(elementConverter);
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <X, Y> NavigableSetConverter<X, Y> createConverter(Converter<X, Y> elementConverter) {
-        return new NavigableSetConverter<X, Y>(elementConverter);
-    }
-
-    @Override
-    void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
-      ObjId id, JReferenceField subField, Deque<JReferenceField> nextFields) {
-        assert subField == this.elementField;
-        this.copyRecurse(seen, srcTx, dstTx, srcTx.tx.readSetField(id, this.storageId, false), nextFields);
+    JSetFieldInfo toJFieldInfo() {
+        return new JSetFieldInfo(this);
     }
 }
 
