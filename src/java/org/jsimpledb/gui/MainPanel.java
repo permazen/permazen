@@ -58,6 +58,7 @@ import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ReferencedObjectException;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.parse.ParseSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,10 +226,9 @@ public class MainPanel extends VerticalLayout {
         final JClass<?> jclass;
         try {
             jclass = this.jdb.getJClass(storageId);
-        } catch (IllegalArgumentException e) {
+        } catch (UnknownTypeException e) {
             Notification.show("Can't edit object " + id + " having unknown type",
-              "The type with storage ID " + storageId + " does not exist in schema version " + this.jdb.getActualVersion(),
-              Notification.Type.WARNING_MESSAGE);
+              e.getMessage(), Notification.Type.WARNING_MESSAGE);
             return;
         }
 

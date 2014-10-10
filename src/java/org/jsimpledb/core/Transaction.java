@@ -1354,7 +1354,7 @@ public class Transaction {
      *
      * @param storageId object type storage ID
      * @return set containing all objects having the specified storage ID
-     * @throws IllegalArgumentException if {@code storageId} does not correspond to any known object type
+     * @throws UnknownTypeException if {@code storageId} does not correspond to any known object type
      * @throws StaleTransactionException if this transaction is no longer usable
      * @see #getAll()
      */

@@ -23,6 +23,11 @@
       containing schemas are compatible.
     - gui.Util.getCommonJFields()
 
+- Allow @IndexQuery and JTransaction.queryIndex() to accept set element type
+  that is wider than necessary (e.g., JObject instead of MyClass). This is
+  needed when reading an index containing types dropped from schema. We should
+  already be accepting set element types that are narrower (e.g., MySubClass).
+
 - Build and distribute binary distribution
     - lib subdirectory with dependencies
     - add Main-Class and Classpath manifest headers to CLI and GUI jars

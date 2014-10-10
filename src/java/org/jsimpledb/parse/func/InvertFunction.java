@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import org.jsimpledb.JClass;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
@@ -78,7 +79,7 @@ public class InvertFunction extends AbstractFunction {
         final JClass<?> jclass;
         try {
             jclass = session.getJSimpleDB().getJClass(session.getNameIndex().getSchemaObject(typeName).getStorageId());
-        } catch (IllegalArgumentException e) {
+        } catch (UnknownTypeException e) {
             ctx.setIndex(mark);
             throw new ParseException(ctx, "invalid type `" + typeName + "': " + e.getMessage(), e);
         }

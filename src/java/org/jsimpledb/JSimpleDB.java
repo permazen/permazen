@@ -24,6 +24,7 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.core.UnknownFieldException;
+import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
@@ -413,12 +414,12 @@ public class JSimpleDB {
      *
      * @param storageId object type storage ID
      * @return {@link JClass} instance
-     * @throws IllegalArgumentException if {@code storageId} does not represent an object type
+     * @throws UnknownTypeException if {@code storageId} does not represent an object type
      */
     public JClass<?> getJClass(int storageId) {
         final JClass<?> jclass = this.jclasses.get(storageId);
         if (jclass == null)
-            throw new IllegalArgumentException("no JSimpleDB class associated with storage ID " + storageId);
+            throw new UnknownTypeException(storageId, this.actualVersion);
         return jclass;
     }
 
