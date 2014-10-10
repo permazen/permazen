@@ -75,6 +75,30 @@ public final class ByteUtil {
     }
 
     /**
+     * Determine the smaller of two byte arrays when compared lexicographically using unsigned values.
+     *
+     * @param b1 first byte array
+     * @param b2 second byte array
+     * @return {@code b1} if {@code b1 <= b2}, otherwise {@code b2}
+     * @throws NullPointerException if {@code b1} or {@code b2} is null
+     */
+    public static byte[] min(byte[] b1, byte[] b2) {
+        return ByteUtil.compare(b1, b2) <= 0 ? b1 : b2;
+    }
+
+    /**
+     * Determine the larger of two byte arrays when compared lexicographically using unsigned values.
+     *
+     * @param b1 first byte array
+     * @param b2 second byte array
+     * @return {@code b1} if {@code b1 >= b2}, otherwise {@code b2}
+     * @throws NullPointerException if {@code b1} or {@code b2} is null
+     */
+    public static byte[] max(byte[] b1, byte[] b2) {
+        return ByteUtil.compare(b1, b2) >= 0 ? b1 : b2;
+    }
+
+    /**
      * Determine if the first of two {@code byte[]} arrays is a prefix of the second.
      *
      * @param prefix prefix to check
