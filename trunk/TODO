@@ -17,8 +17,8 @@
 
 - Allow @IndexQuery and JTransaction.queryIndex() to accept set element type
   that is wider than necessary (e.g., JObject instead of MyClass). This is
-  needed when reading an index containing types dropped from schema. We should
-  already be accepting set element types that are narrower (e.g., MySubClass).
+  needed when reading an index containing types dropped from current schema.
+  We should already accept set element types that are narrower (e.g., MySubClass).
 
 - Build and distribute binary distribution
     - lib subdirectory with dependencies
@@ -33,9 +33,10 @@
     - Shows only differences
     - New CLI command "schema-diff vers1 vers2"
 
-- Transaction schema check
-    - Add encoding version number to FieldType
-    - Record encoding version in database schema
+- FieldType UUID's
+    - Add "encoding UUID" to FieldType
+    - Record UUID in database schema
+    - Verify on load
 
 - Add new @JField property: boolean cascadeDelete()
 
@@ -44,8 +45,8 @@
     - boolean unique() default false
     - boolean uniqueDefault() default false
         - whether default value included
-        - default value is NaN for float, double, otherwise normal default
-    - boolean uniqueGlobal() default true
+        - default value is NaN for float, double; otherwise normal default
+    - boolean uniqueGlobally() default true
         - for simple fields: must be true, error otherwise
         - for collection sub-fields: whether constraint is per-object, or global
     - Verify in deferred manner as follows:
@@ -53,12 +54,14 @@
         - Register SimpleFieldChangeListener on affected fields
         - When listener invoked (or object created), enqueue object for validation
     - Note adding unique() in schema upgrade can create unchecked violations
-    - For set element or map key sub-field, error if both uniqueDefault = false
-      and uniqueGlobal = false, because this is redundant
+    - Note for set element or map key sub-field, if both uniqueDefault = false
+      and uniqueGlobal = false this is redundant
 
-- Composite indexes on multiple fields?
-    - @CompositeIndex(storageId = 123, fields = { 15, 16 })
+- Composite indexes on multiple fields
+    - @JCompositeIndex(name = "foo", storageId = 123, fields = { 12, 23 })
+        - Or: @JCompositeIndex(fieldNames = { "friend", "foe"})
     - public NavigableSet<?> queryIndex(int... storageId)
+        - Or: public NavigableSet<?> queryIndex("foo")
 
 - Add Vaadin GUI editor generator
 
