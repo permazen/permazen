@@ -11,10 +11,10 @@ import com.google.common.base.Converter;
 
 class MapValueIndexEntryConverter<T, K, WK> extends Converter<MapValueIndexEntry<T, K>, org.jsimpledb.core.MapValueIndexEntry<WK>> {
 
-    private final ReferenceConverter referenceConverter;
+    private final ReferenceConverter<T> referenceConverter;
     private final Converter<K, WK> keyConverter;
 
-    MapValueIndexEntryConverter(ReferenceConverter referenceConverter, Converter<K, WK> keyConverter) {
+    MapValueIndexEntryConverter(ReferenceConverter<T> referenceConverter, Converter<K, WK> keyConverter) {
         if (referenceConverter == null)
             throw new IllegalArgumentException("null referenceConverter");
         if (keyConverter == null)
@@ -27,16 +27,15 @@ class MapValueIndexEntryConverter<T, K, WK> extends Converter<MapValueIndexEntry
     protected org.jsimpledb.core.MapValueIndexEntry<WK> doForward(MapValueIndexEntry<T, K> entry) {
         if (entry == null)
             return null;
-        return new org.jsimpledb.core.MapValueIndexEntry<WK>(this.referenceConverter.convert((JObject)entry.getObject()),
+        return new org.jsimpledb.core.MapValueIndexEntry<WK>(this.referenceConverter.convert(entry.getObject()),
           this.keyConverter.convert(entry.getKey()));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected MapValueIndexEntry<T, K> doBackward(org.jsimpledb.core.MapValueIndexEntry<WK> entry) {
         if (entry == null)
             return null;
-        return new MapValueIndexEntry<T, K>((T)this.referenceConverter.reverse().convert(entry.getObjId()),
+        return new MapValueIndexEntry<T, K>(this.referenceConverter.reverse().convert(entry.getObjId()),
           this.keyConverter.reverse().convert(entry.getKey()));
     }
 

@@ -186,7 +186,6 @@ public class JTransaction {
     private static final ThreadLocal<JTransaction> CURRENT = new ThreadLocal<>();
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
-    final ReferenceConverter referenceConverter = new ReferenceConverter(this);
 
     final JSimpleDB jdb;
     final Transaction tx;
@@ -303,8 +302,14 @@ public class JTransaction {
                 return JTransaction.this.tx.getAll(jclass.storageId);
             }
         });
-        return sets.isEmpty() ? NavigableSets.<T>empty() :
-          (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(NavigableSets.union(sets), this.referenceConverter);
+        switch (sets.size()) {
+        case 0:
+            return NavigableSets.<T>empty();
+        case 1:
+            return new ConvertedNavigableSet<T, ObjId>(sets.get(0), new ReferenceConverter<T>(this, type));
+        default:
+            return new ConvertedNavigableSet<T, ObjId>(NavigableSets.union(sets), new ReferenceConverter<T>(this, type));
+        }
     }
 
     /**
@@ -317,7 +322,8 @@ public class JTransaction {
      */
     @SuppressWarnings("unchecked")
     public NavigableSet<JObject> getAllOfType(int storageId) {
-        return new ConvertedNavigableSet<JObject, ObjId>(this.tx.getAll(storageId), this.referenceConverter);
+        return new ConvertedNavigableSet<JObject, ObjId>(this.tx.getAll(storageId),
+          new ReferenceConverter<JObject>(this, JObject.class));
     }
 
     /**
@@ -333,7 +339,7 @@ public class JTransaction {
         final NavigableMap<Integer, NavigableSet<ObjId>> map = this.tx.queryVersion();
         return new ConvertedNavigableMap<Integer, NavigableSet<JObject>, Integer, NavigableSet<ObjId>>(
           this.tx.queryVersion(this.getTypeStorageIds(type)), Converter.<Integer>identity(),
-          new NavigableSetConverter<JObject, ObjId>(this.referenceConverter));
+          new NavigableSetConverter<JObject, ObjId>(new ReferenceConverter<JObject>(this, JObject.class)));
     }
 
     /**
@@ -444,8 +450,7 @@ public class JTransaction {
      * @throws DeletedObjectException if {@code srcObj} does not exist in this transaction
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcObj}'s object's version
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
-     * @throws org.jsimpledb.core.TypeNotInSchemaVersionException
-     *  if the current schema version does not contain the source object's type
+     * @throws TypeNotInSchemaVersionException if the current schema version does not contain the source object's type
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
      *  is {@linkplain Transaction#setReadOnly set read-only}
@@ -1027,7 +1032,6 @@ public class JTransaction {
      * @throws IllegalArgumentException if {@code path} is invalid
      * @throws IllegalArgumentException if any parameter is null
      */
-    @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> invertReferencePath(Class<T> startType, String path, Iterable<? extends JObject> targetObjects) {
         if (targetObjects == null)
             throw new IllegalArgumentException("null targetObjects");
@@ -1041,8 +1045,8 @@ public class JTransaction {
         }
         final int[] refs = Ints.concat(refPath.getReferenceFields(), new int[] { targetField });
         final NavigableSet<ObjId> ids = this.tx.invertReferencePath(refs,
-          Iterables.transform(targetObjects, this.referenceConverter));
-        return (NavigableSet<T>)new ConvertedNavigableSet<JObject, ObjId>(ids, this.referenceConverter);
+          Iterables.transform(targetObjects, new ReferenceConverter<JObject>(this, JObject.class)));
+        return new ConvertedNavigableSet<T, ObjId>(ids, new ReferenceConverter<T>(this, startType));
     }
 
 // Index Access
@@ -1243,16 +1247,19 @@ public class JTransaction {
      * </p>
      *
      * @param storageId {@link JSimpleField}'s storage ID
-     * @param type type restriction for the returned objects, or null to not restrict indexed object type
+     * @param type type restriction for the returned objects
      * @return read-only, real-time view of field values mapped to sets of {@link JObject}s with the value in the field
      * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, NavigableSet<JObject>> queryIndex(int storageId, Class<?> type) {
+    public <T> NavigableMap<?, NavigableSet<T>> queryIndex(int storageId, Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
         Converter<?, ?> keyConverter = this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        final NavigableSetConverter<JObject, ObjId> valueConverter = new NavigableSetConverter(this.referenceConverter);
+        final NavigableSetConverter<T, ObjId> valueConverter = new NavigableSetConverter(new ReferenceConverter<T>(this, type));
         final NavigableMap<?, NavigableSet<ObjId>> map = this.tx.querySimpleField(storageId, this.getTypeStorageIds(type));
         return new ConvertedNavigableMap(map, keyConverter, valueConverter);
     }
@@ -1271,17 +1278,20 @@ public class JTransaction {
      * </p>
      *
      * @param storageId {@link JListField}'s storage ID
-     * @param type type restriction for the returned objects, or null to not restrict indexed object type
+     * @param type type restriction for the returned objects
      * @return read-only, real-time view of list element values mapped to sets of {@link ListIndexEntry}s
      * @throws org.jsimpledb.core.UnknownFieldException if no {@link JListField} field corresponding to {@code storageId} exists
+     * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, NavigableSet<ListIndexEntry<?>>> queryListFieldEntries(int storageId, Class<?> type) {
+    public <T> NavigableMap<?, NavigableSet<ListIndexEntry<T>>> queryListFieldEntries(int storageId, Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
         Converter<?, ?> keyConverter = this.jdb.getJFieldInfo(storageId, JListFieldInfo.class).elementFieldInfo.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        final NavigableSetConverter valueConverter = new NavigableSetConverter(
-          new ListIndexEntryConverter(this.referenceConverter));
+        final NavigableSetConverter<ListIndexEntry<T>, org.jsimpledb.core.ListIndexEntry> valueConverter
+          = new NavigableSetConverter(new ListIndexEntryConverter<T>(new ReferenceConverter<T>(this, type)));
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.ListIndexEntry>> map
           = this.tx.queryListFieldEntries(storageId, this.getTypeStorageIds(type));
         return new ConvertedNavigableMap(map, keyConverter, valueConverter);
@@ -1301,13 +1311,16 @@ public class JTransaction {
      * </p>
      *
      * @param storageId {@link JMapField}'s storage ID
-     * @param type type restriction for the returned objects, or null to not restrict indexed object type
+     * @param type type restriction for the returned objects
      * @return read-only, real-time view of map key values mapped to sets of {@link MapKeyIndexEntry}s
      * @throws org.jsimpledb.core.UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
+     * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?, ?>>> queryMapFieldKeyEntries(int storageId, Class<?> type) {
+    public <T> NavigableMap<?, NavigableSet<MapKeyIndexEntry<T, ?>>> queryMapFieldKeyEntries(int storageId, Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
         final JMapFieldInfo mapFieldInfo = this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class);
         Converter<?, ?> keyConverter = mapFieldInfo.keyFieldInfo.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
@@ -1316,7 +1329,7 @@ public class JTransaction {
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapKeyIndexEntry<?>>> map
           = this.tx.queryMapFieldKeyEntries(storageId, this.getTypeStorageIds(type));
         return new ConvertedNavigableMap(map, keyConverter,
-          new NavigableSetConverter(new MapKeyIndexEntryConverter(this.referenceConverter, valueConverter)));
+          new NavigableSetConverter(new MapKeyIndexEntryConverter(new ReferenceConverter<T>(this, type), valueConverter)));
     }
 
     /**
@@ -1333,13 +1346,16 @@ public class JTransaction {
      * </p>
      *
      * @param storageId {@link JMapField}'s storage ID
-     * @param type type restriction for the returned objects, or null to not restrict indexed object type
+     * @param type type restriction for the returned objects
      * @return read-only, real-time view of map values mapped to sets of {@link MapValueIndexEntry}s
      * @throws org.jsimpledb.core.UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
+     * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public NavigableMap<?, NavigableSet<MapValueIndexEntry<?, ?>>> queryMapFieldValueEntries(int storageId, Class<?> type) {
+    public <T> NavigableMap<?, NavigableSet<MapValueIndexEntry<T, ?>>> queryMapFieldValueEntries(int storageId, Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
         final JMapFieldInfo mapFieldInfo = this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class);
         Converter<?, ?> keyConverter = mapFieldInfo.keyFieldInfo.getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
@@ -1348,7 +1364,7 @@ public class JTransaction {
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapValueIndexEntry<?>>> map
           = this.tx.queryMapFieldValueEntries(storageId, this.getTypeStorageIds(type));
         return new ConvertedNavigableMap(map, valueConverter,
-          new NavigableSetConverter(new MapValueIndexEntryConverter(this.referenceConverter, keyConverter)));
+          new NavigableSetConverter(new MapValueIndexEntryConverter(new ReferenceConverter<T>(this, type), keyConverter)));
     }
 
     private int[] getTypeStorageIds(Class<?> type) {
@@ -1516,7 +1532,7 @@ public class JTransaction {
             }
 
             // Do @Validate validation
-            final JClass<?> jclass = this.jdb.getJClass(id.getStorageId());
+            final JClass<?> jclass = this.jdb.getJClass(id);
             for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods)
                 Util.invoke(info.getMethod(), jobj);
         }
@@ -1620,7 +1636,7 @@ public class JTransaction {
                 if (jobj == null)
                     jobj = JTransaction.this.getJObject(id);
 
-                // Convert old field values so ObjId's become JObjects
+                // Convert old field values so ObjId's become JObjects, etc
                 final Map<Integer, Object> convertedValues = Maps.transformEntries(oldFieldValues,
                   new Maps.EntryTransformer<Integer, Object, Object>() {
                     @Override
@@ -1688,7 +1704,7 @@ public class JTransaction {
 
         @Override
         public Converter<?, ?> caseReferenceField(ReferenceField field) {
-            return JTransaction.this.referenceConverter.reverse();
+            return new ReferenceConverter<JObject>(JTransaction.this, JObject.class).reverse();
         }
 
         @Override
