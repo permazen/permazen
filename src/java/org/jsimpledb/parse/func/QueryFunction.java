@@ -7,6 +7,7 @@
 
 package org.jsimpledb.parse.func;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.parse.IndexedFieldParser;
 import org.jsimpledb.parse.ParseContext;
@@ -65,7 +66,7 @@ public class QueryFunction extends AbstractFunction {
             @Override
             public Object get(ParseSession session) {
                 return session.hasJSimpleDB() ?
-                  JTransaction.getCurrent().queryIndex(storageId, null) :
+                  JTransaction.getCurrent().queryIndex(storageId, JObject.class) :
                   session.getTransaction().querySimpleField(storageId);
             }
         };
