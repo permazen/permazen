@@ -135,7 +135,7 @@ public class JClass<T> extends JSchemaObject {
             return type.cast(jfield);
         } catch (ClassCastException e) {
             throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID "
-              + storageId + " of type " + type.getName() + " (found field of type " + jfield.getClass().getName() + " instead)");
+              + storageId + " of type " + type.getName() + " (found " + jfield + " instead)");
         }
     }
 
