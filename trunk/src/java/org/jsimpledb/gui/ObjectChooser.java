@@ -24,6 +24,7 @@ import java.util.HashSet;
 import org.jsimpledb.JClass;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.parse.ParseSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,7 +185,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
             return null;
         try {
             return this.jdb.getJClass(type);
-        } catch (IllegalArgumentException e) {
+        } catch (UnknownTypeException e) {
             return null;
         }
     }

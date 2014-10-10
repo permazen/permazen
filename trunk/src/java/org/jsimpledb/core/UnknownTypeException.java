@@ -8,31 +8,36 @@
 package org.jsimpledb.core;
 
 /**
- * Thrown when an unknown type is accessed.
+ * Thrown when attempting to access an unknown type.
  */
 @SuppressWarnings("serial")
 public class UnknownTypeException extends DatabaseException {
 
     private final int storageId;
+    private final int schemaVersion;
 
     /**
      * Constructor.
      *
      * @param storageId unknown type storage ID
+     * @param schemaVersion schema version in which type was not found, or zero if not version specific
      */
-    public UnknownTypeException(int storageId) {
-        this.storageId = storageId;
+    public UnknownTypeException(int storageId, int schemaVersion) {
+        this(storageId, schemaVersion, "no object type with storage ID " + storageId + " exists"
+          + (schemaVersion != 0 ? " in schema version " + schemaVersion : ""));
     }
 
     /**
      * Constructor.
      *
      * @param storageId unknown type storage ID
+     * @param schemaVersion schema version in which type was not found, or zero if not version specific
      * @param message exception message
      */
-    public UnknownTypeException(int storageId, String message) {
+    public UnknownTypeException(int storageId, int schemaVersion, String message) {
         super(message);
         this.storageId = storageId;
+        this.schemaVersion = schemaVersion;
     }
 
     /**
@@ -40,6 +45,14 @@ public class UnknownTypeException extends DatabaseException {
      */
     public int getStorageId() {
         return this.storageId;
+    }
+
+    /**
+     * Get the schema version in which the type was not found.
+     * This may return zero if a query was not specific to a single schema version.
+     */
+    public int getSchemaVersion() {
+        return this.schemaVersion;
     }
 }
 

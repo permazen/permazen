@@ -9,6 +9,7 @@ package org.jsimpledb.parse.func;
 
 import org.jsimpledb.JClass;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.parse.ObjTypeParser;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
@@ -139,9 +140,8 @@ public class AllFunction extends AbstractFunction {
         final JClass<?> jclass;
         try {
             jclass = JTransaction.getCurrent().getJSimpleDB().getJClass(storageId);
-        } catch (IllegalArgumentException e) {
-            throw new EvalException("no type with storage ID " + storageId + " exists in schema version "
-              + JTransaction.getCurrent().getJSimpleDB().getActualVersion());
+        } catch (UnknownTypeException e) {
+            throw new EvalException(e.getMessage(), e);
         }
         return new AbstractValue() {
             @Override

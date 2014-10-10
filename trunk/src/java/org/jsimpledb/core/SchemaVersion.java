@@ -87,7 +87,7 @@ public class SchemaVersion {
     public ObjType getObjType(int storageId) {
         final ObjType objType = this.objTypeMap.get(storageId);
         if (objType == null)
-            throw new UnknownTypeException(storageId, "no object type with storage ID " + storageId + " exists");
+            throw new UnknownTypeException(storageId, this.versionNumber);
         return objType;
     }
 

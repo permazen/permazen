@@ -12,10 +12,12 @@ import com.google.common.collect.Iterables;
 
 import java.util.NoSuchElementException;
 
+import org.jsimpledb.JClass;
 import org.jsimpledb.JField;
 import org.jsimpledb.core.Field;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
+import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.parse.util.PrefixPredicate;
 import org.jsimpledb.parse.util.StripPrefixFunction;
 
@@ -52,6 +54,7 @@ public final class ParseUtil {
      * @param id object ID
      * @param name field name
      * @throws IllegalArgumentException if object does not exist
+     * @throws IllegalArgumentException if object's type does not exist in schema
      * @throws IllegalArgumentException if field is not found
      * @throws IllegalArgumentException if any parameter is null
      */
@@ -73,8 +76,16 @@ public final class ParseUtil {
             throw new IllegalArgumentException("error accessing field `" + name + "': object " + id + " does not exist");
         final ObjType objType = info.getObjType();
 
+        // Find JClass
+        final JClass<?> jclass;
+        try {
+            jclass = session.getJSimpleDB().getJClass(objType.getStorageId());
+        } catch (UnknownTypeException e) {
+            throw new IllegalArgumentException("error accessing field `" + name + "': " + e.getMessage(), e);
+        }
+
         // Find JField
-        final JField jfield =  session.getJSimpleDB().getJClass(objType.getStorageId()).getJFieldsByName().get(name);
+        final JField jfield = jclass.getJFieldsByName().get(name);
         if (jfield == null)
             throw new IllegalArgumentException("error accessing field `" + name + "': there is no such field in " + objType);
         return jfield;

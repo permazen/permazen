@@ -377,6 +377,7 @@ public class JTransaction {
      * @param jobj Java model object
      * @param fieldName the name of a field in {@code jobj}'s type
      * @return the {@link org.jsimpledb.kv.KVDatabase} key of the field in the specified object
+     * @throws TypeNotInSchemaVersionException if the current schema version does not contain the object's type
      * @throws IllegalArgumentException if {@code jobj} does not contain the specified field
      * @throws IllegalArgumentException if {@code fieldName} is otherwise invalid
      * @throws IllegalArgumentException if either parameter is null
@@ -384,10 +385,10 @@ public class JTransaction {
     public byte[] getKey(JObject jobj, String fieldName) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        final TypeToken<?> type = this.jdb.getJClass(jobj.getObjId().getStorageId()).typeToken;
+        final TypeToken<?> type = this.jdb.getJClass(jobj.getObjId()).typeToken;
         final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, false);
         if (refPath.getReferenceFields().length > 0)
-            throw new IllegalArgumentException("invalid field `" + fieldName + "'");
+            throw new IllegalArgumentException("invalid field name `" + fieldName + "'");
         if (!refPath.targetType.getRawType().isInstance(jobj))
             throw new IllegalArgumentException("jobj is not an instance of " + refPath.targetType); // should never happen
         return this.tx.getKey(jobj.getObjId(), refPath.targetField.storageId);
@@ -870,6 +871,7 @@ public class JTransaction {
      * @return true if the object's schema version was changed, false if it was already updated
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
+     * @throws TypeNotInSchemaVersionException if the current schema version does not contain the object's type
      * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
      * @throws NullPointerException if {@code jobj} is null
      */
@@ -893,7 +895,9 @@ public class JTransaction {
      * @return value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code jobj} is null
      */
     public Object readSimpleField(JObject jobj, int storageId, boolean updateVersion) {
@@ -917,7 +921,9 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     *  that does not exist in this instance's schema version
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
      * @throws NullPointerException if {@code jobj} is null
      */
@@ -943,11 +949,13 @@ public class JTransaction {
      * @return value of the counter in the object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JCounterField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JCounterField} corresponding to {@code storageId} exists
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code jobj} is null
      */
     public Counter readCounterField(JObject jobj, int storageId, boolean updateVersion) {
-        this.jdb.getJFieldInfo(storageId, JCounterFieldInfo.class);
+        this.jdb.getJFieldInfo(storageId, JCounterFieldInfo.class);         // validate field type
         if (updateVersion)
             this.tx.updateSchemaVersion(jobj.getObjId());
         return new Counter(this.tx, jobj.getObjId(), storageId, updateVersion);
@@ -967,7 +975,9 @@ public class JTransaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code jobj} is null
      */
     public NavigableSet<?> readSetField(JObject jobj, int storageId, boolean updateVersion) {
@@ -989,7 +999,9 @@ public class JTransaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code jobj} is null
      */
     public List<?> readListField(JObject jobj, int storageId, boolean updateVersion) {
@@ -1011,7 +1023,9 @@ public class JTransaction {
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     *  that does not exist in this instance's schema version
      * @throws NullPointerException if {@code jobj} is null
      */
     public NavigableMap<?, ?> readMapField(JObject jobj, int storageId, boolean updateVersion) {
@@ -1028,8 +1042,8 @@ public class JTransaction {
      * @param path dot-separated path of one or more reference fields
      * @param targetObjects target objects
      * @return set of objects that refer to any of the {@code targetObjects} via the {@code path} from {@code startType}
-     * @throws org.jsimpledb.core.UnknownFieldException if {@code path} contains an unknown field
-     * @throws IllegalArgumentException if {@code path} is invalid
+     * @throws UnknownFieldException if {@code path} contains an unknown field
+     * @throws IllegalArgumentException if {@code path} is invalid, e.g., does not end on a reference field
      * @throws IllegalArgumentException if any parameter is null
      */
     public <T> NavigableSet<T> invertReferencePath(Class<T> startType, String path, Iterable<? extends JObject> targetObjects) {
@@ -1249,7 +1263,7 @@ public class JTransaction {
      * @param storageId {@link JSimpleField}'s storage ID
      * @param type type restriction for the returned objects
      * @return read-only, real-time view of field values mapped to sets of {@link JObject}s with the value in the field
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
      * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
@@ -1280,7 +1294,7 @@ public class JTransaction {
      * @param storageId {@link JListField}'s storage ID
      * @param type type restriction for the returned objects
      * @return read-only, real-time view of list element values mapped to sets of {@link ListIndexEntry}s
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JListField} field corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JListField} field corresponding to {@code storageId} exists
      * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
@@ -1313,7 +1327,7 @@ public class JTransaction {
      * @param storageId {@link JMapField}'s storage ID
      * @param type type restriction for the returned objects
      * @return read-only, real-time view of map key values mapped to sets of {@link MapKeyIndexEntry}s
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
      * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
@@ -1348,7 +1362,7 @@ public class JTransaction {
      * @param storageId {@link JMapField}'s storage ID
      * @param type type restriction for the returned objects
      * @return read-only, real-time view of map values mapped to sets of {@link MapValueIndexEntry}s
-     * @throws org.jsimpledb.core.UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
+     * @throws UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
      * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */

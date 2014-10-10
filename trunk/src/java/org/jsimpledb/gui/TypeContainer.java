@@ -22,6 +22,7 @@ import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
 import org.jsimpledb.JClass;
 import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.core.UnknownTypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,7 @@ public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContai
         if (!needsTop) {
             try {
                 this.jdb.getJClass(type);
-            } catch (IllegalArgumentException e) {
+            } catch (UnknownTypeException e) {
                 needsTop = true;
             }
         }

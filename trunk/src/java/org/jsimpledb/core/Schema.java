@@ -129,7 +129,7 @@ public class Schema {
         if (FieldStorageInfo.class.isAssignableFrom(expectedType))
             throw new UnknownFieldException(storageId, message);
         if (ObjTypeStorageInfo.class.isAssignableFrom(expectedType))
-            throw new UnknownTypeException(storageId, message);
+            throw new UnknownTypeException(storageId, 0, message);
         throw new IllegalArgumentException(message);                        // should never get here
     }
 
