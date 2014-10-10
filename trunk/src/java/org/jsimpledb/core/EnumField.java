@@ -56,14 +56,6 @@ public class EnumField extends SimpleField<EnumValue> {
         return "enum field `" + this.name + "'";
     }
 
-    @Override
-    boolean isEquivalent(Field<?> field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        final EnumField that = (EnumField)field;
-        return this.getFieldType().getIdentifiers().equals(that.getFieldType().getIdentifiers());
-    }
-
 // Non-public methods
 
     @Override

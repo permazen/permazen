@@ -15,24 +15,18 @@ import org.jsimpledb.util.ByteReader;
 
 class MapFieldStorageInfo extends ComplexFieldStorageInfo {
 
-    SimpleFieldStorageInfo keyField;
-    SimpleFieldStorageInfo valueField;
+    final SimpleFieldStorageInfo keyField;
+    final SimpleFieldStorageInfo valueField;
 
     MapFieldStorageInfo(MapField<?, ?> field) {
         super(field);
+        this.keyField = field.keyField.toStorageInfo();
+        this.valueField = field.valueField.toStorageInfo();
     }
 
     @Override
     public List<SimpleFieldStorageInfo> getSubFields() {
         return Arrays.asList(this.keyField, this.valueField);
-    }
-
-    @Override
-    void initializeSubFields(List<SimpleFieldStorageInfo> subFieldInfos) {
-        if (subFieldInfos.size() != 2)
-            throw new IllegalArgumentException();
-        this.keyField = subFieldInfos.get(0);
-        this.valueField = subFieldInfos.get(1);
     }
 
     @Override
@@ -58,9 +52,26 @@ class MapFieldStorageInfo extends ComplexFieldStorageInfo {
         return this.valueField;
     }
 
+// Object
+
     @Override
     public String toString() {
         return "map field with key " + this.keyField + " and value " + this.valueField;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        final MapFieldStorageInfo that = (MapFieldStorageInfo)obj;
+        return this.keyField.equals(that.keyField) && this.valueField.equals(that.valueField);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() ^ this.keyField.hashCode() ^ this.valueField.hashCode();
     }
 }
 

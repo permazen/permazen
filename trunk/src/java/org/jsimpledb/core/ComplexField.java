@@ -63,22 +63,6 @@ public abstract class ComplexField<T> extends Field<T> {
     @Override
     abstract ComplexFieldStorageInfo toStorageInfo();
 
-    @Override
-    boolean isEquivalent(Field<?> field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        final ComplexField<?> that = (ComplexField<?>)field;
-        final List<? extends SimpleField<?>> thisSubFields = this.getSubFields();
-        final List<? extends SimpleField<?>> thatSubFields = that.getSubFields();
-        if (thisSubFields.size() != thatSubFields.size())
-            return false;
-        for (int i = 0; i < thisSubFields.size(); i++) {
-            if (!thisSubFields.get(i).isEquivalent(thatSubFields.get(i)))
-                return false;
-        }
-        return true;
-    }
-
     /**
      * Delete all content (but not index entries) for the given object.
      *

@@ -65,13 +65,5 @@ public class ReferenceField extends SimpleField<ObjId> {
     ReferenceFieldStorageInfo toStorageInfo() {
         return new ReferenceFieldStorageInfo(this, this.parent != null ? this.parent.storageId : 0);
     }
-
-    @Override
-    boolean isEquivalent(Field<?> field) {
-        if (!super.isEquivalent(field))
-            return false;
-        final ReferenceField that = (ReferenceField)field;
-        return this.onDelete == that.onDelete;
-    }
 }
 

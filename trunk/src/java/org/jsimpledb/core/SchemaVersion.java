@@ -7,8 +7,9 @@
 
 package org.jsimpledb.core;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -42,13 +43,29 @@ public class SchemaVersion {
         this.encodedXML = encodedXML;
         this.schemaModel = schemaModel.clone();
 
-        // Build object types and fields, and associated StorageInfo objects
-        final ArrayList<ObjType> objTypes = new ArrayList<>();
-        final TreeMap<Integer, Field<?>> fieldMap = new TreeMap<>();
+        // Build object types
         for (SchemaObject schemaObject : this.schemaModel.getSchemaObjects().values()) {
             final ObjType objType = new ObjType(schemaObject, this, fieldTypeRegistry);
-            this.addObjType(objType, fieldMap);
-            this.addStorageInfo(objType);
+            final int storageId = objType.getStorageId();
+            final ObjType otherObjType = this.objTypeMap.put(storageId, objType);
+            if (otherObjType != null) {
+                throw new IllegalArgumentException("incompatible use of storage ID " + storageId
+                  + " by both " + otherObjType + " and " + objType + " in " + this);
+            }
+        }
+
+        // Create StorageInfo objects and check for conflicts
+        final HashMap<Integer, String> descriptionMap = new HashMap<>();
+        for (ObjType objType : this.objTypeMap.values()) {
+            this.addStorageInfo(objType, descriptionMap);
+            for (Field<?> field : objType.fields.values()) {
+                this.addStorageInfo(field, descriptionMap);
+                if (field instanceof ComplexField) {
+                    final ComplexField<?> complexField = (ComplexField<?>)field;
+                    for (SimpleField<?> subField : complexField.getSubFields())
+                        this.addStorageInfo(subField, descriptionMap);
+                }
+            }
         }
     }
 
@@ -96,45 +113,15 @@ public class SchemaVersion {
         return "schema version " + this.versionNumber;
     }
 
-    private void addObjType(ObjType objType, TreeMap<Integer, Field<?>> fieldMap) {
-        final int storageId = objType.getStorageId();
-        final ObjType otherObjType = this.objTypeMap.put(storageId, objType);
-        if (otherObjType != null) {
-            throw new IllegalArgumentException("incompatible use of storage ID " + storageId
-              + " by both " + otherObjType + " and " + objType + " in " + this);
+    // Add new StorageInfo, checking for conflicts
+    private void addStorageInfo(SchemaItem schemaItem, Map<Integer, String> descriptionMap) {
+        final StorageInfo storageInfo = schemaItem.toStorageInfo();
+        final StorageInfo previous = this.storageInfoMap.put(storageInfo.storageId, storageInfo);
+        if (previous != null && !previous.equals(storageInfo)) {
+            throw new IllegalArgumentException("invalid duplicate use of storage ID " + storageInfo.storageId
+              + " for both " + descriptionMap.get(storageInfo.storageId) + " and " + schemaItem);
         }
-        for (Field<?> field : objType.getFieldsAndSubFields()) {
-            final Field<?> otherField = fieldMap.put(field.storageId, field);
-            if (otherField != null && !field.isEquivalent(otherField)) {
-                throw new IllegalArgumentException("incompatible use of storage ID " + storageId
-                  + " by both " + otherField + " and " + field + " in " + this);
-            }
-        }
-    }
-
-    private void addStorageInfo(ObjType objType) {
-        final ObjTypeStorageInfo objInfo = objType.toStorageInfo();
-        for (Field<?> field : objType.fields.values()) {
-            final FieldStorageInfo fieldInfo = field.toStorageInfo();
-            if (field instanceof ComplexField) {
-                for (SimpleFieldStorageInfo subFieldInfo : ((ComplexFieldStorageInfo)fieldInfo).getSubFields())
-                    this.addStorageInfo(subFieldInfo);
-            }
-            this.addStorageInfo(fieldInfo);
-        }
-        this.addStorageInfo(objInfo);
-    }
-
-    private void addStorageInfo(StorageInfo storageInfo) {
-        final int storageId = storageInfo.getStorageId();
-        final StorageInfo previous = this.storageInfoMap.put(storageId, storageInfo);
-        if (previous != null) {
-            try {
-                previous.verifySharedStorageId(storageInfo);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("duplicate use of storage ID " + storageId, e);     // should never happen
-            }
-        }
+        descriptionMap.put(storageInfo.storageId, "" + schemaItem);
     }
 }
 

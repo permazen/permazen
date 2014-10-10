@@ -23,44 +23,21 @@ abstract class FieldStorageInfo extends StorageInfo {
         return this.superFieldStorageId != 0;
     }
 
-    /**
-     * Compare for compatability across schema versions.
-     *
-     * <p>
-     * To be compatible, the two fields must be exactly the same in terms of binary encoding, Java representation,
-     * and default value. Compatibililty does not include name or whether indexed.
-     * </p>
-     *
-     * <p>
-     * The implementation in {@link SimpleField} checks that the two fields have the same parent (object type
-     * or super-field), and then delegates to {@link #verifySharedStorageId(FieldStorageInfo)}.
-     * </p>
-     *
-     * @param obj other item to check for compatibility
-     * @throws IllegalArgumentException if {@code obj} is not compatible with this instance
-     */
+// Object
+
     @Override
-    public void verifySharedStorageId(StorageInfo obj) {
-        super.verifySharedStorageId(obj);
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!super.equals(obj))
+            return false;
         final FieldStorageInfo that = (FieldStorageInfo)obj;
-        if (this.superFieldStorageId != that.superFieldStorageId) {
-            throw new IllegalArgumentException("fields have different superfields: storage ID "
-              + this.superFieldStorageId + " != " + that.superFieldStorageId);
-        }
-        this.verifySharedStorageId(that);
+        return this.superFieldStorageId == that.superFieldStorageId;
     }
 
-    /**
-     * Compare for compatability across schema versions.
-     *
-     * <p>
-     * To be compatible, the two fields must be exactly the same in terms of binary encoding, Java representation,
-     * and default value. Compatibililty does not include name or whether indexed.
-     * </p>
-     *
-     * @param other other field to check for compatibility
-     * @throws NullPointerException if {@code that} is null
-     */
-    protected abstract void verifySharedStorageId(FieldStorageInfo other);
+    @Override
+    public int hashCode() {
+        return super.hashCode() ^ this.superFieldStorageId;
+    }
 }
 

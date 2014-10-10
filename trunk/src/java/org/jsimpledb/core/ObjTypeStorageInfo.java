@@ -13,6 +13,8 @@ class ObjTypeStorageInfo extends StorageInfo {
         super(objType.storageId);
     }
 
+// Object
+
     @Override
     public String toString() {
         return "object type";

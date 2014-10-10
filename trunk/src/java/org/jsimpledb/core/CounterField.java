@@ -82,10 +82,5 @@ public class CounterField extends Field<Long> {
     void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx) {
         dstTx.writeCounterField(dstId, this.storageId, srcTx.readCounterField(srcId, this.storageId, false), false);
     }
-
-    @Override
-    boolean isEquivalent(Field<?> field) {
-        return field.getClass() == this.getClass();
-    }
 }
 

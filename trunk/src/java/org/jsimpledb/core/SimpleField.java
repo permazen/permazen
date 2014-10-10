@@ -121,14 +121,6 @@ public class SimpleField<T> extends Field<T> {
         dstTx.writeSimpleField(dstId, this.storageId, srcTx.readSimpleField(srcId, this.storageId, false), false);
     }
 
-    @Override
-    boolean isEquivalent(Field<?> field) {
-        if (field.getClass() != this.getClass())
-            return false;
-        final SimpleField<?> that = (SimpleField<?>)field;
-        return this.fieldType.equals(that.fieldType) && this.indexed == that.indexed;
-    }
-
     /**
      * Encode the given value.
      *

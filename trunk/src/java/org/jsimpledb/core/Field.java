@@ -86,23 +86,8 @@ public abstract class Field<T> extends SchemaItem {
 
 // Non-public methods
 
-    /**
-     * Create corresponding {@link StorageInfo} object.
-     */
+    @Override
     abstract FieldStorageInfo toStorageInfo();
-
-    /**
-     * Determine if field is compatible to the given new field across a schema change.
-     * TODO: make this always be true if the two schemas themselves are compatible
-     */
-    boolean isSchemaChangeCompatible(Field<?> that) {
-        try {
-            this.toStorageInfo().verifySharedStorageId(that.toStorageInfo());
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-        return true;
-    }
 
     /**
      * Copy field value between transactions.
@@ -129,10 +114,5 @@ public abstract class Field<T> extends SchemaItem {
         UnsignedIntEncoder.write(writer, storageId);
         return writer.getBytes();
     }
-
-    /**
-     * Determine if this field and the given field are exactly equivalent.
-     */
-    abstract boolean isEquivalent(Field<?> field);
 }
 

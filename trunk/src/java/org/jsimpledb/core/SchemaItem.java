@@ -67,6 +67,11 @@ public abstract class SchemaItem {
         return this.version;
     }
 
+    /**
+     * Create corresponding {@link StorageInfo} object.
+     */
+    abstract StorageInfo toStorageInfo();
+
     @Override
     public abstract String toString();
 

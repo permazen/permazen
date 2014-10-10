@@ -1194,13 +1194,12 @@ public class Transaction {
                   oldField.fieldType.read(new ByteReader(oldValue != null ? oldValue : oldField.fieldType.getDefaultValue())));
             }
 
-            // Preserve the value if we can, otherwise, discard the old value (if any) leaving new value as new field default
+            // Keep existing value if we can, otherwise, discard the old value (if any) leaving new value as new field default
             boolean skipIndexUpdate = false;
-            if (oldField != null && newField != null
-              && newField.isSchemaChangeCompatible(oldField))                               // value is compatible so just leave it
-                skipIndexUpdate = newField.indexed == oldField.indexed;                     // index need not change either
+            if (oldField != null && newField != null)
+                skipIndexUpdate = newField.indexed == oldField.indexed;     // leave existing value, but check if index changes
             else if (oldValue != null)
-                this.kvt.remove(key);                                                       // discard old value
+                this.kvt.remove(key);                                       // field is being removed, so discard old value
 
             // Remove old index entry
             if (oldField != null && oldField.indexed && !skipIndexUpdate)
@@ -1239,15 +1238,14 @@ public class Transaction {
             // Save old field's value
             oldFieldValues.put(storageId, oldField.getValueInternal(this, id));
 
-            // Determine if the fields are compatible and field content can be preserved
-            final boolean compatible = newField != null && newField.isSchemaChangeCompatible(oldField);
-
-            // If fields are not compatible, delete old field when done, otherwise check if index(s) should be added/removed
-            if (!compatible)
+            // If fields is being removed, delete old field when done, otherwise check if index(s) should be added/removed
+            if (newField == null)
                 cleanupList.add(oldField);
             else
                 newField.updateSubFieldIndexes(this, oldField, id);
         }
+
+    //////// Update object version and corresponding index entry
 
         // Update object version
         ObjInfo.write(this, id, newVersion, info.isDeleteNotified());

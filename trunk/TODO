@@ -15,14 +15,6 @@
         - If true then no corresponding object type is generated
         - Alows autoProperties to work for subtypes without creating supertype
 
-- Eliminate all "representative" fields
-    - Allow same field in different objects to be indexed or not
-    - Allow same field in different objects to have different DeleteActions
-    - Eliminate Field.isEquivalent(); use Field.verifySharedStorageId() instead
-    - Obviate Field.isSchemaChangeCompatible() by making it always true if the
-      containing schemas are compatible.
-    - gui.Util.getCommonJFields()
-
 - Allow @IndexQuery and JTransaction.queryIndex() to accept set element type
   that is wider than necessary (e.g., JObject instead of MyClass). This is
   needed when reading an index containing types dropped from schema. We should

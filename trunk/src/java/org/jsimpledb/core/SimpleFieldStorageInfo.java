@@ -16,20 +16,30 @@ class SimpleFieldStorageInfo extends FieldStorageInfo {
         this.fieldType = field.fieldType;
     }
 
-    @Override
-    protected final void verifySharedStorageId(FieldStorageInfo other) {
-        final SimpleFieldStorageInfo that = (SimpleFieldStorageInfo)other;
-        this.verifySharedStorageId(that);
-    }
-
-    protected void verifySharedStorageId(SimpleFieldStorageInfo that) {
-        if (!this.fieldType.equals(that.fieldType))
-            throw new IllegalArgumentException("field types differ: " + this.fieldType + " != " + that.fieldType);
-    }
+// Object
 
     @Override
     public String toString() {
-        return "simple field with type " + this.fieldType;
+        return "simple field with " + this.fieldType;
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        final SimpleFieldStorageInfo that = (SimpleFieldStorageInfo)obj;
+        return this.equalsSimple(that);
+    }
+
+    protected boolean equalsSimple(SimpleFieldStorageInfo that) {
+        return this.fieldType.equals(that.fieldType);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() ^ this.fieldType.hashCode();
     }
 }
 
