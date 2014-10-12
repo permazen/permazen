@@ -12,7 +12,7 @@ import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
 
 /**
- * Non-null type for fields that contain a reference to an object. Null values are not supported by this class.
+ * Non-null field type for encoding {@link ObjId}s. Null values are not supported by this class.
  */
 class ObjIdType extends FieldType<ObjId> {
 

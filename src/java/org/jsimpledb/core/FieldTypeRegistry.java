@@ -159,9 +159,14 @@ public class FieldTypeRegistry {
     static final PrimitiveWrapperType<Double> DOUBLE_WRAPPER = new PrimitiveWrapperType<>(FieldTypeRegistry.DOUBLE);
 
     /**
-     * Type for {@link ObjId}s.
+     * Type for {@link ObjId}s (null values are not allowed).
      */
-    static final NullSafeType<ObjId> OBJ_ID = new NullSafeType<>(new ObjIdType());
+    static final ObjIdType OBJ_ID = new ObjIdType();
+
+    /**
+     * Type for object references (null values are allowed).
+     */
+    static final ReferenceFieldType REFERENCE = new ReferenceFieldType();
 
     /**
      * Type for {@link String}s.
@@ -223,7 +228,6 @@ public class FieldTypeRegistry {
         this.add(FieldTypeRegistry.LONG_WRAPPER);
         this.add(FieldTypeRegistry.DOUBLE);
         this.add(FieldTypeRegistry.DOUBLE_WRAPPER);
-        this.add(FieldTypeRegistry.OBJ_ID);
         this.add(FieldTypeRegistry.STRING);
         this.add(FieldTypeRegistry.DATE);
         this.add(FieldTypeRegistry.UUID);

@@ -2177,8 +2177,7 @@ public class Transaction {
             // Gather all objects that refer to any object in our current "objects" set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId object : objects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(storageId,
-                  FieldTypeRegistry.OBJ_ID, FieldTypeRegistry.OBJ_ID).get(object);
+                final NavigableSet<ObjId> refs = this.queryReferences(storageId).get(object);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -2212,19 +2211,19 @@ public class Transaction {
         if (path.length == 0)
             throw new IllegalArgumentException("empty path");
 
-        // Verify all fields in the path are reference fields, and reverse their order
-        final ArrayList<ReferenceFieldStorageInfo> fieldInfos = new ArrayList<>(path.length);
-        for (int i = path.length - 1; i >= 0; i--)
-            fieldInfos.add(this.schema.verifyStorageInfo(path[i], ReferenceFieldStorageInfo.class));
+        // Verify all fields in the path are reference fields
+        for (int storageId : path)
+            this.schema.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class);
 
-        // Now invert references in reverse order
+        // Invert references in reverse order
         NavigableSet<ObjId> result = null;
-        for (ReferenceFieldStorageInfo fieldInfo : fieldInfos) {
+        for (int i = path.length - 1; i >= 0; i--) {
+            final int storageId = path[i];
 
             // Gather all objects that refer to any object in our current target objects set
             final ArrayList<NavigableSet<ObjId>> refsList = new ArrayList<>();
             for (ObjId id : targetObjects) {
-                final NavigableSet<ObjId> refs = this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID).get(id);
+                final NavigableSet<ObjId> refs = this.queryReferences(storageId).get(id);
                 if (refs != null)
                     refsList.add(refs);
             }
@@ -2269,7 +2268,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId, int... objTypeStorageIds) {
         final SimpleFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.storageId));
     }
 
@@ -2301,7 +2300,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId, int... objTypeStorageIds) {
         final SetFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo.elementField), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
 
@@ -2333,7 +2332,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId, int... objTypeStorageIds) {
         final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo.elementField), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
 
@@ -2365,7 +2364,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId, int... objTypeStorageIds) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.keyField, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo.keyField), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.keyField.storageId));
     }
 
@@ -2397,7 +2396,7 @@ public class Transaction {
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId, int... objTypeStorageIds) {
         final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.valueField, FieldTypeRegistry.OBJ_ID), objTypeStorageIds,
+        return this.filterIndex(this.queryIndex(fieldInfo.valueField), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.valueField.storageId));
     }
 
@@ -2496,15 +2495,27 @@ public class Transaction {
         return new MapValueIndexEntryType<K>(keyFieldType);
     }
 
+    // Query an index on a reference field for referring objects
+    private IndexMap<ObjId, ObjId> queryReferences(int storageId) {
+        assert this.schema.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class) != null;
+        return this.queryIndex(storageId, FieldTypeRegistry.REFERENCE, FieldTypeRegistry.OBJ_ID);
+    }
+
+    // Query an index associated with a simple field for referring objects
+    private IndexMap<?, ObjId> queryIndex(SimpleFieldStorageInfo fieldInfo) {
+        return this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID);
+    }
+
     // Query an index associated with a simple field assuming the given index entry type
     private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo fieldInfo, FieldType<E> entryType) {
         return this.queryIndex(fieldInfo.storageId, fieldInfo.fieldType, entryType);
     }
 
     // Query an index associated with a simple field assuming the given field type, index entry type
-    private synchronized <V, E> IndexMap<?, E> queryIndex(int storageId, FieldType<V> fieldType, FieldType<E> entryType) {
+    private synchronized <V, E> IndexMap<V, E> queryIndex(int storageId, FieldType<V> fieldType, FieldType<E> entryType) {
 
         // Sanity check
+        assert this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class) != null;
         if (this.stale)
             throw new StaleTransactionException(this);
 
@@ -2512,7 +2523,14 @@ public class Transaction {
         return new IndexMap<V, E>(this, storageId, fieldType, entryType);
     }
 
-    // Find all objects that refer to the given target object through the/any reference field with the specified DeleteAction
+    /**
+     * Find all objects that refer to the given target object through the/any reference field with the specified
+     * {@link DeleteAction}.
+     *
+     * @param target referred-to object
+     * @param onDelete {@link DeleteAction} to match
+     * @param fieldStorageId reference field storage ID, or -1 to match any reference field
+     */
     @SuppressWarnings("unchecked")
     private NavigableSet<ObjId> findReferrers(ObjId target, DeleteAction onDelete, int fieldStorageId) {
         final ArrayList<NavigableSet<ObjId>> refSets = new ArrayList<>();
@@ -2524,8 +2542,8 @@ public class Transaction {
                 for (ReferenceField field : Iterables.filter(objType.getFieldsAndSubFields(), ReferenceField.class)) {
                     if (field.onDelete != onDelete || (fieldStorageId != -1 && field.storageId != fieldStorageId))
                         continue;
-                    IndexMap<ObjId, ObjId>.IndexSet refs = (IndexMap<ObjId, ObjId>.IndexSet)this.queryIndex(
-                      field.storageId, FieldTypeRegistry.OBJ_ID, FieldTypeRegistry.OBJ_ID).get(target);
+                    IndexMap<ObjId, ObjId>.IndexSet refs = (IndexMap<ObjId, ObjId>.IndexSet)this.queryReferences(
+                      field.storageId).get(target);
                     if (refs == null)
                         continue;
                     refs = refs.forObjType(objType.storageId);                              // restrict to object type
@@ -2536,7 +2554,13 @@ public class Transaction {
         return !refSets.isEmpty() ? NavigableSets.union(refSets) : NavigableSets.empty(FieldTypeRegistry.OBJ_ID);
     }
 
-    // Filter an index map to only contain objects with the specified storageIds
+    /**
+     * Filter an index map to only contain objects with the specified storage IDs.
+     *
+     * @param indexMap original index
+     * @param storageIds restrict results to this set of object types
+     * @param allStorageIds further restrict to this set of valid object types; null is treated like an empty set
+     */
     <V, E> NavigableMap<V, NavigableSet<E>> filterIndex(IndexMap<V, E> indexMap, int[] storageIds, TreeSet<Integer> allStorageIds) {
 
         // Sanity check
