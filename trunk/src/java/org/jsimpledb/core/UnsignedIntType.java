@@ -18,7 +18,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 /**
  * Field type for unsigned ints. Only used internally.
  */
-class UnsignedIntType extends FieldType<Integer> {
+class UnsignedIntType extends NonNullFieldType<Integer> {
 
     UnsignedIntType() {
         super("uint", TypeToken.of(Integer.class));

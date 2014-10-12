@@ -23,7 +23,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  * encodes {@code 0} and {@code 1} as {@code 0x00} and {@code 0x01}, respectively.
  * </p>
  */
-class StringType extends FieldType<String> {
+class StringType extends NonNullFieldType<String> {
 
     private static final int END = 0x00;
     private static final int ESCAPE = 0x01;
@@ -90,11 +90,6 @@ class StringType extends FieldType<String> {
             }
             value = reader.readByte();
         }
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        return new byte[] { (byte)END };
     }
 
     @Override

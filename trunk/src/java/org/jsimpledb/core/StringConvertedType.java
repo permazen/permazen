@@ -24,7 +24,7 @@ import org.jsimpledb.util.ByteWriter;
  *
  * @param <T> The associated Java type
  */
-class StringConvertedType<T> extends FieldType<T> {
+class StringConvertedType<T> extends NonNullFieldType<T> {
 
     private final StringType stringType = new StringType();
     private final String name;
@@ -73,11 +73,6 @@ class StringConvertedType<T> extends FieldType<T> {
     @Override
     public void write(ByteWriter writer, T obj) {
         this.stringType.write(writer, this.converter.convert(obj));
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        throw new UnsupportedOperationException();
     }
 
     @Override

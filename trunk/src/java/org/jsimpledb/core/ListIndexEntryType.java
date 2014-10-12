@@ -17,7 +17,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 /**
  * {@link FieldType} of a list index entry.
  */
-class ListIndexEntryType extends FieldType<ListIndexEntry> {
+class ListIndexEntryType extends NonNullFieldType<ListIndexEntry> {
 
     ListIndexEntryType() {
         super("ListIndexEntry", TypeToken.of(ListIndexEntry.class));
@@ -36,16 +36,6 @@ class ListIndexEntryType extends FieldType<ListIndexEntry> {
             throw new IllegalArgumentException("null entry");
         FieldTypeRegistry.OBJ_ID.write(writer, entry.getObjId());
         UnsignedIntEncoder.write(writer, entry.getIndex());
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        final byte[] b1 = FieldTypeRegistry.OBJ_ID.getDefaultValue();
-        final byte[] b2 = UnsignedIntEncoder.encode(0);
-        final byte[] result = new byte[b1.length + b2.length];
-        System.arraycopy(b1, 0, result, 0, b1.length);
-        System.arraycopy(b2, 0, result, b1.length, b2.length);
-        return result;
     }
 
     @Override

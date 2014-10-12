@@ -26,7 +26,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 /**
  * This is the inner, non-null supporting {@link FieldType} for {@link EnumFieldType}.
  */
-class EnumType extends FieldType<EnumValue> {
+class EnumType extends NonNullFieldType<EnumValue> {
 
     final Class<? extends Enum<?>> enumType;
     final Map<String, EnumValue> identifierMap;
@@ -63,19 +63,6 @@ class EnumType extends FieldType<EnumValue> {
     @Override
     public void write(ByteWriter writer, EnumValue value) {
         UnsignedIntEncoder.write(writer, this.validate(value).getOrdinal());
-    }
-
-    /**
-     * Get the default value for this field type encoded as a {@code byte[]} array.
-     *
-     * <p>
-     * The implementation in {@link EnumType} always throws {@link UnsupportedOperationException}.
-     * Instances of this class are expected to be wrapped in a {@link NullSafeType} before use.
-     * </p>
-     */
-    @Override
-    public byte[] getDefaultValue() {
-        throw new UnsupportedOperationException();          // there is no default value
     }
 
     @Override

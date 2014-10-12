@@ -19,7 +19,7 @@ import org.jsimpledb.util.ByteWriter;
  * @param <E> map index entry type
  * @param <T> map sub-field value type
  */
-abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldType<E> {
+abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends NonNullFieldType<E> {
 
     private final FieldType<T> otherType;
 
@@ -42,16 +42,6 @@ abstract class MapIndexEntryType<E extends MapIndexEntry<T>, T> extends FieldTyp
             throw new IllegalArgumentException("null entry");
         FieldTypeRegistry.OBJ_ID.write(writer, entry.getObjId());
         this.otherType.write(writer, entry.other);
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        final byte[] b1 = FieldTypeRegistry.OBJ_ID.getDefaultValue();
-        final byte[] b2 = this.otherType.getDefaultValue();
-        final byte[] result = new byte[b1.length + b2.length];
-        System.arraycopy(b1, 0, result, 0, b1.length);
-        System.arraycopy(b2, 0, result, b1.length, b2.length);
-        return result;
     }
 
     @Override

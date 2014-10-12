@@ -18,9 +18,7 @@ import org.jsimpledb.util.LongEncoder;
 /**
  * Non-null {@link Date} type. Null values are not supported by this class.
  */
-class DateType extends FieldType<Date> {
-
-    private static final byte[] DEFAULT_VALUE = new byte[] { (byte)LongEncoder.ZERO_ADJUST };
+class DateType extends NonNullFieldType<Date> {
 
     DateType() {
         super(Date.class);
@@ -38,11 +36,6 @@ class DateType extends FieldType<Date> {
         if (date == null)
             throw new IllegalArgumentException("null date");
         LongEncoder.write(writer, date.getTime());
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        return DEFAULT_VALUE;
     }
 
     @Override

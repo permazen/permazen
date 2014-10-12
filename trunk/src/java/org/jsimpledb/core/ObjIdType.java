@@ -14,7 +14,7 @@ import org.jsimpledb.util.ByteWriter;
 /**
  * Non-null field type for encoding {@link ObjId}s. Null values are not supported by this class.
  */
-class ObjIdType extends FieldType<ObjId> {
+class ObjIdType extends NonNullFieldType<ObjId> {
 
     ObjIdType() {
         super(ObjId.class);
@@ -30,11 +30,6 @@ class ObjIdType extends FieldType<ObjId> {
     @Override
     public void write(ByteWriter writer, ObjId id) {
         writer.write(id.getBytes());
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
