@@ -28,7 +28,7 @@ import org.jsimpledb.parse.ParseContext;
  * @param <T> array type
  * @param <E> array element type
  */
-abstract class ArrayType<T, E> extends FieldType<T> {
+abstract class ArrayType<T, E> extends NonNullFieldType<T> {
 
     /**
      * Array type name suffix.

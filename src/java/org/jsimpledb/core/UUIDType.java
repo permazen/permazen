@@ -17,7 +17,7 @@ import org.jsimpledb.util.ByteWriter;
 /**
  * Non-null {@link UUID} type. Null values are not supported by this class.
  */
-class UUIDType extends FieldType<UUID> {
+class UUIDType extends NonNullFieldType<UUID> {
 
     private static final long MASK = 0x8000000000000000L;
     private static final String PATTERN = "\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}";
@@ -39,11 +39,6 @@ class UUIDType extends FieldType<UUID> {
             throw new IllegalArgumentException("null uuid");
         ByteUtil.writeLong(writer, uuid.getMostSignificantBits() ^ MASK);
         ByteUtil.writeLong(writer, uuid.getLeastSignificantBits() ^ MASK);
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        throw new UnsupportedOperationException();
     }
 
     @Override

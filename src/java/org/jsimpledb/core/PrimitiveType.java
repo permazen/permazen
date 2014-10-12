@@ -16,7 +16,7 @@ import org.jsimpledb.util.ByteWriter;
 /**
  * Support superclass for primitive types.
  */
-abstract class PrimitiveType<T> extends FieldType<T> {
+abstract class PrimitiveType<T> extends NonNullFieldType<T> {
 
     final Primitive<T> primitive;
 

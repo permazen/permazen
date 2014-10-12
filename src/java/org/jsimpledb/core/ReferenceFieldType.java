@@ -20,7 +20,7 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
      * Constructor.
      */
     public ReferenceFieldType() {
-        super(FieldType.REFERENCE_TYPE_NAME, new ObjIdType());
+        super(FieldType.REFERENCE_TYPE_NAME, FieldTypeRegistry.OBJ_ID);
     }
 }
 
