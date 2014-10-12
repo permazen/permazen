@@ -61,7 +61,7 @@ public class EnumSchemaField extends SimpleSchemaField {
 
     @Override
     void readSubElements(XMLStreamReader reader) throws XMLStreamException {
-        while (this.expect(reader, true, ENUM_IDENT_TAG))
+        while (this.expect(reader, true, IDENTIFIER_TAG))
             this.idents.add(reader.getElementText());
     }
 
@@ -70,7 +70,7 @@ public class EnumSchemaField extends SimpleSchemaField {
         writer.writeStartElement(ENUM_FIELD_TAG.getNamespaceURI(), ENUM_FIELD_TAG.getLocalPart());
         this.writeAttributes(writer, includeName);
         for (String ident : this.idents) {
-            writer.writeStartElement(ENUM_IDENT_TAG.getNamespaceURI(), ENUM_IDENT_TAG.getLocalPart());
+            writer.writeStartElement(IDENTIFIER_TAG.getNamespaceURI(), IDENTIFIER_TAG.getLocalPart());
             writer.writeCharacters(StringEncoder.encode(ident, false));
             writer.writeEndElement();
         }
