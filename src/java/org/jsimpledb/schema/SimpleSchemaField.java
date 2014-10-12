@@ -85,7 +85,7 @@ public class SimpleSchemaField extends SchemaField {
                 break;
             default:
                 throw new XMLStreamException("invalid boolean value `" + text2
-                  + " for \"" + INDEXED_ATTRIBUTE.getLocalPart() + "\" attribute in " + this);
+                  + " for \"" + INDEXED_ATTRIBUTE.getLocalPart() + "\" attribute in " + this, reader.getLocation());
             }
         }
     }
