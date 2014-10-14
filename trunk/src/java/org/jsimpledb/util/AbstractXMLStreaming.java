@@ -34,7 +34,6 @@ public abstract class AbstractXMLStreaming {
      * @return true if matching opening tag seen, false otherwise
      */
     protected boolean expect(XMLStreamReader reader, boolean closingOK, QName... names) throws XMLStreamException {
-        final String desc = names.length == 1 ? names[0] + " tag" : "one of " + Arrays.asList(names) + " tags";
         while (true) {
             if (!reader.hasNext())
                 throw new XMLStreamException("unexpected end of input", reader.getLocation());
@@ -43,7 +42,7 @@ public abstract class AbstractXMLStreaming {
                 break;
             if (eventType == XMLStreamConstants.END_ELEMENT) {
                 if (!closingOK) {
-                    throw new XMLStreamException("expected opening <" + desc + "> but found closing <"
+                    throw new XMLStreamException("expected " + this.description(names) + " but found closing <"
                       + reader.getName() + "> tag instead", reader.getLocation());
                 }
                 return false;
@@ -54,10 +53,29 @@ public abstract class AbstractXMLStreaming {
               + reader.getName() + "> tag instead", reader.getLocation());
         }
         if (!Arrays.asList(names).contains(reader.getName())) {
-            throw new XMLStreamException("expected opening <" + desc
-              + "> but found <" + reader.getName() + "> instead", reader.getLocation());
+            throw new XMLStreamException("expected " + this.description(names)
+              + " but found <" + reader.getName() + "> instead", reader.getLocation());
         }
         return true;
+    }
+
+    private String description(QName[] names) {
+        switch (names.length) {
+        case 0:
+            return "closing tag";
+        case 1:
+            return "opening <" + names[0] + "> tag";
+        default:
+            final StringBuilder buf = new StringBuilder();
+            for (QName name : names) {
+                if (buf.length() == 0)
+                    buf.append("one of ");
+                else
+                    buf.append(", ");
+                buf.append('<').append(name).append('>');
+            }
+            return buf.toString();
+        }
     }
 
     /**
