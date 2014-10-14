@@ -16,7 +16,7 @@ import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.NameIndex;
-import org.jsimpledb.schema.SchemaObject;
+import org.jsimpledb.schema.SchemaObjectType;
 
 /**
  * Parses an object type name.
@@ -51,7 +51,7 @@ public class ObjTypeParser implements Parser<ObjType> {
         try {
             matcher = ctx.matchPrefix("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*)(#([0-9]+))?");
         } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, "invalid object type").addCompletions(session.getNameIndex().getSchemaObjectNames());
+            throw new ParseException(ctx, "invalid object type").addCompletions(session.getNameIndex().getSchemaObjectTypeNames());
         }
         final String typeName = matcher.group(1);
         final String versionString = matcher.group(3);
@@ -73,12 +73,12 @@ public class ObjTypeParser implements Parser<ObjType> {
         }
 
         // Find type by name
-        final SchemaObject schemaObject = nameIndex.getSchemaObject(typeName);
-        if (schemaObject == null) {
+        final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(typeName);
+        if (schemaObjectType == null) {
             throw new ParseException(ctx, "unknown object type `" + typeName + "'")
-               .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectNames(), typeName));
+               .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectTypeNames(), typeName));
         }
-        return version.getObjType(schemaObject.getStorageId());
+        return version.getObjType(schemaObjectType.getStorageId());
     }
 }
 

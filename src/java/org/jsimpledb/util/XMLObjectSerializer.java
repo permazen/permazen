@@ -49,7 +49,7 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.schema.SchemaObject;
+import org.jsimpledb.schema.SchemaObjectType;
 
 /**
  * Utility methods for serializing and deserializing objects in a {@link Transaction} to/from XML.
@@ -255,15 +255,15 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     throw new XMLStreamException("unexpected element <" + name.getPrefix() + ":"
                       + name.getLocalPart() + ">; expected object type name", reader.getLocation());
                 }
-                final SchemaObject schemaObject = nameIndex.getSchemaObject(name.getLocalPart());
-                if (schemaObject == null) {
+                final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(name.getLocalPart());
+                if (schemaObjectType == null) {
                     throw new XMLStreamException("unexpected element <" + name.getLocalPart()
                       + ">; no object type named `" + name.getLocalPart() + "' found in schema version "
                       + schemaVersion.getVersionNumber(), reader.getLocation());
                 }
-                objType = schemaVersion.getObjType(schemaObject.getStorageId());
+                objType = schemaVersion.getObjType(schemaObjectType.getStorageId());
             }
-            final SchemaObject schemaObject = schemaModel.getSchemaObjects().get(objType.getStorageId());
+            final SchemaObjectType schemaObjectType = schemaModel.getSchemaObjectTypes().get(objType.getStorageId());
 
             // Reset snapshot
             snapshot.reset();
@@ -318,7 +318,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                         throw new XMLStreamException("unexpected element <" + name.getPrefix() + ":"
                           + name.getLocalPart() + ">; expected field name", reader.getLocation());
                     }
-                    final SchemaField schemaField = nameIndex.getSchemaField(schemaObject, name.getLocalPart());
+                    final SchemaField schemaField = nameIndex.getSchemaField(schemaObjectType, name.getLocalPart());
                     if (schemaField == null) {
                         throw new XMLStreamException("unexpected element <" + name.getLocalPart() + ">; unknown field `"
                           + name.getLocalPart() + "' in object type `" + objType.getName() + "' #"
@@ -439,7 +439,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         // Gather all known object storage IDs
         final TreeSet<Integer> storageIds = new TreeSet<>();
         for (SchemaVersion schemaVersion : this.tx.getSchema().getSchemaVersions().values())
-            storageIds.addAll(schemaVersion.getSchemaModel().getSchemaObjects().keySet());
+            storageIds.addAll(schemaVersion.getSchemaModel().getSchemaObjectTypes().keySet());
 
         // Get corresponding iterators
         final ArrayList<NavigableSet<ObjId>> sets = new ArrayList<>(storageIds.size());

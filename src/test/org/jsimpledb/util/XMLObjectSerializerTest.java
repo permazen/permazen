@@ -36,8 +36,8 @@ public class XMLObjectSerializerTest extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
           + "    <SimpleField name=\"z\" type=\"boolean\" storageId=\"3\"/>\n"
           + "    <SimpleField name=\"b\" type=\"byte\" storageId=\"4\"/>\n"
@@ -50,7 +50,7 @@ public class XMLObjectSerializerTest extends TestSupport {
           + "    <ReferenceField name=\"r\" storageId=\"11\"/>\n"
           + "    <SimpleField name=\"v\" type=\"java.lang.Void\" storageId=\"12\"/>\n"
           + "    <SimpleField name=\"date\" type=\"java.util.Date\" storageId=\"13\"/>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
@@ -86,8 +86,8 @@ public class XMLObjectSerializerTest extends TestSupport {
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"20\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"20\">\n"
           + "    <SetField name=\"set\" storageId=\"21\">\n"
           + "        <SimpleField type=\"int\" storageId=\"22\"/>\n"
           + "    </SetField>"
@@ -101,7 +101,7 @@ public class XMLObjectSerializerTest extends TestSupport {
           + "    <ListField name=\"list2\" storageId=\"28\">\n"
           + "        <ReferenceField storageId=\"29\"/>\n"
           + "    </ListField>"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 

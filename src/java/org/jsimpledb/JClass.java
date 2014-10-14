@@ -27,7 +27,7 @@ import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.schema.SchemaField;
-import org.jsimpledb.schema.SchemaObject;
+import org.jsimpledb.schema.SchemaObjectType;
 import org.jsimpledb.util.AnnotationScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,14 +329,14 @@ public class JClass<T> extends JSchemaObject {
     }
 
     @Override
-    SchemaObject toSchemaItem() {
-        final SchemaObject schemaObject = new SchemaObject();
-        super.initialize(schemaObject);
+    SchemaObjectType toSchemaItem() {
+        final SchemaObjectType schemaObjectType = new SchemaObjectType();
+        super.initialize(schemaObjectType);
         for (JField field : this.jfields.values()) {
             final SchemaField schemaField = field.toSchemaItem();
-            schemaObject.getSchemaFields().put(schemaField.getStorageId(), schemaField);
+            schemaObjectType.getSchemaFields().put(schemaField.getStorageId(), schemaField);
         }
-        return schemaObject;
+        return schemaObjectType;
     }
 
     // Add new JField (and sub-fields, if any), checking for name and storage ID conflicts

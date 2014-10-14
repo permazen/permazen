@@ -10,7 +10,7 @@ package org.jsimpledb.schema;
 import javax.xml.namespace.QName;
 
 /**
- * A list field in one version of a {@link SchemaObject}.
+ * A list field in one version of a {@link SchemaObjectType}.
  */
 public class ListSchemaField extends CollectionSchemaField {
 

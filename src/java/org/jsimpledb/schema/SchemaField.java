@@ -8,7 +8,7 @@
 package org.jsimpledb.schema;
 
 /**
- * A field in a {@link SchemaObject}.
+ * A field in a {@link SchemaObjectType}.
  */
 public abstract class SchemaField extends AbstractSchemaItem {
 

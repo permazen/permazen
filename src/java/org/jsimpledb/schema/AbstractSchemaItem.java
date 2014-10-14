@@ -16,7 +16,7 @@ import org.jsimpledb.core.SchemaItem;
 import org.jsimpledb.util.AbstractXMLStreaming;
 
 /**
- * Common superclass for {@link SchemaObject} and {@link SchemaField}.
+ * Common superclass for {@link SchemaObjectType} and {@link SchemaField}.
  */
 public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements XMLConstants, Cloneable {
 
@@ -79,12 +79,14 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 
     abstract boolean isCompatibleWithInternal(AbstractSchemaItem that);
 
-    void readXML(XMLStreamReader reader) throws XMLStreamException {
-        this.readAttributes(reader);
-        this.readSubElements(reader);
+// XML Reading
+
+    void readXML(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
+        this.readAttributes(reader, formatVersion);
+        this.readSubElements(reader, formatVersion);
     }
 
-    void readAttributes(XMLStreamReader reader) throws XMLStreamException {
+    void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         final String text = reader.getAttributeValue(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart());
         if (text != null) {
             try {
@@ -98,9 +100,11 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
             this.setName(newName);
     }
 
-    void readSubElements(XMLStreamReader reader) throws XMLStreamException {
+    void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.expect(reader, true);
     }
+
+// XML Writing
 
     abstract void writeXML(XMLStreamWriter writer) throws XMLStreamException;
 

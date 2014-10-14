@@ -23,22 +23,22 @@ public class DroppedTypeTest extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"val\" type=\"int\" storageId=\"3\"/>\n"
-          + "  </Object>\n"
-          + "  <Object name=\"Bar\" storageId=\"2\">\n"
+          + "  </ObjectType>\n"
+          + "  <ObjectType name=\"Bar\" storageId=\"2\">\n"
           + "    <SimpleField name=\"val\" type=\"int\" storageId=\"4\"/>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"val\" type=\"int\" storageId=\"3\"/>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 

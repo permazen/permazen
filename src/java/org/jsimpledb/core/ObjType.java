@@ -17,7 +17,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.jsimpledb.schema.SchemaField;
-import org.jsimpledb.schema.SchemaObject;
+import org.jsimpledb.schema.SchemaObjectType;
 
 /**
  * Represents a {@link Database} object type.
@@ -34,8 +34,8 @@ public class ObjType extends SchemaItem {
     /**
      * Constructor.
      */
-    ObjType(SchemaObject schemaObject, SchemaVersion version, FieldTypeRegistry fieldTypeRegistry) {
-        super(schemaObject.getName(), schemaObject.getStorageId(), version);
+    ObjType(SchemaObjectType schemaObjectType, SchemaVersion version, FieldTypeRegistry fieldTypeRegistry) {
+        super(schemaObjectType.getName(), schemaObjectType.getStorageId(), version);
 
         // Sanity check
         if (fieldTypeRegistry == null)
@@ -44,7 +44,7 @@ public class ObjType extends SchemaItem {
 
         // Build fields
         final FieldBuilder fieldBuilder = new FieldBuilder(this.version, this.fieldTypeRegistry);
-        for (SchemaField schemaField : schemaObject.getSchemaFields().values())
+        for (SchemaField schemaField : schemaObjectType.getSchemaFields().values())
             this.addField(schemaField.visit(fieldBuilder));
 
         // Build mappings for simple, complex, and counter fields

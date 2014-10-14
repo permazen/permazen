@@ -10,7 +10,7 @@ package org.jsimpledb.schema;
 import javax.xml.namespace.QName;
 
 /**
- * A set field in one version of a {@link SchemaObject}.
+ * A set field in one version of a {@link SchemaObjectType}.
  */
 public class SetSchemaField extends CollectionSchemaField {
 

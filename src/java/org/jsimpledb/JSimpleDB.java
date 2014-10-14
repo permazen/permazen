@@ -28,7 +28,7 @@ import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.schema.SchemaObject;
+import org.jsimpledb.schema.SchemaObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -328,8 +328,8 @@ public class JSimpleDB {
         if (this.schemaModel == null) {
             final SchemaModel model = new SchemaModel();
             for (JClass<?> jclass : this.jclasses.values()) {
-                final SchemaObject schemaObject = jclass.toSchemaItem();
-                model.getSchemaObjects().put(schemaObject.getStorageId(), schemaObject);
+                final SchemaObjectType schemaObjectType = jclass.toSchemaItem();
+                model.getSchemaObjectTypes().put(schemaObjectType.getStorageId(), schemaObjectType);
             }
             this.schemaModel = model;
             this.log.debug("JSimpleDB schema generated from annotated classes:\n{}", this.schemaModel);

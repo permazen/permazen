@@ -16,7 +16,7 @@ import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.InvalidSchemaException;
 
 /**
- * A reference field in a {@link SchemaObject}.
+ * A reference field in a {@link SchemaObjectType}.
  */
 public class ReferenceSchemaField extends SimpleSchemaField {
 
@@ -66,8 +66,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
 
     @Override
-    void readAttributes(XMLStreamReader reader) throws XMLStreamException {
-        super.readAttributes(reader);
+    void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
+        super.readAttributes(reader, formatVersion);
         final String text = reader.getAttributeValue(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart());
         DeleteAction action = DeleteAction.EXCEPTION;
         if (text != null) {
