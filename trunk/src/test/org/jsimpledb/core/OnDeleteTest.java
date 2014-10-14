@@ -26,8 +26,8 @@ public class OnDeleteTest extends TestSupport {
 
     private static final String XML_TEMPLATE =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      + "<Schema>\n"
-      + "  <Object name=\"Foo\" storageId=\"1\">\n"
+      + "<Schema formatVersion=\"1\">\n"
+      + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
       + "    <ReferenceField name=\"ref\" storageId=\"2\" onDelete=\"@ONDELETE@\"/>\n"
       + "    <SimpleField name=\"name\" storageId=\"3\" type=\"java.lang.String\"/>\n"
       + "    <SetField name=\"set\" storageId=\"10\">\n"
@@ -44,7 +44,7 @@ public class OnDeleteTest extends TestSupport {
       + "        <SimpleField type=\"int\" storageId=\"24\"/>\n"
       + "        <ReferenceField storageId=\"25\" onDelete=\"@ONDELETE@\"/>\n"
       + "    </MapField>"
-      + "  </Object>\n"
+      + "  </ObjectType>\n"
       + "</Schema>\n";
 
     @Test

@@ -17,7 +17,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.jsimpledb.core.MapField;
 
 /**
- * A map field in one version of a {@link SchemaObject}.
+ * A map field in one version of a {@link SchemaObjectType}.
  */
 public class MapSchemaField extends ComplexSchemaField {
 
@@ -47,9 +47,9 @@ public class MapSchemaField extends ComplexSchemaField {
     }
 
     @Override
-    void readSubElements(XMLStreamReader reader) throws XMLStreamException {
-        this.keyField = this.readSubField(reader, MapField.KEY_FIELD_NAME);
-        this.valueField = this.readSubField(reader, MapField.VALUE_FIELD_NAME);
+    void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
+        this.keyField = this.readSubField(reader, formatVersion, MapField.KEY_FIELD_NAME);
+        this.valueField = this.readSubField(reader, formatVersion, MapField.VALUE_FIELD_NAME);
         this.expect(reader, true);
     }
 

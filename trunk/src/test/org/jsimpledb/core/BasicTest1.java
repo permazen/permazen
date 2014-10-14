@@ -39,11 +39,11 @@ public class BasicTest1 extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
-          + "  </Object>\n"
-          + "  <Object name=\"Bar\" storageId=\"20\"/>\n"
+          + "  </ObjectType>\n"
+          + "  <ObjectType name=\"Bar\" storageId=\"20\"/>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
@@ -97,11 +97,11 @@ public class BasicTest1 extends TestSupport {
 
         final SchemaModel schema1a = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"AAAA\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"AAAA\" storageId=\"1\">\n"
           + "    <SimpleField name=\"BBB\" type=\"int\" storageId=\"2\"/>\n"
-          + "  </Object>\n"
-          + "  <Object name=\"CCC\" storageId=\"20\"/>\n"
+          + "  </ObjectType>\n"
+          + "  <ObjectType name=\"CCC\" storageId=\"20\"/>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
         tx = db.createTransaction(schema1a, 1, false);
@@ -111,8 +111,8 @@ public class BasicTest1 extends TestSupport {
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"i\" type=\"int\" storageId=\"2\"/>\n"
           + "    <SimpleField name=\"z\" type=\"boolean\" storageId=\"3\"/>\n"
           + "    <SimpleField name=\"b\" type=\"byte\" storageId=\"4\"/>\n"
@@ -125,7 +125,7 @@ public class BasicTest1 extends TestSupport {
           + "    <ReferenceField name=\"r\" storageId=\"11\"/>\n"
           + "    <SimpleField name=\"v\" type=\"java.lang.Void\" storageId=\"12\"/>\n"
           + "    <SimpleField name=\"date\" type=\"java.util.Date\" storageId=\"13\"/>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
@@ -185,8 +185,8 @@ public class BasicTest1 extends TestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField type=\"int\" storageId=\"20\"/>\n"
           + "    </SetField>"
@@ -197,7 +197,7 @@ public class BasicTest1 extends TestSupport {
           + "        <SimpleField type=\"int\" storageId=\"22\"/>\n"
           + "        <SimpleField type=\"java.lang.String\" storageId=\"23\" indexed=\"true\"/>\n"
           + "    </MapField>"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
@@ -294,8 +294,8 @@ public class BasicTest1 extends TestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField type=\"int\" storageId=\"20\"/>\n"
           + "    </SetField>"
@@ -306,7 +306,7 @@ public class BasicTest1 extends TestSupport {
           + "        <SimpleField type=\"int\" storageId=\"22\"/>\n"
           + "        <SimpleField type=\"java.lang.String\" storageId=\"23\" indexed=\"true\"/>\n"
           + "    </MapField>"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
         Transaction tx = db.createTransaction(schema, 1, true);
@@ -656,8 +656,8 @@ public class BasicTest1 extends TestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField type=\"int\" storageId=\"20\"/>\n"
           + "    </SetField>"
@@ -668,7 +668,7 @@ public class BasicTest1 extends TestSupport {
           + "        <SimpleField type=\"int\" storageId=\"22\"/>\n"
           + "        <SimpleField type=\"java.lang.String\" storageId=\"23\" indexed=\"true\"/>\n"
           + "    </MapField>"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
         Transaction tx = db.createTransaction(schema, 1, true);
@@ -810,8 +810,8 @@ public class BasicTest1 extends TestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField type=\"int\" storageId=\"20\"/>\n"
           + "    </SetField>"
@@ -822,7 +822,7 @@ public class BasicTest1 extends TestSupport {
           + "        <SimpleField type=\"int\" storageId=\"22\"/>\n"
           + "        <SimpleField type=\"java.lang.String\" storageId=\"23\" indexed=\"true\"/>\n"
           + "    </MapField>"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
         Transaction tx = db.createTransaction(schema, 1, true);

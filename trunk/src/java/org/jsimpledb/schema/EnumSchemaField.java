@@ -19,7 +19,7 @@ import org.jsimpledb.core.EnumFieldType;
 import org.jsimpledb.core.InvalidSchemaException;
 
 /**
- * An enum field in a {@link SchemaObject}.
+ * An enum field in a {@link SchemaObjectType}.
  */
 public class EnumSchemaField extends SimpleSchemaField {
 
@@ -60,7 +60,7 @@ public class EnumSchemaField extends SimpleSchemaField {
     }
 
     @Override
-    void readSubElements(XMLStreamReader reader) throws XMLStreamException {
+    void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         while (this.expect(reader, true, IDENTIFIER_TAG))
             this.idents.add(reader.getElementText());
     }

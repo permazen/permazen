@@ -78,7 +78,7 @@ public class InvertFunction extends AbstractFunction {
         // Find start type
         final JClass<?> jclass;
         try {
-            jclass = session.getJSimpleDB().getJClass(session.getNameIndex().getSchemaObject(typeName).getStorageId());
+            jclass = session.getJSimpleDB().getJClass(session.getNameIndex().getSchemaObjectType(typeName).getStorageId());
         } catch (UnknownTypeException e) {
             ctx.setIndex(mark);
             throw new ParseException(ctx, "invalid type `" + typeName + "': " + e.getMessage(), e);

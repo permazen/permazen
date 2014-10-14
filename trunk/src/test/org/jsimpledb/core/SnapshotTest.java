@@ -38,8 +38,8 @@ public class SnapshotTest extends TestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"float\" type=\"float\" storageId=\"2\"/>\n"
           + "    <ReferenceField name=\"rref\" storageId=\"3\"/>\n"
           + "    <SetField name=\"set\" storageId=\"4\">\n"
@@ -52,7 +52,7 @@ public class SnapshotTest extends TestSupport {
           + "        <SimpleField type=\"int\" storageId=\"9\"/>\n"
           + "        <SimpleField type=\"java.lang.String\" storageId=\"10\" indexed=\"true\"/>\n"
           + "    </MapField>"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
@@ -158,19 +158,19 @@ public class SnapshotTest extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"bar\" type=\"int\" storageId=\"7\" indexed=\"true\"/>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"bar\" type=\"int\" storageId=\"7\" indexed=\"false\"/>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
@@ -204,11 +204,11 @@ public class SnapshotTest extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"bar\" type=\"int\" storageId=\"7\" indexed=\"true\"/>\n"
           + "    <ReferenceField name=\"ref\" storageId=\"8\"/>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 

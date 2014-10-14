@@ -17,7 +17,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.jsimpledb.core.InvalidSchemaException;
 
 /**
- * A complex field in one version of a {@link SchemaObject}.
+ * A complex field in one version of a {@link SchemaObjectType}.
  */
 public abstract class ComplexSchemaField extends SchemaField {
 
@@ -53,7 +53,7 @@ public abstract class ComplexSchemaField extends SchemaField {
         return true;
     }
 
-    SimpleSchemaField readSubField(XMLStreamReader reader, String name) throws XMLStreamException {
+    SimpleSchemaField readSubField(XMLStreamReader reader, int formatVersion, String name) throws XMLStreamException {
         this.expect(reader, false, REFERENCE_FIELD_TAG, SIMPLE_FIELD_TAG);
         final SimpleSchemaField field;
         if (reader.getName().equals(REFERENCE_FIELD_TAG))
@@ -62,7 +62,7 @@ public abstract class ComplexSchemaField extends SchemaField {
             field = new SimpleSchemaField();
         else
             throw new RuntimeException("internal error");
-        field.readXML(reader);
+        field.readXML(reader, formatVersion);
         if (field.getName() == null)
             field.setName(name);
         return field;

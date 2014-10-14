@@ -33,8 +33,8 @@ public class IndexTest1 extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"z\" type=\"boolean\" storageId=\"10\" indexed=\"true\"/>\n"
           + "    <SimpleField name=\"b\" type=\"byte\" storageId=\"11\" indexed=\"true\"/>\n"
           + "    <SimpleField name=\"c\" type=\"char\" storageId=\"12\" indexed=\"true\"/>\n"
@@ -45,7 +45,7 @@ public class IndexTest1 extends TestSupport {
           + "    <SimpleField name=\"d\" type=\"double\" storageId=\"17\" indexed=\"true\"/>\n"
           + "    <SimpleField name=\"str\" type=\"java.lang.String\" storageId=\"18\" indexed=\"true\"/>\n"
           + "    <ReferenceField name=\"r\" storageId=\"19\"/>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
@@ -167,8 +167,8 @@ public class IndexTest1 extends TestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "        <SimpleField type=\"int\" storageId=\"20\" indexed=\"true\"/>\n"
           + "    </SetField>"
@@ -179,7 +179,7 @@ public class IndexTest1 extends TestSupport {
           + "        <SimpleField type=\"int\" storageId=\"22\" indexed=\"true\"/>\n"
           + "        <SimpleField type=\"java.lang.String\" storageId=\"23\" indexed=\"true\"/>\n"
           + "    </MapField>"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
         Transaction tx = db.createTransaction(schema, 1, true);

@@ -17,7 +17,7 @@ import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.InvalidSchemaException;
 
 /**
- * A simple field in a {@link SchemaObject}.
+ * A simple field in a {@link SchemaObjectType}.
  */
 public class SimpleSchemaField extends SchemaField {
 
@@ -71,8 +71,8 @@ public class SimpleSchemaField extends SchemaField {
     }
 
     @Override
-    void readAttributes(XMLStreamReader reader) throws XMLStreamException {
-        super.readAttributes(reader);
+    void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
+        super.readAttributes(reader, formatVersion);
         final String text1 = reader.getAttributeValue(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart());
         if (text1 != null)
             this.setType(text1);

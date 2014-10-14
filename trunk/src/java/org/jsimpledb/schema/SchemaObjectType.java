@@ -19,7 +19,7 @@ import org.jsimpledb.core.InvalidSchemaException;
 /**
  * One object type in a {@link SchemaModel}.
  */
-public class SchemaObject extends AbstractSchemaItem {
+public class SchemaObjectType extends AbstractSchemaItem {
 
     private SortedMap<Integer, SchemaField> schemaFields = new TreeMap<>();
 
@@ -44,7 +44,7 @@ public class SchemaObject extends AbstractSchemaItem {
     }
 
     @Override
-    void readSubElements(XMLStreamReader reader) throws XMLStreamException {
+    void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         while (this.expect(reader, true, COUNTER_FIELD_TAG, ENUM_FIELD_TAG, LIST_FIELD_TAG, MAP_FIELD_TAG,
           REFERENCE_FIELD_TAG, SET_FIELD_TAG, SIMPLE_FIELD_TAG)) {
             SchemaField field;
@@ -64,7 +64,7 @@ public class SchemaObject extends AbstractSchemaItem {
                 field = new SimpleSchemaField();
             else
                 throw new RuntimeException("internal error");
-            field.readXML(reader);
+            field.readXML(reader, formatVersion);
             final int storageId = field.getStorageId();
             final SchemaField previous = this.schemaFields.put(storageId, field);
             if (previous != null) {
@@ -77,9 +77,9 @@ public class SchemaObject extends AbstractSchemaItem {
     @Override
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
         if (this.schemaFields.isEmpty())
-            writer.writeEmptyElement(OBJECT_TAG.getNamespaceURI(), OBJECT_TAG.getLocalPart());
+            writer.writeEmptyElement(OBJECT_TYPE_TAG.getNamespaceURI(), OBJECT_TYPE_TAG.getLocalPart());
         else
-            writer.writeStartElement(OBJECT_TAG.getNamespaceURI(), OBJECT_TAG.getLocalPart());
+            writer.writeStartElement(OBJECT_TYPE_TAG.getNamespaceURI(), OBJECT_TYPE_TAG.getLocalPart());
         this.writeAttributes(writer);
         for (SchemaField schemaField : this.schemaFields.values())
             schemaField.writeXML(writer);
@@ -89,7 +89,7 @@ public class SchemaObject extends AbstractSchemaItem {
 
     @Override
     boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
-        final SchemaObject that = (SchemaObject)that0;
+        final SchemaObjectType that = (SchemaObjectType)that0;
         if (!this.schemaFields.keySet().equals(that.schemaFields.keySet()))
             return false;
         for (int storageId : this.schemaFields.keySet()) {
@@ -114,7 +114,7 @@ public class SchemaObject extends AbstractSchemaItem {
             return true;
         if (!super.equals(obj))
             return false;
-        final SchemaObject that = (SchemaObject)obj;
+        final SchemaObjectType that = (SchemaObjectType)obj;
         return this.schemaFields.equals(that.schemaFields);
     }
 
@@ -126,8 +126,8 @@ public class SchemaObject extends AbstractSchemaItem {
 // Cloneable
 
     @Override
-    public SchemaObject clone() {
-        final SchemaObject clone = (SchemaObject)super.clone();
+    public SchemaObjectType clone() {
+        final SchemaObjectType clone = (SchemaObjectType)super.clone();
         clone.schemaFields = new TreeMap<>();
         for (SchemaField schemaField : this.schemaFields.values())
             clone.getSchemaFields().put(schemaField.getStorageId(), schemaField.clone());

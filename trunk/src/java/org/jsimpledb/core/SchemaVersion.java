@@ -14,7 +14,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.schema.SchemaObject;
+import org.jsimpledb.schema.SchemaObjectType;
 
 /**
  * Contains information describing one {@link Schema} version.
@@ -44,8 +44,8 @@ public class SchemaVersion {
         this.schemaModel = schemaModel.clone();
 
         // Build object types
-        for (SchemaObject schemaObject : this.schemaModel.getSchemaObjects().values()) {
-            final ObjType objType = new ObjType(schemaObject, this, fieldTypeRegistry);
+        for (SchemaObjectType schemaObjectType : this.schemaModel.getSchemaObjectTypes().values()) {
+            final ObjType objType = new ObjType(schemaObjectType, this, fieldTypeRegistry);
             final int storageId = objType.getStorageId();
             final ObjType otherObjType = this.objTypeMap.put(storageId, objType);
             if (otherObjType != null) {

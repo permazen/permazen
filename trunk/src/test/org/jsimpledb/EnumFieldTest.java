@@ -35,8 +35,8 @@ public class EnumFieldTest extends TestSupport {
 
         final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <EnumField name=\"enumField\" type=\"" + MyEnum.class.getName() + "\" storageId=\"2\">\n"
           + "       <Identifier>FOO</Identifier>\n"
           + "       <Identifier>BAR</Identifier>\n"
@@ -47,7 +47,7 @@ public class EnumFieldTest extends TestSupport {
           + "       <Identifier>BAR</Identifier>\n"
           + "       <Identifier>JAN</Identifier>\n"
           + "    </EnumField>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 

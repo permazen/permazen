@@ -26,13 +26,13 @@ public class CopyToWrongTypeTest extends TestSupport {
 
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"1\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
           + "    <SimpleField name=\"long\" type=\"long\" storageId=\"2\"/>\n"
-          + "  </Object>\n"
-          + "  <Object name=\"Bar\" storageId=\"3\">\n"
+          + "  </ObjectType>\n"
+          + "  <ObjectType name=\"Bar\" storageId=\"3\">\n"
           + "    <SimpleField name=\"uuid\" type=\"java.util.UUID\" storageId=\"4\"/>\n"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 

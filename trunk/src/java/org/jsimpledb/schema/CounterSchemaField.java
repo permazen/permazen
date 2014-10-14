@@ -11,7 +11,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * A counter field in a {@link SchemaObject}.
+ * A counter field in a {@link SchemaObjectType}.
  */
 public class CounterSchemaField extends SchemaField {
 

@@ -16,7 +16,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.jsimpledb.core.CollectionField;
 
 /**
- * A collection field in one version of a {@link SchemaObject}.
+ * A collection field in one version of a {@link SchemaObjectType}.
  */
 public abstract class CollectionSchemaField extends ComplexSchemaField {
 
@@ -35,8 +35,8 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
     }
 
     @Override
-    void readSubElements(XMLStreamReader reader) throws XMLStreamException {
-        this.elementField = this.readSubField(reader, CollectionField.ELEMENT_FIELD_NAME);
+    void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
+        this.elementField = this.readSubField(reader, formatVersion, CollectionField.ELEMENT_FIELD_NAME);
         this.expect(reader, true);
     }
 

@@ -15,6 +15,7 @@ import java.nio.charset.Charset;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -30,13 +31,15 @@ import org.jsimpledb.util.AbstractXMLStreaming;
  */
 public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, Cloneable {
 
-    private SortedMap<Integer, SchemaObject> schemaObjects = new TreeMap<>();
+    private static final int CURRENT_FORMAT_VERSION = 1;
 
-    public SortedMap<Integer, SchemaObject> getSchemaObjects() {
-        return this.schemaObjects;
+    private SortedMap<Integer, SchemaObjectType> schemaObjectTypes = new TreeMap<>();
+
+    public SortedMap<Integer, SchemaObjectType> getSchemaObjectTypes() {
+        return this.schemaObjectTypes;
     }
-    public void setSchemaObjects(SortedMap<Integer, SchemaObject> schemaObjects) {
-        this.schemaObjects = schemaObjects;
+    public void setSchemaObjectTypes(SortedMap<Integer, SchemaObjectType> schemaObjectTypes) {
+        this.schemaObjectTypes = schemaObjectTypes;
     }
 
     /**
@@ -88,13 +91,13 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * @throws InvalidSchemaException if this instance is invalid
      */
     public void validate() {
-        final TreeMap<String, SchemaObject> schemaObjectsByName = new TreeMap<>();
-        for (SchemaObject schemaObject : this.schemaObjects.values()) {
-            schemaObject.validate();
-            final String schemaObjectName = schemaObject.getName();
-            final SchemaObject otherSchemaObject = schemaObjectsByName.put(schemaObjectName, schemaObject);
-            if (otherSchemaObject != null)
-                throw new InvalidSchemaException("duplicate object name `" + schemaObjectName + "'");
+        final TreeMap<String, SchemaObjectType> schemaObjectTypesByName = new TreeMap<>();
+        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values()) {
+            schemaObjectType.validate();
+            final String schemaObjectTypeName = schemaObjectType.getName();
+            final SchemaObjectType otherSchemaObjectType = schemaObjectTypesByName.put(schemaObjectTypeName, schemaObjectType);
+            if (otherSchemaObjectType != null)
+                throw new InvalidSchemaException("duplicate object name `" + schemaObjectTypeName + "'");
         }
     }
 
@@ -110,27 +113,54 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
     public boolean isCompatibleWith(SchemaModel that) {
         if (that == null)
             throw new IllegalArgumentException("null that");
-        if (!this.schemaObjects.keySet().equals(that.schemaObjects.keySet()))
+        if (!this.schemaObjectTypes.keySet().equals(that.schemaObjectTypes.keySet()))
             return false;
-        for (int storageId : this.schemaObjects.keySet()) {
-            final SchemaObject thisSchemaObject = this.schemaObjects.get(storageId);
-            final SchemaObject thatSchemaObject = that.schemaObjects.get(storageId);
-            if (!thisSchemaObject.isCompatibleWith(thatSchemaObject))
+        for (int storageId : this.schemaObjectTypes.keySet()) {
+            final SchemaObjectType thisSchemaObjectType = this.schemaObjectTypes.get(storageId);
+            final SchemaObjectType thatSchemaObjectType = that.schemaObjectTypes.get(storageId);
+            if (!thisSchemaObjectType.isCompatibleWith(thatSchemaObjectType))
                 return false;
         }
         return true;
     }
 
     void readXML(XMLStreamReader reader) throws XMLStreamException {
+
+        // Read opening tag
         this.expect(reader, false, SCHEMA_MODEL_TAG);
-        while (this.expect(reader, true, OBJECT_TAG)) {
-            final SchemaObject schemaObject = new SchemaObject();
-            schemaObject.readXML(reader);
-            final int storageId = schemaObject.getStorageId();
-            final SchemaObject previous = this.schemaObjects.put(storageId, schemaObject);
+
+        // Get format version
+        final String text = reader.getAttributeValue(FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
+          FORMAT_VERSION_ATTRIBUTE.getLocalPart());
+        int formatVersion = 0;
+        if (text != null) {
+            try {
+                formatVersion = Integer.valueOf(text);
+            } catch (NumberFormatException e) {
+                throw new XMLStreamException("invalid format version `" + text + "'", reader.getLocation());
+            }
+        }
+        final QName objectTypeTag;
+        switch (formatVersion) {
+        case 0:
+            objectTypeTag = new QName("Object");
+            break;
+        case CURRENT_FORMAT_VERSION:
+            objectTypeTag = OBJECT_TYPE_TAG;
+            break;
+        default:
+            throw new XMLStreamException("unrecognized format version `" + text + "'", reader.getLocation());
+        }
+
+        // Read object type tags
+        while (this.expect(reader, true, objectTypeTag)) {
+            final SchemaObjectType schemaObjectType = new SchemaObjectType();
+            schemaObjectType.readXML(reader, formatVersion);
+            final int storageId = schemaObjectType.getStorageId();
+            final SchemaObjectType previous = this.schemaObjectTypes.put(storageId, schemaObjectType);
             if (previous != null) {
                 throw new InvalidSchemaException("duplicate use of storage ID " + storageId
-                  + " for both " + previous + " and " + schemaObject);
+                  + " for both " + previous + " and " + schemaObjectType);
             }
         }
     }
@@ -138,8 +168,10 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
         writer.setDefaultNamespace(SCHEMA_MODEL_TAG.getNamespaceURI());
         writer.writeStartElement(SCHEMA_MODEL_TAG.getNamespaceURI(), SCHEMA_MODEL_TAG.getLocalPart());
-        for (SchemaObject schemaObject : this.schemaObjects.values())
-            schemaObject.writeXML(writer);
+        writer.writeAttribute(FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
+          FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + CURRENT_FORMAT_VERSION);
+        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
+            schemaObjectType.writeXML(writer);
         writer.writeEndElement();
     }
 
@@ -164,12 +196,12 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final SchemaModel that = (SchemaModel)obj;
-        return this.schemaObjects.equals(that.schemaObjects);
+        return this.schemaObjectTypes.equals(that.schemaObjectTypes);
     }
 
     @Override
     public int hashCode() {
-        return this.schemaObjects.hashCode();
+        return this.schemaObjectTypes.hashCode();
     }
 
 // Cloneable
@@ -185,9 +217,9 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        clone.schemaObjects = new TreeMap<>();
-        for (SchemaObject schemaObject : this.schemaObjects.values())
-            clone.schemaObjects.put(schemaObject.getStorageId(), schemaObject.clone());
+        clone.schemaObjectTypes = new TreeMap<>();
+        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
+            clone.schemaObjectTypes.put(schemaObjectType.getStorageId(), schemaObjectType.clone());
         return clone;
     }
 }

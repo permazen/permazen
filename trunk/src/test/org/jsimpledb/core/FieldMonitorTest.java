@@ -32,8 +32,8 @@ public class FieldMonitorTest extends TestSupport {
 
         final String schemaXML =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-          + "<Schema>\n"
-          + "  <Object name=\"Foo\" storageId=\"100\">\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"100\">\n"
           + "    <SimpleField name=\"z\" type=\"boolean\" storageId=\"101\"/>\n"
           + "    <SimpleField name=\"b\" type=\"byte\" storageId=\"102\"/>\n"
           + "    <SimpleField name=\"c\" type=\"char\" storageId=\"103\"/>\n"
@@ -54,7 +54,7 @@ public class FieldMonitorTest extends TestSupport {
           + "        <ReferenceField storageId=\"141\"/>\n"
           + "        <ReferenceField storageId=\"142\"/>\n"
           + "    </MapField>"
-          + "  </Object>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n";
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes("UTF-8")));
 

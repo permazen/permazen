@@ -21,7 +21,7 @@ import java.util.TreeMap;
 public class NameIndex {
 
     private final SchemaModel schemaModel;
-    private final TreeMap<String, SchemaObject> typeMap = new TreeMap<>();
+    private final TreeMap<String, SchemaObjectType> typeMap = new TreeMap<>();
     private final TreeMap<Integer, TreeMap<String, SchemaField>> typeFieldMap = new TreeMap<>();
 
     /**
@@ -37,7 +37,7 @@ public class NameIndex {
         this.schemaModel = schemaModel;
 
         // Index type names
-        for (SchemaObject type : schemaModel.getSchemaObjects().values()) {
+        for (SchemaObjectType type : schemaModel.getSchemaObjectTypes().values()) {
 
             // Index type name
             if (this.typeMap.put(type.getName(), type) != null)
@@ -61,29 +61,29 @@ public class NameIndex {
     }
 
     /**
-     * Get the {@link SchemaObject} with the given name.
+     * Get the {@link SchemaObjectType} with the given name.
      *
      * @param name type name
      * @throws IllegalArgumentException if {@code name} is null
-     * @return the unique {@link SchemaObject} with name {@code name}, or null if not found
+     * @return the unique {@link SchemaObjectType} with name {@code name}, or null if not found
      */
-    public SchemaObject getSchemaObject(String name) {
+    public SchemaObjectType getSchemaObjectType(String name) {
         if (name == null)
             throw new IllegalArgumentException("null name");
         return this.typeMap.get(name);
     }
 
     /**
-     * Get the names of all {@link SchemaObject}s.
+     * Get the names of all {@link SchemaObjectType}s.
      *
-     * @return unmodifiable set of {@link SchemaObject} names
+     * @return unmodifiable set of {@link SchemaObjectType} names
      */
-    public SortedSet<String> getSchemaObjectNames() {
+    public SortedSet<String> getSchemaObjectTypeNames() {
         return Collections.unmodifiableSortedSet(this.typeMap.navigableKeySet());
     }
 
     /**
-     * Get the {@link SchemaField} with the given name in the given {@link SchemaObject}.
+     * Get the {@link SchemaField} with the given name in the given {@link SchemaObjectType}.
      *
      * @param type object type
      * @param name field name
@@ -91,7 +91,7 @@ public class NameIndex {
      * @return the unique {@link SchemaField} with name {@code name} in {@code type}, or null if not found
      * @throws IllegalArgumentException if {@code type} is not indexed by this instance
      */
-    public SchemaField getSchemaField(SchemaObject type, String name) {
+    public SchemaField getSchemaField(SchemaObjectType type, String name) {
         if (type == null)
             throw new IllegalArgumentException("null type");
         if (name == null)
@@ -103,13 +103,13 @@ public class NameIndex {
     }
 
     /**
-     * Get all of the names of {@link SchemaField}s in the given {@link SchemaObject}.
+     * Get all of the names of {@link SchemaField}s in the given {@link SchemaObjectType}.
      *
      * @param type schema object
      * @return unmodifiable set of {@link SchemaField} names in {@code type}
      * @throws IllegalArgumentException if {@code type} is not indexed by this instance
      */
-    public SortedSet<String> getSchemaFieldNames(SchemaObject type) {
+    public SortedSet<String> getSchemaFieldNames(SchemaObjectType type) {
         if (type == null)
             throw new IllegalArgumentException("null type");
         final TreeMap<String, SchemaField> fieldMap = this.typeFieldMap.get(type.getStorageId());
