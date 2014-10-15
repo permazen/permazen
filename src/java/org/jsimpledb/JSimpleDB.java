@@ -513,13 +513,15 @@ public class JSimpleDB {
         if (type == null)
             throw new IllegalArgumentException("null type");
         final JFieldInfo jfieldInfo = this.jfieldInfos.get(storageId);
-        if (jfieldInfo == null)
-            throw new UnknownFieldException(storageId, "no JSimpleDB field exists with storage ID " + storageId);
+        if (jfieldInfo == null) {
+            throw new UnknownFieldException(storageId, "no JSimpleDB field exists with storage ID "
+              + storageId + " in schema version " + this.actualVersion);
+        }
         try {
             return type.cast(jfieldInfo);
         } catch (ClassCastException e) {
-            throw new UnknownFieldException(storageId, "no JSimpleDB fields exist with storage ID " + storageId
-              + " (found field " + jfieldInfo + " instead)");
+            throw new UnknownFieldException(storageId, "no JSimpleDB fields exist with storage ID "
+              + storageId + " in schema version " + this.actualVersion + " (found field " + jfieldInfo + " instead)");
         }
     }
 
