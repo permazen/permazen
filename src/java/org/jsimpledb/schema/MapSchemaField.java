@@ -50,7 +50,7 @@ public class MapSchemaField extends ComplexSchemaField {
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.keyField = this.readSubField(reader, formatVersion, MapField.KEY_FIELD_NAME);
         this.valueField = this.readSubField(reader, formatVersion, MapField.VALUE_FIELD_NAME);
-        this.expect(reader, true);
+        this.expectClose(reader);
     }
 
     @Override

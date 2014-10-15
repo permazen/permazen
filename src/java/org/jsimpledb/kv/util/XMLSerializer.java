@@ -117,7 +117,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
                 throw new XMLStreamException("invalid hexadecimal value", reader.getLocation(), e);
             }
             this.kv.put(key, value);
-            this.expect(reader, true);              // read closing </entry> tag
+            this.expectClose(reader);               // read closing </entry> tag
         }
     }
 

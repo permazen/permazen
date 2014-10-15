@@ -32,6 +32,7 @@ public abstract class AbstractXMLStreaming {
      * @param closingOK true if a closing tag is OK, otherwise false
      * @param names expected opening tag, or null if we expected a closing tag
      * @return true if matching opening tag seen, false otherwise
+     * @throws XMLStreamException if something unexpected is encountered
      */
     protected boolean expect(XMLStreamReader reader, boolean closingOK, QName... names) throws XMLStreamException {
         while (true) {
@@ -57,6 +58,16 @@ public abstract class AbstractXMLStreaming {
               + " but found <" + reader.getName() + "> instead", reader.getLocation());
         }
         return true;
+    }
+
+    /**
+     * Scan forward expecting to see a closing tag.
+     *
+     * @param reader XML input
+     * @throws XMLStreamException if something other than a closing tag is encountered
+     */
+    protected boolean expectClose(XMLStreamReader reader) throws XMLStreamException {
+        return this.expect(reader, true);
     }
 
     private String description(QName[] names) {
