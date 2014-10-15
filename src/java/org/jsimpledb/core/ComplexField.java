@@ -11,6 +11,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteReader;
@@ -60,6 +61,12 @@ public abstract class ComplexField<T> extends Field<T> {
      */
     abstract T getValueInternal(Transaction tx, ObjId id);
 
+    /**
+     * Copy the Java collection object representing the value of this instance into memory and return a read-only view.
+     * This method does not need to do any validity checking of its parameters.
+     */
+    abstract T getValueReadOnlyCopy(Transaction tx, ObjId id);
+
     @Override
     abstract ComplexFieldStorageInfo toStorageInfo();
 
@@ -76,7 +83,7 @@ public abstract class ComplexField<T> extends Field<T> {
     }
 
     /**
-     * Delete all content (but not index entries) for the given object in the given key range
+     * Delete all content (but not index entries) for the given object in the given key range.
      *
      * @param tx transaction
      * @param id object id
@@ -211,5 +218,12 @@ public abstract class ComplexField<T> extends Field<T> {
             this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
         }
     }
+
+    /**
+     * Remove all field entries in which the specified reference sub-field refers to an object
+     * type that is in the specified set of newly disallowed object types.
+     */
+    abstract void unreferenceRemovedObjectTypes(Transaction tx,
+      ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds);
 }
 

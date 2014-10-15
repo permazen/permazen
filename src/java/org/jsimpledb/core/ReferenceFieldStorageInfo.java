@@ -13,9 +13,21 @@ class ReferenceFieldStorageInfo extends SimpleFieldStorageInfo {
         super(field, superFieldStorageId);
     }
 
+// Object
+
     @Override
     public String toString() {
         return "reference field";
+    }
+
+    @Override
+    protected boolean fieldTypeEquals(SimpleFieldStorageInfo that) {
+        return true;        // reference fields are compatible even if they have different object type restriction lists
+    }
+
+    @Override
+    protected int fieldTypeHashCode() {
+        return 0;
     }
 }
 

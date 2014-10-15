@@ -164,7 +164,7 @@ public class FieldTypeRegistry {
     static final ObjIdType OBJ_ID = new ObjIdType();
 
     /**
-     * Type for object references (null values are allowed).
+     * Type for object references with no restriction (null values are allowed).
      */
     static final ReferenceFieldType REFERENCE = new ReferenceFieldType();
 

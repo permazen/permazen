@@ -8,23 +8,6 @@
   resulting in runtime ClassCastExceptions.
     -> Fix: restrict index map keySet() to the expected types (subtypes of A)
 
-- BUG: JDB layer type safety hole when new schema changes reference field's type.
-  For example, in schema version X field has type A but in version Y field has
-  type B != A. Then after object is upgraded without manual fix for wrong type,
-  reading the field throws ClassCastException.
-    -> Fix: track and restrict what object types a reference field can refer to
-    - Core layer:
-        - Add <ReferenceField> restriction (optional) that limits storage ID of
-          referenced objects to the specified list.
-            - Do not include restriction list in reference field storage info
-            - On version upgrade, if list has lost any storage IDs, check for
-              violations after delivering upgrade notifications; if found,
-              throw InvalidReferenceException
-        - When setting any reference field, if referenced type is not in
-          the restriction list, throw InvalidReferenceException
-    - JDB layer:
-        - Add restriction lists for reference fields in generated SchemaModel
-
 - Annotation enhancements:
     - Allow storageId's to default to zero; if so, auto-generate them:
         - Object type: hash object type name

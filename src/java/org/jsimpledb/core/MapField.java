@@ -7,6 +7,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
@@ -15,6 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
 
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
@@ -114,6 +117,11 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
+    NavigableMap<K, V> getValueReadOnlyCopy(Transaction tx, ObjId id) {
+        return Maps.unmodifiableNavigableMap(new TreeMap<K, V>(this.getValueInternal(tx, id)));
+    }
+
+    @Override
     MapFieldStorageInfo toStorageInfo() {
         return new MapFieldStorageInfo(this);
     }
@@ -176,6 +184,17 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
             writer.write(reader);
         } else
             throw new RuntimeException("internal error");
+    }
+
+    @Override
+    void unreferenceRemovedObjectTypes(Transaction tx, ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds) {
+        assert subField == this.keyField || subField == this.valueField;
+        for (Iterator<Map.Entry<K, V>> i = this.getValueInternal(tx, id).entrySet().iterator(); i.hasNext(); ) {
+            final Map.Entry<K, V> entry = i.next();
+            final ObjId ref = subField == this.keyField ? (ObjId)entry.getKey() : (ObjId)entry.getValue();
+            if (ref != null && removedStorageIds.contains(ref.getStorageId()))
+                i.remove();
+        }
     }
 }
 

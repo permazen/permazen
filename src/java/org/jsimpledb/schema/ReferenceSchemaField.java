@@ -7,6 +7,9 @@
 
 package org.jsimpledb.schema;
 
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -21,6 +24,7 @@ import org.jsimpledb.core.InvalidSchemaException;
 public class ReferenceSchemaField extends SimpleSchemaField {
 
     private DeleteAction onDelete;
+    private SortedSet<Integer> objectTypes;
 
     public ReferenceSchemaField() {
         this.setType(FieldType.REFERENCE_TYPE_NAME);
@@ -35,6 +39,18 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
     public void setOnDelete(DeleteAction onDelete) {
         this.onDelete = onDelete;
+    }
+
+    /**
+     * Get the object types this field is allowed to reference, if so restricted.
+     *
+     * @return storage IDs of allowed object types, or null if there is no restriction
+     */
+    public SortedSet<Integer> getObjectTypes() {
+        return this.objectTypes;
+    }
+    public void setObjectTypes(SortedSet<Integer> objectTypes) {
+        this.objectTypes = objectTypes;
     }
 
     @Override
@@ -65,6 +81,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         return true;
     }
 
+// XML Reading
+
     @Override
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         super.readAttributes(reader, formatVersion);
@@ -81,11 +99,45 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
 
     @Override
+    void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
+
+        // Any restrictions?
+        if (!this.expect(reader, true, OBJECT_TYPES_TAG)) {
+            this.objectTypes = null;
+            return;
+        }
+
+        // Read list of zero or more permitted storage ID
+        this.objectTypes = new TreeSet<>();
+        while (this.expect(reader, true, OBJECT_TYPE_TAG)) {
+            this.objectTypes.add(this.getIntAttr(reader, STORAGE_ID_ATTRIBUTE));
+            this.expectClose(reader);           // </ObjectType>
+        }
+
+        // Read closing </ReferenceField>
+        this.expectClose(reader);
+    }
+
+// XML Writing
+
+    @Override
     void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        writer.writeEmptyElement(REFERENCE_FIELD_TAG.getNamespaceURI(), REFERENCE_FIELD_TAG.getLocalPart());
+        if (this.objectTypes != null)
+            writer.writeStartElement(REFERENCE_FIELD_TAG.getNamespaceURI(), REFERENCE_FIELD_TAG.getLocalPart());
+        else
+            writer.writeEmptyElement(REFERENCE_FIELD_TAG.getNamespaceURI(), REFERENCE_FIELD_TAG.getLocalPart());
         this.writeAttributes(writer, includeName);
         if (this.onDelete != null)
             writer.writeAttribute(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart(), this.onDelete.name());
+        if (this.objectTypes != null) {
+            writer.writeStartElement(OBJECT_TYPES_TAG.getNamespaceURI(), OBJECT_TYPES_TAG.getLocalPart());
+            for (int storageId : this.objectTypes) {
+                writer.writeEmptyElement(OBJECT_TYPE_TAG.getNamespaceURI(), OBJECT_TYPE_TAG.getLocalPart());
+                writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
+            }
+            writer.writeEndElement();           // </ObjectTypes>
+            writer.writeEndElement();           // </ReferenceField>
+        }
     }
 
     @Override
@@ -102,12 +154,15 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         if (!super.equals(obj))
             return false;
         final ReferenceSchemaField that = (ReferenceSchemaField)obj;
-        return this.onDelete == that.onDelete;
+        return this.onDelete == that.onDelete
+          && (this.objectTypes != null ?  this.objectTypes.equals(that.objectTypes) : that.objectTypes == null);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.onDelete != null ? this.onDelete.hashCode() : 0);
+        return super.hashCode()
+          ^ (this.onDelete != null ? this.onDelete.hashCode() : 0)
+          ^ (this.objectTypes != null ? this.objectTypes.hashCode() : 0);
     }
 
 // Cloneable

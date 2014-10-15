@@ -11,7 +11,9 @@ import com.google.common.reflect.TypeToken;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
 /**
  * Superclass of fields with types assignable to {@link Collection}.
@@ -68,5 +70,15 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
 
     @Override
     abstract CollectionFieldStorageInfo toStorageInfo();
+
+    @Override
+    void unreferenceRemovedObjectTypes(Transaction tx, ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds) {
+        assert subField == this.elementField;
+        for (Iterator<?> i = this.getValueInternal(tx, id).iterator(); i.hasNext(); ) {
+            final ObjId ref = (ObjId)i.next();
+            if (ref != null && removedStorageIds.contains(ref.getStorageId()))
+                i.remove();
+        }
+    }
 }
 

@@ -10,6 +10,8 @@ package org.jsimpledb.core;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jsimpledb.util.ByteReader;
@@ -63,6 +65,11 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     @Override
     List<E> getValueInternal(Transaction tx, ObjId id) {
         return new JSList<E>(tx, this, id);
+    }
+
+    @Override
+    List<E> getValueReadOnlyCopy(Transaction tx, ObjId id) {
+        return Collections.unmodifiableList(new ArrayList<E>(this.getValueInternal(tx, id)));
     }
 
     @Override

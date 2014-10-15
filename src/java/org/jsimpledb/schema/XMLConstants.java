@@ -20,6 +20,7 @@ public interface XMLConstants {
     QName IDENTIFIER_TAG = new QName("Identifier");
     QName LIST_FIELD_TAG = new QName("ListField");
     QName MAP_FIELD_TAG = new QName("MapField");
+    QName OBJECT_TYPES_TAG = new QName("ObjectTypes");
     QName OBJECT_TYPE_TAG = new QName("ObjectType");
     QName REFERENCE_FIELD_TAG = new QName("ReferenceField");
     QName SCHEMA_MODEL_TAG = new QName("Schema");

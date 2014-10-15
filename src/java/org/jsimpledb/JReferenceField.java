@@ -10,6 +10,7 @@ package org.jsimpledb;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
+import java.util.TreeSet;
 
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.FieldType;
@@ -45,6 +46,10 @@ public class JReferenceField extends JSimpleField {
         final ReferenceSchemaField schemaField = new ReferenceSchemaField();
         super.initialize(jdb, schemaField);
         schemaField.setOnDelete(this.onDelete);
+        final TreeSet<Integer> objectTypes = new TreeSet<>();
+        for (JClass<?> jclass : jdb.getJClasses(this.typeToken))
+            objectTypes.add(jclass.storageId);
+        schemaField.setObjectTypes(objectTypes);
         return schemaField;
     }
 

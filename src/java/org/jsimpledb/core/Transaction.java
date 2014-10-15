@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -1108,7 +1109,13 @@ public class Transaction {
             return false;
 
         // Update schema version
-        this.updateVersion(info, this.version);
+        this.mutateAndNotify(new Mutation<Void>() {
+            @Override
+            public Void mutate() {
+                Transaction.this.updateVersion(info, Transaction.this.version);
+                return null;
+            }
+        });
         return true;
     }
 
@@ -1118,7 +1125,7 @@ public class Transaction {
      * @param info original object info
      * @param targetVersion version to change to
      */
-    private synchronized void updateVersion(ObjInfo info, SchemaVersion targetVersion) {
+    private synchronized void updateVersion(final ObjInfo info, final SchemaVersion targetVersion) {
 
         // Get version numbers
         final ObjId id = info.getId();
@@ -1140,8 +1147,9 @@ public class Transaction {
             throw (TypeNotInSchemaVersionException)new TypeNotInSchemaVersionException(id, newVersion).initCause(e);
         }
 
-        // Gather removed fields' values here for user migration
-        final TreeMap<Integer, Object> oldFieldValues = new TreeMap<>();
+        // Gather removed fields' values here for user migration if any VersionChangeListeners are registered
+        final TreeMap<Integer, Object> oldValueMap = !this.versionChangeListeners.isEmpty() ?
+          new TreeMap<Integer, Object>() : null;
 
     //////// Update counter fields
 
@@ -1159,12 +1167,14 @@ public class Transaction {
 
             // Save old field values for version change notification
             final byte[] key = Field.buildKey(id, storageId);
-            final byte[] oldValue = this.kvt.get(key);
-            if (oldField != null)
-                oldFieldValues.put(storageId, oldValue != null ? this.getCountingKVTransaction().decodeCounter(oldValue) : 0);
+            if (oldField != null && oldValueMap != null) {
+                final byte[] oldValue = this.kvt.get(key);
+                final long value = oldValue != null ? this.getCountingKVTransaction().decodeCounter(oldValue) : 0;
+                oldValueMap.put(storageId, value);
+            }
 
             // Remove old value if field has disappeared, otherwise leave alone
-            if (oldValue != null && oldField != null && newField == null)
+            if (newField == null)
                 this.kvt.remove(key);
         }
 
@@ -1185,31 +1195,26 @@ public class Transaction {
             // Save old field values for version change notification
             final byte[] key = Field.buildKey(id, storageId);
             final byte[] oldValue = this.kvt.get(key);
-            if (oldField != null) {
-                oldFieldValues.put(storageId,
-                  oldField.fieldType.read(new ByteReader(oldValue != null ? oldValue : oldField.fieldType.getDefaultValue())));
+            if (oldField != null && oldValueMap != null) {
+                final byte[] bytes = oldValue != null ? oldValue : oldField.fieldType.getDefaultValue();
+                final Object value = oldField.fieldType.read(new ByteReader(bytes));
+                oldValueMap.put(storageId, value);
             }
 
-            // Keep existing value if we can, otherwise, discard the old value (if any) leaving new value as new field default
-            boolean skipIndexUpdate = false;
-            if (oldField != null && newField != null)
-                skipIndexUpdate = newField.indexed == oldField.indexed;     // leave existing value, but check if index changes
-            else if (oldValue != null)
-                this.kvt.remove(key);                                       // field is being removed, so discard old value
+            // If field is being removed, discard the old value
+            if (newField == null && oldValue != null)
+                this.kvt.remove(key);
 
-            // Remove old index entry
-            if (oldField != null && oldField.indexed && !skipIndexUpdate)
+            // Remove old index entry if index removed in new version
+            if (oldField != null && oldField.indexed && (newField == null || !newField.indexed))
                 this.kvt.remove(oldField.buildIndexKey(id, oldValue));
 
-            // Add new index entry
-            if (newField != null && newField.indexed && !skipIndexUpdate)
+            // Add new index entry if index added in new version
+            if (newField != null && newField.indexed && (oldField == null || !oldField.indexed))
                 this.kvt.put(newField.buildIndexKey(id, oldValue), ByteUtil.EMPTY);
         }
 
     //////// Update complex fields and corresponding index entries
-
-        // Keep track of what to delete when we've done the migration notification
-        final ArrayList<ComplexField<?>> cleanupList = new ArrayList<>();
 
         // Get complex field storage IDs (old or new)
         final TreeSet<Integer> complexFieldStorageIds = new TreeSet<>();
@@ -1218,7 +1223,7 @@ public class Transaction {
 
         // Notes:
         //
-        // - The only "migration" we support is adding/removing sub-field indexes; all other changes are equivalent to delete+add
+        // - The only changes we support are sub-field changes that don't affect the corresponding StorageInfo's
         // - New complex fields do not need to be explicitly initialized because their initial state is to have zero KV pairs
         //
         for (int storageId : complexFieldStorageIds) {
@@ -1227,18 +1232,67 @@ public class Transaction {
             final ComplexField<?> oldField = oldType.complexFields.get(storageId);
             final ComplexField<?> newField = newType.complexFields.get(storageId);
 
-            // If there is no old field, new field is new and so it is already initialized (empty)
+            // If there is no old field, new field and any associated indexes are already initialized (i.e., they're empty)
             if (oldField == null)
                 continue;
 
             // Save old field's value
-            oldFieldValues.put(storageId, oldField.getValueInternal(this, id));
+            if (oldField != null && oldValueMap != null)
+                oldValueMap.put(storageId, oldField.getValueReadOnlyCopy(this, id));
 
-            // If fields is being removed, delete old field when done, otherwise check if index(s) should be added/removed
-            if (newField == null)
-                cleanupList.add(oldField);
-            else
+            // If field is being removed, delete old field content, otherwise check if index entries should be added/removed
+            if (newField == null) {
+                oldField.removeIndexEntries(this, id);
+                oldField.deleteContent(this, id);
+            } else
                 newField.updateSubFieldIndexes(this, oldField, id);
+        }
+
+    //////// Remove references that are no longer valid
+
+        // Unreference any reference fields that refer to no-longer-valid object types
+        for (int storageId : simpleFieldStorageIds) {
+
+            // Get storage IDs that are no longer allowed, if any
+            final TreeSet<Integer> removedObjectTypes = this.findRemovedObjectTypes(info, targetVersion, storageId);
+            if (removedObjectTypes == null)
+                continue;
+
+            // Unreference field if needed
+            final ReferenceField oldField = (ReferenceField)oldType.simpleFields.get(storageId);
+            final ObjId ref = oldField.getValue(this, id);
+            if (ref != null && removedObjectTypes.contains(ref.getStorageId()))
+                this.writeSimpleField(id, oldField.storageId, null, false);
+        }
+
+        // Unreference any reference sub-fields of complex fields that refer to no-longer-valid object types
+        for (int storageId : complexFieldStorageIds) {
+
+            // Get old and new complex fields having this storage ID
+            final ComplexField<?> oldField = oldType.complexFields.get(storageId);
+            final ComplexField<?> newField = newType.complexFields.get(storageId);
+            if (oldField == null || newField == null)
+                continue;
+            final List<? extends SimpleField<?>> oldSubFields = oldField.getSubFields();
+            final List<? extends SimpleField<?>> newSubFields = newField.getSubFields();
+            final int numSubFields = oldSubFields.size();
+            assert numSubFields == newSubFields.size();
+
+            // Iterate over subfields
+            for (int i = 0; i < numSubFields; i++) {
+                final SimpleField<?> oldSubField = oldSubFields.get(i);
+                final SimpleField<?> newSubField = newSubFields.get(i);
+                assert oldSubField.storageId == newSubField.storageId;
+                final int subStorageId = oldSubField.storageId;
+
+                // Get storage IDs that are no longer allowed, if any
+                final TreeSet<Integer> removedObjectTypes = this.findRemovedObjectTypes(info, targetVersion, subStorageId);
+                if (removedObjectTypes == null)
+                    continue;
+
+                // Unreference sub-fields as needed
+                oldField.unreferenceRemovedObjectTypes(this, id, (ReferenceField)oldSubField, removedObjectTypes);
+            }
         }
 
     //////// Update object version and corresponding index entry
@@ -1250,16 +1304,48 @@ public class Transaction {
         this.kvt.remove(Database.buildVersionIndexKey(id, oldVersion));
         this.kvt.put(Database.buildVersionIndexKey(id, newVersion), ByteUtil.EMPTY);
 
+    //////// Notify listeners
+
+        // Lock down old field values map
+        final NavigableMap<Integer, Object> readOnlyOldValuesMap = oldValueMap != null ?
+          Maps.unmodifiableNavigableMap(oldValueMap) : null;
+
         // Notify about version update
-        try {
-            for (VersionChangeListener listener : this.versionChangeListeners)
-                listener.onVersionChange(this, id, oldVersion, newVersion, oldFieldValues);
-        } finally {
-            for (ComplexField<?> oldField : cleanupList) {
-                oldField.removeIndexEntries(this, id);
-                oldField.deleteContent(this, id);
-            }
-        }
+        for (VersionChangeListener listener : this.versionChangeListeners)
+            listener.onVersionChange(this, id, oldVersion, newVersion, readOnlyOldValuesMap);
+    }
+
+    /**
+     * Find storage ID's which are no longer allowed by a reference field when upgrading to the specified
+     * schema version and therefore need to be scrubbed during the upgrade.
+     */
+    private TreeSet<Integer> findRemovedObjectTypes(ObjInfo info, SchemaVersion newVersion, int storageId) {
+
+        // Get old schema version
+        final SchemaVersion oldVersion = info.getSchemaVersion();
+
+        // Get old and new object types
+        final ObjType oldType = info.getObjType();
+        final ObjType newType = newVersion.getObjType(info.getId().getStorageId());
+
+        // Get old and new reference fields having specified storage ID
+        final ReferenceField oldField = oldType.referenceFields.get(storageId);
+        final ReferenceField newField = newType.referenceFields.get(storageId);
+        if (oldField == null || newField == null)
+            return null;
+
+        // Check allowed storage IDs
+        final SortedSet<Integer> newObjectTypes = newField.getObjectTypes();
+        if (newObjectTypes == null)
+            return null;                                                // new field can refer to any type in any schema version
+        SortedSet<Integer> oldObjectTypes = oldField.getObjectTypes();
+        if (oldObjectTypes == null)
+            oldObjectTypes = this.schema.objTypeStorageIds;             // old field can refer to any type in any schema version
+
+        // Identify storage IDs which are were allowed by old field but are no longer allowed by new field
+        final TreeSet<Integer> removedObjectTypes = new TreeSet<>(oldObjectTypes);
+        removedObjectTypes.removeAll(newObjectTypes);
+        return !removedObjectTypes.isEmpty() ? removedObjectTypes : null;
     }
 
     /**
@@ -1821,7 +1907,13 @@ public class Transaction {
             return info;
 
         // Update schema version
-        this.updateVersion(info, this.version);
+        this.mutateAndNotify(new Mutation<Void>() {
+            @Override
+            public Void mutate() {
+                Transaction.this.updateVersion(info, Transaction.this.version);
+                return null;
+            }
+        });
 
         // Get updated object info
         return new ObjInfo(this, id);
