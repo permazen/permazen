@@ -133,7 +133,7 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
      * </p>
      */
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
-        this.expect(reader, true);
+        this.expectClose(reader);
     }
 
 // XML Writing
