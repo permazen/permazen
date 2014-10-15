@@ -121,14 +121,14 @@ public class JSimpleField extends JField {
     }
 
     @Override
-    SimpleSchemaField toSchemaItem() {
+    SimpleSchemaField toSchemaItem(JSimpleDB jdb) {
         final SimpleSchemaField schemaField = new SimpleSchemaField();
-        this.initialize(schemaField);
+        this.initialize(jdb, schemaField);
         return schemaField;
     }
 
-    void initialize(SimpleSchemaField schemaField) {
-        super.initialize(schemaField);
+    void initialize(JSimpleDB jdb, SimpleSchemaField schemaField) {
+        super.initialize(jdb, schemaField);
         schemaField.setType(this.typeName);
         schemaField.setIndexed(this.indexed);
     }

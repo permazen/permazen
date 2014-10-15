@@ -99,11 +99,11 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    MapSchemaField toSchemaItem() {
+    MapSchemaField toSchemaItem(JSimpleDB jdb) {
         final MapSchemaField schemaField = new MapSchemaField();
-        super.initialize(schemaField);
-        schemaField.setKeyField(this.keyField.toSchemaItem());
-        schemaField.setValueField(this.valueField.toSchemaItem());
+        super.initialize(jdb, schemaField);
+        schemaField.setKeyField(this.keyField.toSchemaItem(jdb));
+        schemaField.setValueField(this.valueField.toSchemaItem(jdb));
         return schemaField;
     }
 

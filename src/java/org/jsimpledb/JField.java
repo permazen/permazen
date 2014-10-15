@@ -39,7 +39,7 @@ public abstract class JField extends JSchemaObject {
     }
 
     @Override
-    abstract SchemaField toSchemaItem();
+    abstract SchemaField toSchemaItem(JSimpleDB jdb);
 
     /**
      * Get the getter method associated with this field.

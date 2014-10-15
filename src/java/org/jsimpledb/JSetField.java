@@ -46,9 +46,9 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    SetSchemaField toSchemaItem() {
+    SetSchemaField toSchemaItem(JSimpleDB jdb) {
         final SetSchemaField schemaField = new SetSchemaField();
-        super.initialize(schemaField);
+        super.initialize(jdb, schemaField);
         return schemaField;
     }
 

@@ -329,11 +329,11 @@ public class JClass<T> extends JSchemaObject {
     }
 
     @Override
-    SchemaObjectType toSchemaItem() {
+    SchemaObjectType toSchemaItem(JSimpleDB jdb) {
         final SchemaObjectType schemaObjectType = new SchemaObjectType();
-        super.initialize(schemaObjectType);
+        this.initialize(jdb, schemaObjectType);
         for (JField field : this.jfields.values()) {
-            final SchemaField schemaField = field.toSchemaItem();
+            final SchemaField schemaField = field.toSchemaItem(jdb);
             schemaObjectType.getSchemaFields().put(schemaField.getStorageId(), schemaField);
         }
         return schemaObjectType;

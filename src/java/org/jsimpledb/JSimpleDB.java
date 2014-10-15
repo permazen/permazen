@@ -328,7 +328,7 @@ public class JSimpleDB {
         if (this.schemaModel == null) {
             final SchemaModel model = new SchemaModel();
             for (JClass<?> jclass : this.jclasses.values()) {
-                final SchemaObjectType schemaObjectType = jclass.toSchemaItem();
+                final SchemaObjectType schemaObjectType = jclass.toSchemaItem(this);
                 model.getSchemaObjectTypes().put(schemaObjectType.getStorageId(), schemaObjectType);
             }
             this.schemaModel = model;
