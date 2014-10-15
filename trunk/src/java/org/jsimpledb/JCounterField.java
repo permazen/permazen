@@ -42,9 +42,9 @@ public class JCounterField extends JField {
     }
 
     @Override
-    CounterSchemaField toSchemaItem() {
+    CounterSchemaField toSchemaItem(JSimpleDB jdb) {
         final CounterSchemaField schemaField = new CounterSchemaField();
-        this.initialize(schemaField);
+        this.initialize(jdb, schemaField);
         return schemaField;
     }
 

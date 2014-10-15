@@ -49,9 +49,9 @@ public class JListField extends JCollectionField {
     }
 
     @Override
-    ListSchemaField toSchemaItem() {
+    ListSchemaField toSchemaItem(JSimpleDB jdb) {
         final ListSchemaField schemaField = new ListSchemaField();
-        super.initialize(schemaField);
+        super.initialize(jdb, schemaField);
         return schemaField;
     }
 

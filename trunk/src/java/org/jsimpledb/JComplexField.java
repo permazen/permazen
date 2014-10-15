@@ -26,7 +26,7 @@ public abstract class JComplexField extends JField {
     }
 
     @Override
-    abstract ComplexSchemaField toSchemaItem();
+    abstract ComplexSchemaField toSchemaItem(JSimpleDB jdb);
 
     /**
      * Get the sub-fields associated with this field.

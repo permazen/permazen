@@ -41,9 +41,9 @@ public class JReferenceField extends JSimpleField {
     }
 
     @Override
-    ReferenceSchemaField toSchemaItem() {
+    ReferenceSchemaField toSchemaItem(JSimpleDB jdb) {
         final ReferenceSchemaField schemaField = new ReferenceSchemaField();
-        super.initialize(schemaField);
+        super.initialize(jdb, schemaField);
         schemaField.setOnDelete(this.onDelete);
         return schemaField;
     }

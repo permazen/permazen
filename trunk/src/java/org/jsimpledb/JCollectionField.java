@@ -60,11 +60,11 @@ public abstract class JCollectionField extends JComplexField {
     }
 
     @Override
-    abstract CollectionSchemaField toSchemaItem();
+    abstract CollectionSchemaField toSchemaItem(JSimpleDB jdb);
 
-    void initialize(CollectionSchemaField schemaField) {
-        super.initialize(schemaField);
-        schemaField.setElementField(this.elementField.toSchemaItem());
+    void initialize(JSimpleDB jdb, CollectionSchemaField schemaField) {
+        super.initialize(jdb, schemaField);
+        schemaField.setElementField(this.elementField.toSchemaItem(jdb));
     }
 }
 

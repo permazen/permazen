@@ -46,9 +46,9 @@ public abstract class JSchemaObject {
 
 // Internal methods
 
-    abstract AbstractSchemaItem toSchemaItem();
+    abstract AbstractSchemaItem toSchemaItem(JSimpleDB jdb);
 
-    void initialize(AbstractSchemaItem schemaItem) {
+    void initialize(JSimpleDB jdb, AbstractSchemaItem schemaItem) {
         schemaItem.setName(this.name);
         schemaItem.setStorageId(this.storageId);
     }

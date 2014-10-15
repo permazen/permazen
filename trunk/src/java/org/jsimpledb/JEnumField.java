@@ -38,15 +38,15 @@ public class JEnumField extends JSimpleField {
     }
 
     @Override
-    EnumSchemaField toSchemaItem() {
+    EnumSchemaField toSchemaItem(JSimpleDB jdb) {
         final EnumSchemaField schemaField = new EnumSchemaField();
-        this.initialize(schemaField);
+        this.initialize(jdb, schemaField);
         return schemaField;
     }
 
     @SuppressWarnings("unchecked")
-    void initialize(SimpleSchemaField schemaField0) {
-        super.initialize(schemaField0);
+    void initialize(JSimpleDB jdb, SimpleSchemaField schemaField0) {
+        super.initialize(jdb, schemaField0);
         final EnumSchemaField schemaField = (EnumSchemaField)schemaField0;
         schemaField.getIdentifiers().clear();
         for (Enum<?> value : (Iterable<Enum<?>>)EnumUtil.getValues((Class<Enum>)this.getType().getRawType()))
