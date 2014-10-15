@@ -48,8 +48,14 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
 
     @Override
     public V put(final K keyObj, final V valueObj) {
-        final byte[] key = this.encodeKey(keyObj);
-        final byte[] value = this.encodeValue(valueObj);
+        final byte[] key;
+        final byte[] value;
+        try {
+            key = this.encodeKey(keyObj);
+            value = this.encodeValue(valueObj);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("can't add invalid key/value pair to " + this.field + ": " + e.getMessage(), e);
+        }
         if (!this.inRange(key))
             throw new IllegalArgumentException("key out of range");
         return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<V>() {

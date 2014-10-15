@@ -41,7 +41,12 @@ class JSSet<E> extends FieldTypeSet<E> {
 
     @Override
     public boolean add(final E newValue) {
-        final byte[] key = this.encode(newValue, true);
+        final byte[] key;
+        try {
+            key = this.encode(newValue, true);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("can't add invalid value to " + this.field + ": " + e.getMessage(), e);
+        }
         return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Boolean>() {
             @Override
             public Boolean mutate() {
