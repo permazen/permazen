@@ -7,6 +7,9 @@
 
 package org.jsimpledb.core;
 
+import java.util.Set;
+import java.util.SortedSet;
+
 /**
  * A field that references another {@link Database} object.
  *
@@ -29,12 +32,13 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @param storageId field storage ID
      * @param version schema version
      * @param onDelete deletion behavior
+     * @param objectTypes allowed object type storage IDs, or null for no restriction
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is invalid
      */
-    ReferenceField(String name, int storageId, SchemaVersion version, DeleteAction onDelete) {
-        super(name, storageId, version, FieldTypeRegistry.REFERENCE, true);
+    ReferenceField(String name, int storageId, SchemaVersion version, DeleteAction onDelete, Set<Integer> objectTypes) {
+        super(name, storageId, version, new ReferenceFieldType(objectTypes), true);
         if (onDelete == null)
             throw new IllegalArgumentException("null onDelete");
         this.onDelete = onDelete;
@@ -47,6 +51,15 @@ public class ReferenceField extends SimpleField<ObjId> {
      */
     public DeleteAction getOnDelete() {
         return this.onDelete;
+    }
+
+    /**
+     * Get the object types this field is allowed to reference, if so restricted.
+     *
+     * @return storage IDs of allowed object types, or null if there is no restriction
+     */
+    public SortedSet<Integer> getObjectTypes() {
+        return ((ReferenceFieldType)this.getFieldType()).getObjectTypes();
     }
 
     @Override

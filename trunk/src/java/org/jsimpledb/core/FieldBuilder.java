@@ -64,7 +64,7 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
 
     @Override
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
-        return new ReferenceField(field.getName(), field.getStorageId(), this.version, field.getOnDelete());
+        return new ReferenceField(field.getName(), field.getStorageId(), this.version, field.getOnDelete(), field.getObjectTypes());
     }
 
     @Override

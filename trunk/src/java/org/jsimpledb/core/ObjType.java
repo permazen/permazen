@@ -30,6 +30,7 @@ public class ObjType extends SchemaItem {
     final TreeMap<Integer, SimpleField<?>> simpleFields = new TreeMap<>();
     final TreeMap<Integer, ComplexField<?>> complexFields = new TreeMap<>();
     final TreeMap<Integer, CounterField> counterFields = new TreeMap<>();
+    final TreeMap<Integer, ReferenceField> referenceFields = new TreeMap<>();           // includes sub-fields too
 
     /**
      * Constructor.
@@ -47,13 +48,15 @@ public class ObjType extends SchemaItem {
         for (SchemaField schemaField : schemaObjectType.getSchemaFields().values())
             this.addField(schemaField.visit(fieldBuilder));
 
-        // Build mappings for simple, complex, and counter fields
+        // Build mappings for various field types
         this.simpleFields.clear();
         this.rebuildMap(this.simpleFields, SimpleField.class);
         this.complexFields.clear();
         this.rebuildMap(this.complexFields, ComplexField.class);
         this.counterFields.clear();
         this.rebuildMap(this.counterFields, CounterField.class);
+        for (ReferenceField referenceField : Iterables.filter(this.getFieldsAndSubFields(), ReferenceField.class))
+            this.referenceFields.put(referenceField.storageId, referenceField);
     }
 
     /**

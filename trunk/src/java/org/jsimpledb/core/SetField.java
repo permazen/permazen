@@ -7,11 +7,13 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import java.util.Iterator;
 import java.util.NavigableSet;
+import java.util.TreeSet;
 
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
@@ -64,6 +66,11 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     @Override
     NavigableSet<E> getValueInternal(Transaction tx, ObjId id) {
         return new JSSet<E>(tx, this, id);
+    }
+
+    @Override
+    NavigableSet<E> getValueReadOnlyCopy(Transaction tx, ObjId id) {
+        return Sets.unmodifiableNavigableSet(new TreeSet<E>(this.getValueInternal(tx, id)));
     }
 
     @Override
