@@ -60,8 +60,7 @@ public class EnumField extends SimpleField<EnumValue> {
 
     @Override
     EnumFieldStorageInfo toStorageInfo() {
-        return new EnumFieldStorageInfo(this, this.parent != null ? this.parent.storageId : 0,
-          this.getFieldType().getIdentifiers());
+        return new EnumFieldStorageInfo(this, this.parent != null ? this.parent.storageId : 0);
     }
 }
 
