@@ -68,14 +68,15 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     @Override
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         super.readAttributes(reader, formatVersion);
-        final String text = reader.getAttributeValue(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart());
-        DeleteAction action = DeleteAction.EXCEPTION;
+        final String text = this.getAttr(reader, ON_DELETE_ATTRIBUTE, false);
+        final DeleteAction action;
         if (text != null) {
             if ((action = Enum.valueOf(DeleteAction.class, text)) == null) {
                 throw new XMLStreamException("invalid value `" + text
-                  + " for \"" + ON_DELETE_ATTRIBUTE.getLocalPart() + "\" attribute in " + this);
+                  + " for \"" + ON_DELETE_ATTRIBUTE.getLocalPart() + "\" attribute in " + this, reader.getLocation());
             }
-        }
+        } else
+            action = DeleteAction.EXCEPTION;
         this.setOnDelete(action);
     }
 

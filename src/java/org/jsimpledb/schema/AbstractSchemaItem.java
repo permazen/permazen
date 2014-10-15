@@ -81,25 +81,57 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 
 // XML Reading
 
+    /**
+     * Read in this item's XML.
+     *
+     * <p>
+     * The implementation in {@link AbstractSchemaItem} invokes {@link #readAttributes readAttributes()}
+     * followed by {@link #readSubElements readSubElements()}.
+     * </p>
+     *
+     * <p>
+     * Start state: positioned at opening XML tag.
+     * Return state: positioned at closing XML tag.
+     * </p>
+     */
     void readXML(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.readAttributes(reader, formatVersion);
         this.readSubElements(reader, formatVersion);
     }
 
+    /**
+     * Read in this item's start tag attributes.
+     *
+     * <p>
+     * The implementation in {@link AbstractSchemaItem} reads in required storage ID and name attributes.
+     * </p>
+     *
+     * <p>
+     * Start state: positioned at opening XML tag.
+     * Return state: same.
+     * </p>
+     */
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
-        final String text = reader.getAttributeValue(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart());
-        if (text != null) {
-            try {
-                this.setStorageId(Integer.valueOf(text));
-            } catch (NumberFormatException e) {
-                throw new XMLStreamException("invalid storage ID `" + text + "': must be a positive integer", reader.getLocation());
-            }
-        }
-        final String newName = reader.getAttributeValue(NAME_ATTRIBUTE.getNamespaceURI(), NAME_ATTRIBUTE.getLocalPart());
-        if (newName != null)
-            this.setName(newName);
+        final Integer storageIdAttr = this.getIntAttr(reader, STORAGE_ID_ATTRIBUTE, false);
+        if (storageIdAttr != null)
+            this.setStorageId(storageIdAttr);
+        final String nameAttr = this.getAttr(reader, NAME_ATTRIBUTE, false);
+        if (nameAttr != null)
+            this.setName(nameAttr);
     }
 
+    /**
+     * Read in this item's sub-elements.
+     *
+     * <p>
+     * The implementation in {@link AbstractSchemaItem} expects no sub-elements.
+     * </p>
+     *
+     * <p>
+     * Start state: positioned at opening XML tag.
+     * Return state: positioned at closing XML tag.
+     * </p>
+     */
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.expect(reader, true);
     }

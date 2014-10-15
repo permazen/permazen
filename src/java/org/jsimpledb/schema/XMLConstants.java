@@ -14,22 +14,24 @@ import javax.xml.namespace.QName;
  */
 public interface XMLConstants {
 
+    // Elements
     QName COUNTER_FIELD_TAG = new QName("CounterField");
+    QName ENUM_FIELD_TAG = new QName("EnumField");
+    QName IDENTIFIER_TAG = new QName("Identifier");
     QName LIST_FIELD_TAG = new QName("ListField");
     QName MAP_FIELD_TAG = new QName("MapField");
     QName OBJECT_TYPE_TAG = new QName("ObjectType");
     QName REFERENCE_FIELD_TAG = new QName("ReferenceField");
-    QName ENUM_FIELD_TAG = new QName("EnumField");
-    QName IDENTIFIER_TAG = new QName("Identifier");
     QName SCHEMA_MODEL_TAG = new QName("Schema");
     QName SET_FIELD_TAG = new QName("SetField");
     QName SIMPLE_FIELD_TAG = new QName("SimpleField");
 
+    // Attributes
+    QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");
     QName INDEXED_ATTRIBUTE = new QName("indexed");
     QName NAME_ATTRIBUTE = new QName("name");
     QName ON_DELETE_ATTRIBUTE = new QName("onDelete");
     QName STORAGE_ID_ATTRIBUTE = new QName("storageId");
     QName TYPE_ATTRIBUTE = new QName("type");
-    QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");
 }
 

@@ -130,16 +130,8 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         this.expect(reader, false, SCHEMA_MODEL_TAG);
 
         // Get format version
-        final String text = reader.getAttributeValue(FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
-          FORMAT_VERSION_ATTRIBUTE.getLocalPart());
-        int formatVersion = 0;
-        if (text != null) {
-            try {
-                formatVersion = Integer.valueOf(text);
-            } catch (NumberFormatException e) {
-                throw new XMLStreamException("invalid format version `" + text + "'", reader.getLocation());
-            }
-        }
+        final Integer formatAttr = this.getIntAttr(reader, FORMAT_VERSION_ATTRIBUTE, false);
+        final int formatVersion = formatAttr != null ? formatAttr : 0;
         final QName objectTypeTag;
         switch (formatVersion) {
         case 0:
@@ -149,7 +141,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
             objectTypeTag = OBJECT_TYPE_TAG;
             break;
         default:
-            throw new XMLStreamException("unrecognized format version `" + text + "'", reader.getLocation());
+            throw new XMLStreamException("unrecognized schema format version " + formatAttr, reader.getLocation());
         }
 
         // Read object type tags
