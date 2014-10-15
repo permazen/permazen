@@ -118,6 +118,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
 
     @Override
     void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {
+        assert subField == this.elementField;
         writer.write(reader);
         id.writeTo(writer);
     }

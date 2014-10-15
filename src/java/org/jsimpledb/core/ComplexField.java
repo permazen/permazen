@@ -80,6 +80,7 @@ public abstract class ComplexField<T> extends Field<T> {
      *
      * @param tx transaction
      * @param id object id
+     * @see #removeIndexEntries(Transaction, ObjId)
      */
     void deleteContent(Transaction tx, byte[] minKey, byte[] maxKey) {
         tx.kvt.removeRange(minKey, maxKey);
@@ -167,6 +168,19 @@ public abstract class ComplexField<T> extends Field<T> {
         for (Iterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd, false); i.hasNext(); ) {
             final KVPair pair = i.next();
             this.addIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
+        }
+    }
+
+    /**
+     * Remove all index entries for the given object.
+     *
+     * @param tx transaction
+     * @param id object id
+     */
+    void removeIndexEntries(Transaction tx, ObjId id) {
+        for (SimpleField<?> subField : this.getSubFields()) {
+            if (subField.indexed)
+                this.removeIndexEntries(tx, id, subField);
         }
     }
 

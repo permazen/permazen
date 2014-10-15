@@ -795,12 +795,8 @@ public class Transaction {
         }
 
         // Delete object's complex field index entries
-        for (ComplexField<?> field : type.complexFields.values()) {
-            for (SimpleField<?> subField : field.getSubFields()) {
-                if (subField.indexed)
-                    field.removeIndexEntries(this, id, subField);
-            }
-        }
+        for (ComplexField<?> field : type.complexFields.values())
+            field.removeIndexEntries(this, id);
 
         // Delete object meta-data and all field content
         final byte[] minKey = info.getId().getBytes();
@@ -1259,8 +1255,10 @@ public class Transaction {
             for (VersionChangeListener listener : this.versionChangeListeners)
                 listener.onVersionChange(this, id, oldVersion, newVersion, oldFieldValues);
         } finally {
-            for (ComplexField<?> oldField : cleanupList)
+            for (ComplexField<?> oldField : cleanupList) {
+                oldField.removeIndexEntries(this, id);
                 oldField.deleteContent(this, id);
+            }
         }
     }
 
