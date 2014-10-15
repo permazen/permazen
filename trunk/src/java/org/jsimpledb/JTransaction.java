@@ -1117,8 +1117,7 @@ public class JTransaction {
      * @param valueType the Java type corresponding to the field value
      * @return read-only, real-time view of field values mapped to sets of objects having that value in the field
      * @throws IllegalArgumentException if {@code valueType} is the wrong type for the specified field
-     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, and/or {@code valueType} is invalid
-     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, or {@code valueType} is null
+     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, and/or {@code valueType} is null or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
      * @see org.jsimpledb.annotation.IndexQuery &#64;IndexQuery
      */
