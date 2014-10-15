@@ -87,6 +87,7 @@ public class ListField<E> extends CollectionField<List<E>, E> {
 
     @Override
     void buildIndexEntry(ObjId id, SimpleField<?> subField, ByteReader reader, byte[] value, ByteWriter writer) {
+        assert subField == this.elementField;
         writer.write(value);
         id.writeTo(writer);
         writer.write(reader);

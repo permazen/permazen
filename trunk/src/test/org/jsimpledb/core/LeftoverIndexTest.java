@@ -24,7 +24,7 @@ public class LeftoverIndexTest extends TestSupport {
 
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
 
-        final SchemaModel schemaA = SchemaModel.fromXML(new ByteArrayInputStream((
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"1\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
@@ -35,7 +35,7 @@ public class LeftoverIndexTest extends TestSupport {
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
-        final SchemaModel schemaB = SchemaModel.fromXML(new ByteArrayInputStream((
+        final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"1\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
@@ -47,7 +47,7 @@ public class LeftoverIndexTest extends TestSupport {
 
     // Version 1
 
-        Transaction tx = db.createTransaction(schemaA, 1, true);
+        Transaction tx = db.createTransaction(schema1, 1, true);
 
         final ObjId id1 = tx.create(1);
         NavigableSet<Integer> set = (NavigableSet<Integer>)tx.readSetField(id1, 2, true);
@@ -60,9 +60,21 @@ public class LeftoverIndexTest extends TestSupport {
 
     // Version 2
 
-        tx = db.createTransaction(schemaB, 2, true);
+        tx = db.createTransaction(schema2, 2, true);
 
-        Assert.assertEquals(tx.querySimpleField(3), buildMap());
+        Assert.assertEquals(tx.getSchemaVersion(id1), 1);
+        Assert.assertEquals(tx.querySimpleField(3), buildMap(123, buildSet(id1)));
+
+        tx.updateSchemaVersion(id1);
+
+        Assert.assertEquals(tx.getSchemaVersion(id1), 2);
+        try {
+            tx.readSetField(id1, 2, true);
+            assert false : "expected UnknownFieldException";
+        } catch (UnknownFieldException e) {
+            this.log.info("got expected " + e);
+        }
+        Assert.assertEquals(tx.querySimpleField(3), buildMap());        // verify index is now empty!
 
         tx.commit();
     }
