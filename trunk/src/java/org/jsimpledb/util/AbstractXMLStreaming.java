@@ -97,16 +97,107 @@ public abstract class AbstractXMLStreaming {
      * @param reader XML input
      * @param name attribute name
      * @param required whether attribute must be present
+     * @return attribute value, or null if not {@code required} and no attribute is present
      * @throws IllegalStateException if the current event is not a start element event
-     * @throws IllegalArgumentException if {@code required} is true and no such attribute is found
+     * @throws XMLStreamException if {@code required} is true and no such attribute is found
      */
-    protected String getAttr(XMLStreamReader reader, QName name, boolean required) {
+    protected String getAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {
         final String value = reader.getAttributeValue(name.getNamespaceURI(), name.getLocalPart());
         if (value == null && required) {
-            throw new IllegalArgumentException("<" + reader.getName().getLocalPart() + "> element has no \"" + name
-              + "\" attribute at " + reader.getLocation());
+            throw new XMLStreamException("<" + reader.getName().getLocalPart() + "> element is missing required \""
+              + name + "\" attribute", reader.getLocation());
         }
         return value;
+    }
+
+    /**
+     * Get a requried attribute from the current element. Equivalent to: {@code getAttr(reader, name, true)}.
+     *
+     * @param reader XML input
+     * @param name attribute name
+     * @return attribute value
+     * @throws IllegalStateException if the current event is not a start element event
+     * @throws XMLStreamException if no such attribute is found
+     */
+    protected String getAttr(XMLStreamReader reader, QName name) throws XMLStreamException {
+        return this.getAttr(reader, name, true);
+    }
+
+    /**
+     * Get an attribute from the current element and parse as an integer value.
+     *
+     * @param reader XML input
+     * @param name attribute name
+     * @param required whether attribute must be present
+     * @return attribute value, or null if not {@code required} and no attribute is present
+     * @throws IllegalStateException if the current event is not a start element event
+     * @throws XMLStreamException if {@code required} is true and no such attribute is found
+     * @throws XMLStreamException if attribute is not an integer value
+     */
+    protected Integer getIntAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {
+        final String text = this.getAttr(reader, name, required);
+        if (text == null)
+            return null;
+        try {
+            return Integer.parseInt(text, 10);
+        } catch (NumberFormatException e) {
+            throw new XMLStreamException("<" + reader.getName().getLocalPart() + "> element attribute \""
+              + name + "\" value `" + text + "' is invalid: not an integer value", reader.getLocation(), e);
+        }
+    }
+
+    /**
+     * Get a requried integer attribute from the current element. Equivalent to: {@code getIntAttr(reader, name, true)}.
+     *
+     * @param reader XML input
+     * @param name attribute name
+     * @return attribute value
+     * @throws IllegalStateException if the current event is not a start element event
+     * @throws XMLStreamException if no such attribute is found
+     * @throws XMLStreamException if attribute is not an integer value
+     */
+    protected int getIntAttr(XMLStreamReader reader, QName name) throws XMLStreamException {
+        return this.getIntAttr(reader, name, true);
+    }
+
+    /**
+     * Get an attribute from the current element and parse as a boolean value.
+     *
+     * @param reader XML input
+     * @param name attribute name
+     * @param required whether attribute must be present
+     * @return attribute value, or null if not {@code required} and no attribute is present
+     * @throws IllegalStateException if the current event is not a start element event
+     * @throws XMLStreamException if {@code required} is true and no such attribute is found
+     * @throws XMLStreamException if attribute is not {@code "true"} or {@code "false"}
+     */
+    protected Boolean getBooleanAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {
+        final String text = this.getAttr(reader, name, required);
+        if (text == null)
+            return null;
+        switch (text) {
+        case "true":
+            return true;
+        case "false":
+            return false;
+        default:
+            throw new XMLStreamException("<" + reader.getName().getLocalPart() + "> element attribute \""
+              + name + "\" value `" + text + "' is invalid: expected either \"true\" or \"false\"", reader.getLocation());
+        }
+    }
+
+    /**
+     * Get a requried boolean attribute from the current element. Equivalent to: {@code getBooleanAttr(reader, name, true)}.
+     *
+     * @param reader XML input
+     * @param name attribute name
+     * @return attribute value
+     * @throws IllegalStateException if the current event is not a start element event
+     * @throws XMLStreamException if no such attribute is found
+     * @throws XMLStreamException if attribute is not {@code "true"} or {@code "false"}
+     */
+    protected boolean getBooleanAttr(XMLStreamReader reader, QName name) throws XMLStreamException {
+        return this.getBooleanAttr(reader, name, true);
     }
 }
 

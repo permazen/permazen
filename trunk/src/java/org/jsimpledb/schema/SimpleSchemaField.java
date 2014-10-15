@@ -70,30 +70,25 @@ public class SimpleSchemaField extends SchemaField {
         return true;
     }
 
+// XML Reading
+
     @Override
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         super.readAttributes(reader, formatVersion);
-        final String text1 = reader.getAttributeValue(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart());
-        if (text1 != null)
-            this.setType(text1);
-        final String text2 = reader.getAttributeValue(INDEXED_ATTRIBUTE.getNamespaceURI(), INDEXED_ATTRIBUTE.getLocalPart());
-        if (text2 != null) {
-            switch (text2) {
-            case "true":
-            case "false":
-                this.setIndexed(Boolean.valueOf(text2));
-                break;
-            default:
-                throw new XMLStreamException("invalid boolean value `" + text2
-                  + " for \"" + INDEXED_ATTRIBUTE.getLocalPart() + "\" attribute in " + this, reader.getLocation());
-            }
-        }
+        final String typeAttr = this.getAttr(reader, TYPE_ATTRIBUTE, false);
+        if (typeAttr != null)
+            this.setType(typeAttr);
+        final Boolean indexedAttr = this.getBooleanAttr(reader, INDEXED_ATTRIBUTE, false);
+        if (indexedAttr != null)
+            this.setIndexed(indexedAttr);
     }
 
     @Override
     final void writeXML(XMLStreamWriter writer) throws XMLStreamException {
         this.writeXML(writer, true);
     }
+
+// XML Writing
 
     void writeXML(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
         writer.writeEmptyElement(SIMPLE_FIELD_TAG.getNamespaceURI(), SIMPLE_FIELD_TAG.getLocalPart());
