@@ -14,7 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for methods that are to be invoked whenever an object's schema version is changed.
+ * Annotation for methods that are to be invoked whenever an object's schema version has just changed.
  *
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and
@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
  *  <li>{@code int newVersion} - new schema version (always equal to
  *      {@link org.jsimpledb.core.Transaction}.{@link org.jsimpledb.core.Transaction#getSchemaVersion getSchemaVersion()});
  *      should be present only if {@link #newVersion} is zero</li>
- *  <li>{@code Map<Integer, Object> oldFieldValues} - contains all field values from the previous version of the object,
- *      indexed by storage ID.</li>
+ *  <li>{@code Map<Integer, Object> oldFieldValues} - immutable map containing all field values from the previous version
+ *      of the object, indexed by storage ID.</li>
  *  </ol>
  * </p>
  *
@@ -51,6 +51,13 @@ import java.lang.annotation.Target;
  *  <li>For {@link Enum} fields, if the old {@link Enum} type is not found, or any of its values have changed name or ordinal,
  *      then the old field's value will be represented as an {@link org.jsimpledb.core.EnumValue}.</li>
  *  </ul>
+ * </p>
+ *
+ * <p>
+ * In addition, it's possible that the Java type of a reference field is narrower in the new schema version that it
+ * was in the previous schema version. In order to preserve Java type safety, all such references are cleared (in the
+ * manner of {@link org.jsimpledb.core.DeleteAction#UNREFERENCE}) when the schema verison changes. Use {@code oldFieldValues}
+ * to access the previous field value if necessary.
  * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
