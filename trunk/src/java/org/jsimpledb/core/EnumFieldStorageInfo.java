@@ -11,31 +11,30 @@ import java.util.List;
 
 class EnumFieldStorageInfo extends SimpleFieldStorageInfo {
 
-    final List<String> identList;
-
-    EnumFieldStorageInfo(EnumField field, int superFieldStorageId, List<String> identList) {
+    EnumFieldStorageInfo(EnumField field, int superFieldStorageId) {
         super(field, superFieldStorageId);
-        if (identList == null)
-            throw new IllegalArgumentException("null identList");
-        this.identList = identList;
+    }
+
+    public List<String> getIdentifiers() {
+        return ((EnumFieldType)this.fieldType).getIdentifiers();
     }
 
 // Object
 
     @Override
     public String toString() {
-        return "enum field with identifiers " + this.identList;
+        return "enum field with identifiers " + this.getIdentifiers();
     }
 
     @Override
-    protected boolean equalsSimple(SimpleFieldStorageInfo obj) {
-        final EnumFieldStorageInfo that = (EnumFieldStorageInfo)obj;
-        return this.identList.equals(that.identList);
+    protected boolean fieldTypeEquals(SimpleFieldStorageInfo that0) {
+        final EnumFieldStorageInfo that = (EnumFieldStorageInfo)that0;
+        return this.getIdentifiers().equals(that.getIdentifiers());
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode() ^ this.identList.hashCode();
+    protected int fieldTypeHashCode() {
+        return this.getIdentifiers().hashCode();
     }
 }
 

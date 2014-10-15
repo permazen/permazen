@@ -30,16 +30,20 @@ class SimpleFieldStorageInfo extends FieldStorageInfo {
         if (!super.equals(obj))
             return false;
         final SimpleFieldStorageInfo that = (SimpleFieldStorageInfo)obj;
-        return this.equalsSimple(that);
-    }
-
-    protected boolean equalsSimple(SimpleFieldStorageInfo that) {
-        return this.fieldType.equals(that.fieldType);
+        return this.fieldTypeEquals(that);
     }
 
     @Override
     public int hashCode() {
         return super.hashCode() ^ this.fieldType.hashCode();
+    }
+
+    protected boolean fieldTypeEquals(SimpleFieldStorageInfo that) {
+        return this.fieldType.equals(that.fieldType);
+    }
+
+    protected int fieldTypeHashCode() {
+        return this.fieldType.hashCode();
     }
 }
 
