@@ -223,7 +223,7 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
      * Required property.
      * </p>
      */
-    public void setRemotes(List<String> remotes) {
+    public synchronized void setRemotes(List<String> remotes) {
         this.remotes = remotes;
     }
 
