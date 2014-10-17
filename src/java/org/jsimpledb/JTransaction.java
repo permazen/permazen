@@ -15,7 +15,6 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,7 +32,6 @@ import java.util.TreeSet;
 import javax.validation.ConstraintViolation;
 
 import org.dellroad.stuff.validation.ValidationUtil;
-import org.jsimpledb.annotation.OnVersionChange;
 import org.jsimpledb.core.CreateListener;
 import org.jsimpledb.core.DeleteListener;
 import org.jsimpledb.core.DeletedObjectException;
@@ -862,8 +860,8 @@ public class JTransaction {
      * the schema version associated with this instance's {@link JSimpleDB}.
      *
      * <p>
-     * If a version change occurs, matching {@link OnVersionChange &#64;OnVersionChange} methods will be invoked prior
-     * to this method returning.
+     * If a version change occurs, matching {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange}
+     * methods will be invoked prior to this method returning.
      * </p>
      *
      * <p>
@@ -1636,47 +1634,43 @@ public class JTransaction {
         // This method exists solely to bind the generic type parameters
         private <T> void doOnVersionChange(JClass<T> jclass, ObjId id,
           int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
-            JObject jobj = null;
+
+            // Get old object type info
             final SchemaVersion oldSchema = JTransaction.this.tx.getSchema().getVersion(oldVersion);
             final ObjType objType = oldSchema.getObjType(id.getStorageId());
-            for (OnVersionChangeScanner<T>.MethodInfo info : jclass.onVersionChangeMethods) {
-                final OnVersionChange annotation = info.getAnnotation();
-                final Method method = info.getMethod();
 
-                // Check old & new version numbers
-                if ((annotation.oldVersion() != 0 && annotation.oldVersion() != oldVersion)
-                  || (annotation.newVersion() != 0 && annotation.newVersion() != newVersion))
-                    continue;
+            // The object that was upgraded
+            JObject jobj = null;
+
+            // Convert old field values from core API objects to JDB layer objects
+            final Map<Integer, Object> oldValuesByStorageId = Maps.transformEntries(oldFieldValues,
+              new Maps.EntryTransformer<Integer, Object, Object>() {
+                @Override
+                public Object transformEntry(Integer storageId, Object oldValue) {
+                    return JTransaction.this.convertCoreValue(objType.getField(storageId), oldValue);
+                }
+            });
+
+            // Build alternate version of old values map that is keyed by field name instead of storage ID
+            final Map<String, Object> oldValuesByName = Maps.transformValues(objType.getFieldByNames(),
+              new Function<Field<?>, Object>() {
+                @Override
+                public Object apply(Field<?> field) {
+                    return oldValuesByStorageId.get(field.getStorageId());
+                }
+            });
+
+            // Invoke listener methods
+            for (OnVersionChangeScanner<T>.MethodInfo info0 : jclass.onVersionChangeMethods) {
+                final OnVersionChangeScanner<T>.VersionChangeMethodInfo info
+                  = (OnVersionChangeScanner<T>.VersionChangeMethodInfo)info0;
 
                 // Get Java model object
                 if (jobj == null)
                     jobj = JTransaction.this.getJObject(id);
 
-                // Convert old field values so ObjId's become JObjects, etc
-                final Map<Integer, Object> convertedValues = Maps.transformEntries(oldFieldValues,
-                  new Maps.EntryTransformer<Integer, Object, Object>() {
-                    @Override
-                    public Object transformEntry(Integer storageId, Object oldValue) {
-                        return JTransaction.this.convertCoreValue(objType.getField(storageId), oldValue);
-                    }
-                });
-
                 // Invoke method
-                switch ((annotation.oldVersion() != 0 ? 2 : 0) + (annotation.newVersion() != 0 ? 1 : 0)) {
-                case 0:
-                    Util.invoke(method, jobj, oldVersion, newVersion, convertedValues);
-                    break;
-                case 1:
-                    Util.invoke(method, jobj, oldVersion, convertedValues);
-                    break;
-                case 2:
-                    Util.invoke(method, jobj, newVersion, convertedValues);
-                    break;
-                case 3:
-                default:
-                    Util.invoke(method, jobj, convertedValues);
-                    break;
-                }
+                info.invoke(jobj, oldVersion, newVersion, oldValuesByStorageId, oldValuesByName);
             }
         }
     }
