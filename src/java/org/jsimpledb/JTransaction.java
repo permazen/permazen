@@ -223,7 +223,7 @@ public class JTransaction {
         // Register listeners
         this.tx.addCreateListener(this.internalCreateListener);
         this.tx.addDeleteListener(this.internalDeleteListener);
-        this.tx.addVersionChangeListener(this.internalVersionChangeListener);
+        boolean onVersionChangeNeeded = false;
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
                 if (this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
@@ -231,6 +231,7 @@ public class JTransaction {
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
                 changeInfo.registerChangeListener(this);
             }
+            onVersionChangeNeeded |= !jclass.onVersionChangeMethods.isEmpty();
         }
         if (validationMode == ValidationMode.AUTOMATIC) {
             for (JClass<?> jclass : this.jdb.jclasses.values()) {
@@ -240,6 +241,8 @@ public class JTransaction {
                 }
             }
         }
+        if (onVersionChangeNeeded)
+            this.tx.addVersionChangeListener(this.internalVersionChangeListener);
     }
 
 // Thread-local Access
