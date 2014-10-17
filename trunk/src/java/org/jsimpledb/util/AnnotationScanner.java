@@ -125,6 +125,28 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     }
 
     /**
+     * Verify a specific method parameter's type.
+     *
+     * @throws IllegalArgumentException if parameter type does not match
+     */
+    protected void checkParameterType(Method method, int index, List<TypeToken<?>> choices) {
+        final List<TypeToken<?>> actuals = this.getParameterTypeTokens(method);
+        if (actuals.size() <= index || !choices.contains(actuals.get(index))) {
+            throw new IllegalArgumentException(this.getErrorPrefix(method) + "method parameter #" + (index + 1)
+              + " is required to have type " + (choices.size() != 1 ? "one of " + choices : choices.get(0)));
+        }
+    }
+
+    /**
+     * Verify a specific method parameter's type.
+     *
+     * @throws IllegalArgumentException if parameter type does not match
+     */
+    protected void checkParameterType(Method method, int index, TypeToken<?>... choices) {
+        this.checkParameterType(method, index, Arrays.asList(choices));
+    }
+
+    /**
      * Verify method takes a single parameter of the specified type.
      *
      * @throws IllegalArgumentException if parameter type does not match

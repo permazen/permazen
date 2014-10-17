@@ -354,6 +354,29 @@ public class OnVersionChangeTest extends TestSupport {
             } else
                 Assert.assertNull(oldValues.get(99));
         }
+
+        @OnVersionChange(oldVersion = 1, newVersion = 2)
+        private void versionChange2(Map<String, Object> oldValues) {
+            switch (this.getIndex()) {
+            case 1:
+                Assert.assertEquals(oldValues.get("name"), "Smith, Joe");
+                Assert.assertEquals(((Person2)oldValues.get("friend")).getLastName(), "Jones");
+                Assert.assertEquals(oldValues.get("enum1"), Enum1.AAA);
+                break;
+            case 2:
+                Assert.assertEquals(oldValues.get("name"), "Jones, Fred");
+                Assert.assertEquals(((Person2)oldValues.get("friend")).getLastName(), "Brown");
+                Assert.assertEquals(oldValues.get("enum1"), Enum1.BBB);
+                break;
+            case 3:
+                Assert.assertEquals(oldValues.get("name"), "Brown, Kelly");
+                Assert.assertEquals(oldValues.get("friend"), null);
+                Assert.assertEquals(oldValues.get("enum1"), Enum1.CCC);
+                break;
+            default:
+                break;
+            }
+        }
     }
 
 // Version 3

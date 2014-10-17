@@ -60,7 +60,7 @@ public class ObjType extends SchemaItem {
     }
 
     /**
-     * Get all fields associated with this object type. Does not include sub-fields of complex fields.
+     * Get all fields associated with this object type keyed by storage ID. Does not include sub-fields of complex fields.
      *
      * @return unmodifiable mapping from {@linkplain Field#getStorageId field storage ID} to field
      */
@@ -80,6 +80,15 @@ public class ObjType extends SchemaItem {
         if (field == null)
             throw new UnknownFieldException(this, storageId, "field");
         return field;
+    }
+
+    /**
+     * Get all fields associated with this object type keyed by name. Does not include sub-fields of complex fields.
+     *
+     * @return unmodifiable mapping from {@linkplain Field#getName field name} to field
+     */
+    public SortedMap<String, Field<?>> getFieldByNames() {
+        return Collections.unmodifiableSortedMap(this.fieldsByName);
     }
 
     /**
