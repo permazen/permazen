@@ -8,9 +8,7 @@
   resulting in runtime ClassCastExceptions.
     -> Fix: restrict index map keySet() to the expected types (subtypes of A)
 
-- Create kv/util/AbstractKVIterator.java with common logic from
-  AbstractKVNavigableMap.EntrySetIterator and AbstractKVNavigableSet.Iterator.
-  Add support for "skip regions"; use to fix above bug.
+- Add support for "skip regions" to AbstractKVIterator; use to fix above bug.
 
 - Annotation enhancements:
     - Allow storageId's to default to zero; if so, auto-generate them:
