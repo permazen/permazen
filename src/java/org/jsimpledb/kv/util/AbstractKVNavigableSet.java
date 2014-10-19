@@ -11,14 +11,12 @@ import java.util.Iterator;
 import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.AbstractNavigableSet;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
-import org.slf4j.LoggerFactory;
 
 /**
  * {@link java.util.NavigableSet} support superclass for sets backed by elements encoded as {@code byte[]}
@@ -182,8 +180,19 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     }
 
     @Override
-    public java.util.Iterator<E> iterator() {
-        return new Iterator();
+    public Iterator<E> iterator() {
+        return new AbstractKVIterator<E>(this.kv, this.prefixMode, this.reversed, this.minKey, this.maxKey) {
+
+            @Override
+            protected E decodePair(KVPair pair, ByteReader keyReader) {
+                return AbstractKVNavigableSet.this.decode(keyReader);
+            }
+
+            @Override
+            protected void doRemove(E value, KVPair pair) {
+                AbstractKVNavigableSet.this.remove(value);
+            }
+        };
     }
 
     /**
@@ -274,6 +283,11 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     /**
      * Decode an element from a {@code byte[]} key.
      *
+     * <p>
+     * If not in prefix mode, all of {@code reader} must be consumed; otherwise, the consumed portion
+     * is the prefix and any following keys with the same prefix are ignored.
+     * </p>
+     *
      * @param reader input for encoded bytes
      * @return decoded set element
      */
@@ -349,70 +363,6 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             break;
         }
         return result;
-    }
-
-// Iterator
-
-    /**
-     * {@link java.util.Iterator} implementation returned by {@link AbstractKVNavigableSet#iterator}.
-     */
-    private class Iterator implements java.util.Iterator<E> {
-
-        private final java.util.Iterator<KVPair> pairIterator;
-
-        private E removeValue;
-        private boolean mayRemove;
-
-        public Iterator() {
-            if (AbstractKVNavigableSet.this.prefixMode) {
-                this.pairIterator = new KVPairIterator(AbstractKVNavigableSet.this.kv,
-                  AbstractKVNavigableSet.this.minKey, AbstractKVNavigableSet.this.maxKey, AbstractKVNavigableSet.this.reversed);
-            } else {
-                this.pairIterator = AbstractKVNavigableSet.this.kv.getRange(
-                  AbstractKVNavigableSet.this.minKey, AbstractKVNavigableSet.this.maxKey, AbstractKVNavigableSet.this.reversed);
-            }
-        }
-
-        @Override
-        public boolean hasNext() {
-            return this.pairIterator.hasNext();
-        }
-
-        @Override
-        public E next() {
-
-            // Get next key/value pair
-            final KVPair pair = this.pairIterator.next();
-
-            // Decode key
-            final ByteReader reader = new ByteReader(pair.getKey());
-            final E value = AbstractKVNavigableSet.this.decode(reader);
-            if (!AbstractKVNavigableSet.this.prefixMode && reader.remain() > 0) {
-                LoggerFactory.getLogger(this.getClass()).error(AbstractKVNavigableSet.this.getClass().getName()
-                  + "@" + Integer.toHexString(System.identityHashCode(AbstractKVNavigableSet.this))
-                  + ": " + reader.remain() + " undecoded bytes remain in key " + ByteUtil.toString(pair.getKey()) + " -> " + value);
-            }
-
-            // In prefix mode, skip over any additional keys having the same prefix as what we just decoded
-            if (AbstractKVNavigableSet.this.prefixMode) {
-                final KVPairIterator kvPairIterator = (KVPairIterator)this.pairIterator;
-                final byte[] prefix = reader.getBytes(0, reader.getOffset());
-                kvPairIterator.setNextTarget(kvPairIterator.isReverse() ? prefix : ByteUtil.getKeyAfterPrefix(prefix));
-            }
-
-            // Done
-            this.mayRemove = true;
-            this.removeValue = value;
-            return value;
-        }
-
-        @Override
-        public void remove() {
-            if (!this.mayRemove)
-                throw new IllegalStateException();
-            AbstractKVNavigableSet.this.remove(this.removeValue);
-            this.mayRemove = false;
-        }
     }
 }
 

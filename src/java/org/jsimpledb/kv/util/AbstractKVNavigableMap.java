@@ -16,7 +16,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.AbstractIterationSet;
 import org.jsimpledb.util.AbstractNavigableMap;
@@ -24,7 +23,6 @@ import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
-import org.slf4j.LoggerFactory;
 
 /**
  * {@link java.util.NavigableMap} support superclass for maps backed by keys and values encoded as {@code byte[]}
@@ -308,6 +306,11 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
     /**
      * Decode a key object from an encoded {@code byte[]} key.
      *
+     * <p>
+     * If not in prefix mode, all of {@code reader} must be consumed; otherwise, the consumed portion
+     * is the prefix and any following keys with the same prefix are ignored.
+     * </p>
+     *
      * @param reader input for encoded bytes
      * @return decoded map key
      */
@@ -440,8 +443,22 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
     private class EntrySet extends AbstractIterationSet<Map.Entry<K, V>> {
 
         @Override
-        public EntrySetIterator iterator() {
-            return AbstractKVNavigableMap.this.new EntrySetIterator();
+        public Iterator<Map.Entry<K, V>> iterator() {
+            return new AbstractKVIterator<Map.Entry<K, V>>(AbstractKVNavigableMap.this.kv, AbstractKVNavigableMap.this.prefixMode,
+              AbstractKVNavigableMap.this.reversed, AbstractKVNavigableMap.this.minKey, AbstractKVNavigableMap.this.maxKey) {
+
+                @Override
+                protected Map.Entry<K, V> decodePair(KVPair pair, ByteReader keyReader) {
+                    final K key = AbstractKVNavigableMap.this.decodeKey(keyReader);
+                    final V value = AbstractKVNavigableMap.this.decodeValue(pair);
+                    return new MapEntry(key, value);
+                }
+
+                @Override
+                protected void doRemove(Map.Entry<K, V> entry, KVPair pair) {
+                    AbstractKVNavigableMap.this.entrySet().remove(entry);
+                }
+            };
         }
 
         @Override
@@ -491,65 +508,6 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         @Override
         public void clear() {
             AbstractKVNavigableMap.this.clear();
-        }
-    }
-
-// EntrySetIterator
-
-    private class EntrySetIterator implements Iterator<Map.Entry<K, V>> {
-
-        private final Iterator<KVPair> pairIterator;
-        private Map.Entry<K, V> removeEntry;
-
-        public EntrySetIterator() {
-            if (AbstractKVNavigableMap.this.prefixMode) {
-                this.pairIterator = new KVPairIterator(AbstractKVNavigableMap.this.kv,
-                  AbstractKVNavigableMap.this.minKey, AbstractKVNavigableMap.this.maxKey, AbstractKVNavigableMap.this.reversed);
-            } else {
-                this.pairIterator = AbstractKVNavigableMap.this.kv.getRange(
-                  AbstractKVNavigableMap.this.minKey, AbstractKVNavigableMap.this.maxKey, AbstractKVNavigableMap.this.reversed);
-            }
-        }
-
-        @Override
-        public boolean hasNext() {
-            return this.pairIterator.hasNext();
-        }
-
-        @Override
-        public Map.Entry<K, V> next() {
-            final KVPair pair = this.pairIterator.next();
-
-            // Decode key
-            final ByteReader reader = new ByteReader(pair.getKey());
-            final K key = AbstractKVNavigableMap.this.decodeKey(reader);
-            if (!AbstractKVNavigableMap.this.prefixMode && reader.remain() > 0) {
-                LoggerFactory.getLogger(this.getClass()).error(AbstractKVNavigableMap.this.getClass().getName()
-                  + "@" + Integer.toHexString(System.identityHashCode(AbstractKVNavigableMap.this))
-                  + ": " + reader.remain() + " undecoded bytes remain in key " + ByteUtil.toString(pair.getKey()) + " -> " + key);
-            }
-
-            // Decode value
-            final V value = AbstractKVNavigableMap.this.decodeValue(pair);
-
-            // In prefix mode, skip over any additional keys having the same prefix as what we just decoded
-            if (AbstractKVNavigableMap.this.prefixMode) {
-                final KVPairIterator kvPairIterator = (KVPairIterator)this.pairIterator;
-                final byte[] prefix = reader.getBytes(0, reader.getOffset());
-                kvPairIterator.setNextTarget(kvPairIterator.isReverse() ? prefix : ByteUtil.getKeyAfterPrefix(prefix));
-            }
-
-            // Save elment for possible remove()
-            this.removeEntry = new MapEntry(key, value);
-            return removeEntry;
-        }
-
-        @Override
-        public void remove() {
-            if (this.removeEntry == null)
-                throw new IllegalStateException();
-            AbstractKVNavigableMap.this.entrySet().remove(this.removeEntry);
-            this.removeEntry = null;
         }
     }
 
