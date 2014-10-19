@@ -53,6 +53,17 @@ public class KeyRanges {
         this.ranges = KeyRanges.minimize(ranges);
     }
 
+    /**
+     * Constructor for an instance containing a single range.
+     *
+     * @param min minimum key (inclusive), or null for no minimum
+     * @param max maximum key (exclusive), or null for no maximum
+     * @throws IllegalArgumentException if {@code min > max}
+     */
+    public KeyRanges(byte[] min, byte[] max) {
+        this(Collections.<KeyRange>singletonList(new KeyRange(min, max)));
+    }
+
 // Instance methods
 
     /**
