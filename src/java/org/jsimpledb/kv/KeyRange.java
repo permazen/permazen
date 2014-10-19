@@ -24,6 +24,11 @@ import org.jsimpledb.util.ByteUtil;
 public class KeyRange {
 
     /**
+     * The {@link KeyRange} containing the full range (i.e., all keys).
+     */
+    public static final KeyRange FULL = new KeyRange(null, null);
+
+    /**
      * Constant used by {@link #compare KeyRange.compare()} to distinguish null values.
      */
     public static final boolean MIN = false;
@@ -150,6 +155,20 @@ public class KeyRange {
     }
 
     /**
+     * Determine whether this instance contains the full range covering all keys.
+     */
+    public boolean isFull() {
+        return this.min == null && this.max == null;
+    }
+
+    /**
+     * Determine whether this instance contains zero keys (implying {@link #getMin}{@code == }{@link #getMax}).
+     */
+    public boolean isEmpty() {
+        return this.min != null && this.max != null && ByteUtil.compare(this.min, this.max) == 0;
+    }
+
+    /**
      * Determine if this range is left of, contains, or is right of the given key.
      *
      * @return -1 if this range is left of {@code key},
@@ -186,6 +205,8 @@ public class KeyRange {
             return type2 == MAX ? -1 : 1;
         return ByteUtil.compare(range1, range2);
     }
+
+// Object
 
     @Override
     public boolean equals(Object obj) {

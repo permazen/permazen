@@ -28,8 +28,8 @@ import org.jsimpledb.util.ByteUtil;
  * </p>
  *
  * <p>
- * Instances are configured with a lock object which is used for all internal locking and inter-thread wait/notify
- * handshaking (default, this instance). A user-supplied lock object may be provided via the constructor.
+ * Instances are configured with a monitor object which is used for all internal locking and inter-thread wait/notify
+ * handshaking (by default, this instance). A user-supplied monitor object may be provided via the constructor.
  * </p>
  *
  * <p>
