@@ -49,8 +49,8 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * This class provides a read-only implementation; for a mutable implementation, subclasses should also implement
- * {@link #put put()}, {@link #remove remove()}, and {@link #clear}; note, these methods must be aware
- * of any {@linkplain AbstractNavigableMap#bounds range restrictions}.
+ * {@link #put put()}, {@link #remove remove()}, and {@link #clear}; note, these methods must verify the key is
+ * {@link #inRange} inRange() before making any changes.
  * </p>
  *
  * <p>
@@ -105,13 +105,13 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
 
     /**
      * Minimum visible key (inclusive), or null for no minimum. Always less than or equal to {@link #maxKey},
-     * even if this instance is {@link #reversed}. Corresponds to the current {@link #bounds}, if any.
+     * even if this instance is {@link #reversed}. Always inside the current {@link #bounds}, if any.
      */
     protected final byte[] minKey;
 
     /**
      * Maximum visible key (exclusive), or null for no maximum. Always greater than or equal to {@link #minKey},
-     * even if this instance is {@link #reversed}. Corresponds to the current {@link #bounds}, if any.
+     * even if this instance is {@link #reversed}. Always inside the current {@link #bounds}, if any.
      */
     protected final byte[] maxKey;
 
@@ -283,8 +283,8 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      *
      * @param newReversed whether the new map's ordering should be reversed (implies {@code newBounds} are also inverted,
      *  but <i>not</i> {@code newMinKey} and {@code newMaxKey}); note: means "absolutely" reversed, not relative to this instance
-     * @param newMinKey new minimum visible key (inclusive), or null for none; corresponds to {@code bounds}, if any
-     * @param newMaxKey new maximum visible key (exclusive), or null for none; corresponds to {@code bounds}, if any
+     * @param newMinKey new minimum visible key (inclusive), or null for none; inside the {@code bounds}, if any
+     * @param newMaxKey new maximum visible key (exclusive), or null for none; inside the {@code bounds}, if any
      * @param newBounds new bounds
      * @throws IllegalArgumentException if {@code newBounds} is null
      */
