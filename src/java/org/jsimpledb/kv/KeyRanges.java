@@ -138,27 +138,32 @@ public class KeyRanges {
      * @throws IllegalArgumentException if {@code key} is null
      */
     public boolean contains(byte[] key) {
-        return this.getKeyRange(key) != null;
+        return this.getKeyRange(key, null) != null;
     }
 
     /**
-     * Find the maximal contiguous {@link KeyRange} containing the given key, if any.
+     * Find the maximal contiguous {@link KeyRange} within this instance and also containing the given key.
+     * If none exists, then optionally search forward or backward for the nearest {@link KeyRange} within this instance.
      *
      * @param key key to find
-     * @return maximal contiguous {@link KeyRange} in this instance containing {@code key}, or null if there is none
+     * @param nearest what to do if not contained: true to search forward, false to search backward, null to return null
+     * @return maximal contiguous {@link KeyRange} in this instance containing {@code key}, or the nearest forward or
+     *  backward {@link KeyRange} if {@code nearest} is not null (if any), or null if none found
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public KeyRange getKeyRange(byte[] key) {
+    public KeyRange getKeyRange(byte[] key, Boolean nearest) {
         if (key == null)
             throw new IllegalArgumentException("null key");
         int i = Collections.binarySearch(this.ranges, new KeyRange(key, null), KeyRange.SORT_BY_MIN);
         if (i >= 0)
-            return this.ranges.get(i);
-        i = ~i;
-        if (i == 0)
-            return null;
-        final KeyRange range = this.ranges.get(i - 1);
-        return range.contains(key) ? range : null;
+            return this.ranges.get(i);                                  // it happened that the last range is [key, +infinity)
+        i = ~i;                                                         // get insertion point
+        if (i > 0) {
+            final KeyRange range = this.ranges.get(i - 1);              // the range that either contains key or is to its left
+            if (range.contains(key) || Boolean.FALSE.equals(nearest))
+                return range;
+        }
+        return Boolean.TRUE.equals(nearest) && this.ranges.size() > i ? this.ranges.get(i) : null;
     }
 
     /**
@@ -250,7 +255,9 @@ public class KeyRanges {
             }
             final int diff2 = KeyRange.compare(range.getMin(), KeyRange.MIN, prev.getMax(), KeyRange.MAX);
             if (diff2 <= 0) {                           // prev and range overlap -> take their union
-                prev = new KeyRange(prev.getMin(), range.getMax());
+                final byte[] max = KeyRange.compare(range.getMax(), KeyRange.MAX, prev.getMax(), KeyRange.MAX) > 0 ?
+                  range.getMax() : prev.getMax();
+                prev = new KeyRange(prev.getMin(), max);
                 continue;
             }
             list.add(prev);                             // prev and range don't overlap -> accept prev
