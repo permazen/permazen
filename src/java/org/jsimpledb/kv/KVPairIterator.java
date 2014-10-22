@@ -15,7 +15,7 @@ import org.jsimpledb.util.ByteUtil;
 /**
  * An {@link Iterator} that iterates over all key/value pairs in a {@link KVStore} within a contiguous range of keys,
  * without using the {@link KVStore#getRange KVStore.getRange()} method. Therefore, it can be used to implement
- * {@link KVStore#getRange KVStore.getRange()} in {@link KVStore} implementaions that don't natively support iteration.
+ * {@link KVStore#getRange KVStore.getRange()} in {@link KVStore} implementations that don't natively support iteration.
  *
  * <p>
  * The iteration is instead implemented using {@link KVStore#getAtLeast KVStore.getAtLeast()},
@@ -56,7 +56,7 @@ public class KVPairIterator implements Iterator<KVPair> {
     /**
      * Convenience constructor for forward iteration when the range is defined as all keys having a given prefix. Equivalent to:
      *  <blockquote><code>
-     *  KVPairIterator(kv, prefix, true)
+     *  KVPairIterator(kv, prefix, false)
      *  </code></blockquote>
      *
      * @param kv underlying {@link KVStore}
@@ -64,7 +64,7 @@ public class KVPairIterator implements Iterator<KVPair> {
      * @throws IllegalArgumentException if any parameter is null
      */
     public KVPairIterator(KVStore kv, byte[] prefix) {
-        this(kv, prefix, true);
+        this(kv, prefix, false);
     }
 
     /**
