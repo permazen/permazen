@@ -273,10 +273,6 @@ public class KVDatabaseTest extends TestSupport {
         Assert.assertEquals(waiterThread.getResult(), "success");
     }
 
-    public static byte[] b(String s) {
-        return ByteUtil.parse(s);
-    }
-
 // TestThread
 
     public abstract class TestThread extends Thread {
@@ -437,7 +433,7 @@ public class KVDatabaseTest extends TestSupport {
                     if (option < 10) {                                              // get
                         key = this.rb(2, false);
                         val = tx.get(key);
-                        this.log("get: " + p(key) + " -> " + p(val));
+                        this.log("get: " + s(key) + " -> " + s(val));
                         if (val == null)
                             Assert.assertTrue(!knownValues.containsKey(key));
                         else if (knownValues.containsKey(key))
@@ -449,14 +445,14 @@ public class KVDatabaseTest extends TestSupport {
                     } else if (option < 20) {                                       // put
                         key = this.rb(2, false);
                         val = this.rb(2, true);
-                        this.log("put: " + p(key) + " -> " + p(val));
+                        this.log("put: " + s(key) + " -> " + s(val));
                         tx.put(key, val);
                         knownValues.put(key, val);
                         knownValuesChanged = true;
                     } else if (option < 30) {                                       // getAtLeast
                         min = this.rb(2, true);
                         pair = tx.getAtLeast(min);
-                        this.log("getAtLeast: " + p(min) + " -> " + p(pair));
+                        this.log("getAtLeast: " + s(min) + " -> " + s(pair));
                         if (pair == null)
                             Assert.assertTrue(knownValues.tailMap(min).isEmpty());
                         else if (knownValues.containsKey(pair.getKey()))
@@ -468,7 +464,7 @@ public class KVDatabaseTest extends TestSupport {
                     } else if (option < 40) {                                       // getAtMost
                         max = this.rb(2, true);
                         pair = tx.getAtMost(max);
-                        this.log("getAtMost: " + p(max) + " -> " + p(pair));
+                        this.log("getAtMost: " + s(max) + " -> " + s(pair));
                         if (pair == null)
                             Assert.assertTrue(knownValues.headMap(max).isEmpty());
                         else if (knownValues.containsKey(pair.getKey()))
@@ -479,7 +475,7 @@ public class KVDatabaseTest extends TestSupport {
                         }
                     } else if (option < 50) {                                       // remove
                         key = this.rb(2, false);
-                        this.log("remove: " + p(key));
+                        this.log("remove: " + s(key));
                         tx.remove(key);
                         knownValues.remove(key);
                         knownValuesChanged = true;
@@ -488,7 +484,7 @@ public class KVDatabaseTest extends TestSupport {
                         do {
                             max = this.rb2(2, 30);
                         } while (max != null && min != null && ByteUtil.COMPARATOR.compare(min, max) > 0);
-                        this.log("removeRange: " + p(min) + " to " + p(max));
+                        this.log("removeRange: " + s(min) + " to " + s(max));
                         tx.removeRange(min, max);
                         if (min == null && max == null)
                             knownValues.clear();
@@ -516,7 +512,7 @@ public class KVDatabaseTest extends TestSupport {
                     final byte[] key = entry.getKey();
                     final byte[] val = entry.getValue();
                     final byte[] txVal = tx.get(key);
-                    Assert.assertEquals(txVal, val, "tx has " + p(txVal) + " for key " + p(key)
+                    Assert.assertEquals(txVal, val, "tx has " + s(txVal) + " for key " + s(key)
                       + " but knownValues has:\n*** KNOWN VALUES: " + knownValuesView);
                 }
 
@@ -545,14 +541,6 @@ public class KVDatabaseTest extends TestSupport {
 
         private void log(String s) {
             //System.out.println("Random[" + this.id + "]: " + s);
-        }
-
-        private String p(byte[] val) {
-            return ByteUtil.toString(val);
-        }
-
-        private String p(KVPair pair) {
-            return pair != null ? ("[" + p(pair.getKey()) + ", " + p(pair.getValue()) + "]") : "null";
         }
 
         private int r(int max) {
