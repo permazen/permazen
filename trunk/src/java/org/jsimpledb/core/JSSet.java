@@ -8,8 +8,11 @@
 package org.jsimpledb.core;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.NavigableSet;
 
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteUtil;
 
@@ -33,8 +36,8 @@ class JSSet<E> extends FieldTypeSet<E> {
     /**
      * Internal constructor.
      */
-    JSSet(Transaction tx, SetField<E> field, ObjId id, boolean reversed, byte[] minKey, byte[] maxKey, Bounds<E> bounds) {
-        super(tx, field.elementField.fieldType, false, reversed, field.buildKey(id), minKey, maxKey, bounds);
+    JSSet(Transaction tx, SetField<E> field, ObjId id, boolean reversed, KeyRanges keyRanges, Bounds<E> bounds) {
+        super(tx, field.elementField.fieldType, false, reversed, field.buildKey(id), keyRanges, bounds);
         this.id = id;
         this.field = field;
     }
@@ -105,8 +108,12 @@ class JSSet<E> extends FieldTypeSet<E> {
         }
 
         // Get key range
-        final byte[] rangeMinKey = this.minKey != null ? this.minKey : this.prefix;
-        final byte[] rangeMaxKey = this.maxKey != null ? this.maxKey : ByteUtil.getKeyAfterPrefix(this.prefix);
+        final List<KeyRange> keyRangeList = this.keyRanges.getKeyRanges();
+        if (keyRangeList.size() > 1)
+            throw new UnsupportedOperationException("clear() not supported with complex key range restriction: " + this.keyRanges);
+        final KeyRange keyRange = keyRangeList.get(0);
+        final byte[] rangeMinKey = keyRange.getMin();
+        final byte[] rangeMaxKey = keyRange.getMax();
 
         // Delete index entries
         if (this.field.elementField.indexed)
@@ -162,8 +169,8 @@ class JSSet<E> extends FieldTypeSet<E> {
     }
 
     @Override
-    protected NavigableSet<E> createSubSet(boolean newReversed, byte[] newMinKey, byte[] newMaxKey, Bounds<E> newBounds) {
-        return new JSSet<E>(this.tx, this.field, this.id, newReversed, newMinKey, newMaxKey, newBounds);
+    protected NavigableSet<E> createSubSet(boolean newReversed, KeyRanges newKeyRanges, Bounds<E> newBounds) {
+        return new JSSet<E>(this.tx, this.field, this.id, newReversed, newKeyRanges, newBounds);
     }
 
 // SetFieldChangeNotifier

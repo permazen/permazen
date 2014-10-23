@@ -10,6 +10,7 @@ package org.jsimpledb.core;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
@@ -129,6 +130,19 @@ public class ObjId implements Comparable<ObjId> {
      */
     public static ObjId getMax(int storageId) {
         return ObjId.getFill(storageId, 0xff);
+    }
+
+    /**
+     * Get the {@link KeyRange} containing all object IDs with the given storage ID.
+     *
+     * @param storageId storage ID, must be greater than zero
+     * @return {@link KeyRange} containing all object IDs having the specified type
+     * @throws IllegalArgumentException if {@code storageId} is zero or negative
+     */
+    public static KeyRange getKeyRange(int storageId) {
+        final ByteWriter writer = new ByteWriter(NUM_BYTES);
+        UnsignedIntEncoder.write(writer, storageId);
+        return KeyRange.forPrefix(writer.getBytes());
     }
 
     private static ObjId getFill(int storageId, int value) {

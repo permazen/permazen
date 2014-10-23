@@ -12,6 +12,8 @@ import java.util.Iterator;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * {@link Iterator} implementation whose values derive from key/value {@code byte[]} pairs in a {@link KVStore}.
  *
  * <p>
- * Instances are configured with (optional) minimum and maximum keys and support either forward or reverse iteration.
+ * Instances are configured with an (optional) {@link KeyRanges} and support either forward or reverse iteration.
  * Subclasses must implement {@linkplain #decodePair decodePair()} to convert key/value pairs into iteration elements.
  * </p>
  *
@@ -53,21 +55,9 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
     protected final boolean prefixMode;
 
     /**
-     * Whether this instance is iterating in the reverse direction (i.e., from {@link #maxKey} down to {@link #minKey}).
+     * Whether this instance is iterating in the reverse direction.
      */
     protected final boolean reversed;
-
-    /**
-     * Minimum visible key (inclusive), or null for no minimum. Always less than or equal to {@link #maxKey},
-     * even if this instance is {@link #reversed}.
-     */
-    protected final byte[] minKey;
-
-    /**
-     * Maximum visible key (exclusive), or null for no maximum. Always greater than or equal to {@link #minKey},
-     * even if this instance is {@link #reversed}.
-     */
-    protected final byte[] maxKey;
 
     private final Iterator<KVPair> pairIterator;
 
@@ -84,7 +74,7 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * @param reversed whether to iterate in the reverse direction
      */
     public AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed) {
-        this(kv, prefixMode, reversed, null, null);
+        this(kv, prefixMode, reversed, (KeyRanges)null);
     }
 
     /**
@@ -97,7 +87,7 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * @throws NullPointerException if {@code prefix} is null
      */
     public AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, byte[] prefix) {
-        this(kv, prefixMode, reversed, prefix, ByteUtil.getKeyAfterPrefix(prefix));
+        this(kv, prefixMode, reversed, KeyRanges.forPrefix(prefix));
     }
 
     /**
@@ -106,25 +96,27 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * @param kv underlying {@link KVStore}
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param reversed whether to iterate in the reverse direction
-     * @param minKey minimum visible key (inclusive), or null for none
-     * @param maxKey maximum visible key (exclusive), or null for none
+     * @param keyRanges restriction on visible keys, or null for none
      * @throws IllegalArgumentException if {@code kv} is null
-     * @throws IllegalArgumentException if {@code minKey} and {@code maxKey} are both not null but {@code minKey > maxKey}
      */
-    public AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, byte[] minKey, byte[] maxKey) {
+    public AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, KeyRanges keyRanges) {
         if (kv == null)
             throw new IllegalArgumentException("null kv");
-        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
-            throw new IllegalArgumentException("minKey > maxKey");
         this.kv = kv;
         this.prefixMode = prefixMode;
         this.reversed = reversed;
-        this.minKey = minKey != null ? minKey.clone() : null;
-        this.maxKey = minKey != null ? maxKey.clone() : null;
-        if (this.prefixMode)
-            this.pairIterator = new KVPairIterator(this.kv, this.minKey, this.maxKey, this.reversed);
-        else
-            this.pairIterator = this.kv.getRange(this.minKey, this.maxKey, this.reversed);
+
+        // Determine whether we can use a straight KVStore iterator, which is more efficient than a KVPairIterator
+        if (!this.prefixMode && (keyRanges == null || keyRanges.getKeyRanges().size() == 1)) {
+            if (keyRanges == null)
+                this.pairIterator = this.kv.getRange(null, null, this.reversed);
+            else {
+                assert keyRanges.getKeyRanges().size() == 1;
+                final KeyRange range = keyRanges.getKeyRanges().get(0);
+                this.pairIterator = this.kv.getRange(range.getMin(), range.getMax(), this.reversed);
+            }
+        } else
+            this.pairIterator = new KVPairIterator(this.kv, keyRanges, this.reversed);
     }
 
 // Iterator

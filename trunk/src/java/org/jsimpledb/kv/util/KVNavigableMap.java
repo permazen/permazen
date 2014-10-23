@@ -14,14 +14,15 @@ import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
-import org.jsimpledb.util.BoundType;
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
 
 /**
- * A mutable {@link java.util.NavigableSet} view of the keys and values in a {@link KVStore}.
+ * A mutable {@link java.util.NavigableMap} view of the keys and values in a {@link KVStore}.
  */
 @SuppressWarnings("serial")
 public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
@@ -34,7 +35,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
      * @param kv underlying {@link KVStore}
      */
     public KVNavigableMap(KVStore kv) {
-        this(kv, null, null);
+        this(kv, (KeyRanges)null);
     }
 
     /**
@@ -45,18 +46,17 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
      * @throws NullPointerException if {@code prefix} is null
      */
     public KVNavigableMap(KVStore kv, byte[] prefix) {
-        this(kv, prefix, ByteUtil.getKeyAfterPrefix(prefix));
+        this(kv, KeyRanges.forPrefix(prefix));
     }
 
     /**
      * Primary constructor.
      *
      * @param kv underlying {@link KVStore}
-     * @param minKey minimum visible key (inclusive), or null for none
-     * @param maxKey maximum visible key (exclusive), or null for none
+     * @param keyRanges visible keys, or null for no restrictions
      */
-    public KVNavigableMap(KVStore kv, byte[] minKey, byte[] maxKey) {
-        this(kv, false, KVNavigableMap.createBounds(minKey, maxKey));
+    public KVNavigableMap(KVStore kv, KeyRanges keyRanges) {
+        this(kv, false, keyRanges, KVNavigableSet.createBounds(keyRanges));
     }
 
     /**
@@ -64,11 +64,12 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
      *
      * @param kv underlying {@link KVStore}
      * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted)
+     * @param keyRanges visible keys, or null for no restrictions
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code bounds} is null
      */
-    protected KVNavigableMap(KVStore kv, boolean reversed, Bounds<byte[]> bounds) {
-        super(kv, false, reversed, bounds.getLowerBound(), bounds.getUpperBound(), bounds);
+    protected KVNavigableMap(KVStore kv, boolean reversed, KeyRanges keyRanges, Bounds<byte[]> bounds) {
+        super(kv, false, reversed, keyRanges, bounds);
     }
 
     @Override
@@ -78,7 +79,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
 
     @Override
     public byte[] put(byte[] key, byte[] value) {
-        if (!this.inRange(key))
+        if (!this.isVisible(key))
             throw new IllegalArgumentException("key is out of range");
         final byte[] previousValue = this.kv.get(key);
         this.kv.put(key, value);
@@ -90,7 +91,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
         if (!(obj instanceof byte[]))
             return null;
         final byte[] key = (byte[])obj;
-        if (!this.inRange(key))
+        if (!this.isVisible(key))
             return null;
         final byte[] previousValue = this.kv.get(key);
         if (previousValue != null)
@@ -100,12 +101,17 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
 
     @Override
     public void clear() {
-        this.kv.removeRange(this.minKey, this.maxKey);
+        if (this.keyRanges == null) {
+            this.kv.removeRange(null, null);
+            return;
+        }
+        for (KeyRange range : this.keyRanges.getKeyRanges())
+            this.kv.removeRange(range.getMin(), range.getMax());
     }
 
     @Override
     public NavigableSet<byte[]> navigableKeySet() {
-        return new KVNavigableSet(this.kv, this.reversed, this.bounds);
+        return new KVNavigableSet(this.kv, this.reversed, this.keyRanges, this.bounds);
     }
 
     @Override
@@ -113,7 +119,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
         if (!(obj instanceof byte[]))
             return false;
         final byte[] key = (byte[])obj;
-        if (!this.inRange(key))
+        if (!this.isVisible(key))
             return false;
         return this.kv.get(key) != null;
     }
@@ -136,15 +142,8 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
     }
 
     @Override
-    protected NavigableMap<byte[], byte[]> createSubMap(boolean newReversed,
-      byte[] newMinKey, byte[] newMaxKey, Bounds<byte[]> newBounds) {
-        return new KVNavigableMap(this.kv, newReversed, newBounds);
-    }
-
-    private static Bounds<byte[]> createBounds(byte[] minKey, byte[] maxKey) {
-        final BoundType minBoundType = minKey != null ? BoundType.INCLUSIVE : BoundType.NONE;
-        final BoundType maxBoundType = maxKey != null ? BoundType.INCLUSIVE : BoundType.NONE;
-        return new Bounds<byte[]>(minKey, minBoundType, maxKey, maxBoundType);
+    protected NavigableMap<byte[], byte[]> createSubMap(boolean newReversed, KeyRanges newKeyRanges, Bounds<byte[]> newBounds) {
+        return new KVNavigableMap(this.kv, newReversed, newKeyRanges, newBounds);
     }
 }
 

@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 import org.jsimpledb.util.ByteUtil;
 
 /**
- * An {@link Iterator} that iterates over all key/value pairs in a {@link KVStore} within a contiguous range of keys,
+ * An {@link Iterator} that iterates over all key/value pairs in a {@link KVStore} within a range of keys,
  * without using the {@link KVStore#getRange KVStore.getRange()} method. Therefore, it can be used to implement
  * {@link KVStore#getRange KVStore.getRange()} in {@link KVStore} implementations that don't natively support iteration.
  *
@@ -22,15 +22,19 @@ import org.jsimpledb.util.ByteUtil;
  * {@link KVStore#getAtMost KVStore.getAtMost()}, and {@link KVStore#remove KVStore.remove()}.
  * Instances support {@linkplain #setNextTarget repositioning}, forward or reverse iteration, and {@link #remove removal}.
  * </p>
+ *
+ * <p>
+ * Instances support restricting the keys in the iteration to those contained in a {@link KeyRanges} instance.
+ * This filtering is implemented efficiently: skipping over an interval of invisible keys requires only one
+ * {@link KVStore#getAtLeast KVStore.getAtLeast()} or {@link KVStore#getAtMost KVStore.getAtMost()} call.
+ * </p>
  */
 public class KVPairIterator implements Iterator<KVPair> {
 
     protected final KVStore kv;
     protected final boolean reverse;
 
-    private final byte[] prefix;
-    private final byte[] minKey;
-    private final byte[] maxKey;
+    private final KeyRanges keyRanges;
 
     private KVPair currPair;            // cached value to return from next()
     private byte[] nextKey;             // next key lower/upper bound to go fetch, or null for none
@@ -78,7 +82,7 @@ public class KVPairIterator implements Iterator<KVPair> {
      * @throws IllegalArgumentException if {@code minKey > maxKey}
      */
     public KVPairIterator(KVStore kv, byte[] minKey, byte[] maxKey, boolean reverse) {
-        this(kv, minKey, maxKey, null, reverse);
+        this(kv, new KeyRanges(minKey, maxKey), reverse);
     }
 
     /**
@@ -90,20 +94,24 @@ public class KVPairIterator implements Iterator<KVPair> {
      * @throws IllegalArgumentException if any parameter is null
      */
     public KVPairIterator(KVStore kv, byte[] prefix, boolean reverse) {
-        this(kv, prefix, KVPairIterator.getMaxKey(prefix), prefix, reverse);
+        this(kv, KeyRanges.forPrefix(prefix), reverse);
     }
 
-    private KVPairIterator(KVStore kv, byte[] minKey, byte[] maxKey, byte[] prefix, boolean reverse) {
+    /**
+     * Primary constructor.
+     *
+     * @param kv underlying {@link KVStore}
+     * @param keyRanges restriction on visible keys, or null for none
+     * @param reverse true to iterate in a reverse direction, false to iterate in a forward direction
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public KVPairIterator(KVStore kv, KeyRanges keyRanges, boolean reverse) {
         if (kv == null)
             throw new IllegalArgumentException("null kv");
-        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
-            throw new IllegalArgumentException("minKey > maxKey");
         this.kv = kv;
-        this.minKey = minKey != null ? minKey.clone() : null;
-        this.maxKey = maxKey != null ? maxKey.clone() : null;
-        this.prefix = prefix != null ? prefix.clone() : null;
+        this.keyRanges = keyRanges;
         this.reverse = reverse;
-        this.nextKey = reverse ? this.maxKey : this.minKey;
+        this.nextKey = keyRanges != null ? (reverse ? this.keyRanges.getMax() : this.keyRanges.getMin()) : null;
     }
 
     /**
@@ -116,12 +124,12 @@ public class KVPairIterator implements Iterator<KVPair> {
     }
 
     /**
-     * Get the prefix associated with this instance, if any.
+     * Get the {@link KeyRanges} instance used to restrict visible keys, if any.
      *
-     * @return a modifiable copy of this instance's range prefix if a prefix constructor was used, otherwise null
+     * @return {@link KeyRanges} in which all keys returned by this iterator must be contained, or null if keys are unrestricted
      */
-    public byte[] getPrefix() {
-        return this.prefix.clone();
+    public KeyRanges getKeyRanges() {
+        return this.keyRanges;
     }
 
     /**
@@ -132,14 +140,19 @@ public class KVPairIterator implements Iterator<KVPair> {
     }
 
     /**
-     * Determine if the given key is within this iterator's original range of keys.
+     * Determine if the given key is visible in this instance. Equivalent to:
+     *  <blockquote><code>
+     *  this.getKeyRanges() == null || this.getKeyRanges().contains(key)
+     *  </code></blockquote>
      *
      * @return true if key is greater than or equal to this instance's minimum key (if an)
      *  and strictly less than this instance's maximum key (if any)
+     * @throws IllegalArgumentException if {@code key} is null
      */
-    public boolean inRange(byte[] key) {
-        return (this.minKey == null || ByteUtil.compare(key, this.minKey) >= 0)
-          && (this.maxKey == null || ByteUtil.compare(key, this.maxKey) < 0);
+    public boolean isVisible(byte[] key) {
+        if (key == null)
+            throw new IllegalArgumentException("null key");
+        return this.keyRanges == null || this.keyRanges.contains(key);
     }
 
     /**
@@ -149,6 +162,11 @@ public class KVPairIterator implements Iterator<KVPair> {
      * This is the key we will use to find the next element via {@link KVStore#getAtLeast}
      * (or {@link KVStore#getAtMost} if this is a reverse iterator). Note that in the forward case, this is an
      * inclusive lower bound on the next key, while in the reverse case it is an exclusive upper bound on the next key.
+     * </p>
+     *
+     * <p>
+     * This instance's configured {@link KeyRanges} instance, if any, still applies: if {@code targetKey} is not
+     * {@link #isVisible visible} to this instance, the next visible key after (or before) {@code targetKey} will be used instead.
      * </p>
      *
      * @param targetKey next lower bound (exclusive) if going forward, or upper bound (exclusive) if going backward,
@@ -171,17 +189,33 @@ public class KVPairIterator implements Iterator<KVPair> {
         if (this.finished)
             return false;
 
-        // Find next element
-        final KVPair pair = this.reverse ?
-          this.kv.getAtMost(this.nextKey) : this.kv.getAtLeast(this.nextKey != null ? this.nextKey : ByteUtil.EMPTY);
-        if (pair == null) {
-            this.finished = true;
-            return false;
-        }
+        // Find next element that is not filtered out by KeyRanges
+        KVPair pair;
+        while (true) {
 
-        // Check if within range
-        if (!this.inRange(pair.getKey()))
-            return false;
+            // Find next element
+            pair = this.reverse ?
+              this.kv.getAtMost(this.nextKey) : this.kv.getAtLeast(this.nextKey != null ? this.nextKey : ByteUtil.EMPTY);
+            if (pair == null) {
+                this.finished = true;
+                return false;
+            }
+
+            // Check if key is visible
+            if (this.isVisible(pair.getKey()))
+                break;
+
+            // Skip ahead to the next visible key range
+            assert this.keyRanges != null;
+            final KeyRange keyRange = this.keyRanges.getKeyRange(pair.getKey(), !this.reverse);
+            if (keyRange == null) {
+                this.finished = true;
+                return false;
+            }
+
+            // Try again
+            this.nextKey = this.reverse ? keyRange.getMax() : keyRange.getMin();
+        }
 
         // Save it (pre-fetch)
         this.currPair = pair;
@@ -214,18 +248,6 @@ public class KVPairIterator implements Iterator<KVPair> {
             throw new IllegalStateException();
         this.kv.remove(this.removeKey);
         this.removeKey = null;
-    }
-
-// Internal methods
-
-    private static byte[] getMaxKey(byte[] prefix) {
-        if (prefix == null)
-            throw new IllegalArgumentException("null prefix");
-        try {
-            return ByteUtil.getKeyAfterPrefix(prefix);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
     }
 }
 

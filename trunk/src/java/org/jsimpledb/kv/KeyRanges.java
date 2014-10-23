@@ -56,12 +56,32 @@ public class KeyRanges {
     /**
      * Constructor for an instance containing a single range.
      *
+     * @param range single range
+     * @throws IllegalArgumentException if {@code range} is null
+     */
+    public KeyRanges(KeyRange range) {
+        this(Collections.singletonList(range));
+    }
+
+    /**
+     * Constructor for an instance containing a single range.
+     *
      * @param min minimum key (inclusive), or null for no minimum
      * @param max maximum key (exclusive), or null for no maximum
      * @throws IllegalArgumentException if {@code min > max}
      */
     public KeyRanges(byte[] min, byte[] max) {
-        this(Collections.<KeyRange>singletonList(new KeyRange(min, max)));
+        this(new KeyRange(min, max));
+    }
+
+    /**
+     * Construct an instance containing a single range corresponding to all keys with the given prefix.
+     *
+     * @param prefix prefix of all keys in the range
+     * @throws IllegalArgumentException if {@code prefix} is null
+     */
+    public static KeyRanges forPrefix(byte[] prefix) {
+        return new KeyRanges(KeyRange.forPrefix(prefix));
     }
 
 // Instance methods
@@ -92,6 +112,27 @@ public class KeyRanges {
      */
     public boolean isFull() {
         return this.ranges.size() == 1 && this.ranges.get(0).isFull();
+    }
+
+    /**
+     * Get the minimum key contained by this instance (inclusive).
+     *
+     * @return minimum key contained by this instance (inclusive),
+     *  or null if there is no lower bound, or this instance {@link #isEmpty}
+     */
+    public byte[] getMin() {
+        return !this.ranges.isEmpty() ? this.ranges.get(0).getMin() : null;
+    }
+
+    /**
+     * Get the maximum key contained by this instance (exclusive).
+     *
+     * @return maximum key contained by this instance (exclusive),
+     *  or null if there is no upper bound, or this instance {@link #isEmpty}
+     */
+    public byte[] getMax() {
+        final int numRanges = this.ranges.size();
+        return numRanges > 0 ? this.ranges.get(numRanges - 1).getMax() : null;
     }
 
     /**
@@ -139,6 +180,20 @@ public class KeyRanges {
      */
     public boolean contains(byte[] key) {
         return this.getKeyRange(key, null) != null;
+    }
+
+    /**
+     * Determine whether this instance contains the given {@link KeyRanges}, i.e., all keys contained by
+     * the given {@link KeyRanges} are also contained by this instance.
+     *
+     * @param ranges other instance to test
+     * @return true if this instance contains {@code ranges}, otherwise false
+     * @throws IllegalArgumentException if {@code ranges} is null
+     */
+    public boolean contains(KeyRanges ranges) {
+        if (ranges == null)
+            throw new IllegalArgumentException("null ranges");
+        return ranges.equals(this.intersection(ranges));
     }
 
     /**
