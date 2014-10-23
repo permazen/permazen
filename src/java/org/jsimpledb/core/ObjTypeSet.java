@@ -9,10 +9,12 @@ package org.jsimpledb.core;
 
 import java.util.NavigableSet;
 
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.Bounds;
+import org.jsimpledb.util.ByteUtil;
 
 /**
- * Sets containing all objects of a given type, with the ability to {@link #remove remove()} elements
+ * Sets containing all objects of a given type, with the ability to {@link #remove remove()} elements,
  * which results in {@linkplain Transaction#delete object deletion}.
  */
 final class ObjTypeSet extends FieldTypeSet<ObjId> {
@@ -24,8 +26,8 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param storageId object type storage ID
      */
     ObjTypeSet(Transaction tx, int storageId) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, false, null, ObjId.getMin(storageId).getBytes(),
-          ObjId.getMin(storageId + 1).getBytes(), new Bounds<ObjId>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
+        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, new KeyRanges(ObjId.getKeyRange(storageId)),
+          new Bounds<ObjId>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
     }
 
     /**
@@ -33,12 +35,12 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      *
      * @param tx transaction
      * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted)
-     * @param minKey minimum visible key (inclusive), or null for none
-     * @param maxKey maximum visible key (exclusive), or null for none
+     * @param prefix prefix of all keys
+     * @param keyRanges key range restrictions; must at least restrict to {@code prefix}
      * @param bounds range restriction
      */
-    private ObjTypeSet(Transaction tx, boolean reversed, byte[] prefix, byte[] minKey, byte[] maxKey, Bounds<ObjId> bounds) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, reversed, prefix, minKey, maxKey, bounds);
+    private ObjTypeSet(Transaction tx, boolean reversed, byte[] prefix, KeyRanges keyRanges, Bounds<ObjId> bounds) {
+        super(tx, FieldTypeRegistry.OBJ_ID, true, reversed, prefix, keyRanges, bounds);
     }
 
     @Override
@@ -46,14 +48,14 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
         if (!(obj instanceof ObjId))
             return false;
         final ObjId id = (ObjId)obj;
-        if (!this.inRange(id.getBytes()))
+        if (!this.isVisible(id.getBytes()))
             return false;
         return this.tx.delete(id);
     }
 
     @Override
-    protected NavigableSet<ObjId> createSubSet(boolean newReversed, byte[] newMinKey, byte[] newMaxKey, Bounds<ObjId> newBounds) {
-        return new ObjTypeSet(this.tx, newReversed, this.prefix, newMinKey, newMaxKey, newBounds);
+    protected NavigableSet<ObjId> createSubSet(boolean newReversed, KeyRanges newKeyRanges, Bounds<ObjId> newBounds) {
+        return new ObjTypeSet(this.tx, newReversed, this.prefix, newKeyRanges, newBounds);
     }
 }
 

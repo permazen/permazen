@@ -12,6 +12,7 @@ import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.AbstractNavigableSet;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
@@ -23,11 +24,9 @@ import org.jsimpledb.util.ByteWriter;
  * keys in a {@link KVStore} and whose sort order is consistent with their {@code byte[]} key encoding.
  *
  * <p>
- * Instances are configured with (optional) minimum and maximum keys; when {@linkplain #bounds range restriction} is in
- * effect, these minimum and maximum keys must correspond to the bounds. Subclasses must implement the
- * {@linkplain #encode(ByteWriter, Object) encode()} and {@linkplain #decode decode()} methods to convert elements
- * to/from {@code byte[]} keys (associated values are ignored), and
- * {@link #createSubSet(boolean, byte[], byte[], Bounds) createSubSet()} to allow creating reversed and restricted range sub-sets.
+ * Subclasses must implement the {@linkplain #encode(ByteWriter, Object) encode()} and {@linkplain #decode decode()}
+ * methods to convert elements to/from {@code byte[]} keys (associated values are ignored), and
+ * {@link #createSubSet(boolean, KeyRanges, Bounds) createSubSet()} to allow creating reversed and restricted range sub-sets.
  * </p>
  *
  * <p>
@@ -44,8 +43,13 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * This class provides a read-only implementation; for a mutable implementation, subclasses should also implement
- * {@link #add add()} (if appropriate), {@link #remove remove()}, and {@link #clear}; note, these methods must verify the key is
- * {@link #inRange inRange()} before making any changes.
+ * {@link #add add()} (if appropriate), {@link #remove remove()}, and {@link #clear}; note, these methods must verify the key
+ * {@link #isVisible isVisible()} before making any changes.
+ * </p>
+ *
+ * <p>
+ * In addition to the normal min/max bounds check, instances support restricting the visible keys to those contained in a
+ * configured {@link KeyRanges} instance; see {@link #restrictKeys restrictKeys()}.
  * </p>
  *
  * <p>
@@ -77,32 +81,26 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     protected final boolean prefixMode;
 
     /**
-     * Whether the ordering of this instance is reversed (i.e., from {@link #maxKey} down to {@link #minKey}).
+     * Whether the ordering of this instance is reversed.
      */
     protected final boolean reversed;
 
     /**
-     * Minimum visible key (inclusive), or null for no minimum. Always less than or equal to {@link #maxKey},
-     * even if this instance is {@link #reversed}. Always inside the current {@link #bounds}, if any.
+     * Visible keys, or null if there are no restrictions.
      */
-    protected final byte[] minKey;
-
-    /**
-     * Maximum visible key (exclusive), or null for no maximum. Always greater than or equal to {@link #minKey},
-     * even if this instance is {@link #reversed}. Always inside the current {@link #bounds}, if any.
-     */
-    protected final byte[] maxKey;
+    protected final KeyRanges keyRanges;
 
 // Constructors
 
     /**
      * Convenience constructor for when there are no range restrictions.
      *
-     * @param prefixMode whether to allow keys to have trailing garbage
      * @param kv underlying {@link KVStore}
+     * @param prefixMode whether to allow keys to have trailing garbage
+     * @throws IllegalArgumentException if {@code kv} is null
      */
-    public AbstractKVNavigableSet(KVStore kv, boolean prefixMode) {
-        this(kv, prefixMode, null, null);
+    protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode) {
+        this(kv, prefixMode, (KeyRanges)null);
     }
 
     /**
@@ -111,10 +109,11 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @param kv underlying {@link KVStore}
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param prefix prefix defining minimum and maximum keys
-     * @throws NullPointerException if {@code prefix} is null
+     * @throws IllegalArgumentException if {@code kv} is null
+     * @throws IllegalArgumentException if {@code prefix} is null or empty
      */
-    public AbstractKVNavigableSet(KVStore kv, boolean prefixMode, byte[] prefix) {
-        this(kv, prefixMode, prefix, ByteUtil.getKeyAfterPrefix(prefix));
+    protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode, byte[] prefix) {
+        this(kv, prefixMode, KeyRanges.forPrefix(prefix));
     }
 
     /**
@@ -122,43 +121,36 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      *
      * @param kv underlying {@link KVStore}
      * @param prefixMode whether to allow keys to have trailing garbage
-     * @param minKey minimum visible key (inclusive), or null for none
-     * @param maxKey maximum visible key (exclusive), or null for none
-     * @throws IllegalArgumentException if {@code minKey} and {@code maxKey} are both not null but {@code minKey > maxKey}
+     * @param keyRanges restriction on visible keys, or null for none
+     * @throws IllegalArgumentException if {@code kv} is null
      */
-    public AbstractKVNavigableSet(KVStore kv, boolean prefixMode, byte[] minKey, byte[] maxKey) {
-        this(kv, prefixMode, false, minKey, maxKey, new Bounds<E>());
+    protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode, KeyRanges keyRanges) {
+        this(kv, prefixMode, false, keyRanges, new Bounds<E>());
     }
 
     /**
      * Internal constructor. Used for creating sub-sets and reversed views.
      *
      * <p>
-     * Note: if upper and/or lower bounds exist, the {@code minKey} and {@code maxKey} must correspond to them exactly.
+     * Note: if {@code bounds} are set, then {@code keyRanges} must exclude all keys outside of those bounds.
      * </p>
      *
      * @param kv underlying {@link KVStore}
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted,
-     *  but <i>not</i> {@code minKey} and {@code maxKey}); note: means "absolutely" reversed, not relative to this instance
-     * @param minKey minimum visible key (inclusive), or null for none; corresponds to {@code bounds}, if any
-     * @param maxKey maximum visible key (exclusive), or null for none; corresponds to {@code bounds}, if any
+     *  but <i>not</i> {@code keyRanges}; note: means "absolutely" reversed, not relative to this instance
+     * @param keyRanges restriction on visible keys, or null for none
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code kv} or {@code bounds} is null
-     * @throws IllegalArgumentException if {@code minKey} and {@code maxKey} are both not null but {@code minKey > maxKey}
      */
-    protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode,
-      boolean reversed, byte[] minKey, byte[] maxKey, Bounds<E> bounds) {
+    protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode, boolean reversed, KeyRanges keyRanges, Bounds<E> bounds) {
         super(bounds);
         if (kv == null)
             throw new IllegalArgumentException("null kv");
         this.kv = kv;
         this.prefixMode = prefixMode;
         this.reversed = reversed;
-        this.minKey = minKey != null ? minKey.clone() : null;
-        this.maxKey = minKey != null ? maxKey.clone() : null;
-        if (this.minKey != null && this.maxKey != null && ByteUtil.compare(this.minKey, this.maxKey) > 0)
-            throw new IllegalArgumentException("minKey > maxKey");
+        this.keyRanges = keyRanges;
     }
 
     @Override
@@ -181,7 +173,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
 
     @Override
     public Iterator<E> iterator() {
-        return new AbstractKVIterator<E>(this.kv, this.prefixMode, this.reversed, this.minKey, this.maxKey) {
+        return new AbstractKVIterator<E>(this.kv, this.prefixMode, this.reversed, this.keyRanges) {
 
             @Override
             protected E decodePair(KVPair pair, ByteReader keyReader) {
@@ -196,49 +188,41 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     }
 
     /**
-     * Create a subset of this instance that is restricted by {@code byte[]} keys instead of set elements.
-     * The {@link #bounds} will not change, but all elements outside of the specified key range will effectively disappear.
+     * Create a view of this instance with additional {@code byte[]} key range restrictions applied.
+     * The given {@link KeyRanges} restrictions will be added to the current restrictions (if any).
+     * The {@link #bounds} associated with this instance will not change.
      *
-     * @param newMinKey new minimum key (inclusive), or null to not change the minimum key
-     * @param newMaxKey new maximum key (exclusive), or null to not change the maximum key
-     * @throws IllegalArgumentException if {@code newMinKey} is less than the current {@link #minKey}
-     * @throws IllegalArgumentException if {@code newMaxKey} is greater than the current {@link #maxKey}
-     * @throws IllegalArgumentException if {@code newMinKey > newMmaxKey}
+     * @param keyRanges additional key restrictions to apply
+     * @throws IllegalArgumentException if {@code keyRanges} is null
      */
-    public NavigableSet<E> keyedSubSet(byte[] newMinKey, byte[] newMaxKey) {
-        if (newMinKey == null)
-            newMinKey = this.minKey;
-        if (newMaxKey == null)
-            newMaxKey = this.maxKey;
-        if (newMinKey != null && newMaxKey != null && ByteUtil.compare(newMinKey, newMaxKey) > 0)
-            throw new IllegalArgumentException("newMinKey > newMaxKey");
-        if (newMinKey != null && ByteUtil.compare(newMinKey, this.minKey) < 0)
-            throw new IllegalArgumentException("newMinKey < minKey");
-        if (newMaxKey != null && ByteUtil.compare(newMaxKey, this.maxKey) > 0)
-            throw new IllegalArgumentException("newMaxKey > maxKey");
-        return this.createSubSet(this.reversed, newMinKey, newMaxKey, this.bounds);
+    public NavigableSet<E> restrictKeys(KeyRanges keyRanges) {
+        if (keyRanges == null)
+            throw new IllegalArgumentException("null keyRanges");
+        if (this.keyRanges != null)
+            keyRanges = keyRanges.intersection(this.keyRanges);
+        return this.createSubSet(this.reversed, keyRanges, this.bounds);
     }
 
     @Override
     protected boolean isWithinLowerBound(E elem) {
         if (!super.isWithinLowerBound(elem))
             return false;
-        if (this.minKey == null)
+        if (this.keyRanges == null)
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encode(writer, elem);
-        return ByteUtil.compare(writer.getBytes(), this.minKey) >= 0;
+        return ByteUtil.compare(writer.getBytes(), this.keyRanges.getMin()) >= 0;
     }
 
     @Override
     protected boolean isWithinUpperBound(E elem) {
         if (!super.isWithinUpperBound(elem))
             return false;
-        if (this.maxKey == null)
+        if (this.keyRanges == null)
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encode(writer, elem);
-        return ByteUtil.compare(writer.getBytes(), this.maxKey) < 0;
+        return ByteUtil.compare(writer.getBytes(), this.keyRanges.getMax()) < 0;
     }
 
     @Override
@@ -248,10 +232,10 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         final boolean newReversed = this.reversed ^ reverse;
 
         // Determine new min and max keys
-        final byte[][] newMinMax = this.buildMinMax(newReversed ? newBounds.reverse() : newBounds);
+        final KeyRanges newKeyRanges = this.buildKeyRanges(newReversed ? newBounds.reverse() : newBounds);
 
         // Create subset
-        return this.createSubSet(newReversed, newMinMax[0], newMinMax[1], newBounds);
+        return this.createSubSet(newReversed, newKeyRanges, newBounds);
     }
 
     /**
@@ -260,13 +244,12 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * and have already been range-checked against this instance's bounds.
      *
      * @param newReversed whether the new set's ordering should be reversed (implies {@code newBounds} are also inverted,
-     *  but <i>not</i> {@code newMinKey} and {@code newMaxKey}); note: means "absolutely" reversed, not relative to this instance
-     * @param newMinKey new minimum visible key (inclusive), or null for none; inside the {@code bounds}, if any
-     * @param newMaxKey new maximum visible key (exclusive), or null for none; inside the {@code bounds}, if any
+     *  but <i>not</i> {@code keyRanges}); note: means "absolutely" reversed, not relative to this instance
+     * @param newKeyRanges new restriction on visible keys, or null for none
      * @param newBounds new bounds
      * @throws IllegalArgumentException if {@code newBounds} is null
      */
-    protected abstract NavigableSet<E> createSubSet(boolean newReversed, byte[] newMinKey, byte[] newMaxKey, Bounds<E> newBounds);
+    protected abstract NavigableSet<E> createSubSet(boolean newReversed, KeyRanges newKeyRanges, Bounds<E> newBounds);
 
     /**
      * Encode the given object into a {@code byte[]} key.
@@ -294,24 +277,23 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     protected abstract E decode(ByteReader reader);
 
     /**
-     * Determine if the given key is in this set's key range (i.e., between {@link #minKey} and {@link #maxKey}).
+     * Determine if the given {@code byte[]} key is visible in this set according to the configured {@link KeyRanges}.
+     *
+     * @see #restrictKeys restrictKeys()
      */
-    protected boolean inRange(byte[] key) {
-        if (this.minKey != null && ByteUtil.compare(key, this.minKey) < 0)
-            return false;
-        if (this.maxKey != null && ByteUtil.compare(key, this.maxKey) >= 0)
-            return false;
-        return true;
+    protected boolean isVisible(byte[] key) {
+        return this.keyRanges == null || this.keyRanges.contains(key);
     }
 
     /**
      * Encode the given object, if possible, otherwise return null or throw an exception.
+     * Delegates to {@link #encode(ByteWriter, Object)} to attempt the actual encoding.
      *
      * @param obj object to encode, possibly null
      * @param fail whether, if {@code obj} can't be encoded, to throw an exception (true) or return null (false)
      * @return encoed key for {@code obj}, or null if {@code fail} is false and {@code obj} has the wrong type or is out of bounds
      * @throws IllegalArgumentException if {@code fail} is true and {@code obj} has the wrong type
-     * @throws IllegalArgumentException if {@code fail} is true and {@code obj} is out of bounds
+     * @throws IllegalArgumentException if {@code fail} is true and the resulting key is not {@linkplain #isVisible visible}
      */
     protected byte[] encode(Object obj, boolean fail) {
         final ByteWriter writer = new ByteWriter();
@@ -323,7 +305,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             throw e;
         }
         final byte[] key = writer.getBytes();
-        if (!this.inRange(key)) {
+        if (!this.isVisible(key)) {
             if (fail)
                 throw new IllegalArgumentException("value is out of bounds: " + obj);
             return null;
@@ -332,37 +314,41 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     }
 
     /**
-     * Derive new min and max keys from (possibly) new element bounds. The given bounds must <i>not</i> ever be reversed.
+     * Derive new {@link KeyRanges} from (possibly) new element bounds. The given bounds must <i>not</i> ever be reversed.
      */
-    private byte[][] buildMinMax(Bounds<E> bounds) {
-        final byte[][] result = new byte[2][];
+    private KeyRanges buildKeyRanges(Bounds<E> bounds) {
+        byte[] minKey;
         switch (bounds.getLowerBoundType()) {
         case NONE:
-            result[0] = this.minKey;
+            minKey = null;
             break;
         default:
             final ByteWriter writer = new ByteWriter();
             this.encode(writer, bounds.getLowerBound());
-            result[0] = writer.getBytes();
+            minKey = writer.getBytes();
             if (!bounds.getLowerBoundType().isInclusive())
-                result[0] = this.prefixMode ? ByteUtil.getKeyAfterPrefix(result[0]) : ByteUtil.getNextKey(result[0]);
-            result[0] = ByteUtil.min(ByteUtil.max(result[0], this.minKey), this.maxKey);
+                minKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(minKey) : ByteUtil.getNextKey(minKey);
             break;
         }
+        byte[] maxKey;
         switch (bounds.getUpperBoundType()) {
         case NONE:
-            result[1] = this.maxKey;
+            maxKey = null;
             break;
         default:
             final ByteWriter writer = new ByteWriter();
             this.encode(writer, bounds.getUpperBound());
-            result[1] = writer.getBytes();
+            maxKey = writer.getBytes();
             if (bounds.getUpperBoundType().isInclusive())
-                result[1] = this.prefixMode ? ByteUtil.getKeyAfterPrefix(result[1]) : ByteUtil.getNextKey(result[1]);
-            result[1] = ByteUtil.max(ByteUtil.min(result[1], this.maxKey), this.minKey);
+                maxKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(maxKey) : ByteUtil.getNextKey(maxKey);
             break;
         }
-        return result;
+        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
+            minKey = maxKey;
+        KeyRanges newKeyRanges = new KeyRanges(minKey, maxKey);
+        if (this.keyRanges != null)
+            newKeyRanges = newKeyRanges.intersection(this.keyRanges);
+        return newKeyRanges.isFull() ? null : newKeyRanges;
     }
 }
 

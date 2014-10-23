@@ -135,12 +135,15 @@ public final class ByteUtil {
      * @param prefix lower bound prefix key
      * @return next key not having {@code prefix} as a prefix
      * @throws IllegalArgumentException if {@code prefix} is {@code null}
-     * @throws IllegalArgumentException if {@code prefix} has zero length or contains only {@code 0xff} bytes
+     * @throws IllegalArgumentException if {@code prefix} has zero length
+     * @throws IllegalArgumentException if {@code prefix} contains only {@code 0xff} bytes
      */
     public static byte[] getKeyAfterPrefix(byte[] prefix) {
         if (prefix == null)
             throw new IllegalArgumentException("null prefix");
         int len = prefix.length;
+        if (len == 0)
+            throw new IllegalArgumentException("empty prefix");
         while (len > 0 && prefix[len - 1] == (byte)0xff)
             len--;
         if (len <= 0)

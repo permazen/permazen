@@ -80,6 +80,8 @@ public class KeyRange {
      */
     protected final byte[] max;
 
+// Constructors
+
     /**
      * Constructor.
      *
@@ -106,6 +108,28 @@ public class KeyRange {
         this.min = key.clone();
         this.max = ByteUtil.getNextKey(this.min);
     }
+
+    /**
+     * Construct an instance containing all keys with the given prefix.
+     *
+     * @param prefix prefix of all keys in the range
+     * @throws IllegalArgumentException if {@code prefix} is null
+     */
+    public static KeyRange forPrefix(byte[] prefix) {
+        if (prefix == null)
+            throw new IllegalArgumentException("null prefix");
+        if (prefix.length == 0)
+            return new KeyRange(null, null);
+        /*final*/ byte[] maxKey;
+        try {
+            maxKey = ByteUtil.getKeyAfterPrefix(prefix);
+        } catch (IllegalArgumentException e) {
+            maxKey = null;
+        }
+        return new KeyRange(prefix, maxKey);
+    }
+
+// Instance Methods
 
     /**
      * Get range minimum (inclusive), or null if there is no lower bound.

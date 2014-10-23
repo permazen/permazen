@@ -10,6 +10,7 @@ package org.jsimpledb.core;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.AbstractKVNavigableSet;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
@@ -39,10 +40,10 @@ abstract class FieldTypeSet<E> extends AbstractKVNavigableSet<E> {
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param prefix implicit prefix of all keys
      * @throws IllegalArgumentException if {@code fieldType} is null
-     * @throws NullPointerException if {@code prefix} is null
+     * @throws IllegalArgumentException if {@code prefix} is null
      */
     FieldTypeSet(Transaction tx, FieldType<E> fieldType, boolean prefixMode, byte[] prefix) {
-        this(tx, fieldType, prefixMode, false, prefix, prefix, ByteUtil.getKeyAfterPrefix(prefix), new Bounds<E>());
+        this(tx, fieldType, prefixMode, false, prefix, KeyRanges.forPrefix(prefix), new Bounds<E>());
     }
 
     /**
@@ -53,24 +54,25 @@ abstract class FieldTypeSet<E> extends AbstractKVNavigableSet<E> {
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted)
      * @param prefix implicit prefix of all keys, or null for none
-     * @param minKey minimum visible key (inclusive), or null for none
-     * @param maxKey maximum visible key (exclusive), or null for none
+     * @param keyRanges key range restrictions; must at least restrict to {@code prefix}
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code fieldType} is null
+     * @throws IllegalArgumentException if {@code prefix} is null
+     * @throws IllegalArgumentException if {@code keyRanges} is null
      * @throws IllegalArgumentException if {@code bounds} is null
-     * @throws IllegalArgumentException if {@code minKey} or {@code maxKey} is out of range with respect to {@code prefix}
+     * @throws IllegalArgumentException if {@code prefix} is not null but {@code keyRanges} does not restrict within {@code prefix}
      */
     FieldTypeSet(Transaction tx, FieldType<E> fieldType, boolean prefixMode, boolean reversed,
-      byte[] prefix, byte[] minKey, byte[] maxKey, Bounds<E> bounds) {
-        super(tx.kvt, prefixMode, reversed, minKey, maxKey, bounds);
+      byte[] prefix, KeyRanges keyRanges, Bounds<E> bounds) {
+        super(tx.kvt, prefixMode, reversed, keyRanges, bounds);
         if (fieldType == null)
             throw new IllegalArgumentException("null fieldType");
-        if (prefix != null) {
-            if (minKey != null && !ByteUtil.isPrefixOf(prefix, minKey))
-                throw new IllegalArgumentException("minKey out of range with respect to prefix");
-            if (maxKey != null && ByteUtil.compare(maxKey, ByteUtil.getKeyAfterPrefix(prefix)) > 0)
-                throw new IllegalArgumentException("maxKey out of range with respect to prefix");
-        }
+        if (prefix == null)
+            throw new IllegalArgumentException("null prefix");
+        if (keyRanges == null)
+            throw new IllegalArgumentException("null keyRanges");
+        if (!KeyRanges.forPrefix(prefix).contains(keyRanges))
+            throw new IllegalArgumentException(keyRanges + " does not restrict to prefix " + ByteUtil.toString(prefix));
         this.tx = tx;
         this.fieldType = fieldType;
         this.prefix = prefix;
