@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +39,11 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.XMLSerializer;
+import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.XMLObjectSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,6 +227,47 @@ public abstract class TestSupport {
         t.printStackTrace(pw);
         pw.flush();
         return buf.toString();
+    }
+
+    protected KeyRange randomKeyRange() {
+        final byte[] b1 = this.randomBytes(true);
+        final byte[] b2 = this.randomBytes(true);
+        return b1 == null || b2 == null || ByteUtil.compare(b1, b2) <= 0 ? new KeyRange(b1, b2) : new KeyRange(b2, b1);
+    }
+
+    protected byte[] randomBytes(boolean allowNull) {
+        if (allowNull && this.random.nextFloat() < 0.1f)
+            return null;
+        final byte[] bytes = new byte[this.random.nextInt(6)];
+        this.random.nextBytes(bytes);
+        return bytes;
+    }
+
+    protected static KeyRange kr(String min, String max) {
+        return new KeyRange(b(min), b(max));
+    }
+
+    protected static KeyRanges krs(KeyRange... ranges) {
+        return new KeyRanges(Arrays.asList(ranges));
+    }
+
+    protected static byte[][] ba(String... sa) {
+        final byte[][] ba = new byte[sa.length][];
+        for (int i = 0; i < sa.length; i++)
+            ba[i] = b(sa[i]);
+        return ba;
+    }
+
+    protected static byte[] b(String s) {
+        return s == null ? null : ByteUtil.parse(s);
+    }
+
+    protected String s(KVPair pair) {
+        return pair != null ? ("[" + s(pair.getKey()) + ", " + s(pair.getValue()) + "]") : "null";
+    }
+
+    protected static String s(byte[] b) {
+        return b == null ? "null" : ByteUtil.toString(b);
     }
 }
 

@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jsimpledb.TestSupport;
-import org.jsimpledb.util.ByteUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -97,7 +96,7 @@ public class KeyRangesTest extends TestSupport {
 
     @Test(dataProvider = "getKeyRanges")
     public void testGetKeyRange(KeyRanges ranges, String keystr, int contains, int left, int right) throws Exception {
-        final byte[] key = k(keystr);
+        final byte[] key = b(keystr);
         final List<KeyRange> list = ranges.getKeyRanges();
         Assert.assertEquals(ranges.getKeyRange(key, null), contains != -1 ? list.get(contains) : null);
         Assert.assertEquals(ranges.getKeyRange(key, false), left != -1 ? list.get(left) : null);
@@ -189,36 +188,6 @@ public class KeyRangesTest extends TestSupport {
             paramsList.add(new Object[] { new KeyRanges(list) });
         }
         return paramsList.toArray(new Object[paramsList.size()][]);
-    }
-
-    private KeyRange randomKeyRange() {
-        final byte[] b1 = this.randomBytes(true);
-        final byte[] b2 = this.randomBytes(true);
-        return b1 == null || b2 == null || ByteUtil.compare(b1, b2) <= 0 ? new KeyRange(b1, b2) : new KeyRange(b2, b1);
-    }
-
-    private byte[] randomBytes(boolean allowNull) {
-        if (allowNull && this.random.nextFloat() < 0.1f)
-            return null;
-        final byte[] bytes = new byte[this.random.nextInt(6)];
-        this.random.nextBytes(bytes);
-        return bytes;
-    }
-
-    private static KeyRange kr(String min, String max) {
-        return new KeyRange(k(min), k(max));
-    }
-
-    private static KeyRanges krs(KeyRange... ranges) {
-        return new KeyRanges(Arrays.asList(ranges));
-    }
-
-    private static byte[] k(String s) {
-        return s == null ? null : ByteUtil.parse(s);
-    }
-
-    private static String s(byte[] b) {
-        return b == null ? "null" : ByteUtil.toString(b);
     }
 }
 
