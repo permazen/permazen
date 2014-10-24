@@ -218,10 +218,11 @@ public class JTransaction {
         this.tx = tx;
         this.validationMode = validationMode;
 
-        // Register listeners
-        this.tx.addCreateListener(this.internalCreateListener);
-        this.tx.addDeleteListener(this.internalDeleteListener);
-        boolean onVersionChangeNeeded = false;
+        // Register listeners as needed
+        if (this.jdb.hasOnCreateMethods)
+            this.tx.addCreateListener(this.internalCreateListener);
+        if (this.jdb.hasOnDeleteMethods)
+            this.tx.addDeleteListener(this.internalDeleteListener);
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
                 if (this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
@@ -229,7 +230,6 @@ public class JTransaction {
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
                 changeInfo.registerChangeListener(this);
             }
-            onVersionChangeNeeded |= !jclass.onVersionChangeMethods.isEmpty();
         }
         if (validationMode == ValidationMode.AUTOMATIC) {
             for (JClass<?> jclass : this.jdb.jclasses.values()) {
@@ -239,7 +239,7 @@ public class JTransaction {
                 }
             }
         }
-        if (onVersionChangeNeeded)
+        if (this.jdb.hasOnVersionChangeMethods)
             this.tx.addVersionChangeListener(this.internalVersionChangeListener);
     }
 
