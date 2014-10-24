@@ -90,6 +90,9 @@ public class JSimpleDB {
             return (JObject)classGenerator.getConstructor().newInstance(id);
         }
     };
+    final boolean hasOnCreateMethods;
+    final boolean hasOnDeleteMethods;
+    final boolean hasOnVersionChangeMethods;
 
     volatile int actualVersion;
 
@@ -217,6 +220,19 @@ public class JSimpleDB {
                 }
             }
         }
+
+        // Detect whether we have any @OnCreate, @OnDelete, and/or @OnVersionChange methods
+        boolean anyOnCreateMethods = false;
+        boolean anyOnDeleteMethods = false;
+        boolean anyOnVersionChangeMethods = false;
+        for (JClass<?> jclass : this.jclasses.values()) {
+            anyOnCreateMethods |= !jclass.onCreateMethods.isEmpty();
+            anyOnDeleteMethods |= !jclass.onDeleteMethods.isEmpty();
+            anyOnVersionChangeMethods |= !jclass.onVersionChangeMethods.isEmpty();
+        }
+        this.hasOnCreateMethods = anyOnCreateMethods;
+        this.hasOnDeleteMethods = anyOnDeleteMethods;
+        this.hasOnVersionChangeMethods = anyOnVersionChangeMethods;
 
         // Validate schema
         this.db.validateSchema(this.getSchemaModel());
