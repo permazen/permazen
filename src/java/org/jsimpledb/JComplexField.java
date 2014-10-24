@@ -7,8 +7,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.reflect.TypeToken;
-
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -46,23 +44,5 @@ public abstract class JComplexField extends JField {
      * @throws IllegalArgumentException if {@code subField} is not one of {@link #getSubFields}
      */
     abstract String getSubFieldName(JSimpleField subField);
-
-    /**
-     * Add any valid index entry return types for @IndexQuery-annotated methods that query the given indexed sub-field.
-     */
-    abstract <T, V> void addIndexEntryReturnTypes(List<TypeToken<?>> types,
-      TypeToken<T> targetType, JSimpleField subField, TypeToken<V> valueType);
-
-    /**
-     * Determine the type of index query from the method return type, i.e., normal object query or some kind of index entry query.
-     *
-     * @return zero for a normal query or some field-specific value otherwise
-     */
-    abstract int getIndexEntryQueryType(TypeToken<?> queryObjectType);
-
-    /**
-     * Get the {@link JTransaction} method to invoke from generated classes for the given index entry query type.
-     */
-    abstract Method getIndexEntryQueryMethod(int queryType);
 }
 

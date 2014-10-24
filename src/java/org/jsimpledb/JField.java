@@ -10,10 +10,8 @@ package org.jsimpledb;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 import org.dellroad.stuff.java.Primitive;
-import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SchemaField;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -48,15 +46,6 @@ public abstract class JField extends JSchemaObject {
      */
     public Method getGetter() {
         return this.getter;
-    }
-
-    /**
-     * Determine whether {@linkplain #getGetter this field's getter method} has any JSR 202 annotations.
-     *
-     * @return true if this field requires validation, otherwise false
-     */
-    public boolean isRequiresValidation() {
-        return this.requiresValidation;
     }
 
     /**
@@ -111,17 +100,6 @@ public abstract class JField extends JSchemaObject {
             }
         });
     }
-
-    /**
-     * Add the {@link FieldChange} sub-types that are valid parameter types for
-     * @OnChange-annotated methods that watch this field as the target field.
-     */
-    abstract <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType);
-
-    /**
-     * Register the given listener as a change listener for this field.
-     */
-    abstract void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener);
 
     /**
      * Create a {@link JFieldInfo} instance that corresponds to this instance.

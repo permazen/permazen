@@ -123,12 +123,12 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 // Get all (concrete) change types emitted by the target field
                 final ArrayList<TypeToken<?>> changeParameterTypes = new ArrayList<TypeToken<?>>();
                 try {
-                    path.targetField.addChangeParameterTypes(changeParameterTypes, path.targetType);
+                    path.targetFieldInfo.addChangeParameterTypes(changeParameterTypes, path.targetType);
                 } catch (UnsupportedOperationException e) {
                     if (wildcard)
                         continue;
                     throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `"
-                      + stringPath + "' is invalid because change notifications are not supported for " + path.targetField, e);
+                      + stringPath + "' is invalid because change notifications are not supported for " + path.targetFieldInfo, e);
                 }
                 anyFieldsFound = true;
 
@@ -155,7 +155,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     if (wildcard)
                         continue;
                     throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
-                      + "' is invalid because no changes emitted by " + path.targetField + " match the method's"
+                      + "' is invalid because no changes emitted by " + path.targetFieldInfo + " match the method's"
                       + " parameter type " + genericParameterType + "; the emitted change type is "
                       + (changeParameterTypes.size() != 1 ? "one of: " + changeParameterTypes : changeParameterTypes.get(0)));
                 }
@@ -179,7 +179,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         void registerChangeListener(JTransaction jtx) {
             final ChangeMethodListener listener = new ChangeMethodListener(jtx, this.getMethod());
             for (ReferencePath path : this.paths)
-                path.targetField.registerChangeListener(jtx.tx, path.getReferenceFields(), listener);
+                path.targetFieldInfo.registerChangeListener(jtx.tx, path.getReferenceFields(), listener);
         }
     }
 
