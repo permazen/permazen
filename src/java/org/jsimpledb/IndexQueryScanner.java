@@ -73,7 +73,7 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
         final TypeToken<?> type;
         final TypeToken<?> targetType;
         final JSimpleFieldInfo targetFieldInfo;
-        final TypeToken<?> targetReferenceType;
+        final TypeToken<?> targetFieldType;
         final JComplexFieldInfo targetSuperFieldInfo;
         final ArrayList<TypeToken<?>> indexReturnTypes = new ArrayList<TypeToken<?>>();
 
@@ -104,20 +104,16 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
             // Get target object, field, and complex super-field (if any)
             this.targetType = path.targetType;
             this.targetFieldInfo = (JSimpleFieldInfo)path.targetFieldInfo;
-            this.targetReferenceType = path.targetReferenceType;
+            this.targetFieldType = path.targetFieldType;
             this.targetSuperFieldInfo = path.targetSuperFieldInfo;
 
             // Verify the field is actually indexed
             if (!this.targetFieldInfo.isIndexed())
                 throw new IllegalArgumentException(this.targetFieldInfo + " is not indexed");
 
-            // Get value type
-            final TypeToken<?> valueType = this.targetFieldInfo instanceof JReferenceFieldInfo ?
-              this.targetReferenceType : this.targetFieldInfo.getTypeToken();
-
             // Get valid index return types for this field
             try {
-                this.targetFieldInfo.addIndexReturnTypes(this.indexReturnTypes, this.type, valueType);
+                this.targetFieldInfo.addIndexReturnTypes(this.indexReturnTypes, this.type, this.targetFieldType);
             } catch (UnsupportedOperationException e) {
                 throw new IllegalArgumentException("indexing is not supported for " + this.targetFieldInfo, e);
             }
@@ -125,7 +121,7 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
             // If field is a complex sub-field, determine add complex index entry type(s)
             if (this.targetSuperFieldInfo != null) {
                 this.targetSuperFieldInfo.addIndexEntryReturnTypes(this.indexReturnTypes,
-                  this.type, this.targetFieldInfo, valueType);
+                  this.type, this.targetFieldInfo, this.targetFieldType);
             }
         }
     }

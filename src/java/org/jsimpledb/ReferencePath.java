@@ -96,7 +96,7 @@ public class ReferencePath {
 
     final TypeToken<?> startType;
     final TypeToken<?> targetType;
-    final TypeToken<?> targetReferenceType;
+    final TypeToken<?> targetFieldType;
     final JFieldInfo targetFieldInfo;
     final JComplexFieldInfo targetSuperFieldInfo;
     final ArrayList<JReferenceFieldInfo> referenceFieldInfos = new ArrayList<>();
@@ -148,7 +148,7 @@ public class ReferencePath {
 
         // Initialize loop state
         TypeToken<?> currentType = this.startType;
-        TypeToken<?> referenceType = null;
+        TypeToken<?> currentFieldType = null;
         JFieldInfo fieldInfo = null;
         JComplexFieldInfo superFieldInfo = null;
         if (this.log.isTraceEnabled()) {
@@ -215,16 +215,17 @@ public class ReferencePath {
             // Get common supertype of all types containing the field
             currentType = Util.findLowestCommonAncestor(Iterables.transform(matchingFields.keySet(), new JClassTypeFunction()));
 
-            // Get common supertype of reference field's reference type (if field is a reference field)
+            // Get field type (for reference fields, only consider matching fields so we get the narrowest type)
+            currentFieldType = fieldInfo.getTypeToken();
             if (fieldInfo instanceof JReferenceFieldInfo) {
-                referenceType = Util.findLowestCommonAncestor(Iterables.transform(
+                currentFieldType = Util.findLowestCommonAncestor(Iterables.transform(
                   Iterables.transform(matchingFields.values(), new CastFunction<JReferenceField>(JReferenceField.class)),
-                  new JFieldTypeFunction()));
+                  new JReferenceFieldTypeFunction()));
             }
 
             // Logging
             if (this.log.isTraceEnabled())
-                this.log.trace("RefPath: updated currentType=" + currentType + " referenceType=" + referenceType);
+                this.log.trace("RefPath: updated currentType=" + currentType + " currentFieldType=" + currentFieldType);
 
             // Handle complex fields
             superFieldInfo = null;
@@ -250,15 +251,16 @@ public class ReferencePath {
                     throw new IllegalArgumentException(errorPrefix + "invalid " + description + ": " + e.getMessage(), e);
                 }
 
-                // Update common supertype of reference field's reference type (if sub-field is a reference field)
+                // Update field type
+                currentFieldType = fieldInfo.getTypeToken();
                 if (fieldInfo instanceof JReferenceFieldInfo) {
-                    referenceType = Util.findLowestCommonAncestor(
+                    currentFieldType = Util.findLowestCommonAncestor(
                       Iterables.transform(matchingFields.values(), new ReferenceSubFieldTypeFunction(subFieldName)));
                 }
 
                 // Logging
                 if (this.log.isTraceEnabled())
-                    this.log.trace("RefPath: complex field: referenceType=" + referenceType);
+                    this.log.trace("RefPath: complex field: currentFieldType=" + currentFieldType);
             }
 
             // Last field?
@@ -278,26 +280,25 @@ public class ReferencePath {
             this.referenceFieldInfos.add((JReferenceFieldInfo)fieldInfo);
 
             // Advance through the reference
-            assert referenceType != null;
-            currentType = referenceType;
+            currentType = currentFieldType;
         }
 
         // Done
         this.targetType = currentType;
         this.targetFieldInfo = fieldInfo;
-        this.targetReferenceType = referenceType;
+        this.targetFieldType = currentFieldType;
         this.targetSuperFieldInfo = superFieldInfo;
 
         // Logging
         if (this.log.isTraceEnabled()) {
             this.log.trace("RefPath: DONE: targetType=" + this.targetType + " targetFieldInfo=" + this.targetFieldInfo
-              + " targetSuperFieldInfo=" + this.targetSuperFieldInfo + " targetReferenceType=" + this.targetReferenceType
+              + " targetSuperFieldInfo=" + this.targetSuperFieldInfo + " targetFieldType=" + this.targetFieldType
               + " references=" + this.referenceFieldInfos);
         }
     }
 
     /**
-     * Get the Java type at which this path starts.
+     * Get the Java type of the object at which this path starts.
      *
      * <p>
      * If there are zero {@linkplain #getReferenceFields reference fields} in this path, then this will
@@ -310,7 +311,7 @@ public class ReferencePath {
     }
 
     /**
-     * Get the Java type at which this path ends.
+     * Get the Java type of the object at which this path ends.
      *
      * <p>
      * If there are zero {@linkplain #getReferenceFields reference fields} in this path, then this will
@@ -323,15 +324,10 @@ public class ReferencePath {
     }
 
     /**
-     * Get the Java type referred to by the reference field at which this path ends, if any.
-     *
-     * <p>
-     * If this path does not end in a reference field, this will return null. Otherwise, it returns the
-     * Java type of object referred to by that field.
-     * </p>
+     * Get the Java type corresponding to the field at which this path ends, if any.
      */
-    public TypeToken<?> getTargetReferenceType() {
-        return this.targetReferenceType;
+    public TypeToken<?> getTargetFieldType() {
+        return this.targetFieldType;
     }
 
     /**
@@ -400,7 +396,7 @@ public class ReferencePath {
         }
     }
 
-    private static class JFieldTypeFunction implements Function<JReferenceField, TypeToken<?>> {
+    private static class JReferenceFieldTypeFunction implements Function<JReferenceField, TypeToken<?>> {
 
         @Override
         public TypeToken<?> apply(JReferenceField jfield) {
