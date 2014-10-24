@@ -7,17 +7,26 @@
 
 package org.jsimpledb;
 
+import com.google.common.reflect.TypeToken;
+
+import java.util.List;
+
+import org.jsimpledb.core.Transaction;
+
 class JCounterFieldInfo extends JFieldInfo {
 
     JCounterFieldInfo(JCounterField jfield) {
         super(jfield);
     }
 
-// Object
+    @Override
+    <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
+        throw new UnsupportedOperationException("counter fields do not support change notifications");
+    }
 
     @Override
-    public String toString() {
-        return "counter " + super.toString();
+    void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener) {
+        throw new UnsupportedOperationException("counter fields do not support change notifications");
     }
 }
 

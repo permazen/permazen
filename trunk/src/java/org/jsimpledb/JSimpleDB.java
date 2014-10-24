@@ -203,23 +203,56 @@ public class JSimpleDB {
         for (JClass<?> jclass : this.jclasses.values())
             jclass.createFields();
 
-        // Scan for other annotations
-        for (JClass<?> jclass : this.jclasses.values())
-            jclass.scanAnnotations();
-
-        // Create field info structures and check for conflicts
-        final HashMap<Integer, String> descriptionMap = new HashMap<>();
+        // Map fields to field info structures
+        final HashMap<JField, JFieldInfo> field2infoMap = new HashMap<>();
         for (JClass<?> jclass : this.jclasses.values()) {
             for (JField jfield : jclass.jfields.values()) {
                 final JFieldInfo jfieldInfo = jfield.toJFieldInfo();
-                this.addJFieldInfo(jfield, jfieldInfo, descriptionMap);
                 if (jfield instanceof JComplexField) {
                     final JComplexField complexField = (JComplexField)jfield;
-                    for (JSimpleField subField : complexField.getSubFields())
-                        this.addJFieldInfo(subField, subField.toJFieldInfo((JComplexFieldInfo)jfieldInfo), descriptionMap);
+                    final JComplexFieldInfo complexFieldInfo = (JComplexFieldInfo)jfieldInfo;
+                    final List<JSimpleField> subFields = complexField.getSubFields();
+                    final List<JSimpleFieldInfo> subFieldInfos = new ArrayList<>(subFields.size());
+                    for (JSimpleField subField : subFields) {
+                        final JSimpleFieldInfo subFieldInfo = subField.toJFieldInfo(complexFieldInfo);
+                        subFieldInfos.add(subFieldInfo);
+                        field2infoMap.put(subField, subFieldInfo);
+                    }
+                    complexFieldInfo.setSubFieldInfos(subFieldInfos);
+                }
+                field2infoMap.put(jfield, jfieldInfo);
+            }
+        }
+
+        // Check for conflicts; create canonical instances
+        final HashMap<Integer, String> descriptionMap = new HashMap<>();
+        for (Map.Entry<JField, JFieldInfo> entry : field2infoMap.entrySet())
+            entry.setValue(this.addJFieldInfo(entry.getKey(), entry.getValue(), descriptionMap));
+
+        // Update references to super-fields and sub-fields
+        for (JClass<?> jclass : this.jclasses.values()) {
+            for (JField jfield : jclass.jfields.values()) {
+                if (jfield instanceof JComplexField) {
+                    final JComplexField complexField = (JComplexField)jfield;
+                    final JComplexFieldInfo complexFieldInfo = (JComplexFieldInfo)field2infoMap.get(jfield);
+                    final List<JSimpleField> subFieldList = complexField.getSubFields();
+                    final List<JSimpleFieldInfo> subFieldInfoList = complexFieldInfo.getSubFieldInfos();
+                    for (int i = 0; i < subFieldList.size(); i++) {
+                        final JSimpleFieldInfo subFieldInfo = (JSimpleFieldInfo)field2infoMap.get(subFieldList.get(i));
+                        subFieldInfoList.set(i, subFieldInfo);
+                        subFieldInfo.setParent(complexFieldInfo);
+                    }
                 }
             }
         }
+
+        // Show all fields to corresponding info
+        for (Map.Entry<JField, JFieldInfo> entry : field2infoMap.entrySet())
+            entry.getValue().witness(entry.getKey());
+
+        // Scan for other annotations
+        for (JClass<?> jclass : this.jclasses.values())
+            jclass.scanAnnotations();
 
         // Detect whether we have any @OnCreate, @OnDelete, and/or @OnVersionChange methods
         boolean anyOnCreateMethods = false;
@@ -551,17 +584,25 @@ public class JSimpleDB {
               + jclass.storageId + " for both " + other + " and " + jclass);
         }
         this.jclasses.put(jclass.storageId, jclass);
-        this.jclassesByType.put(jclass.typeToken, jclass);      // this can never conflict, no need to check
+        assert !this.jclassesByType.containsKey(jclass.typeToken);              // this should never conflict, no need to check
+        this.jclassesByType.put(jclass.typeToken, jclass);
     }
 
     // Add new JFieldInfo, checking for field conflicts
-    private void addJFieldInfo(JField jfield, JFieldInfo jfieldInfo, Map<Integer, String> descriptionMap) {
-        final JFieldInfo previous = this.jfieldInfos.put(jfieldInfo.storageId, jfieldInfo);
-        if (previous != null && !previous.equals(jfieldInfo)) {
-            throw new IllegalArgumentException("invalid duplicate use of storage ID " + jfield.storageId
-              + " for both " + descriptionMap.get(jfieldInfo.storageId) + " and " + jfield.description);
+    @SuppressWarnings("unchecked")
+    private <T extends JFieldInfo> T addJFieldInfo(JField jfield, T jfieldInfo, Map<Integer, String> descriptionMap) {
+        final T existing = (T)this.jfieldInfos.get(jfieldInfo.storageId);
+        if (existing == null) {
+            this.jfieldInfos.put(jfieldInfo.storageId, jfieldInfo);
+            descriptionMap.put(jfieldInfo.storageId, jfield.description);
+        } else {
+            if (!jfieldInfo.equals(existing)) {
+                throw new IllegalArgumentException("invalid duplicate use of storage ID " + jfieldInfo.storageId
+                  + " for incompatible fields " + descriptionMap.get(existing.storageId) + " and " + jfield.description);
+            }
+            jfieldInfo = existing;
         }
-        descriptionMap.put(jfieldInfo.storageId, jfield.description);
+        return jfieldInfo;
     }
 }
 

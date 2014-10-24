@@ -8,6 +8,12 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.reflect.TypeToken;
+
+import java.util.HashSet;
+import java.util.List;
+
+import org.jsimpledb.core.Transaction;
 
 /**
  * Schema-wide information common to all {@link JField}s sharing a storage ID.
@@ -22,6 +28,9 @@ abstract class JFieldInfo {
 
     final int storageId;
 
+    private final HashSet<String> names = new HashSet<>();
+    private boolean requiresValidation;
+
     JFieldInfo(JField jfield) {
         this.storageId = jfield.storageId;
     }
@@ -31,6 +40,15 @@ abstract class JFieldInfo {
      */
     public int getStorageId() {
         return this.storageId;
+    }
+
+    /**
+     * Determine whether any associated {@link JField} requires validation.
+     *
+     * @return true any associated fields require validation, otherwise false
+     */
+    public boolean isRequiresValidation() {
+        return this.requiresValidation;
     }
 
     /**
@@ -47,11 +65,28 @@ abstract class JFieldInfo {
         return null;
     }
 
+    /**
+     * Add the {@link FieldChange} sub-types that are valid parameter types for
+     * @OnChange-annotated methods that watch this field as the target field.
+     */
+    abstract <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType);
+
+    /**
+     * Register the given listener as a change listener for this field.
+     */
+    abstract void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener);
+
+    void witness(JField jfield) {
+        this.names.add(jfield.name);
+        this.requiresValidation |= jfield.requiresValidation;
+    }
+
 // Object
 
     @Override
     public String toString() {
-        return "field with storage ID " + this.storageId;
+        return this.getClass().getSimpleName().replaceAll("^J(.+)FieldInfo", "$1").toLowerCase() + " field "
+          + (this.names.size() == 1 ? "`" + this.names.iterator().next() + "'" : "with storage ID " + this.storageId);
     }
 
     @Override

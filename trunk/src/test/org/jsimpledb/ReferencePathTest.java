@@ -47,8 +47,8 @@ public class ReferencePathTest extends TestSupport {
         // Verify parse
         Assert.assertEquals(path.startType, startType);
         Assert.assertEquals(path.targetType, targetType);
-        Assert.assertEquals(path.targetField.storageId, targetField);
-        Assert.assertEquals(path.targetSuperField != null ? path.targetSuperField.storageId : 0, targetSuperField);
+        Assert.assertEquals(path.targetFieldInfo.storageId, targetField);
+        Assert.assertEquals(path.targetSuperFieldInfo != null ? path.targetSuperFieldInfo.storageId : 0, targetSuperField);
         Assert.assertEquals(path.getReferenceFields(), refs);
         Assert.assertEquals(path.toString(), pathString);
     }

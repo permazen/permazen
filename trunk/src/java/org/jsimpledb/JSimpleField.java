@@ -7,17 +7,11 @@
 
 package org.jsimpledb;
 
-import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
 
 import org.dellroad.stuff.java.Primitive;
-import org.jsimpledb.change.SimpleFieldChange;
-import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.SimpleSchemaField;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -160,34 +154,6 @@ public class JSimpleField extends JField {
                   writeMethod.getName(), Type.getMethodDescriptor(writeMethod));
             }
         });
-    }
-
-    @Override
-    void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener) {
-        tx.addSimpleFieldChangeListener(this.storageId, path, listener);
-    }
-
-    @Override
-    <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
-        this.addChangeParameterTypes(types, targetType, this.typeToken);
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings("serial")
-    private <T, V> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<V> fieldType) {
-        types.add(new TypeToken<SimpleFieldChange<T, V>>() { }
-          .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<V>() { }, fieldType.wrap()));
-    }
-
-    /**
-     * Add valid return types for @IndexQuery-annotated methods that query this indexed field.
-     */
-    @SuppressWarnings("serial")
-    <T, V> void addIndexReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<V> valueType) {
-        types.add(new TypeToken<NavigableMap<V, NavigableSet<T>>>() { }
-          .where(new TypeParameter<V>() { }, valueType.wrap())
-          .where(new TypeParameter<T>() { }, targetType));
     }
 
     @Override

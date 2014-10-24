@@ -18,6 +18,9 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.validation.Constraint;
 
@@ -61,6 +64,81 @@ final class Util {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Find the narrowest type that is a supertype of all of the given types.
+     */
+    public static TypeToken<?> findLowestCommonAncestor(Iterable<TypeToken<?>> types) {
+
+        // Gather all supertypes of types recursively
+        final HashSet<TypeToken<?>> supertypes = new HashSet<>();
+        for (TypeToken<?> type : types)
+            Util.addSupertypes(supertypes, type);
+
+        // Throw out all supertypes that are not supertypes of every type
+        for (Iterator<TypeToken<?>> i = supertypes.iterator(); i.hasNext(); ) {
+            final TypeToken<?> supertype = i.next();
+            for (TypeToken<?> type : types) {
+                if (!supertype.isAssignableFrom(type)) {
+                    i.remove();
+                    break;
+                }
+            }
+        }
+
+        // Throw out all supertypes that are supertypes of some other supertype
+        for (Iterator<TypeToken<?>> i = supertypes.iterator(); i.hasNext(); ) {
+            final TypeToken<?> supertype = i.next();
+            for (TypeToken<?> supertype2 : supertypes) {
+                if (supertype2 != supertype && supertype.isAssignableFrom(supertype2)) {
+                    i.remove();
+                    break;
+                }
+            }
+        }
+
+        // Pick the best candidate that's not Object, if possible
+        final TypeToken<Object> objectType = TypeToken.of(Object.class);
+        supertypes.remove(objectType);
+        switch (supertypes.size()) {
+        case 0:
+            return objectType;
+        case 1:
+            return supertypes.iterator().next();
+        default:
+            break;
+        }
+
+        // Pick the one that's not an interface, if any (it will be the the only non-interface type)
+        for (TypeToken<?> supertype : supertypes) {
+            if (!supertype.getRawType().isInterface())
+                return supertype;
+        }
+
+        // There are now only interfaces to choose from (or Object)... try JObject
+        final TypeToken<JObject> jobjectType = TypeToken.of(JObject.class);
+        if (supertypes.contains(jobjectType))
+            return jobjectType;
+
+        // Last resort is Object
+        return objectType;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> void addSupertypes(Set<TypeToken<?>> types, TypeToken<T> type) {
+        if (type == null || !types.add(type))
+            return;
+        final Class<? super T> rawType = type.getRawType();
+        types.add(TypeToken.of(rawType));
+        types.add(Util.getWildcardedType(rawType));
+        final Class<? super T> superclass = rawType.getSuperclass();
+        if (superclass != null) {
+            Util.addSupertypes(types, TypeToken.of(superclass));
+            Util.addSupertypes(types, type.getSupertype(superclass));
+        }
+        for (Class<?> iface : rawType.getInterfaces())
+            Util.addSupertypes(types, type.getSupertype((Class<? super T>)iface));
     }
 
     /**

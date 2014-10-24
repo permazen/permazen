@@ -1,4 +1,8 @@
 
+- @IndexQuery and runtime index query type parameters must be assignable to widest type
+    - If narrower, restrict keys or values using KeyRanges
+    - Harmonize @IndexQuery and runtime index query
+
 - Add support for XA transactions
     - But only if KVStore supports them
 

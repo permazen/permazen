@@ -232,11 +232,9 @@ public class JTransaction {
             }
         }
         if (validationMode == ValidationMode.AUTOMATIC) {
-            for (JClass<?> jclass : this.jdb.jclasses.values()) {
-                for (JField jfield : jclass.jfields.values()) {
-                    if (jfield.requiresValidation)
-                        jfield.registerChangeListener(this.tx, new int[0], this.validationListener);
-                }
+            for (JFieldInfo jfieldInfo : this.jdb.jfieldInfos.values()) {
+                if (jfieldInfo.isRequiresValidation())
+                    jfieldInfo.registerChangeListener(this.tx, new int[0], this.validationListener);
             }
         }
         if (this.jdb.hasOnVersionChangeMethods)
@@ -392,7 +390,7 @@ public class JTransaction {
             throw new IllegalArgumentException("invalid field name `" + fieldName + "'");
         if (!refPath.targetType.getRawType().isInstance(jobj))
             throw new IllegalArgumentException("jobj is not an instance of " + refPath.targetType); // should never happen
-        return this.tx.getKey(jobj.getObjId(), refPath.targetField.storageId);
+        return this.tx.getKey(jobj.getObjId(), refPath.targetFieldInfo.storageId);
     }
 
 // Snapshots
@@ -1125,7 +1123,7 @@ public class JTransaction {
     @SuppressWarnings("unchecked")
     public <S, V> NavigableMap<V, NavigableSet<S>> queryIndex(Class<S> type, String fieldName, Class<V> valueType) {
         final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
-        return (NavigableMap<V, NavigableSet<S>>)(Object)this.queryIndex(indexInfo.targetField.storageId,
+        return (NavigableMap<V, NavigableSet<S>>)(Object)this.queryIndex(indexInfo.targetFieldInfo.storageId,
           indexInfo.type.getRawType());
     }
 
@@ -1151,10 +1149,10 @@ public class JTransaction {
     public <S, V> NavigableMap<V, NavigableSet<ListIndexEntry<S>>> queryListFieldEntries(Class<S> type,
       String fieldName, Class<V> valueType) {
         final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
-        if (!(indexInfo.targetSuperField instanceof JListField))
+        if (!(indexInfo.targetSuperFieldInfo instanceof JListFieldInfo))
             throw new IllegalArgumentException("field `" + fieldName + "' is not a list element field");
         return (NavigableMap<V, NavigableSet<ListIndexEntry<S>>>)(Object)this.queryListFieldEntries(
-          indexInfo.targetSuperField.storageId, indexInfo.type.getRawType());
+          indexInfo.targetSuperFieldInfo.storageId, indexInfo.type.getRawType());
     }
 
     /**
@@ -1180,16 +1178,16 @@ public class JTransaction {
     public <S, K, V> NavigableMap<K, NavigableSet<MapKeyIndexEntry<S, V>>> queryMapFieldKeyEntries(Class<S> type,
       String fieldName, Class<K> keyType, Class<V> valueType) {
         final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, keyType);
-        if (!(indexInfo.targetSuperField instanceof JMapField)
-          || indexInfo.targetField != ((JMapField)indexInfo.targetSuperField).getSubField(MapField.KEY_FIELD_NAME))
+        if (!(indexInfo.targetSuperFieldInfo instanceof JMapFieldInfo)
+          || !indexInfo.targetFieldInfo.equals(((JMapFieldInfo)indexInfo.targetSuperFieldInfo).getKeyFieldInfo()))
             throw new IllegalArgumentException("field `" + fieldName + "' is not a map key field");
-        final JMapField jfield = (JMapField)indexInfo.targetSuperField;
-        if (!jfield.valueField.typeToken.wrap().getRawType().equals(valueType)) {
+        final JMapFieldInfo jfieldInfo = (JMapFieldInfo)indexInfo.targetSuperFieldInfo;
+        if (!jfieldInfo.getValueFieldInfo().getTypeToken().wrap().getRawType().equals(valueType)) {
             throw new IllegalArgumentException("incorrect valueType for index query on `" + fieldName + "' starting from "
-              + type + ": should be " + jfield.valueField.typeToken.wrap() + " instead of " + valueType);
+              + type + ": should be " + jfieldInfo.getValueFieldInfo().getTypeToken().wrap() + " instead of " + valueType);
         }
         return (NavigableMap<K, NavigableSet<MapKeyIndexEntry<S, V>>>)(Object)this.queryMapFieldKeyEntries(
-          jfield.storageId, indexInfo.type.getRawType());
+          jfieldInfo.storageId, indexInfo.type.getRawType());
     }
 
     /**
@@ -1215,16 +1213,16 @@ public class JTransaction {
     public <S, K, V> NavigableMap<V, NavigableSet<MapValueIndexEntry<S, K>>> queryMapFieldValueEntries(Class<S> type,
       String fieldName, Class<K> keyType, Class<V> valueType) {
         final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
-        if (!(indexInfo.targetSuperField instanceof JMapField)
-          || indexInfo.targetField != ((JMapField)indexInfo.targetSuperField).getSubField(MapField.VALUE_FIELD_NAME))
+        if (!(indexInfo.targetSuperFieldInfo instanceof JMapFieldInfo)
+          || !indexInfo.targetFieldInfo.equals(((JMapFieldInfo)indexInfo.targetSuperFieldInfo).getValueFieldInfo()))
             throw new IllegalArgumentException("field `" + fieldName + "' is not a map value field");
-        final JMapField jfield = (JMapField)indexInfo.targetSuperField;
-        if (!jfield.keyField.typeToken.wrap().getRawType().equals(keyType)) {
+        final JMapFieldInfo jfieldInfo = (JMapFieldInfo)indexInfo.targetSuperFieldInfo;
+        if (!jfieldInfo.getKeyFieldInfo().getTypeToken().wrap().getRawType().equals(keyType)) {
             throw new IllegalArgumentException("incorrect keyType for index query on `" + fieldName + "' starting from "
-              + type + ": should be " + jfield.keyField.typeToken.wrap() + " instead of " + keyType);
+              + type + ": should be " + jfieldInfo.getKeyFieldInfo().getTypeToken().wrap() + " instead of " + keyType);
         }
         return (NavigableMap<V, NavigableSet<MapValueIndexEntry<S, K>>>)(Object)this.queryMapFieldValueEntries(
-          jfield.storageId, indexInfo.type.getRawType());
+          jfieldInfo.storageId, indexInfo.type.getRawType());
     }
 
     private <S, V> IndexQueryScanner.IndexInfo getIndexInfo(Class<S> type, String fieldName, Class<V> valueType) {
@@ -1237,8 +1235,8 @@ public class JTransaction {
         final IndexQueryScanner.IndexInfo indexInfo = new IndexQueryScanner.IndexInfo(this.jdb, type, fieldName);
 
         // Verify value type
-        final TypeToken<?> valueTypeToken = indexInfo.targetField instanceof JReferenceField ?
-          indexInfo.targetReferenceType : indexInfo.targetField.typeToken.wrap();
+        final TypeToken<?> valueTypeToken = indexInfo.targetFieldInfo instanceof JReferenceFieldInfo ?
+          indexInfo.targetReferenceType : indexInfo.targetFieldInfo.getTypeToken().wrap();
         if (!valueType.equals(valueTypeToken.getRawType())) {
             throw new IllegalArgumentException("incorrect valueType for index query on `" + fieldName + "' starting from "
               + type + ": should be " + valueTypeToken.getRawType() + " instead of " + valueType);
@@ -1302,7 +1300,8 @@ public class JTransaction {
     public <T> NavigableMap<?, NavigableSet<ListIndexEntry<T>>> queryListFieldEntries(int storageId, Class<T> type) {
         if (type == null)
             throw new IllegalArgumentException("null type");
-        Converter<?, ?> keyConverter = this.jdb.getJFieldInfo(storageId, JListFieldInfo.class).elementFieldInfo.getConverter(this);
+        Converter<?, ?> keyConverter = this.jdb.getJFieldInfo(storageId,
+          JListFieldInfo.class).getElementFieldInfo().getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
         final NavigableSetConverter<ListIndexEntry<T>, org.jsimpledb.core.ListIndexEntry> valueConverter
           = new NavigableSetConverter(new ListIndexEntryConverter<T>(new ReferenceConverter<T>(this, type)));
@@ -1336,9 +1335,9 @@ public class JTransaction {
         if (type == null)
             throw new IllegalArgumentException("null type");
         final JMapFieldInfo mapFieldInfo = this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class);
-        Converter<?, ?> keyConverter = mapFieldInfo.keyFieldInfo.getConverter(this);
+        Converter<?, ?> keyConverter = mapFieldInfo.getKeyFieldInfo().getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        Converter<?, ?> valueConverter = mapFieldInfo.valueFieldInfo.getConverter(this);
+        Converter<?, ?> valueConverter = mapFieldInfo.getValueFieldInfo().getConverter(this);
         valueConverter = valueConverter != null ? valueConverter.reverse() : Converter.identity();
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapKeyIndexEntry<?>>> map
           = this.tx.queryMapFieldKeyEntries(storageId, this.getTypeStorageIds(type));
@@ -1371,9 +1370,9 @@ public class JTransaction {
         if (type == null)
             throw new IllegalArgumentException("null type");
         final JMapFieldInfo mapFieldInfo = this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class);
-        Converter<?, ?> keyConverter = mapFieldInfo.keyFieldInfo.getConverter(this);
+        Converter<?, ?> keyConverter = mapFieldInfo.getKeyFieldInfo().getConverter(this);
         keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        Converter<?, ?> valueConverter = mapFieldInfo.valueFieldInfo.getConverter(this);
+        Converter<?, ?> valueConverter = mapFieldInfo.getValueFieldInfo().getConverter(this);
         valueConverter = valueConverter != null ? valueConverter.reverse() : Converter.identity();
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapValueIndexEntry<?>>> map
           = this.tx.queryMapFieldValueEntries(storageId, this.getTypeStorageIds(type));
@@ -1758,7 +1757,7 @@ public class JTransaction {
         @Override
         public <T> void onSimpleFieldChange(Transaction tx, ObjId id,
           SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
     // SetFieldChangeListener
@@ -1766,18 +1765,18 @@ public class JTransaction {
         @Override
         public <E> void onSetFieldAdd(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
         @Override
         public <E> void onSetFieldRemove(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
         @Override
         public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
     // ListFieldChangeListener
@@ -1785,24 +1784,24 @@ public class JTransaction {
         @Override
         public <E> void onListFieldAdd(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
         @Override
         public <E> void onListFieldRemove(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
         @Override
         public <E> void onListFieldReplace(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
         @Override
         public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
     // MapFieldChangeListener
@@ -1810,24 +1809,38 @@ public class JTransaction {
         @Override
         public <K, V> void onMapFieldAdd(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
         @Override
         public <K, V> void onMapFieldRemove(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
         @Override
         public <K, V> void onMapFieldReplace(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
         }
 
         @Override
         public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
-            JTransaction.this.revalidate(referrers);
+            this.revalidateIfNeeded(id, field, referrers);
+        }
+
+    // Internal methods
+
+        private void revalidateIfNeeded(ObjId id, Field<?> field, NavigableSet<ObjId> referrers) {
+            final JClass<?> jclass;
+            try {
+                jclass = JTransaction.this.jdb.getJClass(id);
+            } catch (TypeNotInSchemaVersionException e) {
+                return;
+            }
+            final JField jfield = jclass.getJField(field.getStorageId(), JField.class);
+            if (jfield.requiresValidation)
+                JTransaction.this.revalidate(referrers);
         }
     }
 }

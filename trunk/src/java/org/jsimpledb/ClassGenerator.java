@@ -462,11 +462,11 @@ class ClassGenerator<T> {
             // Invoke this.getTransaction().queryXXX()
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
-            final boolean isEntryQuery = indexInfo.targetSuperField != null && indexMethodInfo.queryType != 0;
-            mv.visitLdcInsn(isEntryQuery ? indexInfo.targetSuperField.storageId : indexInfo.targetField.storageId);
+            final boolean isEntryQuery = indexInfo.targetSuperFieldInfo != null && indexMethodInfo.queryType != 0;
+            mv.visitLdcInsn(isEntryQuery ? indexInfo.targetSuperFieldInfo.storageId : indexInfo.targetFieldInfo.storageId);
             mv.visitLdcInsn(Type.getType(indexInfo.type.getRawType()));
             this.emitInvoke(mv, isEntryQuery ?
-              indexInfo.targetSuperField.getIndexEntryQueryMethod(indexMethodInfo.queryType) : QUERY_INDEX_METHOD);
+              indexInfo.targetSuperFieldInfo.getIndexEntryQueryMethod(indexMethodInfo.queryType) : QUERY_INDEX_METHOD);
             mv.visitInsn(Opcodes.ARETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();

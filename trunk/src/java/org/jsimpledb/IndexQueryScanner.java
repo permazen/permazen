@@ -50,8 +50,7 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
             // Get index info
             try {
                 this.indexInfo = new IndexInfo(IndexQueryScanner.this.jclass.jdb,
-                  annotation.type() != void.class ? annotation.type() : method.getDeclaringClass(),
-                  annotation.value());
+                  annotation.type() != void.class ? annotation.type() : method.getDeclaringClass(), annotation.value());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(IndexQueryScanner.this.getErrorPrefix(method) + e.getMessage(), e);
             }
@@ -62,8 +61,8 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
             // Determine the query type (normal object query or some kind of index entry query) from method return type
             final TypeToken<?> queryObjectType = Util.getTypeParameter(
               Util.getTypeParameter(TypeToken.of(method.getGenericReturnType()), 1), 0);
-            this.queryType = this.indexInfo.targetSuperField != null ?
-              this.indexInfo.targetSuperField.getIndexEntryQueryType(queryObjectType) : 0;
+            this.queryType = this.indexInfo.targetSuperFieldInfo != null ?
+              this.indexInfo.targetSuperFieldInfo.getIndexEntryQueryType(queryObjectType) : 0;
         }
     }
 
@@ -73,9 +72,9 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
 
         final TypeToken<?> type;
         final TypeToken<?> targetType;
-        final JSimpleField targetField;
+        final JSimpleFieldInfo targetFieldInfo;
         final TypeToken<?> targetReferenceType;
-        final JComplexField targetSuperField;
+        final JComplexFieldInfo targetSuperFieldInfo;
         final ArrayList<TypeToken<?>> indexReturnTypes = new ArrayList<TypeToken<?>>();
 
         IndexInfo(JSimpleDB jdb, Class<?> type, String fieldName) {
@@ -99,33 +98,35 @@ class IndexQueryScanner<T> extends AnnotationScanner<T, IndexQuery> {
                 throw new IllegalArgumentException("invalid field name `" + fieldName + "': contains intermediate reference(s)");
 
             // Verify target field is simple
-            if (!(path.targetField instanceof JSimpleField))
-                throw new IllegalArgumentException(path.targetField + " does not support indexing; it is not a simple field");
+            if (!(path.targetFieldInfo instanceof JSimpleFieldInfo))
+                throw new IllegalArgumentException(path.targetFieldInfo + " does not support indexing; it is not a simple field");
 
             // Get target object, field, and complex super-field (if any)
             this.targetType = path.targetType;
-            this.targetField = (JSimpleField)path.targetField;
+            this.targetFieldInfo = (JSimpleFieldInfo)path.targetFieldInfo;
             this.targetReferenceType = path.targetReferenceType;
-            this.targetSuperField = path.targetSuperField;
+            this.targetSuperFieldInfo = path.targetSuperFieldInfo;
 
             // Verify the field is actually indexed
-            if (!this.targetField.indexed)
-                throw new IllegalArgumentException(this.targetField + " is not indexed");
+            if (!this.targetFieldInfo.isIndexed())
+                throw new IllegalArgumentException(this.targetFieldInfo + " is not indexed");
 
             // Get value type
-            final TypeToken<?> valueType = this.targetField instanceof JReferenceField ?
-              this.targetReferenceType : this.targetField.typeToken;
+            final TypeToken<?> valueType = this.targetFieldInfo instanceof JReferenceFieldInfo ?
+              this.targetReferenceType : this.targetFieldInfo.getTypeToken();
 
             // Get valid index return types for this field
             try {
-                this.targetField.addIndexReturnTypes(this.indexReturnTypes, this.type, valueType);
+                this.targetFieldInfo.addIndexReturnTypes(this.indexReturnTypes, this.type, valueType);
             } catch (UnsupportedOperationException e) {
-                throw new IllegalArgumentException("indexing is not supported for " + this.targetField, e);
+                throw new IllegalArgumentException("indexing is not supported for " + this.targetFieldInfo, e);
             }
 
             // If field is a complex sub-field, determine add complex index entry type(s)
-            if (this.targetSuperField != null)
-                this.targetSuperField.addIndexEntryReturnTypes(this.indexReturnTypes, this.type, this.targetField, valueType);
+            if (this.targetSuperFieldInfo != null) {
+                this.targetSuperFieldInfo.addIndexEntryReturnTypes(this.indexReturnTypes,
+                  this.type, this.targetFieldInfo, valueType);
+            }
         }
     }
 }
