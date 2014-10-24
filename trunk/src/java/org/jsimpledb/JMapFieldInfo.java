@@ -58,6 +58,19 @@ class JMapFieldInfo extends JComplexFieldInfo {
     }
 
     @Override
+    public TypeToken<?> getTypeToken() {
+        return this.buildTypeToken(this.getKeyFieldInfo().getTypeToken().wrap(), this.getValueFieldInfo().getTypeToken().wrap());
+    }
+
+    // This method exists solely to bind the generic type parameters
+    @SuppressWarnings("serial")
+    private <K, V> TypeToken<NavigableMap<K, V>> buildTypeToken(TypeToken<K> keyType, TypeToken<V> valueType) {
+        return new TypeToken<NavigableMap<K, V>>() { }
+          .where(new TypeParameter<K>() { }, keyType)
+          .where(new TypeParameter<V>() { }, valueType);
+    }
+
+    @Override
     void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener) {
         tx.addMapFieldChangeListener(this.storageId, path, listener);
     }

@@ -33,6 +33,17 @@ class JListFieldInfo extends JCollectionFieldInfo {
     }
 
     @Override
+    public TypeToken<?> getTypeToken() {
+        return this.buildTypeToken(this.getElementFieldInfo().getTypeToken().wrap());
+    }
+
+    // This method exists solely to bind the generic type parameters
+    @SuppressWarnings("serial")
+    private <E> TypeToken<List<E>> buildTypeToken(TypeToken<E> elementType) {
+        return new TypeToken<List<E>>() { }.where(new TypeParameter<E>() { }, elementType);
+    }
+
+    @Override
     void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener) {
         tx.addListFieldChangeListener(this.storageId, path, listener);
     }

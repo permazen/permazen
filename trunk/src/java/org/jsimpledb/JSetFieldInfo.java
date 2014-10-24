@@ -14,6 +14,7 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.List;
+import java.util.NavigableSet;
 
 import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.change.SetFieldAdd;
@@ -26,6 +27,17 @@ class JSetFieldInfo extends JCollectionFieldInfo {
 
     JSetFieldInfo(JSetField jfield) {
         super(jfield);
+    }
+
+    @Override
+    public TypeToken<?> getTypeToken() {
+        return this.buildTypeToken(this.getElementFieldInfo().getTypeToken().wrap());
+    }
+
+    // This method exists solely to bind the generic type parameters
+    @SuppressWarnings("serial")
+    private <E> TypeToken<NavigableSet<E>> buildTypeToken(TypeToken<E> elementType) {
+        return new TypeToken<NavigableSet<E>>() { }.where(new TypeParameter<E>() { }, elementType);
     }
 
     @Override

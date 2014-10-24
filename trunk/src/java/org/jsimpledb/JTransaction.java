@@ -1235,11 +1235,9 @@ public class JTransaction {
         final IndexQueryScanner.IndexInfo indexInfo = new IndexQueryScanner.IndexInfo(this.jdb, type, fieldName);
 
         // Verify value type
-        final TypeToken<?> valueTypeToken = indexInfo.targetFieldInfo instanceof JReferenceFieldInfo ?
-          indexInfo.targetReferenceType : indexInfo.targetFieldInfo.getTypeToken().wrap();
-        if (!valueType.equals(valueTypeToken.getRawType())) {
+        if (!valueType.equals(indexInfo.targetFieldType.getRawType())) {
             throw new IllegalArgumentException("incorrect valueType for index query on `" + fieldName + "' starting from "
-              + type + ": should be " + valueTypeToken.getRawType() + " instead of " + valueType);
+              + type + ": should be " + indexInfo.targetFieldType.getRawType() + " instead of " + valueType);
         }
 
         // Done

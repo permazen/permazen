@@ -43,6 +43,11 @@ abstract class JFieldInfo {
     }
 
     /**
+     * Get the type of this field, widened to encompass all associated fields.
+     */
+    public abstract TypeToken<?> getTypeToken();
+
+    /**
      * Determine whether any associated {@link JField} requires validation.
      *
      * @return true any associated fields require validation, otherwise false

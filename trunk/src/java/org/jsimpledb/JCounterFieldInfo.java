@@ -20,6 +20,11 @@ class JCounterFieldInfo extends JFieldInfo {
     }
 
     @Override
+    public TypeToken<?> getTypeToken() {
+        return TypeToken.of(Counter.class);
+    }
+
+    @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
         throw new UnsupportedOperationException("counter fields do not support change notifications");
     }

@@ -46,10 +46,7 @@ class JSimpleFieldInfo extends JFieldInfo {
         this.indexed |= jsimpleField.indexed;
     }
 
-    /**
-     * Get the type which is the narrowest type that is also assignable from all of the
-     * individual associated {@link JSimpleField}s' types.
-     */
+    @Override
     public TypeToken<?> getTypeToken() {
         if (this.ancestorType == null)
             this.ancestorType = Util.findLowestCommonAncestor(this.typeTokens);
