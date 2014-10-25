@@ -40,8 +40,8 @@ public class KeyRanges {
      * Constructor.
      *
      * <p>
-     * Creates an instance containing all of the given individual ranges. The given ranges may overlap
-     * and be listed in any order.
+     * Creates an instance that contains all keys contained by any of the {@link KeyRange}s in {@code ranges}.
+     * The given {@code ranges} may be adjacent, overlap, and/or be listed in any order.
      * </p>
      *
      * @param ranges individual key ranges
@@ -87,14 +87,14 @@ public class KeyRanges {
 // Instance methods
 
     /**
-     * Get the "minimal" set of {@link KeyRange}s whose union is equivalent to this instance,
-     * where "minimal" means no two ranges are adjacent or overlapping.
+     * Get the minimal set of {@link KeyRange}s whose union is equivalent to this instance.
+     * Here "minimal" means no two ranges are adjacent or overlap.
      *
      * <p>
-     * The {@link KeyRange}s in the returned list will be sorted by their minimum keys.
+     * The returned {@link KeyRange}s will be listed in order.
      * </p>
      *
-     * @return minimal, unmodifiable list of {@link KeyRange}s sorted by range minimum
+     * @return minimal, unmodifiable list of {@link KeyRange}s sorted by key range
      */
     public List<KeyRange> getKeyRanges() {
         return Collections.unmodifiableList(this.ranges);
