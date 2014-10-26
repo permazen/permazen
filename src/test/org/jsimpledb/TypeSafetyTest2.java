@@ -1,0 +1,130 @@
+
+/*
+ * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.
+ *
+ * $Id$
+ */
+
+package org.jsimpledb;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+
+import org.jsimpledb.annotation.IndexQuery;
+import org.jsimpledb.annotation.JField;
+import org.jsimpledb.annotation.JMapField;
+import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.core.Database;
+import org.jsimpledb.kv.simple.SimpleKVDatabase;
+import org.testng.annotations.Test;
+
+public class TypeSafetyTest2 extends TestSupport {
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testTypeSafety2() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+
+    // Version 1
+
+        final JSimpleDB jdb1 = new JSimpleDB(db, 1, Arrays.<Class<?>>asList(Inventory1.class, Car.class, Boat.class));
+        JTransaction jtx = jdb1.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+
+        final Car car;
+        final Boat boat;
+        final Inventory1 inventory1;
+
+        try {
+
+            // Create objects
+            car = jtx.create(Car.class);
+            boat = jtx.create(Boat.class);
+            inventory1 = jtx.create(Inventory1.class);
+
+            inventory1.getVehicleMap().put(car, Color.RED);
+            inventory1.getVehicleMap().put(boat, Color.BLUE);
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
+    // Version 2
+
+        final JSimpleDB jdb2 = new JSimpleDB(db, 2, Arrays.<Class<?>>asList(Inventory2.class, Car.class, Boat.class));
+        jtx = jdb2.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+
+        final Inventory2 inventory2;
+
+        try {
+
+            inventory2 = jtx.getAll(Inventory2.class).iterator().next();
+
+            for (Map.Entry<Color, NavigableSet<MapValueIndexEntry<Inventory2, Car>>> entry :
+              inventory2.queryColorIndex().entrySet()) {
+                final NavigableSet<MapValueIndexEntry<Inventory2, Car>> indexEntrySet = entry.getValue();
+                final Color color = entry.getKey();
+                for (MapValueIndexEntry<Inventory2, Car> indexEntry : indexEntrySet) {
+                    final Car key = indexEntry.getKey();
+                    this.log.info("found map value index entry with color " + color + " and car " + key);
+                }
+            }
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+// Model Classes
+
+    public static enum Color {
+        RED,
+        BLUE;
+    };
+
+    @JSimpleClass(storageId = 20)
+    public abstract static class Vehicle implements JObject {
+
+        @Override
+        public String toString() {
+            return this.getClass().getSimpleName().replaceAll("\\$\\$JSimpleDB$", "") + "@" + this.getObjId();
+        }
+    }
+
+    @JSimpleClass(storageId = 30)
+    public abstract static class Car extends Vehicle {
+    }
+
+    @JSimpleClass(storageId = 40)
+    public abstract static class Boat extends Vehicle {
+    }
+
+    // Version 1
+    @JSimpleClass(storageId = 50)
+    public abstract static class Inventory1 extends Vehicle {
+
+        @JMapField(storageId = 51, key = @JField(storageId = 52), value = @JField(storageId = 53, indexed = true))
+        public abstract NavigableMap<Vehicle, Color> getVehicleMap();
+    }
+
+    // Version 2
+    @JSimpleClass(storageId = 50)
+    public abstract static class Inventory2 extends Vehicle {
+
+        @JMapField(storageId = 51, key = @JField(storageId = 52), value = @JField(storageId = 53, indexed = true))
+        public abstract NavigableMap<Car, Color> getCarMap();         // note: key restricted to "Car" from "Vehicle"
+
+        @IndexQuery("carMap.value")
+        public abstract NavigableMap<Color, NavigableSet<MapValueIndexEntry<Inventory2, Car>>> queryColorIndex();
+    }
+}
+
