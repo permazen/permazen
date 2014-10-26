@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
 
@@ -124,7 +125,6 @@ public class TypeSafetyTest extends TestSupport {
             final Bar bar2 = jtx.getJObject(b2, Bar.class);
             final Bar bar3 = jtx.getJObject(b3, Bar.class);
 
-/*
             // Verify index on Bar.friend does not contain any type "Foo" keys
             final NavigableMap<Bar, NavigableSet<Bar>> friendIndex = jtx.queryIndex(Bar.class, "friend", Bar.class);
             for (Bar key : friendIndex.keySet())
@@ -134,7 +134,6 @@ public class TypeSafetyTest extends TestSupport {
             final NavigableMap<Bar, NavigableSet<Bar>> setIndex = jtx.queryIndex(Bar.class, "set.element", Bar.class);
             for (Bar key : setIndex.keySet())
                 key.getClass();
-*/
 
             // Verify bar1 has wrongly type'd field prior to upgrade
             Assert.assertEquals(jtx.getTransaction().readSimpleField(b1, 21, false), f1);
