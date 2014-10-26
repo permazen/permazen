@@ -54,14 +54,7 @@ public abstract class ComplexSchemaField extends SchemaField {
     }
 
     SimpleSchemaField readSubField(XMLStreamReader reader, int formatVersion, String name) throws XMLStreamException {
-        this.expect(reader, false, REFERENCE_FIELD_TAG, SIMPLE_FIELD_TAG);
-        final SimpleSchemaField field;
-        if (reader.getName().equals(REFERENCE_FIELD_TAG))
-            field = new ReferenceSchemaField();
-        else if (reader.getName().equals(SIMPLE_FIELD_TAG))
-            field = new SimpleSchemaField();
-        else
-            throw new RuntimeException("internal error");
+        final SimpleSchemaField field = this.readMappedType(reader, false, SchemaModel.SIMPLE_FIELD_TAG_MAP);
         field.readXML(reader, formatVersion);
         if (field.getName() == null)
             field.setName(name);

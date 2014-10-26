@@ -7,11 +7,17 @@
 
 package org.jsimpledb.schema;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -30,6 +36,30 @@ import org.jsimpledb.util.AbstractXMLStreaming;
  * Models one JSimpleDB {@link org.jsimpledb.core.Database} schema version.
  */
 public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, Cloneable {
+
+    static final Map<QName, Class<? extends SchemaField>> FIELD_TAG_MAP = new HashMap<>();
+    static {
+        FIELD_TAG_MAP.put(COUNTER_FIELD_TAG, CounterSchemaField.class);
+        FIELD_TAG_MAP.put(ENUM_FIELD_TAG, EnumSchemaField.class);
+        FIELD_TAG_MAP.put(LIST_FIELD_TAG, ListSchemaField.class);
+        FIELD_TAG_MAP.put(MAP_FIELD_TAG, MapSchemaField.class);
+        FIELD_TAG_MAP.put(REFERENCE_FIELD_TAG, ReferenceSchemaField.class);
+        FIELD_TAG_MAP.put(SET_FIELD_TAG, SetSchemaField.class);
+        FIELD_TAG_MAP.put(SIMPLE_FIELD_TAG, SimpleSchemaField.class);
+    }
+    static final Map<QName, Class<? extends SimpleSchemaField>> SIMPLE_FIELD_TAG_MAP = Maps.transformValues(
+      Maps.filterValues(SchemaModel.FIELD_TAG_MAP,
+      new Predicate<Class<? extends SchemaField>>() {
+        @Override
+        public boolean apply(Class<? extends SchemaField> type) {
+            return SimpleSchemaField.class.isAssignableFrom(type);
+        }
+      }), new Function<Class<? extends SchemaField>, Class<? extends SimpleSchemaField>>() {
+        @Override
+        public Class<? extends SimpleSchemaField> apply(Class<? extends SchemaField> type) {
+            return type.asSubclass(SimpleSchemaField.class);
+        }
+      });
 
     private static final int CURRENT_FORMAT_VERSION = 1;
 
