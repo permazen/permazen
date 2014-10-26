@@ -45,25 +45,7 @@ public class SchemaObjectType extends AbstractSchemaItem {
 
     @Override
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
-        while (this.expect(reader, true, COUNTER_FIELD_TAG, ENUM_FIELD_TAG, LIST_FIELD_TAG, MAP_FIELD_TAG,
-          REFERENCE_FIELD_TAG, SET_FIELD_TAG, SIMPLE_FIELD_TAG)) {
-            SchemaField field;
-            if (reader.getName().equals(COUNTER_FIELD_TAG))
-                field = new CounterSchemaField();
-            else if (reader.getName().equals(ENUM_FIELD_TAG))
-                field = new EnumSchemaField();
-            else if (reader.getName().equals(LIST_FIELD_TAG))
-                field = new ListSchemaField();
-            else if (reader.getName().equals(MAP_FIELD_TAG))
-                field = new MapSchemaField();
-            else if (reader.getName().equals(REFERENCE_FIELD_TAG))
-                field = new ReferenceSchemaField();
-            else if (reader.getName().equals(SET_FIELD_TAG))
-                field = new SetSchemaField();
-            else if (reader.getName().equals(SIMPLE_FIELD_TAG))
-                field = new SimpleSchemaField();
-            else
-                throw new RuntimeException("internal error");
+        for (SchemaField field; (field = this.readMappedType(reader, true, SchemaModel.FIELD_TAG_MAP)) != null; ) {
             field.readXML(reader, formatVersion);
             final int storageId = field.getStorageId();
             final SchemaField previous = this.schemaFields.put(storageId, field);

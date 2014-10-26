@@ -7,6 +7,9 @@
 
 package org.jsimpledb.schema;
 
+import java.util.Map;
+
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -134,6 +137,32 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
      */
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.expectClose(reader);
+    }
+
+    /**
+     * Read an element found in the given map.
+     *
+     * @return element found, or null if closing XML tag encountered instead
+     */
+    <T> T readMappedType(XMLStreamReader reader, boolean closingOK, Map<QName, Class<? extends T>> tagMap)
+      throws XMLStreamException {
+
+        // Expect to see one of the map's XML tag keys
+        if (!this.expect(reader, closingOK, tagMap.keySet().toArray(new QName[tagMap.size()])))
+            return null;
+
+        // Instantiate the corresponding type
+        T obj = null;
+        for (Map.Entry<QName, Class<? extends T>> entry : tagMap.entrySet()) {
+            if (reader.getName().equals(entry.getKey())) {
+                try {
+                    return entry.getValue().newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException("unexpected exception", e);
+                }
+            }
+        }
+        throw new RuntimeException("internal error: didn't find " + reader.getName() + " in tagMap");
     }
 
 // XML Writing
