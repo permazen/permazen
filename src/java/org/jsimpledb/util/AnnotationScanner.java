@@ -84,7 +84,7 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
                 return;
         }
         throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to return "
-          + (expecteds.size() != 1 ? "one of " + expecteds : expecteds.get(0)));
+          + (expecteds.size() != 1 ? "one of " + expecteds : expecteds.get(0)) + " but instead returns " + actual);
     }
 
     /**
@@ -99,7 +99,7 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
                 return;
         }
         throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to return "
-          + (expecteds.length != 1 ? "one of " + Arrays.asList(expecteds) : expecteds[0]));
+          + (expecteds.length != 1 ? "one of " + Arrays.asList(expecteds) : expecteds[0]) + " but instead returns " + actual);
     }
 
     /**
