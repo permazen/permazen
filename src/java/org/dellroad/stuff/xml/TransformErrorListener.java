@@ -13,7 +13,7 @@ import javax.xml.transform.TransformerException;
 import org.slf4j.Logger;
 
 /**
- * {@link ErrorListener} implementation that logs the messgaes to a configured {@link Logger}
+ * {@link ErrorListener} implementation that logs the messages to a configured {@link Logger}
  * and throws exceptions in cases of errors and fatal errors.
  *
  * <p>
