@@ -63,7 +63,7 @@ public class ObjectComparator implements Comparator<Object> {
      * @param cacheBuilder object unique ID cache builder
      * @throws NullPointerException if {@code cacheBuilder} is null
      */
-    protected ObjectComparator(CacheBuilder cacheBuilder) {
+    protected ObjectComparator(CacheBuilder<Object, Object> cacheBuilder) {
         this.idMap = cacheBuilder.weakKeys().<Object, Long>build(new CacheLoader<Object, Long>() {
             @Override
             public Long load(Object obj) {
@@ -74,6 +74,10 @@ public class ObjectComparator implements Comparator<Object> {
 
     @Override
     public int compare(Object obj1, Object obj2) {
+
+        // Handle the equality case first to avoid creating unique ID's for no reason
+        if (obj1 == obj2)
+            return 0;
 
         // Handle nulls
         final boolean null1 = obj1 == null;
