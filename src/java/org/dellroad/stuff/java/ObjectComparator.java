@@ -79,11 +79,11 @@ public class ObjectComparator implements Comparator<Object> {
         if (obj1 == obj2)
             return 0;
 
-        // Handle nulls
-        final boolean null1 = obj1 == null;
-        final boolean null2 = obj2 == null;
-        if (null1 || null2)
-            return null1 && null2 ? 0 : null1 ? 1 : -1;
+        // Handle one of the objects being null
+        if (obj1 == null)
+            return 1;
+        if (obj2 == null)
+            return -1;
 
         // Compare hash values
         final int hash1 = System.identityHashCode(obj1);
