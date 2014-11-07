@@ -20,6 +20,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>
  * Instances are compared first using {@linkplain System#identityHashCode identity hash codes}, and then using
  * an internally generated unique identifier; identifiers are indexed using weak keys to avoid memory leaks.
+ * Any two distict Java objects will always compare as non-equal.
+ * </p>
+ *
+ * <p>
+ * Note: this ordering is only <i>consistent with equals</i> (see {@link Comparable}) for classes whose
+ * {@link #equals equals()} method is implemented in terms of object equality (e.g., not overridden at all).
  * </p>
  *
  * <p>
