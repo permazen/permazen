@@ -18,6 +18,7 @@
     </configurations>
 
     <dependencies>
+        <dependency force="true" org="com.google.guava" name="guava" rev="18.0" conf="build->default"/>
         <dependency force="true" org="com.vaadin" name="vaadin" rev="6+" conf="build-vaadin6->default"/>
         <dependency force="true" org="com.vaadin" name="vaadin" rev="7.1+" conf="build-vaadin7,vaadin7->build-standard"/>
         <dependency force="true" org="org.json" name="json" rev="20090211" conf="build-vaadin7,vaadin7->default"/>

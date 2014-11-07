@@ -1,7 +1,8 @@
 Version Next
 
-    - Add PersistentObject support for JTA/XA transactions
+    - Added PersistentObject support for JTA/XA transactions
     - Fixed bug causing class-level @RetryTransaction annotations to not be found
+    - Added ObjectComparator
 
 Version 1.0.925 Released September 16, 2014
 
