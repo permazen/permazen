@@ -173,7 +173,7 @@ public class KVPairIterator implements Iterator<KVPair> {
      *  or null to immediately end the iteration
      */
     public void setNextTarget(byte[] targetKey) {
-        this.nextKey = targetKey.clone();
+        this.nextKey = targetKey != null ? targetKey.clone() : null;
     }
 
 // Iterator
