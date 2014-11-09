@@ -20,12 +20,14 @@ import org.jsimpledb.util.ByteUtil;
  * <p>
  * The iteration is instead implemented using {@link KVStore#getAtLeast KVStore.getAtLeast()},
  * {@link KVStore#getAtMost KVStore.getAtMost()}, and {@link KVStore#remove KVStore.remove()}.
- * Instances support {@linkplain #setNextTarget repositioning}, forward or reverse iteration, and {@link #remove removal}.
+ * Instances support arbitrary {@linkplain #setNextTarget repositioning}, forward or reverse iteration,
+ * and {@link #remove removal}. Instances always reflect the current state of the underlying {@link KVStore},
+ * even if it is mutated concurrently.
  * </p>
  *
  * <p>
  * Instances support restricting the keys in the iteration to those contained in a {@link KeyRanges} instance.
- * This filtering is implemented efficiently: skipping over an interval of invisible keys requires only one
+ * This filtering is implemented efficiently: skipping over an interval of uncontained keys requires only one
  * {@link KVStore#getAtLeast KVStore.getAtLeast()} or {@link KVStore#getAtMost KVStore.getAtMost()} call.
  * </p>
  */
@@ -37,8 +39,9 @@ public class KVPairIterator implements Iterator<KVPair> {
     private final KeyRanges keyRanges;
 
     private KVPair currPair;            // cached value to return from next()
-    private byte[] nextKey;             // next key lower/upper bound to go fetch, or null for none
+    private byte[] nextKey;             // next key lower/upper bound to go fetch, or null to start at the beginning
     private byte[] removeKey;           // next key to remove if remove() invoked
+    private KeyRange lastKeyRange;      // the range that contained previous key, if any, otherwise -1 (optimization)
     private boolean finished;
 
     /**
@@ -156,12 +159,16 @@ public class KVPairIterator implements Iterator<KVPair> {
     }
 
     /**
-     * Set the next target key.
+     * Reposition this instance by setting the next "target" key.
      *
      * <p>
-     * This is the key we will use to find the next element via {@link KVStore#getAtLeast}
+     * The "target" key is the key we will use to find the next element via {@link KVStore#getAtLeast}
      * (or {@link KVStore#getAtMost} if this is a reverse iterator). Note that in the forward case, this is an
      * inclusive lower bound on the next key, while in the reverse case it is an exclusive upper bound on the next key.
+     * </p>
+     *
+     * <p>
+     * A null value means reposition at the beginning of the iteration.
      * </p>
      *
      * <p>
@@ -169,8 +176,8 @@ public class KVPairIterator implements Iterator<KVPair> {
      * {@link #isVisible visible} to this instance, the next visible key after (or before) {@code targetKey} will be used instead.
      * </p>
      *
-     * @param targetKey next lower bound (exclusive) if going forward, or upper bound (exclusive) if going backward,
-     *  or null to immediately end the iteration
+     * @param targetKey next lower bound (exclusive) if going forward, or upper bound (exclusive) if going backward;
+     *  or null to restart this instance at the beginning of its iteration
      */
     public void setNextTarget(byte[] targetKey) {
         this.nextKey = targetKey != null ? targetKey.clone() : null;
@@ -193,7 +200,7 @@ public class KVPairIterator implements Iterator<KVPair> {
         KVPair pair;
         while (true) {
 
-            // Find next element
+            // Find next key/value pair
             pair = this.reverse ?
               this.kv.getAtMost(this.nextKey) : this.kv.getAtLeast(this.nextKey != null ? this.nextKey : ByteUtil.EMPTY);
             if (pair == null) {
@@ -201,20 +208,31 @@ public class KVPairIterator implements Iterator<KVPair> {
                 return false;
             }
 
-            // Check if key is visible
-            if (this.isVisible(pair.getKey()))
+            // Are we applying KeyRanges?
+            if (this.keyRanges == null)
                 break;
 
-            // Skip ahead to the next visible key range
-            assert this.keyRanges != null;
-            final KeyRange keyRange = this.keyRanges.getKeyRange(pair.getKey(), !this.reverse);
-            if (keyRange == null) {
+            // Get key
+            final byte[] key = pair.getKey();
+
+            // Optimization: key is likely contained in the same KeyRange as the previous key was so check there first
+            if (this.lastKeyRange != null && this.lastKeyRange.contains(key))
+                break;
+
+            // Find the containing KeyRange, if any, otherwise find the two KeyRanges to the left and right of the key
+            final KeyRange[] neighbors = this.keyRanges.findKey(key);
+            if (neighbors[0] == neighbors[1] && neighbors[0] != null) {                 // key is visible
+                this.lastKeyRange = neighbors[0];
+                break;
+            }
+
+            // Key is not visible; jump to the start of the next visible KeyRange and try again
+            this.lastKeyRange = neighbors[this.reverse ? 0 : 1];
+            if (this.lastKeyRange == null) {                                            // we're past the last visible KeyRange
                 this.finished = true;
                 return false;
             }
-
-            // Try again
-            this.nextKey = this.reverse ? keyRange.getMax() : keyRange.getMin();
+            this.nextKey = this.reverse ? this.lastKeyRange.getMax() : this.lastKeyRange.getMin();
         }
 
         // Save it (pre-fetch)

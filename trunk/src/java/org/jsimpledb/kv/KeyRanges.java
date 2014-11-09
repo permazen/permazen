@@ -179,7 +179,8 @@ public class KeyRanges {
      * @throws IllegalArgumentException if {@code key} is null
      */
     public boolean contains(byte[] key) {
-        return this.getKeyRange(key, null) != null;
+        final KeyRange[] pair = this.findKey(key);
+        return pair[0] == pair[1] && pair[0] != null;
     }
 
     /**
@@ -197,28 +198,37 @@ public class KeyRanges {
     }
 
     /**
-     * Find the maximal contiguous {@link KeyRange} within this instance and also containing the given key.
-     * If none exists, then optionally search forward or backward for the nearest {@link KeyRange} within this instance.
+     * Find the contiguous {@link KeyRange}(s) within this instance containing, or adjacent to, the given key.
+     *
+     * <p>
+     * This method returns an array of length two: if this instance contains {@code key} then both elements are the
+     * same Java object, namely, the {@link KeyRange} that contains {@code key}; otherwise, the first element is
+     * the nearest {@link KeyRange} to the left of {@code key}, or null if none exists, and the second element is
+     * the {@link KeyRange} to the right of {@code key}, or null if none exists. Note if this instance is empty
+     * then <code>{ null, null }</code> is returned.
+     * </p>
      *
      * @param key key to find
-     * @param nearest what to do if not contained: true to search forward, false to search backward, null to return null
-     * @return maximal contiguous {@link KeyRange} in this instance containing {@code key}, or the nearest forward or
-     *  backward {@link KeyRange} if {@code nearest} is not null (if any), or null if none found
+     * @return array with the containing {@link KeyRange} or nearest neighbor to the left (or null) and
+     *  the containing {@link KeyRange} or nearest neighbor to the right (or null)
      * @throws IllegalArgumentException if {@code key} is null
      */
-    public KeyRange getKeyRange(byte[] key, Boolean nearest) {
+    public KeyRange[] findKey(byte[] key) {
         if (key == null)
             throw new IllegalArgumentException("null key");
-        int i = Collections.binarySearch(this.ranges, new KeyRange(key, null), KeyRange.SORT_BY_MIN);
-        if (i >= 0)
-            return this.ranges.get(i);                                  // it happened that the last range is [key, +infinity)
-        i = ~i;                                                         // get insertion point
+        final int i = ~Collections.binarySearch(this.ranges, new KeyRange(key, key), KeyRange.SORT_BY_MIN);
+        assert i >= 0;                                                  // this.ranges should never contain new KeyRange(key, key)
+        KeyRange left = null;
         if (i > 0) {
-            final KeyRange range = this.ranges.get(i - 1);              // the range that either contains key or is to its left
-            if (range.contains(key) || Boolean.FALSE.equals(nearest))
-                return range;
+            if ((left = this.ranges.get(i - 1)).contains(key))
+                return new KeyRange[] { left, left };
         }
-        return Boolean.TRUE.equals(nearest) && this.ranges.size() > i ? this.ranges.get(i) : null;
+        KeyRange right = null;
+        if (i < this.ranges.size()) {
+            if ((right = this.ranges.get(i)).contains(key))
+                return new KeyRange[] { right, right };
+        }
+        return new KeyRange[] { left, right };
     }
 
     /**

@@ -98,9 +98,13 @@ public class KeyRangesTest extends TestSupport {
     public void testGetKeyRange(KeyRanges ranges, String keystr, int contains, int left, int right) throws Exception {
         final byte[] key = b(keystr);
         final List<KeyRange> list = ranges.getKeyRanges();
-        Assert.assertEquals(ranges.getKeyRange(key, null), contains != -1 ? list.get(contains) : null);
-        Assert.assertEquals(ranges.getKeyRange(key, false), left != -1 ? list.get(left) : null);
-        Assert.assertEquals(ranges.getKeyRange(key, true), right != -1 ? list.get(right) : null);
+        final KeyRange[] neighbors = ranges.findKey(key);
+        if (contains == -1)
+            Assert.assertTrue(neighbors[0] != neighbors[1] || neighbors[0] == null);
+        else
+            Assert.assertTrue(neighbors[0] == neighbors[1] && list.get(contains).equals(neighbors[0]));
+        Assert.assertEquals(neighbors[0], left != -1 ? list.get(left) : null);
+        Assert.assertEquals(neighbors[1], right != -1 ? list.get(right) : null);
     }
 
     @DataProvider(name = "getKeyRanges")
