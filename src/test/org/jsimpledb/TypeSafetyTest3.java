@@ -8,21 +8,16 @@
 package org.jsimpledb;
 
 import java.util.Arrays;
-import java.util.Map;
-import java.util.NavigableMap;
 import java.util.NavigableSet;
 
-import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
-import org.jsimpledb.annotation.JMapField;
-import org.jsimpledb.annotation.OnChange;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.annotation.OnChange;
 import org.jsimpledb.change.SetFieldRemove;
 import org.jsimpledb.change.SimpleFieldChange;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
