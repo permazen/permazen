@@ -60,7 +60,7 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
  *  <li>{@link Enum} types</li>
  *  <li>{@link java.util.Date}</li>
  *  <li>{@link java.util.UUID}</li>
- *  <li>{@link java.util.URI}</li>
+ *  <li>{@link java.net.URI}</li>
  *  <li>{@link java.io.File}</li>
  *  <li>{@link java.util.regex.Pattern}</li>
  * </ul>
