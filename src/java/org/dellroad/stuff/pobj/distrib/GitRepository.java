@@ -14,16 +14,12 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.dellroad.stuff.java.ProcessRunner;
 import org.dellroad.stuff.spring.AbstractBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents a {@code git(1)} repository and provides a few simple methods that wrap the command-line client
@@ -104,7 +100,7 @@ public class GitRepository extends AbstractBean {
      * @throws GitException if an error occurs
      */
     public synchronized void fetch() {
-        new GitCommand("fetch", "--all").run();
+        new GitCommand(this.dir, "fetch", "--all").run();
     }
 
     /**
@@ -132,7 +128,7 @@ public class GitRepository extends AbstractBean {
         params.add("fetch");
         params.add("--multiple");
         params.addAll(remotes);
-        new GitCommand(params).run();
+        new GitCommand(this.dir, params).run();
     }
 
     /**
@@ -145,7 +141,8 @@ public class GitRepository extends AbstractBean {
      */
     public synchronized Date getAuthorDate(String tree) {
         try {
-            return new Date(Long.parseLong(new GitCommand("log", "-1", "--format=format:%at", tree).runAndGetOutput(), 10) * 1000L);
+            return new Date(Long.parseLong(new GitCommand(this.dir,
+              "log", "-1", "--format=format:%at", tree).runAndGetOutput(), 10) * 1000L);
         } catch (NumberFormatException e) {
             throw new GitException("error parsing git output", e);
         }
@@ -178,7 +175,7 @@ public class GitRepository extends AbstractBean {
         this.reset();
 
         // Checkout the commit
-        new GitCommand("checkout", "--force", branch).run();
+        new GitCommand(this.dir, "checkout", "--force", branch).run();
 
         // Get the commit ID that we have checked out
         final String commit = this.getCurrentCommit();
@@ -236,19 +233,19 @@ public class GitRepository extends AbstractBean {
         try {
 
             // Check out branch
-            new GitCommand("checkout", "--force", branch).run();
+            new GitCommand(this.dir, "checkout", "--force", branch).run();
 
             // Apply changes
             accessor.accessWorkingCopy(this.dir);
 
             // Attempt commit only if something has changed
-            if (new GitCommand("status", "--porcelain").runAndGetOutput().length() > 0) {
+            if (new GitCommand(this.dir, "status", "--porcelain").runAndGetOutput().length() > 0) {
 
                 // Stage them into the index
-                new GitCommand("add", "--all").run();
+                new GitCommand(this.dir, "add", "--all").run();
 
                 // Commit them
-                new GitCommand("commit", "--message", message).run();
+                new GitCommand(this.dir, "commit", "--message", message).run();
             }
         } finally {
             this.reset();
@@ -284,14 +281,14 @@ public class GitRepository extends AbstractBean {
 
         // Create a commit with no parents and an empty tree
         this.log.info("creating new local branch `" + branch + "' starting with an empty commit in directory `" + this.dir + "'");
-        new GitCommand("read-tree", "--empty").run();
-        final String tree = new GitCommand("write-tree").runAndGetOutput();
+        new GitCommand(this.dir, "read-tree", "--empty").run();
+        final String tree = new GitCommand(this.dir, "write-tree").runAndGetOutput();
         if (!SHA1_PATTERN.matcher(tree).matches())
             throw new GitException("can't interpret output from `git write-tree': " + tree);
-        final String commit = new GitCommand("commit-tree", "-m", message, tree).runAndGetOutput();
+        final String commit = new GitCommand(this.dir, "commit-tree", "-m", message, tree).runAndGetOutput();
 
         // Create a branch starting there
-        new GitCommand("branch", branch, commit).run();
+        new GitCommand(this.dir, "branch", branch, commit).run();
     }
 
     /**
@@ -304,7 +301,7 @@ public class GitRepository extends AbstractBean {
      * @throws IllegalArgumentException if {@code tree1} or {@code tree2} is null
      */
     public synchronized boolean equalTrees(String tree1, String tree2) {
-        final GitCommand diff = new GitCommand("diff", "--quiet", tree1, tree2);
+        final GitCommand diff = new GitCommand(this.dir, "diff", "--quiet", tree1, tree2);
         final int exitValue = diff.run(true);
         switch (exitValue) {
         case 0:
@@ -312,8 +309,7 @@ public class GitRepository extends AbstractBean {
         case 1:
             return false;
         default:
-            throw new GitException("command `" + diff + "' in directory `" + GitRepository.this.dir
-              + "' failed with exit value " + exitValue);
+            throw new GitException("command `" + diff + "' in directory `" + this.dir + "' failed with exit value " + exitValue);
         }
     }
 
@@ -364,10 +360,10 @@ public class GitRepository extends AbstractBean {
         try {
 
             // Check out branch
-            new GitCommand("checkout", "--force", branch).run();
+            new GitCommand(this.dir, "checkout", "--force", branch).run();
 
             // Attempt the merge
-            final GitCommand merge = new GitCommand("merge", "--no-commit", "--no-ff");
+            final GitCommand merge = new GitCommand(this.dir, "merge", "--no-commit", "--no-ff");
             strategy.addOptions(merge.getArgs());
             merge.getArgs().add("--");
             merge.getArgs().add(other);
@@ -379,21 +375,21 @@ public class GitRepository extends AbstractBean {
                     throw new GitException("git merge failed: " + merge.getStandardError().trim());
 
                 // Abort the merge
-                new GitCommand("merge", "--abort").run();
+                new GitCommand(this.dir, "merge", "--abort").run();
 
                 // Bail out
                 throw new GitMergeConflictException("merge failed with conflict(s)");
             }
 
             // Detect and ignore trivial merge
-            if (new GitCommand("status", "--porcelain").runAndGetOutput().length() > 0) {
+            if (new GitCommand(this.dir, "status", "--porcelain").runAndGetOutput().length() > 0) {
 
                 // Grant access
                 if (accessor != null)
                     accessor.accessWorkingCopy(this.dir);
 
                 // Commit changes
-                new GitCommand("commit", "--message", message).run();
+                new GitCommand(this.dir, "commit", "--message", message).run();
             }
         } finally {
 
@@ -445,8 +441,8 @@ public class GitRepository extends AbstractBean {
      * Clean out and reset working directory.
      */
     protected void reset() {
-        new GitCommand("clean", "-xdf").run();                      // clean out working directory
-        new GitCommand("reset", "--hard").run();                    // discard uncommitted changes
+        new GitCommand(this.dir, "clean", "-xdf").run();                      // clean out working directory
+        new GitCommand(this.dir, "reset", "--hard").run();                    // discard uncommitted changes
     }
 
     /**
@@ -501,177 +497,6 @@ public class GitRepository extends AbstractBean {
          * @throws IOException if an I/O error occurs
          */
         void accessWorkingCopy(File dir);
-    }
-
-// GitCommand
-
-    /**
-     * A simple wrapper around the {@code git(1)} command.
-     */
-    public class GitCommand {
-
-        private final Logger log = LoggerFactory.getLogger(this.getClass());
-        private final List<String> args = new ArrayList<String>();
-
-        private ProcessRunner runner;
-
-        /**
-         * Constructor.
-         *
-         * @param params the command line arguments (not including the initial {@code "git"})
-         */
-        public GitCommand(String... params) {
-            this(Arrays.asList(params));
-        }
-
-        /**
-         * Constructor.
-         *
-         * @param params the command line arguments (not including the initial {@code "git"})
-         */
-        public GitCommand(List<String> params) {
-            if (params == null)
-                throw new IllegalArgumentException("null params");
-            this.args.add("git");
-            this.args.addAll(params);
-        }
-
-        /**
-         * Get command line arguments.
-         */
-        public List<String> getArgs() {
-            return this.args;
-        }
-
-        /**
-         * Run command. Equivalent to {@code run(false)}.
-         */
-        public int run() {
-            return this.run(false);
-        }
-
-        /**
-         * Run command.
-         *
-         * @param errorOk true if a non-zero exit value may be expected
-         * @return {@code git(1)} exit value; if {@code errorOk} is false this will always be zero
-         * @throws IllegalStateException if this command has already been run
-         * @throws RuntimeException if the current thread is interrupted
-         * @throws GitException if any {@code GIT_*} environment variables are set
-         * @throws GitException if {@code errorOk} is false and {@code git(1}} exits with a non-zero value
-         */
-        public int run(boolean errorOk) {
-
-            // Sanity check
-            if (this.runner != null)
-                throw new IllegalStateException("command already executed");
-
-            // Sanity check environment
-            final ArrayList<String> vars = new ArrayList<String>();
-            for (String var : System.getenv().keySet()) {
-                if (var.startsWith("GIT_"))
-                    vars.add(var);
-            }
-            if (!vars.isEmpty())
-                throw new GitException("need to unset GIT_* environment variables first: " + vars);
-
-            // Start process
-            Process process;
-            try {
-                process = Runtime.getRuntime().exec(args.toArray(new String[args.size()]), null, GitRepository.this.dir);
-            } catch (IOException e) {
-                this.log.debug("command `" + this + "' in directory `" + GitRepository.this.dir + "' failed: ", e);
-                throw new GitException("error invoking git(1)", e);
-            }
-            this.runner = new ProcessRunner(process);
-
-            // Let it finish
-            int exitValue;
-            try {
-                exitValue = this.runner.run();
-            } catch (InterruptedException e) {
-                throw new RuntimeException("unexpected exception", e);      // XXX
-            }
-
-            // Log command output
-            final StringBuilder buf = new StringBuilder();
-            final String[] stdout = this.getStandardOutput().trim().split("\n");
-            if (!(stdout.length == 1 && stdout[0].length() == 0)) {
-                for (String line : stdout)
-                    buf.append("\n  [stdout] ").append(line);
-            }
-            final String[] stderr = this.getStandardError().trim().split("\n");
-            if (!(stderr.length == 1 && stderr[0].length() == 0)) {
-                for (String line : stderr)
-                    buf.append("\n  [stderr] ").append(line);
-            }
-
-            // Check exit value
-            if (exitValue != 0) {
-                final String msg = "command `" + this + "' in directory `" + GitRepository.this.dir
-                  + "' failed with exit value " + exitValue;
-                if (errorOk)
-                    this.log.debug(msg);
-                else {
-                    this.log.error(msg);
-                    throw new GitException(msg);
-                }
-            } else {
-                this.log.debug("successfully executed command `" + this + "' in directory `"
-                  + GitRepository.this.dir + "'" + buf);
-            }
-
-            // Done
-            return exitValue;
-        }
-
-        /**
-         * Run command and return standard output, interpreted as a UTF-8 string, with leading and trailing whitespace trimmed.
-         *
-         * @throws IllegalStateException if this command has already been run
-         * @throws RuntimeException if the current thread is interrupted
-         * @throws GitException if any {@code GIT_*} environment variables are set
-         * @throws GitException if {@code git(1}} exits with a non-zero value
-         */
-        public String runAndGetOutput() {
-            this.run();
-            return this.getStandardOutput().trim();
-        }
-
-        /**
-         * Get the standard output from {@code git(1)}.
-         *
-         * @throws IllegalStateException if command has not yet completed
-         * @return command standard output interpreted as UTF-8
-         */
-        public String getStandardOutput() {
-            if (this.runner == null)
-                throw new IllegalStateException("command has not yet executed");
-            return new String(this.runner.getStandardOutput(), Charset.forName("UTF-8"));
-        }
-
-        /**
-         * Get the standard error from {@code git(1)}.
-         *
-         * @throws IllegalStateException if command has not yet completed
-         * @return command standard error interpreted as UTF-8
-         */
-        public String getStandardError() {
-            if (this.runner == null)
-                throw new IllegalStateException("command has not yet executed");
-            return new String(this.runner.getStandardError(), Charset.forName("UTF-8"));
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder buf = new StringBuilder();
-            for (String arg : this.args) {
-                if (buf.length() > 0)
-                    buf.append(' ');
-                buf.append(arg);
-            }
-            return buf.toString();
-        }
     }
 }
 
