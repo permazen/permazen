@@ -362,24 +362,8 @@ public class GitRepository extends AbstractBean {
             // Check out branch
             new GitCommand(this.dir, "checkout", "--force", branch).run();
 
-            // Attempt the merge
-            final GitCommand merge = new GitCommand(this.dir, "merge", "--no-commit", "--no-ff");
-            strategy.addOptions(merge.getArgs());
-            merge.getArgs().add("--");
-            merge.getArgs().add(other);
-            final int exitValue = merge.run(true);
-            if (exitValue != 0) {
-
-                // Detect other types of error (other than conflicts)
-                if (!this.getRepoFile("MERGE_HEAD").exists())
-                    throw new GitException("git merge failed: " + merge.getStandardError().trim());
-
-                // Abort the merge
-                new GitCommand(this.dir, "merge", "--abort").run();
-
-                // Bail out
-                throw new GitMergeConflictException("merge failed with conflict(s)");
-            }
+            // Perform the merge
+            strategy.merge(this.dir, other);
 
             // Detect and ignore trivial merge
             if (new GitCommand(this.dir, "status", "--porcelain").runAndGetOutput().length() > 0) {

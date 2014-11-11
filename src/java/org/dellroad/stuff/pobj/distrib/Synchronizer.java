@@ -522,7 +522,8 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
         final MergeStrategy[] strategyList = new MergeStrategy[] {
           MergeStrategy.RECURSIVE_PATIENCE,
           iWin ? MergeStrategy.RECURSIVE_PATIENCE_OURS : MergeStrategy.RECURSIVE_PATIENCE_THEIRS,
-          iWin ? MergeStrategy.RECURSIVE_OURS : MergeStrategy.RECURSIVE_THEIRS
+          iWin ? MergeStrategy.RECURSIVE_OURS : MergeStrategy.RECURSIVE_THEIRS,
+          iWin ? MergeStrategy.OURS : MergeStrategy.THEIRS
         };
 
         // Attempt merges using successively less "mergey" strategies
