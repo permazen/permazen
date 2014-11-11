@@ -1,5 +1,7 @@
 Version Next
 
+    - Added HTTP request and response parameters to ExceptionLoggingFilter methods
+      NOTE: the above are backward-incompatible changes
     - Added PersistentObject support for JTA/XA transactions
     - Fixed bug causing class-level @RetryTransaction annotations to not be found
     - Added ObjectComparator

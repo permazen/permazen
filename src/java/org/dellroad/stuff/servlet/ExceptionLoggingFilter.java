@@ -29,7 +29,7 @@ public class ExceptionLoggingFilter extends OncePerRequestFilter {
     /**
      * Process the request. If an exception is thrown, it will be (possibly) logged and re-thrown.
      *
-     * @see #shouldLogException
+     * @see #shouldLogException shouldLogException()
      */
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -37,24 +37,24 @@ public class ExceptionLoggingFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (IOException e) {
-            if (this.shouldLogException(e))
-                this.logException(e);
+            if (this.shouldLogException(request, response, e))
+                this.logException(request, response, e);
             throw e;
         } catch (ServletException e) {
-            if (this.shouldLogException(e))
-                this.logException(e);
+            if (this.shouldLogException(request, response, e))
+                this.logException(request, response, e);
             throw e;
         } catch (RuntimeException e) {
-            if (this.shouldLogException(e))
-                this.logException(e);
+            if (this.shouldLogException(request, response, e))
+                this.logException(request, response, e);
             throw e;
         } catch (Error e) {
-            if (this.shouldLogException(e))
-                this.logException(e);
+            if (this.shouldLogException(request, response, e))
+                this.logException(request, response, e);
             throw e;
         } catch (Throwable e) {
-            if (this.shouldLogException(e))
-                this.logException(e);
+            if (this.shouldLogException(request, response, e))
+                this.logException(request, response, e);
            throw new ServletException(e);
         }
     }
@@ -65,13 +65,14 @@ public class ExceptionLoggingFilter extends OncePerRequestFilter {
      * <p>
      * The implementation in {@link ExceptionLoggingFilter} returns {@code true} except for
      * {@link SocketException} (typically caused by the client disconnecting) and {@link ThreadDeath}
-     * (typically caused by virtual machine shutdown).
-     * Subclasses should override if necessary.
+     * (typically caused by virtual machine shutdown). Subclasses should override if necessary.
      * </p>
      *
+     * @param request HTTP request
+     * @param response HTTP response
      * @param t exception caught by this instance
      */
-    protected boolean shouldLogException(Throwable t) {
+    protected boolean shouldLogException(HttpServletRequest request, HttpServletResponse response, Throwable t) {
         for (Throwable e = t; e != null; e = e.getCause()) {
             if (e instanceof SocketException)
                 return false;
@@ -84,17 +85,19 @@ public class ExceptionLoggingFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Log an exception caught by this instance.
+     * Log an exception caught by this instance and determined to be loggable by {@link #shouldLogException shouldLogException()}.
      *
      * <p>
      * The implementation in {@link ExceptionLoggingFilter} logs the exception as an error via the logger
-     * returned by {@link #getLogger getLogger()}.
-     * Subclasses should override if necessary.
+     * returned by {@link #getLogger getLogger()}. Subclasses should override if necessary.
+     * </p>
      *
+     * @param request HTTP request
+     * @param response HTTP response
      * @param t exception caught by this instance
      */
-    protected void logException(Throwable t) {
-        this.getLogger(t).error("exception within servlet", t);
+    protected void logException(HttpServletRequest request, HttpServletResponse response, Throwable t) {
+        this.getLogger(request, response, t).error("exception within servlet", t);
     }
 
     /**
@@ -104,10 +107,13 @@ public class ExceptionLoggingFilter extends OncePerRequestFilter {
      * The implementation in {@link ExceptionLoggingFilter} uses the {@link Logger} returned by
      * {@link LoggerFactory#getLogger} when passed this instance's class as the parameter.
      * Subclasses should override if necessary.
+     * </p>
      *
+     * @param request HTTP request
+     * @param response HTTP response
      * @param t the exception about to be logged
      */
-    protected Logger getLogger(Throwable t) {
+    protected Logger getLogger(HttpServletRequest request, HttpServletResponse response, Throwable t) {
         return this.defaultLogger;
     }
 }
