@@ -4,6 +4,7 @@ Version Next
       NOTE: the above are backward-incompatible changes
     - Added PersistentObject support for JTA/XA transactions
     - Fixed bug causing class-level @RetryTransaction annotations to not be found
+    - Refactor POBJ Synchronizer to allow subclass to implement own merge algorithm
     - Added ObjectComparator
 
 Version 1.0.925 Released September 16, 2014

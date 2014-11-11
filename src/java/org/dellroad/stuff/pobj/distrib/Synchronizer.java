@@ -56,8 +56,9 @@ import org.dellroad.stuff.spring.AbstractBean;
  * </p>
  *
  * <p>
- * Merges are attempted using the following strategies (in this order) until there are no merge conflicts
- * and a {@linkplain org.dellroad.stuff.pobj.PersistentObjectDelegate#validate valid} XML file is achieved:
+ * Merges are handled by {@link #merge merge()} (which subclasses may override if desired). The {@link #merge merge}
+ * implementation in this class attempts merges using the following strategies in order until there are no merge
+ * conflicts and a {@linkplain org.dellroad.stuff.pobj.PersistentObjectDelegate#validate valid} XML file is achieved:
  *  <ul>
  *  <li>Recursive merge using the patience algorithm</li>
  *  <li>Same as previous, but resolving all conflicts one way or the other</li>
@@ -75,7 +76,7 @@ import org.dellroad.stuff.spring.AbstractBean;
  * </p>
  *
  * <p>
- * For attempts #2 and #3, the "winner" is chosen as follows:
+ * For attempts #2 and #3, the "winner" is chosen by {@link #chooseConflictWinner chooseConflictWinner()} as follows:
  *  <ul>
  *  <li>If the commits have different timestamps, then the later commit wins</li>
  *  <li>If the two commits were simultaneous, then the commit with the lexicographically higher SHA-1 checksum wins</li>
@@ -426,10 +427,14 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
      *
      * <p>
      * This method does not affect the {@link PersistentObject} associated with this instance;
-     * the caller is responsible for doing that if necessary (i.e., true is returned).
+     * the caller is responsible for doing that if necessary (i.e., when true is returned).
      * </p>
      *
-     * @return true if a non-trivial merge ocurred, false if we were already up-to-date
+     * <p>
+     * This method delegates to {@link #merge merge} to do the actual merging.
+     * </p>
+     *
+     * @return true if one or more non-trivial merges ocurred, false if we were already up-to-date
      */
     public synchronized boolean synchronize() {
 
@@ -445,7 +450,8 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
         this.git.ensureBranch(this.branch, "Empty commit as the basis for branch `" + this.branch + "'");
 
         // Merge our branch with each remote's branch
-        boolean merged = false;
+        int numMerges = 0;
+        int numFails = 0;
     remoteLoop:
         for (String remote : this.remotes) {
 
@@ -468,74 +474,106 @@ public class Synchronizer<T> extends AbstractBean implements PersistentObjectLis
                 continue;
             }
 
-            // Logit
+            // Attempt merge
             this.log.info("merging remote `" + remote + "' commit " + remoteCommit + " with local commit " + localCommit);
-
-            // Determine who is the winner in case of conflicts
-            boolean iWin = localCommit != null && this.chooseConflictWinner(localCommit, remoteCommit);
-
-            // Build merge strategy list
-            final MergeStrategy[] strategyList = new MergeStrategy[] {
-              MergeStrategy.RECURSIVE_PATIENCE,
-              iWin ? MergeStrategy.RECURSIVE_PATIENCE_OURS : MergeStrategy.RECURSIVE_PATIENCE_THEIRS,
-              iWin ? MergeStrategy.RECURSIVE_OURS : MergeStrategy.RECURSIVE_THEIRS
-            };
-
-            // Attempt merges using successively less "mergey" strategies
-            for (MergeStrategy strategy : strategyList) {
-
-                // Attempt merge
-                this.log.debug("attempting merge of remote `" + remote + "' commit " + remoteCommit
-                  + " with local commit " + localCommit + " using strategy " + strategy);
-                String commit;
-                try {
-                    commit = this.git.merge(this.branch, remoteCommit, strategy, new GitRepository.Accessor() {
-                        @Override
-                        public void accessWorkingCopy(File dir) {
-                            Synchronizer.this.log.debug("validating merged file `" + Synchronizer.this.getXMLFile(dir) + "'");
-                            Synchronizer.this.readXMLFile(dir, true);
-                        }
-                    }, "Merged remote `" + remote + "' commit " + remoteCommit + " using strategy " + strategy);
-                } catch (GitMergeConflictException e) {
-                    this.log.debug("merge using strategy " + strategy + " failed with conflict(s)");
-                    continue;
-                } catch (PersistentObjectException e) {
-                    this.log.debug("merge using strategy " + strategy + " did not validate: " + e);
-                    continue;
-                }
-
-                // We have a winner
-                if (commit.equals(localCommit)) {
-                    this.log.debug("merge of remote `" + remote + "' commit " + remoteCommit + " with local commit "
-                      + localCommit + " using strategy " + strategy + " resulted in no change to our version");
-                } else {
-                    this.log.debug("successfully merged remote `" + remote + "' commit " + remoteCommit + " with local commit "
-                      + localCommit + " using strategy " + strategy + " resulting in commit " + commit);
-                    merged = true;
-                }
-
-                // Log a warning if some of our local changes got overridden by remote
-                switch (strategy) {
-                case RECURSIVE_PATIENCE_THEIRS:
-                case RECURSIVE_THEIRS:
-                    this.handleConflictOverride(remote, localCommit, remoteCommit, strategy);
-                    break;
-                default:
-                    break;
-                }
-
-                // Done with this remote
-                continue remoteLoop;
+            final String commit = this.merge(remote, localCommit, remoteCommit, this.branch);
+            if (commit == null) {
+                numFails++;
+                continue;
             }
 
-            // Nothing worked - so we must be running different versions of the application
-            this.handleImpossibleMerge(remote, localCommit, remoteCommit);
+            // Was a non-trivial merge required?
+            if (!commit.equals(localCommit))
+                numMerges++;
         }
 
         // Done
         this.log.debug("completed synchronization with remotes " + this.remotes
-          + " (" + (merged ? "a" : "no") + " merge was required)");
-        return merged;
+          + " resulting in " + numMerges + " non-trivial merge(s) and " + numFails + " merge failure(s)");
+        return numMerges > 0;
+    }
+
+    /**
+     * Attempt to merge a local and remote commit and commit the result to the specified branch.
+     *
+     * <p>
+     * The implementation in {@link Synchronizer} attempts to merge the files in an automated way
+     * using git's patience merge algorithm.
+     * </p>
+     *
+     * <p>
+     * In case of conflicts, {@link #chooseConflictWinner chooseConflictWinner()},
+     * {@link #handleConflictOverride handleConflictOverride()} and/or
+     * {@link #handleImpossibleMerge handleImpossibleMerge()} is invoked as appropriate.
+     * </p>
+     *
+     * @param remote name of the remote being merged
+     * @param localCommit local commit name (SHA-1 hash)
+     * @param remoteCommit remote commit name (SHA-1 hash)
+     * @param commitBranch branch to commit merged result to
+     * @return commit name (SHA-1 hash) if the merge succeeded, null if the merge failed
+     */
+    protected String merge(String remote, String localCommit, String remoteCommit, String commitBranch) {
+
+        // Determine who is the winner in case of conflicts
+        boolean iWin = localCommit != null && this.chooseConflictWinner(localCommit, remoteCommit);
+
+        // Build merge strategy list
+        final MergeStrategy[] strategyList = new MergeStrategy[] {
+          MergeStrategy.RECURSIVE_PATIENCE,
+          iWin ? MergeStrategy.RECURSIVE_PATIENCE_OURS : MergeStrategy.RECURSIVE_PATIENCE_THEIRS,
+          iWin ? MergeStrategy.RECURSIVE_OURS : MergeStrategy.RECURSIVE_THEIRS
+        };
+
+        // Attempt merges using successively less "mergey" strategies
+        for (MergeStrategy strategy : strategyList) {
+
+            // Attempt merge
+            this.log.debug("attempting merge of remote `" + remote + "' commit " + remoteCommit
+              + " with local commit " + localCommit + " using strategy " + strategy);
+            String commit;
+            try {
+                commit = this.git.merge(commitBranch, remoteCommit, strategy, new GitRepository.Accessor() {
+                    @Override
+                    public void accessWorkingCopy(File dir) {
+                        Synchronizer.this.log.debug("validating merged file `" + Synchronizer.this.getXMLFile(dir) + "'");
+                        Synchronizer.this.readXMLFile(dir, true);
+                    }
+                }, "Merged remote `" + remote + "' commit " + remoteCommit + " using strategy " + strategy);
+            } catch (GitMergeConflictException e) {
+                this.log.debug("merge using strategy " + strategy + " failed with conflict(s)");
+                continue;
+            } catch (PersistentObjectException e) {
+                this.log.debug("merge using strategy " + strategy + " did not validate: " + e);
+                continue;
+            }
+
+            // We have a winner
+            if (commit.equals(localCommit)) {
+                this.log.debug("merge of remote `" + remote + "' commit " + remoteCommit + " with local commit "
+                  + localCommit + " using strategy " + strategy + " resulted in no change to our version");
+            } else {
+                this.log.debug("successfully merged remote `" + remote + "' commit " + remoteCommit + " with local commit "
+                  + localCommit + " using strategy " + strategy + " resulting in commit " + commit);
+            }
+
+            // Log a warning if some of our local changes got overridden by remote
+            switch (strategy) {
+            case RECURSIVE_PATIENCE_THEIRS:
+            case RECURSIVE_THEIRS:
+                this.handleConflictOverride(remote, localCommit, remoteCommit, strategy);
+                break;
+            default:
+                break;
+            }
+
+            // Done
+            return commit;
+        }
+
+        // Nothing worked - so we must be running different versions of the application
+        this.handleImpossibleMerge(remote, localCommit, remoteCommit);
+        return null;
     }
 
     /**
