@@ -49,7 +49,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * To address this problem, define a {@link ProvidesPropertySort &#64;ProvidesPropertySort}-annotated method that
- * provides a properly sorting {@link java.util.Comparable} value corresponding to the associated property. For example:
+ * provides a properly sorting {@link Comparable} value corresponding to the associated property. For example:
  * <blockquote><pre>
  * // Container backing object class
  * public class User {

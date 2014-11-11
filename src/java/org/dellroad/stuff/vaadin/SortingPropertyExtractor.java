@@ -17,7 +17,7 @@ public interface SortingPropertyExtractor<T> extends PropertyExtractor<T> {
     /**
      * Determine if the given property can be sorted by this instance.
      * If this method returns false, then the property's sorting resorts to the default behavior,
-     * i.e., depending on whether the property value implements {@link java.util.Comparable}.
+     * i.e., depending on whether the property value implements {@link Comparable}.
      *
      * @param propertyDef definition of property
      * @return true if the property defined by {@code propertyDef} can be sorted by this instance

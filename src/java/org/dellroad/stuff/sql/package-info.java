@@ -7,7 +7,5 @@
 
 /**
  * Classes related to SQL operations.
- *
- * @see java.sql
  */
 package org.dellroad.stuff.sql;
