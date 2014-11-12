@@ -52,7 +52,7 @@
 <span class="sourceLineNo">044</span>public class SQLSchemaUpdater extends AbstractSchemaUpdater&lt;DataSource, Connection&gt; {<a name="line.44"></a>
 <span class="sourceLineNo">045</span><a name="line.45"></a>
 <span class="sourceLineNo">046</span>    /**<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     * Default nefault name of the table that tracks schema updates, &lt;code&gt;{@value}&lt;/code&gt;.<a name="line.47"></a>
+<span class="sourceLineNo">047</span>     * Default name of the table that tracks schema updates, &lt;code&gt;{@value}&lt;/code&gt;.<a name="line.47"></a>
 <span class="sourceLineNo">048</span>     */<a name="line.48"></a>
 <span class="sourceLineNo">049</span>    public static final String DEFAULT_UPDATE_TABLE_NAME = "SchemaUpdate";<a name="line.49"></a>
 <span class="sourceLineNo">050</span><a name="line.50"></a>
@@ -322,7 +322,7 @@
 <span class="sourceLineNo">314</span>                        resultSet = s.executeQuery(this.getSQL());<a name="line.314"></a>
 <span class="sourceLineNo">315</span>                    } catch (SQLException e) {<a name="line.315"></a>
 <span class="sourceLineNo">316</span>                        if (SQLSchemaUpdater.this.indicatesUninitializedDatabase(c, e)) {<a name="line.316"></a>
-<span class="sourceLineNo">317</span>                            SQLSchemaUpdater.this.log.warn("detected an uninitialized database");<a name="line.317"></a>
+<span class="sourceLineNo">317</span>                            SQLSchemaUpdater.this.log.info("detected an uninitialized database");<a name="line.317"></a>
 <span class="sourceLineNo">318</span>                            result[0] = true;<a name="line.318"></a>
 <span class="sourceLineNo">319</span>                            return;<a name="line.319"></a>
 <span class="sourceLineNo">320</span>                        }<a name="line.320"></a>

@@ -33,7 +33,7 @@
 <span class="sourceLineNo">025</span>     * @return unmodifiable list of enum values<a name="line.25"></a>
 <span class="sourceLineNo">026</span>     */<a name="line.26"></a>
 <span class="sourceLineNo">027</span>    @SuppressWarnings("unchecked")<a name="line.27"></a>
-<span class="sourceLineNo">028</span>    public static &lt;T extends Enum&lt;T&gt;&gt; List&lt;T&gt; getValues(Class&lt;T&gt; enumClass) {<a name="line.28"></a>
+<span class="sourceLineNo">028</span>    public static &lt;T extends Enum&lt;?&gt;&gt; List&lt;T&gt; getValues(Class&lt;T&gt; enumClass) {<a name="line.28"></a>
 <span class="sourceLineNo">029</span><a name="line.29"></a>
 <span class="sourceLineNo">030</span>        // Generate ClassCastException if type is not an enum type<a name="line.30"></a>
 <span class="sourceLineNo">031</span>        enumClass.asSubclass(Enum.class);<a name="line.31"></a>
