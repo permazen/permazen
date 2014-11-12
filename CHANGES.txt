@@ -1,4 +1,4 @@
-Version Next
+Version 1.0.945 Released November 12, 2014
 
     - Added HTTP request and response parameters to ExceptionLoggingFilter methods
       NOTE: the above are backward-incompatible changes
