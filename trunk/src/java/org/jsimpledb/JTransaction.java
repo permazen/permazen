@@ -110,7 +110,7 @@ import org.slf4j.LoggerFactory;
  *      - Access an indexed list field's index for {@link ListIndexEntry}s</li>
  *  <li>{@link #queryMapFieldKeyEntries(Class, String, Class, Class) queryMapFieldKeyEntries()}
  *      - Access an indexed map field's key index for {@link MapKeyIndexEntry}s</li>
- *  <li>{@link #queryMapFieldKeyEntries(Class, String, Class, Class) queryMapFieldKeyEntries()}
+ *  <li>{@link #queryMapFieldValueEntries(Class, String, Class, Class) queryMapFieldValueEntries()}
  *      - Access an indexed map field's value index for {@link MapValueIndexEntry}s</li>
  * </ul>
  * </p>
@@ -162,7 +162,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #queryListFieldEntries(int, Class) queryListFieldEntries()} - Query a list field entry index by storage ID</li>
  *  <li>{@link #queryMapFieldKeyEntries(int, Class) queryMapFieldKeyEntries()}
  *      - Query a map field key entry index by storage ID</li>
- *  <li>{@link #queryMapFieldKeyEntries(int, Class) queryMapFieldKeyEntries()}
+ *  <li>{@link #queryMapFieldValueEntries(int, Class) queryMapFieldValueEntries()}
  *      - Query a map field value entry index by storage ID</li>
  * </ul>
  * </p>
@@ -1203,8 +1203,8 @@ public class JTransaction {
      * @param fieldName name of the indexed field; must include {@code "value"} sub-field name (e.g., {@code "mymap.value"})
      * @param keyType the Java type corresponding to the map field's key field
      * @param valueType the Java type corresponding to the map field's value field
-     * @return read-only, real-time view of all keys mapped to the sets of {@link MapKeyIndexEntry}s
-     *  corresponding to all occurrences of the key in some object's map field
+     * @return read-only, real-time view of all values mapped to the sets of {@link MapValueIndexEntry}s
+     *  corresponding to all occurrences of the value in some object's map field
      * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} and/or {@code valueType} is invalid
      * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} or {@code valueType} is null
      * @throws StaleTransactionException if this transaction is no longer usable
