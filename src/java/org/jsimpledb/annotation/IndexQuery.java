@@ -64,21 +64,21 @@ import java.lang.annotation.Target;
  *
  * <p>
  * For list and map fields, you may also query the index for additional information beyond just which objects contain
- * the queried value in the indexed field: in the case of a list, you can also get the
- * list index, and in the case of a map, you can also get the corresponding key or value. For these kinds of query, specify the
- * type {@code T} to be either {@link org.jsimpledb.ListIndexEntry},
- * {@link org.jsimpledb.MapKeyIndexEntry}, or {@link org.jsimpledb.MapValueIndexEntry} as appropriate. For example:
+ * the queried value in the indexed field: in the case of an index on a list element, you can also get the
+ * list index, and in the case of an index on a map value, you can also get the corresponding key. For these kinds of query,
+ * specify the type {@code T} to be either {@link org.jsimpledb.ListIndexEntry} or {@link org.jsimpledb.MapValueIndexEntry}
+ * as appropriate. For example:
  * <pre>
  * public class <b>Company</b> {
  *
  *     &#64;JMapField(storageId = 11,
- *       key = &#64;JSimpleField(storageId = 12, <b>indexed = true</b>),
- *       value = &#64;JSimpleField(storageId = 13, type = "float")) // primitive type to disallow nulls
+ *       key = &#64;JSimpleField(storageId = 12),
+ *       value = &#64;JSimpleField(storageId = 13, <b>indexed = true</b>))
  *     public abstract Map&lt;<b>Vendor</b>, <b>Float</b>&gt; getAccountsPayable();
  *
- *     // Query to get mapping by Vendor of which Company's owe that vendor and how much they owe
- *     <b>&#64;IndexQuery("accountsPayable.key")</b>
- *     private abstract NavigableMap&lt;<b>Vendor</b>, NavigableSet&lt;<b>MapKeyIndexEntry&lt;Company, Float&gt;</b>&gt;&gt; queryVendorDebts();
+ *     // Query to get a mapping, sorted by amount owed, of which Company's owe which Vendor's
+ *     <b>&#64;IndexQuery("accountsPayable.value")</b>
+ *     private abstract NavigableMap&lt;<b>Float</b>, NavigableSet&lt;<b>MapValueIndexEntry&lt;Company, Vendor&gt;</b>&gt;&gt; queryVendorDebts();
  * }
  * </pre>
  * </p>
@@ -99,7 +99,6 @@ import java.lang.annotation.Target;
  *
  * @see org.jsimpledb.JTransaction#queryIndex JTransaction.queryIndex()
  * @see org.jsimpledb.JTransaction#queryListFieldEntries(Class, String, Class) JTransaction.queryListFieldEntries()
- * @see org.jsimpledb.JTransaction#queryMapFieldKeyEntries(Class, String, Class, Class) JTransaction.queryMapFieldKeyEntries()
  * @see org.jsimpledb.JTransaction#queryMapFieldValueEntries(Class, String, Class, Class) JTransaction.queryMapFieldValueEntries()
  */
 @Retention(RetentionPolicy.RUNTIME)

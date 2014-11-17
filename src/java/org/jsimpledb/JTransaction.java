@@ -108,8 +108,6 @@ import org.slf4j.LoggerFactory;
  *      - Access any indexed field's index for containing objects</li>
  *  <li>{@link #queryListFieldEntries(Class, String, Class) queryListFieldEntries()}
  *      - Access an indexed list field's index for {@link ListIndexEntry}s</li>
- *  <li>{@link #queryMapFieldKeyEntries(Class, String, Class, Class) queryMapFieldKeyEntries()}
- *      - Access an indexed map field's key index for {@link MapKeyIndexEntry}s</li>
  *  <li>{@link #queryMapFieldValueEntries(Class, String, Class, Class) queryMapFieldValueEntries()}
  *      - Access an indexed map field's value index for {@link MapValueIndexEntry}s</li>
  * </ul>
@@ -160,8 +158,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #readMapField readMapField()} - Access a map field</li>
  *  <li>{@link #queryIndex(int, Class) queryIndex()} - Query a simple field index by storage ID</li>
  *  <li>{@link #queryListFieldEntries(int, Class) queryListFieldEntries()} - Query a list field entry index by storage ID</li>
- *  <li>{@link #queryMapFieldKeyEntries(int, Class) queryMapFieldKeyEntries()}
- *      - Query a map field key entry index by storage ID</li>
  *  <li>{@link #queryMapFieldValueEntries(int, Class) queryMapFieldValueEntries()}
  *      - Query a map field value entry index by storage ID</li>
  * </ul>
@@ -1075,8 +1071,7 @@ public class JTransaction {
      * <p>
      * This method returns an index containing {@link JObject}s; for complex fields (other than {@link Set} fields),
      * additional information associated with the particular index is available via
-     * {@link #queryListFieldEntries(Class, String, Class) queryListFieldEntries()},
-     * {@link #queryMapFieldKeyEntries(Class, String, Class, Class) queryMapFieldKeyEntries()}, and
+     * {@link #queryListFieldEntries(Class, String, Class) queryListFieldEntries()} and
      * {@link #queryMapFieldValueEntries(Class, String, Class, Class) queryMapFieldValueEntries()}.
      * </p>
      *
@@ -1156,42 +1151,7 @@ public class JTransaction {
     }
 
     /**
-     * Access an indexed map field's index for {@link MapKeyIndexEntry}s.
-     *
-     * <p>
-     * This method is a variant of {@link #queryIndex queryIndex(Class, String, Class)} that returns information not only about the
-     * object containing the map field, but also the value corresponding to the key in the map.
-     * </p>
-     *
-     * @param type type containing the indexed field; may also be any super-type (e.g., an interface type),
-     *  as long as the specified field is not ambiguous among all sub-types
-     * @param fieldName name of the indexed field; must include {@code "key"} sub-field name (e.g., {@code "mymap.key"})
-     * @param keyType the Java type corresponding to the map field's key field
-     * @param valueType the Java type corresponding to the map field's value field
-     * @return read-only, real-time view of all keys mapped to the sets of {@link MapKeyIndexEntry}s
-     *  corresponding to all occurrences of the key in some object's map field
-     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} and/or {@code valueType} is invalid
-     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} or {@code valueType} is null
-     * @throws StaleTransactionException if this transaction is no longer usable
-     */
-    @SuppressWarnings("unchecked")
-    public <S, K, V> NavigableMap<K, NavigableSet<MapKeyIndexEntry<S, V>>> queryMapFieldKeyEntries(Class<S> type,
-      String fieldName, Class<K> keyType, Class<V> valueType) {
-        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, keyType);
-        if (!(indexInfo.targetSuperFieldInfo instanceof JMapFieldInfo)
-          || !indexInfo.targetFieldInfo.equals(((JMapFieldInfo)indexInfo.targetSuperFieldInfo).getKeyFieldInfo()))
-            throw new IllegalArgumentException("field `" + fieldName + "' is not a map key field");
-        final JMapFieldInfo jfieldInfo = (JMapFieldInfo)indexInfo.targetSuperFieldInfo;
-        if (!jfieldInfo.getValueFieldInfo().getTypeToken().wrap().getRawType().equals(valueType)) {
-            throw new IllegalArgumentException("incorrect valueType for index query on `" + fieldName + "' starting from "
-              + type + ": should be " + jfieldInfo.getValueFieldInfo().getTypeToken().wrap() + " instead of " + valueType);
-        }
-        return (NavigableMap<K, NavigableSet<MapKeyIndexEntry<S, V>>>)(Object)this.queryMapFieldKeyEntries(
-          jfieldInfo.storageId, indexInfo.type.getRawType());
-    }
-
-    /**
-     * Access an indexed map field's index for {@link MapValueIndexEntry}s.
+     * Access an indexed map value field's index for {@link MapValueIndexEntry}s.
      *
      * <p>
      * This method is a variant of {@link #queryIndex queryIndex(Class, String, Class)} that returns information not only about the
@@ -1306,41 +1266,6 @@ public class JTransaction {
         final NavigableMap<?, NavigableSet<org.jsimpledb.core.ListIndexEntry>> map
           = this.tx.queryListFieldEntries(storageId, this.getTypeStorageIds(type));
         return new ConvertedNavigableMap(map, keyConverter, valueConverter);
-    }
-
-    /**
-     * Query a map field key index for {@link MapKeyIndexEntry}s by storage ID.
-     *
-     * <p>
-     * This returns the map returned by {@link Transaction#queryMapFieldKeyEntries}
-     * with {@link org.jsimpledb.MapKeyIndexEntry}s converted into {@link MapKeyIndexEntry}s.
-     * </p>
-     *
-     * <p>
-     * Used by generated {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} override methods
-     * that return index maps whose values are sets of {@link MapKeyIndexEntry}s.
-     * </p>
-     *
-     * @param storageId {@link JMapField}'s storage ID
-     * @param type type restriction for the returned objects
-     * @return read-only, real-time view of map key values mapped to sets of {@link MapKeyIndexEntry}s
-     * @throws UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
-     * @throws IllegalArgumentException if {@code type} is null
-     * @throws StaleTransactionException if this transaction is no longer usable
-     */
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T> NavigableMap<?, NavigableSet<MapKeyIndexEntry<T, ?>>> queryMapFieldKeyEntries(int storageId, Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
-        final JMapFieldInfo mapFieldInfo = this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class);
-        Converter<?, ?> keyConverter = mapFieldInfo.getKeyFieldInfo().getConverter(this);
-        keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        Converter<?, ?> valueConverter = mapFieldInfo.getValueFieldInfo().getConverter(this);
-        valueConverter = valueConverter != null ? valueConverter.reverse() : Converter.identity();
-        final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapKeyIndexEntry<?>>> map
-          = this.tx.queryMapFieldKeyEntries(storageId, this.getTypeStorageIds(type));
-        return new ConvertedNavigableMap(map, keyConverter,
-          new NavigableSetConverter(new MapKeyIndexEntryConverter(new ReferenceConverter<T>(this, type), valueConverter)));
     }
 
     /**

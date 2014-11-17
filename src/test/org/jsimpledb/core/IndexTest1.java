@@ -297,44 +297,32 @@ public class IndexTest1 extends TestSupport {
           4000,     buildSortedSet(ids[1], ids[2], ids[3])),
           "ACTUAL: " + tx.queryMapFieldKey(12));
 
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12).get(999), null);
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12).get(1001),
-          buildSet(new MapKeyIndexEntry<String>(ids[1], "valueA1")));
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12).get(1002),
-          buildSet(new MapKeyIndexEntry<String>(ids[2], "valueA2")));
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12).get(1003),
-          buildSet(new MapKeyIndexEntry<String>(ids[3], "valueA3")));
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12).get(2001),
-          buildSet(new MapKeyIndexEntry<String>(ids[1], "valueB")));
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12).get(2002),
-          buildSet(new MapKeyIndexEntry<String>(ids[2], "valueB")));
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12).get(2003),
-          buildSet(new MapKeyIndexEntry<String>(ids[3], "valueB")));
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12).get(3000), buildSet(
-          new MapKeyIndexEntry<String>(ids[1], "valueC1"),
-          new MapKeyIndexEntry<String>(ids[2], "valueC2"),
-          new MapKeyIndexEntry<String>(ids[3], "valueC3")));
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12).get(4000), buildSet(
-          new MapKeyIndexEntry<String>(ids[1], "valueD"),
-          new MapKeyIndexEntry<String>(ids[2], "valueD"),
-          new MapKeyIndexEntry<String>(ids[3], "valueD")));
+        Assert.assertEquals(tx.queryMapFieldKey(12).get(999), null);
+        Assert.assertEquals(tx.queryMapFieldKey(12).get(1001),
+          buildSet(ids[1]));
+        Assert.assertEquals(tx.queryMapFieldKey(12).get(1002),
+          buildSet(ids[2]));
+        Assert.assertEquals(tx.queryMapFieldKey(12).get(1003),
+          buildSet(ids[3]));
+        Assert.assertEquals(tx.queryMapFieldKey(12).get(2001),
+          buildSet(ids[1]));
+        Assert.assertEquals(tx.queryMapFieldKey(12).get(2002),
+          buildSet(ids[2]));
+        Assert.assertEquals(tx.queryMapFieldKey(12).get(2003),
+          buildSet(ids[3]));
+        Assert.assertEquals(tx.queryMapFieldKey(12).get(3000), buildSet(ids[1], ids[2], ids[3]));
+        Assert.assertEquals(tx.queryMapFieldKey(12).get(4000), buildSet(ids[1], ids[2], ids[3]));
 
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12), buildSortedMap(
-          1001,     buildSet(new MapKeyIndexEntry<String>(ids[1], "valueA1")),
-          1002,     buildSet(new MapKeyIndexEntry<String>(ids[2], "valueA2")),
-          1003,     buildSet(new MapKeyIndexEntry<String>(ids[3], "valueA3")),
-          2001,     buildSet(new MapKeyIndexEntry<String>(ids[1], "valueB")),
-          2002,     buildSet(new MapKeyIndexEntry<String>(ids[2], "valueB")),
-          2003,     buildSet(new MapKeyIndexEntry<String>(ids[3], "valueB")),
-          3000,     buildSet(
-                        new MapKeyIndexEntry<String>(ids[1], "valueC1"),
-                        new MapKeyIndexEntry<String>(ids[2], "valueC2"),
-                        new MapKeyIndexEntry<String>(ids[3], "valueC3")),
-          4000,     buildSet(
-                        new MapKeyIndexEntry<String>(ids[1], "valueD"),
-                        new MapKeyIndexEntry<String>(ids[2], "valueD"),
-                        new MapKeyIndexEntry<String>(ids[3], "valueD"))),
-          "ACTUAL: " + tx.queryMapFieldKeyEntries(12));
+        Assert.assertEquals(tx.queryMapFieldKey(12), buildSortedMap(
+          1001,     buildSet(ids[1]),
+          1002,     buildSet(ids[2]),
+          1003,     buildSet(ids[3]),
+          2001,     buildSet(ids[1]),
+          2002,     buildSet(ids[2]),
+          2003,     buildSet(ids[3]),
+          3000,     buildSet(ids[1], ids[2], ids[3]),
+          4000,     buildSet(ids[1], ids[2], ids[3])),
+          "ACTUAL: " + tx.queryMapFieldKey(12));
 
     // Map Values
 

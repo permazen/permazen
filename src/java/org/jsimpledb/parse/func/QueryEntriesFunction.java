@@ -17,7 +17,6 @@ import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.ListIndexEntry;
 import org.jsimpledb.core.MapField;
-import org.jsimpledb.core.MapKeyIndexEntry;
 import org.jsimpledb.core.MapValueIndexEntry;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.parse.IndexedFieldParser;
@@ -39,7 +38,7 @@ public class QueryEntriesFunction extends AbstractFunction {
 
     @Override
     public String getHelpSummary() {
-        return "queries an indexed list or map field's element, key, or value index entries";
+        return "queries an indexed list element or map value field's index entries";
     }
 
     @Override
@@ -50,7 +49,7 @@ public class QueryEntriesFunction extends AbstractFunction {
     @Override
     public String getHelpDetail() {
         return "Queries an indexed list or map field and returns a mapping from list element or map key or value to"
-          + " the set of ListIndexEntry objects (for list fields) or MapKeyIndexEntry or MapValueIndexEntry objects"
+          + " the set of ListIndexEntry objects (for list fields) or MapValueIndexEntry objects"
           + " (for map fields) corresponding to objects having that value in the field.";
     }
 
@@ -70,8 +69,9 @@ public class QueryEntriesFunction extends AbstractFunction {
             }
             @Override
             public <K, V> Query caseMapField(MapField<K, V> field) {
-                return new Query(field.getStorageId(),
-                  result.getField().getStorageId() == field.getKeyField().getStorageId() ? SubField.MAP_KEY : SubField.MAP_VALUE);
+                if (result.getField().getStorageId() == field.getKeyField().getStorageId())
+                    return null;
+                return new Query(field.getStorageId(), SubField.MAP_VALUE);
             }
             @Override
             protected <T> Query caseField(Field<T> field) {
@@ -80,7 +80,7 @@ public class QueryEntriesFunction extends AbstractFunction {
         }) : null;
         if (query == null) {
             throw new ParseException(ctx, "indexed field `" + result.getField().getName()
-              + "' is not a sub-field of a list or map field");
+              + "' is not a list element or map value field");
         }
 
         // Finish parse
@@ -135,18 +135,6 @@ public class QueryEntriesFunction extends AbstractFunction {
             @Override
             NavigableMap<?, NavigableSet<org.jsimpledb.ListIndexEntry<JObject>>> query(JTransaction jtx, int storageId) {
                 return jtx.queryListFieldEntries(storageId, JObject.class);
-            }
-        },
-        MAP_KEY() {
-
-            @Override
-            NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>> query(Transaction tx, int storageId) {
-                return tx.queryMapFieldKeyEntries(storageId);
-            }
-
-            @Override
-            NavigableMap<?, NavigableSet<org.jsimpledb.MapKeyIndexEntry<JObject, ?>>> query(JTransaction jtx, int storageId) {
-                return jtx.queryMapFieldKeyEntries(storageId, JObject.class);
             }
         },
         MAP_VALUE() {
