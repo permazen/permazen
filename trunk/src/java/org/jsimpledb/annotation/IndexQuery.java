@@ -100,7 +100,7 @@ import java.lang.annotation.Target;
  * @see org.jsimpledb.JTransaction#queryIndex JTransaction.queryIndex()
  * @see org.jsimpledb.JTransaction#queryListFieldEntries(Class, String, Class) JTransaction.queryListFieldEntries()
  * @see org.jsimpledb.JTransaction#queryMapFieldKeyEntries(Class, String, Class, Class) JTransaction.queryMapFieldKeyEntries()
- * @see org.jsimpledb.JTransaction#queryMapFieldKeyEntries(Class, String, Class, Class) JTransaction.queryMapFieldKeyEntries()
+ * @see org.jsimpledb.JTransaction#queryMapFieldValueEntries(Class, String, Class, Class) JTransaction.queryMapFieldValueEntries()
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
