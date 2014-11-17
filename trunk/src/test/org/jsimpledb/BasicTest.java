@@ -151,12 +151,10 @@ public class BasicTest extends TestSupport {
                               new ListIndexEntry<Person>(t3, 1),
                               new ListIndexEntry<Person>(t3, 3)),
               789,          buildSet(new ListIndexEntry<Person>(t3, 0))));
-            Assert.assertEquals(i.queryRatingKeyEntries(), buildMap(
-              t1,           buildSet(
-                              new MapKeyIndexEntry<Person, Float>(t1, 100.0f),
-                              new MapKeyIndexEntry<Person, Float>(t3, -3.0f)),
-              t2,           buildSet(new MapKeyIndexEntry<Person, Float>(t1, -99.0f)),
-              null,         buildSet(new MapKeyIndexEntry<Person, Float>(t1, -0.0f))));
+            Assert.assertEquals(i.queryRatingKeys(), buildMap(
+              t1,           buildSet(t1, t3),
+              t2,           buildSet(t1),
+              null,         buildSet(t1)));
             Assert.assertEquals(i.queryRatingValueEntries(), buildMap(
               100.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t1)),
               -99.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t2)),
@@ -178,8 +176,7 @@ public class BasicTest extends TestSupport {
               i.queryScoresMean());
             Assert.assertEquals(tx.queryListFieldEntries(Person.class, "scores.element", Integer.class),
               i.queryScoreEntries());
-            Assert.assertEquals(tx.queryMapFieldKeyEntries(Person.class, "ratings.key", Person.class, Float.class),
-              i.queryRatingKeyEntries());
+            Assert.assertEquals(tx.queryIndex(Person.class, "ratings.key", Person.class), i.queryRatingKeys());
             Assert.assertEquals(tx.queryMapFieldValueEntries(Person.class, "ratings.value", Person.class, Float.class),
               i.queryRatingValueEntries());
 
@@ -192,10 +189,10 @@ public class BasicTest extends TestSupport {
               21,           buildSet(new ListIndexEntry<Person>(t1, 1), new ListIndexEntry<Person>(t1, 3)),
               22,           buildSet(new ListIndexEntry<Person>(t1, 2)),
               23,           buildSet(new ListIndexEntry<Person>(t1, 0))));
-            Assert.assertEquals(i.queryRatingKeyEntriesMean(), buildMap(
-              t1,           buildSet(new MapKeyIndexEntry<Person, Float>(t1, 100.0f)),
-              t2,           buildSet(new MapKeyIndexEntry<Person, Float>(t1, -99.0f)),
-              null,         buildSet(new MapKeyIndexEntry<Person, Float>(t1, -0.0f))));
+            Assert.assertEquals(i.queryRatingKeysMean(), buildMap(
+              t1,           buildSet(t1),
+              t2,           buildSet(t1),
+              null,         buildSet(t1)));
             Assert.assertEquals(i.queryRatingValueEntriesMean(), buildMap(
               100.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t1)),
               -99.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t2)),
@@ -387,7 +384,7 @@ public class BasicTest extends TestSupport {
         public abstract NavigableMap<Integer, NavigableSet<ListIndexEntry<Person>>> queryScoreEntries();
 
         @IndexQuery(type = Person.class, value = "ratings.key")
-        public abstract NavigableMap<Person, NavigableSet<MapKeyIndexEntry<Person, Float>>> queryRatingKeyEntries();
+        public abstract NavigableMap<Person, NavigableSet<Person>> queryRatingKeys();
 
         @IndexQuery(type = Person.class, value = "ratings.value")
         public abstract NavigableMap<Float, NavigableSet<MapValueIndexEntry<Person, Person>>> queryRatingValueEntries();
@@ -404,7 +401,7 @@ public class BasicTest extends TestSupport {
         public abstract NavigableMap<Integer, NavigableSet<ListIndexEntry<MeanPerson>>> queryScoreEntriesMean();
 
         @IndexQuery(type = MeanPerson.class, value = "ratings.key")
-        public abstract NavigableMap<Person, NavigableSet<MapKeyIndexEntry<MeanPerson, Float>>> queryRatingKeyEntriesMean();
+        public abstract NavigableMap<Person, NavigableSet<MeanPerson>> queryRatingKeysMean();
 
         @IndexQuery(type = MeanPerson.class, value = "ratings.value")
         public abstract NavigableMap<Float, NavigableSet<MapValueIndexEntry<MeanPerson, Person>>> queryRatingValueEntriesMean();

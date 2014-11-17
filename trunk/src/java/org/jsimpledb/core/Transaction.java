@@ -165,8 +165,6 @@ import org.slf4j.LoggerFactory;
  *      to identify all list elements and all objects with those elements in the list, as well as the associated list indicies</li>
  *  <li>{@link #queryMapFieldKey queryMapFieldKey()} - Query the index associated with a {@link MapField}
  *      to identify all map keys and all objects having those keys in the map</li>
- *  <li>{@link #queryMapFieldKeyEntries queryMapFieldKeyEntries()} - Query the index associated with a {@link MapField}
- *      to identify all map keys and all objects having those keys in the map, as well as the associated map values</li>
  *  <li>{@link #queryMapFieldValue queryMapFieldValue()} - Query the index associated with a {@link MapField}
  *      to identify all map values and all objects having those values in the map</li>
  *  <li>{@link #queryMapFieldValueEntries queryMapFieldValueEntries()} - Query the index associated with a {@link MapField}
@@ -2515,40 +2513,6 @@ public class Transaction {
         final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
         return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldTypeRegistry.LIST_INDEX_ENTRY), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
-    }
-
-    /**
-     * Find all values stored as a key in the specified {@link MapField} and, for each such value,
-     * the set of all {@link MapKeyIndexEntry} objects, each of which represents an object and a corresponding map value.
-     *
-     * <p>
-     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
-     * having one of the specified types.
-     * </p>
-     *
-     * <p>
-     * Only objects having schema versions in which the map's key field is indexed will be found;
-     * this method does not check whether any such schema versions exist.
-     * </p>
-     *
-     * @param storageId {@link MapField}'s storage ID
-     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
-     * @return read-only, real-time view of map key values mapped to sets of {@link MapKeyIndexEntry}s
-     * @throws UnknownFieldException if no {@link MapField} field corresponding to {@code storageId} exists
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
-     */
-    @SuppressWarnings("unchecked")
-    public NavigableMap<?, NavigableSet<MapKeyIndexEntry<?>>> queryMapFieldKeyEntries(int storageId, int... objTypeStorageIds) {
-        final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.filterIndex((IndexMap<?, MapKeyIndexEntry<?>>)this.queryIndex(fieldInfo.keyField,
-          this.createMapKeyIndexEntryType(fieldInfo.valueField.fieldType)), objTypeStorageIds,
-          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.keyField.storageId));
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <V> MapKeyIndexEntryType<V> createMapKeyIndexEntryType(FieldType<V> valueFieldType) {
-        return new MapKeyIndexEntryType<V>(valueFieldType);
     }
 
     /**

@@ -177,7 +177,6 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
         if (subField == this.keyField) {
             writer.write(reader);
             id.writeTo(writer);
-            writer.write(value);
         } else if (subField == this.valueField) {
             writer.write(value);
             id.writeTo(writer);

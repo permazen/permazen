@@ -436,9 +436,9 @@ public class OnDeleteTest extends TestSupport {
           other2, buildSet(new ListIndexEntry(other1, 1)),
           referrers[0], buildSet(new ListIndexEntry(referrers[0], 1)),
           referrers[2], buildSet(new ListIndexEntry(referrers[2], 0))));
-        Assert.assertEquals(tx.queryMapFieldKeyEntries(12), buildMap(
-          target, buildSet(new MapKeyIndexEntry<Integer>(other2, 456), new MapKeyIndexEntry<Integer>(referrers[0], 343)),
-          other1, buildSet(new MapKeyIndexEntry<Integer>(other2, 123))));
+        Assert.assertEquals(tx.queryMapFieldKey(12), buildMap(
+          target, buildSet(other2, referrers[0]),
+          other1, buildSet(other2)));
         Assert.assertEquals(tx.queryMapFieldValueEntries(13), buildMap(
           target, buildSet(
             new MapValueIndexEntry<Integer>(other1, 789), new MapValueIndexEntry<Integer>(other1, 636),

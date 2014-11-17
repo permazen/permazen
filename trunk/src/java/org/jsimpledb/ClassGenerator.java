@@ -77,7 +77,6 @@ class ClassGenerator<T> {
     static final Method REVALIDATE_METHOD;
     static final Method QUERY_INDEX_METHOD;
     static final Method QUERY_LIST_FIELD_ENTRIES_METHOD;
-    static final Method QUERY_MAP_FIELD_KEY_ENTRIES_METHOD;
     static final Method QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD;
     static final Method COPY_TO_METHOD;
     static final Method GET_SNAPSHOT_TRANSACTION_METHOD;
@@ -117,7 +116,6 @@ class ClassGenerator<T> {
             REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", JObject.class);
             QUERY_INDEX_METHOD = JTransaction.class.getMethod("queryIndex", int.class, Class.class);
             QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class, Class.class);
-            QUERY_MAP_FIELD_KEY_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldKeyEntries", int.class, Class.class);
             QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldValueEntries",
               int.class, Class.class);
             COPY_TO_METHOD = JTransaction.class.getMethod("copyTo",

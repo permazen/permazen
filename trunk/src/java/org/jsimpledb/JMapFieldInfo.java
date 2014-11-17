@@ -27,8 +27,7 @@ import org.jsimpledb.core.Transaction;
 
 class JMapFieldInfo extends JComplexFieldInfo {
 
-    private static final int KEY_INDEX_ENTRY_QUERY = 1;
-    private static final int VALUE_INDEX_ENTRY_QUERY = 2;
+    private static final int VALUE_INDEX_ENTRY_QUERY = 1;
 
     JMapFieldInfo(JMapField jfield) {
         super(jfield);
@@ -105,21 +104,11 @@ class JMapFieldInfo extends JComplexFieldInfo {
     <T, R> void addIndexEntryReturnTypes(List<TypeToken<?>> types,
       TypeToken<T> targetType, JSimpleFieldInfo subFieldInfo, TypeToken<R> valueType) {
         if (subFieldInfo == this.getKeyFieldInfo())
-            this.addKeyIndexEntryReturnTypes(types, targetType, valueType, this.getValueFieldInfo().getTypeToken());
+            return;
         else if (subFieldInfo == this.getValueFieldInfo())
             this.addValueIndexEntryReturnTypes(types, targetType, this.getKeyFieldInfo().getTypeToken(), valueType);
         else
             throw new RuntimeException();
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings("serial")
-    private <T, K, V> void addKeyIndexEntryReturnTypes(List<TypeToken<?>> types,
-      TypeToken<T> targetType, TypeToken<K> keyType, TypeToken<V> valueType) {
-        types.add(new TypeToken<NavigableMap<K, NavigableSet<MapKeyIndexEntry<T, V>>>>() { }
-          .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<K>() { }, keyType.wrap())
-          .where(new TypeParameter<V>() { }, valueType.wrap()));
     }
 
     // This method exists solely to bind the generic type parameters
@@ -134,15 +123,12 @@ class JMapFieldInfo extends JComplexFieldInfo {
 
     @Override
     int getIndexEntryQueryType(TypeToken<?> queryObjectType) {
-        return queryObjectType.getRawType().equals(MapKeyIndexEntry.class) ? KEY_INDEX_ENTRY_QUERY :
-          queryObjectType.getRawType().equals(MapValueIndexEntry.class) ? VALUE_INDEX_ENTRY_QUERY : 0;
+        return queryObjectType.getRawType().equals(MapValueIndexEntry.class) ? VALUE_INDEX_ENTRY_QUERY : 0;
     }
 
     @Override
     Method getIndexEntryQueryMethod(int queryType) {
         switch (queryType) {
-        case KEY_INDEX_ENTRY_QUERY:
-            return ClassGenerator.QUERY_MAP_FIELD_KEY_ENTRIES_METHOD;
         case VALUE_INDEX_ENTRY_QUERY:
             return ClassGenerator.QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD;
         default:
