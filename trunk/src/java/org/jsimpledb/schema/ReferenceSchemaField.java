@@ -78,6 +78,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
             return false;
         if (!this.onDelete.equals(that.onDelete))
             return false;
+        if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
+            return false;
         return true;
     }
 
