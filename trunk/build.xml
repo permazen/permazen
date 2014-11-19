@@ -300,8 +300,8 @@
                 <pathelement path="build/classes"/>
             </additional-classpath>
             <links>
-                <link href="http://download.oracle.com/javase/7/docs/api/"/>
-                <link href="http://download.oracle.com/javaee/7/api/"/>
+                <link href="https://docs.oracle.com/javase/7/docs/api/"/>
+                <link href="https://docs.oracle.com/javaee/7/api/"/>
                 <link href="http://docs.guava-libraries.googlecode.com/git-history/v16.0/javadoc/"/>
                 <link href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/"/>
                 <link href="http://docs.spring.io/spring/docs/4.0.x/javadoc-api/"/>

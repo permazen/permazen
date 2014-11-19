@@ -23,6 +23,9 @@ public class SchemaObjectType extends AbstractSchemaItem {
 
     private SortedMap<Integer, SchemaField> schemaFields = new TreeMap<>();
 
+    /**
+     * Get this object type's {@link SchemaField}s, indexed by storage ID.
+     */
     public SortedMap<Integer, SchemaField> getSchemaFields() {
         return this.schemaFields;
     }
@@ -33,12 +36,13 @@ public class SchemaObjectType extends AbstractSchemaItem {
     @Override
     public void validate() {
         super.validate();
+
+        // Validate field names are unique
         final TreeMap<String, SchemaField> fieldsByName = new TreeMap<>();
         for (SchemaField field : this.schemaFields.values()) {
             field.validate();
             final String fieldName = field.getName();
-            final SchemaField otherField = fieldsByName.put(fieldName, field);
-            if (otherField != null)
+            if (fieldsByName.put(fieldName, field) != null)
                 throw new InvalidSchemaException("duplicate field name `" + fieldName + "'");
         }
     }
@@ -50,8 +54,8 @@ public class SchemaObjectType extends AbstractSchemaItem {
             final int storageId = field.getStorageId();
             final SchemaField previous = this.schemaFields.put(storageId, field);
             if (previous != null) {
-                throw new InvalidSchemaException("duplicate use of storage ID " + storageId
-                  + " for both " + previous + " and " + field + " in " + this);
+                throw new XMLStreamException("duplicate use of storage ID " + storageId
+                  + " for both " + previous + " and " + field + " in " + this, reader.getLocation());
             }
         }
     }

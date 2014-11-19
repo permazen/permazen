@@ -14,9 +14,6 @@ import java.util.TreeMap;
 /**
  * An index of object and field names in a {@link SchemaModel}.
  *
- * <p>
- * Note that {@link SchemaModel} names are not required to be unique.
- * </p>
  */
 public class NameIndex {
 
