@@ -181,8 +181,8 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
             final int storageId = schemaObjectType.getStorageId();
             final SchemaObjectType previous = this.schemaObjectTypes.put(storageId, schemaObjectType);
             if (previous != null) {
-                throw new InvalidSchemaException("duplicate use of storage ID " + storageId
-                  + " for both " + previous + " and " + schemaObjectType);
+                throw new XMLStreamException("duplicate use of storage ID " + storageId
+                  + " for both " + previous + " and " + schemaObjectType, reader.getLocation());
             }
         }
     }
