@@ -157,7 +157,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
             return false;
         final ReferenceSchemaField that = (ReferenceSchemaField)obj;
         return this.onDelete == that.onDelete
-          && (this.objectTypes != null ?  this.objectTypes.equals(that.objectTypes) : that.objectTypes == null);
+          && (this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null);
     }
 
     @Override
@@ -171,7 +171,10 @@ public class ReferenceSchemaField extends SimpleSchemaField {
 
     @Override
     public ReferenceSchemaField clone() {
-        return (ReferenceSchemaField)super.clone();
+        final ReferenceSchemaField clone = (ReferenceSchemaField)super.clone();
+        if (clone.objectTypes != null)
+            clone.objectTypes = new TreeSet<Integer>(clone.objectTypes);
+        return clone;
     }
 }
 
