@@ -7,6 +7,7 @@
 
 package org.jsimpledb.schema;
 
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -21,7 +22,7 @@ import org.jsimpledb.core.InvalidSchemaException;
  */
 public class SchemaObjectType extends AbstractSchemaItem {
 
-    private SortedMap<Integer, SchemaField> schemaFields = new TreeMap<>();
+    private /*final*/ TreeMap<Integer, SchemaField> schemaFields = new TreeMap<>();
 
     /**
      * Get this object type's {@link SchemaField}s, indexed by storage ID.
@@ -29,15 +30,12 @@ public class SchemaObjectType extends AbstractSchemaItem {
     public SortedMap<Integer, SchemaField> getSchemaFields() {
         return this.schemaFields;
     }
-    public void setSchemaFields(SortedMap<Integer, SchemaField> schemaFields) {
-        this.schemaFields = schemaFields;
-    }
 
     @Override
     public void validate() {
         super.validate();
 
-        // Validate field names are unique
+        // Validate fields and that field names are unique
         final TreeMap<String, SchemaField> fieldsByName = new TreeMap<>();
         for (SchemaField field : this.schemaFields.values()) {
             field.validate();
@@ -49,6 +47,7 @@ public class SchemaObjectType extends AbstractSchemaItem {
 
     @Override
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
+        this.schemaFields.clear();
         for (SchemaField field; (field = this.readMappedType(reader, true, SchemaModel.FIELD_TAG_MAP)) != null; ) {
             field.readXML(reader, formatVersion);
             final int storageId = field.getStorageId();
@@ -112,11 +111,12 @@ public class SchemaObjectType extends AbstractSchemaItem {
 // Cloneable
 
     @Override
+    @SuppressWarnings("unchecked")
     public SchemaObjectType clone() {
         final SchemaObjectType clone = (SchemaObjectType)super.clone();
-        clone.schemaFields = new TreeMap<>();
-        for (SchemaField schemaField : this.schemaFields.values())
-            clone.getSchemaFields().put(schemaField.getStorageId(), schemaField.clone());
+        clone.schemaFields = (TreeMap<Integer, SchemaField>)clone.schemaFields.clone();
+        for (Map.Entry<Integer, SchemaField> entry : clone.schemaFields.entrySet())
+            entry.setValue(entry.getValue().clone());
         return clone;
     }
 }

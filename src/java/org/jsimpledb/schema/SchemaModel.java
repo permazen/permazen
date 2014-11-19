@@ -63,13 +63,10 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
 
     private static final int CURRENT_FORMAT_VERSION = 1;
 
-    private SortedMap<Integer, SchemaObjectType> schemaObjectTypes = new TreeMap<>();
+    private /*final*/ TreeMap<Integer, SchemaObjectType> schemaObjectTypes = new TreeMap<>();
 
     public SortedMap<Integer, SchemaObjectType> getSchemaObjectTypes() {
         return this.schemaObjectTypes;
-    }
-    public void setSchemaObjectTypes(SortedMap<Integer, SchemaObjectType> schemaObjectTypes) {
-        this.schemaObjectTypes = schemaObjectTypes;
     }
 
     /**
@@ -155,6 +152,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
     }
 
     void readXML(XMLStreamReader reader) throws XMLStreamException {
+        this.schemaObjectTypes.clear();
 
         // Read opening tag
         this.expect(reader, false, SCHEMA_MODEL_TAG);
@@ -232,6 +230,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * Deep-clone this instance.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public SchemaModel clone() {
         SchemaModel clone;
         try {
@@ -239,9 +238,9 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        clone.schemaObjectTypes = new TreeMap<>();
-        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
-            clone.schemaObjectTypes.put(schemaObjectType.getStorageId(), schemaObjectType.clone());
+        clone.schemaObjectTypes = (TreeMap<Integer, SchemaObjectType>)clone.schemaObjectTypes.clone();
+        for (Map.Entry<Integer, SchemaObjectType> entry : clone.schemaObjectTypes.entrySet())
+            entry.setValue(entry.getValue().clone());
         return clone;
     }
 }
