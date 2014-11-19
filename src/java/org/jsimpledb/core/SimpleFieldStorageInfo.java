@@ -35,7 +35,7 @@ class SimpleFieldStorageInfo extends FieldStorageInfo {
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ this.fieldType.hashCode();
+        return super.hashCode() ^ this.fieldTypeHashCode();
     }
 
     protected boolean fieldTypeEquals(SimpleFieldStorageInfo that) {
