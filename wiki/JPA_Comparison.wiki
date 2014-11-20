@@ -14,10 +14,10 @@ Here's a quick comparison between JSimpleDB and JPA, the most common Java persis
 || Simple data types || SQL data types || Primitives, Date, etc. + any user-definable ||
 || Array types || `byte[]` only || Any type including multi-dimensional ||
 || Indexable data types || SQL data types || Any type ||
+|| Composite indexes || Supported || Coming soon ||
 || Collection types || Sets, lists, maps || Sets, lists, maps ||
 || Lockless counter type || Not supported || Supported (if key/value does) ||
 || Snapshot Transactions || Partial/implicit || Supported ||
-|| Composite indexes || Supported || Unnecessary ||
 || Query indexes in snapshots || Not supported || Supported ||
 || Field change notifications || Simple types only || Supported ||
 || Notification via reference path || Not supported || Supported ||
@@ -143,7 +143,7 @@ JPA does not directly provide access to indexes; neither does SQL itself. Instea
 
 In contrast, JSimpleDB provides a direct Java-level view into your defined indexes using the `NavigableMap` interface. As a result, JSimpleDB doesn't have or need a "query language". All queries are performed using normal Java, and their efficiency (or lack thereof) will be obvious when looking at the code.
 
-In addition, you never have to deal with composite (multi-field) indexes because _there is no need for them_. In JSimpleDB, every index resolves to a `NavigableSet` of objects, and these sets can always be efficiently unioned and intersected using the methods in the `NavigableSets` utility class. For example:
+In addition, there is less need for composite (multi-field) indexes. In JSimpleDB, every index resolves to a `NavigableSet` of objects, and these sets can always be efficiently unioned and intersected using the methods in the `NavigableSets` utility class. For example:
 
 <code language="java">
     // class Person
@@ -169,6 +169,8 @@ In addition, you never have to deal with composite (multi-field) indexes because
             return NavigableSets.empty();
         return NavigableSets.intersection(byLastName, byFirstName);
     }</code>
+
+Composite indexes are therefore only needed when you require efficient queries to objects _sorted on multiple keys_.
 
 == Problem #5: Database Types ==
 
