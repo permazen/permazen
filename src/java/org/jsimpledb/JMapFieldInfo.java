@@ -70,8 +70,8 @@ class JMapFieldInfo extends JComplexFieldInfo {
     }
 
     @Override
-    void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener) {
-        tx.addMapFieldChangeListener(this.storageId, path, listener);
+    void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener) {
+        tx.addMapFieldChangeListener(this.storageId, path, types, listener);
     }
 
     @Override

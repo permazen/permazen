@@ -99,7 +99,7 @@ class JSSet<E> extends FieldTypeSet<E> {
             return;
 
         // If range is restricted and there are field monitors, use individual deletions so we get individual notifications
-        if (!this.bounds.equals(new Bounds<E>()) && this.tx.hasFieldMonitor(this.field)) {
+        if (!this.bounds.equals(new Bounds<E>()) && this.tx.hasFieldMonitor(this.id, this.field)) {
             for (Iterator<E> i = this.iterator(); i.hasNext(); ) {
                 i.next();
                 i.remove();

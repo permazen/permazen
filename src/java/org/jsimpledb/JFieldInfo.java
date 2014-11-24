@@ -79,7 +79,7 @@ abstract class JFieldInfo {
     /**
      * Register the given listener as a change listener for this field.
      */
-    abstract void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener);
+    abstract void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener);
 
     void witness(JField jfield) {
         this.names.add(jfield.name);

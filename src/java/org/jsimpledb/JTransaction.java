@@ -230,7 +230,7 @@ public class JTransaction {
         if (validationMode == ValidationMode.AUTOMATIC) {
             for (JFieldInfo jfieldInfo : this.jdb.jfieldInfos.values()) {
                 if (jfieldInfo.isRequiresValidation())
-                    jfieldInfo.registerChangeListener(this.tx, new int[0], this.validationListener);
+                    jfieldInfo.registerChangeListener(this.tx, new int[0], null, this.validationListener);
             }
         }
         if (this.jdb.hasOnVersionChangeMethods)

@@ -30,7 +30,7 @@ class JCounterFieldInfo extends JFieldInfo {
     }
 
     @Override
-    void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener) {
+    void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener) {
         throw new UnsupportedOperationException("counter fields do not support change notifications");
     }
 }

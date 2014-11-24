@@ -7,8 +7,12 @@
 
 package org.jsimpledb.core;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 
 /**
  * A monitor for changes within a {@link Transaction} of the value of a specific field, as seen through a path of references.
@@ -27,6 +31,7 @@ class FieldMonitor {
 
     final int storageId;
     final int[] path;
+    final KeyRanges types;
     final Object listener;
 
     /**
@@ -34,23 +39,34 @@ class FieldMonitor {
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of references to {@code field}
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener listener to notify
      */
-    FieldMonitor(int storageId, int[] path, Object listener) {
+    FieldMonitor(int fieldStorageId, int[] path, Iterable<Integer> types, Object listener) {
         if (path == null)
             throw new IllegalArgumentException("null path");
         if (listener == null)
             throw new IllegalArgumentException("null listener");
-        this.storageId = storageId;
-        this.listener = listener;
+        this.storageId = fieldStorageId;
+        if (types != null) {
+            final ArrayList<KeyRange> keyRanges = new ArrayList<>();
+            for (int objTypeStorageId : types)
+                keyRanges.add(ObjId.getKeyRange(objTypeStorageId));
+            this.types = new KeyRanges(keyRanges);
+        } else
+            this.types = null;
         this.path = path.clone();
+        this.listener = listener;
     }
 
 // Object
 
     @Override
     public int hashCode() {
-        return this.storageId ^ Arrays.hashCode(this.path) ^ this.listener.hashCode();
+        return this.storageId
+          ^ Arrays.hashCode(this.path)
+          ^ (this.types != null ? this.types.hashCode() : 0)
+          ^ this.listener.hashCode();
     }
 
     @Override
@@ -60,7 +76,10 @@ class FieldMonitor {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final FieldMonitor that = (FieldMonitor)obj;
-        return this.storageId == that.storageId && Arrays.equals(this.path, that.path) && this.listener.equals(that.listener);
+        return this.storageId == that.storageId
+          && Arrays.equals(this.path, that.path)
+          && (this.types != null ? this.types.equals(that.types) : that.types == null)
+          && this.listener.equals(that.listener);
     }
 }
 

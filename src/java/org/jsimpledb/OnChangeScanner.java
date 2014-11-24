@@ -13,9 +13,14 @@ import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableSet;
 
 import org.jsimpledb.annotation.OnChange;
@@ -67,7 +72,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
     class ChangeMethodInfo extends MethodInfo {
 
         final boolean isStatic;
-        final List<ReferencePath> paths;
+        final HashMap<ReferencePath, HashSet<Integer>> paths;
         final Class<? extends FieldChange<T>> rawParameterType;
 
         @SuppressWarnings("unchecked")
@@ -108,7 +113,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
             // Parse reference paths
             boolean anyFieldsFound = false;
-            this.paths = new ArrayList<ReferencePath>(stringPaths.size());
+            this.paths = new HashMap<ReferencePath, HashSet<Integer>>(stringPaths.size());
             for (int i = 0; i < stringPaths.size(); i++) {
                 final String stringPath = stringPaths.get(i);
 
@@ -160,8 +165,13 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                       + (changeParameterTypes.size() != 1 ? "one of: " + changeParameterTypes : changeParameterTypes.get(0)));
                 }
 
+                // Determine storage ID's corresponding to matching target types; this filters out obsolete types from old versions
+                final HashSet<Integer> storageIds = new HashSet<Integer>();
+                for (JClass<?> jclass : OnChangeScanner.this.jclass.jdb.getJClasses(path.targetType))
+                    storageIds.add(jclass.storageId);
+
                 // Match
-                this.paths.add(path);
+                this.paths.put(path, storageIds);
             }
 
             // No matching fields?
@@ -178,8 +188,11 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         // Register listeners for this method
         void registerChangeListener(JTransaction jtx) {
             final ChangeMethodListener listener = new ChangeMethodListener(jtx, this.getMethod());
-            for (ReferencePath path : this.paths)
-                path.targetFieldInfo.registerChangeListener(jtx.tx, path.getReferenceFields(), listener);
+            for (Map.Entry<ReferencePath, HashSet<Integer>> entry : this.paths.entrySet()) {
+                final ReferencePath path = entry.getKey();
+                final HashSet<Integer> objectTypeStorageIds = entry.getValue();
+                path.targetFieldInfo.registerChangeListener(jtx.tx, path.getReferenceFields(), objectTypeStorageIds, listener);
+            }
         }
     }
 
@@ -189,6 +202,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
         private final JTransaction jtx;
         private final Method method;
+        private final Class<?>[] genericTypes;
 
         ChangeMethodListener(JTransaction jtx, Method method) {
             if (jtx == null)
@@ -197,6 +211,12 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 throw new IllegalArgumentException("null method");
             this.jtx = jtx;
             this.method = method;
+
+            // Extract generic types from method's FieldChange<?> parameter
+            final ArrayList<Class<?>> genericTypeList = new ArrayList<>(3);
+            for (Type type : ((ParameterizedType)this.method.getGenericParameterTypes()[0]).getActualTypeArguments())
+                genericTypeList.add(TypeToken.of(type).getRawType());
+            this.genericTypes = genericTypeList.toArray(new Class<?>[genericTypeList.size()]);
         }
 
     // SimpleFieldChangeListener
@@ -205,13 +225,12 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <T> void onSimpleFieldChange(Transaction tx, ObjId id,
           SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
-            if (!this.canInvokeWith(SimpleFieldChange.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final Object joldValue = this.jtx.convertCoreValue(field, oldValue);
+            final Object jnewValue = this.jtx.convertCoreValue(field, newValue);
+            final JObject jobj = this.checkTypes(SimpleFieldChange.class, id, joldValue, jnewValue);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new SimpleFieldChange(jobj, field.getStorageId(), field.getName(),
-              this.jtx.convertCoreValue(field, oldValue), this.jtx.convertCoreValue(field, newValue)));
+            this.invoke(referrers, new SimpleFieldChange(jobj, field.getStorageId(), field.getName(), joldValue, jnewValue));
         }
 
     // SetFieldChangeListener
@@ -220,33 +239,27 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onSetFieldAdd(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-            if (!this.canInvokeWith(SetFieldAdd.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final Object jvalue = this.jtx.convertCoreValue(field.getElementField(), value);
+            final JObject jobj = this.checkTypes(SetFieldAdd.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new SetFieldAdd(jobj, field.getStorageId(),
-              field.getName(), this.jtx.convertCoreValue(field.getElementField(), value)));
+            this.invoke(referrers, new SetFieldAdd(jobj, field.getStorageId(), field.getName(), jvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onSetFieldRemove(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
-            if (!this.canInvokeWith(SetFieldRemove.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final Object jvalue = this.jtx.convertCoreValue(field.getElementField(), value);
+            final JObject jobj = this.checkTypes(SetFieldRemove.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new SetFieldRemove(jobj, field.getStorageId(),
-              field.getName(), this.jtx.convertCoreValue(field.getElementField(), value)));
+            this.invoke(referrers, new SetFieldRemove(jobj, field.getStorageId(), field.getName(), jvalue));
         }
 
         @Override
         public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
-            if (!this.canInvokeWith(SetFieldClear.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final JObject jobj = this.checkTypes(SetFieldClear.class, id);
             if (jobj == null)
                 return;
             this.invoke(referrers, new SetFieldClear<JObject>(jobj, field.getStorageId(), field.getName()));
@@ -258,47 +271,39 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldAdd(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
-            if (!this.canInvokeWith(ListFieldAdd.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final Object jvalue = this.jtx.convertCoreValue(field.getElementField(), value);
+            final JObject jobj = this.checkTypes(ListFieldAdd.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new ListFieldAdd(jobj, field.getStorageId(),
-              field.getName(), index, this.jtx.convertCoreValue(field.getElementField(), value)));
+            this.invoke(referrers, new ListFieldAdd(jobj, field.getStorageId(), field.getName(), index, jvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldRemove(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
-            if (!this.canInvokeWith(ListFieldRemove.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final Object jvalue = this.jtx.convertCoreValue(field.getElementField(), value);
+            final JObject jobj = this.checkTypes(ListFieldRemove.class, id, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new ListFieldRemove(jobj, field.getStorageId(),
-              field.getName(), index, this.jtx.convertCoreValue(field.getElementField(), value)));
+            this.invoke(referrers, new ListFieldRemove(jobj, field.getStorageId(), field.getName(), index, jvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldReplace(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
-            if (!this.canInvokeWith(ListFieldReplace.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final Object joldValue = this.jtx.convertCoreValue(field.getElementField(), oldValue);
+            final Object jnewValue = this.jtx.convertCoreValue(field.getElementField(), newValue);
+            final JObject jobj = this.checkTypes(ListFieldReplace.class, id, joldValue, jnewValue);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new ListFieldReplace(jobj, field.getStorageId(), field.getName(), index,
-              this.jtx.convertCoreValue(field.getElementField(), oldValue),
-              this.jtx.convertCoreValue(field.getElementField(), newValue)));
+            this.invoke(referrers, new ListFieldReplace(jobj, field.getStorageId(), field.getName(), index, joldValue, jnewValue));
         }
 
         @Override
         public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
-            if (!this.canInvokeWith(ListFieldClear.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final JObject jobj = this.checkTypes(ListFieldClear.class, id);
             if (jobj == null)
                 return;
             this.invoke(referrers, new ListFieldClear<JObject>(jobj, field.getStorageId(), field.getName()));
@@ -310,48 +315,42 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldAdd(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
-            if (!this.canInvokeWith(MapFieldAdd.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final Object jkey = this.jtx.convertCoreValue(field.getKeyField(), key);
+            final Object jvalue = this.jtx.convertCoreValue(field.getValueField(), value);
+            final JObject jobj = this.checkTypes(MapFieldAdd.class, id, jkey, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new MapFieldAdd(jobj, field.getStorageId(), field.getName(),
-              this.jtx.convertCoreValue(field.getKeyField(), key), this.jtx.convertCoreValue(field.getValueField(), value)));
+            this.invoke(referrers, new MapFieldAdd(jobj, field.getStorageId(), field.getName(), jkey, jvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldRemove(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
-            if (!this.canInvokeWith(MapFieldRemove.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final Object jkey = this.jtx.convertCoreValue(field.getKeyField(), key);
+            final Object jvalue = this.jtx.convertCoreValue(field.getValueField(), value);
+            final JObject jobj = this.checkTypes(MapFieldRemove.class, id, jkey, jvalue);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new MapFieldRemove(jobj, field.getStorageId(), field.getName(),
-              this.jtx.convertCoreValue(field.getKeyField(), key), this.jtx.convertCoreValue(field.getValueField(), value)));
+            this.invoke(referrers, new MapFieldRemove(jobj, field.getStorageId(), field.getName(), jkey, jvalue));
         }
 
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldReplace(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
-            if (!this.canInvokeWith(MapFieldReplace.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final Object jkey = this.jtx.convertCoreValue(field.getKeyField(), key);
+            final Object joldValue = this.jtx.convertCoreValue(field.getValueField(), oldValue);
+            final Object jnewValue = this.jtx.convertCoreValue(field.getValueField(), newValue);
+            final JObject jobj = this.checkTypes(MapFieldReplace.class, id, jkey, joldValue, jnewValue);
             if (jobj == null)
                 return;
-            this.invoke(referrers, new MapFieldReplace(jobj, field.getStorageId(), field.getName(),
-              this.jtx.convertCoreValue(field.getKeyField(), key),
-              this.jtx.convertCoreValue(field.getValueField(), oldValue),
-              this.jtx.convertCoreValue(field.getValueField(), newValue)));
+            this.invoke(referrers, new MapFieldReplace(jobj, field.getStorageId(), field.getName(), jkey, joldValue, jnewValue));
         }
 
         @Override
         public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
-            if (!this.canInvokeWith(MapFieldClear.class))
-                return;
-            final JObject jobj = this.getJObject(id);
+            final JObject jobj = this.checkTypes(MapFieldClear.class, id);
             if (jobj == null)
                 return;
             this.invoke(referrers, new MapFieldClear<JObject>(jobj, field.getStorageId(), field.getName()));
@@ -374,18 +373,26 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
     // Internal methods
 
-        private JObject getJObject(ObjId id) {
+        private JObject checkTypes(Class<? /*extends FieldChange<?>*/> changeType, ObjId id, Object... values) {
 
-            // If changed object is not representable via Java model class, don't propagate the change
-            if (!this.jtx.jdb.jclasses.containsKey(id.getStorageId()))
+            // Check method parameter type
+            if (!method.getParameterTypes()[0].isAssignableFrom(changeType))
                 return null;
 
-            // Get JObject
-            return this.jtx.getJObject(id);
-        }
+            // Check first generic type parameter which is the JObject corresponding to id
+            final JObject jobj = this.jtx.getJObject(id);
+            if (!this.genericTypes[0].isInstance(jobj))
+                return null;
 
-        private boolean canInvokeWith(Class<?> paramType) {
-            return this.method.getParameterTypes()[0].isAssignableFrom(paramType);
+            // Check other generic type parameter(s)
+            for (int i = 1; i < this.genericTypes.length; i++) {
+                final Object value = values[Math.min(i, values.length) - 1];
+                if (value != null && !this.genericTypes[i].isInstance(value))
+                    return null;
+            }
+
+            // OK types agree
+            return jobj;
         }
 
         private void invoke(NavigableSet<ObjId> referrers, FieldChange<JObject> change) {
