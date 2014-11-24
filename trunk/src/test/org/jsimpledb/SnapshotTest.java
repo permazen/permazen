@@ -162,7 +162,7 @@ public class SnapshotTest extends TestSupport {
 
             // Add change listener to force slower field-by-field copy
             final boolean[] flag = new boolean[1];
-            tx2.getTransaction().addSetFieldChangeListener(103, new int[0], new SetFieldChangeListener() {
+            tx2.getTransaction().addSetFieldChangeListener(103, new int[0], null, new SetFieldChangeListener() {
                 @Override
                 public <E> void onSetFieldAdd(Transaction tx, ObjId id,
                   SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {

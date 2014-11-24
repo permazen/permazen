@@ -55,6 +55,10 @@ public class FieldMonitorTest extends TestSupport {
           + "        <ReferenceField storageId=\"142\"/>\n"
           + "    </MapField>"
           + "  </ObjectType>\n"
+          + "  <ObjectType name=\"Bar\" storageId=\"200\">\n"
+          + "    <SimpleField name=\"i\" type=\"int\" storageId=\"105\"/>\n"
+          + "    <ReferenceField name=\"ref\" storageId=\"109\"/>\n"
+          + "  </ObjectType>\n"
           + "</Schema>\n";
         final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream(schemaXML.getBytes("UTF-8")));
 
@@ -154,43 +158,43 @@ public class FieldMonitorTest extends TestSupport {
         // Test error cases
 
         try {   // null listener
-            tx.addSimpleFieldChangeListener(101, new int[0], null);
+            tx.addSimpleFieldChangeListener(101, new int[0], null, null);
             assert false;
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {   // null path
-            tx.addSimpleFieldChangeListener(101, null, listener);
+            tx.addSimpleFieldChangeListener(101, null, null, listener);
             assert false;
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {   // unknown target field
-            tx.addSimpleFieldChangeListener(999, new int[0], listener);
+            tx.addSimpleFieldChangeListener(999, new int[0], null, listener);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {   // unknown path element
-            tx.addSimpleFieldChangeListener(101, new int[] { 999 }, listener);
+            tx.addSimpleFieldChangeListener(101, new int[] { 999 }, null, listener);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {   // non-reference simple field path element
-            tx.addSimpleFieldChangeListener(101, new int[] { 105 }, listener);
+            tx.addSimpleFieldChangeListener(101, new int[] { 105 }, null, listener);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {   // complex field path element
-            tx.addSimpleFieldChangeListener(101, new int[] { 120 }, listener);
+            tx.addSimpleFieldChangeListener(101, new int[] { 120 }, null, listener);
             assert false;
         } catch (UnknownFieldException e) {
             // expected
         }
         try {   // sub-field target field
-            tx.addSimpleFieldChangeListener(121, new int[0], listener);
+            tx.addSimpleFieldChangeListener(121, new int[0], null, listener);
             assert false;
         } catch (IllegalArgumentException e) {
             // expected
@@ -199,10 +203,10 @@ public class FieldMonitorTest extends TestSupport {
     // SimpleField
 
         // ref -> set -> id4 : { id1, id3 }
-        tx.addSimpleFieldChangeListener(105, new int[] { 109, 121 }, listener);
+        tx.addSimpleFieldChangeListener(105, new int[] { 109, 121 }, null, listener);
         tx.writeSimpleField(id4, 105, 4001, true);
         listener.verify(new Notify("SimpleChange", id4, 105, new int[] { 109, 121 }, Arrays.asList(id1, id3), 0, 4001));
-        tx.removeSimpleFieldChangeListener(105, new int[] { 109, 121 }, listener);
+        tx.removeSimpleFieldChangeListener(105, new int[] { 109, 121 }, null, listener);
 
         tx.writeSimpleField(id4, 105, 4002, true);
         listener.verify();
@@ -211,19 +215,19 @@ public class FieldMonitorTest extends TestSupport {
         listener.verify();
 
         // id4 : { id4 }
-        tx.addSimpleFieldChangeListener(105, new int[0], listener);
+        tx.addSimpleFieldChangeListener(105, new int[0], null, listener);
         tx.writeSimpleField(id4, 105, 4003, true);
         listener.verify(new Notify("SimpleChange", id4, 105, new int[0], Arrays.asList(id4), 4002, 4003));
-        tx.removeSimpleFieldChangeListener(105, new int[0], listener);
+        tx.removeSimpleFieldChangeListener(105, new int[0], null, listener);
 
         // ref -> id1 : { }
-        tx.addSimpleFieldChangeListener(105, new int[] { 109 }, listener);
+        tx.addSimpleFieldChangeListener(105, new int[] { 109 }, null, listener);
         tx.writeSimpleField(id1, 105, 1001, true);
         listener.verify();
-        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, listener);
+        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, null, listener);
 
         // ref -> set -> list -> map.value -> id4 : { id1, id3 }
-        tx.addSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 142 }, listener);
+        tx.addSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 142 }, null, listener);
         tx.writeSimpleField(id4, 105, 4004, true);
         listener.verify(
           new Notify("SimpleChange", id4, 105, new int[] { 109, 121, 131, 142 }, Arrays.asList(id1, id3), 4003, 4004));
@@ -232,10 +236,10 @@ public class FieldMonitorTest extends TestSupport {
         tx.writeSimpleField(id3, 105, 3001, true);
         listener.verify(
           new Notify("SimpleChange", id3, 105, new int[] { 109, 121, 131, 142 }, Arrays.asList(id1, id2, id3), 0, 3001));
-        tx.removeSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 142 }, listener);
+        tx.removeSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 142 }, null, listener);
 
         // ref -> set -> list -> map.key -> id4 : { id1, id3 }
-        tx.addSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 141 }, listener);
+        tx.addSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 141 }, null, listener);
         tx.writeSimpleField(id4, 105, 4005, true);
         listener.verify(
           new Notify("SimpleChange", id4, 105, new int[] { 109, 121, 131, 141 }, Arrays.asList(id1, id3), 4004, 4005));
@@ -244,24 +248,24 @@ public class FieldMonitorTest extends TestSupport {
         tx.writeSimpleField(id3, 105, 3002, true);
         listener.verify(
           new Notify("SimpleChange", id3, 105, new int[] { 109, 121, 131, 141 }, Arrays.asList(id1, id2, id3), 3001, 3002));
-        tx.removeSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 141 }, listener);
+        tx.removeSimpleFieldChangeListener(105, new int[] { 109, 121, 131, 141 }, null, listener);
 
         // list -> list -> id3 : { id1, id2, id3 }
-        tx.addSimpleFieldChangeListener(105, new int[] { 131, 131 }, listener);
+        tx.addSimpleFieldChangeListener(105, new int[] { 131, 131 }, null, listener);
         tx.writeSimpleField(id3, 105, 3003, true);
         listener.verify(new Notify("SimpleChange", id3, 105, new int[] { 131, 131 }, Arrays.asList(id1, id2, id3), 3002, 3003));
-        tx.removeSimpleFieldChangeListener(105, new int[] { 131, 131 }, listener);
+        tx.removeSimpleFieldChangeListener(105, new int[] { 131, 131 }, null, listener);
 
         // list -> id3 : { id1, id3 }
-        tx.addSimpleFieldChangeListener(105, new int[] { 131 }, listener);
+        tx.addSimpleFieldChangeListener(105, new int[] { 131 }, null, listener);
         tx.writeSimpleField(id3, 105, 3004, true);
         listener.verify(new Notify("SimpleChange", id3, 105, new int[] { 131 }, Arrays.asList(id1, id3), 3003, 3004));
-        tx.removeSimpleFieldChangeListener(105, new int[] { 131 }, listener);
+        tx.removeSimpleFieldChangeListener(105, new int[] { 131 }, null, listener);
 
     // SetField
 
         // set -> id4
-        tx.addSetFieldChangeListener(120, new int[] { 121 }, listener);
+        tx.addSetFieldChangeListener(120, new int[] { 121 }, null, listener);
         set4.add(id4);
         listener.verify(new Notify("SetAdd", id4, 120, new int[] { 121 }, Arrays.asList(id2, id4), id4));
         set4.add(id3);
@@ -270,7 +274,32 @@ public class FieldMonitorTest extends TestSupport {
         listener.verify(new Notify("SetRemove", id4, 120, new int[] { 121 }, Arrays.asList(id2), id4));
         set4.clear();
         listener.verify(new Notify("SetClear", id4, 120, new int[] { 121 }, Arrays.asList(id2)));
-        tx.removeSetFieldChangeListener(120, new int[] { 121 }, listener);
+        tx.removeSetFieldChangeListener(120, new int[] { 121 }, null, listener);
+
+    // Verify we only see changes to specified types
+
+        final ObjId bar = new ObjId("c800000000000000");
+
+        Assert.assertTrue(tx.create(bar));
+
+        tx.writeSimpleField(id1, 109, bar, true);
+        tx.writeSimpleField(bar, 109, id1, true);
+        tx.writeSimpleField(id1, 105, 5001, true);
+        tx.writeSimpleField(bar, 105, 5001, true);
+
+        tx.addSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(100), listener);     // object type 100 only
+        tx.writeSimpleField(bar, 105, 5002, true);
+        listener.verify();
+        tx.writeSimpleField(id1, 105, 5003, true);
+        listener.verify(new Notify("SimpleChange", id1, 105, new int[] { 109 }, Arrays.asList(bar), 5001, 5003));
+        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(100), listener);
+
+        tx.addSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(200), listener);     // object type 200 only
+        tx.writeSimpleField(id1, 105, 5004, true);
+        listener.verify();
+        tx.writeSimpleField(bar, 105, 5005, true);
+        listener.verify(new Notify("SimpleChange", bar, 105, new int[] { 109 }, Arrays.asList(id1), 5002, 5005));
+        tx.removeSimpleFieldChangeListener(105, new int[] { 109 }, Arrays.asList(100), listener);
 
         tx.rollback();
     }

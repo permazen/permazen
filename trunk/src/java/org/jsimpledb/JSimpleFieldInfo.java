@@ -61,8 +61,8 @@ class JSimpleFieldInfo extends JFieldInfo {
     }
 
     @Override
-    void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener) {
-        tx.addSimpleFieldChangeListener(this.storageId, path, listener);
+    void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener) {
+        tx.addSimpleFieldChangeListener(this.storageId, path, types, listener);
     }
 
     @Override

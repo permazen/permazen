@@ -182,7 +182,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
             return;
 
         // If range is restricted and there are field monitors, use individual deletions so we get individual notifications
-        if (!this.bounds.equals(new Bounds<K>()) && this.tx.hasFieldMonitor(this.field)) {
+        if (!this.bounds.equals(new Bounds<K>()) && this.tx.hasFieldMonitor(this.id, this.field)) {
             for (Iterator<Map.Entry<K, V>> i = this.entrySet().iterator(); i.hasNext(); ) {
                 i.next();
                 i.remove();

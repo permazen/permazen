@@ -1546,7 +1546,7 @@ public class Transaction {
         //  - The field is indexed -> we need the old value so we can remove the old index entry
         // If neither of the above is true, then there's no need to read the old value.
         byte[] oldValue = null;
-        if (field.indexed || this.hasFieldMonitor(field)) {
+        if (field.indexed || this.hasFieldMonitor(id, field)) {
 
             // Get old value
             oldValue = this.kvt.get(key);
@@ -1932,6 +1932,11 @@ public class Transaction {
      * </p>
      *
      * <p>
+     * If a non-null {@code types} is provided, then only objects whose types have one of the specified storage ID's
+     * will trigger notifications to {@code listener}.
+     * </p>
+     *
+     * <p>
      * A referring object may refer to the changed object through more than one actual path of references matching {@code path};
      * if so, it will still appear only once in the {@link NavigableSet} provided to the listener (this is of course required
      * by set semantics).
@@ -1957,6 +1962,7 @@ public class Transaction {
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -1964,20 +1970,22 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized void addSimpleFieldChangeListener(int storageId, int[] path, SimpleFieldChangeListener listener) {
+    public synchronized void addSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+      SimpleFieldChangeListener listener) {
         this.validateChangeListener(SimpleField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, listener));
+        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
      * Monitor for changes within this transaction to the specified {@link SetField} as seen through a path of references.
      *
      * <p>
-     * See {@link #addSimpleFieldChangeListener} for details on how notifications are delivered.
+     * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      * </p>
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -1985,20 +1993,22 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized void addSetFieldChangeListener(int storageId, int[] path, SetFieldChangeListener listener) {
+    public synchronized void addSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+      SetFieldChangeListener listener) {
         this.validateChangeListener(SetField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, listener));
+        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
      * Monitor for changes within this transaction to the specified {@link ListField} as seen through a path of references.
      *
      * <p>
-     * See {@link #addSimpleFieldChangeListener} for details on how notifications are delivered.
+     * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      * </p>
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2006,20 +2016,22 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized void addListFieldChangeListener(int storageId, int[] path, ListFieldChangeListener listener) {
+    public synchronized void addListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+      ListFieldChangeListener listener) {
         this.validateChangeListener(ListField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, listener));
+        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
      * Monitor for changes within this transaction to the specified {@link MapField} as seen through a path of references.
      *
      * <p>
-     * See {@link #addSimpleFieldChangeListener} for details on how notifications are delivered.
+     * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
      * </p>
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2027,9 +2039,10 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized void addMapFieldChangeListener(int storageId, int[] path, MapFieldChangeListener listener) {
+    public synchronized void addMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+      MapFieldChangeListener listener) {
         this.validateChangeListener(MapField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, listener));
+        this.getMonitorsForField(storageId, true).add(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
@@ -2037,6 +2050,7 @@ public class Transaction {
      *
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2044,9 +2058,10 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized void removeSimpleFieldChangeListener(int storageId, int[] path, SimpleFieldChangeListener listener) {
+    public synchronized void removeSimpleFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+      SimpleFieldChangeListener listener) {
         this.validateChangeListener(SimpleField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, listener));
+        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
@@ -2054,6 +2069,7 @@ public class Transaction {
      *
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2061,9 +2077,10 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized void removeSetFieldChangeListener(int storageId, int[] path, SetFieldChangeListener listener) {
+    public synchronized void removeSetFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+      SetFieldChangeListener listener) {
         this.validateChangeListener(SetField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, listener));
+        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
@@ -2071,6 +2088,7 @@ public class Transaction {
      *
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2078,9 +2096,10 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized void removeListFieldChangeListener(int storageId, int[] path, ListFieldChangeListener listener) {
+    public synchronized void removeListFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+      ListFieldChangeListener listener) {
         this.validateChangeListener(ListField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, listener));
+        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, types, listener));
     }
 
     /**
@@ -2088,6 +2107,7 @@ public class Transaction {
      *
      * @param storageId storage ID of the field to no longer monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
+     * @param types set of allowed storage IDs for the changed object, or null for no restriction
      * @param listener callback for notifications on changes in value
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
      * @throws UnknownFieldException if {@code path} contains a storage ID that does not correspond to a {@link ReferenceField}
@@ -2095,9 +2115,10 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code path} or {@code listener} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized void removeMapFieldChangeListener(int storageId, int[] path, MapFieldChangeListener listener) {
+    public synchronized void removeMapFieldChangeListener(int storageId, int[] path, Iterable<Integer> types,
+      MapFieldChangeListener listener) {
         this.validateChangeListener(MapField.class, storageId, path, listener);
-        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, listener));
+        this.getMonitorsForField(storageId, false).remove(new FieldMonitor(storageId, path, types, listener));
     }
 
     private <T extends Field<?>> void validateChangeListener(Class<T> expectedFieldType,
@@ -2136,15 +2157,16 @@ public class Transaction {
     }
 
     /**
-     * Add a pending notification for any {@link FieldMonitor}s watching the specified field.
+     * Add a pending notification for any {@link FieldMonitor}s watching the specified field in the specified object.
      * This method assumes only the appropriate type of monitor is registered as a listener on the field
-     * and that the provided old and new values have the appropriate types (hence the unchecked casts).
+     * and that the provided old and new values have the appropriate types.
      */
     void addFieldChangeNotification(FieldChangeNotifier notifier) {
 
         // Does anybody care?
         final int storageId = notifier.getStorageId();
-        if (!this.monitorMap.containsKey(storageId))
+        HashSet<FieldMonitor> monitors = this.monitorMap.get(storageId);
+        if (monitors == null || !Iterables.any(monitors, new MonitoredPredicate(notifier.getId(), storageId)))
             return;
 
         // Add a pending field monitor notification for the specified field
@@ -2160,15 +2182,20 @@ public class Transaction {
     /**
      * Determine if there are any monitors watching the specified field.
      */
-    boolean hasFieldMonitor(Field<?> field) {
-        return this.monitorMap.containsKey(field.storageId);
+    boolean hasFieldMonitor(ObjId id, Field<?> field) {
+        final HashSet<FieldMonitor> monitors = this.monitorMap.get(field.storageId);
+        return monitors != null && Iterables.any(monitors, new MonitoredPredicate(id, field.storageId));
     }
 
     /**
      * Determine if there are any monitors watching any field in the specified type.
      */
     boolean hasFieldMonitor(ObjType objType) {
-        return !NavigableSets.intersection(objType.fields.navigableKeySet(), this.monitorMap.navigableKeySet()).isEmpty();
+        for (int storageId : NavigableSets.intersection(objType.fields.navigableKeySet(), this.monitorMap.navigableKeySet())) {
+            if (Iterables.any(this.monitorMap.get(storageId), new MonitoredPredicate(ObjId.getMin(objType.storageId), storageId)))
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -2241,6 +2268,10 @@ public class Transaction {
         // and group the remaining monitors by their next inverted reference path step.
         final HashMap<Integer, ArrayList<FieldMonitor>> remainingMonitorsMap = new HashMap<>();
         for (FieldMonitor monitor : monitorList) {
+
+            // On the first step, apply the monitor's type filter, if any
+            if (step == 0 && monitor.types != null && !monitor.types.contains(notifier.getId().getBytes()))
+                continue;
 
             // Issue notification callback if we have back-tracked through the whole path
             if (monitor.path.length == step) {
@@ -2784,6 +2815,25 @@ public class Transaction {
 
         @Override
         public void afterCompletion(boolean committed) {
+        }
+    }
+
+// Predicates & Functions
+
+    // Matches FieldMonitors who monitor the specified field in the specified object type
+    private final class MonitoredPredicate implements Predicate<FieldMonitor> {
+
+        private final ObjId id;
+        private final int storageId;
+
+        MonitoredPredicate(ObjId id, int storageId) {
+            this.id = id;
+            this.storageId = storageId;
+        }
+
+        @Override
+        public boolean apply(FieldMonitor monitor) {
+            return monitor.storageId == this.storageId && (monitor.types == null || monitor.types.contains(this.id.getBytes()));
         }
     }
 }

@@ -44,8 +44,8 @@ class JListFieldInfo extends JCollectionFieldInfo {
     }
 
     @Override
-    void registerChangeListener(Transaction tx, int[] path, AllChangesListener listener) {
-        tx.addListFieldChangeListener(this.storageId, path, listener);
+    void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener) {
+        tx.addListFieldChangeListener(this.storageId, path, types, listener);
     }
 
     @Override
