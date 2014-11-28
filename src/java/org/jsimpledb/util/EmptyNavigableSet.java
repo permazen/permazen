@@ -7,8 +7,7 @@
 
 package org.jsimpledb.util;
 
-import com.google.common.collect.Iterators;
-
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
@@ -55,7 +54,7 @@ class EmptyNavigableSet<E> extends AbstractNavigableSet<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return Iterators.emptyIterator();
+        return Collections.emptyIterator();
     }
 
     @Override
