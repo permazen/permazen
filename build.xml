@@ -302,7 +302,7 @@
             <links>
                 <link href="https://docs.oracle.com/javase/7/docs/api/"/>
                 <link href="https://docs.oracle.com/javaee/7/api/"/>
-                <link href="http://docs.guava-libraries.googlecode.com/git-history/v16.0/javadoc/"/>
+                <link href="http://docs.guava-libraries.googlecode.com/git/javadoc/"/>
                 <link href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/"/>
                 <link href="http://docs.spring.io/spring/docs/4.0.x/javadoc-api/"/>
                 <link href="https://foundationdb.com/documentation/javadoc/"/>
@@ -369,10 +369,20 @@
         <attribute name="id" description="Repository ID"/>
         <sequential>
 
-            <!-- Get dellroad-stuff version -->
+            <!-- Get dependency library versions -->
             <exec executable="sed" logError="true" failonerror="false" outputproperty="dellroad.stuff.version">
                 <arg value="-n"/>
                 <arg value="s/^.*&lt;dependency.*name=&quot;dellroad-stuff&quot;.*rev=&quot;\([0-9.]*\)&quot;.*$$/\1/gp"/>
+                <arg value="${basedir}/src/ivy/ivy.xml"/>
+            </exec>
+            <exec executable="sed" logError="true" failonerror="false" outputproperty="guava.version">
+                <arg value="-n"/>
+                <arg value="s/^.*&lt;dependency.*name=&quot;guava&quot;.*rev=&quot;\([0-9.]*\)&quot;.*$$/\1/gp"/>
+                <arg value="${basedir}/src/ivy/ivy.xml"/>
+            </exec>
+            <exec executable="sed" logError="true" failonerror="false" outputproperty="slf4j.version">
+                <arg value="-n"/>
+                <arg value="s/^.*&lt;dependency.*name=&quot;slf4j&quot;.*rev=&quot;\([0-9.]*\)&quot;.*$$/\1/gp"/>
                 <arg value="${basedir}/src/ivy/ivy.xml"/>
             </exec>
 
@@ -384,6 +394,8 @@
                     <filter token="GROUP_ID" value="${maven.group.id}"/>
                     <filter token="ARTIFACT_ID" value="${ant.project.name}"/>
                     <filter token="DRSTUFF_VERSION" value="${dellroad.stuff.version}"/>
+                    <filter token="GUAVA_VERSION" value="${guava.version}"/>
+                    <filter token="SLF4J_VERSION" value="${slf4j.version}"/>
                 </filterset>
             </copy>
 

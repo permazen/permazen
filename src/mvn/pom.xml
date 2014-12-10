@@ -43,12 +43,12 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>17.0</version>
+      <version>@GUAVA_VERSION@</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.7</version>
+      <version>@SLF4J_VERSION@</version>
     </dependency>
     <dependency>
       <groupId>org.dellroad</groupId>
