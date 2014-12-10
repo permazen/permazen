@@ -21,7 +21,7 @@
     </configurations>
 
     <dependencies>
-        <dependency force="true" org="com.google.guava" name="guava" rev="17.0" conf="base->default"/>
+        <dependency force="true" org="com.google.guava" name="guava" rev="18.0" conf="base->default"/>
         <dependency force="true" org="com.mysql" name="mysql-connector-java" rev="5.1+" conf="javac,test-&gt;default"/>
         <dependency force="true" org="com.tonicsystems" name="jarjar" rev="1.4" conf="build->default"/>
         <dependency force="true" org="com.foundationdb" name="fdb-java" rev="2.+" conf="base,test->default"/>
@@ -30,10 +30,10 @@
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="base->default"/>
         <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1+" conf="javac,gui,cli->default"/>
         <dependency force="true" org="org.aspectj" name="aspectj" rev="1.7.2" conf="weaver->tools;base->default"/>
-        <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.905" conf="base->core; weaver->aspects"/>
+        <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.946" conf="base->core; weaver->aspects"/>
         <dependency force="true" org="org.eclipse" name="jetty" rev="9.2.0.v20140526" conf="javac,gui->webapp,annotations"/>
         <dependency force="true" org="org.objectweb.asm" name="asm" rev="4.+" conf="javac,gui,build->default; jarjars->core,util"/>
-        <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7.2" conf="base->default;test,gui,cli->log4j"/>
+        <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7.7" conf="base->default;test,gui,cli->log4j"/>
         <dependency force="true" org="org.sonatype.jline" name="jline" rev="2.11" conf="javac,cli->default"/>
         <dependency force="true" org="org.springframework" name="spring" rev="4.0+"
           conf="javac,gui->aop,aspects,beans,context,tx,web; cli->context"/>
