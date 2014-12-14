@@ -49,7 +49,7 @@ public class JEnumField extends JSimpleField {
         super.initialize(jdb, schemaField0);
         final EnumSchemaField schemaField = (EnumSchemaField)schemaField0;
         schemaField.getIdentifiers().clear();
-        for (Enum<?> value : (Iterable<Enum<?>>)EnumUtil.getValues((Class<Enum>)this.getType().getRawType()))
+        for (Enum<?> value : EnumUtil.getValues((Class<Enum<?>>)this.getType().getRawType()))
             schemaField.getIdentifiers().add(value.name());
     }
 
