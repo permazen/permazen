@@ -41,7 +41,6 @@ public class KVPairIterator implements Iterator<KVPair> {
     private KVPair currPair;            // cached value to return from next()
     private byte[] nextKey;             // next key lower/upper bound to go fetch, or null to start at the beginning
     private byte[] removeKey;           // next key to remove if remove() invoked
-    private KeyRange lastKeyRange;      // the range that contained previous key, if any, otherwise -1 (optimization)
     private boolean finished;
 
     /**
@@ -85,7 +84,7 @@ public class KVPairIterator implements Iterator<KVPair> {
      * @throws IllegalArgumentException if {@code minKey > maxKey}
      */
     public KVPairIterator(KVStore kv, byte[] minKey, byte[] maxKey, boolean reverse) {
-        this(kv, new KeyRanges(minKey, maxKey), reverse);
+        this(kv, new SimpleKeyRanges(minKey, maxKey), reverse);
     }
 
     /**
@@ -97,7 +96,7 @@ public class KVPairIterator implements Iterator<KVPair> {
      * @throws IllegalArgumentException if any parameter is null
      */
     public KVPairIterator(KVStore kv, byte[] prefix, boolean reverse) {
-        this(kv, KeyRanges.forPrefix(prefix), reverse);
+        this(kv, SimpleKeyRanges.forPrefix(prefix), reverse);
     }
 
     /**
@@ -114,7 +113,6 @@ public class KVPairIterator implements Iterator<KVPair> {
         this.kv = kv;
         this.keyRanges = keyRanges;
         this.reverse = reverse;
-        this.nextKey = keyRanges != null ? (reverse ? this.keyRanges.getMax() : this.keyRanges.getMin()) : null;
     }
 
     /**
@@ -208,31 +206,22 @@ public class KVPairIterator implements Iterator<KVPair> {
                 return false;
             }
 
-            // Are we applying KeyRanges?
+            // If there is no KeyRanges restriction, we're done
             if (this.keyRanges == null)
                 break;
 
-            // Get key
+            // Is the key we got contained in the KeyRanges?
             final byte[] key = pair.getKey();
-
-            // Optimization: key is likely contained in the same KeyRange as the previous key was so check there first
-            if (this.lastKeyRange != null && this.lastKeyRange.contains(key))
-                break;
-
-            // Find the containing KeyRange, if any, otherwise find the two KeyRanges to the left and right of the key
-            final KeyRange[] neighbors = this.keyRanges.findKey(key);
-            if (neighbors[0] == neighbors[1] && neighbors[0] != null) {                 // key is visible
-                this.lastKeyRange = neighbors[0];
-                break;
-            }
-
-            // Key is not visible; jump to the start of the next visible KeyRange and try again
-            this.lastKeyRange = neighbors[this.reverse ? 0 : 1];
-            if (this.lastKeyRange == null) {                                            // we're past the last visible KeyRange
+            final KeyRange range = this.reverse ? this.keyRanges.nextLowerRange(key) : this.keyRanges.nextHigherRange(key);
+            if (range == null) {
                 this.finished = true;
                 return false;
             }
-            this.nextKey = this.reverse ? this.lastKeyRange.getMax() : this.lastKeyRange.getMin();
+            if (range.contains(key))
+                break;
+
+            // Advance to the next contiguous region in KeyRanges and try again
+            this.nextKey = this.reverse ? range.getMax() : range.getMin();
         }
 
         // Save it (pre-fetch)

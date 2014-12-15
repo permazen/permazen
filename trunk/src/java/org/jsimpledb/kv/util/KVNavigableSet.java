@@ -14,7 +14,7 @@ import java.util.NavigableSet;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.util.BoundType;
+import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -33,33 +33,23 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
 // Constructors
 
     /**
-     * Convenience constructor for when there are no range restrictions.
+     * Constructor for when there are no range restrictions.
      *
      * @param kv underlying {@link KVStore}
      */
     public KVNavigableSet(KVStore kv) {
-        this(kv, (KeyRanges)null);
+        this(kv, false, null, new Bounds<byte[]>());
     }
 
     /**
-     * Convenience constructor for when the range of visible {@link KVStore} keys is all keys sharing a given {@code byte[]} prefix.
+     * Constructor for when the range of visible {@link KVStore} keys is all keys sharing a given {@code byte[]} prefix.
      *
      * @param kv underlying {@link KVStore}
      * @param prefix prefix defining minimum and maximum keys
      * @throws NullPointerException if {@code prefix} is null
      */
     public KVNavigableSet(KVStore kv, byte[] prefix) {
-        this(kv, KeyRanges.forPrefix(prefix));
-    }
-
-    /**
-     * Primary constructor.
-     *
-     * @param kv underlying {@link KVStore}
-     * @param keyRanges visible keys, or null for no restrictions
-     */
-    public KVNavigableSet(KVStore kv, KeyRanges keyRanges) {
-        this(kv, false, keyRanges, KVNavigableSet.createBounds(keyRanges));
+        this(kv, false, SimpleKeyRanges.forPrefix(prefix), KVNavigableSet.createBounds(prefix));
     }
 
     /**
@@ -100,8 +90,11 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
             this.kv.removeRange(null, null);
             return;
         }
-        for (KeyRange range : this.keyRanges.getKeyRanges())
+        for (KeyRange range = this.keyRanges.nextHigherRange(ByteUtil.EMPTY); range != null; ) {
             this.kv.removeRange(range.getMin(), range.getMax());
+            if ((range = this.keyRanges.nextHigherRange(range.getMax())) == null)
+                break;
+        }
     }
 
     @Override
@@ -121,14 +114,9 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
         return new KVNavigableSet(this.kv, newReversed, newKeyRanges, newBounds);
     }
 
-    static Bounds<byte[]> createBounds(KeyRanges keyRanges) {
-        if (keyRanges == null)
-            return new Bounds<byte[]>();
-        final byte[] minKey = keyRanges.getMin();
-        final byte[] maxKey = keyRanges.getMax();
-        final BoundType minBoundType = minKey != null ? BoundType.INCLUSIVE : BoundType.NONE;
-        final BoundType maxBoundType = maxKey != null ? BoundType.EXCLUSIVE : BoundType.NONE;
-        return new Bounds<byte[]>(minKey, minBoundType, maxKey, maxBoundType);
+    static Bounds<byte[]> createBounds(byte[] prefix) {
+        final KeyRange keyRange = KeyRange.forPrefix(prefix);
+        return new Bounds<byte[]>(keyRange.getMin(), keyRange.getMax());
     }
 }
 

@@ -14,6 +14,7 @@ import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * @throws NullPointerException if {@code prefix} is null
      */
     public AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, byte[] prefix) {
-        this(kv, prefixMode, reversed, KeyRanges.forPrefix(prefix));
+        this(kv, prefixMode, reversed, SimpleKeyRanges.forPrefix(prefix));
     }
 
     /**
@@ -107,12 +108,15 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
         this.reversed = reversed;
 
         // Determine whether we can use a straight KVStore iterator, which is more efficient than a KVPairIterator
-        if (!this.prefixMode && (keyRanges == null || keyRanges.getKeyRanges().size() == 1)) {
+        if (!this.prefixMode
+          && (keyRanges == null
+           || (keyRanges instanceof SimpleKeyRanges && ((SimpleKeyRanges)keyRanges).getKeyRanges().size() == 1))) {
             if (keyRanges == null)
                 this.pairIterator = this.kv.getRange(null, null, this.reversed);
             else {
-                assert keyRanges.getKeyRanges().size() == 1;
-                final KeyRange range = keyRanges.getKeyRanges().get(0);
+                final SimpleKeyRanges simpleKeyRanges = (SimpleKeyRanges)keyRanges;
+                assert simpleKeyRanges.getKeyRanges().size() == 1;
+                final KeyRange range = simpleKeyRanges.getKeyRanges().get(0);
                 this.pairIterator = this.kv.getRange(range.getMin(), range.getMax(), this.reversed);
             }
         } else

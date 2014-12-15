@@ -10,6 +10,7 @@ package org.jsimpledb.core;
 import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteUtil;
 
@@ -26,7 +27,7 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param storageId object type storage ID
      */
     ObjTypeSet(Transaction tx, int storageId) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, new KeyRanges(ObjId.getKeyRange(storageId)),
+        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, new SimpleKeyRanges(ObjId.getKeyRange(storageId)),
           new Bounds<ObjId>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
     }
 

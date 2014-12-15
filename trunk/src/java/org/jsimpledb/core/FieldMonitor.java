@@ -13,6 +13,7 @@ import java.util.Comparator;
 
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.SimpleKeyRanges;
 
 /**
  * A monitor for changes within a {@link Transaction} of the value of a specific field, as seen through a path of references.
@@ -52,7 +53,7 @@ class FieldMonitor {
             final ArrayList<KeyRange> keyRanges = new ArrayList<>();
             for (int objTypeStorageId : types)
                 keyRanges.add(ObjId.getKeyRange(objTypeStorageId));
-            this.types = new KeyRanges(keyRanges);
+            this.types = new SimpleKeyRanges(keyRanges);
         } else
             this.types = null;
         this.path = path.clone();

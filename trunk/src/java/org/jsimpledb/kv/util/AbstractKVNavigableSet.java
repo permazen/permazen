@@ -13,6 +13,8 @@ import java.util.NavigableSet;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.KeyRangesUtil;
+import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.AbstractNavigableSet;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
@@ -113,7 +115,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      */
     protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode, byte[] prefix) {
-        this(kv, prefixMode, KeyRanges.forPrefix(prefix));
+        this(kv, prefixMode, SimpleKeyRanges.forPrefix(prefix));
     }
 
     /**
@@ -199,7 +201,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         if (keyRanges == null)
             throw new IllegalArgumentException("null keyRanges");
         if (this.keyRanges != null)
-            keyRanges = keyRanges.intersection(this.keyRanges);
+            keyRanges = KeyRangesUtil.intersection(keyRanges, this.keyRanges);
         return this.createSubSet(this.reversed, keyRanges, this.bounds);
     }
 
@@ -211,7 +213,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encode(writer, elem);
-        return ByteUtil.compare(writer.getBytes(), this.keyRanges.getMin()) >= 0;
+        return this.keyRanges.nextLowerRange(writer.getBytes()) != null;
     }
 
     @Override
@@ -222,7 +224,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encode(writer, elem);
-        return ByteUtil.compare(writer.getBytes(), this.keyRanges.getMax()) < 0;
+        return this.keyRanges.nextHigherRange(writer.getBytes()) != null;
     }
 
     @Override
@@ -345,10 +347,10 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         }
         if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
             minKey = maxKey;
-        KeyRanges newKeyRanges = new KeyRanges(minKey, maxKey);
+        KeyRanges newKeyRanges = new SimpleKeyRanges(minKey, maxKey);
         if (this.keyRanges != null)
-            newKeyRanges = newKeyRanges.intersection(this.keyRanges);
-        return newKeyRanges.isFull() ? null : newKeyRanges;
+            newKeyRanges = KeyRangesUtil.intersection(newKeyRanges, this.keyRanges);
+        return newKeyRanges instanceof SimpleKeyRanges && ((SimpleKeyRanges)newKeyRanges).isFull() ? null : newKeyRanges;
     }
 }
 
