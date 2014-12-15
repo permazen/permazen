@@ -14,8 +14,8 @@ import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
-import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -30,33 +30,23 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
 // Constructors
 
     /**
-     * Convenience constructor for when there are no range restrictions.
+     * Constructor for when there are no range restrictions.
      *
      * @param kv underlying {@link KVStore}
      */
     public KVNavigableMap(KVStore kv) {
-        this(kv, (KeyRanges)null);
+        this(kv, false, null, new Bounds<byte[]>());
     }
 
     /**
-     * Convenience constructor for when the range of visible {@link KVStore} keys is all keys sharing a given {@code byte[]} prefix.
+     * Constructor for when the range of visible {@link KVStore} keys is all keys sharing a given {@code byte[]} prefix.
      *
      * @param kv underlying {@link KVStore}
      * @param prefix prefix defining minimum and maximum keys
      * @throws NullPointerException if {@code prefix} is null
      */
     public KVNavigableMap(KVStore kv, byte[] prefix) {
-        this(kv, KeyRanges.forPrefix(prefix));
-    }
-
-    /**
-     * Primary constructor.
-     *
-     * @param kv underlying {@link KVStore}
-     * @param keyRanges visible keys, or null for no restrictions
-     */
-    public KVNavigableMap(KVStore kv, KeyRanges keyRanges) {
-        this(kv, false, keyRanges, KVNavigableSet.createBounds(keyRanges));
+        this(kv, false, SimpleKeyRanges.forPrefix(prefix), KVNavigableSet.createBounds(prefix));
     }
 
     /**
@@ -101,12 +91,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
 
     @Override
     public void clear() {
-        if (this.keyRanges == null) {
-            this.kv.removeRange(null, null);
-            return;
-        }
-        for (KeyRange range : this.keyRanges.getKeyRanges())
-            this.kv.removeRange(range.getMin(), range.getMax());
+        this.navigableKeySet().clear();
     }
 
     @Override

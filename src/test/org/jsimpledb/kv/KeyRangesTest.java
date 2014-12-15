@@ -21,7 +21,7 @@ public class KeyRangesTest extends TestSupport {
 ///////////// getKeyRanges()
 
     @Test(dataProvider = "minimal")
-    public void testGetKeyRanges(KeyRanges ranges, List<KeyRange> minimal) throws Exception {
+    public void testGetKeyRanges(SimpleKeyRanges ranges, List<KeyRange> minimal) throws Exception {
         Assert.assertEquals(ranges.getKeyRanges(), minimal);
     }
 
@@ -95,7 +95,7 @@ public class KeyRangesTest extends TestSupport {
 ///////////// getKeyRange()
 
     @Test(dataProvider = "getKeyRanges")
-    public void testGetKeyRange(KeyRanges ranges, String keystr, int contains, int left, int right) throws Exception {
+    public void testGetKeyRange(SimpleKeyRanges ranges, String keystr, int contains, int left, int right) throws Exception {
         final byte[] key = b(keystr);
         final List<KeyRange> list = ranges.getKeyRanges();
         final KeyRange[] neighbors = ranges.findKey(key);
@@ -165,7 +165,7 @@ public class KeyRangesTest extends TestSupport {
 ///////////// inverse(), union(), intersection()
 
     @Test(dataProvider = "KeyRanges")
-    public void testKeyRanges(KeyRanges ranges) throws Exception {
+    public void testKeyRanges(SimpleKeyRanges ranges) throws Exception {
 
         Assert.assertEquals(ranges, ranges.inverse().inverse());
         Assert.assertEquals(ranges.getKeyRanges(), ranges.inverse().inverse().getKeyRanges());
@@ -189,7 +189,7 @@ public class KeyRangesTest extends TestSupport {
             final int numRanges = this.random.nextInt(10);
             for (int j = 0; j < numRanges; j++)
                 list.add(this.randomKeyRange());
-            paramsList.add(new Object[] { new KeyRanges(list) });
+            paramsList.add(new Object[] { new SimpleKeyRanges(list) });
         }
         return paramsList.toArray(new Object[paramsList.size()][]);
     }

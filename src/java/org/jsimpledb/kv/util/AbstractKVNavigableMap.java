@@ -18,6 +18,8 @@ import java.util.Set;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.KeyRangesUtil;
+import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.AbstractIterationSet;
 import org.jsimpledb.util.AbstractNavigableMap;
 import org.jsimpledb.util.Bounds;
@@ -135,7 +137,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      */
     protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, byte[] prefix) {
-        this(kv, prefixMode, KeyRanges.forPrefix(prefix));
+        this(kv, prefixMode, SimpleKeyRanges.forPrefix(prefix));
     }
 
     /**
@@ -222,7 +224,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         if (keyRanges == null)
             throw new IllegalArgumentException("null keyRanges");
         if (this.keyRanges != null)
-            keyRanges = keyRanges.intersection(this.keyRanges);
+            keyRanges = KeyRangesUtil.intersection(keyRanges, this.keyRanges);
         return this.createSubMap(this.reversed, keyRanges, this.bounds);
     }
 
@@ -234,7 +236,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encodeKey(writer, key);
-        return ByteUtil.compare(writer.getBytes(), this.keyRanges.getMin()) >= 0;
+        return this.keyRanges.nextLowerRange(writer.getBytes()) != null;
     }
 
     @Override
@@ -245,7 +247,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encodeKey(writer, key);
-        return ByteUtil.compare(writer.getBytes(), this.keyRanges.getMax()) < 0;
+        return this.keyRanges.nextHigherRange(writer.getBytes()) != null;
     }
 
     @Override
@@ -376,10 +378,10 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         }
         if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
             minKey = maxKey;
-        KeyRanges newKeyRanges = new KeyRanges(minKey, maxKey);
+        KeyRanges newKeyRanges = new SimpleKeyRanges(minKey, maxKey);
         if (this.keyRanges != null)
-            newKeyRanges = newKeyRanges.intersection(this.keyRanges);
-        return newKeyRanges.isFull() ? null : newKeyRanges;
+            newKeyRanges = KeyRangesUtil.intersection(newKeyRanges, this.keyRanges);
+        return newKeyRanges instanceof SimpleKeyRanges && ((SimpleKeyRanges)newKeyRanges).isFull() ? null : newKeyRanges;
     }
 
 // KeySet

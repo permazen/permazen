@@ -17,6 +17,7 @@ import java.util.NavigableSet;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
@@ -191,7 +192,9 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         }
 
         // Get key range
-        final List<KeyRange> keyRangeList = this.keyRanges.getKeyRanges();
+        if (!(this.keyRanges instanceof SimpleKeyRanges))
+            throw new UnsupportedOperationException("clear() not supported with complex key range restriction: " + this.keyRanges);
+        final List<KeyRange> keyRangeList = ((SimpleKeyRanges)this.keyRanges).getKeyRanges();
         if (keyRangeList.size() > 1)
             throw new UnsupportedOperationException("clear() not supported with complex key range restriction: " + this.keyRanges);
         final KeyRange keyRange = keyRangeList.get(0);

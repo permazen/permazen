@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.KeyRangesUtil;
+import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.kv.util.AbstractKVNavigableMap;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
@@ -44,7 +46,7 @@ abstract class FieldTypeMap<K, V> extends AbstractKVNavigableMap<K, V> {
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     FieldTypeMap(Transaction tx, FieldType<K> keyFieldType, boolean prefixMode, byte[] prefix) {
-        this(tx, keyFieldType, prefixMode, false, prefix, KeyRanges.forPrefix(prefix), new Bounds<K>());
+        this(tx, keyFieldType, prefixMode, false, prefix, SimpleKeyRanges.forPrefix(prefix), new Bounds<K>());
     }
 
     /**
@@ -72,7 +74,7 @@ abstract class FieldTypeMap<K, V> extends AbstractKVNavigableMap<K, V> {
             throw new IllegalArgumentException("null prefix");
         if (keyRanges == null)
             throw new IllegalArgumentException("null keyRanges");
-        if (!KeyRanges.forPrefix(prefix).contains(keyRanges))
+        if (!KeyRangesUtil.contains(SimpleKeyRanges.forPrefix(prefix), keyRanges))
             throw new IllegalArgumentException(keyRanges + " does not restrict to prefix " + ByteUtil.toString(prefix));
         this.tx = tx;
         this.keyFieldType = keyFieldType;
