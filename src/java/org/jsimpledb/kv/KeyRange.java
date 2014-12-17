@@ -7,6 +7,8 @@
 
 package org.jsimpledb.kv;
 
+import com.google.common.primitives.Bytes;
+
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -190,6 +192,20 @@ public class KeyRange {
      */
     public boolean isEmpty() {
         return this.min != null && this.max != null && ByteUtil.compare(this.min, this.max) == 0;
+    }
+
+    /**
+     * Create a new instance whose minimum and maximum keys are the same as this instance's
+     * but with the given byte sequence prepended.
+     *
+     * @throws IllegalArgumentException if {@code prefix} is null
+     */
+    public KeyRange prefixedBy(byte[] prefix) {
+        if (prefix == null)
+            throw new IllegalArgumentException("null prefix");
+        final byte[] prefixedMin = this.min != null ? Bytes.concat(prefix, this.min) : prefix;
+        final byte[] prefixedMax = this.max != null ? Bytes.concat(prefix, this.max) : ByteUtil.getNextKey(prefix);
+        return new KeyRange(prefixedMin, prefixedMax);
     }
 
     /**
