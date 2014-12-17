@@ -90,11 +90,10 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
             this.kv.removeRange(null, null);
             return;
         }
-        for (KeyRange range = this.keyRanges.nextHigherRange(ByteUtil.EMPTY); range != null; ) {
+        for (KeyRange range = this.keyRanges.nextHigherRange(ByteUtil.EMPTY);
+          range != null;
+          range = this.keyRanges.nextHigherRange(range.getMax()))
             this.kv.removeRange(range.getMin(), range.getMax());
-            if ((range = this.keyRanges.nextHigherRange(range.getMax())) == null)
-                break;
-        }
     }
 
     @Override
