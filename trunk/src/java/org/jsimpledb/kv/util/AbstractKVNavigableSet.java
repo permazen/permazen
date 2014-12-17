@@ -350,7 +350,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         KeyRanges newKeyRanges = new SimpleKeyRanges(minKey, maxKey);
         if (this.keyRanges != null)
             newKeyRanges = KeyRangesUtil.intersection(newKeyRanges, this.keyRanges);
-        return newKeyRanges instanceof SimpleKeyRanges && ((SimpleKeyRanges)newKeyRanges).isFull() ? null : newKeyRanges;
+        return KeyRangesUtil.isFull(newKeyRanges) ? null : newKeyRanges;
     }
 }
 
