@@ -76,8 +76,7 @@ public class Database {
 
     // Meta-data keys and key prefixes
     private static final byte[] FORMAT_VERSION_KEY = new byte[] {
-      METADATA_PREFIX, (byte)0x00,
-        (byte)'J', (byte)'S', (byte)'i', (byte)'m', (byte)'p', (byte)'l', (byte)'e', (byte)'D', (byte)'B'
+      METADATA_PREFIX, (byte)0x00, (byte)'J', (byte)'S', (byte)'i', (byte)'m', (byte)'p', (byte)'l', (byte)'e', (byte)'D', (byte)'B'
     };
     private static final byte[] SCHEMA_KEY_PREFIX = new byte[] {
       METADATA_PREFIX, (byte)0x01

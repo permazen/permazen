@@ -55,9 +55,12 @@ public final class ByteUtil {
      *
      * @param b1 first byte array
      * @param b2 second byte array
+     * @return -1 if {@code b1 < b2}, 1 if {@code b1 > b2}, or zero if {@code b1 = b2}
      * @throws NullPointerException if {@code b1} or {@code b2} is null
      */
     public static int compare(byte[] b1, byte[] b2) {
+        if (b1 == b2)
+            return 0;
         final int sharedLength = Math.min(b1.length, b2.length);
         for (int i = 0; i < sharedLength; i++) {
             final int v1 = b1[i] & 0xff;
