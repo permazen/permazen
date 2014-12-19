@@ -10,19 +10,23 @@ package org.jsimpledb.kv.util;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.SimpleKeyRanges;
+import org.jsimpledb.kv.KeyFilter;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
 
 /**
- * A mutable {@link java.util.NavigableMap} view of the keys and values in a {@link KVStore}.
+ * A {@link java.util.NavigableMap} view of the keys and values in a {@link KVStore}.
+ *
+ * Instances are mutable, with these exceptions:
+ * <ul>
+ *  <li>{@link #clear} is not supported when a {@link KeyFilter} is configured</li>
+ * </ul>
  */
 @SuppressWarnings("serial")
 public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
@@ -35,7 +39,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
      * @param kv underlying {@link KVStore}
      */
     public KVNavigableMap(KVStore kv) {
-        this(kv, false, null, new Bounds<byte[]>());
+        this(kv, false, null, null);
     }
 
     /**
@@ -46,7 +50,20 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
      * @throws NullPointerException if {@code prefix} is null
      */
     public KVNavigableMap(KVStore kv, byte[] prefix) {
-        this(kv, false, SimpleKeyRanges.forPrefix(prefix), KVNavigableSet.createBounds(prefix));
+        this(kv, false, KeyRange.forPrefix(prefix), null);
+    }
+
+    /**
+     * Primary constructor.
+     *
+     * @param kv underlying {@link KVStore}
+     * @param reversed whether ordering is reversed
+     * @param keyRange key range restriction, or null for none
+     * @param keyFilter key filter, or null for none
+     * @throws IllegalArgumentException if {@code kv} is null
+     */
+    protected KVNavigableMap(KVStore kv, boolean reversed, KeyRange keyRange, KeyFilter keyFilter) {
+        this(kv, reversed, keyRange, keyFilter, KVNavigableSet.createBounds(keyRange));
     }
 
     /**
@@ -54,13 +71,16 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
      *
      * @param kv underlying {@link KVStore}
      * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted)
-     * @param keyRanges visible keys, or null for no restrictions
+     * @param keyRange key range restriction, or null for none
+     * @param keyFilter key filter, or null for none
      * @param bounds range restriction
-     * @throws IllegalArgumentException if {@code bounds} is null
+     * @throws IllegalArgumentException if {@code kv} or {@code bounds} is null
      */
-    protected KVNavigableMap(KVStore kv, boolean reversed, KeyRanges keyRanges, Bounds<byte[]> bounds) {
-        super(kv, false, reversed, keyRanges, bounds);
+    private KVNavigableMap(KVStore kv, boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<byte[]> bounds) {
+        super(kv, false, reversed, keyRange, keyFilter, bounds);
     }
+
+// Methods
 
     @Override
     public Comparator<byte[]> comparator() {
@@ -70,7 +90,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
     @Override
     public byte[] put(byte[] key, byte[] value) {
         if (!this.isVisible(key))
-            throw new IllegalArgumentException("key is out of range");
+            throw new IllegalArgumentException("key is out of range or filtered out");
         final byte[] previousValue = this.kv.get(key);
         this.kv.put(key, value);
         return previousValue;
@@ -92,11 +112,6 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
     @Override
     public void clear() {
         this.navigableKeySet().clear();
-    }
-
-    @Override
-    public NavigableSet<byte[]> navigableKeySet() {
-        return new KVNavigableSet(this.kv, this.reversed, this.keyRanges, this.bounds);
     }
 
     @Override
@@ -127,8 +142,9 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
     }
 
     @Override
-    protected NavigableMap<byte[], byte[]> createSubMap(boolean newReversed, KeyRanges newKeyRanges, Bounds<byte[]> newBounds) {
-        return new KVNavigableMap(this.kv, newReversed, newKeyRanges, newBounds);
+    protected NavigableMap<byte[], byte[]> createSubMap(boolean newReversed,
+      KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<byte[]> newBounds) {
+        return new KVNavigableMap(this.kv, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 }
 

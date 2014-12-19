@@ -40,7 +40,7 @@ public class KVPairIteratorTest extends TestSupport {
             kv.put(ba, ba);
 
         // Verify forward iterator matches what we expect
-        final KVPairIterator forwardIterator = new KVPairIterator(kv, ranges, false);
+        final KVPairIterator forwardIterator = new KVPairIterator(kv, null, ranges, false);
         final List<KVPair> expectedPairsForward = Lists.transform(Arrays.asList(results), pairer);
         final List<KVPair> actualPairsForward = Lists.newArrayList(forwardIterator);
         Assert.assertEquals(actualPairsForward, expectedPairsForward);
@@ -48,7 +48,7 @@ public class KVPairIteratorTest extends TestSupport {
         // Verify reverse iterator matches what we expect
         final ArrayList<byte[]> reversedResults = new ArrayList<>(Arrays.asList(results));
         Collections.reverse(reversedResults);
-        final KVPairIterator reverseIterator = new KVPairIterator(kv, ranges, true);
+        final KVPairIterator reverseIterator = new KVPairIterator(kv, null, ranges, true);
         final List<KVPair> expectedPairsReverse = Lists.transform(reversedResults, pairer);
         final List<KVPair> actualPairsReverse = Lists.newArrayList(reverseIterator);
         Assert.assertEquals(actualPairsReverse, expectedPairsReverse);
@@ -121,8 +121,10 @@ public class KVPairIteratorTest extends TestSupport {
         kv.put(b("30"), b("3333"));
         kv.put(b("40"), b("4444"));
 
+    // Restrict by KeyFilter
+
         final KeyRanges keyRanges = krs(kr(null, "1000"), kr("20", "30"), kr("35", "40"), kr("50", null));
-        final KVPairIterator i = new KVPairIterator(kv, keyRanges, false);
+        KVPairIterator i = new KVPairIterator(kv, null, keyRanges, false);
 
         Assert.assertTrue(i.hasNext());
         Assert.assertTrue(i.hasNext());
@@ -141,6 +143,43 @@ public class KVPairIteratorTest extends TestSupport {
         Assert.assertEquals(i.next(), new KVPair(b("20"), b("2222")));
 
         Assert.assertTrue(!i.hasNext());
+
+    // Restrict by KeyRange
+
+        i = new KVPairIterator(kv, b("10"));
+
+        Assert.assertTrue(i.hasNext());
+        Assert.assertEquals(i.next(), new KVPair(b("10"), b("aa")));
+
+        Assert.assertTrue(i.hasNext());
+        Assert.assertEquals(i.next(), new KVPair(b("1000"), b("99")));
+
+        Assert.assertTrue(i.hasNext());
+        Assert.assertEquals(i.next(), new KVPair(b("1001"), b("93")));
+
+        Assert.assertFalse(i.hasNext());
+
+        i.setNextTarget(b(""));
+        Assert.assertTrue(i.hasNext());
+        Assert.assertEquals(i.next(), new KVPair(b("10"), b("aa")));
+
+        i.setNextTarget(b("30"));
+        Assert.assertFalse(i.hasNext());
+
+    // Restrict by both
+
+        i = new KVPairIterator(kv, new KeyRange(b("1001"), b("30")), new KeyRanges(new KeyRange(b("1e"), null)), false);
+
+        Assert.assertTrue(i.hasNext());
+        Assert.assertEquals(i.next(), new KVPair(b("20"), b("2222")));
+        Assert.assertFalse(i.hasNext());
+
+        i.setNextTarget(b("20"));
+        Assert.assertTrue(i.hasNext());
+
+        i.setNextTarget(b("2000"));
+        Assert.assertFalse(i.hasNext());
+
     }
 }
 

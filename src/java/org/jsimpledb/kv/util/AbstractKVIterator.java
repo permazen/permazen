@@ -12,31 +12,58 @@ import java.util.Iterator;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.slf4j.LoggerFactory;
 
 /**
  * {@link Iterator} implementation whose values derive from key/value {@code byte[]} pairs in a {@link KVStore}.
+ * Instances support either forward or reverse iteration.
+ *
+ * <p><b>Subclass Methods</b></p>
  *
  * <p>
- * Instances are configured with an (optional) {@link KeyRanges} and support either forward or reverse iteration.
  * Subclasses must implement {@linkplain #decodePair decodePair()} to convert key/value pairs into iteration elements.
- * </p>
- *
- * <p>
- * Instances support "prefix mode" where the {@code byte[]} keys may have arbitrary trailing garbage, which is ignored,
- * and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
- * number of key bytes consumed by {@link #decodePair decodePair()}.
- * When <b>not</b> in prefix mode, {@link #decodePair decodePair()} must consume the entire key (an error is logged if not).
  * </p>
  *
  * <p>
  * This class provides a read-only implementation; for a mutable implementation, subclasses should also implement
  * {@link #doRemove doRemove()}.
+ * </p>
+ *
+ * <p><b>Prefix Mode</b></p>
+ *
+ * <p>
+ * Instances support "prefix mode" where the {@code byte[]} keys may have arbitrary trailing garbage, which is ignored,
+ * and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
+ * number of key bytes consumed by {@link #decodePair decodePair()}.
+ * When not in prefix mode, {@link #decodePair decodePair()} <b>must</b> consume the entire key to preserve correct semantics.
+ * </p>
+ *
+ * <p><b>Key Restrictions</b></p>
+ *
+ * <p>
+ * Instances are configured with an (optional) {@link KeyRange} that restricts the iteration to the specified range.
+ * </p>
+ *
+ * <p>
+ * Instances also support filtering visible values using a {@link KeyFilter}.
+ * To be visible in the iteration, keys must both be within the {@link KeyRange} and pass the {@link KeyFilter}.
+ * </p>
+ *
+ * <p><b>Concurrent Modification</b></p>
+ *
+ * <p>
+ * Instances of this class are thread safe.
+ * </p>
+ *
+ * <p>
+ * Internally, when not in prefix mode and no {@link KeyFilter} is configured, this instance will rely on the
+ * iteration from {@link KVStore#getRange KVStore.getRange()}; otherwise, it will use a {@link KVPairIterator}.
+ * Therefore, in the former case, whether this iteration always reflects the current state of the underlying
+ * {@link KVStore} depends on the behavior of {@link KVStore#getRange KVStore.getRange()}.
  * </p>
  *
  * @see AbstractKVNavigableMap
@@ -60,8 +87,8 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      */
     protected final boolean reversed;
 
+    // Iteration state
     private final Iterator<KVPair> pairIterator;
-
     private KVPair removePair;
     private E removeValue;
 
@@ -74,8 +101,8 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param reversed whether to iterate in the reverse direction
      */
-    public AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed) {
-        this(kv, prefixMode, reversed, (KeyRanges)null);
+    protected AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed) {
+        this(kv, prefixMode, reversed, null, null);
     }
 
     /**
@@ -85,10 +112,10 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param reversed whether to iterate in the reverse direction
      * @param prefix prefix defining minimum and maximum keys
-     * @throws NullPointerException if {@code prefix} is null
+     * @throws IllegalArgumentException if {@code prefix} is null or empty
      */
-    public AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, byte[] prefix) {
-        this(kv, prefixMode, reversed, SimpleKeyRanges.forPrefix(prefix));
+    protected AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, byte[] prefix) {
+        this(kv, prefixMode, reversed, KeyRange.forPrefix(prefix), null);
     }
 
     /**
@@ -97,30 +124,24 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * @param kv underlying {@link KVStore}
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param reversed whether to iterate in the reverse direction
-     * @param keyRanges restriction on visible keys, or null for none
+     * @param keyRange key range restriction, or null for none
+     * @param keyFilter key filter, or null for none
      * @throws IllegalArgumentException if {@code kv} is null
      */
-    public AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, KeyRanges keyRanges) {
+    protected AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, KeyRange keyRange, KeyFilter keyFilter) {
         if (kv == null)
             throw new IllegalArgumentException("null kv");
         this.kv = kv;
         this.prefixMode = prefixMode;
         this.reversed = reversed;
 
-        // Determine whether we can use a straight KVStore iterator, which is more efficient than a KVPairIterator
-        if (!this.prefixMode
-          && (keyRanges == null
-           || (keyRanges instanceof SimpleKeyRanges && ((SimpleKeyRanges)keyRanges).getKeyRanges().size() == 1))) {
-            if (keyRanges == null)
-                this.pairIterator = this.kv.getRange(null, null, this.reversed);
-            else {
-                final SimpleKeyRanges simpleKeyRanges = (SimpleKeyRanges)keyRanges;
-                assert simpleKeyRanges.getKeyRanges().size() == 1;
-                final KeyRange range = simpleKeyRanges.getKeyRanges().get(0);
-                this.pairIterator = this.kv.getRange(range.getMin(), range.getMax(), this.reversed);
-            }
+        // If possible use a straight KVStore iterator which is more efficient than a KVPairIterator
+        if (!this.prefixMode && keyFilter == null) {
+            final byte[] minKey = keyRange != null ? keyRange.getMin() : null;
+            final byte[] maxKey = keyRange != null ? keyRange.getMax() : null;
+            this.pairIterator = this.kv.getRange(minKey, maxKey, this.reversed);
         } else
-            this.pairIterator = new KVPairIterator(this.kv, keyRanges, this.reversed);
+            this.pairIterator = new KVPairIterator(this.kv, keyRange, keyFilter, this.reversed);
     }
 
 // Iterator
@@ -131,7 +152,7 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
     }
 
     @Override
-    public E next() {
+    public synchronized E next() {
 
         // Get next key/value pair
         final KVPair pair = this.pairIterator.next();
@@ -160,10 +181,15 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
 
     @Override
     public void remove() {
-        if (this.removePair == null)
-            throw new IllegalStateException();
-        this.doRemove(this.removeValue, this.removePair);
-        this.removePair = null;
+        final E removeValueCopy;
+        final KVPair removePairCopy;
+        synchronized (this) {
+            if ((removePairCopy = this.removePair) == null)
+                throw new IllegalStateException();
+            this.removePair = null;
+            removeValueCopy = this.removeValue;
+        }
+        this.doRemove(removeValueCopy, removePairCopy);
     }
 
 // Subclass methods

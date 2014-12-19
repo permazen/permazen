@@ -9,15 +9,13 @@ package org.jsimpledb.core;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
@@ -42,8 +40,11 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
     /**
      * Internal constructor.
      */
-    JSMap(Transaction tx, MapField<K, V> field, ObjId id, boolean reversed, byte[] prefix, KeyRanges keyRanges, Bounds<K> bounds) {
-        super(tx, field.keyField.fieldType, false, reversed, prefix, keyRanges, bounds);
+    private JSMap(Transaction tx, MapField<K, V> field, ObjId id,
+      boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
+        super(tx, field.keyField.fieldType, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
+        if (keyRange == null)
+            throw new IllegalArgumentException("null keyRange");
         this.id = id;
         this.field = field;
     }
@@ -53,13 +54,11 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         final byte[] key;
         final byte[] value;
         try {
-            key = this.encodeKey(keyObj);
+            key = this.encodeVisibleKey(keyObj, true);
             value = this.encodeValue(valueObj);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("can't add invalid key/value pair to " + this.field + ": " + e.getMessage(), e);
         }
-        if (!this.isVisible(key))
-            throw new IllegalArgumentException("key out of range");
         return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<V>() {
             @Override
             public V mutate() {
@@ -117,21 +116,15 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
     }
 
     @Override
-    public V remove(final Object keyObj) {
-        byte[] key;
-        try {
-            key = this.encodeKey(keyObj);
-        } catch (IllegalArgumentException e) {
+    public V remove(Object keyObj) {
+        final byte[] key = this.encodeVisibleKey(keyObj, false);
+        if (key == null)
             return null;
-        }
-        if (!this.isVisible(key))
-            return null;
-        final byte[] key2 = key;
-        final K keyObj2 = this.keyFieldType.validate(keyObj);
+        final K canonicalKey = this.keyFieldType.validate(keyObj);
         return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<V>() {
             @Override
             public V mutate() {
-                return JSMap.this.doRemove(keyObj2, key2);
+                return JSMap.this.doRemove(canonicalKey, key);
             }
         });
     }
@@ -167,6 +160,8 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
 
     @Override
     public void clear() {
+        if (this.keyFilter != null)
+            throw new UnsupportedOperationException("clear() not supported when KeyFilter configured");
         this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Void>() {
             @Override
             public Void mutate() {
@@ -192,14 +187,8 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         }
 
         // Get key range
-        if (!(this.keyRanges instanceof SimpleKeyRanges))
-            throw new UnsupportedOperationException("clear() not supported with complex key range restriction: " + this.keyRanges);
-        final List<KeyRange> keyRangeList = ((SimpleKeyRanges)this.keyRanges).getKeyRanges();
-        if (keyRangeList.size() > 1)
-            throw new UnsupportedOperationException("clear() not supported with complex key range restriction: " + this.keyRanges);
-        final KeyRange keyRange = keyRangeList.get(0);
-        final byte[] rangeMinKey = keyRange.getMin();
-        final byte[] rangeMaxKey = keyRange.getMax();
+        final byte[] rangeMinKey = this.keyRange.getMin();
+        final byte[] rangeMaxKey = this.keyRange.getMax();
 
         // Delete index entries
         if (this.field.keyField.indexed)
@@ -220,14 +209,9 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
     }
 
     @Override
-    protected NavigableMap<K, V> createSubMap(boolean newReversed, KeyRanges newKeyRanges, Bounds<K> newBounds) {
-        return new JSMap<K, V>(this.tx, this.field, this.id, newReversed, this.prefix, newKeyRanges, newBounds);
-    }
-
-    private byte[] encodeKey(Object obj) {
-        final ByteWriter writer = new ByteWriter();
-        this.encodeKey(writer, obj);
-        return writer.getBytes();
+    protected NavigableMap<K, V> createSubMap(boolean newReversed,
+      KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<K> newBounds) {
+        return new JSMap<K, V>(this.tx, this.field, this.id, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 
     private byte[] encodeValue(Object obj) {

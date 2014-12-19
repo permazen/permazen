@@ -17,9 +17,9 @@ import java.util.Set;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.KeyRangesUtil;
-import org.jsimpledb.kv.SimpleKeyRanges;
+import org.jsimpledb.kv.KeyFilter;
+import org.jsimpledb.kv.KeyFilterUtil;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.AbstractIterationSet;
 import org.jsimpledb.util.AbstractNavigableMap;
 import org.jsimpledb.util.Bounds;
@@ -30,22 +30,20 @@ import org.jsimpledb.util.ByteWriter;
 /**
  * {@link java.util.NavigableMap} support superclass for maps backed by keys and values encoded as {@code byte[]}
  * keys and values in a {@link KVStore}, and whose key sort order is consistent with the {@code byte[]} key encoding.
+ * There must be an equivalence between map keys and {@code byte[]} key encodings (i.e., there must be
+ * only one valid encoding per map key).
+ *
+ * <p><b>Subclass Methods</b></p>
  *
  * <p>
  * Subclasses must implement the {@linkplain #encodeKey encodeKey()}, {@linkplain #decodeKey decodeKey()},
  * and {@linkplain #decodeValue decodeValue()}, methods to convert keys and value to/from {@link KVStore} keys and values, and
- * {@link #createSubMap(boolean, KeyRanges, Bounds) createSubMap()} to allow creating reversed and restricted range sub-maps.
+ * {@link #createSubMap(boolean, KeyRange, KeyFilter, Bounds) createSubMap()}
+ * to allow creating reversed and restricted range sub-maps.
  *
  * <p>
  * Subclasses must also implement {@link #comparator comparator()}, and the resulting sort order must be consistent with
  * the sort order of the encoded {@code byte[]} keys (possibly {@link #reversed}).
- * </p>
- *
- * <p>
- * Instances support "prefix mode" where the {@code byte[]} keys may have arbitrary trailing garbage, which is ignored,
- * and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
- * number of bytes produced by {@link #encodeKey encodeKey()} or consumed by {@link #decodeKey decodeKey()}.
- * When <b>not</b> in prefix mode, {@link #decodeKey decodeKey()} must consume the entire key (an error is logged if not).
  * </p>
  *
  * <p>
@@ -55,12 +53,7 @@ import org.jsimpledb.util.ByteWriter;
  * </p>
  *
  * <p>
- * In addition to the normal min/max bounds check, instances support restricting the visible keys to those contained in a
- * configured {@link KeyRanges} instance; see {@link #restrictKeys restrictKeys()}.
- * </p>
- *
- * <p>
- * Notes on returned collection classes:
+ * Additional subclass notes:
  * <ul>
  *  <li>{@link #navigableKeySet} returns a {@link Set} for which:
  *  <ul>
@@ -81,6 +74,29 @@ import org.jsimpledb.util.ByteWriter;
  *  </ul>
  * </ul>
  * </p>
+ *
+ * <p><b>Prefix Mode</b></p>
+ *
+ * <p>
+ * Instances support "prefix mode" where the {@code byte[]} keys may have arbitrary trailing garbage, which is ignored,
+ * and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
+ * number of bytes produced by {@link #encodeKey encodeKey()} or consumed by {@link #decodeKey decodeKey()}.
+ * When not in prefix mode, {@link #decodeKey decodeKey()} <b>must</b> consume the entire key to preserve correct semantics.
+ * </p>
+ *
+ * <p><b>Key Restrictions</b></p>
+ *
+ * <p>
+ * Instances are configured with an (optional) {@link KeyRange}; when {@linkplain #bounds range restriction} is in
+ * effect, this key range corresponds to the bounds.
+ * </p>
+ *
+ * <p>
+ * Instances also support filtering visible keys using a {@link KeyFilter}; see {@link #filterKeys filterKeys()}.
+ * To be {@linkplain #isVisible} in the map, keys must both be in the {@link KeyRange} and pass the {@link KeyFilter}.
+ * </p>
+ *
+ * <p><b>Concurrent Modifications</b></p>
  *
  * <p>
  * This implementation never throws {@link java.util.ConcurrentModificationException}; instead, iterators always
@@ -110,9 +126,14 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
     protected final boolean reversed;
 
     /**
-     * Visible keys, or null if there are no restrictions.
+     * Key range, or null for the entire range.
      */
-    protected final KeyRanges keyRanges;
+    protected final KeyRange keyRange;
+
+    /**
+     * Key filter, or null if all keys in the range should be visible.
+     */
+    protected final KeyFilter keyFilter;
 
 // Constructors
 
@@ -124,7 +145,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code kv} is null
      */
     protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode) {
-        this(kv, prefixMode, (KeyRanges)null);
+        this(kv, prefixMode, (KeyRange)null);
     }
 
     /**
@@ -137,7 +158,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code prefix} is null or empty
      */
     protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, byte[] prefix) {
-        this(kv, prefixMode, SimpleKeyRanges.forPrefix(prefix));
+        this(kv, prefixMode, KeyRange.forPrefix(prefix));
     }
 
     /**
@@ -145,43 +166,45 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      *
      * @param kv underlying {@link KVStore}
      * @param prefixMode whether to allow keys to have trailing garbage
-     * @param keyRanges restriction on visible keys, or null for none
+     * @param keyRange key range restriction, or null for none
      * @throws IllegalArgumentException if {@code kv} is null
      */
-    protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, KeyRanges keyRanges) {
-        this(kv, prefixMode, false, keyRanges, new Bounds<K>());
+    protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, KeyRange keyRange) {
+        this(kv, prefixMode, false, keyRange, null, new Bounds<K>());
     }
 
     /**
      * Internal constructor. Used for creating sub-maps and reversed views.
      *
      * <p>
-     * Note: if {@code bounds} are set, then {@code keyRanges} must exclude all keys outside of those bounds.
+     * Note: if {@code bounds} are set, then {@code keyRange} must exclude all keys outside of those bounds.
      * </p>
      *
      * @param kv underlying {@link KVStore}
      * @param prefixMode whether to allow keys to have trailing garbage
-     * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted,
-     *  but <i>not</i> {@code keyRanges}; note: means "absolutely" reversed, not relative to this instance
-     * @param keyRanges restriction on visible keys, or null for none
+     * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted, but <i>not</i> {@code keyRange})
+     * @param keyRange key range restriction, or null for none
+     * @param keyFilter key filter, or null for none
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code kv} or {@code bounds} is null
      */
-    protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, boolean reversed, KeyRanges keyRanges, Bounds<K> bounds) {
+    protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, boolean reversed,
+      KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
         super(bounds);
         if (kv == null)
             throw new IllegalArgumentException("null kv");
         this.kv = kv;
         this.prefixMode = prefixMode;
         this.reversed = reversed;
-        this.keyRanges = keyRanges;
+        this.keyRange = keyRange;
+        this.keyFilter = keyFilter;
     }
 
     @Override
     public V get(Object obj) {
 
-        // Encode key
-        final byte[] key = this.encodeKey(obj, false);
+        // Encode key and check visibility
+        final byte[] key = this.encodeVisibleKey(obj, false);
         if (key == null)
             return null;
 
@@ -209,45 +232,45 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
 
     @Override
     public NavigableSet<K> navigableKeySet() {
-        return this.new KeySet(this.reversed, this.keyRanges, this.bounds);
+        return new KeySet();
     }
 
     /**
-     * Create a view of this instance with additional {@code byte[]} key range restrictions applied.
-     * The given {@link KeyRanges} restrictions will be added to the current restrictions (if any).
+     * Create a view of this instance with additional filtering applied to the {@code byte[]} encoded keys.
+     * The restrictions of the given {@link KeyFilter} will be added to any current {@link KeyFilter} restrictions.
      * The {@link #bounds} associated with this instance will not change.
      *
-     * @param keyRanges additional key restrictions to apply
-     * @throws IllegalArgumentException if {@code keyRanges} is null
+     * @param keyFilter additional key filtering to apply
+     * @throws IllegalArgumentException if {@code keyFilter} is null
      */
-    public NavigableMap<K, V> restrictKeys(KeyRanges keyRanges) {
-        if (keyRanges == null)
-            throw new IllegalArgumentException("null keyRanges");
-        if (this.keyRanges != null)
-            keyRanges = KeyRangesUtil.intersection(keyRanges, this.keyRanges);
-        return this.createSubMap(this.reversed, keyRanges, this.bounds);
+    public NavigableMap<K, V> filterKeys(KeyFilter keyFilter) {
+        if (keyFilter == null)
+            throw new IllegalArgumentException("null keyFilter");
+        if (this.keyFilter != null)
+            keyFilter = KeyFilterUtil.intersection(keyFilter, this.keyFilter);
+        return this.createSubMap(this.reversed, this.keyRange, keyFilter, this.bounds);
     }
 
     @Override
     protected boolean isWithinLowerBound(K key) {
         if (!super.isWithinLowerBound(key))
             return false;
-        if (this.keyRanges == null)
+        if (this.keyRange == null)
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encodeKey(writer, key);
-        return this.keyRanges.nextLowerRange(writer.getBytes()) != null;
+        return KeyRange.compare(writer.getBytes(), KeyRange.MIN, this.keyRange.getMin(), KeyRange.MIN) >= 0;
     }
 
     @Override
     protected boolean isWithinUpperBound(K key) {
         if (!super.isWithinUpperBound(key))
             return false;
-        if (this.keyRanges == null)
+        if (this.keyRange == null)
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encodeKey(writer, key);
-        return this.keyRanges.nextHigherRange(writer.getBytes()) != null;
+        return KeyRange.compare(writer.getBytes(), KeyRange.MAX, this.keyRange.getMax(), KeyRange.MAX) < 0;
     }
 
     @Override
@@ -257,24 +280,27 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         final boolean newReversed = this.reversed ^ reverse;
 
         // Determine new min and max keys
-        final KeyRanges newKeyRanges = this.buildKeyRanges(newReversed ? newBounds.reverse() : newBounds);
+        final KeyRange newKeyRange = this.buildKeyRange(newReversed ? newBounds.reverse() : newBounds);
 
         // Create submap
-        return this.createSubMap(newReversed, newKeyRanges, newBounds);
+        return this.createSubMap(newReversed, newKeyRange, this.keyFilter, newBounds);
     }
 
     /**
-     * Create a (possibly reversed) view of this instance with (possibly) tighter lower and/or upper bounds.
+     * Create a (possibly reversed) view of this instance with (possibly) tighter lower and/or upper bounds and
+     * the given {@link KeyFilter}, if any.
      * The bounds are consistent with the reversed ordering (i.e., reversed if {@code reverse} is true)
      * and have already been range-checked against this instance's bounds.
      *
      * @param newReversed whether the new map's ordering should be reversed (implies {@code newBounds} are also inverted,
-     *  but <i>not</i> {@code keyRanges}); note: means "absolutely" reversed, not relative to this instance
-     * @param newKeyRanges new restriction on visible keys, or null for none
+     *  but <i>not</i> {@code keyRange}); note: means "absolutely" reversed, not relative to this instance
+     * @param newKeyRange new key range, or null for none; will be consistent with {@code bounds}, if any
+     * @param newKeyFilter new key filter, or null for none
      * @param newBounds new bounds
      * @throws IllegalArgumentException if {@code newBounds} is null
      */
-    protected abstract NavigableMap<K, V> createSubMap(boolean newReversed, KeyRanges newKeyRanges, Bounds<K> newBounds);
+    protected abstract NavigableMap<K, V> createSubMap(boolean newReversed,
+      KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<K> newBounds);
 
     /**
      * Encode the given key object into a {@code byte[]} key.
@@ -310,16 +336,19 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
     protected abstract V decodeValue(KVPair pair);
 
     /**
-     * Determine if the given {@code byte[]} key is visible in this set according to the configured {@link KeyRanges}.
+     * Determine if the given {@code byte[]} key is visible in this map according to the configured
+     * {@link KeyRange} and/or {@link KeyFilter}, if any.
      *
-     * @see #restrictKeys restrictKeys()
+     * @see #filterKeys filterKeys()
      */
     protected boolean isVisible(byte[] key) {
-        return this.keyRanges == null || this.keyRanges.contains(key);
+        return (this.keyRange == null || this.keyRange.contains(key))
+          && (this.keyFilter == null || this.keyFilter.contains(key));
     }
 
     /**
-     * Encode the given key object, if possible, otherwise return null or throw an exception.
+     * Encode the given key object, if possible, and verify the corresponding {@code byte[]} key is visible,
+     * otherwise return null or throw an exception.
      * Delegates to {@link #encodeKey(ByteWriter, Object)} to attempt the actual encoding.
      *
      * @param obj key object to encode, possibly null
@@ -328,7 +357,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code fail} is true and {@code obj} has the wrong type
      * @throws IllegalArgumentException if {@code fail} is true and the resulting key is not {@linkplain #isVisible visible}
      */
-    protected byte[] encodeKey(Object obj, boolean fail) {
+    protected byte[] encodeVisibleKey(Object obj, boolean fail) {
         final ByteWriter writer = new ByteWriter();
         try {
             this.encodeKey(writer, obj);
@@ -338,58 +367,63 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             throw e;
         }
         final byte[] key = writer.getBytes();
-        if (!this.isVisible(key)) {
+        if (this.keyRange != null && !this.keyRange.contains(key)) {
             if (fail)
-                throw new IllegalArgumentException("value is out of bounds: " + obj);
+                throw new IllegalArgumentException("key is out of bounds: " + obj);
+            return null;
+        }
+        if (this.keyFilter != null && !this.keyFilter.contains(key)) {
+            if (fail)
+                throw new IllegalArgumentException("key is filtered out: " + obj);
             return null;
         }
         return key;
     }
 
     /**
-     * Derive new {@link KeyRanges} from (possibly) new element bounds. The given bounds must <i>not</i> ever be reversed.
+     * Derive a new {@link KeyRange} from (possibly) new element bounds. The given bounds must <i>not</i> ever be reversed.
      */
-    private KeyRanges buildKeyRanges(Bounds<K> bounds) {
-        byte[] minKey;
+    private KeyRange buildKeyRange(Bounds<K> bounds) {
+        final byte[] minKey = this.keyRange != null ? this.keyRange.getMin() : null;
+        final byte[] maxKey = this.keyRange != null ? this.keyRange.getMax() : null;
+        byte[] newMinKey;
+        byte[] newMaxKey;
         switch (bounds.getLowerBoundType()) {
         case NONE:
-            minKey = null;
+            newMinKey = minKey;
             break;
         default:
             final ByteWriter writer = new ByteWriter();
             this.encodeKey(writer, bounds.getLowerBound());
-            minKey = writer.getBytes();
+            newMinKey = writer.getBytes();
             if (!bounds.getLowerBoundType().isInclusive())
-                minKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(minKey) : ByteUtil.getNextKey(minKey);
+                newMinKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMinKey) : ByteUtil.getNextKey(newMinKey);
+            newMinKey = ByteUtil.min(ByteUtil.max(newMinKey, minKey), maxKey);
             break;
         }
-        byte[] maxKey;
         switch (bounds.getUpperBoundType()) {
         case NONE:
-            maxKey = null;
+            newMaxKey = maxKey;
             break;
         default:
             final ByteWriter writer = new ByteWriter();
             this.encodeKey(writer, bounds.getUpperBound());
-            maxKey = writer.getBytes();
+            newMaxKey = writer.getBytes();
             if (bounds.getUpperBoundType().isInclusive())
-                maxKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(maxKey) : ByteUtil.getNextKey(maxKey);
+                newMaxKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMaxKey) : ByteUtil.getNextKey(newMaxKey);
+            newMaxKey = ByteUtil.max(ByteUtil.min(newMaxKey, maxKey), minKey);
             break;
         }
-        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
-            minKey = maxKey;
-        KeyRanges newKeyRanges = new SimpleKeyRanges(minKey, maxKey);
-        if (this.keyRanges != null)
-            newKeyRanges = KeyRangesUtil.intersection(newKeyRanges, this.keyRanges);
-        return KeyRangesUtil.isFull(newKeyRanges) ? null : newKeyRanges;
+        return new KeyRange(newMinKey, newMaxKey);
     }
 
 // KeySet
 
     private class KeySet extends AbstractKVNavigableSet<K> {
 
-        KeySet(boolean reversed, KeyRanges keyRanges, Bounds<K> bounds) {
-            super(AbstractKVNavigableMap.this.kv, AbstractKVNavigableMap.this.prefixMode, reversed, keyRanges, bounds);
+        KeySet() {
+            super(AbstractKVNavigableMap.this.kv, AbstractKVNavigableMap.this.prefixMode, AbstractKVNavigableMap.this.reversed,
+              AbstractKVNavigableMap.this.keyRange, AbstractKVNavigableMap.this.keyFilter, AbstractKVNavigableMap.this.bounds);
         }
 
         @Override
@@ -420,8 +454,9 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         }
 
         @Override
-        protected NavigableSet<K> createSubSet(boolean newReversed, KeyRanges newKeyRanges, Bounds<K> newBounds) {
-            return AbstractKVNavigableMap.this.createSubMap(newReversed, newKeyRanges, newBounds).navigableKeySet();
+        protected NavigableSet<K> createSubSet(boolean newReversed,
+          KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<K> newBounds) {
+            return AbstractKVNavigableMap.this.createSubMap(newReversed, newKeyRange, newKeyFilter, newBounds).navigableKeySet();
         }
     }
 
@@ -432,7 +467,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
         @Override
         public Iterator<Map.Entry<K, V>> iterator() {
             return new AbstractKVIterator<Map.Entry<K, V>>(AbstractKVNavigableMap.this.kv, AbstractKVNavigableMap.this.prefixMode,
-              AbstractKVNavigableMap.this.reversed, AbstractKVNavigableMap.this.keyRanges) {
+              AbstractKVNavigableMap.this.reversed, AbstractKVNavigableMap.this.keyRange, AbstractKVNavigableMap.this.keyFilter) {
 
                 @Override
                 protected Map.Entry<K, V> decodePair(KVPair pair, ByteReader keyReader) {

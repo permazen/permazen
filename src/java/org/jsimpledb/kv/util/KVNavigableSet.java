@@ -12,9 +12,8 @@ import java.util.Comparator;
 import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -24,7 +23,11 @@ import org.jsimpledb.util.ByteWriter;
  * A {@link java.util.NavigableSet} view of the keys in a {@link KVStore}.
  *
  * <p>
- * Instances are mutable, with the exception that adding new elements is not supported.
+ * Instances are mutable, with these exceptions:
+ * <ul>
+ *  <li>Adding new elements via {@link #add add()} is not supported</li>
+ *  <li>{@link #clear} is not supported when a {@link KeyFilter} is configured</li>
+ * </ul>
  * </p>
  */
 @SuppressWarnings("serial")
@@ -38,7 +41,7 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
      * @param kv underlying {@link KVStore}
      */
     public KVNavigableSet(KVStore kv) {
-        this(kv, false, null, new Bounds<byte[]>());
+        this(kv, false, null, null);
     }
 
     /**
@@ -49,7 +52,20 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
      * @throws NullPointerException if {@code prefix} is null
      */
     public KVNavigableSet(KVStore kv, byte[] prefix) {
-        this(kv, false, SimpleKeyRanges.forPrefix(prefix), KVNavigableSet.createBounds(prefix));
+        this(kv, false, KeyRange.forPrefix(prefix), null);
+    }
+
+    /**
+     * Primary constructor.
+     *
+     * @param kv underlying {@link KVStore}
+     * @param reversed whether ordering is reversed
+     * @param keyRange key range restriction, or null for none
+     * @param keyFilter key filter, or null for none
+     * @throws IllegalArgumentException if {@code kv} is null
+     */
+    protected KVNavigableSet(KVStore kv, boolean reversed, KeyRange keyRange, KeyFilter keyFilter) {
+        this(kv, reversed, keyRange, keyFilter, KVNavigableSet.createBounds(keyRange));
     }
 
     /**
@@ -57,12 +73,13 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
      *
      * @param kv underlying {@link KVStore}
      * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted)
-     * @param keyRanges visible keys, or null for no restrictions
+     * @param keyRange key range restriction, or null for none
+     * @param keyFilter key filter, or null for none
      * @param bounds range restriction
-     * @throws IllegalArgumentException if {@code bounds} is null
+     * @throws IllegalArgumentException if {@code kv} or {@code bounds} is null
      */
-    protected KVNavigableSet(KVStore kv, boolean reversed, KeyRanges keyRanges, Bounds<byte[]> bounds) {
-        super(kv, false, reversed, keyRanges, bounds);
+    private KVNavigableSet(KVStore kv, boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<byte[]> bounds) {
+        super(kv, false, reversed, keyRange, keyFilter, bounds);
     }
 
 // Methods
@@ -77,6 +94,8 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
         if (!(obj instanceof byte[]))
             return false;
         final byte[] key = (byte[])obj;
+        if (!this.isVisible(key))
+            return false;
         final byte[] value = this.kv.get(key);
         if (value == null)
             return false;
@@ -86,14 +105,12 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
 
     @Override
     public void clear() {
-        if (this.keyRanges == null) {
-            this.kv.removeRange(null, null);
-            return;
-        }
-        for (KeyRange range = this.keyRanges.nextHigherRange(ByteUtil.EMPTY);
-          range != null;
-          range = this.keyRanges.nextHigherRange(range.getMax()))
-            this.kv.removeRange(range.getMin(), range.getMax());
+        if (this.keyFilter != null)
+            throw new UnsupportedOperationException("clear() not supported when KeyFilter configured");
+        final byte[] minKey = this.keyRange != null ? this.keyRange.getMin() : null;
+        final byte[] maxKey = this.keyRange != null ? this.keyRange.getMax() : null;
+        this.kv.removeRange(minKey, maxKey);
+        return;
     }
 
     @Override
@@ -109,13 +126,13 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
     }
 
     @Override
-    protected NavigableSet<byte[]> createSubSet(boolean newReversed, KeyRanges newKeyRanges, Bounds<byte[]> newBounds) {
-        return new KVNavigableSet(this.kv, newReversed, newKeyRanges, newBounds);
+    protected NavigableSet<byte[]> createSubSet(boolean newReversed,
+      KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<byte[]> newBounds) {
+        return new KVNavigableSet(this.kv, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 
-    static Bounds<byte[]> createBounds(byte[] prefix) {
-        final KeyRange keyRange = KeyRange.forPrefix(prefix);
-        return new Bounds<byte[]>(keyRange.getMin(), keyRange.getMax());
+    static Bounds<byte[]> createBounds(KeyRange keyRange) {
+        return keyRange != null ? new Bounds<byte[]>(keyRange.getMin(), keyRange.getMax()) : new Bounds<byte[]>();
     }
 }
 

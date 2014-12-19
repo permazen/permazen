@@ -11,8 +11,9 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KeyFilter;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -48,14 +49,16 @@ class IndexMap<V, E> extends FieldTypeMap<V, NavigableSet<E>> {
      * Internal constructor.
      */
     private IndexMap(Transaction tx, byte[] prefix, FieldType<V> valueType, FieldType<E> entryType,
-      boolean reversed, KeyRanges keyRanges, Bounds<V> bounds) {
-        super(tx, valueType, true, reversed, prefix, keyRanges, bounds);
+      boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V> bounds) {
+        super(tx, valueType, true, reversed, prefix, keyRange, keyFilter, bounds);
         this.entryType = entryType;
     }
 
     @Override
-    protected NavigableMap<V, NavigableSet<E>> createSubMap(boolean newReversed, KeyRanges newKeyRanges, Bounds<V> newBounds) {
-        return new IndexMap<V, E>(this.tx, this.prefix, this.keyFieldType, this.entryType, newReversed, newKeyRanges, newBounds);
+    protected NavigableMap<V, NavigableSet<E>> createSubMap(boolean newReversed,
+      KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V> newBounds) {
+        return new IndexMap<V, E>(this.tx, this.prefix, this.keyFieldType,
+          this.entryType, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 
     @Override
@@ -89,11 +92,13 @@ class IndexMap<V, E> extends FieldTypeMap<V, NavigableSet<E>> {
          * @param prefixMode whether to allow keys to have trailing garbage
          * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted)
          * @param prefix prefix of all keys
-         * @param keyRanges key range restrictions; must at least restrict to {@code prefix}
+         * @param keyRange key range restrictions; must at least restrict to {@code prefix}
+         * @param keyFilter key filter restriction, or null for none
          * @param bounds range restriction
          */
-        private IndexSet(boolean prefixMode, boolean reversed, byte[] prefix, KeyRanges keyRanges, Bounds<E> bounds) {
-            super(IndexMap.this.tx, IndexMap.this.entryType, prefixMode, reversed, prefix, keyRanges, bounds);
+        private IndexSet(boolean prefixMode, boolean reversed,
+          byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
+            super(IndexMap.this.tx, IndexMap.this.entryType, prefixMode, reversed, prefix, keyRange, keyFilter, bounds);
         }
 
         /**
@@ -108,12 +113,13 @@ class IndexMap<V, E> extends FieldTypeMap<V, NavigableSet<E>> {
             UnsignedIntEncoder.write(writer, storageId);
             final byte[] minKey = writer.getBytes();
             final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
-            return (IndexMap<V, E>.IndexSet)this.restrictKeys(new SimpleKeyRanges(minKey, maxKey));
+            return (IndexMap<V, E>.IndexSet)this.filter(new KeyRanges(minKey, maxKey));
         }
 
         @Override
-        protected NavigableSet<E> createSubSet(boolean newReversed, KeyRanges newKeyRanges, Bounds<E> newBounds) {
-            return new IndexSet(this.prefixMode, newReversed, this.prefix, newKeyRanges, newBounds);
+        protected NavigableSet<E> createSubSet(boolean newReversed,
+          KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<E> newBounds) {
+            return new IndexSet(this.prefixMode, newReversed, this.prefix, newKeyRange, newKeyFilter, newBounds);
         }
     }
 }
