@@ -229,21 +229,22 @@ public class KeyRange {
      * Compare two {@code byte[]} keys using unsigned lexical ordering, while also accepting
      * null values that represent "negative infinity" and "positive infinity".
      *
-     * @param range1 first key
-     * @param type1 how to interpret {@code range1} if value is null:
+     * @param key1 first key
+     * @param type1 how to interpret {@code key1} if value is null:
      *  {@link #MIN} (for "negative infinity") or {@link #MAX} (for "positive infinity")
-     * @param range2 second key
-     * @param type2 how to interpret {@code range2} if value is null:
+     * @param key2 second key
+     * @param type2 how to interpret {@code key2} if value is null:
      *  {@link #MIN} (for "negative infinity") or {@link #MAX} (for "positive infinity")
+     * @return -1 if {@code key1 < key2}, 1 if {@code key1 > key2}, or zero if {@code key1 = key2}
      */
-    public static int compare(byte[] range1, boolean type1, byte[] range2, boolean type2) {
-        if (range1 == null && range2 == null)
+    public static int compare(byte[] key1, boolean type1, byte[] key2, boolean type2) {
+        if (key1 == null && key2 == null)
             return type1 == type2 ? 0 : type1 == MIN ? -1 : 1;
-        if (range1 == null)
+        if (key1 == null)
             return type1 == MIN ? -1 : 1;
-        if (range2 == null)
+        if (key2 == null)
             return type2 == MAX ? -1 : 1;
-        return ByteUtil.compare(range1, range2);
+        return ByteUtil.compare(key1, key2);
     }
 
 // Object

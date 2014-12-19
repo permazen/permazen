@@ -7,6 +7,8 @@
 
 package org.jsimpledb.kv.simple;
 
+import java.util.Arrays;
+
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 
@@ -17,6 +19,8 @@ abstract class Mutation extends KeyRange {
 
     protected Mutation(byte[] min, byte[] max) {
         super(min, max);
+        if (min != null && max != null && Arrays.equals(min, max))
+            throw new IllegalArgumentException("empty range");
     }
 
     protected Mutation(byte[] value) {
