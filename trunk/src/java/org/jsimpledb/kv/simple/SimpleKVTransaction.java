@@ -7,6 +7,7 @@
 
 package org.jsimpledb.kv.simple;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -112,6 +113,11 @@ public class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTra
     // Find the mutation that overlaps with the given key, if any.
     // This method assumes we are already synchronized on the associated database.
     Mutation findMutation(byte[] key) {
+
+        // Sanity check during unit testing
+        assert !this.hasOverlaps() && !this.hasEmpties();
+
+        // Get all mutations starting at or prior to `key' and look for overlap
         final SortedSet<Mutation> left = this.mutations.headSet(Mutation.key(ByteUtil.getNextKey(key)));
         if (!left.isEmpty()) {
             final Mutation last = left.last();
@@ -134,6 +140,26 @@ public class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTra
         } finally {
             super.finalize();
         }
+    }
+
+    private boolean hasEmpties() {
+        for (Mutation mutation : this.mutations) {
+            final byte[] minKey = mutation.getMin();
+            final byte[] maxKey = mutation.getMax();
+            if (minKey != null && maxKey != null && Arrays.equals(minKey, maxKey))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean hasOverlaps() {
+        Mutation previous = null;
+        for (Mutation mutation : this.mutations) {
+            if (previous != null && mutation.overlaps(previous))
+                return true;
+            previous = mutation;
+        }
+        return false;
     }
 }
 

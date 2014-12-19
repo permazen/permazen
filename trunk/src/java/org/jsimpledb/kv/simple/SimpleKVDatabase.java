@@ -7,6 +7,7 @@
 
 package org.jsimpledb.kv.simple;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 
@@ -273,17 +274,21 @@ public class SimpleKVDatabase implements KVDatabase {
         // Save original min key for locking purposes
         final byte[] originalMinKey = minKey;
 
-        // Look for a mutation starting before minKey and overlapping it
-        final Mutation overlap = minKey != null ? tx.findMutation(minKey) : !tx.mutations.isEmpty() ? tx.mutations.first() : null;
-        if (overlap != null) {
-            if (overlap instanceof Put) {
-                final Put put = (Put)overlap;
-                return new KVPair(put.getKey(), put.getValue());
+        // Look for a mutation starting before minKey but containing it
+        if (minKey != null) {
+            final Mutation overlap = tx.findMutation(minKey);
+            if (overlap != null) {
+                if (overlap instanceof Put) {
+                    final Put put = (Put)overlap;
+                    assert Arrays.equals(put.getKey(), minKey);
+                    return new KVPair(put.getKey(), put.getValue());
+                }
+                assert overlap instanceof Del;
+                final byte[] max = overlap.getMax();
+                if (max == null)
+                    return null;
+                minKey = max;
             }
-            final byte[] max = overlap.getMax();
-            if (max == null)
-                return null;
-            minKey = max;
         }
 
         // Find whichever is first: a transaction Put, or an underlying store entry not covered by a transaction Delete
@@ -379,6 +384,7 @@ public class SimpleKVDatabase implements KVDatabase {
         // Check transaction mutations
         final Mutation mutation = tx.findMutation(key);
         if (mutation instanceof Put) {
+            assert Arrays.equals(((Put)mutation).getKey(), key);
 
             // Replace Put with new Put
             tx.mutations.remove(mutation);
@@ -415,6 +421,7 @@ public class SimpleKVDatabase implements KVDatabase {
         // Check transaction mutations
         final Mutation mutation = tx.findMutation(key);
         if (mutation instanceof Put) {
+            assert Arrays.equals(((Put)mutation).getKey(), key);
 
             // Replace Put with Del
             tx.mutations.remove(mutation);
@@ -443,9 +450,10 @@ public class SimpleKVDatabase implements KVDatabase {
         // Deal with partial overlap at the left end of the range
         if (minKey != null) {
             final Mutation leftMutation = tx.findMutation(minKey);
-            if (leftMutation instanceof Put)
+            if (leftMutation instanceof Put) {
+                assert Arrays.equals(((Put)leftMutation).getKey(), minKey);
                 tx.mutations.remove(leftMutation);                                          // overwritten by this change
-            else if (leftMutation instanceof Del) {
+            } else if (leftMutation instanceof Del) {
                 final Del del = (Del)leftMutation;
                 tx.mutations.remove(del);                                                   // will merge into this change
                 minKey = del.getMin();                                                      // guaranteed to be <= minKey
