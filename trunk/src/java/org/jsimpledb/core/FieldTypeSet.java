@@ -87,17 +87,14 @@ abstract class FieldTypeSet<E> extends AbstractKVNavigableSet<E> {
 
     @Override
     protected void encode(ByteWriter writer, Object obj) {
-        if (this.prefix != null)
-            writer.write(this.prefix);
+        writer.write(this.prefix);
         this.fieldType.validateAndWrite(writer, obj);
     }
 
     @Override
     protected E decode(ByteReader reader) {
-        if (this.prefix != null) {
-            assert ByteUtil.isPrefixOf(this.prefix, reader.getBytes());
-            reader.skip(this.prefix.length);
-        }
+        assert ByteUtil.isPrefixOf(this.prefix, reader.getBytes());
+        reader.skip(this.prefix.length);
         return this.fieldType.read(reader);
     }
 }
