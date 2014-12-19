@@ -9,8 +9,8 @@ package org.jsimpledb.core;
 
 import java.util.NavigableSet;
 
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.SimpleKeyRanges;
+import org.jsimpledb.kv.KeyFilter;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteUtil;
 
@@ -27,8 +27,8 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param storageId object type storage ID
      */
     ObjTypeSet(Transaction tx, int storageId) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, new SimpleKeyRanges(ObjId.getKeyRange(storageId)),
-          new Bounds<ObjId>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
+        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY,
+          ObjId.getKeyRange(storageId), null, new Bounds<ObjId>(ObjId.getMin(storageId), ObjId.getMin(storageId + 1)));
     }
 
     /**
@@ -40,8 +40,9 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param keyRanges key range restrictions; must at least restrict to {@code prefix}
      * @param bounds range restriction
      */
-    private ObjTypeSet(Transaction tx, boolean reversed, byte[] prefix, KeyRanges keyRanges, Bounds<ObjId> bounds) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, reversed, prefix, keyRanges, bounds);
+    private ObjTypeSet(Transaction tx, boolean reversed,
+      byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<ObjId> bounds) {
+        super(tx, FieldTypeRegistry.OBJ_ID, true, reversed, prefix, keyRange, keyFilter, bounds);
     }
 
     @Override
@@ -55,8 +56,9 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
     }
 
     @Override
-    protected NavigableSet<ObjId> createSubSet(boolean newReversed, KeyRanges newKeyRanges, Bounds<ObjId> newBounds) {
-        return new ObjTypeSet(this.tx, newReversed, this.prefix, newKeyRanges, newBounds);
+    protected NavigableSet<ObjId> createSubSet(boolean newReversed,
+      KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<ObjId> newBounds) {
+        return new ObjTypeSet(this.tx, newReversed, this.prefix, newKeyRange, newKeyFilter, newBounds);
     }
 }
 

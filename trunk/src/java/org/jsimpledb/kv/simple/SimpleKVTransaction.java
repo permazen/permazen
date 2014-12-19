@@ -82,7 +82,7 @@ public class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTra
 
     @Override
     public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        return new KVPairIterator(this, minKey, maxKey, reverse);
+        return new KVPairIterator(this, new KeyRange(minKey, maxKey), null, reverse);
     }
 
     @Override

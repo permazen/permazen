@@ -10,9 +10,8 @@ package org.jsimpledb.core;
 import java.util.Collections;
 import java.util.Comparator;
 
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.KeyRangesUtil;
-import org.jsimpledb.kv.SimpleKeyRanges;
+import org.jsimpledb.kv.KeyFilter;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.util.AbstractKVNavigableMap;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
@@ -46,7 +45,7 @@ abstract class FieldTypeMap<K, V> extends AbstractKVNavigableMap<K, V> {
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     FieldTypeMap(Transaction tx, FieldType<K> keyFieldType, boolean prefixMode, byte[] prefix) {
-        this(tx, keyFieldType, prefixMode, false, prefix, SimpleKeyRanges.forPrefix(prefix), new Bounds<K>());
+        this(tx, keyFieldType, prefixMode, false, prefix, KeyRange.forPrefix(prefix), null, new Bounds<K>());
     }
 
     /**
@@ -57,25 +56,26 @@ abstract class FieldTypeMap<K, V> extends AbstractKVNavigableMap<K, V> {
      * @param prefixMode whether to allow keys to have trailing garbage
      * @param reversed whether ordering is reversed (implies {@code bounds} are also inverted)
      * @param prefix implicit prefix of all keys, or null for none
-     * @param keyRanges key range restrictions; must at least restrict to {@code prefix}
+     * @param keyRange key range restriction; must at least restrict to {@code prefix}
+     * @param keyFilter key filter restriction, or null for none
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code keyFieldType} is null
      * @throws IllegalArgumentException if {@code prefix} is null
-     * @throws IllegalArgumentException if {@code keyRanges} is null
+     * @throws IllegalArgumentException if {@code keyRange} is null
      * @throws IllegalArgumentException if {@code bounds} is null
-     * @throws IllegalArgumentException if {@code prefix} is not null but {@code keyRanges} does not restrict within {@code prefix}
+     * @throws IllegalArgumentException if {@code prefix} is not null but {@code keyRange} does not restrict within {@code prefix}
      */
     FieldTypeMap(Transaction tx, FieldType<K> keyFieldType, boolean prefixMode, boolean reversed,
-      byte[] prefix, KeyRanges keyRanges, Bounds<K> bounds) {
-        super(tx.kvt, prefixMode, reversed, keyRanges, bounds);
+      byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
+        super(tx.kvt, prefixMode, reversed, keyRange, keyFilter, bounds);
         if (keyFieldType == null)
             throw new IllegalArgumentException("null keyFieldType");
         if (prefix == null)
             throw new IllegalArgumentException("null prefix");
-        if (keyRanges == null)
-            throw new IllegalArgumentException("null keyRanges");
-        if (!KeyRangesUtil.contains(SimpleKeyRanges.forPrefix(prefix), keyRanges))
-            throw new IllegalArgumentException(keyRanges + " does not restrict to prefix " + ByteUtil.toString(prefix));
+        if (keyRange == null)
+            throw new IllegalArgumentException("null keyRange");
+        if (!KeyRange.forPrefix(prefix).contains(keyRange))
+            throw new IllegalArgumentException(keyRange + " does not restrict to prefix " + ByteUtil.toString(prefix));
         this.tx = tx;
         this.keyFieldType = keyFieldType;
         this.prefix = prefix;

@@ -8,12 +8,10 @@
 package org.jsimpledb.core;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.NavigableSet;
 
+import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.SimpleKeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteUtil;
 
@@ -37,8 +35,11 @@ class JSSet<E> extends FieldTypeSet<E> {
     /**
      * Internal constructor.
      */
-    JSSet(Transaction tx, SetField<E> field, ObjId id, boolean reversed, KeyRanges keyRanges, Bounds<E> bounds) {
-        super(tx, field.elementField.fieldType, false, reversed, field.buildKey(id), keyRanges, bounds);
+    private JSSet(Transaction tx, SetField<E> field, ObjId id,
+      boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
+        super(tx, field.elementField.fieldType, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
+        if (keyRange == null)
+            throw new IllegalArgumentException("null keyRange");
         this.id = id;
         this.field = field;
     }
@@ -47,7 +48,7 @@ class JSSet<E> extends FieldTypeSet<E> {
     public boolean add(final E newValue) {
         final byte[] key;
         try {
-            key = this.encode(newValue, true);
+            key = this.encodeVisible(newValue, true);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("can't add invalid value to " + this.field + ": " + e.getMessage(), e);
         }
@@ -84,6 +85,8 @@ class JSSet<E> extends FieldTypeSet<E> {
 
     @Override
     public void clear() {
+        if (this.keyFilter != null)
+            throw new UnsupportedOperationException("clear() not supported when KeyFilter configured");
         this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Void>() {
             @Override
             public Void mutate() {
@@ -109,14 +112,8 @@ class JSSet<E> extends FieldTypeSet<E> {
         }
 
         // Get key range
-        if (!(this.keyRanges instanceof SimpleKeyRanges))
-            throw new UnsupportedOperationException("clear() not supported with complex key range restriction: " + this.keyRanges);
-        final List<KeyRange> keyRangeList = ((SimpleKeyRanges)this.keyRanges).getKeyRanges();
-        if (keyRangeList.size() > 1)
-            throw new UnsupportedOperationException("clear() not supported with complex key range restriction: " + this.keyRanges);
-        final KeyRange keyRange = keyRangeList.get(0);
-        final byte[] rangeMinKey = keyRange.getMin();
-        final byte[] rangeMaxKey = keyRange.getMax();
+        final byte[] rangeMinKey = this.keyRange.getMin();
+        final byte[] rangeMaxKey = this.keyRange.getMax();
 
         // Delete index entries
         if (this.field.elementField.indexed)
@@ -136,14 +133,14 @@ class JSSet<E> extends FieldTypeSet<E> {
 
     @Override
     public boolean remove(Object obj) {
-        final byte[] key = this.encode(obj, false);
+        final byte[] key = this.encodeVisible(obj, false);
         if (key == null)
             return false;
-        final E elem = this.fieldType.validate(obj);                    // should never throw exception
+        final E canonicalElement = this.fieldType.validate(obj);                    // should never throw exception
         return this.tx.mutateAndNotify(this.id, new Transaction.Mutation<Boolean>() {
             @Override
             public Boolean mutate() {
-                return JSSet.this.doRemove(elem, key);
+                return JSSet.this.doRemove(canonicalElement, key);
             }
         });
     }
@@ -172,8 +169,8 @@ class JSSet<E> extends FieldTypeSet<E> {
     }
 
     @Override
-    protected NavigableSet<E> createSubSet(boolean newReversed, KeyRanges newKeyRanges, Bounds<E> newBounds) {
-        return new JSSet<E>(this.tx, this.field, this.id, newReversed, newKeyRanges, newBounds);
+    protected NavigableSet<E> createSubSet(boolean newReversed, KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<E> newBounds) {
+        return new JSSet<E>(this.tx, this.field, this.id, newReversed, newKeyRange, newKeyFilter, newBounds);
     }
 
 // SetFieldChangeNotifier
