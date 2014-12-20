@@ -43,9 +43,10 @@ public interface KeyFilter {
      * if {@code key} is not contained by this instance, this method must return a key strictly higher than {@code key} or null.
      * </p>
      *
-     * @param key starting key, or null to indicate the minimum possible key (i.e., same as {@link ByteUtil#EMPTY})
+     * @param key starting key
      * @return a lower bound (inclusive) for contained keys greater than or equal to {@code key},
      *  or null if no key greater than or equal to {@code key} is contained by this instance
+     * @throws IllegalArgumentException if {@code key} is null
      */
     byte[] seekHigher(byte[] key);
 
@@ -61,7 +62,7 @@ public interface KeyFilter {
      * A value of null may be returned to indicate that no key strictly less than {@code key} is contained by this instance.
      * </p>
      *
-     * @param key starting key, or null to indicate the maximum possible key
+     * @param key starting key
      * @return an upper bound (exclusive) for contained keys strictly less that {@code key},
      *  or null if no key strictly less than {@code key} is contained by this instance
      * @throws IllegalArgumentException if {@code key} is null
