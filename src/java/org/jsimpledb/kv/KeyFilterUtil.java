@@ -120,7 +120,12 @@ public final class KeyFilterUtil {
         byte[] best = null;
         for (int i = 0; i < keyFilters.length; i++) {
             final KeyFilter keyFilter = keyFilters[i];
-            final byte[] next = seekHigher ? keyFilter.seekHigher(key) : keyFilter.seekLower(key);
+            final byte[] next;
+            try {
+                next = seekHigher ? keyFilter.seekHigher(key) : keyFilter.seekLower(key);
+            } catch (UnsupportedOperationException e) {
+                continue;
+            }
             if (i == 0)
                 best = next;
             if (next == null) {

@@ -39,6 +39,12 @@ public interface KeyFilter {
      * </p>
      *
      * <p>
+     * If {@code key} is not {@linkplain #contains contained by} this instance, this method may either return a valid
+     * value as described above or throw an {@link UnsupportedOperationException} if seeking upward from {@link key}
+     * is not supported.
+     * </p>
+     *
+     * <p>
      * If {@code key} is contained by this instance, this method must return {@code key};
      * if {@code key} is not contained by this instance, this method must return a key strictly higher than {@code key} or null.
      * </p>
@@ -46,6 +52,8 @@ public interface KeyFilter {
      * @param key starting key
      * @return a lower bound (inclusive) for contained keys greater than or equal to {@code key},
      *  or null if no key greater than or equal to {@code key} is contained by this instance
+     * @throws UnsupportedOperationException if {@code key} is not contained by this instance
+     *  and seeking upward from {@code key} is not supported
      * @throws IllegalArgumentException if {@code key} is null
      */
     byte[] seekHigher(byte[] key);
@@ -62,9 +70,17 @@ public interface KeyFilter {
      * A value of null may be returned to indicate that no key strictly less than {@code key} is contained by this instance.
      * </p>
      *
+     * <p>
+     * If {@code key} is not {@linkplain #contains contained by} this instance, this method may either return a valid
+     * value as described above or throw an {@link UnsupportedOperationException} if seeking downward from {@link key}
+     * is not supported.
+     * </p>
+     *
      * @param key starting key
      * @return an upper bound (exclusive) for contained keys strictly less that {@code key},
      *  or null if no key strictly less than {@code key} is contained by this instance
+     * @throws UnsupportedOperationException if {@code key} is not contained by this instance
+     *  and seeking downward from {@code key} is not supported
      * @throws IllegalArgumentException if {@code key} is null
      */
     byte[] seekLower(byte[] key);
