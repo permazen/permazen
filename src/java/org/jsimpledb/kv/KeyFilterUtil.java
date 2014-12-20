@@ -109,16 +109,14 @@ public final class KeyFilterUtil {
     public static boolean isEmpty(KeyFilter keyFilter) {
         if (keyFilter == null)
             throw new IllegalArgumentException("null keyFilter");
-        return keyFilter.seekHigher(ByteUtil.EMPTY) == null;
+        return keyFilter.seekHigher(null) == null;
     }
 
     private static byte[] seek(KeyFilter[] keyFilters, byte[] key, boolean seekHigher, boolean preferHigher) {
-        if (key == null)
-            throw new IllegalArgumentException("null key");
         assert keyFilters.length > 0;
         final boolean preferNull = seekHigher == preferHigher;
         byte[] best = null;
-        for (int i = 1; i < keyFilters.length; i++) {
+        for (int i = 0; i < keyFilters.length; i++) {
             final KeyFilter keyFilter = keyFilters[i];
             final byte[] next = seekHigher ? keyFilter.seekHigher(key) : keyFilter.seekLower(key);
             if (i == 0)
@@ -128,12 +126,12 @@ public final class KeyFilterUtil {
                     return null;
                 continue;
             }
-            if (best != null) {
+            if (i > 0 && best != null) {
                 final int diff = ByteUtil.compare(next, best);
                 if (preferHigher ? diff < 0 : diff > 0)
                     continue;
             } else
-                assert !preferNull;
+                assert i == 0 || !preferNull;
             best = next;
         }
         return best;

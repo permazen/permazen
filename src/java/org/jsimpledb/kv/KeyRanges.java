@@ -296,6 +296,8 @@ public class KeyRanges implements KeyFilter {
 
     @Override
     public byte[] seekHigher(byte[] key) {
+        if (key == null)
+            key = ByteUtil.EMPTY;
         final KeyRange[] pair = this.findKey(key);
         if (pair[0] == pair[1])
             return pair[0] != null ? key : null;
@@ -304,6 +306,8 @@ public class KeyRanges implements KeyFilter {
 
     @Override
     public byte[] seekLower(byte[] key) {
+        if (key == null)
+            return !this.ranges.isEmpty() ? this.ranges.get(this.ranges.size() - 1).getMax() : null;
         final KeyRange[] pair = this.findKey(key);
         if (pair[0] == pair[1])
             return pair[0] != null ? key : null;
