@@ -109,10 +109,12 @@ public final class KeyFilterUtil {
     public static boolean isEmpty(KeyFilter keyFilter) {
         if (keyFilter == null)
             throw new IllegalArgumentException("null keyFilter");
-        return keyFilter.seekHigher(null) == null;
+        return keyFilter.seekHigher(ByteUtil.EMPTY) == null;
     }
 
     private static byte[] seek(KeyFilter[] keyFilters, byte[] key, boolean seekHigher, boolean preferHigher) {
+        if (key == null)
+            throw new IllegalArgumentException("null key");
         assert keyFilters.length > 0;
         final boolean preferNull = seekHigher == preferHigher;
         byte[] best = null;
