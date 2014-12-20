@@ -16,6 +16,8 @@ import org.jsimpledb.util.ByteUtil;
 
 /**
  * A fixed set of {@link KeyRange} instances that can be treated as a unified whole, in particular as a {@link KeyFilter}.
+ * The {@link KeyFilter} implementations of {@link #seekHigher seekHigher()} and {@link #seekLower seekLower()} in this
+ * class never throw {@link UnsupportedOperationException}.
  *
  * <p>
  * Instances are immutable.
