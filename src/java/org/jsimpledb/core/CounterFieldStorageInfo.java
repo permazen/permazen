@@ -10,7 +10,7 @@ package org.jsimpledb.core;
 class CounterFieldStorageInfo extends FieldStorageInfo {
 
     CounterFieldStorageInfo(CounterField field) {
-        super(field, 0);
+        super(field);
     }
 
     @Override

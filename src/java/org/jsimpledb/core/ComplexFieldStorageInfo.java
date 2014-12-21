@@ -16,7 +16,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 abstract class ComplexFieldStorageInfo extends FieldStorageInfo {
 
     ComplexFieldStorageInfo(ComplexField<?> field) {
-        super(field, 0);
+        super(field);
     }
 
     /**
