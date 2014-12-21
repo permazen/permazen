@@ -110,8 +110,6 @@ class EnumType extends NonNullFieldType<EnumValue> {
     @Override
     public EnumValue validate(Object obj) {
         final EnumValue value = super.validate(obj);
-        if (value == null)
-            throw new IllegalArgumentException("invalid null enum value");
         final String name = value.getName();
         final int ordinal = value.getOrdinal();
         EnumValue sameOrdinal;
