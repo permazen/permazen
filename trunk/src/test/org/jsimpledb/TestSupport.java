@@ -40,8 +40,8 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.XMLSerializer;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.XMLObjectSerializer;
@@ -247,8 +247,8 @@ public abstract class TestSupport {
         return new KeyRange(b(min), b(max));
     }
 
-    protected static KeyRanges krs(KeyRange... ranges) {
-        return new KeyRanges(Arrays.asList(ranges));
+    protected static KeyFilter kf(KeyRange... ranges) {
+        return new KeyFilter(Arrays.asList(ranges));
     }
 
     protected static byte[][] ba(String... sa) {

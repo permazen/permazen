@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 public class KVPairIteratorTest extends TestSupport {
 
     @Test(dataProvider = "iterations")
-    public void testIterations(byte[][] data, KeyRanges ranges, byte[][] results) throws Exception {
+    public void testIterations(byte[][] data, KeyFilter ranges, byte[][] results) throws Exception {
         if (results == null)
             results = data;
 
@@ -66,43 +66,43 @@ public class KVPairIteratorTest extends TestSupport {
 
             {
                 ba("00", "10", "30", "3000", "300000", "40", "50", "60", "70", "80", "99", "ffff"),
-                KeyRanges.FULL,
+                KeyFilter.FULL,
                 null,
             },
 
             {
                 ba("00", "10", "30", "3000", "300000", "40", "50", "60", "70", "80", "99", "ffff"),
-                KeyRanges.EMPTY,
+                KeyFilter.EMPTY,
                 ba()
             },
 
             {
                 ba("00", "10", "30", "3000", "300000", "40", "50", "60", "70", "80", "99", "ffff"),
-                krs(kr(null, "20"), kr("3000", "50"), kr("70", "90"), kr("a0", null)),
+                kf(kr(null, "20"), kr("3000", "50"), kr("70", "90"), kr("a0", null)),
                 ba("00", "10", "3000", "300000", "40", "70", "80", "ffff")
             },
 
             {
                 ba("00", "10", "30", "3000", "300000", "40", "50", "60", "70", "80", "99", "ffff"),
-                krs(kr("3000", "50"), kr("70", "90"), kr("a0", null)),
+                kf(kr("3000", "50"), kr("70", "90"), kr("a0", null)),
                 ba("3000", "300000", "40", "70", "80", "ffff")
             },
 
             {
                 ba("00", "10", "30", "3000", "300000", "40", "50", "60", "70", "80", "99", "ffff"),
-                krs(kr("3000", "50"), kr("70", "90")),
+                kf(kr("3000", "50"), kr("70", "90")),
                 ba("3000", "300000", "40", "70", "80")
             },
 
             {
                 ba("00", "10", "30", "3000", "300000", "40", "50", "60", "70", "80", "99", "ffff"),
-                krs(kr("70", "90")),
+                kf(kr("70", "90")),
                 ba("70", "80")
             },
 
             {
                 ba("00", "10", "30", "3000", "300000", "40", "50", "60", "70", "80", "99", "ffff"),
-                krs(kr("50", "50")),
+                kf(kr("50", "50")),
                 ba()
             },
 
@@ -123,7 +123,7 @@ public class KVPairIteratorTest extends TestSupport {
 
     // Restrict by KeyFilter
 
-        final KeyRanges keyRanges = krs(kr(null, "1000"), kr("20", "30"), kr("35", "40"), kr("50", null));
+        final KeyFilter keyRanges = kf(kr(null, "1000"), kr("20", "30"), kr("35", "40"), kr("50", null));
         KVPairIterator i = new KVPairIterator(kv, null, keyRanges, false);
 
         Assert.assertTrue(i.hasNext());
@@ -168,7 +168,7 @@ public class KVPairIteratorTest extends TestSupport {
 
     // Restrict by both
 
-        i = new KVPairIterator(kv, new KeyRange(b("1001"), b("30")), new KeyRanges(new KeyRange(b("1e"), null)), false);
+        i = new KVPairIterator(kv, new KeyRange(b("1001"), b("30")), new KeyFilter(new KeyRange(b("1e"), null)), false);
 
         Assert.assertTrue(i.hasNext());
         Assert.assertEquals(i.next(), new KVPair(b("20"), b("2222")));

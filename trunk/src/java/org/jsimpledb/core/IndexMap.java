@@ -13,7 +13,6 @@ import java.util.NavigableSet;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -113,7 +112,7 @@ class IndexMap<V, E> extends FieldTypeMap<V, NavigableSet<E>> {
             UnsignedIntEncoder.write(writer, storageId);
             final byte[] minKey = writer.getBytes();
             final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
-            return (IndexMap<V, E>.IndexSet)this.filter(new KeyRanges(minKey, maxKey));
+            return (IndexMap<V, E>.IndexSet)this.filter(new KeyFilter(minKey, maxKey));
         }
 
         @Override

@@ -7,7 +7,6 @@
 
 package org.jsimpledb.kv;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -259,15 +258,19 @@ public class KVPairIterator implements Iterator<KVPair> {
             }
 
             // Check key filter
-            if (this.keyFilter == null || this.keyFilter.contains(key))
+            if (this.keyFilter == null)
                 break;
-
-            // Skip over the filtered-out key range we're in and try again
-            if ((this.nextKey = this.reverse ? this.keyFilter.seekLower(key) : this.keyFilter.seekHigher(key)) == null) {
+            final KeyRange[] neighbors = this.keyFilter.findKey(key);
+            final KeyRange neighbor = neighbors[this.reverse ? 0 : 1];
+            if (neighbor == null) {
                 this.finished = true;
                 return false;
             }
-            assert this.reverse || !Arrays.equals(this.nextKey, key);
+            if (neighbors[0] == neighbors[1])
+                break;
+
+            // Skip to the next KeyRange in the filter and try again
+            this.nextKey = this.reverse ? neighbor.getMax() : neighbor.getMin();
         }
 
         // Save it (pre-fetch)
