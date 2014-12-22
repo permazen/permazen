@@ -288,12 +288,12 @@ public class JTransaction {
     public <T> NavigableSet<T> getAll(Class<T> type) {
         if (!this.tx.isValid())
             throw new StaleTransactionException(this.tx);
-        if (type == null || type.isAssignableFrom(JObject.class))
-            return (NavigableSet<T>)this.tx.getAll();
+        if (type == null)
+            type = (Class<T>)JObject.class;
         final List<NavigableSet<ObjId>> sets = Lists.transform(this.jdb.getJClasses(TypeToken.of(type)),
-          new Function<JClass<? extends T>, NavigableSet<ObjId>>() {
+          new Function<JClass<?>, NavigableSet<ObjId>>() {
             @Override
-            public NavigableSet<ObjId> apply(JClass<? extends T> jclass) {
+            public NavigableSet<ObjId> apply(JClass<?> jclass) {
                 return JTransaction.this.tx.getAll(jclass.storageId);
             }
         });
