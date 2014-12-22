@@ -46,6 +46,8 @@ public class BasicTest extends TestSupport {
             final Person t3 = tx.create(Person.class);
             this.check(t1, false, (byte)0, (short)0, (char)0, 0, 0.0f, 0L, 0.0, null, null, null, null, null);
 
+            Assert.assertEquals(tx.getAll(null), buildSet(t1, t2, t3));
+
             t1.setZ(true);
             t1.setB((byte)123);
             t1.setS((short)-32763);
