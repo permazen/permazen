@@ -16,76 +16,76 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class KeyFilterTest extends TestSupport {
+public class KeyRangesTest extends TestSupport {
 
-///////////// getKeyFilter()
+///////////// getKeyRanges()
 
     @Test(dataProvider = "minimal")
-    public void testGetKeyFilter(KeyFilter ranges, List<KeyRange> minimal) throws Exception {
-        Assert.assertEquals(ranges.getKeyFilter(), minimal);
+    public void testGetKeyRanges(KeyRanges ranges, List<KeyRange> minimal) throws Exception {
+        Assert.assertEquals(ranges.getKeyRanges(), minimal);
     }
 
     @DataProvider(name = "minimal")
-    private Object[][] dataGetKeyFilter() throws Exception {
+    private Object[][] dataGetKeyRanges() throws Exception {
         return new Object[][] {
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09"), kr("0a", null)),
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09"), kr("0a", null)),
                 Arrays.asList(kr(null, "02"), kr("03", "05"), kr("07", "09"), kr("0a", null))
             },
 
             {
-                kf(kr(null, "02"), kr("07", "09"), kr("03", "05"), kr("0a", null)),
+                krs(kr(null, "02"), kr("07", "09"), kr("03", "05"), kr("0a", null)),
                 Arrays.asList(kr(null, "02"), kr("03", "05"), kr("07", "09"), kr("0a", null))
             },
 
             {
-                kf(kr(null, "02"), kr("01", "03"), kr("02", "04"), kr("03", "05")),
+                krs(kr(null, "02"), kr("01", "03"), kr("02", "04"), kr("03", "05")),
                 Arrays.asList(kr(null, "05"))
             },
 
             {
-                kf(kr(null, "02"), kr("01", null)),
+                krs(kr(null, "02"), kr("01", null)),
                 Arrays.asList(kr(null, null))
             },
 
             {
-                kf(kr("03", "05"), kr("05", "07")),
+                krs(kr("03", "05"), kr("05", "07")),
                 Arrays.asList(kr("03", "07"))
             },
 
             {
-                kf(kr("03", "03"), kr("05", "05")),
+                krs(kr("03", "03"), kr("05", "05")),
                 Arrays.asList()
             },
 
             {
-                kf(kr(null, "05"), kr("05", "07")),
+                krs(kr(null, "05"), kr("05", "07")),
                 Arrays.asList(kr(null, "07"))
             },
 
             {
-                kf(kr(null, "05"), kr("05", null)),
+                krs(kr(null, "05"), kr("05", null)),
                 Arrays.asList(kr(null, null))
             },
 
             {
-                kf(kr(null, null), kr("05", "09")),
+                krs(kr(null, null), kr("05", "09")),
                 Arrays.asList(kr(null, null))
             },
 
             {
-                kf(kr("05", "09"), kr(null, null)),
+                krs(kr("05", "09"), kr(null, null)),
                 Arrays.asList(kr(null, null))
             },
 
             {
-                kf(kr("05", "09"), kr(null, null), kr("01", "03")),
+                krs(kr("05", "09"), kr(null, null), kr("01", "03")),
                 Arrays.asList(kr(null, null))
             },
 
             {
-                kf(kr("0101", null), kr("01", "0100")),
+                krs(kr("0101", null), kr("01", "0100")),
                 Arrays.asList(kr("01", "0100"), kr("0101", null))
             },
 
@@ -94,10 +94,10 @@ public class KeyFilterTest extends TestSupport {
 
 ///////////// getKeyRange()
 
-    @Test(dataProvider = "getKeyFilter")
-    public void testGetKeyRange(KeyFilter ranges, String keystr, int contains, int left, int right) throws Exception {
+    @Test(dataProvider = "getKeyRanges")
+    public void testGetKeyRange(KeyRanges ranges, String keystr, int contains, int left, int right) throws Exception {
         final byte[] key = b(keystr);
-        final List<KeyRange> list = ranges.getKeyFilter();
+        final List<KeyRange> list = ranges.getKeyRanges();
         final KeyRange[] neighbors = ranges.findKey(key);
         if (contains == -1)
             Assert.assertTrue(neighbors[0] != neighbors[1] || neighbors[0] == null);
@@ -107,56 +107,56 @@ public class KeyFilterTest extends TestSupport {
         Assert.assertEquals(neighbors[1], right != -1 ? list.get(right) : null);
     }
 
-    @DataProvider(name = "getKeyFilter")
+    @DataProvider(name = "getKeyRanges")
     private Object[][] dataGetKeyRange() throws Exception {
         return new Object[][] {
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "", 0, 0, 0
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "", 0, 0, 0
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "01", 0, 0, 0
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "01", 0, 0, 0
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "01ffffffffffffffff", 0, 0, 0
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "01ffffffffffffffff", 0, 0, 0
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "02", -1, 0, 1
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "02", -1, 0, 1
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "0280", -1, 0, 1
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "0280", -1, 0, 1
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "03", 1, 1, 1
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "03", 1, 1, 1
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "05", -1, 1, 2
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "05", -1, 1, 2
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "06", -1, 1, 2
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "06", -1, 1, 2
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "07", 2, 2, 2
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "07", 2, 2, 2
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "08", 2, 2, 2
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "08", 2, 2, 2
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "09", -1, 2, -1
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "09", -1, 2, -1
             },
 
             {
-                kf(kr(null, "02"), kr("03", "05"), kr("07", "09")), "0900", -1, 2, -1
+                krs(kr(null, "02"), kr("03", "05"), kr("07", "09")), "0900", -1, 2, -1
             },
 
         };
@@ -164,15 +164,15 @@ public class KeyFilterTest extends TestSupport {
 
 ///////////// inverse(), union(), intersection()
 
-    @Test(dataProvider = "KeyFilter")
-    public void testKeyFilter(KeyFilter ranges) throws Exception {
+    @Test(dataProvider = "KeyRanges")
+    public void testKeyRanges(KeyRanges ranges) throws Exception {
 
         Assert.assertEquals(ranges, ranges.inverse().inverse());
-        Assert.assertEquals(ranges.getKeyFilter(), ranges.inverse().inverse().getKeyFilter());
-        Assert.assertEquals(ranges.union(ranges.inverse()), KeyFilter.FULL);
+        Assert.assertEquals(ranges.getKeyRanges(), ranges.inverse().inverse().getKeyRanges());
+        Assert.assertEquals(ranges.union(ranges.inverse()), KeyRanges.FULL);
 
         Assert.assertTrue(ranges.union(ranges.inverse()).isFull());
-        Assert.assertEquals(ranges.intersection(ranges.inverse()), KeyFilter.EMPTY);
+        Assert.assertEquals(ranges.intersection(ranges.inverse()), KeyRanges.EMPTY);
         Assert.assertTrue(ranges.intersection(ranges.inverse()).isEmpty());
 
         final byte[] b1 = this.randomBytes(false);
@@ -181,15 +181,15 @@ public class KeyFilterTest extends TestSupport {
 
     }
 
-    @DataProvider(name = "KeyFilter")
-    private Object[][] dataKeyFilter() throws Exception {
+    @DataProvider(name = "KeyRanges")
+    private Object[][] dataKeyRanges() throws Exception {
         final ArrayList<Object[]> paramsList = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
             final ArrayList<KeyRange> list = new ArrayList<>();
             final int numRanges = this.random.nextInt(10);
             for (int j = 0; j < numRanges; j++)
                 list.add(this.randomKeyRange());
-            paramsList.add(new Object[] { new KeyFilter(list) });
+            paramsList.add(new Object[] { new KeyRanges(list) });
         }
         return paramsList.toArray(new Object[paramsList.size()][]);
     }
