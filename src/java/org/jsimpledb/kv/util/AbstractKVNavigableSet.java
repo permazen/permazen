@@ -13,7 +13,6 @@ import java.util.NavigableSet;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyFilter;
-import org.jsimpledb.kv.KeyFilterUtil;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.AbstractNavigableSet;
 import org.jsimpledb.util.Bounds;
@@ -224,7 +223,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
         if (keyFilter == null)
             throw new IllegalArgumentException("null keyFilter");
         if (this.keyFilter != null)
-            keyFilter = KeyFilterUtil.intersection(keyFilter, this.keyFilter);
+            keyFilter = keyFilter.intersection(this.keyFilter);
         return this.createSubSet(this.reversed, this.keyRange, keyFilter, this.bounds);
     }
 
