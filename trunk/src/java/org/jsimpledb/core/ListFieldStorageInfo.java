@@ -13,9 +13,9 @@ import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
-class ListFieldStorageInfo extends CollectionFieldStorageInfo {
+class ListFieldStorageInfo<E> extends CollectionFieldStorageInfo<List<E>, E> {
 
-    ListFieldStorageInfo(ListField<?> field) {
+    ListFieldStorageInfo(ListField<E> field) {
         super(field);
     }
 

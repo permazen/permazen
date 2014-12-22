@@ -69,7 +69,7 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
 // Non-public methods
 
     @Override
-    abstract CollectionFieldStorageInfo toStorageInfo();
+    abstract CollectionFieldStorageInfo<C, E> toStorageInfo();
 
     @Override
     void unreferenceRemovedObjectTypes(Transaction tx, ObjId id, ReferenceField subField, SortedSet<Integer> removedStorageIds) {

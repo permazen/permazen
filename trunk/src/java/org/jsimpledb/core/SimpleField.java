@@ -112,8 +112,8 @@ public class SimpleField<T> extends Field<T> {
 // Non-public methods
 
     @Override
-    SimpleFieldStorageInfo toStorageInfo() {
-        return new SimpleFieldStorageInfo(this, this.parent != null ? this.parent.storageId : 0);
+    SimpleFieldStorageInfo<T> toStorageInfo() {
+        return new SimpleFieldStorageInfo<T>(this, this.parent != null ? this.parent.storageId : 0);
     }
 
     @Override

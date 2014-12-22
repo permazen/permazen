@@ -764,7 +764,7 @@ public class Transaction {
           Iterables.filter(this.schema.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
             final NavigableSet<ObjId> referrers = this.findReferrers(id, DeleteAction.UNREFERENCE, fieldInfo.storageId);
             if (fieldInfo.isSubField()) {
-                final ComplexFieldStorageInfo superFieldInfo = this.schema.verifyStorageInfo(
+                final ComplexFieldStorageInfo<?> superFieldInfo = this.schema.verifyStorageInfo(
                   fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
                 superFieldInfo.unreferenceAll(this, fieldInfo.storageId, id, referrers);
             } else {
@@ -2386,7 +2386,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId, int... objTypeStorageIds) {
-        final SimpleFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
+        final SimpleFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
         return this.filterIndex(this.queryIndex(fieldInfo), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.storageId));
     }
@@ -2418,7 +2418,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
     public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId, int... objTypeStorageIds) {
-        final SetFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
+        final SetFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
         return this.filterIndex(this.queryIndex(fieldInfo.elementField), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
@@ -2450,7 +2450,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId, int... objTypeStorageIds) {
-        final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
+        final ListFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
         return this.filterIndex(this.queryIndex(fieldInfo.elementField), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
@@ -2482,7 +2482,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId, int... objTypeStorageIds) {
-        final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
+        final MapFieldStorageInfo<?, ?> fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return this.filterIndex(this.queryIndex(fieldInfo.keyField), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.keyField.storageId));
     }
@@ -2514,7 +2514,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
     public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId, int... objTypeStorageIds) {
-        final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
+        final MapFieldStorageInfo<?, ?> fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return this.filterIndex(this.queryIndex(fieldInfo.valueField), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.valueField.storageId));
     }
@@ -2541,7 +2541,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
     public NavigableMap<?, NavigableSet<ListIndexEntry>> queryListFieldEntries(int storageId, int... objTypeStorageIds) {
-        final ListFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
+        final ListFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
         return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldTypeRegistry.LIST_INDEX_ENTRY), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
     }
@@ -2569,7 +2569,7 @@ public class Transaction {
      */
     @SuppressWarnings("unchecked")
     public NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>> queryMapFieldValueEntries(int storageId, int... objTypeStorageIds) {
-        final MapFieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
+        final MapFieldStorageInfo<?, ?> fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return this.filterIndex((IndexMap<?, MapValueIndexEntry<?>>)this.queryIndex(fieldInfo.valueField,
           this.createMapValueIndexEntryType(fieldInfo.keyField.fieldType)), objTypeStorageIds,
           this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.valueField.storageId));
@@ -2587,12 +2587,12 @@ public class Transaction {
     }
 
     // Query an index associated with a simple field for referring objects
-    private IndexMap<?, ObjId> queryIndex(SimpleFieldStorageInfo fieldInfo) {
+    private IndexMap<?, ObjId> queryIndex(SimpleFieldStorageInfo<?> fieldInfo) {
         return this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID);
     }
 
     // Query an index associated with a simple field assuming the given index entry type
-    private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo fieldInfo, FieldType<E> entryType) {
+    private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo<?> fieldInfo, FieldType<E> entryType) {
         return this.queryIndex(fieldInfo.storageId, fieldInfo.fieldType, entryType);
     }
 

@@ -122,8 +122,8 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     }
 
     @Override
-    MapFieldStorageInfo toStorageInfo() {
-        return new MapFieldStorageInfo(this);
+    MapFieldStorageInfo<K, V> toStorageInfo() {
+        return new MapFieldStorageInfo<K, V>(this);
     }
 
     @Override

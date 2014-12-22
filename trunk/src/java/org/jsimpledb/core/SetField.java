@@ -74,8 +74,8 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     }
 
     @Override
-    SetFieldStorageInfo toStorageInfo() {
-        return new SetFieldStorageInfo(this);
+    SetFieldStorageInfo<E> toStorageInfo() {
+        return new SetFieldStorageInfo<E>(this);
     }
 
     @Override

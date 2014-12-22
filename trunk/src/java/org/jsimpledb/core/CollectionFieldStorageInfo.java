@@ -7,24 +7,25 @@
 
 package org.jsimpledb.core;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-abstract class CollectionFieldStorageInfo extends ComplexFieldStorageInfo {
+abstract class CollectionFieldStorageInfo<C extends Collection<E>, E> extends ComplexFieldStorageInfo<C> {
 
-    final SimpleFieldStorageInfo elementField;
+    final SimpleFieldStorageInfo<E> elementField;
 
-    CollectionFieldStorageInfo(CollectionField<?, ?> field) {
+    CollectionFieldStorageInfo(CollectionField<C, E> field) {
         super(field);
         this.elementField = field.elementField.toStorageInfo();
     }
 
     @Override
-    public List<SimpleFieldStorageInfo> getSubFields() {
+    public List<SimpleFieldStorageInfo<E>> getSubFields() {
         return Collections.singletonList(this.elementField);
     }
 
-    public SimpleFieldStorageInfo getElementField() {
+    public SimpleFieldStorageInfo<E> getElementField() {
         return this.elementField;
     }
 
@@ -36,7 +37,7 @@ abstract class CollectionFieldStorageInfo extends ComplexFieldStorageInfo {
             return true;
         if (!super.equals(obj))
             return false;
-        final CollectionFieldStorageInfo that = (CollectionFieldStorageInfo)obj;
+        final CollectionFieldStorageInfo<?, ?> that = (CollectionFieldStorageInfo<?, ?>)obj;
         return this.elementField.equals(that.elementField);
     }
 

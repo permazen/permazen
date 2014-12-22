@@ -7,9 +7,11 @@
 
 package org.jsimpledb.core;
 
-class SetFieldStorageInfo extends CollectionFieldStorageInfo {
+import java.util.NavigableSet;
 
-    SetFieldStorageInfo(SetField<?> field) {
+class SetFieldStorageInfo<E> extends CollectionFieldStorageInfo<NavigableSet<E>, E> {
+
+    SetFieldStorageInfo(SetField<E> field) {
         super(field);
     }
 

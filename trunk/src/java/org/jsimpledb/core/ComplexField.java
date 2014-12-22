@@ -68,7 +68,7 @@ public abstract class ComplexField<T> extends Field<T> {
     abstract T getValueReadOnlyCopy(Transaction tx, ObjId id);
 
     @Override
-    abstract ComplexFieldStorageInfo toStorageInfo();
+    abstract ComplexFieldStorageInfo<T> toStorageInfo();
 
     /**
      * Delete all content (but not index entries) for the given object.
