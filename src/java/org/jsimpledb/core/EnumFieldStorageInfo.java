@@ -9,7 +9,7 @@ package org.jsimpledb.core;
 
 import java.util.List;
 
-class EnumFieldStorageInfo extends SimpleFieldStorageInfo {
+class EnumFieldStorageInfo extends SimpleFieldStorageInfo<EnumValue> {
 
     EnumFieldStorageInfo(EnumField field, int superFieldStorageId) {
         super(field, superFieldStorageId);
@@ -27,7 +27,7 @@ class EnumFieldStorageInfo extends SimpleFieldStorageInfo {
     }
 
     @Override
-    protected boolean fieldTypeEquals(SimpleFieldStorageInfo that0) {
+    protected boolean fieldTypeEquals(SimpleFieldStorageInfo<?> that0) {
         final EnumFieldStorageInfo that = (EnumFieldStorageInfo)that0;
         return this.getIdentifiers().equals(that.getIdentifiers());
     }

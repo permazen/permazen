@@ -13,16 +13,16 @@ import java.util.NavigableSet;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
-abstract class ComplexFieldStorageInfo extends FieldStorageInfo {
+abstract class ComplexFieldStorageInfo<T> extends FieldStorageInfo {
 
-    ComplexFieldStorageInfo(ComplexField<?> field) {
+    ComplexFieldStorageInfo(ComplexField<T> field) {
         super(field);
     }
 
     /**
      * Get the sub-fields associated with this instance.
      */
-    public abstract List<SimpleFieldStorageInfo> getSubFields();
+    public abstract List<? extends SimpleFieldStorageInfo<?>> getSubFields();
 
     /**
      * Find all objects in the given referring for in which the specified sub-field of this field references

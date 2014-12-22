@@ -9,23 +9,24 @@ package org.jsimpledb.core;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NavigableMap;
 
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.util.ByteReader;
 
-class MapFieldStorageInfo extends ComplexFieldStorageInfo {
+class MapFieldStorageInfo<K, V> extends ComplexFieldStorageInfo<NavigableMap<K, V>> {
 
-    final SimpleFieldStorageInfo keyField;
-    final SimpleFieldStorageInfo valueField;
+    final SimpleFieldStorageInfo<K> keyField;
+    final SimpleFieldStorageInfo<V> valueField;
 
-    MapFieldStorageInfo(MapField<?, ?> field) {
+    MapFieldStorageInfo(MapField<K, V> field) {
         super(field);
         this.keyField = field.keyField.toStorageInfo();
         this.valueField = field.valueField.toStorageInfo();
     }
 
     @Override
-    public List<SimpleFieldStorageInfo> getSubFields() {
+    public List<SimpleFieldStorageInfo<?>> getSubFields() {
         return Arrays.asList(this.keyField, this.valueField);
     }
 
@@ -44,11 +45,11 @@ class MapFieldStorageInfo extends ComplexFieldStorageInfo {
         }
     }
 
-    public SimpleFieldStorageInfo getKeyField() {
+    public SimpleFieldStorageInfo<K> getKeyField() {
         return this.keyField;
     }
 
-    public SimpleFieldStorageInfo getValueField() {
+    public SimpleFieldStorageInfo<V> getValueField() {
         return this.valueField;
     }
 
@@ -65,7 +66,7 @@ class MapFieldStorageInfo extends ComplexFieldStorageInfo {
             return true;
         if (!super.equals(obj))
             return false;
-        final MapFieldStorageInfo that = (MapFieldStorageInfo)obj;
+        final MapFieldStorageInfo<?, ?> that = (MapFieldStorageInfo<?, ?>)obj;
         return this.keyField.equals(that.keyField) && this.valueField.equals(that.valueField);
     }
 

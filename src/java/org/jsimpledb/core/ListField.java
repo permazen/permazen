@@ -73,8 +73,8 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     }
 
     @Override
-    ListFieldStorageInfo toStorageInfo() {
-        return new ListFieldStorageInfo(this);
+    ListFieldStorageInfo<E> toStorageInfo() {
+        return new ListFieldStorageInfo<E>(this);
     }
 
     @Override

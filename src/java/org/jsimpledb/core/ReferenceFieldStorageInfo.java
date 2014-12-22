@@ -7,7 +7,7 @@
 
 package org.jsimpledb.core;
 
-class ReferenceFieldStorageInfo extends SimpleFieldStorageInfo {
+class ReferenceFieldStorageInfo extends SimpleFieldStorageInfo<ObjId> {
 
     ReferenceFieldStorageInfo(ReferenceField field, int superFieldStorageId) {
         super(field, superFieldStorageId);
@@ -21,7 +21,8 @@ class ReferenceFieldStorageInfo extends SimpleFieldStorageInfo {
     }
 
     @Override
-    protected boolean fieldTypeEquals(SimpleFieldStorageInfo that) {
+    protected boolean fieldTypeEquals(SimpleFieldStorageInfo<?> that) {
+        assert that instanceof ReferenceFieldStorageInfo;
         return true;        // reference fields are compatible even if they have different object type restriction lists
     }
 

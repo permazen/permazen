@@ -7,12 +7,12 @@
 
 package org.jsimpledb.core;
 
-class SimpleFieldStorageInfo extends FieldStorageInfo {
+class SimpleFieldStorageInfo<T> extends FieldStorageInfo {
 
-    final FieldType<?> fieldType;
+    final FieldType<T> fieldType;
     final int superFieldStorageId;
 
-    SimpleFieldStorageInfo(SimpleField<?> field, int superFieldStorageId) {
+    SimpleFieldStorageInfo(SimpleField<T> field, int superFieldStorageId) {
         super(field);
         this.fieldType = field.fieldType;
         this.superFieldStorageId = superFieldStorageId;
@@ -36,7 +36,7 @@ class SimpleFieldStorageInfo extends FieldStorageInfo {
             return true;
         if (!super.equals(obj))
             return false;
-        final SimpleFieldStorageInfo that = (SimpleFieldStorageInfo)obj;
+        final SimpleFieldStorageInfo<?> that = (SimpleFieldStorageInfo<?>)obj;
         return this.fieldTypeEquals(that) && this.superFieldStorageId == that.superFieldStorageId;
     }
 
@@ -45,7 +45,7 @@ class SimpleFieldStorageInfo extends FieldStorageInfo {
         return super.hashCode() ^ this.fieldTypeHashCode() ^ this.superFieldStorageId;
     }
 
-    protected boolean fieldTypeEquals(SimpleFieldStorageInfo that) {
+    protected boolean fieldTypeEquals(SimpleFieldStorageInfo<?> that) {
         return this.fieldType.equals(that.fieldType);
     }
 
