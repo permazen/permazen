@@ -106,6 +106,7 @@ public final class ByteUtil {
      *
      * @param prefix prefix to check
      * @param value value to check for having {@code prefix} as a prefix
+     * @throws NullPointerException if {@code prefix} or {@code value} is null
      */
     public static boolean isPrefixOf(byte[] prefix, byte[] value) {
         if (prefix.length > value.length)
@@ -124,6 +125,7 @@ public final class ByteUtil {
      *
      * @param key previous key
      * @return next key after {@code key}
+     * @throws NullPointerException if {@code key} is null
      */
     public static byte[] getNextKey(byte[] key) {
         final byte[] nextKey = new byte[key.length + 1];
@@ -137,13 +139,11 @@ public final class ByteUtil {
      *
      * @param prefix lower bound prefix key
      * @return next key not having {@code prefix} as a prefix
-     * @throws IllegalArgumentException if {@code prefix} is {@code null}
      * @throws IllegalArgumentException if {@code prefix} has zero length
      * @throws IllegalArgumentException if {@code prefix} contains only {@code 0xff} bytes
+     * @throws NullPointerException if {@code prefix} is null
      */
     public static byte[] getKeyAfterPrefix(byte[] prefix) {
-        if (prefix == null)
-            throw new IllegalArgumentException("null prefix");
         int len = prefix.length;
         if (len == 0)
             throw new IllegalArgumentException("empty prefix");
@@ -203,6 +203,7 @@ public final class ByteUtil {
      * @param reader input
      * @return decoded integer
      * @throws IndexOutOfBoundsException if less than four bytes remain in {@code reader}
+     * @throws NullPointerException if {@code reader} is null
      * @see #writeInt writeInt()
      */
     public static int readInt(ByteReader reader) {
@@ -215,6 +216,7 @@ public final class ByteUtil {
      * @param writer byte destination
      * @param value value to write
      * @see #readInt readInt()
+     * @throws NullPointerException if {@code writer} is null
      */
     public static void writeInt(ByteWriter writer, int value) {
         writer.writeByte(value >> 24);
@@ -245,6 +247,7 @@ public final class ByteUtil {
      * @param writer byte destination
      * @param value value to write
      * @see #readLong readLong()
+     * @throws NullPointerException if {@code writer} is null
      */
     public static void writeLong(ByteWriter writer, long value) {
         writer.writeByte((int)(value >> 56));
