@@ -193,5 +193,20 @@ public class KeyRangesTest extends TestSupport {
         }
         return paramsList.toArray(new Object[paramsList.size()][]);
     }
+
+///////////// Empty
+
+    @Test(dataProvider = "empty")
+    public void testEmpty(KeyRanges keyRanges) throws Exception {
+        Assert.assertEquals(keyRanges, KeyRanges.EMPTY);
+    }
+
+    @DataProvider(name = "empty")
+    private Object[][] emptyKeyRanges() throws Exception {
+        return new KeyRanges[][] {
+            { new KeyRanges(new KeyRange(null, new byte[0])) },
+            { new KeyRanges(new KeyRange(new byte[0], new byte[0])) },
+        };
+    }
 }
 

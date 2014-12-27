@@ -10,6 +10,7 @@ package org.jsimpledb.kv;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jsimpledb.util.ByteUtil;
@@ -77,7 +78,7 @@ public class KeyRanges implements KeyFilter {
      * @throws IllegalArgumentException if {@code min > max}
      */
     public KeyRanges(byte[] min, byte[] max) {
-        this(new KeyRange(min, max));
+        this(Collections.singletonList(new KeyRange(min, max)));
     }
 
     /**
@@ -350,19 +351,47 @@ public class KeyRanges implements KeyFilter {
     //  - No overlapping ranges
     //  - Adjacent ranges consolidated into a single range
     private static ArrayList<KeyRange> minimize(List<KeyRange> ranges) {
+
+        // For consistency, replace all lower bounds of [] with null (same thing)
         final ArrayList<KeyRange> sortedRanges = new ArrayList<>(ranges);
+        for (int i = 0; i < sortedRanges.size(); i++) {
+            final KeyRange range = sortedRanges.get(i);
+            final byte[] min = range.getMin();
+            if (min != null && min.length == 0)
+                sortedRanges.set(i, new KeyRange(null, range.getMax()));
+        }
+
+        // Remove empty ranges
+        for (Iterator<KeyRange> i = sortedRanges.iterator(); i.hasNext(); ) {
+            final KeyRange range = i.next();
+            final byte[] min = range.getMin();
+            final byte[] max = range.getMax();
+            if (max == null)                                        // { x, null } never empty
+                continue;
+            if ((min == null && max.length == 0)                    // { null, [] } is empty (special case)
+              || (min != null && ByteUtil.compare(min, max) == 0))  // { x, x } is empty
+                i.remove();
+        }
+
+        // Sort remaining ranges by min, then max
         Collections.sort(sortedRanges, KeyRange.SORT_BY_MIN);
+
+        // Consolidate
         final ArrayList<KeyRange> list = new ArrayList<>(ranges.size());
         KeyRange prev = null;
         for (KeyRange range : sortedRanges) {
+
+            // Sanity check range
             if (range == null)
                 throw new IllegalArgumentException("null range");
-            if (range.getMin() != null && range.getMax() != null && ByteUtil.compare(range.getMin(), range.getMax()) == 0)
-                continue;
-            if (prev == null) {                         // range is the first in the list
+
+            // Handle first in list
+            if (prev == null) {
                 prev = range;
                 continue;
             }
+
+            // Compare to previous range
             final int diff1 = KeyRange.compare(range.getMin(), KeyRange.MIN, prev.getMin(), KeyRange.MIN);
             assert diff1 >= 0;
             if (diff1 == 0) {                           // range contains prev -> discard prev
@@ -377,6 +406,8 @@ public class KeyRanges implements KeyFilter {
                 prev = new KeyRange(prev.getMin(), max);
                 continue;
             }
+
+            // OK add it
             list.add(prev);                             // prev and range don't overlap -> accept prev
             prev = range;
             continue;
