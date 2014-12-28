@@ -20,6 +20,7 @@ public class ByteReader {
      * Constructor. The provided array is read from directly; no copy is made.
      *
      * @param buf array to read from
+     * @throws NullPointerException if {@code buf} is null
      */
     public ByteReader(byte[] buf) {
         this.buf = buf;
@@ -33,6 +34,7 @@ public class ByteReader {
      * @param buf array to read from
      * @param off starting offset into {@code buf}
      * @throws IndexOutOfBoundsException if {@code off} is out of bounds
+     * @throws NullPointerException if {@code buf} is null
      */
     public ByteReader(byte[] buf, int off) {
         this(buf, off, buf.length - off);
@@ -45,6 +47,7 @@ public class ByteReader {
      * @param off offset into {@code buf}
      * @param len number of bytes to read
      * @throws IndexOutOfBoundsException if {@code off} or {@code len} are out of bounds
+     * @throws NullPointerException if {@code buf} is null
      */
     public ByteReader(byte[] buf, int off, int len) {
         if (off < 0 || len < 0 || off > buf.length || off + len < 0 || off + len > buf.length)
@@ -58,6 +61,7 @@ public class ByteReader {
      * Constructor. Takes a snapshot of the given writer's entire content.
      *
      * @param writer {@code ByteWriter} to read data from
+     * @throws NullPointerException if {@code writer} is null
      */
     public ByteReader(ByteWriter writer) {
         this(writer.buf, 0, writer.len);
@@ -69,6 +73,7 @@ public class ByteReader {
      * @param writer {@code ByteWriter} to read data from
      * @param mark position previously returned by {@code ByteWriter#mark}
      * @throws IndexOutOfBoundsException if {@code mark} is out of bounds
+     * @throws NullPointerException if {@code writer} is null
      */
     public ByteReader(ByteWriter writer, int mark) {
         this(writer.buf, mark, writer.len - mark);

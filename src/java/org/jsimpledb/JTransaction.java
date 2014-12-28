@@ -643,17 +643,17 @@ public class JTransaction {
 // Object/Field Access
 
     /**
-     * Get the Java model object with the given object ID and whose state derives from this transaction.
+     * Get the Java model object that has the given ID and whose state derives from this transaction.
+     * If this instance is a {@link SnapshotJTransaction}, the unique instance associated with this transaction
+     * will be returned. Otherwise, the instance shared by all non-snapshot {@link JTransaction}s will be returned.
      *
      * <p>
      * It is guaranteed that for any particular {@code id}, the same Java instance will always be returned by this instance.
-     * Note: while for any {@link ObjId} there is only one globally unique {@link JObject} per {@link JSimpleDB},
-     * each {@link SnapshotJTransaction} maintains its own pool of unique "snapshot" {@link JObject}s.
      * </p>
      *
      * <p>
-     * A non-null object is always returned; however, the corresponding object may not exist in this transaction.
-     * If not, attempts to access its fields will throw {@link DeletedObjectException}.
+     * A non-null object is always returned, but the corresponding object may not exist in this transaction.
+     * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
      * </p>
      *
      * @param id object ID
@@ -669,6 +669,7 @@ public class JTransaction {
 
     /**
      * Get the Java model object with the given object ID and whose state derives from this transaction, cast to the given type.
+     * This method just invoke {@link #getJObject(ObjId)} and then casts the result.
      *
      * @param id object ID
      * @return Java model object
