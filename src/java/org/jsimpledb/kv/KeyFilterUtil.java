@@ -128,8 +128,9 @@ public final class KeyFilterUtil {
                     return null;
                 continue;
             }
+            assert next.length != 0 || key.length == 0;
             if (i > 0 && best != null) {
-                final int diff = ByteUtil.compare(next, best);
+                final int diff = (!seekHigher && next.length == 0) ? 1 : ByteUtil.compare(next, best);
                 if (preferHigher ? diff < 0 : diff > 0)
                     continue;
             } else
