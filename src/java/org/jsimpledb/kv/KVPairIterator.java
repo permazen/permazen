@@ -258,16 +258,25 @@ public class KVPairIterator implements Iterator<KVPair> {
                 return false;
             }
 
-            // Check key filter
-            if (this.keyFilter == null || this.keyFilter.contains(key))
+            // Check key filter; if going forward, avoid redundant call to seekHigher()
+            if (this.keyFilter == null)
                 break;
+            if (!this.reverse) {
+                final byte[] nextHigher = this.keyFilter.seekHigher(key);
+                if (nextHigher != null && Arrays.equals(nextHigher, key))
+                    break;
+                this.nextKey = nextHigher;
+            } else {
+                if (this.keyFilter.contains(key))
+                    break;
+                this.nextKey = key.length > 0 ? this.keyFilter.seekLower(key) : null;
+            }
 
-            // Skip over the filtered-out key range we're in and try again
-            if ((this.nextKey = this.reverse ? this.keyFilter.seekLower(key) : this.keyFilter.seekHigher(key)) == null) {
+            // We have skipped over the filtered-out key range, so try again if there is any left
+            if (this.nextKey == null) {
                 this.finished = true;
                 return false;
             }
-            assert this.reverse || !Arrays.equals(this.nextKey, key);
         }
 
         // Save it (pre-fetch)
