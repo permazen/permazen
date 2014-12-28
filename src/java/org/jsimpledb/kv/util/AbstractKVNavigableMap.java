@@ -236,9 +236,13 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
     }
 
     /**
-     * Create a view of this instance with additional filtering applied to the {@code byte[]} encoded keys.
-     * The restrictions of the given {@link KeyFilter} will be added to any current {@link KeyFilter} restrictions.
+     * Create a view of this instance with additional filtering applied to the underlying {@code byte[]} keys.
+     * Any map entry for which the corresponding key does not pass {@code keyFilter} will be effectively hidden from view.
+     *
+     * <p>
+     * The restrictions of the given {@link KeyFilter} will be added to any current {@link KeyFilter} restrictions on this instance.
      * The {@link #bounds} associated with this instance will not change.
+     * </p>
      *
      * @param keyFilter additional key filtering to apply
      * @throws IllegalArgumentException if {@code keyFilter} is null
@@ -398,7 +402,10 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             newMinKey = writer.getBytes();
             if (!bounds.getLowerBoundType().isInclusive())
                 newMinKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMinKey) : ByteUtil.getNextKey(newMinKey);
-            newMinKey = ByteUtil.min(ByteUtil.max(newMinKey, minKey), maxKey);
+            if (minKey != null)
+                newMinKey = ByteUtil.max(newMinKey, minKey);
+            if (maxKey != null)
+                newMinKey = ByteUtil.min(newMinKey, maxKey);
             break;
         }
         switch (bounds.getUpperBoundType()) {
@@ -411,7 +418,10 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             newMaxKey = writer.getBytes();
             if (bounds.getUpperBoundType().isInclusive())
                 newMaxKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMaxKey) : ByteUtil.getNextKey(newMaxKey);
-            newMaxKey = ByteUtil.max(ByteUtil.min(newMaxKey, maxKey), minKey);
+            if (maxKey != null)
+                newMaxKey = ByteUtil.min(newMaxKey, maxKey);
+            if (minKey != null)
+                newMaxKey = ByteUtil.max(newMaxKey, minKey);
             break;
         }
         return new KeyRange(newMinKey, newMaxKey);

@@ -113,7 +113,7 @@ class IndexMap<V, E> extends FieldTypeMap<V, NavigableSet<E>> {
             UnsignedIntEncoder.write(writer, storageId);
             final byte[] minKey = writer.getBytes();
             final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);
-            return (IndexMap<V, E>.IndexSet)this.filter(new KeyRanges(minKey, maxKey));
+            return (IndexMap<V, E>.IndexSet)this.filterKeys(new KeyRanges(minKey, maxKey));
         }
 
         @Override
