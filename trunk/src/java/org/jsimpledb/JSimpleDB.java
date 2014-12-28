@@ -491,12 +491,20 @@ public class JSimpleDB {
 // Object Cache
 
     /**
-     * Get the Java model object with the given object ID. The {@link JTransaction} {@linkplain JObject#getTransaction associated}
-     * with the returned {@link JObject} will whatever {@link JTransaction} is
-     * {@linkplain JTransaction#getCurrent associated with the current thread}.
+     * Get the Java model object that is has the given ID. This returns the object associated with normal
+     * (i.e., non-snapshot) {@link JTransaction}s. To get the object associated with a snapshot transaction,
+     * invoke {@link JTransaction#getJObject(ObjId) JTransaction.getJObject()} on the snapshot transaction.
      *
      * <p>
      * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.
+     * Note: while for any {@link ObjId} there is only one globally unique {@link JObject} per {@link JSimpleDB}
+     * shared by all {@link JTransaction}s (the object returned by this method), each {@link SnapshotJTransaction}
+     * maintains its own distinct pool of unique "snapshot" {@link JObject}s.
+     * </p>
+     *
+     * <p>
+     * A non-null object is always returned, but the corresponding object may not exist in a given transaction.
+     * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
      * </p>
      *
      * @param id object ID
@@ -510,6 +518,7 @@ public class JSimpleDB {
 
     /**
      * Get the Java object used to represent the given object ID, cast to the given type.
+     * This method just invoke {@link #getJObject(ObjId)} and then casts the result.
      *
      * @param id object ID
      * @param type expected type
@@ -555,7 +564,7 @@ public class JSimpleDB {
      *
      * @param storageId field storage ID
      * @param type required type
-     * @return {@link JFiedl} instance
+     * @return {@link JField} instance
      * @throws UnknownFieldException if {@code storageId} does not represent a field
      */
     <T extends JFieldInfo> T getJFieldInfo(int storageId, Class<T> type) {
