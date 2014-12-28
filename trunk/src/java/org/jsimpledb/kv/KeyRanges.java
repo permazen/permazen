@@ -7,6 +7,9 @@
 
 package org.jsimpledb.kv;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,10 +57,26 @@ public class KeyRanges implements KeyFilter {
      * @param ranges individual key ranges
      * @throws IllegalArgumentException if {@code ranges} or any {@link KeyRange} therein is null
      */
-    public KeyRanges(List<KeyRange> ranges) {
+    public KeyRanges(Iterable<? extends KeyRange> ranges) {
         if (ranges == null)
             throw new IllegalArgumentException("null ranges");
-        this.ranges = KeyRanges.minimize(ranges);
+        this.ranges = KeyRanges.minimize(Lists.<KeyRange>newArrayList(ranges));
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>
+     * Creates an instance that contains all keys contained by any of the {@link KeyRange}s in {@code ranges}.
+     * The given {@code ranges} may be adjacent, overlap, and/or be listed in any order; this constructor
+     * will normalize them.
+     * </p>
+     *
+     * @param ranges individual key ranges
+     * @throws IllegalArgumentException if {@code ranges} or any {@link KeyRange} therein is null
+     */
+    public KeyRanges(KeyRange... ranges) {
+        this(ranges != null ? Arrays.asList(ranges) : null);
     }
 
     /**
@@ -139,6 +158,20 @@ public class KeyRanges implements KeyFilter {
     public byte[] getMax() {
         final int numRanges = this.ranges.size();
         return numRanges > 0 ? this.ranges.get(numRanges - 1).getMax() : null;
+    }
+
+    /**
+     * Create a new instance all of whose individual {@link KeyRange}s are have the given byte sequence prepended.
+     *
+     * @throws IllegalArgumentException if {@code prefix} is null
+     */
+    public KeyRanges prefixedBy(final byte[] prefix) {
+        return new KeyRanges(Lists.transform(this.ranges, new Function<KeyRange, KeyRange>() {
+            @Override
+            public KeyRange apply(KeyRange keyRange) {
+                return keyRange.prefixedBy(prefix);
+            }
+        }));
     }
 
     /**
@@ -305,6 +338,14 @@ public class KeyRanges implements KeyFilter {
 
     @Override
     public byte[] seekLower(byte[] key) {
+        if (key == null)
+            throw new IllegalArgumentException("null key");
+        if (key.length == 0) {
+            if (this.ranges.isEmpty())
+                return null;
+            final byte[] lastMax = this.ranges.get(this.ranges.size() - 1).getMax();
+            return lastMax != null ? lastMax : ByteUtil.EMPTY;
+        }
         final KeyRange[] pair = this.findKey(key);
         if (pair[0] == pair[1])
             return pair[0] != null ? key : null;

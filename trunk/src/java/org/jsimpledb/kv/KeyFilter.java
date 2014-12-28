@@ -62,9 +62,16 @@ public interface KeyFilter {
      * A value of null may be returned to indicate that no key strictly less than {@code key} is contained by this instance.
      * </p>
      *
-     * @param key starting key
+     * <p>
+     * For the purposes of this method, an empty {@code byte[]} array represents an upper bound greater than all
+     * {@code byte[]} keys. This interpretation applies both to the {@code key} parameter and returned value. Note that
+     * this implies an empty array cannot be returned to indicate that no keys exist (instead, return null).
+     * </p>
+     *
+     * @param key starting key, or an empty array to indicate a maximal upper bound
      * @return an upper bound (exclusive) for contained keys strictly less that {@code key},
-     *  or null if no key strictly less than {@code key} is contained by this instance
+     *  null if no key strictly less than {@code key} is contained by this instance, or an empty {@code byte[]} array
+     *  to indicate an upper bound greater than all {@code byte[]} keys (which implies {@code key} was also empty)
      * @throws IllegalArgumentException if {@code key} is null
      */
     byte[] seekLower(byte[] key);
