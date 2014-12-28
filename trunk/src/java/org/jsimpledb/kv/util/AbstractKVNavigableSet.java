@@ -72,7 +72,7 @@ import org.jsimpledb.util.ByteWriter;
  * </p>
  *
  * <p>
- * Instances also support filtering visible values using a {@link KeyFilter}; see {@link #filter filter()}.
+ * Instances also support filtering visible values using a {@link KeyFilter}; see {@link #filterKeys filterKeys()}.
  * To be {@linkplain #isVisible} in the set, keys must both be in the {@link KeyRange} and pass the {@link KeyFilter}.
  * </p>
  *
@@ -213,14 +213,18 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     }
 
     /**
-     * Create a view of this instance with additional filtering applied to the {@code byte[]} encoded values.
-     * The restrictions of the given {@link KeyFilter} will be added to any current {@link KeyFilter} restrictions.
+     * Create a view of this instance with additional filtering applied to the underlying {@code byte[]} encoded keys.
+     * Any set element for which the corresponding key does not pass {@code keyFilter} will be effectively hidden from view.
+     *
+     * <p>
+     * The restrictions of the given {@link KeyFilter} will be added to any current {@link KeyFilter} restrictions on this instance.
      * The {@link #bounds} associated with this instance will not change.
+     * </p>
      *
      * @param keyFilter additional key filtering to apply
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */
-    public NavigableSet<E> filter(KeyFilter keyFilter) {
+    public NavigableSet<E> filterKeys(KeyFilter keyFilter) {
         if (keyFilter == null)
             throw new IllegalArgumentException("null keyFilter");
         if (this.keyFilter != null)
@@ -308,7 +312,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * Determine if the given {@code byte[]} key is visible in this set according to the configured
      * {@link KeyRange} and/or {@link KeyFilter}, if any.
      *
-     * @see #filter filter()
+     * @see #filterKeys filterKeys()
      */
     protected boolean isVisible(byte[] key) {
         return (this.keyRange == null || this.keyRange.contains(key))
@@ -367,7 +371,10 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             newMinKey = writer.getBytes();
             if (!bounds.getLowerBoundType().isInclusive())
                 newMinKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMinKey) : ByteUtil.getNextKey(newMinKey);
-            newMinKey = ByteUtil.min(ByteUtil.max(newMinKey, minKey), maxKey);
+            if (minKey != null)
+                newMinKey = ByteUtil.max(newMinKey, minKey);
+            if (maxKey != null)
+                newMinKey = ByteUtil.min(newMinKey, maxKey);
             break;
         }
         switch (bounds.getUpperBoundType()) {
@@ -380,7 +387,10 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
             newMaxKey = writer.getBytes();
             if (bounds.getUpperBoundType().isInclusive())
                 newMaxKey = this.prefixMode ? ByteUtil.getKeyAfterPrefix(newMaxKey) : ByteUtil.getNextKey(newMaxKey);
-            newMaxKey = ByteUtil.max(ByteUtil.min(newMaxKey, maxKey), minKey);
+            if (maxKey != null)
+                newMaxKey = ByteUtil.min(newMaxKey, maxKey);
+            if (minKey != null)
+                newMaxKey = ByteUtil.max(newMaxKey, minKey);
             break;
         }
         return new KeyRange(newMinKey, newMaxKey);
