@@ -60,9 +60,11 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
         final Iterator<?> i1 = this.iterator();
         final Iterator<?> i2 = that.iterator();
         while (true) {
-            if (!i1.hasNext() && !i2.hasNext())
+            final boolean hasNext1 = i1.hasNext();
+            final boolean hasNext2 = i2.hasNext();
+            if (!hasNext1 && !hasNext2)
                 return true;
-            if (!i1.hasNext() || !i2.hasNext())
+            if (!hasNext1 || !hasNext2)
                 return false;
             if (!this.contains(i2.next()))
                 return false;
