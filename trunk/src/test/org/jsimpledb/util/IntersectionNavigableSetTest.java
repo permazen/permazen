@@ -36,6 +36,24 @@ public class IntersectionNavigableSetTest extends TestSupport {
     }
 
     @Test
+    public void testReverseIteration() {
+
+        NavigableSet<Integer> set1 = new TreeSet<>();
+        set1.add(12);
+        set1.add(13);
+        set1.add(16);
+        NavigableSet<Integer> set2 = new TreeSet<>();
+        set2.add(12);
+        set2.add(14);
+        set2.add(17);
+
+        final NavigableSet<Integer> intersect = NavigableSets.intersection(set1, set2);
+
+        for (Integer i : intersect.descendingSet())
+            this.getClass();
+    }
+
+    @Test
     public void testRandomIntersections() {
         for (int testNum = 0; testNum < 200; testNum++) {
 

@@ -77,9 +77,15 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
 
     @Override
     protected final NavigableSet<E> createSubSet(boolean reverse, Bounds<E> newBounds) {
+
+        // Apply bounds to all sets
         final Comparator<? super E> nonNullComparator = NavigableSets.getComparator(this.comparator(), false);
         final ArrayList<NavigableSet<E>> newList = new ArrayList<NavigableSet<E>>(this.list.size());
         for (NavigableSet<E> set : this.list) {
+
+            // Reverse set if needed
+            if (reverse)
+                set = set.descendingSet();
 
             // Apply lower bound
             if (newBounds.getLowerBoundType() != BoundType.NONE) {
@@ -128,6 +134,8 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
             // Add restricted set
             newList.add(set);
         }
+
+        // Create sub-set
         return this.createSubSet(reverse, newBounds, newList);
     }
 
