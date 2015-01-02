@@ -10,7 +10,7 @@ package org.jsimpledb.core;
 class ReferenceFieldStorageInfo extends SimpleFieldStorageInfo<ObjId> {
 
     ReferenceFieldStorageInfo(ReferenceField field, int superFieldStorageId) {
-        super(field, superFieldStorageId);
+        super(field, FieldTypeRegistry.REFERENCE, superFieldStorageId);
     }
 
 // Object

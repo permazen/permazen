@@ -13,8 +13,12 @@ class SimpleFieldStorageInfo<T> extends FieldStorageInfo {
     final int superFieldStorageId;
 
     SimpleFieldStorageInfo(SimpleField<T> field, int superFieldStorageId) {
+        this(field, field.fieldType, superFieldStorageId);
+    }
+
+    SimpleFieldStorageInfo(SimpleField<T> field, FieldType<T> fieldType, int superFieldStorageId) {
         super(field);
-        this.fieldType = field.fieldType;
+        this.fieldType = fieldType;
         this.superFieldStorageId = superFieldStorageId;
     }
 
