@@ -84,6 +84,14 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
 // Object
 
     @Override
+    public String toString() {
+        String desc = super.toString();
+        if (this.objectTypes != null)
+            desc += " to " + this.objectTypes;
+        return desc;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == this)
             return true;

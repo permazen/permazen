@@ -49,12 +49,9 @@ public class ObjType extends SchemaItem {
             this.addField(schemaField.visit(fieldBuilder));
 
         // Build mappings for various field types
-        this.simpleFields.clear();
-        this.rebuildMap(this.simpleFields, SimpleField.class);
-        this.complexFields.clear();
-        this.rebuildMap(this.complexFields, ComplexField.class);
-        this.counterFields.clear();
-        this.rebuildMap(this.counterFields, CounterField.class);
+        this.buildMap(this.simpleFields, SimpleField.class);
+        this.buildMap(this.complexFields, ComplexField.class);
+        this.buildMap(this.counterFields, CounterField.class);
         for (ReferenceField referenceField : Iterables.filter(this.getFieldsAndSubFields(), ReferenceField.class))
             this.referenceFields.put(referenceField.storageId, referenceField);
     }
@@ -113,7 +110,7 @@ public class ObjType extends SchemaItem {
 
 // Internal methods
 
-    private <T extends Field<?>> void rebuildMap(TreeMap<Integer, T> map, final Class<? super T> type) {
+    private <T extends Field<?>> void buildMap(TreeMap<Integer, T> map, final Class<? super T> type) {
         map.putAll(Maps.transformValues(Maps.filterValues(this.fields, new Predicate<Field<?>>() {
             @Override
             public boolean apply(Field<?> field) {
