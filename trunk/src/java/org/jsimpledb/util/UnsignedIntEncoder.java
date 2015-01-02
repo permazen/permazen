@@ -159,5 +159,37 @@ public final class UnsignedIntEncoder {
         buf[off] = (byte)(MIN_MULTI_BYTE_VALUE + len - 2);
         return len;
     }
+
+    /**
+     * Test routine.
+     */
+    public static void main(String[] args) throws Exception {
+        for (String arg : args) {
+            byte[] bytes = null;
+            try {
+                bytes = ByteUtil.parse(arg);
+            } catch (IllegalArgumentException e) {
+                if (arg.startsWith("0x"))
+                    bytes = ByteUtil.parse(arg.substring(2));
+            }
+            if (bytes != null) {
+                final long value = UnsignedIntEncoder.read(new ByteReader(bytes));
+                System.out.println("0x" + ByteUtil.toString(bytes)
+                  + " decodes to " + value + " (" + String.format("0x%016x", value) + ")");
+            }
+            Integer value = null;
+            try {
+                value = Integer.parseInt(arg);
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
+            if (value != null && value.intValue() >= 0) {
+                final ByteWriter writer = new ByteWriter();
+                UnsignedIntEncoder.write(writer, value);
+                System.out.println(value + " (" + String.format("0x%016x", value)
+                  + ") encodes to " + ByteUtil.toString(writer.getBytes()));
+            }
+        }
+    }
 }
 
