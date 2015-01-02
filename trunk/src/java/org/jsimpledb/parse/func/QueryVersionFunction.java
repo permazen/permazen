@@ -7,6 +7,7 @@
 
 package org.jsimpledb.parse.func;
 
+import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.AbstractValue;
@@ -40,7 +41,8 @@ public class QueryVersionFunction extends SimpleFunction {
             @Override
             public Object get(ParseSession session) {
                 return session.hasJSimpleDB() ?
-                  JTransaction.getCurrent().queryVersion(null) : session.getTransaction().queryVersion();
+                  JTransaction.getCurrent().queryVersion(JObject.class) :
+                  session.getTransaction().queryVersion().asMap();
             }
         };
     }

@@ -13,11 +13,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
 
-import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JMapField;
@@ -29,6 +27,7 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SetFieldChangeListener;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.index.Index;
 import org.jsimpledb.util.NavigableSets;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -370,12 +369,13 @@ public class SnapshotTest extends TestSupport {
         public abstract void setRef(Foo ref);
 
         public NavigableSet<Foo> getReferrers() {
-            final NavigableSet<Foo> referrers = this.queryFoo().get(this);
+            final NavigableSet<Foo> referrers = this.queryFoo().asMap().get(this);
             return referrers != null ? referrers : NavigableSets.<Foo>empty();
         }
 
-        @IndexQuery("ref")
-        public abstract NavigableMap<Foo, NavigableSet<Foo>> queryFoo();
+        public Index<Foo, Foo> queryFoo() {
+            return this.getTransaction().querySimpleField(Foo.class, "ref", Foo.class);
+        }
 
         public Iterable<Foo> getWithRelatedObjects() {
             return Iterables.concat(Collections.singleton(this), this.getReferrers());

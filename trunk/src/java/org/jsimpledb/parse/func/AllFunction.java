@@ -91,7 +91,7 @@ public class AllFunction extends AbstractFunction {
                 @Override
                 public Object get(ParseSession session) {
                     return session.hasJSimpleDB() ?
-                      JTransaction.getCurrent().getAll((Class<?>)null) : session.getTransaction().getAll();
+                      JTransaction.getCurrent().getAll(Object.class) : session.getTransaction().getAll();
                 }
             };
         }

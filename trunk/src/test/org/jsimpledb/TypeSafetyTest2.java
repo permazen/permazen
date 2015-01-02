@@ -12,11 +12,12 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 
-import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.index.Index;
+import org.jsimpledb.index.Index2;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.testng.annotations.Test;
 
@@ -67,14 +68,12 @@ public class TypeSafetyTest2 extends TestSupport {
 
             inventory2 = jtx.getAll(Inventory2.class).iterator().next();
 
-            for (Map.Entry<Color, NavigableSet<MapValueIndexEntry<Inventory2, Car>>> entry :
-              inventory2.queryColorIndex().entrySet()) {
-                final NavigableSet<MapValueIndexEntry<Inventory2, Car>> indexEntrySet = entry.getValue();
+            for (Map.Entry<Color, Index<Inventory2, Car>> entry : Inventory2.queryColorIndex().asMapOfIndex().entrySet()) {
                 final Color color = entry.getKey();
-                for (MapValueIndexEntry<Inventory2, Car> indexEntry : indexEntrySet) {
-                    final Car key = indexEntry.getKey();
-                    this.log.info("found map value index entry with color " + color + " and car " + key);
-                }
+                final NavigableMap<Inventory2, NavigableSet<Car>> map = entry.getValue().asMap();
+                assert map.size() == 1;
+                for (Car car2 : map.values().iterator().next())
+                    this.log.info("found map value index entry with color " + color + " and car " + car2);
             }
 
             jtx.commit();
@@ -123,8 +122,9 @@ public class TypeSafetyTest2 extends TestSupport {
         @JMapField(storageId = 51, key = @JField(storageId = 52), value = @JField(storageId = 53, indexed = true))
         public abstract NavigableMap<Car, Color> getCarMap();         // note: key restricted to "Car" from "Vehicle"
 
-        @IndexQuery("carMap.value")
-        public abstract NavigableMap<Color, NavigableSet<MapValueIndexEntry<Inventory2, Car>>> queryColorIndex();
+        public static Index2<Color, Inventory2, Car> queryColorIndex() {
+            return JTransaction.getCurrent().queryMapValueField(Inventory2.class, "carMap.value", Color.class, Car.class);
+        }
     }
 }
 

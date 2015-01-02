@@ -29,6 +29,8 @@ abstract class CollectionFieldStorageInfo<C extends Collection<E>, E> extends Co
         return this.elementField;
     }
 
+    abstract AbstractCoreIndex getElementFieldIndex(Transaction tx);
+
 // Object
 
     @Override

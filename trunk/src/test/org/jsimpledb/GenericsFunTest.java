@@ -7,10 +7,6 @@
 
 package org.jsimpledb;
 
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-
-import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnChange;
@@ -21,12 +17,28 @@ public class GenericsFunTest extends TestSupport {
 
     @Test
     public void testGenerics1() throws Exception {
-        BasicTest.getJSimpleDB(Widget.class);
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Widget.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        JTransaction.setCurrent(jtx);
+        try {
+            jtx.querySimpleField(AbstractData.class, "name", String.class);
+        } finally {
+            JTransaction.setCurrent(null);
+        }
     }
 
     @Test
     public void testGenerics2() throws Exception {
-        BasicTest.getJSimpleDB(AccountEvent.class, Account.class);
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(AccountEvent.class, Account.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        JTransaction.setCurrent(jtx);
+        try {
+            jtx.querySimpleField(AbstractData.class, "name", String.class);
+            jtx.querySimpleField(Account.class, "name", String.class);
+            jtx.querySimpleField(AccountEvent.class, "account", Account.class);
+        } finally {
+            JTransaction.setCurrent(null);
+        }
     }
 
 // Model Classes
@@ -36,9 +48,6 @@ public class GenericsFunTest extends TestSupport {
         @JField(storageId = 201, indexed = true)
         public abstract String getName();
         public abstract void setName(String name);
-
-        @IndexQuery("name")
-        protected abstract NavigableMap<String, NavigableSet<AbstractData<?>>> queryByName();
 
         @OnChange("name")
         public void nameChanged(SimpleFieldChange<? extends AbstractData<?>, String> change) {
@@ -54,9 +63,6 @@ public class GenericsFunTest extends TestSupport {
 
     @JSimpleClass(storageId = 200)
     public abstract static class Account extends AbstractData<Account> {
-
-        @IndexQuery(type = AccountEvent.class, value = "account")
-        protected abstract NavigableMap<Account, NavigableSet<AccountEvent>> queryAccountEvents();
     }
 
     @JSimpleClass(storageId = 300)

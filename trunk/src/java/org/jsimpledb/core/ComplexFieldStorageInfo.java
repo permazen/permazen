@@ -24,9 +24,11 @@ abstract class ComplexFieldStorageInfo<T> extends FieldStorageInfo {
      */
     public abstract List<? extends SimpleFieldStorageInfo<?>> getSubFields();
 
+    abstract CoreIndex<?, ObjId> getSimpleSubFieldIndex(Transaction tx, SimpleFieldStorageInfo<?> subField);
+
     /**
-     * Find all objects in the given referring for in which the specified sub-field of this field references
-     * the specified target and remove the corresponding entry/entries. Used to implement {@link DeleteAction#UNREFERENCE}.
+     * Find all objects in the given referrers set for which the specified sub-field of this field references
+     * the specified target, and remove the corresponding entry/entries. Used to implement {@link DeleteAction#UNREFERENCE}.
      *
      * @param tx transaction
      * @param field sub-field of this field referencing target

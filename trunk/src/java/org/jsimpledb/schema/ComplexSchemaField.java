@@ -22,7 +22,7 @@ import org.jsimpledb.core.InvalidSchemaException;
 public abstract class ComplexSchemaField extends SchemaField {
 
     @Override
-    public void validate() {
+    void validate() {
         super.validate();
         for (Map.Entry<String, SimpleSchemaField> entry : this.getSubFields().entrySet()) {
             final String subFieldName = entry.getKey();

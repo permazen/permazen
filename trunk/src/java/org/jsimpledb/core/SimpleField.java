@@ -8,9 +8,9 @@
 package org.jsimpledb.core;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import org.jsimpledb.util.ByteWriter;
-import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
  * A simple {@link Field}.
@@ -32,6 +32,7 @@ public class SimpleField<T> extends Field<T> {
     final boolean indexed;
 
     ComplexField<?> parent;
+    Map<CompositeIndex, Integer> compositeIndexMap;         // maps index to this field's offset in field list
 
     /**
      * Constructor.
@@ -139,34 +140,6 @@ public class SimpleField<T> extends Field<T> {
         this.fieldType.write(writer, value);
         final byte[] result = writer.getBytes();
         return Arrays.equals(result, this.fieldType.getDefaultValue()) ? null : result;
-    }
-
-    /**
-     * Bulid the index entry for a given object having the given value in this field.
-     * The encoded field value is read from the given {@link ByteReader}.
-     *
-     * @param id object containing the field
-     * @param value encoded field value, or null for default value
-     * @return index key
-     */
-    byte[] buildIndexKey(ObjId id, byte[] value) {
-
-        // Sanity check
-        if (!this.indexed)
-            throw new IllegalArgumentException(this + " is not indexed");
-
-        // Get default value if necessary
-        if (value == null)
-            value = this.fieldType.getDefaultValue();
-
-        // Build index entry
-        final ByteWriter writer = new ByteWriter();
-        UnsignedIntEncoder.write(writer, this.storageId);
-        writer.write(value);
-        id.writeTo(writer);
-
-        // Return index entry
-        return writer.getBytes();
     }
 }
 

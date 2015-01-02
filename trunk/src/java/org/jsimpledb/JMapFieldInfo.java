@@ -11,11 +11,9 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.List;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 
 import org.jsimpledb.change.MapFieldAdd;
 import org.jsimpledb.change.MapFieldClear;
@@ -26,8 +24,6 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 
 class JMapFieldInfo extends JComplexFieldInfo {
-
-    private static final int VALUE_INDEX_ENTRY_QUERY = 1;
 
     JMapFieldInfo(JMapField jfield) {
         super(jfield);
@@ -98,42 +94,6 @@ class JMapFieldInfo extends JComplexFieldInfo {
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<K>() { }, keyType.wrap())
           .where(new TypeParameter<V>() { }, valueType.wrap()));
-    }
-
-    @Override
-    <T, R> void addIndexEntryReturnTypes(List<TypeToken<?>> types,
-      TypeToken<T> targetType, JSimpleFieldInfo subFieldInfo, TypeToken<R> valueType) {
-        if (subFieldInfo == this.getKeyFieldInfo())
-            return;
-        else if (subFieldInfo == this.getValueFieldInfo())
-            this.addValueIndexEntryReturnTypes(types, targetType, this.getKeyFieldInfo().getTypeToken(), valueType);
-        else
-            throw new RuntimeException();
-    }
-
-    // This method exists solely to bind the generic type parameters
-    @SuppressWarnings("serial")
-    private <T, K, V> void addValueIndexEntryReturnTypes(List<TypeToken<?>> types,
-      TypeToken<T> targetType, TypeToken<K> keyType, TypeToken<V> valueType) {
-        types.add(new TypeToken<NavigableMap<V, NavigableSet<MapValueIndexEntry<T, K>>>>() { }
-          .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<K>() { }, keyType.wrap())
-          .where(new TypeParameter<V>() { }, valueType.wrap()));
-    }
-
-    @Override
-    int getIndexEntryQueryType(TypeToken<?> queryObjectType) {
-        return queryObjectType.getRawType().equals(MapValueIndexEntry.class) ? VALUE_INDEX_ENTRY_QUERY : 0;
-    }
-
-    @Override
-    Method getIndexEntryQueryMethod(int queryType) {
-        switch (queryType) {
-        case VALUE_INDEX_ENTRY_QUERY:
-            return ClassGenerator.QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD;
-        default:
-            throw new UnsupportedOperationException();
-        }
     }
 
     @Override

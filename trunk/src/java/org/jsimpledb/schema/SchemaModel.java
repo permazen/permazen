@@ -60,8 +60,13 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
             return type.asSubclass(SimpleSchemaField.class);
         }
       });
+    static final Map<QName, Class<? extends AbstractSchemaItem>> FIELD_OR_COMPOSITE_INDEX_TAG_MAP = new HashMap<>();
+    static {
+        FIELD_OR_COMPOSITE_INDEX_TAG_MAP.putAll(FIELD_TAG_MAP);
+        FIELD_OR_COMPOSITE_INDEX_TAG_MAP.put(COMPOSITE_INDEX_TAG, SchemaCompositeIndex.class);
+    }
 
-    private static final int CURRENT_FORMAT_VERSION = 1;
+    private static final int CURRENT_FORMAT_VERSION = 2;
 
     private /*final*/ TreeMap<Integer, SchemaObjectType> schemaObjectTypes = new TreeMap<>();
 
@@ -115,9 +120,17 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
     /**
      * Validate this instance.
      *
-     * @throws InvalidSchemaException if this instance is invalid
+     * <p>
+     * This performs some basic structural validation. Full validation is not possible without a
+     * {@link org.jsimpledb.core.Database} instance (for example, we don't know whether or not a custom
+     * {@link SimpleSchemaField} type name is registered with the associated {@link org.jsimpledb.core.FieldTypeRegistry}).
+     * </p>
+     *
+     * @throws InvalidSchemaException if this instance is detected to be invalid
      */
     public void validate() {
+
+        // Validate object types and verify object type names are unique
         final TreeMap<String, SchemaObjectType> schemaObjectTypesByName = new TreeMap<>();
         for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values()) {
             schemaObjectType.validate();
@@ -126,6 +139,36 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
             if (otherSchemaObjectType != null)
                 throw new InvalidSchemaException("duplicate object name `" + schemaObjectTypeName + "'");
         }
+
+        // Collect all field storage ID's
+        final TreeMap<Integer, AbstractSchemaItem> globalItemsByStorageId = new TreeMap<>();
+        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values()) {
+            for (SchemaField field : schemaObjectType.getSchemaFields().values()) {
+                globalItemsByStorageId.put(field.getStorageId(), field);
+                if (field instanceof ComplexSchemaField) {
+                    final ComplexSchemaField complexField = (ComplexSchemaField)field;
+                    for (SimpleSchemaField subField : complexField.getSubFields().values())
+                        globalItemsByStorageId.put(subField.getStorageId(), subField);
+                }
+            }
+        }
+
+        // Verify object type, field, and index storage ID's are non-overlapping
+        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values()) {
+            SchemaModel.verifyUniqueStorageId(globalItemsByStorageId, schemaObjectType);
+            for (SchemaCompositeIndex index : schemaObjectType.getSchemaCompositeIndexes().values())
+                SchemaModel.verifyUniqueStorageId(globalItemsByStorageId, index);
+        }
+    }
+
+    static <T extends AbstractSchemaItem> void verifyUniqueStorageId(TreeMap<Integer, T> itemsByStorageId, T item) {
+        final int storageId = item.getStorageId();
+        final T previous = itemsByStorageId.get(storageId);
+        if (previous != null && !previous.equals(item)) {
+            throw new InvalidSchemaException("incompatible duplicate use of storage ID "
+              + storageId + " by both " + previous + " and " + item);
+        }
+        itemsByStorageId.put(storageId, item);
     }
 
     /**
@@ -151,13 +194,15 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         return true;
     }
 
+// XML Reading
+
     void readXML(XMLStreamReader reader) throws XMLStreamException {
         this.schemaObjectTypes.clear();
 
         // Read opening tag
         this.expect(reader, false, SCHEMA_MODEL_TAG);
 
-        // Get format version
+        // Get and verify format version
         final Integer formatAttr = this.getIntAttr(reader, FORMAT_VERSION_ATTRIBUTE, false);
         final int formatVersion = formatAttr != null ? formatAttr : 0;
         final QName objectTypeTag;
@@ -165,7 +210,8 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         case 0:
             objectTypeTag = new QName("Object");
             break;
-        case CURRENT_FORMAT_VERSION:
+        case 1:                                             // changed <Object> to <ObjectType>
+        case 2:                                             // added <CompositeIndex>
             objectTypeTag = OBJECT_TYPE_TAG;
             break;
         default:
@@ -184,6 +230,8 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
             }
         }
     }
+
+// XML Writing
 
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
         writer.setDefaultNamespace(SCHEMA_MODEL_TAG.getNamespaceURI());

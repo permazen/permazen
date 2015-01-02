@@ -33,7 +33,7 @@ public class EnumSchemaField extends SimpleSchemaField {
     }
 
     @Override
-    public void validate() {
+    void validate() {
         super.validate();
         try {
             EnumFieldType.validateIdentifiers(this.idents);

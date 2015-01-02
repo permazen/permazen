@@ -68,5 +68,10 @@ public @interface JSimpleClass {
      * Storage ID for this object type. Value must be positive.
      */
     int storageId();
+
+    /**
+     * Composite indexes (i.e., indexes on two or more fields) defined on this type.
+     */
+    JCompositeIndex[] compositeIndexes() default {};
 }
 

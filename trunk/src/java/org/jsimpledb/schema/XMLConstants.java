@@ -15,9 +15,11 @@ import javax.xml.namespace.QName;
 public interface XMLConstants {
 
     // Elements
+    QName COMPOSITE_INDEX_TAG = new QName("CompositeIndex");
     QName COUNTER_FIELD_TAG = new QName("CounterField");
     QName ENUM_FIELD_TAG = new QName("EnumField");
     QName IDENTIFIER_TAG = new QName("Identifier");
+    QName INDEXED_FIELD_TAG = new QName("IndexedField");
     QName LIST_FIELD_TAG = new QName("ListField");
     QName MAP_FIELD_TAG = new QName("MapField");
     QName OBJECT_TYPES_TAG = new QName("ObjectTypes");

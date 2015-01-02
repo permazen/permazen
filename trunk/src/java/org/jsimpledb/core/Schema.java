@@ -113,6 +113,7 @@ public class Schema {
      * @param expectedType expected {@link StorageInfo} type
      * @return the actual {@link StorageInfo} instance found
      * @throws UnknownFieldException if type doesn't match and {@code expectedType} is a {@link FieldStorageInfo} sub-type
+     * @throws UnknownIndexException if type doesn't match and {@code expectedType} is {@link CompositeIndexStorageInfo}
      * @throws UnknownTypeException if type doesn't match and {@code expectedType} is {@link ObjectStorageInfo}
      */
     <T extends StorageInfo> T verifyStorageInfo(int storageId, Class<T> expectedType) {
@@ -126,6 +127,8 @@ public class Schema {
             throw new UnknownFieldException(storageId, message);
         if (ObjTypeStorageInfo.class.isAssignableFrom(expectedType))
             throw new UnknownTypeException(storageId, 0, message);
+        if (CompositeIndexStorageInfo.class.isAssignableFrom(expectedType))
+            throw new UnknownIndexException(storageId, message);
         throw new IllegalArgumentException(message);                        // should never get here
     }
 
@@ -142,6 +145,8 @@ public class Schema {
             return type.getSimpleName().replaceAll("^(.*)Field.*$", "$1").toLowerCase() + " field";
         if (ObjTypeStorageInfo.class.isAssignableFrom(type))
             return "object type";
+        if (CompositeIndexStorageInfo.class.isAssignableFrom(type))
+            return "composite index";
         return type.getSimpleName();    // ???
     }
 

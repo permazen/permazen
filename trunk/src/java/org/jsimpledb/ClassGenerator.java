@@ -75,9 +75,6 @@ class ClassGenerator<T> {
     static final Method GET_SCHEMA_VERSION_METHOD;
     static final Method UPDATE_SCHEMA_VERSION_METHOD;
     static final Method REVALIDATE_METHOD;
-    static final Method QUERY_INDEX_METHOD;
-    static final Method QUERY_LIST_FIELD_ENTRIES_METHOD;
-    static final Method QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD;
     static final Method COPY_TO_METHOD;
     static final Method GET_SNAPSHOT_TRANSACTION_METHOD;
 
@@ -114,10 +111,6 @@ class ClassGenerator<T> {
             GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", JObject.class);
             UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
             REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", JObject.class);
-            QUERY_INDEX_METHOD = JTransaction.class.getMethod("queryIndex", int.class, Class.class);
-            QUERY_LIST_FIELD_ENTRIES_METHOD = JTransaction.class.getMethod("queryListFieldEntries", int.class, Class.class);
-            QUERY_MAP_FIELD_VALUE_ENTRIES_METHOD = JTransaction.class.getMethod("queryMapFieldValueEntries",
-              int.class, Class.class);
             COPY_TO_METHOD = JTransaction.class.getMethod("copyTo",
               JTransaction.class, JObject.class, ObjId.class, ObjIdSet.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
@@ -446,29 +439,6 @@ class ClassGenerator<T> {
         // Add methods that override field getters & setters
         for (JField jfield : this.jclass.jfields.values())
             jfield.outputMethods(this, cw);
-
-        // Add methods that override @IndexQuery methods
-        for (IndexQueryScanner<?>.MethodInfo i : this.jclass.indexQueryMethods) {
-            final IndexQueryScanner<?>.IndexMethodInfo indexMethodInfo = (IndexQueryScanner<?>.IndexMethodInfo)i;
-            final IndexQueryScanner.IndexInfo indexInfo = indexMethodInfo.indexInfo;
-            final Method method = indexMethodInfo.getMethod();
-
-            // Generate initial stuff
-            mv = cw.visitMethod(method.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PRIVATE | Opcodes.ACC_PROTECTED),
-              method.getName(), Type.getMethodDescriptor(method), null, this.getExceptionNames(method));
-
-            // Invoke this.getTransaction().queryXXX()
-            mv.visitVarInsn(Opcodes.ALOAD, 0);
-            this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
-            final boolean isEntryQuery = indexInfo.targetSuperFieldInfo != null && indexMethodInfo.queryType != 0;
-            mv.visitLdcInsn(isEntryQuery ? indexInfo.targetSuperFieldInfo.storageId : indexInfo.targetFieldInfo.storageId);
-            mv.visitLdcInsn(Type.getType(indexInfo.type.getRawType()));
-            this.emitInvoke(mv, isEntryQuery ?
-              indexInfo.targetSuperFieldInfo.getIndexEntryQueryMethod(indexMethodInfo.queryType) : QUERY_INDEX_METHOD);
-            mv.visitInsn(Opcodes.ARETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
-        }
     }
 
 // Snaptshot Class

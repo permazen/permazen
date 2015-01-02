@@ -1,0 +1,20 @@
+
+/*
+ * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.
+ *
+ * $Id$
+ */
+
+package org.jsimpledb.tuple;
+
+/**
+ * Implemented by tuples that have a first value.
+ */
+public interface Has1<V1> {
+
+    /**
+     * Get the first value.
+     */
+    V1 getValue1();
+}
+

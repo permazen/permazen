@@ -10,7 +10,6 @@ package org.jsimpledb;
 import com.google.common.base.Converter;
 
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.TypeNotInSchemaVersionException;
 
 /**
  * Converts {@link ObjId}s into {@link JObject}s and vice-versa.
@@ -42,12 +41,7 @@ class ReferenceConverter<T> extends Converter<T, ObjId> {
         if (id == null)
             return null;
         final JObject jobj = this.jtx.getJObject(id);
-        try {
-            return this.type.cast(jobj);
-        } catch (ClassCastException e) {
-            throw (TypeNotInSchemaVersionException)new TypeNotInSchemaVersionException(id,
-              this.jtx.jdb.getActualVersion()).initCause(e);
-        }
+        return this.type.cast(jobj);
     }
 
 // Object

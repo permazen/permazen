@@ -19,6 +19,19 @@ class ListFieldStorageInfo<E> extends CollectionFieldStorageInfo<List<E>, E> {
         super(field);
     }
 
+    @Override
+    CoreIndex2<E, ObjId, Integer> getElementFieldIndex(Transaction tx) {
+        return new CoreIndex2<E, ObjId, Integer>(tx,
+          new Index2View<E, ObjId, Integer>(this.elementField.storageId,
+           this.elementField.fieldType, FieldTypeRegistry.OBJ_ID, new UnsignedIntType()));
+    }
+
+    @Override
+    CoreIndex<E, ObjId> getSimpleSubFieldIndex(Transaction tx, SimpleFieldStorageInfo<?> subField) {
+        assert subField.equals(this.elementField);
+        return this.getElementFieldIndex(tx).asIndex();
+    }
+
     // Note: as we delete list elements, the index of remaining elements will decrease by one each time.
     // However, the KVPairIterator always reflects the current state so we'll see updated indexes.
     @Override

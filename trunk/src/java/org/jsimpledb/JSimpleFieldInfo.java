@@ -12,8 +12,6 @@ import com.google.common.reflect.TypeToken;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
 
 import org.jsimpledb.change.SimpleFieldChange;
 import org.jsimpledb.core.Transaction;
@@ -74,16 +72,6 @@ class JSimpleFieldInfo extends JFieldInfo {
         types.add(new TypeToken<SimpleFieldChange<T, V>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<V>() { }, fieldType.wrap()));
-    }
-
-    /**
-     * Add valid return types for @IndexQuery-annotated methods that query this indexed field.
-     */
-    @SuppressWarnings("serial")
-    <T, V> void addIndexReturnTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<V> valueType) {
-        types.add(new TypeToken<NavigableMap<V, NavigableSet<T>>>() { }
-          .where(new TypeParameter<V>() { }, valueType.wrap())
-          .where(new TypeParameter<T>() { }, targetType));
     }
 
 // Object

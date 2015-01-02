@@ -7,19 +7,23 @@
 
 package org.jsimpledb;
 
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-
-import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.index.Index;
 import org.testng.annotations.Test;
 
 public class RawTypeTest extends TestSupport {
 
     @Test
     public void testRawType() throws Exception {
-        BasicTest.getJSimpleDB(Widget.class);
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Widget.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        JTransaction.setCurrent(jtx);
+        try {
+            AbstractData.queryByName();
+        } finally {
+            JTransaction.setCurrent(null);
+        }
     }
 
 // Model Classes
@@ -31,8 +35,10 @@ public class RawTypeTest extends TestSupport {
         public abstract String getName();
         public abstract void setName(String name);
 
-        @IndexQuery(type = AbstractData.class, value = "name")
-        protected abstract NavigableMap<String, NavigableSet<AbstractData<?>>> queryByName();
+        @SuppressWarnings("rawtypes")
+        public static Index<String, AbstractData> queryByName() {
+            return JTransaction.getCurrent().querySimpleField(AbstractData.class, "name", String.class);
+        }
     }
 
     @JSimpleClass(storageId = 400)

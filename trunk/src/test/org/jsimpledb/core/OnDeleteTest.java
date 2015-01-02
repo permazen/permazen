@@ -19,6 +19,7 @@ import java.util.NavigableSet;
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.SchemaModel;
+import org.jsimpledb.tuple.Tuple3;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -420,32 +421,34 @@ public class OnDeleteTest extends TestSupport {
         tx.delete(target);
 
         // Verify all indexes were updated properly
-        TestSupport.checkMap(tx.queryVersion(), buildMap(
+        TestSupport.checkMap(tx.queryVersion().asMap(), buildMap(
           1, buildSet(other1, other2, referrers[0]),
           3, buildSet(referrers[2])));
-        TestSupport.checkMap(tx.querySimpleField(2), buildMap(
+        TestSupport.checkMap(tx.querySimpleField(2).asMap(), buildMap(
           target, buildSet(referrers[0], other1),
           null, buildSet(other2, referrers[2])));
-        TestSupport.checkMap(tx.querySetField(10), buildMap(
+        TestSupport.checkMap(tx.querySimpleField(20).asMap(), buildMap(
           target, buildSet(referrers[0], other2),
           other1, buildSet(other2)));
-        TestSupport.checkMap(tx.queryListFieldEntries(11), buildMap(
-          target, buildSet(
-            new ListIndexEntry(other1, 0), new ListIndexEntry(other1, 2),
-            new ListIndexEntry(referrers[0], 0), new ListIndexEntry(referrers[0], 2)),
-          other2, buildSet(new ListIndexEntry(other1, 1)),
-          referrers[0], buildSet(new ListIndexEntry(referrers[0], 1)),
-          referrers[2], buildSet(new ListIndexEntry(referrers[2], 0))));
-        TestSupport.checkMap(tx.queryMapFieldKey(12), buildMap(
+        TestSupport.checkSet(tx.queryListField(11).asSet(), buildSet(
+          new Tuple3<ObjId, ObjId, Integer>(target, other1, 0),
+          new Tuple3<ObjId, ObjId, Integer>(target, other1, 2),
+          new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 0),
+          new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 2),
+          new Tuple3<ObjId, ObjId, Integer>(other2, other1, 1),
+          new Tuple3<ObjId, ObjId, Integer>(referrers[0], referrers[0], 1),
+          new Tuple3<ObjId, ObjId, Integer>(referrers[2], referrers[2], 0)));
+        TestSupport.checkMap(tx.querySimpleField(22).asMap(), buildMap(
           target, buildSet(other2, referrers[0]),
           other1, buildSet(other2)));
-        TestSupport.checkMap(tx.queryMapFieldValueEntries(13), buildMap(
-          target, buildSet(
-            new MapValueIndexEntry<Integer>(other1, 789), new MapValueIndexEntry<Integer>(other1, 636),
-            new MapValueIndexEntry<Integer>(referrers[0], 452), new MapValueIndexEntry<Integer>(referrers[0], 454)),
-          other2, buildSet(new MapValueIndexEntry<Integer>(other1, 123)),
-          referrers[0], buildSet(new MapValueIndexEntry<Integer>(referrers[0], 453)),
-          referrers[2], buildSet(new MapValueIndexEntry<Integer>(referrers[2], 453))));
+        TestSupport.checkSet(tx.queryMapValueField(13).asSet(), buildSet(
+          new Tuple3<ObjId, ObjId, Integer>(target, other1, 789),
+          new Tuple3<ObjId, ObjId, Integer>(target, other1, 636),
+          new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 452),
+          new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 454),
+          new Tuple3<ObjId, ObjId, Integer>(other2, other1, 123),
+          new Tuple3<ObjId, ObjId, Integer>(referrers[0], referrers[0], 453),
+          new Tuple3<ObjId, ObjId, Integer>(referrers[2], referrers[2], 453)));
 
         tx.commit();
     }

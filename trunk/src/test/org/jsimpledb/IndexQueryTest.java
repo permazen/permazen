@@ -7,15 +7,13 @@
 
 package org.jsimpledb;
 
-import java.util.NavigableMap;
 import java.util.NavigableSet;
 
-import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.index.Index;
 import org.jsimpledb.util.NavigableSets;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class IndexQueryTest extends TestSupport {
@@ -67,25 +65,13 @@ public class IndexQueryTest extends TestSupport {
             TestSupport.checkSet(a2.getFooBars(), buildSet(f2, b2));
 
             try {
-                jtx.queryIndex(HasAccount.class, "name", Account.class);
+                jtx.querySimpleField(HasAccount.class, "name", Account.class);
                 assert false;
             } catch (IllegalArgumentException e) {
                 // expected
             }
 
-            Assert.assertEquals(jtx.queryIndex(HasAccount.class, "account", Account.class),
-              a1.queryHasAccount());
-
-            Assert.assertEquals(jtx.queryIndex(Foo.class, "account", Account.class),
-              a1.queryFoo());
-
-            Assert.assertEquals(jtx.queryIndex(Bar.class, "account", Account.class),
-              a1.queryBar());
-
-            Assert.assertEquals(jtx.queryIndex(FooBar.class, "account", Account.class),
-              a1.queryFooBar());
-
-            Assert.assertEquals(jtx.queryIndex(Jam.class, "account", Account.class),
+            TestSupport.checkMap(jtx.querySimpleField(Jam.class, "account", Account.class).asMap(),
               buildMap(a1, buildSet(j1)));
 
             jtx.commit();
@@ -115,36 +101,40 @@ public class IndexQueryTest extends TestSupport {
         public abstract void setName(String x);
 
         public NavigableSet<Foo> getFoos() {
-            final NavigableSet<Foo> foos = this.queryFoo().get(this);
+            final NavigableSet<Foo> foos = Account.queryFoo().asMap().get(this);
             return foos != null ? foos : NavigableSets.<Foo>empty();
         }
 
         public NavigableSet<Bar> getBars() {
-            final NavigableSet<Bar> bars = this.queryBar().get(this);
+            final NavigableSet<Bar> bars = Account.queryBar().asMap().get(this);
             return bars != null ? bars : NavigableSets.<Bar>empty();
         }
 
         public NavigableSet<HasAccount> getHasAccounts() {
-            final NavigableSet<HasAccount> hasAccounts = this.queryHasAccount().get(this);
+            final NavigableSet<HasAccount> hasAccounts = Account.queryHasAccount().asMap().get(this);
             return hasAccounts != null ? hasAccounts : NavigableSets.<HasAccount>empty();
         }
 
         public NavigableSet<FooBar> getFooBars() {
-            final NavigableSet<FooBar> fooBars = this.queryFooBar().get(this);
+            final NavigableSet<FooBar> fooBars = Account.queryFooBar().asMap().get(this);
             return fooBars != null ? fooBars : NavigableSets.<FooBar>empty();
         }
 
-        @IndexQuery(type = HasAccount.class, value = "account")
-        protected abstract NavigableMap<Account, NavigableSet<HasAccount>> queryHasAccount();
+        public static Index<Account, HasAccount> queryHasAccount() {
+            return JTransaction.getCurrent().querySimpleField(HasAccount.class, "account", Account.class);
+        }
 
-        @IndexQuery(type = Foo.class, value = "account")
-        protected abstract NavigableMap<Account, NavigableSet<Foo>> queryFoo();
+        public static Index<Account, Foo> queryFoo() {
+            return JTransaction.getCurrent().querySimpleField(Foo.class, "account", Account.class);
+        }
 
-        @IndexQuery(type = Bar.class, value = "account")
-        protected abstract NavigableMap<Account, NavigableSet<Bar>> queryBar();
+        public static Index<Account, Bar> queryBar() {
+            return JTransaction.getCurrent().querySimpleField(Bar.class, "account", Account.class);
+        }
 
-        @IndexQuery(type = FooBar.class, value = "account")
-        protected abstract NavigableMap<Account, NavigableSet<FooBar>> queryFooBar();
+        public static Index<Account, FooBar> queryFooBar() {
+            return JTransaction.getCurrent().querySimpleField(FooBar.class, "account", Account.class);
+        }
     }
 
     @JSimpleClass(storageId = 20)

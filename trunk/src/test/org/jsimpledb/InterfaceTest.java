@@ -7,14 +7,12 @@
 
 package org.jsimpledb;
 
-import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.Set;
 
-import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.index.Index;
 import org.testng.annotations.Test;
 
 public class InterfaceTest extends TestSupport {
@@ -40,6 +38,10 @@ public class InterfaceTest extends TestSupport {
 
             cat.setEnemy(dog);
 
+            Person.queryEnemies();
+            Person.queryPets();
+            Cat.queryFriend();
+
             tx.commit();
 
         } finally {
@@ -63,11 +65,13 @@ public class InterfaceTest extends TestSupport {
         @JSetField(storageId = 120, element = @JField(storageId = 121, indexed = true))
         public abstract Set<Pet> getPets();
 
-        @IndexQuery(type = Pet.class, value = "enemy")
-        public abstract NavigableMap<Dog, NavigableSet<Pet>> queryEnemies();
+        public static Index<Dog, Pet> queryEnemies() {
+            return JTransaction.getCurrent().querySimpleField(Pet.class, "enemy", Dog.class);
+        }
 
-        @IndexQuery("pets.element")
-        public abstract NavigableMap<Pet, NavigableSet<Person>> queryPets();
+        public static Index<Pet, Person> queryPets() {
+            return JTransaction.getCurrent().querySimpleField(Person.class, "pets.element", Pet.class);
+        }
     }
 
     @JSimpleClass(storageId = 200)
@@ -81,8 +85,9 @@ public class InterfaceTest extends TestSupport {
         public abstract Dog getEnemy();
         public abstract void setEnemy(Dog enemy);
 
-        @IndexQuery("friend")
-        public abstract NavigableMap<Pet, NavigableSet<Cat>> queryFriend();
+        public static Index<Pet, Cat> queryFriend() {
+            return JTransaction.getCurrent().querySimpleField(Cat.class, "friend", Pet.class);
+        }
     }
 
     public interface Pet extends JObject {

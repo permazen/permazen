@@ -52,13 +52,13 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
             throw new ParseException(ctx, "expected field name").addCompletions(Iterables.transform(Iterables.filter(
                objType.getFields().values(), new HasIndexedPredicate()), new FieldNameFunction()));
         }
-        final String name = fieldMatcher.group();
+        final String fieldName = fieldMatcher.group();
         final Field<?> field;
         try {
-            field = ParseUtil.resolveField(session, objType, name);
+            field = ParseUtil.resolveField(session, objType, fieldName);
         } catch (IllegalArgumentException e) {
             throw new ParseException(ctx, e.getMessage()).addCompletions(ParseUtil.complete(Iterables.transform(Iterables.filter(
-              objType.getFields().values(), new HasIndexedPredicate()), new FieldNameFunction()), name));
+              objType.getFields().values(), new HasIndexedPredicate()), new FieldNameFunction()), fieldName));
         }
 
         // Get sub-field if field is a complex field
@@ -80,16 +80,16 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
                 try {
                     subField = Iterables.find(field.getSubFields(), new HasNamePredicate(subName));
                 } catch (NoSuchElementException e) {
-                    throw new ParseException(ctx, "unknown sub-field `" + subName + "' of complex field `" + name + "'")
+                    throw new ParseException(ctx, "unknown sub-field `" + subName + "' of complex field `" + fieldName + "'")
                       .addCompletions(ParseUtil.complete(Iterables.transform(Iterables.filter(
-                        field.getSubFields(), new IsIndexedPredicate()), new FieldNameFunction()), name));
+                        field.getSubFields(), new IsIndexedPredicate()), new FieldNameFunction()), fieldName));
                 }
-                return new Result(this.verifyIndexedSimple(subField), field);
+                return new Result(fieldName + "." + subName, this.verifyIndexedSimple(subField), field);
             }
 
             @Override
             protected <T> Result caseField(Field<T> field) {
-                return new Result(this.verifyIndexedSimple(field));
+                return new Result(fieldName, this.verifyIndexedSimple(field));
             }
 
             private SimpleField<?> verifyIndexedSimple(Field<?> field) {
@@ -107,16 +107,25 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
      */
     public static class Result {
 
+        private final String fieldName;
         private final SimpleField<?> field;
         private final ComplexField<?> parentField;
 
-        Result(SimpleField<?> field) {
-            this(field, null);
+        Result(String fieldName, SimpleField<?> field) {
+            this(fieldName, field, null);
         }
 
-        Result(SimpleField<?> field, ComplexField<?> parentField) {
+        Result(String fieldName, SimpleField<?> field, ComplexField<?> parentField) {
+            this.fieldName = fieldName;
             this.field = field;
             this.parentField = parentField;
+        }
+
+        /**
+         * Get the field's name.
+         */
+        public String getFieldName() {
+            return this.fieldName;
         }
 
         /**

@@ -27,6 +27,12 @@ class SimpleFieldStorageInfo<T> extends FieldStorageInfo {
         return this.superFieldStorageId != 0;
     }
 
+    CoreIndex<T, ObjId> getSimpleFieldIndex(Transaction tx) {
+        if (this.superFieldStorageId != 0)
+            throw new RuntimeException("internal error");
+        return new CoreIndex<T, ObjId>(tx, new IndexView<T, ObjId>(this.storageId, this.fieldType, FieldTypeRegistry.OBJ_ID));
+    }
+
 // Object
 
     @Override
