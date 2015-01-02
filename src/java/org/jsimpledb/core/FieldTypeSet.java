@@ -71,9 +71,9 @@ abstract class FieldTypeSet<E> extends AbstractKVNavigableSet<E> {
             throw new IllegalArgumentException("null fieldType");
         if (prefix == null)
             throw new IllegalArgumentException("null prefix");
-        if (keyRange == null)
+        if (prefix.length > 0 && keyRange == null)
             throw new IllegalArgumentException("null keyRange");
-        if (!KeyRange.forPrefix(prefix).contains(keyRange))
+        if (keyRange != null && !KeyRange.forPrefix(prefix).contains(keyRange))
             throw new IllegalArgumentException(keyRange + " does not restrict to prefix " + ByteUtil.toString(prefix));
         this.tx = tx;
         this.fieldType = fieldType;
