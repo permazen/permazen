@@ -46,7 +46,7 @@ public class BasicTest extends TestSupport {
             final Person t3 = tx.create(Person.class);
             this.check(t1, false, (byte)0, (short)0, (char)0, 0, 0.0f, 0L, 0.0, null, null, null, null, null);
 
-            Assert.assertEquals(tx.getAll(null), buildSet(t1, t2, t3));
+            TestSupport.checkSet(tx.getAll(null), buildSet(t1, t2, t3));
 
             t1.setZ(true);
             t1.setB((byte)123);
@@ -130,20 +130,20 @@ public class BasicTest extends TestSupport {
 
             // Check indexes
             final Indexer i = tx.create(Indexer.class);
-            Assert.assertEquals(i.queryNicknames(), buildMap(
+            TestSupport.checkMap(i.queryNicknames(), buildMap(
               "dinkle",     buildSet(t1),
               "banana",     buildSet(t1),
               "apple",      buildSet(t1)));
-            Assert.assertEquals(i.queryHaters(), buildMap(
+            TestSupport.checkMap(i.queryHaters(), buildMap(
               t3,           buildSet(t1)));
-            Assert.assertEquals(i.queryScores(), buildMap(
+            TestSupport.checkMap(i.queryScores(), buildMap(
               21,           buildSet(t1),
               22,           buildSet(t1),
               23,           buildSet(t1),
               123,          buildSet(t2, t3),
               456,          buildSet(t2, t3),
-              789,          buildSet(t3)), "ACTUAL = " + i.queryScores());
-            Assert.assertEquals(i.queryScoreEntries(), buildMap(
+              789,          buildSet(t3)));
+            TestSupport.checkMap(i.queryScoreEntries(), buildMap(
               21,           buildSet(new ListIndexEntry<Person>(t1, 1), new ListIndexEntry<Person>(t1, 3)),
               22,           buildSet(new ListIndexEntry<Person>(t1, 2)),
               23,           buildSet(new ListIndexEntry<Person>(t1, 0)),
@@ -153,53 +153,53 @@ public class BasicTest extends TestSupport {
                               new ListIndexEntry<Person>(t3, 1),
                               new ListIndexEntry<Person>(t3, 3)),
               789,          buildSet(new ListIndexEntry<Person>(t3, 0))));
-            Assert.assertEquals(i.queryRatingKeys(), buildMap(
+            TestSupport.checkMap(i.queryRatingKeys(), buildMap(
               t1,           buildSet(t1, t3),
               t2,           buildSet(t1),
               null,         buildSet(t1)));
-            Assert.assertEquals(i.queryRatingValueEntries(), buildMap(
+            TestSupport.checkMap(i.queryRatingValueEntries(), buildMap(
               100.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t1)),
               -99.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t2)),
               -0.0f,        buildSet(new MapValueIndexEntry<Person, Person>(t1, null)),
               -3.0f,        buildSet(new MapValueIndexEntry<Person, Person>(t3, t1))));
-            Assert.assertEquals(i.queryMoods(), buildMap(
+            TestSupport.checkMap(i.queryMoods(), buildMap(
               Mood.HAPPY,   buildSet(t1),
               Mood.NORMAL,  buildSet(t3),
               null,         buildSet(t2)));
 
             // JTransaction index queries
-            Assert.assertEquals(tx.queryIndex(Person.class, "mood", Mood.class),
+            TestSupport.checkMap(tx.queryIndex(Person.class, "mood", Mood.class),
               i.queryMoods());
-            Assert.assertEquals(tx.queryIndex(Person.class, "nicknames.element", String.class),
+            TestSupport.checkMap(tx.queryIndex(Person.class, "nicknames.element", String.class),
               i.queryNicknames());
-            Assert.assertEquals(tx.queryIndex(Person.class, "scores.element", Integer.class),
+            TestSupport.checkMap(tx.queryIndex(Person.class, "scores.element", Integer.class),
               i.queryScores());
-            Assert.assertEquals(tx.queryIndex(MeanPerson.class, "scores.element", Integer.class),
+            TestSupport.checkMap(tx.queryIndex(MeanPerson.class, "scores.element", Integer.class),
               i.queryScoresMean());
-            Assert.assertEquals(tx.queryListFieldEntries(Person.class, "scores.element", Integer.class),
+            TestSupport.checkMap(tx.queryListFieldEntries(Person.class, "scores.element", Integer.class),
               i.queryScoreEntries());
-            Assert.assertEquals(tx.queryIndex(Person.class, "ratings.key", Person.class), i.queryRatingKeys());
-            Assert.assertEquals(tx.queryMapFieldValueEntries(Person.class, "ratings.value", Person.class, Float.class),
+            TestSupport.checkMap(tx.queryIndex(Person.class, "ratings.key", Person.class), i.queryRatingKeys());
+            TestSupport.checkMap(tx.queryMapFieldValueEntries(Person.class, "ratings.value", Person.class, Float.class),
               i.queryRatingValueEntries());
 
             // Check restricted indexes
-            Assert.assertEquals(i.queryScoresMean(), buildMap(
+            TestSupport.checkMap(i.queryScoresMean(), buildMap(
               21,           buildSet(t1),
               22,           buildSet(t1),
-              23,           buildSet(t1)), "ACTUAL = " + i.queryScores());
-            Assert.assertEquals(i.queryScoreEntriesMean(), buildMap(
+              23,           buildSet(t1)));
+            TestSupport.checkMap(i.queryScoreEntriesMean(), buildMap(
               21,           buildSet(new ListIndexEntry<Person>(t1, 1), new ListIndexEntry<Person>(t1, 3)),
               22,           buildSet(new ListIndexEntry<Person>(t1, 2)),
               23,           buildSet(new ListIndexEntry<Person>(t1, 0))));
-            Assert.assertEquals(i.queryRatingKeysMean(), buildMap(
+            TestSupport.checkMap(i.queryRatingKeysMean(), buildMap(
               t1,           buildSet(t1),
               t2,           buildSet(t1),
               null,         buildSet(t1)));
-            Assert.assertEquals(i.queryRatingValueEntriesMean(), buildMap(
+            TestSupport.checkMap(i.queryRatingValueEntriesMean(), buildMap(
               100.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t1)),
               -99.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t2)),
               -0.0f,        buildSet(new MapValueIndexEntry<Person, Person>(t1, null))));
-            Assert.assertEquals(i.queryMoodsMean(), buildMap(
+            TestSupport.checkMap(i.queryMoodsMean(), buildMap(
               Mood.HAPPY,   buildSet(t1)));
 
             try {
@@ -212,8 +212,8 @@ public class BasicTest extends TestSupport {
 
             boolean deleted = t1.delete();
             Assert.assertTrue(deleted);
-            Assert.assertEquals(i.queryHaters(), buildMap());
-            Assert.assertEquals(i.queryMoods(), buildMap(
+            TestSupport.checkMap(i.queryHaters(), buildMap());
+            TestSupport.checkMap(i.queryMoods(), buildMap(
               Mood.NORMAL,  buildSet(t3),
               null,         buildSet(t2)));
 
@@ -267,7 +267,7 @@ public class BasicTest extends TestSupport {
             nicknames = Collections.<String>emptySet();
         Assert.assertEquals(t.getNicknames().toArray(new String[0]), nicknames.toArray(new String[nicknames.size()]));
         Assert.assertEquals(t.getScores(), scores != null ? scores : Collections.emptyList());
-        Assert.assertEquals(t.getRatings(), buildMap(ratingKeyValues));
+        TestSupport.checkMap(t.getRatings(), buildMap(ratingKeyValues));
     }
 
     public static JSimpleDB getJSimpleDB() {
@@ -356,6 +356,11 @@ public class BasicTest extends TestSupport {
           key = @JField(storageId = 141, indexed = true),
           value = @JField(storageId = 142, indexed = true))
         public abstract NavigableMap<Person, Float> getRatings();
+
+        @Override
+        public String toString() {
+            return this.getClass().getSimpleName() + "@" + this.getObjId();
+        }
     }
 
     @JSimpleClass(storageId = 200)

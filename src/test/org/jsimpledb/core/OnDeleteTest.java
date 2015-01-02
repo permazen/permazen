@@ -131,7 +131,7 @@ public class OnDeleteTest extends TestSupport {
             set.add(id1);
             set.add(id2);
             set.add(id3);
-            Assert.assertEquals(set, Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+            TestSupport.checkSet(set, Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
 
             try {
                 tx.delete(id2);
@@ -144,19 +144,19 @@ public class OnDeleteTest extends TestSupport {
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(set, Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(set, Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
                 break;
             case EXCEPTION:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertTrue(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(set, Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(set, Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
                 break;
             case UNREFERENCE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(set, Sets.newTreeSet(Arrays.asList(id1, id3)));
+                TestSupport.checkSet(set, Sets.newTreeSet(Arrays.asList(id1, id3)));
                 break;
             case DELETE:
                 Assert.assertFalse(tx.exists(id1));
@@ -234,8 +234,8 @@ public class OnDeleteTest extends TestSupport {
             map1.put(id2, 456);
             map1.put(id3, 789);
             Assert.assertEquals(map1.get(id2), (Integer)456);
-            Assert.assertEquals(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
-            Assert.assertEquals(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
+            TestSupport.checkSet(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+            TestSupport.checkSet(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
 
             try {
                 tx.delete(id2);
@@ -248,22 +248,22 @@ public class OnDeleteTest extends TestSupport {
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
-                Assert.assertEquals(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
+                TestSupport.checkSet(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
                 break;
             case EXCEPTION:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertTrue(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
-                Assert.assertEquals(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
+                TestSupport.checkSet(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 456, 789)));
                 break;
             case UNREFERENCE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id3)));
-                Assert.assertEquals(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 789)));
+                TestSupport.checkSet(map1.keySet(), Sets.newTreeSet(Arrays.asList(id1, id3)));
+                TestSupport.checkSet(Sets.newTreeSet(map1.values()), Sets.newTreeSet(Arrays.asList(123, 789)));
                 break;
             case DELETE:
                 Assert.assertFalse(tx.exists(id1));
@@ -292,8 +292,8 @@ public class OnDeleteTest extends TestSupport {
             map2.put(333, id2);
             Assert.assertEquals(map2.get(456), id2);
             Assert.assertEquals(map2.get(333), id2);
-            Assert.assertEquals(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 456, 789, 333)));
-            Assert.assertEquals(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+            TestSupport.checkSet(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 456, 789, 333)));
+            TestSupport.checkSet(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
 
             try {
                 tx.delete(id2);
@@ -306,22 +306,22 @@ public class OnDeleteTest extends TestSupport {
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 456, 789, 333)));
-                Assert.assertEquals(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 456, 789, 333)));
+                TestSupport.checkSet(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
                 break;
             case EXCEPTION:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertTrue(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 456, 789, 333)));
-                Assert.assertEquals(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
+                TestSupport.checkSet(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 456, 789, 333)));
+                TestSupport.checkSet(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id2, id3)));
                 break;
             case UNREFERENCE:
                 Assert.assertTrue(tx.exists(id1));
                 Assert.assertFalse(tx.exists(id2));
                 Assert.assertTrue(tx.exists(id3));
-                Assert.assertEquals(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 789)));
-                Assert.assertEquals(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id3)));
+                TestSupport.checkSet(map2.keySet(), Sets.newTreeSet(Arrays.asList(123, 789)));
+                TestSupport.checkSet(Sets.newTreeSet(map2.values()), Sets.newTreeSet(Arrays.asList(id1, id3)));
                 break;
             case DELETE:
                 Assert.assertFalse(tx.exists(id1));
@@ -420,26 +420,26 @@ public class OnDeleteTest extends TestSupport {
         tx.delete(target);
 
         // Verify all indexes were updated properly
-        Assert.assertEquals(tx.queryVersion(), buildMap(
+        TestSupport.checkMap(tx.queryVersion(), buildMap(
           1, buildSet(other1, other2, referrers[0]),
           3, buildSet(referrers[2])));
-        Assert.assertEquals(tx.querySimpleField(2), buildMap(
+        TestSupport.checkMap(tx.querySimpleField(2), buildMap(
           target, buildSet(referrers[0], other1),
           null, buildSet(other2, referrers[2])));
-        Assert.assertEquals(tx.querySetField(10), buildMap(
+        TestSupport.checkMap(tx.querySetField(10), buildMap(
           target, buildSet(referrers[0], other2),
           other1, buildSet(other2)));
-        Assert.assertEquals(tx.queryListFieldEntries(11), buildMap(
+        TestSupport.checkMap(tx.queryListFieldEntries(11), buildMap(
           target, buildSet(
             new ListIndexEntry(other1, 0), new ListIndexEntry(other1, 2),
             new ListIndexEntry(referrers[0], 0), new ListIndexEntry(referrers[0], 2)),
           other2, buildSet(new ListIndexEntry(other1, 1)),
           referrers[0], buildSet(new ListIndexEntry(referrers[0], 1)),
           referrers[2], buildSet(new ListIndexEntry(referrers[2], 0))));
-        Assert.assertEquals(tx.queryMapFieldKey(12), buildMap(
+        TestSupport.checkMap(tx.queryMapFieldKey(12), buildMap(
           target, buildSet(other2, referrers[0]),
           other1, buildSet(other2)));
-        Assert.assertEquals(tx.queryMapFieldValueEntries(13), buildMap(
+        TestSupport.checkMap(tx.queryMapFieldValueEntries(13), buildMap(
           target, buildSet(
             new MapValueIndexEntry<Integer>(other1, 789), new MapValueIndexEntry<Integer>(other1, 636),
             new MapValueIndexEntry<Integer>(referrers[0], 452), new MapValueIndexEntry<Integer>(referrers[0], 454)),

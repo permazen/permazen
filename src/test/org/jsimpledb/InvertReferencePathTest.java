@@ -10,7 +10,6 @@ package org.jsimpledb;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class InvertReferencePathTest extends TestSupport {
@@ -41,30 +40,30 @@ public class InvertReferencePathTest extends TestSupport {
             p2.setFriend(p1);
             p3.setFriend(p3);
 
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key",
               Arrays.asList(p1)),            buildSet(m1));
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key",
               Arrays.asList(p1, m2)),        buildSet(m1));
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key",
               Arrays.asList(p1, m2, p3)),    buildSet(m1, m2));
 
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element",
               Arrays.asList(m2, p3)),       buildSet());
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element",
               Arrays.asList(m1, p1, p2)),   buildSet(m1));
 
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend",
               Arrays.asList(p1)),           buildSet(m1));
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend",
               Arrays.asList(p2)),           buildSet());
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend",
               Arrays.asList(p3)),           buildSet(m1));
 
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend.friend",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend.friend",
               Arrays.asList(p1)),           buildSet());
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend.friend",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend.friend",
               Arrays.asList(p2)),           buildSet());
-            Assert.assertEquals(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend.friend",
+            TestSupport.checkSet(tx.invertReferencePath(BasicTest.MeanPerson.class, "ratings.key.enemies.element.friend.friend",
               Arrays.asList(p3)),           buildSet(m1));
 
             // Illegal paths

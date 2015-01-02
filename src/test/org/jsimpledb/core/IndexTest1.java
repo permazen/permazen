@@ -209,84 +209,81 @@ public class IndexTest1 extends TestSupport {
     // Sets
 
         Assert.assertEquals(tx.querySetField(10).get(999), null);
-        Assert.assertEquals(tx.querySetField(10).get(101), buildSet(ids[1]));
-        Assert.assertEquals(tx.querySetField(10).get(102), buildSet(ids[2]));
-        Assert.assertEquals(tx.querySetField(10).get(103), buildSet(ids[3]));
-        Assert.assertEquals(tx.querySetField(10).get(201), buildSet(ids[1]));
-        Assert.assertEquals(tx.querySetField(10).get(202), buildSet(ids[2]));
-        Assert.assertEquals(tx.querySetField(10).get(203), buildSet(ids[3]));
-        Assert.assertEquals(tx.querySetField(10).get(300), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.querySetField(10).get(101), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySetField(10).get(102), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySetField(10).get(103), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySetField(10).get(201), buildSet(ids[1]));
+        TestSupport.checkSet(tx.querySetField(10).get(202), buildSet(ids[2]));
+        TestSupport.checkSet(tx.querySetField(10).get(203), buildSet(ids[3]));
+        TestSupport.checkSet(tx.querySetField(10).get(300), buildSet(ids[1], ids[2], ids[3]));
 
         Assert.assertEquals(tx.querySetField(10).get(202), tx.querySimpleField(20).get(202));
 
-        Assert.assertEquals(tx.querySetField(10), buildSortedMap(
+        TestSupport.checkMap(tx.querySetField(10), buildSortedMap(
           101,  buildSortedSet(ids[1]),
           102,  buildSortedSet(ids[2]),
           103,  buildSortedSet(ids[3]),
           201,  buildSortedSet(ids[1]),
           202,  buildSortedSet(ids[2]),
           203,  buildSortedSet(ids[3]),
-          300,  buildSortedSet(ids[1], ids[2], ids[3])),
-          "ACTUAL: " + tx.querySetField(10));
+          300,  buildSortedSet(ids[1], ids[2], ids[3])));
 
     // Lists
 
         Assert.assertEquals(tx.queryListField(11).get("blah"), null);
-        Assert.assertEquals(tx.queryListField(11).get("foo1"), buildSet(ids[1]));
-        Assert.assertEquals(tx.queryListField(11).get("foo2"), buildSet(ids[2]));
-        Assert.assertEquals(tx.queryListField(11).get("foo3"), buildSet(ids[3]));
-        Assert.assertEquals(tx.queryListField(11).get("bar1"), buildSet(ids[1]));
-        Assert.assertEquals(tx.queryListField(11).get("bar2"), buildSet(ids[2]));
-        Assert.assertEquals(tx.queryListField(11).get("bar3"), buildSet(ids[3]));
-        Assert.assertEquals(tx.queryListField(11).get("jam"), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.queryListField(11).get("foo1"), buildSet(ids[1]));
+        TestSupport.checkSet(tx.queryListField(11).get("foo2"), buildSet(ids[2]));
+        TestSupport.checkSet(tx.queryListField(11).get("foo3"), buildSet(ids[3]));
+        TestSupport.checkSet(tx.queryListField(11).get("bar1"), buildSet(ids[1]));
+        TestSupport.checkSet(tx.queryListField(11).get("bar2"), buildSet(ids[2]));
+        TestSupport.checkSet(tx.queryListField(11).get("bar3"), buildSet(ids[3]));
+        TestSupport.checkSet(tx.queryListField(11).get("jam"), buildSet(ids[1], ids[2], ids[3]));
 
         Assert.assertEquals(tx.queryListField(11).get("bar2"), tx.querySimpleField(21).get("bar2"));
 
-        Assert.assertEquals(tx.queryListField(11), buildSortedMap(
+        TestSupport.checkMap(tx.queryListField(11), buildSortedMap(
           "foo1",   buildSortedSet(ids[1]),
           "foo2",   buildSortedSet(ids[2]),
           "foo3",   buildSortedSet(ids[3]),
           "bar1",   buildSortedSet(ids[1]),
           "bar2",   buildSortedSet(ids[2]),
           "bar3",   buildSortedSet(ids[3]),
-          "jam",    buildSortedSet(ids[1], ids[2], ids[3])),
-          "ACTUAL: " + tx.queryListField(11));
+          "jam",    buildSortedSet(ids[1], ids[2], ids[3])));
 
         Assert.assertEquals(tx.queryListFieldEntries(11).get("blah"), null);
-        Assert.assertEquals(tx.queryListFieldEntries(11).get("foo1"), buildSet(new ListIndexEntry(ids[1], 0)));
-        Assert.assertEquals(tx.queryListFieldEntries(11).get("foo2"), buildSet(new ListIndexEntry(ids[2], 0)));
-        Assert.assertEquals(tx.queryListFieldEntries(11).get("foo3"), buildSet(new ListIndexEntry(ids[3], 0)));
-        Assert.assertEquals(tx.queryListFieldEntries(11).get("bar1"), buildSet(new ListIndexEntry(ids[1], 1)));
-        Assert.assertEquals(tx.queryListFieldEntries(11).get("bar2"), buildSet(new ListIndexEntry(ids[2], 1)));
-        Assert.assertEquals(tx.queryListFieldEntries(11).get("bar3"), buildSet(new ListIndexEntry(ids[3], 1)));
-        Assert.assertEquals(tx.queryListFieldEntries(11).get("jam"), buildSet(
+        TestSupport.checkSet(tx.queryListFieldEntries(11).get("foo1"), buildSet(new ListIndexEntry(ids[1], 0)));
+        TestSupport.checkSet(tx.queryListFieldEntries(11).get("foo2"), buildSet(new ListIndexEntry(ids[2], 0)));
+        TestSupport.checkSet(tx.queryListFieldEntries(11).get("foo3"), buildSet(new ListIndexEntry(ids[3], 0)));
+        TestSupport.checkSet(tx.queryListFieldEntries(11).get("bar1"), buildSet(new ListIndexEntry(ids[1], 1)));
+        TestSupport.checkSet(tx.queryListFieldEntries(11).get("bar2"), buildSet(new ListIndexEntry(ids[2], 1)));
+        TestSupport.checkSet(tx.queryListFieldEntries(11).get("bar3"), buildSet(new ListIndexEntry(ids[3], 1)));
+        TestSupport.checkSet(tx.queryListFieldEntries(11).get("jam"), buildSet(
           new ListIndexEntry(ids[1], 2), new ListIndexEntry(ids[2], 2), new ListIndexEntry(ids[3], 2)));
 
-        Assert.assertEquals(tx.queryListFieldEntries(11), buildSortedMap(
+        TestSupport.checkMap(tx.queryListFieldEntries(11), buildSortedMap(
           "foo1",   buildSet(new ListIndexEntry(ids[1], 0)),
           "foo2",   buildSet(new ListIndexEntry(ids[2], 0)),
           "foo3",   buildSet(new ListIndexEntry(ids[3], 0)),
           "bar1",   buildSet(new ListIndexEntry(ids[1], 1)),
           "bar2",   buildSet(new ListIndexEntry(ids[2], 1)),
           "bar3",   buildSet(new ListIndexEntry(ids[3], 1)),
-          "jam",    buildSet(new ListIndexEntry(ids[1], 2), new ListIndexEntry(ids[2], 2), new ListIndexEntry(ids[3], 2))),
-          "ACTUAL: " + tx.queryListFieldEntries(11));
+          "jam",    buildSet(new ListIndexEntry(ids[1], 2), new ListIndexEntry(ids[2], 2), new ListIndexEntry(ids[3], 2))));
 
     // Map Keys
 
         Assert.assertEquals(tx.queryMapFieldKey(12).get(999), null);
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(1001), buildSet(ids[1]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(1002), buildSet(ids[2]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(1003), buildSet(ids[3]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(2001), buildSet(ids[1]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(2002), buildSet(ids[2]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(2003), buildSet(ids[3]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(3000), buildSet(ids[1], ids[2], ids[3]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(4000), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(1001), buildSet(ids[1]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(1002), buildSet(ids[2]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(1003), buildSet(ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(2001), buildSet(ids[1]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(2002), buildSet(ids[2]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(2003), buildSet(ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(3000), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(4000), buildSet(ids[1], ids[2], ids[3]));
 
         Assert.assertEquals(tx.queryMapFieldKey(12).get(2002), tx.querySimpleField(22).get(2002));
 
-        Assert.assertEquals(tx.queryMapFieldKey(12), buildSortedMap(
+        TestSupport.checkMap(tx.queryMapFieldKey(12), buildSortedMap(
           1001,     buildSortedSet(ids[1]),
           1002,     buildSortedSet(ids[2]),
           1003,     buildSortedSet(ids[3]),
@@ -294,26 +291,25 @@ public class IndexTest1 extends TestSupport {
           2002,     buildSortedSet(ids[2]),
           2003,     buildSortedSet(ids[3]),
           3000,     buildSortedSet(ids[1], ids[2], ids[3]),
-          4000,     buildSortedSet(ids[1], ids[2], ids[3])),
-          "ACTUAL: " + tx.queryMapFieldKey(12));
+          4000,     buildSortedSet(ids[1], ids[2], ids[3])));
 
         Assert.assertEquals(tx.queryMapFieldKey(12).get(999), null);
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(1001),
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(1001),
           buildSet(ids[1]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(1002),
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(1002),
           buildSet(ids[2]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(1003),
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(1003),
           buildSet(ids[3]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(2001),
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(2001),
           buildSet(ids[1]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(2002),
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(2002),
           buildSet(ids[2]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(2003),
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(2003),
           buildSet(ids[3]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(3000), buildSet(ids[1], ids[2], ids[3]));
-        Assert.assertEquals(tx.queryMapFieldKey(12).get(4000), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(3000), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldKey(12).get(4000), buildSet(ids[1], ids[2], ids[3]));
 
-        Assert.assertEquals(tx.queryMapFieldKey(12), buildSortedMap(
+        TestSupport.checkMap(tx.queryMapFieldKey(12), buildSortedMap(
           1001,     buildSet(ids[1]),
           1002,     buildSet(ids[2]),
           1003,     buildSet(ids[3]),
@@ -321,24 +317,23 @@ public class IndexTest1 extends TestSupport {
           2002,     buildSet(ids[2]),
           2003,     buildSet(ids[3]),
           3000,     buildSet(ids[1], ids[2], ids[3]),
-          4000,     buildSet(ids[1], ids[2], ids[3])),
-          "ACTUAL: " + tx.queryMapFieldKey(12));
+          4000,     buildSet(ids[1], ids[2], ids[3])));
 
     // Map Values
 
         Assert.assertEquals(tx.queryMapFieldValue(12).get("blah"), null);
-        Assert.assertEquals(tx.queryMapFieldValue(12).get("valueA1"), buildSet(ids[1]));
-        Assert.assertEquals(tx.queryMapFieldValue(12).get("valueA2"), buildSet(ids[2]));
-        Assert.assertEquals(tx.queryMapFieldValue(12).get("valueA3"), buildSet(ids[3]));
-        Assert.assertEquals(tx.queryMapFieldValue(12).get("valueB"), buildSet(ids[1], ids[2], ids[3]));
-        Assert.assertEquals(tx.queryMapFieldValue(12).get("valueC1"), buildSet(ids[1]));
-        Assert.assertEquals(tx.queryMapFieldValue(12).get("valueC2"), buildSet(ids[2]));
-        Assert.assertEquals(tx.queryMapFieldValue(12).get("valueC3"), buildSet(ids[3]));
-        Assert.assertEquals(tx.queryMapFieldValue(12).get("valueD"), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldValue(12).get("valueA1"), buildSet(ids[1]));
+        TestSupport.checkSet(tx.queryMapFieldValue(12).get("valueA2"), buildSet(ids[2]));
+        TestSupport.checkSet(tx.queryMapFieldValue(12).get("valueA3"), buildSet(ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldValue(12).get("valueB"), buildSet(ids[1], ids[2], ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldValue(12).get("valueC1"), buildSet(ids[1]));
+        TestSupport.checkSet(tx.queryMapFieldValue(12).get("valueC2"), buildSet(ids[2]));
+        TestSupport.checkSet(tx.queryMapFieldValue(12).get("valueC3"), buildSet(ids[3]));
+        TestSupport.checkSet(tx.queryMapFieldValue(12).get("valueD"), buildSet(ids[1], ids[2], ids[3]));
 
         Assert.assertEquals(tx.queryMapFieldValue(12).get("valueB2"), tx.querySimpleField(23).get("valueB2"));
 
-        Assert.assertEquals(tx.queryMapFieldValue(12), buildSortedMap(
+        TestSupport.checkMap(tx.queryMapFieldValue(12), buildSortedMap(
           "valueA1",    buildSortedSet(ids[1]),
           "valueA2",    buildSortedSet(ids[2]),
           "valueA3",    buildSortedSet(ids[3]),
@@ -346,32 +341,31 @@ public class IndexTest1 extends TestSupport {
           "valueC1",    buildSortedSet(ids[1]),
           "valueC2",    buildSortedSet(ids[2]),
           "valueC3",    buildSortedSet(ids[3]),
-          "valueD",     buildSortedSet(ids[1], ids[2], ids[3])),
-          "ACTUAL: " + tx.queryMapFieldValue(12));
+          "valueD",     buildSortedSet(ids[1], ids[2], ids[3])));
 
         Assert.assertEquals(tx.queryMapFieldValueEntries(12).get("blah"), null);
-        Assert.assertEquals(tx.queryMapFieldValueEntries(12).get("valueA1"),
+        TestSupport.checkSet(tx.queryMapFieldValueEntries(12).get("valueA1"),
           buildSet(new MapValueIndexEntry<Integer>(ids[1], 1001)));
-        Assert.assertEquals(tx.queryMapFieldValueEntries(12).get("valueA2"),
+        TestSupport.checkSet(tx.queryMapFieldValueEntries(12).get("valueA2"),
           buildSet(new MapValueIndexEntry<Integer>(ids[2], 1002)));
-        Assert.assertEquals(tx.queryMapFieldValueEntries(12).get("valueA3"),
+        TestSupport.checkSet(tx.queryMapFieldValueEntries(12).get("valueA3"),
           buildSet(new MapValueIndexEntry<Integer>(ids[3], 1003)));
-        Assert.assertEquals(tx.queryMapFieldValueEntries(12).get("valueB"), buildSet(
+        TestSupport.checkSet(tx.queryMapFieldValueEntries(12).get("valueB"), buildSet(
           new MapValueIndexEntry<Integer>(ids[1], 2001),
           new MapValueIndexEntry<Integer>(ids[2], 2002),
           new MapValueIndexEntry<Integer>(ids[3], 2003)));
-        Assert.assertEquals(tx.queryMapFieldValueEntries(12).get("valueC1"),
+        TestSupport.checkSet(tx.queryMapFieldValueEntries(12).get("valueC1"),
           buildSet(new MapValueIndexEntry<Integer>(ids[1], 3000)));
-        Assert.assertEquals(tx.queryMapFieldValueEntries(12).get("valueC2"),
+        TestSupport.checkSet(tx.queryMapFieldValueEntries(12).get("valueC2"),
           buildSet(new MapValueIndexEntry<Integer>(ids[2], 3000)));
-        Assert.assertEquals(tx.queryMapFieldValueEntries(12).get("valueC3"),
+        TestSupport.checkSet(tx.queryMapFieldValueEntries(12).get("valueC3"),
           buildSet(new MapValueIndexEntry<Integer>(ids[3], 3000)));
-        Assert.assertEquals(tx.queryMapFieldValueEntries(12).get("valueD"), buildSet(
+        TestSupport.checkSet(tx.queryMapFieldValueEntries(12).get("valueD"), buildSet(
           new MapValueIndexEntry<Integer>(ids[1], 4000),
           new MapValueIndexEntry<Integer>(ids[2], 4000),
           new MapValueIndexEntry<Integer>(ids[3], 4000)));
 
-        Assert.assertEquals(tx.queryMapFieldValueEntries(12), buildSortedMap(
+        TestSupport.checkMap(tx.queryMapFieldValueEntries(12), buildSortedMap(
           "valueA1",    buildSet(new MapValueIndexEntry<Integer>(ids[1], 1001)),
           "valueA2",    buildSet(new MapValueIndexEntry<Integer>(ids[2], 1002)),
           "valueA3",    buildSet(new MapValueIndexEntry<Integer>(ids[3], 1003)),
@@ -385,18 +379,17 @@ public class IndexTest1 extends TestSupport {
           "valueD",     buildSet(
                             new MapValueIndexEntry<Integer>(ids[1], 4000),
                             new MapValueIndexEntry<Integer>(ids[2], 4000),
-                            new MapValueIndexEntry<Integer>(ids[3], 4000))),
-          "ACTUAL: " + tx.queryMapFieldValueEntries(12));
+                            new MapValueIndexEntry<Integer>(ids[3], 4000))));
 
     // Values
 
-        Assert.assertEquals(tx.querySetField(10).navigableKeySet(),
+        TestSupport.checkSet(tx.querySetField(10).navigableKeySet(),
           buildSortedSet(101, 102, 103, 201, 202, 203, 300));
-        Assert.assertEquals(tx.queryListField(11).navigableKeySet(),
+        TestSupport.checkSet(tx.queryListField(11).navigableKeySet(),
           buildSortedSet("foo1", "foo2", "foo3", "bar1", "bar2", "bar3", "jam"));
-        Assert.assertEquals(tx.queryMapFieldKey(12).navigableKeySet(),
+        TestSupport.checkSet(tx.queryMapFieldKey(12).navigableKeySet(),
           buildSortedSet(1001, 1002, 1003, 2001, 2002, 2003, 3000, 4000));
-        Assert.assertEquals(tx.queryMapFieldValue(12).navigableKeySet(),
+        TestSupport.checkSet(tx.queryMapFieldValue(12).navigableKeySet(),
           buildSortedSet("valueA1", "valueA2", "valueA3", "valueB", "valueC1", "valueC2", "valueC3", "valueD"));
     }
 }

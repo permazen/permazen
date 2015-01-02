@@ -11,7 +11,6 @@ import java.util.NavigableSet;
 
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.util.NavigableSets;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class VersionIntersectTest extends TestSupport {
@@ -33,7 +32,7 @@ public class VersionIntersectTest extends TestSupport {
             }
             final NavigableSet<JObject> set = NavigableSets.<JObject>intersection(
               jtx.queryVersion(null).get(1), (NavigableSet<JObject>)(Object)jtx.getAll(Foo.class));
-            Assert.assertEquals(set, buildSet(foos[0], foos[1], foos[2], foos[3]));
+            TestSupport.checkSet(set, buildSet(foos[0], foos[1], foos[2], foos[3]));
 
             jtx.commit();
 
