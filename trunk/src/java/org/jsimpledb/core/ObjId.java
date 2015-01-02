@@ -140,6 +140,8 @@ public class ObjId implements Comparable<ObjId> {
      * @throws IllegalArgumentException if {@code storageId} is zero or negative
      */
     public static KeyRange getKeyRange(int storageId) {
+        if (storageId <= 0)
+            throw new IllegalArgumentException("invalid storageId " + storageId);
         final ByteWriter writer = new ByteWriter(NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
         return KeyRange.forPrefix(writer.getBytes());
