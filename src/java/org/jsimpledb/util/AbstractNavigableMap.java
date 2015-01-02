@@ -89,50 +89,22 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
 
     @Override
     public Map.Entry<K, V> lowerEntry(K maxKey) {
-        if (!this.isWithinLowerBound(maxKey))
-            return null;
-        final NavigableMap<K, V> subMap = this.isWithinUpperBound(maxKey) ? this.headMap(maxKey, false) : this;
-        try {
-            return subMap.lastEntry();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+        return this.searchBelow(maxKey, false);
     }
 
     @Override
     public Map.Entry<K, V> floorEntry(K maxKey) {
-        if (!this.isWithinLowerBound(maxKey))
-            return null;
-        final NavigableMap<K, V> subMap = this.isWithinUpperBound(maxKey) ? this.headMap(maxKey, true) : this;
-        try {
-            return subMap.lastEntry();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+        return this.searchBelow(maxKey, true);
     }
 
     @Override
     public Map.Entry<K, V> ceilingEntry(K minKey) {
-        if (!this.isWithinUpperBound(minKey))
-            return null;
-        final NavigableMap<K, V> subMap = this.isWithinLowerBound(minKey) ? this.tailMap(minKey, true) : this;
-        try {
-            return subMap.firstEntry();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+        return this.searchAbove(minKey, true);
     }
 
     @Override
     public Map.Entry<K, V> higherEntry(K minKey) {
-        if (!this.isWithinUpperBound(minKey))
-            return null;
-        final NavigableMap<K, V> subMap = this.isWithinLowerBound(minKey) ? this.tailMap(minKey, false) : this;
-        try {
-            return subMap.firstEntry();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+        return this.searchAbove(minKey, false);
     }
 
     @Override
@@ -217,7 +189,7 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
     public NavigableMap<K, V> headMap(K newMaxKey, boolean inclusive) {
         final Bounds<K> newBounds = this.bounds.withUpperBound(newMaxKey, BoundType.of(inclusive));
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
-            throw new IllegalArgumentException("upper bound is out of range");
+            throw new IllegalArgumentException("upper bound " + newMaxKey + " is out of bounds: " + this.bounds);
         return this.createSubMap(false, newBounds);
     }
 
@@ -225,7 +197,7 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
     public NavigableMap<K, V> tailMap(K newMinKey, boolean inclusive) {
         final Bounds<K> newBounds = this.bounds.withLowerBound(newMinKey, BoundType.of(inclusive));
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
-            throw new IllegalArgumentException("lower bound is out of range");
+            throw new IllegalArgumentException("lower bound " + newMinKey + " is out of bounds: " + this.bounds);
         return this.createSubMap(false, newBounds);
     }
 
@@ -233,8 +205,44 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
     public NavigableMap<K, V> subMap(K newMinKey, boolean minInclusive, K newMaxKey, boolean maxInclusive) {
         final Bounds<K> newBounds = new Bounds<>(newMinKey, BoundType.of(minInclusive), newMaxKey, BoundType.of(maxInclusive));
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
-            throw new IllegalArgumentException("bound(s) are out of range");
+            throw new IllegalArgumentException("new bound(s) " + newBounds + " are out of bounds: " + this.bounds);
         return this.createSubMap(false, newBounds);
+    }
+
+    /**
+     * Search for a lower element. Used to implement {@link #floorEntry floorEntry()} and {@link #lowerEntry lowerEntry()}.
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableMap} checks the bounds then returns the first entry from a head map.
+     * </p>
+     */
+    protected Map.Entry<K, V> searchBelow(K maxKey, boolean inclusive) {
+        if (!this.isWithinLowerBound(maxKey))
+            return null;
+        final NavigableMap<K, V> subMap = this.isWithinUpperBound(maxKey) ? this.headMap(maxKey, inclusive) : this;
+        try {
+            return subMap.lastEntry();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Search for a higher element. Used to implement {@link #ceilingEntry ceilingEntry()} and {@link #higherEntry higherEntry()}.
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableMap} checks the bounds then returns the first entry from a tail map.
+     * </p>
+     */
+    protected Map.Entry<K, V> searchAbove(K minKey, boolean inclusive) {
+        if (!this.isWithinUpperBound(minKey))
+            return null;
+        final NavigableMap<K, V> subMap = this.isWithinLowerBound(minKey) ? this.tailMap(minKey, inclusive) : this;
+        try {
+            return subMap.firstEntry();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
     /**

@@ -90,50 +90,22 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
 
     @Override
     public E lower(E elem) {
-        if (!this.isWithinLowerBound(elem))
-            return null;
-        final NavigableSet<E> subSet = this.isWithinUpperBound(elem) ? this.headSet(elem, false) : this;
-        try {
-            return subSet.last();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+        return this.searchBelow(elem, false);
     }
 
     @Override
     public E floor(E elem) {
-        if (!this.isWithinLowerBound(elem))
-            return null;
-        final NavigableSet<E> subSet = this.isWithinUpperBound(elem) ? this.headSet(elem, true) : this;
-        try {
-            return subSet.last();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+        return this.searchBelow(elem, true);
     }
 
     @Override
     public E ceiling(E elem) {
-        if (!this.isWithinUpperBound(elem))
-            return null;
-        final NavigableSet<E> subSet = this.isWithinLowerBound(elem) ? this.tailSet(elem, true) : this;
-        try {
-            return subSet.first();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+        return this.searchAbove(elem, true);
     }
 
     @Override
     public E higher(E elem) {
-        if (!this.isWithinUpperBound(elem))
-            return null;
-        final NavigableSet<E> subSet = this.isWithinLowerBound(elem) ? this.tailSet(elem, false) : this;
-        try {
-            return subSet.first();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+        return this.searchAbove(elem, false);
     }
 
     @Override
@@ -160,7 +132,7 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     public NavigableSet<E> headSet(E newMaxElement, boolean inclusive) {
         final Bounds<E> newBounds = this.bounds.withUpperBound(newMaxElement, BoundType.of(inclusive));
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
-            throw new IllegalArgumentException("upper bound is out of range");
+            throw new IllegalArgumentException("upper bound " + newMaxElement + " is out of bounds: " + this.bounds);
         return this.createSubSet(false, newBounds);
     }
 
@@ -168,7 +140,7 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     public NavigableSet<E> tailSet(E newMinElement, boolean inclusive) {
         final Bounds<E> newBounds = this.bounds.withLowerBound(newMinElement, BoundType.of(inclusive));
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
-            throw new IllegalArgumentException("lower bound is out of range");
+            throw new IllegalArgumentException("lower bound " + newMinElement + " is out of bounds: " + this.bounds);
         return this.createSubSet(false, newBounds);
     }
 
@@ -177,8 +149,44 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
         final Bounds<E> newBounds = new Bounds<>(newMinElement,
           BoundType.of(minInclusive), newMaxElement, BoundType.of(maxInclusive));
         if (!this.bounds.isWithinBounds(this.comparator(), newBounds))
-            throw new IllegalArgumentException("bound(s) are out of range");
+            throw new IllegalArgumentException("new bound(s) " + newBounds + " are out of bounds: " + this.bounds);
         return this.createSubSet(false, newBounds);
+    }
+
+    /**
+     * Search for a lwoer element. Used to implement {@link #floor floor()} and {@link #lower lower()}.
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableSet} checks the bounds then returns the first element from a head set.
+     * </p>
+     */
+    protected E searchBelow(E elem, boolean inclusive) {
+        if (!this.isWithinLowerBound(elem))
+            return null;
+        final NavigableSet<E> subSet = this.isWithinUpperBound(elem) ? this.headSet(elem, inclusive) : this;
+        try {
+            return subSet.last();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Search for a higher element. Used to implement {@link #ceiling ceiling()} and {@link #higher higher()}.
+     *
+     * <p>
+     * The implementation in {@link AbstractNavigableSet} checks the bounds then returns the first element from a tail set.
+     * </p>
+     */
+    protected E searchAbove(E elem, boolean inclusive) {
+        if (!this.isWithinUpperBound(elem))
+            return null;
+        final NavigableSet<E> subSet = this.isWithinLowerBound(elem) ? this.tailSet(elem, inclusive) : this;
+        try {
+            return subSet.first();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
     /**
