@@ -11,7 +11,6 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.List;
 import java.util.NavigableSet;
@@ -64,22 +63,6 @@ class JSetFieldInfo extends JCollectionFieldInfo {
         types.add(new TypeToken<ListFieldReplace<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));
-    }
-
-    @Override
-    <T, V> void addIndexEntryReturnTypes(List<TypeToken<?>> types,
-      TypeToken<T> targetType, JSimpleFieldInfo subFieldInfo, TypeToken<V> valueType) {
-        // there are no index entry types for sets
-    }
-
-    @Override
-    int getIndexEntryQueryType(TypeToken<?> queryObjectType) {
-        return 0;
-    }
-
-    @Override
-    Method getIndexEntryQueryMethod(int queryType) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

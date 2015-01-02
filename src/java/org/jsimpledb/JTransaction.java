@@ -9,13 +9,17 @@ package org.jsimpledb;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Function;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -27,11 +31,12 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.validation.ConstraintViolation;
 
 import org.dellroad.stuff.validation.ValidationUtil;
+import org.jsimpledb.core.CoreIndex;
+import org.jsimpledb.core.CoreIndex2;
 import org.jsimpledb.core.CreateListener;
 import org.jsimpledb.core.DeleteListener;
 import org.jsimpledb.core.DeletedObjectException;
@@ -51,9 +56,12 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.core.VersionChangeListener;
+import org.jsimpledb.index.Index;
+import org.jsimpledb.index.Index2;
+import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.util.AbstractKVNavigableSet;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
-import org.jsimpledb.util.NavigableSets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,12 +112,14 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Index Queries</b>
  * <ul>
- *  <li>{@link #queryIndex(Class, String, Class) queryIndex()}
- *      - Access any indexed field's index for containing objects</li>
- *  <li>{@link #queryListFieldEntries(Class, String, Class) queryListFieldEntries()}
- *      - Access an indexed list field's index for {@link ListIndexEntry}s</li>
- *  <li>{@link #queryMapFieldValueEntries(Class, String, Class, Class) queryMapFieldValueEntries()}
- *      - Access an indexed map field's value index for {@link MapValueIndexEntry}s</li>
+ *  <li>{@link #querySimpleField querySimpleField()}
+ *      - Access the index associated with a simple field</li>
+ *  <li>{@link #queryListField queryListField()}
+ *      - Access the index associated with a list field, including corresponding list indicies</li>
+ *  <li>{@link #queryMapValueField queryMapValueField()}
+ *      - Access the index associated with a map value field, including corresponding map keys</li>
+ *  <li>{@link #queryCompositeIndex(Class, String, Class, Class) queryCompositeIndex()}
+ *      - Access a composite index defined on two fields</li>
  * </ul>
  * </p>
  *
@@ -156,10 +166,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #readSetField readSetField()} - Access a set field</li>
  *  <li>{@link #readListField readListField()} - Access a list field</li>
  *  <li>{@link #readMapField readMapField()} - Access a map field</li>
- *  <li>{@link #queryIndex(int, Class) queryIndex()} - Query a simple field index by storage ID</li>
- *  <li>{@link #queryListFieldEntries(int, Class) queryListFieldEntries()} - Query a list field entry index by storage ID</li>
- *  <li>{@link #queryMapFieldValueEntries(int, Class) queryMapFieldValueEntries()}
- *      - Query a map field value entry index by storage ID</li>
  * </ul>
  * </p>
  *
@@ -190,6 +196,14 @@ public class JTransaction {
     private final InternalDeleteListener internalDeleteListener = new InternalDeleteListener();
     private final InternalVersionChangeListener internalVersionChangeListener = new InternalVersionChangeListener();
     private final ObjIdSet validationQueue = new ObjIdSet();
+
+    private final LoadingCache<IndexInfoKey, IndexInfo> indexInfoCache = CacheBuilder.newBuilder()
+      .maximumSize(1000).build(new CacheLoader<IndexInfoKey, IndexInfo>() {
+        @Override
+        public IndexInfo load(IndexInfoKey key) {
+            return key.getIndexInfo(JTransaction.this.jdb);
+        }
+      });
 
     private SnapshotJTransaction snapshotTransaction;
     private boolean committing;
@@ -278,63 +292,40 @@ public class JTransaction {
     }
 
     /**
-     * Get all instances of the given type (or any sub-type). The ordering of the returned set is based on the object IDs.
+     * Get all instances of the given type.
      *
-     * @param type any Java type, or null to get all objects
+     * @param type any Java type; use {@link Object Object.class} to return all database objects
      * @return read-only view of all instances of {@code type}
+     * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(Class<T> type) {
-        if (!this.tx.isValid())
-            throw new StaleTransactionException(this.tx);
         if (type == null)
-            type = (Class<T>)JObject.class;
-        final List<NavigableSet<ObjId>> sets = Lists.transform(this.jdb.getJClasses(TypeToken.of(type)),
-          new Function<JClass<?>, NavigableSet<ObjId>>() {
-            @Override
-            public NavigableSet<ObjId> apply(JClass<?> jclass) {
-                return JTransaction.this.tx.getAll(jclass.storageId);
-            }
-        });
-        switch (sets.size()) {
-        case 0:
-            return NavigableSets.<T>empty();
-        case 1:
-            return new ConvertedNavigableSet<T, ObjId>(sets.get(0), new ReferenceConverter<T>(this, type));
-        default:
-            return new ConvertedNavigableSet<T, ObjId>(NavigableSets.union(sets), new ReferenceConverter<T>(this, type));
-        }
+            throw new IllegalArgumentException("null type");
+        NavigableSet<ObjId> ids = this.tx.getAll();
+        final KeyRanges keyRanges = this.jdb.keyRangesFor(type);
+        if (!keyRanges.isFull())
+            ids = ((AbstractKVNavigableSet<ObjId>)ids).filterKeys(keyRanges);
+        return new ConvertedNavigableSet<T, ObjId>(ids, new ReferenceConverter<T>(this, type));
     }
 
     /**
-     * Get all instances having exactly the given type. The ordering of the returned set is based on the object IDs.
+     * Get all instances of the given type, grouped according to schema version.
      *
-     * @param storageId object type storage ID
-     * @return read-only view of all instances having exactly the type coresponding to {@code storageId}
-     * @throws UnknownTypeException if {@code storageId} does not correspond to any known object type
+     * @param type any Java type; use {@link Object Object.class} to return all database objects
+     * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    @SuppressWarnings("unchecked")
-    public NavigableSet<JObject> getAllOfType(int storageId) {
-        return new ConvertedNavigableSet<JObject, ObjId>(this.tx.getAll(storageId),
-          new ReferenceConverter<JObject>(this, JObject.class));
-    }
-
-    /**
-     * Get all database objects grouped according to their schema versions.
-     *
-     * <p>
-     * This returns the map returned by {@link Transaction#queryVersion} with {@link ObjId}s converted into {@link JObject}s.
-     * </p>
-     *
-     * @param type type restriction for the returned objects, or null to not restrict indexed object type
-     */
-    public NavigableMap<Integer, NavigableSet<JObject>> queryVersion(Class<?> type) {
-        final NavigableMap<Integer, NavigableSet<ObjId>> map = this.tx.queryVersion();
-        return new ConvertedNavigableMap<Integer, NavigableSet<JObject>, Integer, NavigableSet<ObjId>>(
-          this.tx.queryVersion(this.getTypeStorageIds(type)), Converter.<Integer>identity(),
-          new NavigableSetConverter<JObject, ObjId>(new ReferenceConverter<JObject>(this, JObject.class)));
+    public <T> NavigableMap<Integer, NavigableSet<T>> queryVersion(Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        CoreIndex<Integer, ObjId> index = this.tx.queryVersion();
+        final KeyRanges keyRanges = this.jdb.keyRangesFor(type);
+        if (!keyRanges.isFull())
+            index = index.filter(1, keyRanges);
+        return new ConvertedNavigableMap<Integer, NavigableSet<T>, Integer, NavigableSet<ObjId>>(index.asMap(),
+          Converter.<Integer>identity(), new NavigableSetConverter<T, ObjId>(new ReferenceConverter<T>(this, type)));
     }
 
     /**
@@ -1064,257 +1055,262 @@ public class JTransaction {
 // Index Access
 
     /**
-     * Access an indexed field's index for containing objects.
+     * Get the index on a simple field. The simple field may be a sub-field of a complex field.
      *
-     * <p>
-     * This method provides the same functionality as the {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery}
-     * annotation with runtime flexibility, while still remaining type-safe.
-     * </p>
-     *
-     * <p>
-     * This method returns an index containing {@link JObject}s; for complex fields (other than {@link Set} fields),
-     * additional information associated with the particular index is available via
-     * {@link #queryListFieldEntries(Class, String, Class) queryListFieldEntries()} and
-     * {@link #queryMapFieldValueEntries(Class, String, Class, Class) queryMapFieldValueEntries()}.
-     * </p>
-     *
-     * <p>
-     * The parameters to this method correspond to an {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery}-annotated
-     * method as follows:
-     * <div style="margin-left: 20px;">
-     * <table border="1" cellpadding="3" cellspacing="0">
-     * <tr bgcolor="#ccffcc">
-     *  <th align="left">Method Parameter</th>
-     *  <th align="left">Description</th>
-     *  <th align="left">{@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} equivalent</th>
-     * </tr>
-     * <tr>
-     *  <td><code>type</code></td>
-     *  <td>Which type of object(s) to search for that contain the field</td>
-     *  <td>{@link org.jsimpledb.annotation.IndexQuery#type &#64;IndexQuery.type()} property</td>
-     * </tr>
-     * <tr>
-     *  <td><code>fieldName</code></td>
-     *  <td>The name of the indexed field</td>
-     *  <td>{@link org.jsimpledb.annotation.IndexQuery#value &#64;IndexQuery.value()} property</td>
-     * </tr>
-     * <tr>
-     *  <td><code>valueType</code></td>
-     *  <td>The type of the indexed field</td>
-     *  <td>Method's return type (i.e., {@link NavigableMap}) key type</td>
-     * </tr>
-     * </table>
-     * </div>
-     * </p>
-     *
-     * @param type type containing the indexed field; may also be any super-type (e.g., an interface type),
-     *  as long as the specified field is not ambiguous among all sub-types
-     * @param fieldName name of the indexed field; must include sub-field name for complex fields (e.g., {@code "mylist.element"},
-     *  {@code "mymap.key"})
+     * @param targetType Java type containing the indexed field; may also be any super-type (e.g., an interface type),
+     *  as long as {@code fieldName} is not ambiguous among all sub-types
+     * @param fieldName name of the indexed field; for complex fields,
+     *  must include the sub-field name (e.g., {@code "mylist.element"}, {@code "mymap.key"})
      * @param valueType the Java type corresponding to the field value
      * @return read-only, real-time view of field values mapped to sets of objects having that value in the field
-     * @throws IllegalArgumentException if {@code valueType} is the wrong type for the specified field
-     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, and/or {@code valueType} is null or invalid
+     * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @see org.jsimpledb.annotation.IndexQuery &#64;IndexQuery
      */
-    @SuppressWarnings("unchecked")
-    public <S, V> NavigableMap<V, NavigableSet<S>> queryIndex(Class<S> type, String fieldName, Class<V> valueType) {
-        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
-        return (NavigableMap<V, NavigableSet<S>>)(Object)this.queryIndex(indexInfo.targetFieldInfo.storageId,
-          indexInfo.type.getRawType());
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <V, T> Index<V, T> querySimpleField(Class<T> targetType, String fieldName, Class<V> valueType) {
+        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
+        final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.querySimpleField(info.fieldInfo.storageId));
+        final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
+        final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
+        return new ConvertedIndex(index, valueConverter, targetConverter);
     }
 
     /**
-     * Access an indexed list field's index for {@link ListIndexEntry}s.
+     * Get the index on a list field with list indicies.
      *
      * <p>
-     * This method is a variant of {@link #queryIndex queryIndex(Class, String, Class)} that returns information not only about the
-     * object containing the list field, but also the index of the value in the list.
+     * This method is a variant of {@link #querySimpleField(Class, String, Class) querySimpleField()}
+     * that also provides the list indicies associated with each occuring value.
      * </p>
      *
-     * @param type type containing the indexed field; may also be any super-type (e.g., an interface type),
-     *  as long as the specified field is not ambiguous among all sub-types
+     * @param targetType type containing the indexed field; may also be any super-type (e.g., an interface type),
+     *  as long as {@code fieldName} is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; must include {@code "element"} sub-field name (e.g., {@code "mylist.element"})
      * @param valueType the Java type corresponding to list elements
-     * @return read-only, real-time view of list element values mapped to sets of {@link ListIndexEntry}s
-     *  corresponding to all occurrences of the element value in some object's list field
-     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, and/or {@code valueType} is invalid
-     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, or {@code valueType} is null
+     * @return read-only, real-time view of field values, objects having that value in the field, and corresponding list indicies
+     * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    @SuppressWarnings("unchecked")
-    public <S, V> NavigableMap<V, NavigableSet<ListIndexEntry<S>>> queryListFieldEntries(Class<S> type,
-      String fieldName, Class<V> valueType) {
-        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
-        if (!(indexInfo.targetSuperFieldInfo instanceof JListFieldInfo))
-            throw new IllegalArgumentException("field `" + fieldName + "' is not a list element field");
-        return (NavigableMap<V, NavigableSet<ListIndexEntry<S>>>)(Object)this.queryListFieldEntries(
-          indexInfo.targetSuperFieldInfo.storageId, indexInfo.type.getRawType());
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <V, T> Index2<V, T, Integer> queryListField(Class<T> targetType, String fieldName, Class<V> valueType) {
+        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
+        if (!(info.superFieldInfo instanceof JListFieldInfo))
+            throw new IllegalArgumentException("`" + fieldName + "' is not a list element sub-field");
+        final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListField(info.superFieldInfo.storageId));
+        final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
+        final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
+        return new ConvertedIndex2(index, valueConverter, targetConverter, Converter.<Integer>identity());
     }
 
     /**
-     * Access an indexed map value field's index for {@link MapValueIndexEntry}s.
+     * Get the index on a map value field with map keys.
      *
      * <p>
-     * This method is a variant of {@link #queryIndex queryIndex(Class, String, Class)} that returns information not only about the
-     * object containing the map field, but also the key corresponding to the value in the map.
+     * This method is a variant of {@link #querySimpleField(Class, String, Class) getSimpleField()}
+     * that also provides the map keys associated with each occuring value.
      * </p>
      *
-     * @param type type containing the indexed field; may also be any super-type (e.g., an interface type),
-     *  as long as the specified field is not ambiguous among all sub-types
+     * @param targetType type containing the indexed field; may also be any super-type (e.g., an interface type),
+     *  as long as {@code fieldName} is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; must include {@code "value"} sub-field name (e.g., {@code "mymap.value"})
-     * @param keyType the Java type corresponding to the map field's key field
-     * @param valueType the Java type corresponding to the map field's value field
-     * @return read-only, real-time view of all values mapped to the sets of {@link MapValueIndexEntry}s
-     *  corresponding to all occurrences of the value in some object's map field
-     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} and/or {@code valueType} is invalid
-     * @throws IllegalArgumentException if {@code type}, {@code fieldName}, {@code keyType} or {@code valueType} is null
+     * @param valueType the Java type corresponding to list elements
+     * @return read-only, real-time view of map values, objects having that value in the map field, and corresponding map keys
+     * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    @SuppressWarnings("unchecked")
-    public <S, K, V> NavigableMap<V, NavigableSet<MapValueIndexEntry<S, K>>> queryMapFieldValueEntries(Class<S> type,
-      String fieldName, Class<K> keyType, Class<V> valueType) {
-        final IndexQueryScanner.IndexInfo indexInfo = this.getIndexInfo(type, fieldName, valueType);
-        if (!(indexInfo.targetSuperFieldInfo instanceof JMapFieldInfo)
-          || !indexInfo.targetFieldInfo.equals(((JMapFieldInfo)indexInfo.targetSuperFieldInfo).getValueFieldInfo()))
-            throw new IllegalArgumentException("field `" + fieldName + "' is not a map value field");
-        final JMapFieldInfo jfieldInfo = (JMapFieldInfo)indexInfo.targetSuperFieldInfo;
-        if (!jfieldInfo.getKeyFieldInfo().getTypeToken().wrap().getRawType().equals(keyType)) {
-            throw new IllegalArgumentException("incorrect keyType for index query on `" + fieldName + "' starting from "
-              + type + ": should be " + jfieldInfo.getKeyFieldInfo().getTypeToken().wrap() + " instead of " + keyType);
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <V, T, K> Index2<V, T, K> queryMapValueField(Class<T> targetType,
+      String fieldName, Class<V> valueType, Class<K> keyType) {
+        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType, keyType));
+        if (!(info.superFieldInfo instanceof JMapFieldInfo))
+            throw new IllegalArgumentException("`" + fieldName + "' is not a map value sub-field");
+        final JMapFieldInfo mapFieldInfo = (JMapFieldInfo)info.superFieldInfo;
+        if (!info.fieldInfo.equals(mapFieldInfo.getValueFieldInfo()))
+            throw new IllegalArgumentException("`" + fieldName + "' is not a map value sub-field");
+        final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueField(mapFieldInfo.storageId));
+        final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
+        final Converter<?, ?> keyConverter = this.getReverseConverter(mapFieldInfo.getKeyFieldInfo());
+        final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
+        return new ConvertedIndex2(index, valueConverter, targetConverter, keyConverter);
+    }
+
+    /**
+     * Access a composite index on two fields.
+     *
+     * @param targetType type containing the indexed fields; may also be any super-type (e.g., an interface type)
+     * @param indexName the name of the composite index
+     * @param value1Type the Java type corresponding to the first field value
+     * @param value2Type the Java type corresponding to the second field value
+     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
+     * @throws IllegalArgumentException if any parameter is null, or invalid
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <V1, V2, T> Index2<V1, V2, T> queryCompositeIndex(Class<T> targetType,
+      String indexName, Class<V1> value1Type, Class<V2> value2Type) {
+        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(indexName, true, targetType, value1Type, value2Type));
+        final CoreIndex2<?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex2(info.indexInfo.storageId));
+        final Converter<?, ?> value1Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(0));
+        final Converter<?, ?> value2Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(1));
+        final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
+        return new ConvertedIndex2(index, value1Converter, value2Converter, targetConverter);
+    }
+
+/*  /*
+     * Access a composite index on three fields.
+     *
+     * @param targetType type containing the indexed fields; may also be any super-type (e.g., an interface type)
+     * @param indexName the name of the composite index
+     * @param value1Type the Java type corresponding to the first field value
+     * @param value2Type the Java type corresponding to the second field value
+     * @param value3Type the Java type corresponding to the third field value
+     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
+     * @throws IllegalArgumentException if any parameter is null, or invalid
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * ////
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <V1, V2, V3, T> Index3<V1, V2, V3, T> queryCompositeIndex(Class<T> targetType,
+      String indexName, Class<V1> value1Type, Class<V2> value2Type, Class<V3> value3Type) {
+        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(indexName, true, targetType, value1Type, value2Type, value3Type));
+        final CoreIndex3<?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex3(info.indexInfo.storageId));
+        final Converter<?, ?> value1Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(0));
+        final Converter<?, ?> value2Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(1));
+        final Converter<?, ?> value3Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(2));
+        final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
+        return new ConvertedIndex3(index, value1Converter, value2Converter, value3Converter, targetConverter);
+    }
+*/
+
+    /**
+     * Query an index by storage ID. For storage ID's corresponding to simple fields, this method returns an
+     * {@link Index}, except for list element and map value fields, for which an {@link Index2} is returned.
+     * For storage ID's corresponding to composite indexes, this method returns an {@link Index2}, {@link Index3},
+     * etc. as appropriate.
+     *
+     * <p>
+     * This method exists mainly for the convenience of programmatic tools, etc.
+     * </p>
+     *
+     * @param storageId indexed {@link JSimpleField}'s storage ID
+     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
+     * @throws IllegalArgumentException if {@code storageId} does not correspond to an indexed field or composite index
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public Object queryIndex(int storageId) {
+
+        // Look for a composite index
+        final JCompositeIndexInfo indexInfo = this.jdb.jcompositeIndexInfos.get(storageId);
+        if (indexInfo != null) {
+            final Converter<JObject, ObjId> targetConverter = new ReferenceConverter<JObject>(this, JObject.class);
+            switch (indexInfo.jfieldInfos.size()) {
+            case 2:
+                final Converter<?, ?> value1Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(0));
+                final Converter<?, ?> value2Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(1));
+                return new ConvertedIndex2(this.tx.queryCompositeIndex2(indexInfo.storageId),
+                  value1Converter, value2Converter, targetConverter);
+            // TODO: add Index3, etc.
+            default:
+                throw new RuntimeException("internal error");
+            }
         }
-        return (NavigableMap<V, NavigableSet<MapValueIndexEntry<S, K>>>)(Object)this.queryMapFieldValueEntries(
-          jfieldInfo.storageId, indexInfo.type.getRawType());
-    }
 
-    private <S, V> IndexQueryScanner.IndexInfo getIndexInfo(Class<S> type, String fieldName, Class<V> valueType) {
-
-        // Sanity check
-        if (valueType == null)
-            throw new IllegalArgumentException("null valueType");
-
-        // Get index info
-        final IndexQueryScanner.IndexInfo indexInfo = new IndexQueryScanner.IndexInfo(this.jdb, type, fieldName);
-
-        // Verify value type
-        if (!valueType.equals(indexInfo.targetFieldType.getRawType())) {
-            throw new IllegalArgumentException("incorrect valueType for index query on `" + fieldName + "' starting from "
-              + type + ": should be " + indexInfo.targetFieldType.getRawType() + " instead of " + valueType);
+        // Must be an indexed field
+        final JFieldInfo someFieldInfo = this.jdb.jfieldInfos.get(storageId);
+        if (someFieldInfo == null)
+            throw new IllegalArgumentException("no composite index or simple indexed field exists with storage ID " + storageId);
+        if (!(someFieldInfo instanceof JSimpleFieldInfo) || !((JSimpleFieldInfo)someFieldInfo).isIndexed()) {
+            throw new IllegalArgumentException("storage ID " + storageId + " does not correspond to an indexed simple field (found "
+              + someFieldInfo + " instead)");
         }
 
-        // Done
-        return indexInfo;
+        // Build the appropriate index for the field
+        final JSimpleFieldInfo fieldInfo = (JSimpleFieldInfo)someFieldInfo;
+        final Converter<?, ?> valueConverter = this.getReverseConverter(fieldInfo);
+        final ReferenceConverter<JObject> referenceConverter = new ReferenceConverter<JObject>(this, JObject.class);
+        final int parentStorageId = fieldInfo.getParentStorageId();
+        final JComplexFieldInfo parentInfo = parentStorageId != 0 ?
+          this.jdb.getJFieldInfo(parentStorageId, JComplexFieldInfo.class) : null;
+        if (parentInfo instanceof JListFieldInfo) {
+            return new ConvertedIndex2(this.tx.queryListField(fieldInfo.storageId),
+              valueConverter, referenceConverter, Converter.identity());
+        } else if (parentInfo instanceof JMapFieldInfo
+          && ((JMapFieldInfo)parentInfo).getSubFieldInfoName(fieldInfo).equals(MapField.VALUE_FIELD_NAME)) {
+            final JMapFieldInfo mapFieldInfo = (JMapFieldInfo)parentInfo;
+            final JSimpleFieldInfo keyFieldInfo = mapFieldInfo.getKeyFieldInfo();
+            final Converter<?, ?> keyConverter = this.getReverseConverter(keyFieldInfo);
+            return new ConvertedIndex2(this.tx.queryMapValueField(fieldInfo.storageId),
+              valueConverter, referenceConverter, keyConverter);
+        } else
+            return new ConvertedIndex(this.tx.querySimpleField(fieldInfo.storageId), valueConverter, referenceConverter);
     }
 
-    /**
-     * Query a simple field index for {@link JObject}s by storage ID.
-     *
-     * <p>
-     * This returns the map returned by {@link Transaction#querySimpleField} with {@link ObjId}s converted into {@link JObject}s.
-     * </p>
-     *
-     * <p>
-     * Used by generated {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} override methods
-     * that return index maps whose values are sets of Java model objects (i.e., not other index entry types).
-     * </p>
-     *
-     * @param storageId {@link JSimpleField}'s storage ID
-     * @param type type restriction for the returned objects
-     * @return read-only, real-time view of field values mapped to sets of {@link JObject}s with the value in the field
-     * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
-     * @throws IllegalArgumentException if {@code type} is null
-     * @throws StaleTransactionException if this transaction is no longer usable
-     */
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T> NavigableMap<?, NavigableSet<T>> queryIndex(int storageId, Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
-        Converter<?, ?> keyConverter = this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this);
-        keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        final NavigableSetConverter<T, ObjId> valueConverter = new NavigableSetConverter(new ReferenceConverter<T>(this, type));
-        final NavigableMap<?, NavigableSet<ObjId>> map = this.tx.querySimpleField(storageId, this.getTypeStorageIds(type));
-        return new ConvertedNavigableMap(map, keyConverter, valueConverter);
+    private IndexInfo getIndexInfo(IndexInfoKey key) {
+        try {
+            return this.indexInfoCache.getUnchecked(key);
+        } catch (UncheckedExecutionException e) {
+            final Throwable t = e.getCause();
+            if (t instanceof RuntimeException)
+                throw (RuntimeException)t;
+            if (t instanceof Error)
+                throw (Error)t;
+            throw e;
+        }
     }
 
-    /**
-     * Query a list field index for {@link ListIndexEntry}s by storage ID.
-     *
-     * <p>
-     * This returns the map returned by {@link Transaction#queryListFieldEntries} with
-     * {@link org.jsimpledb.ListIndexEntry}s converted into {@link ListIndexEntry}s.
-     * </p>
-     *
-     * <p>
-     * Used by generated {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} override methods
-     * that return index maps whose values are sets of {@link ListIndexEntry}s.
-     * </p>
-     *
-     * @param storageId {@link JListField}'s storage ID
-     * @param type type restriction for the returned objects
-     * @return read-only, real-time view of list element values mapped to sets of {@link ListIndexEntry}s
-     * @throws UnknownFieldException if no {@link JListField} field corresponding to {@code storageId} exists
-     * @throws IllegalArgumentException if {@code type} is null
-     * @throws StaleTransactionException if this transaction is no longer usable
-     */
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T> NavigableMap<?, NavigableSet<ListIndexEntry<T>>> queryListFieldEntries(int storageId, Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
-        Converter<?, ?> keyConverter = this.jdb.getJFieldInfo(storageId,
-          JListFieldInfo.class).getElementFieldInfo().getConverter(this);
-        keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        final NavigableSetConverter<ListIndexEntry<T>, org.jsimpledb.core.ListIndexEntry> valueConverter
-          = new NavigableSetConverter(new ListIndexEntryConverter<T>(new ReferenceConverter<T>(this, type)));
-        final NavigableMap<?, NavigableSet<org.jsimpledb.core.ListIndexEntry>> map
-          = this.tx.queryListFieldEntries(storageId, this.getTypeStorageIds(type));
-        return new ConvertedNavigableMap(map, keyConverter, valueConverter);
+    private Converter<?, ?> getReverseConverter(JSimpleFieldInfo fieldInfo) {
+        final Converter<?, ?> converter = fieldInfo.getConverter(this);
+        return converter != null ? converter.reverse() : Converter.identity();
     }
 
-    /**
-     * Query a map field value index for {@link MapValueIndexEntry}s by storage ID.
-     *
-     * <p>
-     * This returns the map returned by {@link Transaction#queryMapFieldValueEntries}
-     * with {@link org.jsimpledb.MapValueIndexEntry}s converted into {@link MapValueIndexEntry}s.
-     * </p>
-     *
-     * <p>
-     * Used by generated {@link org.jsimpledb.annotation.IndexQuery &#64;IndexQuery} override methods
-     * that return index maps whose values are sets of {@link MapValueIndexEntry}s.
-     * </p>
-     *
-     * @param storageId {@link JMapField}'s storage ID
-     * @param type type restriction for the returned objects
-     * @return read-only, real-time view of map values mapped to sets of {@link MapValueIndexEntry}s
-     * @throws UnknownFieldException if no {@link JMapField} field corresponding to {@code storageId} exists
-     * @throws IllegalArgumentException if {@code type} is null
-     * @throws StaleTransactionException if this transaction is no longer usable
-     */
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T> NavigableMap<?, NavigableSet<MapValueIndexEntry<T, ?>>> queryMapFieldValueEntries(int storageId, Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
-        final JMapFieldInfo mapFieldInfo = this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class);
-        Converter<?, ?> keyConverter = mapFieldInfo.getKeyFieldInfo().getConverter(this);
-        keyConverter = keyConverter != null ? keyConverter.reverse() : Converter.identity();
-        Converter<?, ?> valueConverter = mapFieldInfo.getValueFieldInfo().getConverter(this);
-        valueConverter = valueConverter != null ? valueConverter.reverse() : Converter.identity();
-        final NavigableMap<?, NavigableSet<org.jsimpledb.core.MapValueIndexEntry<?>>> map
-          = this.tx.queryMapFieldValueEntries(storageId, this.getTypeStorageIds(type));
-        return new ConvertedNavigableMap(map, valueConverter,
-          new NavigableSetConverter(new MapValueIndexEntryConverter(new ReferenceConverter<T>(this, type), keyConverter)));
-    }
+// IndexInfoKey
 
-    private int[] getTypeStorageIds(Class<?> type) {
-        if (type == null)
-            return new int[0];
-        final TreeSet<Integer> storageIds = new TreeSet<>();
-        for (JClass<?> jclass : this.jdb.getJClasses(TypeToken.of(type)))
-            storageIds.add(jclass.storageId);
-        if (storageIds.isEmpty())
-            return new int[] { -1 };        // won't match anything
-        return Ints.toArray(storageIds);
+    private static class IndexInfoKey {
+
+        private final Class<?>[] types;
+        private final boolean composite;
+        private final String name;
+
+        public IndexInfoKey(String name, boolean composite, Class<?>... types) {
+            this.name = name;
+            this.composite = composite;
+            this.types = types;
+        }
+
+        public IndexInfo getIndexInfo(JSimpleDB jdb) {
+
+            // Handle composite index
+            if (this.composite)
+                return new IndexInfo(jdb, this.types[0], this.name, Arrays.copyOfRange(this.types, 1, this.types.length));
+
+            // Handle map value index
+            if (this.types.length == 3)
+                return new IndexInfo(jdb, this.types[0], this.name, this.types[1], this.types[2]);
+
+            // Handle all others
+            return new IndexInfo(jdb, this.types[0], this.name, this.types[1]);
+        }
+
+    // Object
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this)
+                return true;
+            if (obj == null || obj.getClass() != this.getClass())
+                return false;
+            final IndexInfoKey that = (IndexInfoKey)obj;
+            return this.name.equals(that.name)
+              && this.composite == that.composite
+              && this.types.equals(that.types);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.name.hashCode()
+              ^ (this.composite ? 1 : 0)
+              ^ this.types.hashCode();
+        }
     }
 
 // Transaction Lifecycle
@@ -1577,7 +1573,7 @@ public class JTransaction {
             });
 
             // Build alternate version of old values map that is keyed by field name instead of storage ID
-            final Map<String, Object> oldValuesByName = Maps.transformValues(objType.getFieldByNames(),
+            final Map<String, Object> oldValuesByName = Maps.transformValues(objType.getFieldsByName(),
               new Function<Field<?>, Object>() {
                 @Override
                 public Object apply(Field<?> field) {

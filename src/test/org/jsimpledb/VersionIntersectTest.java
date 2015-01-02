@@ -31,7 +31,7 @@ public class VersionIntersectTest extends TestSupport {
                 bars[i] = jtx.create(Bar.class);
             }
             final NavigableSet<JObject> set = NavigableSets.<JObject>intersection(
-              jtx.queryVersion(null).get(1), (NavigableSet<JObject>)(Object)jtx.getAll(Foo.class));
+              jtx.queryVersion(JObject.class).get(1), (NavigableSet<JObject>)(Object)jtx.getAll(Foo.class));
             TestSupport.checkSet(set, buildSet(foos[0], foos[1], foos[2], foos[3]));
 
             jtx.commit();

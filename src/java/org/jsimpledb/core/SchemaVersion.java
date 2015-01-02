@@ -66,6 +66,8 @@ public class SchemaVersion {
                         this.addStorageInfo(subField, descriptionMap);
                 }
             }
+            for (CompositeIndex index : objType.compositeIndexes.values())
+                this.addStorageInfo(index, descriptionMap);
         }
     }
 

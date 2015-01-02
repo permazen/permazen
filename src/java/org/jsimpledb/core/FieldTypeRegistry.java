@@ -179,11 +179,6 @@ public class FieldTypeRegistry {
     static final NullSafeType<Date> DATE = new NullSafeType<>(new DateType());
 
     /**
-     * Type for {@link ListIndexEntry}s.
-     */
-    static final FieldType<ListIndexEntry> LIST_INDEX_ENTRY = new ListIndexEntryType();
-
-    /**
      * Type for {@link UUID}s.
      */
     static final NullSafeType<UUID> UUID = new NullSafeType<>(new UUIDType());

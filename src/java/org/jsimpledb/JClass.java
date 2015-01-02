@@ -12,6 +12,7 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -26,6 +27,7 @@ import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.UnknownFieldException;
+import org.jsimpledb.schema.SchemaCompositeIndex;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaObjectType;
 import org.jsimpledb.util.AnnotationScanner;
@@ -46,13 +48,14 @@ public class JClass<T> extends JSchemaObject {
     final ClassGenerator<T> classGenerator;
     final TreeMap<Integer, JField> jfields = new TreeMap<>();
     final TreeMap<String, JField> jfieldsByName = new TreeMap<>();
+    final TreeMap<Integer, JCompositeIndex> jcompositeIndexes = new TreeMap<>();
+    final TreeMap<String, JCompositeIndex> jcompositeIndexesByName = new TreeMap<>();
 
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
     Set<OnChangeScanner<T>.MethodInfo> onChangeMethods;
     Set<ValidateScanner<T>.MethodInfo> validateMethods;
     ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
-    Set<IndexQueryScanner<T>.MethodInfo> indexQueryMethods;
 
     int[] subtypeStorageIds;
 
@@ -317,6 +320,30 @@ public class JClass<T> extends JSchemaObject {
         }
     }
 
+    void addCompositeIndex(org.jsimpledb.annotation.JCompositeIndex annotation) {
+
+        // Resolve field names
+        final String[] fieldNames = annotation.fields();
+        final JSimpleField[] indexFields = new JSimpleField[fieldNames.length];
+        final HashSet<String> seenFieldNames = new HashSet<String>();
+        for (int i = 0; i < fieldNames.length; i++) {
+            final String fieldName = fieldNames[i];
+            if (!seenFieldNames.add(fieldName))
+                throw this.invalidIndex(annotation, "field `" + fieldName + "' appears more than once");
+            final JField jfield = this.jfieldsByName.get(fieldName);
+            if (!(jfield instanceof JSimpleField))
+                throw this.invalidIndex(annotation, jfield != null ? "not a simple field" : "field not found");
+            indexFields[i] = (JSimpleField)jfield;
+        }
+
+        // Create and add index
+        final JCompositeIndex index = new JCompositeIndex(annotation.name(), annotation.storageId(), indexFields);
+        if (this.jcompositeIndexes.put(index.storageId, index) != null)
+            throw this.invalidIndex(annotation, "duplicate use of storage ID " + index.storageId);
+        if (this.jcompositeIndexesByName.put(index.name, index) != null)
+            throw this.invalidIndex(annotation, "duplicate use of composite index name `" + index.name + "'");
+    }
+
     void scanAnnotations() {
         this.onCreateMethods = new OnCreateScanner<T>(this).findAnnotatedMethods();
         this.onDeleteMethods = new OnDeleteScanner<T>(this).findAnnotatedMethods();
@@ -325,7 +352,6 @@ public class JClass<T> extends JSchemaObject {
         final OnVersionChangeScanner<T> onVersionChangeScanner = new OnVersionChangeScanner<T>(this);
         this.onVersionChangeMethods = new ArrayList<>(onVersionChangeScanner.findAnnotatedMethods());
         Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);
-        this.indexQueryMethods = new IndexQueryScanner<T>(this).findAnnotatedMethods();
     }
 
     @Override
@@ -336,7 +362,16 @@ public class JClass<T> extends JSchemaObject {
             final SchemaField schemaField = field.toSchemaItem(jdb);
             schemaObjectType.getSchemaFields().put(schemaField.getStorageId(), schemaField);
         }
+        for (JCompositeIndex index : this.jcompositeIndexes.values()) {
+            final SchemaCompositeIndex schemaIndex = index.toSchemaItem(jdb);
+            schemaObjectType.getSchemaCompositeIndexes().put(index.getStorageId(), schemaIndex);
+        }
         return schemaObjectType;
+    }
+
+    private IllegalArgumentException invalidIndex(org.jsimpledb.annotation.JCompositeIndex annotation, String message) {
+        return new IllegalArgumentException("invalid @JCompositeIndex `" + annotation.name()
+          + "' on " + this.typeToken.getRawType() + ": " + message);
     }
 
     // Add new JField (and sub-fields, if any), checking for name and storage ID conflicts

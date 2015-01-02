@@ -22,8 +22,8 @@ import org.jsimpledb.core.DeleteAction;
  * This annotation is used in two ways:
  * <ul>
  *  <li>To annotate the getter method of a Java bean property in a Java model object class</li>
- *  <li>To define the sub-field(s) of a complex set, list, or map field
- *      (i.e., the collection element or map key and value types)</li>
+ *  <li>To define the sub-field(s) of a complex field such as a set, list, or map,
+ *      i.e., the collection element or map key and value types</li>
  * </ul>
  * </p>
  *
@@ -36,6 +36,10 @@ import org.jsimpledb.core.DeleteAction;
  * If the field is not a reference field, the property type, which can either be specified by {@link #name}
  * or inferred from the annotated method, must be supported by a some {@link org.jsimpledb.core.FieldType}
  * registered in the {@link org.jsimpledb.core.FieldTypeRegistry} (perhaps via {@link JFieldType &#64;JFieldType}).
+ * </p>
+ *
+ * <p>
+ * Simple fields may be {@link #indexed}; see {@link org.jsimpledb.index} for information on querying indexes.
  * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)

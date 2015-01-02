@@ -12,19 +12,20 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 
 /**
- * An index of object and field names in a {@link SchemaModel}.
- *
+ * An index of object, field, and index names in a {@link SchemaModel}.
  */
 public class NameIndex {
 
     private final SchemaModel schemaModel;
     private final TreeMap<String, SchemaObjectType> typeMap = new TreeMap<>();
     private final TreeMap<Integer, TreeMap<String, SchemaField>> typeFieldMap = new TreeMap<>();
+    private final TreeMap<Integer, TreeMap<String, SchemaCompositeIndex>> typeCompositeIndexMap = new TreeMap<>();
 
     /**
      * Constructor.
      *
      * @param schemaModel schema model to index
+     * @throws IllegalArgumentException if a name conflict is detected (implies an invalid model)
      */
     public NameIndex(SchemaModel schemaModel) {
 
@@ -45,6 +46,14 @@ public class NameIndex {
             this.typeFieldMap.put(type.getStorageId(), fieldMap);
             for (SchemaField field : type.getSchemaFields().values()) {
                 if (fieldMap.put(field.getName(), field) != null)
+                    throw new IllegalArgumentException("schema model is invalid");
+            }
+
+            // Index composite index names
+            final TreeMap<String, SchemaCompositeIndex> compositeIndexMap = new TreeMap<>();
+            this.typeCompositeIndexMap.put(type.getStorageId(), compositeIndexMap);
+            for (SchemaCompositeIndex compositeIndex : type.getSchemaCompositeIndexes().values()) {
+                if (compositeIndexMap.put(compositeIndex.getName(), compositeIndex) != null)
                     throw new IllegalArgumentException("schema model is invalid");
             }
         }
@@ -113,6 +122,42 @@ public class NameIndex {
         if (fieldMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
         return Collections.unmodifiableSortedSet(fieldMap.navigableKeySet());
+    }
+
+    /**
+     * Get the {@link SchemaCompositeIndex} with the given name in the given {@link SchemaObjectType}.
+     *
+     * @param type object type
+     * @param name index name
+     * @throws IllegalArgumentException if either paramter is null
+     * @return the unique {@link SchemaCompositeIndex} with name {@code name} in {@code type}, or null if not found
+     * @throws IllegalArgumentException if {@code type} is not indexed by this instance
+     */
+    public SchemaCompositeIndex getSchemaCompositeIndex(SchemaObjectType type, String name) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        if (name == null)
+            throw new IllegalArgumentException("null name");
+        final TreeMap<String, SchemaCompositeIndex> indexMap = this.typeCompositeIndexMap.get(type.getStorageId());
+        if (indexMap == null)
+            throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
+        return indexMap.get(name);
+    }
+
+    /**
+     * Get all of the names of {@link SchemaCompositeIndex}s in the given {@link SchemaObjectType}.
+     *
+     * @param type schema object
+     * @return unmodifiable set of {@link SchemaCompositeIndex} names in {@code type}
+     * @throws IllegalArgumentException if {@code type} is not indexed by this instance
+     */
+    public SortedSet<String> getSchemaCompositeIndexNames(SchemaObjectType type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        final TreeMap<String, SchemaCompositeIndex> indexMap = this.typeCompositeIndexMap.get(type.getStorageId());
+        if (indexMap == null)
+            throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
+        return Collections.unmodifiableSortedSet(indexMap.navigableKeySet());
     }
 }
 

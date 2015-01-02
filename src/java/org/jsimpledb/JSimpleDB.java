@@ -25,6 +25,8 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.core.UnknownTypeException;
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
@@ -39,8 +41,8 @@ import org.slf4j.LoggerFactory;
  * This class provides a natural, Java-centric view on top of the core {@link Database} class. This is done via two main
  * enhancements to the functionality provided by {@link Database}:
  * <ul>
- *  <li>{@linkplain org.jsimpledb.annotation Java annotations} are used to define all {@link Database} objects and fields,
- *      to automatically register various listeners, to access indexed fields, etc.</li>
+ *  <li>{@linkplain org.jsimpledb.annotation Java annotations} are used to define all {@link Database} objects, fields,
+ *      and composite indexes, and to automatically register various listeners.</li>
  *  <li>{@link Database} objects and fields are represented using actual Java model objects, where the Java model classes
  *      are automatically generated subclasses of the user-supplied Java bean model classes. That is, in the view that
  *      a {@link JSimpleDB} provides, all {@link Database} object references (which are all {@link ObjId} objects)
@@ -80,6 +82,7 @@ public class JSimpleDB {
     final TreeMap<Integer, JClass<?>> jclasses = new TreeMap<>();
     final HashMap<TypeToken<?>, JClass<?>> jclassesByType = new HashMap<>();
     final TreeMap<Integer, JFieldInfo> jfieldInfos = new TreeMap<>();
+    final TreeMap<Integer, JCompositeIndexInfo> jcompositeIndexInfos = new TreeMap<>();
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final ClassGenerator<UntypedJObject> untypedClassGenerator = new ClassGenerator<UntypedJObject>(UntypedJObject.class);
     final Database db;
@@ -238,6 +241,30 @@ public class JSimpleDB {
                         subFieldInfo.witness(subField);
                     }
                 }
+            }
+        }
+
+        // Add composite indexes to class; like fields, indexes are inherited (duplicated) from superclasses
+        for (JClass<?> jclass : this.jclasses.values()) {
+            for (Class<?> type = jclass.typeToken.getRawType(); type != null; type = type.getSuperclass()) {
+                final JSimpleClass jclassAnnotation = type.getAnnotation(JSimpleClass.class);
+                if (jclassAnnotation != null) {
+                    for (org.jsimpledb.annotation.JCompositeIndex indexAnnotation : jclassAnnotation.compositeIndexes())
+                        jclass.addCompositeIndex(indexAnnotation);
+                }
+            }
+        }
+
+        // Create canonical info instances for indexes
+        final HashMap<Integer, String> indexDescriptionMap = new HashMap<>();
+        for (JClass<?> jclass : this.jclasses.values()) {
+            for (JCompositeIndex index : jclass.jcompositeIndexes.values()) {
+                final JCompositeIndexInfo indexInfo = index.toJCompositeIndexInfo();
+                for (JSimpleField jfield : index.jfields) {
+                    final JSimpleFieldInfo jfieldInfo = (JSimpleFieldInfo)this.jfieldInfos.get(jfield.storageId);
+                    indexInfo.getJFieldInfos().add(jfieldInfo);
+                }
+                this.addJCompositeIndexInfo(index, indexInfo, indexDescriptionMap);
             }
         }
 
@@ -479,6 +506,21 @@ public class JSimpleDB {
         return list;
     }
 
+    /**
+     * Generate the {@link KeyRanges} restricting objects to the specified type.
+     *
+     * @param type any Java type, or null for no restriction
+     * @return key restriction for {@code type}
+     */
+    KeyRanges keyRangesFor(Class<?> type) {
+        if (type == null)
+            return KeyRanges.FULL;
+        final ArrayList<KeyRange> list = new ArrayList<>(this.jclasses.size());
+        for (JClass<?> jclass : this.getJClasses(TypeToken.of(type)))
+            list.add(ObjId.getKeyRange(jclass.storageId));
+        return new KeyRanges(list);
+    }
+
 // Object Cache
 
     /**
@@ -591,6 +633,11 @@ public class JSimpleDB {
     // Add new JFieldInfo, checking for conflicts
     private <T extends JFieldInfo> void addJFieldInfo(JField jfield, T fieldInfo, Map<Integer, String> descriptionMap) {
         this.addInfo(jfield, fieldInfo, this.jfieldInfos, descriptionMap);
+    }
+
+    // Add new JCompositeIndexInfo, checking for conflicts
+    private void addJCompositeIndexInfo(JCompositeIndex index, JCompositeIndexInfo indexInfo, Map<Integer, String> descriptionMap) {
+        this.addInfo(index, indexInfo, this.jcompositeIndexInfos, descriptionMap);
     }
 
     // Add new info, checking for storage ID conflicts

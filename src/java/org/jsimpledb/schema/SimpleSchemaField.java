@@ -25,7 +25,8 @@ public class SimpleSchemaField extends SchemaField {
     private boolean indexed;
 
     /**
-     * Get the name of this field's type. For example {@code int} for primitive integer type.
+     * Get the name of this field's type. For example {@code "int"} for primitive integer type,
+     * {@code "java.util.Date"} for the built-in {@link java.util.Date} type, any custom type name, etc.
      */
     public String getType() {
         return this.type;
@@ -45,7 +46,7 @@ public class SimpleSchemaField extends SchemaField {
     }
 
     @Override
-    public void validate() {
+    void validate() {
         super.validate();
         if (this.type == null)
             throw new InvalidSchemaException("invalid " + this + ": no type specified");

@@ -13,10 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.SortedSet;
 
-import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JMapField;
@@ -25,7 +23,11 @@ import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ReferencedObjectException;
+import org.jsimpledb.index.Index;
+import org.jsimpledb.index.Index2;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
+import org.jsimpledb.tuple.Tuple2;
+import org.jsimpledb.tuple.Tuple3;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -46,7 +48,7 @@ public class BasicTest extends TestSupport {
             final Person t3 = tx.create(Person.class);
             this.check(t1, false, (byte)0, (short)0, (char)0, 0, 0.0f, 0L, 0.0, null, null, null, null, null);
 
-            TestSupport.checkSet(tx.getAll(null), buildSet(t1, t2, t3));
+            TestSupport.checkSet(tx.getAll(Object.class), buildSet(t1, t2, t3));
 
             t1.setZ(true);
             t1.setB((byte)123);
@@ -130,76 +132,71 @@ public class BasicTest extends TestSupport {
 
             // Check indexes
             final Indexer i = tx.create(Indexer.class);
-            TestSupport.checkMap(i.queryNicknames(), buildMap(
+            TestSupport.checkMap(i.queryNicknames().asMap(), buildMap(
               "dinkle",     buildSet(t1),
               "banana",     buildSet(t1),
               "apple",      buildSet(t1)));
-            TestSupport.checkMap(i.queryHaters(), buildMap(
+            TestSupport.checkMap(i.queryHaters().asMap(), buildMap(
               t3,           buildSet(t1)));
-            TestSupport.checkMap(i.queryScores(), buildMap(
+            TestSupport.checkMap(i.queryScores().asMap(), buildMap(
               21,           buildSet(t1),
               22,           buildSet(t1),
               23,           buildSet(t1),
               123,          buildSet(t2, t3),
               456,          buildSet(t2, t3),
               789,          buildSet(t3)));
-            TestSupport.checkMap(i.queryScoreEntries(), buildMap(
-              21,           buildSet(new ListIndexEntry<Person>(t1, 1), new ListIndexEntry<Person>(t1, 3)),
-              22,           buildSet(new ListIndexEntry<Person>(t1, 2)),
-              23,           buildSet(new ListIndexEntry<Person>(t1, 0)),
-              123,          buildSet(new ListIndexEntry<Person>(t2, 0), new ListIndexEntry<Person>(t3, 2)),
-              456,          buildSet(
-                              new ListIndexEntry<Person>(t2, 1),
-                              new ListIndexEntry<Person>(t3, 1),
-                              new ListIndexEntry<Person>(t3, 3)),
-              789,          buildSet(new ListIndexEntry<Person>(t3, 0))));
-            TestSupport.checkMap(i.queryRatingKeys(), buildMap(
+            TestSupport.checkSet(i.queryScoreEntries().asSet(), buildSet(
+              new Tuple3<Integer, Person, Integer>(21, t1, 1),
+              new Tuple3<Integer, Person, Integer>(21, t1, 3),
+              new Tuple3<Integer, Person, Integer>(22, t1, 2),
+              new Tuple3<Integer, Person, Integer>(23, t1, 0),
+              new Tuple3<Integer, Person, Integer>(123, t2, 0),
+              new Tuple3<Integer, Person, Integer>(123, t3, 2),
+              new Tuple3<Integer, Person, Integer>(456, t2, 1),
+              new Tuple3<Integer, Person, Integer>(456, t3, 1),
+              new Tuple3<Integer, Person, Integer>(456, t3, 3),
+              new Tuple3<Integer, Person, Integer>(789, t3, 0)));
+            TestSupport.checkMap(i.queryRatingKeys().asMap(), buildMap(
               t1,           buildSet(t1, t3),
               t2,           buildSet(t1),
               null,         buildSet(t1)));
-            TestSupport.checkMap(i.queryRatingValueEntries(), buildMap(
-              100.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t1)),
-              -99.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t2)),
-              -0.0f,        buildSet(new MapValueIndexEntry<Person, Person>(t1, null)),
-              -3.0f,        buildSet(new MapValueIndexEntry<Person, Person>(t3, t1))));
-            TestSupport.checkMap(i.queryMoods(), buildMap(
+            TestSupport.checkSet(i.queryRatingValueEntries().asSet(), buildSet(
+              new Tuple3<Float, Person, Person>(100.0f, t1, t1),
+              new Tuple3<Float, Person, Person>(-99.0f, t1, t2),
+              new Tuple3<Float, Person, Person>(-0.0f, t1, null),
+              new Tuple3<Float, Person, Person>(-3.0f, t3, t1)));
+            TestSupport.checkMap(i.queryMoods().asMap(), buildMap(
               Mood.HAPPY,   buildSet(t1),
               Mood.NORMAL,  buildSet(t3),
               null,         buildSet(t2)));
 
-            // JTransaction index queries
-            TestSupport.checkMap(tx.queryIndex(Person.class, "mood", Mood.class),
-              i.queryMoods());
-            TestSupport.checkMap(tx.queryIndex(Person.class, "nicknames.element", String.class),
-              i.queryNicknames());
-            TestSupport.checkMap(tx.queryIndex(Person.class, "scores.element", Integer.class),
-              i.queryScores());
-            TestSupport.checkMap(tx.queryIndex(MeanPerson.class, "scores.element", Integer.class),
-              i.queryScoresMean());
-            TestSupport.checkMap(tx.queryListFieldEntries(Person.class, "scores.element", Integer.class),
-              i.queryScoreEntries());
-            TestSupport.checkMap(tx.queryIndex(Person.class, "ratings.key", Person.class), i.queryRatingKeys());
-            TestSupport.checkMap(tx.queryMapFieldValueEntries(Person.class, "ratings.value", Person.class, Float.class),
-              i.queryRatingValueEntries());
-
             // Check restricted indexes
-            TestSupport.checkMap(i.queryScoresMean(), buildMap(
+            TestSupport.checkMap(i.queryScoresMean().asMap(), buildMap(
               21,           buildSet(t1),
               22,           buildSet(t1),
               23,           buildSet(t1)));
-            TestSupport.checkMap(i.queryScoreEntriesMean(), buildMap(
-              21,           buildSet(new ListIndexEntry<Person>(t1, 1), new ListIndexEntry<Person>(t1, 3)),
-              22,           buildSet(new ListIndexEntry<Person>(t1, 2)),
-              23,           buildSet(new ListIndexEntry<Person>(t1, 0))));
-            TestSupport.checkMap(i.queryRatingKeysMean(), buildMap(
+            TestSupport.checkSet(i.queryScoreEntriesMean().asSet(), buildSet(
+              new Tuple3<Integer, MeanPerson, Integer>(21, t1, 1),
+              new Tuple3<Integer, MeanPerson, Integer>(21, t1, 3),
+              new Tuple3<Integer, MeanPerson, Integer>(22, t1, 2),
+              new Tuple3<Integer, MeanPerson, Integer>(23, t1, 0)));
+            TestSupport.checkMap(i.queryScoreEntriesMean().asMap(), buildMap(
+              new Tuple2<Integer, MeanPerson>(21, t1),  buildSet(1, 3),
+              new Tuple2<Integer, MeanPerson>(22, t1),  buildSet(2),
+              new Tuple2<Integer, MeanPerson>(23, t1),  buildSet(0)));
+            TestSupport.checkSet(i.queryScoreEntriesMean().asIndex().asSet(), buildSet(
+              new Tuple2<Integer, MeanPerson>(21, t1),
+              new Tuple2<Integer, MeanPerson>(22, t1),
+              new Tuple2<Integer, MeanPerson>(23, t1)));
+            TestSupport.checkMap(i.queryRatingKeysMean().asMap(), buildMap(
               t1,           buildSet(t1),
               t2,           buildSet(t1),
               null,         buildSet(t1)));
-            TestSupport.checkMap(i.queryRatingValueEntriesMean(), buildMap(
-              100.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t1)),
-              -99.0f,       buildSet(new MapValueIndexEntry<Person, Person>(t1, t2)),
-              -0.0f,        buildSet(new MapValueIndexEntry<Person, Person>(t1, null))));
-            TestSupport.checkMap(i.queryMoodsMean(), buildMap(
+            TestSupport.checkSet(i.queryRatingValueEntriesMean().asSet(), buildSet(
+              new Tuple3<Float, MeanPerson, Person>(100.0f, t1, t1),
+              new Tuple3<Float, MeanPerson, Person>(-99.0f, t1, t2),
+              new Tuple3<Float, MeanPerson, Person>(-0.0f, t1, null)));
+            TestSupport.checkMap(i.queryMoodsMean().asMap(), buildMap(
               Mood.HAPPY,   buildSet(t1)));
 
             try {
@@ -212,8 +209,8 @@ public class BasicTest extends TestSupport {
 
             boolean deleted = t1.delete();
             Assert.assertTrue(deleted);
-            TestSupport.checkMap(i.queryHaters(), buildMap());
-            TestSupport.checkMap(i.queryMoods(), buildMap(
+            TestSupport.checkMap(i.queryHaters().asMap(), buildMap());
+            TestSupport.checkMap(i.queryMoods().asMap(), buildMap(
               Mood.NORMAL,  buildSet(t3),
               null,         buildSet(t2)));
 
@@ -371,47 +368,59 @@ public class BasicTest extends TestSupport {
     }
 
     @JSimpleClass(storageId = 300)
-    public abstract static class Indexer {
+    public abstract static class Indexer implements JObject {
 
-        @IndexQuery(type = Person.class, value = "nicknames.element")
-        public abstract NavigableMap<String, NavigableSet<Person>> queryNicknames();
+        public Index<String, Person> queryNicknames() {
+            return this.getTransaction().querySimpleField(Person.class, "nicknames.element", String.class);
+        }
 
-        @IndexQuery(type = MeanPerson.class, value = "enemies.element")
-        public abstract NavigableMap<Person, NavigableSet<MeanPerson>> queryHaters();
+        public Index<Person, MeanPerson> queryHaters() {
+            return this.getTransaction().querySimpleField(MeanPerson.class, "enemies.element", Person.class);
+        }
 
     // Person queries
 
-        @IndexQuery(type = Person.class, value = "mood")
-        public abstract NavigableMap<Mood, NavigableSet<Person>> queryMoods();
+        public Index<Mood, Person> queryMoods() {
+            return this.getTransaction().querySimpleField(Person.class, "mood", Mood.class);
+        }
 
-        @IndexQuery(type = Person.class, value = "scores.element")
-        public abstract NavigableMap<Integer, NavigableSet<Person>> queryScores();
+        public Index<Integer, Person> queryScores() {
+            return this.getTransaction().querySimpleField(Person.class, "scores.element", Integer.class);
+        }
 
-        @IndexQuery(type = Person.class, value = "scores.element")
-        public abstract NavigableMap<Integer, NavigableSet<ListIndexEntry<Person>>> queryScoreEntries();
+        public Index2<Integer, Person, Integer> queryScoreEntries() {
+            return this.getTransaction().queryListField(Person.class, "scores.element", Integer.class);
+        }
 
-        @IndexQuery(type = Person.class, value = "ratings.key")
-        public abstract NavigableMap<Person, NavigableSet<Person>> queryRatingKeys();
+        public Index<Person, Person> queryRatingKeys() {
+            return this.getTransaction().querySimpleField(Person.class, "ratings.key", Person.class);
+        }
 
-        @IndexQuery(type = Person.class, value = "ratings.value")
-        public abstract NavigableMap<Float, NavigableSet<MapValueIndexEntry<Person, Person>>> queryRatingValueEntries();
+        public Index2<Float, Person, Person> queryRatingValueEntries() {
+            return this.getTransaction().queryMapValueField(Person.class, "ratings.value", Float.class, Person.class);
+        }
 
     // MeanPerson queries
 
-        @IndexQuery(type = MeanPerson.class, value = "mood")
-        public abstract NavigableMap<Mood, NavigableSet<MeanPerson>> queryMoodsMean();
+        public Index<Mood, MeanPerson> queryMoodsMean() {
+            return this.getTransaction().querySimpleField(MeanPerson.class, "mood", Mood.class);
+        }
 
-        @IndexQuery(type = MeanPerson.class, value = "scores.element")
-        public abstract NavigableMap<Integer, NavigableSet<MeanPerson>> queryScoresMean();
+        public Index<Integer, MeanPerson> queryScoresMean() {
+            return this.getTransaction().querySimpleField(MeanPerson.class, "scores.element", Integer.class);
+        }
 
-        @IndexQuery(type = MeanPerson.class, value = "scores.element")
-        public abstract NavigableMap<Integer, NavigableSet<ListIndexEntry<MeanPerson>>> queryScoreEntriesMean();
+        public Index2<Integer, MeanPerson, Integer> queryScoreEntriesMean() {
+            return this.getTransaction().queryListField(MeanPerson.class, "scores.element", Integer.class);
+        }
 
-        @IndexQuery(type = MeanPerson.class, value = "ratings.key")
-        public abstract NavigableMap<Person, NavigableSet<MeanPerson>> queryRatingKeysMean();
+        public Index<Person, MeanPerson> queryRatingKeysMean() {
+            return this.getTransaction().querySimpleField(MeanPerson.class, "ratings.key", Person.class);
+        }
 
-        @IndexQuery(type = MeanPerson.class, value = "ratings.value")
-        public abstract NavigableMap<Float, NavigableSet<MapValueIndexEntry<MeanPerson, Person>>> queryRatingValueEntriesMean();
+        public Index2<Float, MeanPerson, Person> queryRatingValueEntriesMean() {
+            return this.getTransaction().queryMapValueField(MeanPerson.class, "ratings.value", Float.class, Person.class);
+        }
     }
 }
 

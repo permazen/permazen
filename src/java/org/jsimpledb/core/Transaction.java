@@ -7,12 +7,9 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +29,7 @@ import org.jsimpledb.kv.CountingKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
@@ -157,18 +155,12 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>{@link #querySimpleField querySimpleField()} - Query the index associated with a {@link SimpleField}
  *      to identify all values and all objects having those values</li>
- *  <li>{@link #querySetField querySetField()} - Query the index associated with a {@link SetField}
- *      to identify all set elements and all objects having those elements in the set</li>
  *  <li>{@link #queryListField queryListField()} - Query the index associated with a {@link ListField}
  *      to identify all list elements and all objects having those elements in the list</li>
- *  <li>{@link #queryListFieldEntries queryListFieldEntries()} - Query the index associated with a {@link ListField}
- *      to identify all list elements and all objects with those elements in the list, as well as the associated list indicies</li>
- *  <li>{@link #queryMapFieldKey queryMapFieldKey()} - Query the index associated with a {@link MapField}
- *      to identify all map keys and all objects having those keys in the map</li>
- *  <li>{@link #queryMapFieldValue queryMapFieldValue()} - Query the index associated with a {@link MapField}
+ *  <li>{@link #queryMapValueField queryMapValueField()} - Query the index associated with a {@link MapField}
  *      to identify all map values and all objects having those values in the map</li>
- *  <li>{@link #queryMapFieldValueEntries queryMapFieldValueEntries()} - Query the index associated with a {@link MapField}
- *      to identify all map values and all objects having those values in the map, as well as the associated map keys</li>
+ *  <li>{@link #queryCompositeIndex2 queryCompositeIndex2()} - Query a composite index on two fields</li>
+ *  <li>{@link #queryCompositeIndex queryCompositeIndex()} - Query any composite index</li>
  * </ul>
  * </p>
  *
@@ -258,8 +250,7 @@ public class Transaction {
             throw new InvalidSchemaException("version " + version + " is this transaction's version");
         if (this.stale)
             throw new StaleTransactionException(this);
-        final NavigableSet<ObjId> objects = Database.getVersionIndex(this).get(version);
-        if (objects != null)
+        if (this.queryVersion().asMap().containsKey(version))
             throw new InvalidSchemaException("one or more version " + version + " objects still exist in database");
 
         // Delete schema version
@@ -666,8 +657,12 @@ public class Transaction {
         // Write simple field index entries
         for (SimpleField<?> field : objType.simpleFields.values()) {
             if (field.indexed)
-                this.kvt.put(field.buildIndexKey(id, null), ByteUtil.EMPTY);
+                this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, null), ByteUtil.EMPTY);
         }
+
+        // Write composite index entries
+        for (CompositeIndex index : objType.compositeIndexes.values())
+            this.kvt.put(Transaction.buildDefaultCompositeIndexEntry(id, index), ByteUtil.EMPTY);
 
         // Notify listeners
         for (CreateListener listener : this.createListeners.toArray(new CreateListener[this.createListeners.size()]))
@@ -682,7 +677,8 @@ public class Transaction {
      * </p>
      *
      * @param id object ID of the object to delete
-     * @return true if object was found and deleted, false if object was not found, or if {@code id} specifies an unknown object type
+     * @return true if object was found and deleted, false if object was not found,
+     *  or if {@code id} specifies an unknown object type
      * @throws ReferencedObjectException if the object is referenced by some other object
      *  through a reference field configured for {@link DeleteAction#EXCEPTION}
      * @throws IllegalArgumentException if {@code id} is null
@@ -790,8 +786,12 @@ public class Transaction {
         final ObjType type = info.getObjType();
         for (SimpleField<?> field : type.simpleFields.values()) {
             if (field.indexed)
-                this.kvt.remove(field.buildIndexKey(id, this.kvt.get(field.buildKey(id))));
+                this.kvt.remove(Transaction.buildSimpleIndexEntry(field, id, this.kvt.get(field.buildKey(id))));
         }
+
+        // Delete object's composite index entries
+        for (CompositeIndex index : type.compositeIndexes.values())
+            this.kvt.remove(this.buildCompositeIndexEntry(id, index));
 
         // Delete object's complex field index entries
         for (ComplexField<?> field : type.complexFields.values())
@@ -965,16 +965,20 @@ public class Transaction {
                 dstTx.kvt.put(dstWriter.getBytes(), kv.getValue());
             }
 
-            // Copy object's simple field index entries
+            // Create object's simple field index entries
             for (SimpleField<?> field : type.simpleFields.values()) {
                 if (field.indexed) {
                     final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // can be null (if field has default value)
-                    final byte[] indexKey = field.buildIndexKey(dstId, fieldValue);
+                    final byte[] indexKey = Transaction.buildSimpleIndexEntry(field, dstId, fieldValue);
                     dstTx.kvt.put(indexKey, ByteUtil.EMPTY);
                 }
             }
 
-            // Copy object's complex field index entries
+            // Create object's composite index entries
+            for (CompositeIndex index : type.compositeIndexes.values())
+                dstTx.kvt.put(Transaction.buildCompositeIndexEntry(dstTx, dstId, index), ByteUtil.EMPTY);
+
+            // Create object's complex field index entries
             for (ComplexField<?> field : type.complexFields.values()) {
                 for (SimpleField<?> subField : field.getSubFields()) {
                     if (subField.indexed)
@@ -1149,6 +1153,19 @@ public class Transaction {
         final TreeMap<Integer, Object> oldValueMap = !this.versionChangeListeners.isEmpty() ?
           new TreeMap<Integer, Object>() : null;
 
+    //////// Remove the index entries corresponding to removed composite indexes
+
+        // Get composite index storage IDs (old or new)
+        final TreeSet<Integer> compositeIndexStorageIds = new TreeSet<>();
+        compositeIndexStorageIds.addAll(oldType.compositeIndexes.keySet());
+        compositeIndexStorageIds.addAll(newType.compositeIndexes.keySet());
+
+        // Remove index entries for composite indexes that are going away
+        for (CompositeIndex index : oldType.compositeIndexes.values()) {
+            if (!newType.compositeIndexes.containsKey(index.storageId))
+                this.kvt.remove(this.buildCompositeIndexEntry(id, index));
+        }
+
     //////// Update counter fields
 
         // Get counter field storage IDs (old or new)
@@ -1192,7 +1209,7 @@ public class Transaction {
 
             // Save old field values for version change notification
             final byte[] key = Field.buildKey(id, storageId);
-            final byte[] oldValue = this.kvt.get(key);
+            final byte[] oldValue = oldField != null ? this.kvt.get(key) : null;
             if (oldField != null && oldValueMap != null) {
                 final byte[] bytes = oldValue != null ? oldValue : oldField.fieldType.getDefaultValue();
                 final Object value = oldField.fieldType.read(new ByteReader(bytes));
@@ -1205,11 +1222,19 @@ public class Transaction {
 
             // Remove old index entry if index removed in new version
             if (oldField != null && oldField.indexed && (newField == null || !newField.indexed))
-                this.kvt.remove(oldField.buildIndexKey(id, oldValue));
+                this.kvt.remove(Transaction.buildSimpleIndexEntry(oldField, id, oldValue));
 
             // Add new index entry if index added in new version
             if (newField != null && newField.indexed && (oldField == null || !oldField.indexed))
-                this.kvt.put(newField.buildIndexKey(id, oldValue), ByteUtil.EMPTY);
+                this.kvt.put(Transaction.buildSimpleIndexEntry(newField, id, oldValue), ByteUtil.EMPTY);
+        }
+
+    //////// Add composite index entries for newly added composite indexes
+
+        // Add index entries for composite indexes that are newly added
+        for (CompositeIndex index : newType.compositeIndexes.values()) {
+            if (!oldType.compositeIndexes.containsKey(index.storageId))
+                this.kvt.put(this.buildCompositeIndexEntry(id, index), ByteUtil.EMPTY);
         }
 
     //////// Update complex fields and corresponding index entries
@@ -1349,19 +1374,13 @@ public class Transaction {
     /**
      * Query objects by schema version.
      *
-     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
-     * @return read-only, real-time view of all database objects grouped by schema version
+     * @return read-only, real-time view of all database objects indexed by schema version
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public synchronized NavigableMap<Integer, NavigableSet<ObjId>> queryVersion(int... objTypeStorageIds) {
-
-        // Sanity check
+    public synchronized CoreIndex<Integer, ObjId> queryVersion() {
         if (this.stale)
             throw new StaleTransactionException(this);
-
-        // Create index map view
-        return Database.getVersionIndex(this, objTypeStorageIds);
+        return this.db.getVersionIndex(this);
     }
 
     /**
@@ -1399,7 +1418,17 @@ public class Transaction {
     /**
      * Get all objects in the database.
      *
-     * @return immutable set containing all database objects
+     * <p>
+     * The returned set includes objects from all schema versions. Use {@link #queryVersion queryVersion()} to
+     * find objects with a specific schema version.
+     * </p>
+     *
+     * <p>
+     * The returned set is mutable, with the exception that {@link NavigableSet#add add()} is not supported.
+     * Deleting an element results in {@linkplain #delete deleting} the corresponding object.
+     * </p>
+     *
+     * @return set containing all objects
      * @throws StaleTransactionException if this transaction is no longer usable
      * @see #getAll(int)
      */
@@ -1409,19 +1438,8 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
 
-        // Return the union of all type sets
-        return NavigableSets.union(Iterables.transform(Iterables.filter(this.schema.storageInfos.values(),
-          new Predicate<StorageInfo>() {
-            @Override
-            public boolean apply(StorageInfo storageInfo) {
-                return storageInfo instanceof ObjTypeStorageInfo;
-            }
-        }), new Function<StorageInfo, NavigableSet<ObjId>>() {
-            @Override
-            public NavigableSet<ObjId> apply(StorageInfo storageInfo) {
-                return new ObjTypeSet(Transaction.this, storageInfo.storageId);
-            }
-        }));
+        // Return objects
+        return new ObjTypeSet(this);
     }
 
     /**
@@ -1542,11 +1560,11 @@ public class Transaction {
         final byte[] newValue = field.encode(newObj);
 
         // Before setting the new value, read the old value if one of the following is true:
-        //  - The field is being monitored -> we need to detect "changes" that don't actuallly change anything
+        //  - The field is being monitored -> we need to filter out "changes" that don't actuallly change anything
         //  - The field is indexed -> we need the old value so we can remove the old index entry
         // If neither of the above is true, then there's no need to read the old value.
         byte[] oldValue = null;
-        if (field.indexed || this.hasFieldMonitor(id, field)) {
+        if (field.indexed || field.compositeIndexMap != null || this.hasFieldMonitor(id, field)) {
 
             // Get old value
             oldValue = this.kvt.get(key);
@@ -1562,10 +1580,51 @@ public class Transaction {
         else
             this.kvt.remove(key);
 
-        // Update index
+        // Update simple index, if any
         if (field.indexed) {
-            this.kvt.remove(field.buildIndexKey(id, oldValue));
-            this.kvt.put(field.buildIndexKey(id, newValue), ByteUtil.EMPTY);
+            this.kvt.remove(Transaction.buildSimpleIndexEntry(field, id, oldValue));
+            this.kvt.put(Transaction.buildSimpleIndexEntry(field, id, newValue), ByteUtil.EMPTY);
+        }
+
+        // Update affected composite indexes, if any
+        if (field.compositeIndexMap != null) {
+            for (Map.Entry<CompositeIndex, Integer> entry : field.compositeIndexMap.entrySet()) {
+                final CompositeIndex index = entry.getKey();
+                final int fieldIndexOffset = entry.getValue();
+
+                // Build old composite index entry
+                final ByteWriter oldWriter = new ByteWriter();
+                UnsignedIntEncoder.write(oldWriter, index.storageId);
+                int fieldStart = -1;
+                int fieldEnd = -1;
+                for (SimpleField<?> otherField : index.fields) {
+                    final byte[] otherValue;
+                    if (otherField == field) {
+                        fieldStart = oldWriter.getLength();
+                        otherValue = oldValue;
+                    } else
+                        otherValue = this.kvt.get(otherField.buildKey(id));         // can be null (if field has default value)
+                    oldWriter.write(otherValue != null ? otherValue : otherField.fieldType.getDefaultValue());
+                    if (otherField == field)
+                        fieldEnd = oldWriter.getLength();
+                }
+                assert fieldStart != -1;
+                assert fieldEnd != -1;
+                id.writeTo(oldWriter);
+
+                // Remove old composite index entry
+                final byte[] oldIndexEntry = oldWriter.getBytes();
+                this.kvt.remove(oldIndexEntry);
+
+                // Patch in new field value to create new composite index entry
+                final ByteWriter newWriter = new ByteWriter(oldIndexEntry.length);
+                newWriter.write(oldIndexEntry, 0, fieldStart);
+                newWriter.write(newValue != null ? newValue : field.fieldType.getDefaultValue());
+                newWriter.write(oldIndexEntry, fieldEnd, oldIndexEntry.length - fieldEnd);
+
+                // Add new composite index entry
+                this.kvt.put(newWriter.getBytes(), ByteUtil.EMPTY);
+            }
         }
 
         // Notify monitors
@@ -1577,6 +1636,22 @@ public class Transaction {
                 listener.onSimpleFieldChange(tx, this.id, (SimpleField<Object>)field, path, referrers, oldObj, newObj);
             }
         });
+    }
+
+    /**
+     * Bulid a simple index entry for the given field, object ID, and field value.
+     *
+     * @param field simple field
+     * @param id ID of object containing the field
+     * @param value encoded field value, or null for default value
+     * @return index key
+     */
+    private static byte[] buildSimpleIndexEntry(SimpleField<?> field, ObjId id, byte[] value) {
+        final ByteWriter writer = new ByteWriter();
+        UnsignedIntEncoder.write(writer, field.storageId);
+        writer.write(value != null ? value : field.fieldType.getDefaultValue());
+        id.writeTo(writer);
+        return writer.getBytes();
     }
 
     /**
@@ -2369,8 +2444,8 @@ public class Transaction {
      * </p>
      *
      * <p>
-     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
-     * having one of the specified types.
+     * The returned index contains objects from all recorded schema versions for which the field is indexed;
+     * this method does not check whether any such schema versions exist.
      * </p>
      *
      * <p>
@@ -2379,320 +2454,171 @@ public class Transaction {
      * </p>
      *
      * @param storageId {@link SimpleField}'s storage ID
-     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
      * @return read-only, real-time view of field values mapped to sets of objects with the value in the field
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public NavigableMap<?, NavigableSet<ObjId>> querySimpleField(int storageId, int... objTypeStorageIds) {
+    public synchronized CoreIndex<?, ObjId> querySimpleField(int storageId) {
+        if (this.stale)
+            throw new StaleTransactionException(this);
         final SimpleFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo), objTypeStorageIds,
-          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.storageId));
-    }
-
-    /**
-     * Find all values stored as an element in the specified {@link SetField} and, for each such value,
-     * the set of all objects having that value as an element in the set.
-     *
-     * <p>
-     * This method functions just like {@link #querySimpleField querySimpleField()} but
-     * takes the storage ID of the {@link SetField} rather than its element {@link SimpleField}.
-     * </p>
-     *
-     * <p>
-     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
-     * having one of the specified types.
-     * </p>
-     *
-     * <p>
-     * Only objects having schema versions in which the set's element field is indexed will be found;
-     * this method does not check whether any such schema versions exist.
-     * </p>
-     *
-     * @param storageId {@link SetField}'s storage ID
-     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
-     * @return read-only, real-time view of set element values mapped to sets of objects with the value in the set
-     * @throws UnknownFieldException if no {@link SetField} corresponding to {@code storageId} exists
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
-     */
-    public NavigableMap<?, NavigableSet<ObjId>> querySetField(int storageId, int... objTypeStorageIds) {
-        final SetFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, SetFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.elementField), objTypeStorageIds,
-          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
+        if (fieldInfo.superFieldStorageId == 0)
+            return fieldInfo.getSimpleFieldIndex(this);
+        final ComplexFieldStorageInfo<?> superFieldInfo
+          = this.schema.verifyStorageInfo(fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
+        return superFieldInfo.getSimpleSubFieldIndex(this, fieldInfo);
     }
 
     /**
      * Find all values stored as an element in the specified {@link ListField} and, for each such value,
-     * the set of all objects having that value as an element in the list.
+     * the set of all objects having that value as an element in the list and the corresponding list index.
      *
      * <p>
-     * This method functions just like {@link #querySimpleField querySimpleField()} but
-     * takes the storage ID of the {@link ListField} rather than its element {@link SimpleField}.
-     * </p>
-     *
-     * <p>
-     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
-     * having one of the specified types.
-     * </p>
-     *
-     * <p>
-     * Only objects having schema versions in which the list's element field is indexed will be found;
+     * The returned index contains objects from all recorded schema versions for which the list element field is indexed;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link ListField}'s storage ID
-     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
-     * @return read-only, real-time view of list element values mapped to sets of objects with the value in the list
+     * @return read-only, real-time view of list element values, objects with the value in the list, and indicies
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public NavigableMap<?, NavigableSet<ObjId>> queryListField(int storageId, int... objTypeStorageIds) {
+    public synchronized CoreIndex2<?, ObjId, Integer> queryListField(int storageId) {
+        if (this.stale)
+            throw new StaleTransactionException(this);
         final ListFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.elementField), objTypeStorageIds,
-          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
-    }
-
-    /**
-     * Find all values stored as a key in the specified {@link MapField} and, for each such key value,
-     * the set of all objects having that value as an key in the map.
-     *
-     * <p>
-     * This method functions just like {@link #querySimpleField querySimpleField()} but
-     * takes the storage ID of the {@link MapField} rather than its key {@link SimpleField}.
-     * </p>
-     *
-     * <p>
-     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
-     * having one of the specified types.
-     * </p>
-     *
-     * <p>
-     * Only objects having schema versions in which the map's key field is indexed will be found;
-     * this method does not check whether any such schema versions exist.
-     * </p>
-     *
-     * @param storageId {@link MapField}'s storage ID
-     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
-     * @return read-only, real-time view of map keys mapped to sets of objects with the value in the map as a key
-     * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
-     */
-    public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldKey(int storageId, int... objTypeStorageIds) {
-        final MapFieldStorageInfo<?, ?> fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.keyField), objTypeStorageIds,
-          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.keyField.storageId));
+        return fieldInfo.getElementFieldIndex(this);
     }
 
     /**
      * Find all values stored as a value in the specified {@link MapField} and, for each such value,
-     * the set of all objects having that value as a value in the map.
+     * the set of all objects having that value as a value in the map and the corresponding key.
      *
      * <p>
-     * This method functions just like {@link #querySimpleField querySimpleField()} but
-     * takes the storage ID of the {@link MapField} rather than its value {@link SimpleField}.
-     * </p>
-     *
-     * <p>
-     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
-     * having one of the specified types.
-     * </p>
-     *
-     * <p>
-     * Only objects having schema versions in which the map's value field is indexed will be found;
+     * The returned index contains objects from all recorded schema versions for which the map value field is indexed;
      * this method does not check whether any such schema versions exist.
      * </p>
      *
      * @param storageId {@link MapField}'s storage ID
-     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
-     * @return read-only, real-time view of map values mapped to sets of objects with the value in the map as a values
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
-    public NavigableMap<?, NavigableSet<ObjId>> queryMapFieldValue(int storageId, int... objTypeStorageIds) {
+    public synchronized CoreIndex2<?, ObjId, ?> queryMapValueField(int storageId) {
+        if (this.stale)
+            throw new StaleTransactionException(this);
         final MapFieldStorageInfo<?, ?> fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.valueField), objTypeStorageIds,
-          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.valueField.storageId));
+        return fieldInfo.getValueFieldIndex(this);
     }
 
     /**
-     * Find all values stored as an element in the specified {@link ListField} and, for each such value,
-     * the set of all {@link ListIndexEntry} objects, each of which represents an object and a list index.
+     * Access a composite index on two fields.
      *
      * <p>
-     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
-     * having one of the specified types.
+     * The returned index contains objects from all recorded schema versions in which the composite index is defined.
      * </p>
      *
-     * <p>
-     * Only objects having schema versions in which the list's element field is indexed will be found;
-     * this method does not check whether any such schema versions exist.
-     * </p>
-     *
-     * @param storageId {@link ListField}'s storage ID
-     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
-     * @return read-only, real-time view of list element values mapped to sets of {@link ListIndexEntry}s
-     * @throws UnknownFieldException if no {@link ListField} field corresponding to {@code storageId} exists
+     * @param storageId composite index's storage ID
+     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
+     * @throws UnknownIndexException if {@code storageID} is unknown or does not correspond to a composite index on two fields
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
-     */
-    public NavigableMap<?, NavigableSet<ListIndexEntry>> queryListFieldEntries(int storageId, int... objTypeStorageIds) {
-        final ListFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
-        return this.filterIndex(this.queryIndex(fieldInfo.elementField, FieldTypeRegistry.LIST_INDEX_ENTRY), objTypeStorageIds,
-          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.elementField.storageId));
-    }
-
-    /**
-     * Find all values stored as a value in the specified {@link MapField} and, for each such value, a corresponding
-     * the set of all {@link MapValueIndexEntry} objects, each of which represents an object and a corresponding map key.
-     *
-     * <p>
-     * If one or more {@code objTypeStorageIds} are provided, the query results will be restricted to objects
-     * having one of the specified types.
-     * </p>
-     *
-     * <p>
-     * Only objects having schema versions in which the map's value field is indexed will be found;
-     * this method does not check whether any such schema versions exist.
-     * </p>
-     *
-     * @param storageId {@link MapField}'s storage ID
-     * @param objTypeStorageIds storage IDs of {@link ObjType}s to query for, or empty array for all {@link ObjType}s
-     * @return read-only, real-time view of map values mapped to sets of {@link MapValueIndexEntry}s
-     * @throws UnknownFieldException if no {@link MapField} field corresponding to {@code storageId} exists
-     * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws IllegalArgumentException if {@code objTypeStorageIds} is null
      */
     @SuppressWarnings("unchecked")
-    public NavigableMap<?, NavigableSet<MapValueIndexEntry<?>>> queryMapFieldValueEntries(int storageId, int... objTypeStorageIds) {
-        final MapFieldStorageInfo<?, ?> fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
-        return this.filterIndex((IndexMap<?, MapValueIndexEntry<?>>)this.queryIndex(fieldInfo.valueField,
-          this.createMapValueIndexEntryType(fieldInfo.keyField.fieldType)), objTypeStorageIds,
-          this.schema.indexedFieldToContainingTypesMap.get(fieldInfo.valueField.storageId));
+    public CoreIndex2<?, ?, ObjId> queryCompositeIndex2(int storageId) {
+        final CompositeIndexStorageInfo indexInfo = this.schema.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
+        final Object index = indexInfo.getIndex(this);
+        if (!(index instanceof CoreIndex2)) {
+            throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
+              + " is on " + indexInfo.fields.size() + " != 2 fields");
+        }
+        return (CoreIndex2<?, ?, ObjId>)index;
     }
 
-    // This method exists solely to bind the generic type parameters
-    private <K> MapValueIndexEntryType<K> createMapValueIndexEntryType(FieldType<K> keyFieldType) {
-        return new MapValueIndexEntryType<K>(keyFieldType);
+    /**
+     * Access any composite index by storage ID, regardless of the number of fields indexed.
+     *
+     * <p>
+     * The returned index contains objects from all recorded schema versions in which the composite index is defined.
+     * </p>
+     *
+     * @param storageId composite index's storage ID
+     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
+     * @throws UnknownIndexException if {@code storageID} is unknown or does not correspond to a composite index
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    public Object queryCompositeIndex(int storageId) {
+        final CompositeIndexStorageInfo indexInfo = this.schema.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
+        return indexInfo.getIndex(this);
     }
 
     // Query an index on a reference field for referring objects
-    private IndexMap<ObjId, ObjId> queryReferences(int storageId) {
+    @SuppressWarnings("unchecked")
+    private NavigableMap<ObjId, NavigableSet<ObjId>> queryReferences(int storageId) {
         assert this.schema.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class) != null;
-        return this.queryIndex(storageId, FieldTypeRegistry.REFERENCE, FieldTypeRegistry.OBJ_ID);
-    }
-
-    // Query an index associated with a simple field for referring objects
-    private IndexMap<?, ObjId> queryIndex(SimpleFieldStorageInfo<?> fieldInfo) {
-        return this.queryIndex(fieldInfo, FieldTypeRegistry.OBJ_ID);
-    }
-
-    // Query an index associated with a simple field assuming the given index entry type
-    private <E> IndexMap<?, E> queryIndex(SimpleFieldStorageInfo<?> fieldInfo, FieldType<E> entryType) {
-        return this.queryIndex(fieldInfo.storageId, fieldInfo.fieldType, entryType);
-    }
-
-    // Query an index associated with a simple field assuming the given field type, index entry type
-    private synchronized <V, E> IndexMap<V, E> queryIndex(int storageId, FieldType<V> fieldType, FieldType<E> entryType) {
-
-        // Sanity check
-        assert this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class) != null;
-        if (this.stale)
-            throw new StaleTransactionException(this);
-
-        // Create index map view
-        return new IndexMap<V, E>(this, storageId, fieldType, entryType);
+        return (NavigableMap<ObjId, NavigableSet<ObjId>>)this.querySimpleField(storageId).asMap();
     }
 
     /**
      * Find all objects that refer to the given target object through the/any reference field with the specified
      * {@link DeleteAction}.
      *
+     * <p>
+     * Because different schema versions can have different {@link DeleteAction}'s configured for the
+     * same field, we have to iterate through each schema version separately.
+     * </p>
+     *
      * @param target referred-to object
      * @param onDelete {@link DeleteAction} to match
      * @param fieldStorageId reference field storage ID, or -1 to match any reference field
      */
-    @SuppressWarnings("unchecked")
     private NavigableSet<ObjId> findReferrers(ObjId target, DeleteAction onDelete, int fieldStorageId) {
         final ArrayList<NavigableSet<ObjId>> refSets = new ArrayList<>();
         for (SchemaVersion schemaVersion : this.schema.versions.values()) {
-            final NavigableSet<ObjId> versionObjects = this.queryVersion().get(schemaVersion.versionNumber);
+
+            // Check whether any object of this version exist; if not, skip
+            final NavigableSet<ObjId> versionObjects = this.queryVersion().asMap().get(schemaVersion.versionNumber);
             if (versionObjects == null)
                 continue;
+
+            // Find all reference fields with storage ID matching fieldStorageId (if not -1) and check them.
+            // Do this separately for each such field in each object type because the fields may have different DeleteAction's.
             for (ObjType objType : schemaVersion.objTypeMap.values()) {
                 for (ReferenceField field : Iterables.filter(objType.getFieldsAndSubFields(), ReferenceField.class)) {
+
+                    // Check delete action and field
                     if (field.onDelete != onDelete || (fieldStorageId != -1 && field.storageId != fieldStorageId))
                         continue;
-                    IndexMap<ObjId, ObjId>.IndexSet refs = (IndexMap<ObjId, ObjId>.IndexSet)this.queryReferences(
-                      field.storageId).get(target);
+
+                    // Query index on this field, restricting to those only references coming from objType objects
+                    final NavigableSet<ObjId> refs = this.querySimpleField(field.storageId)
+                      .filter(1, new KeyRanges(ObjId.getKeyRange(objType.storageId))).asMap().get(target);
                     if (refs == null)
                         continue;
-                    refs = refs.forObjType(objType.storageId);                              // restrict to object type
-                    refSets.add(NavigableSets.intersection(versionObjects, refs));          // restrict to schema version
+
+                    // Restrict further to the specific schema version
+                    refSets.add(NavigableSets.intersection(versionObjects, refs));
                 }
             }
         }
         return !refSets.isEmpty() ? NavigableSets.union(refSets) : NavigableSets.empty(FieldTypeRegistry.OBJ_ID);
     }
 
-    /**
-     * Filter an index map to only contain objects with the specified storage IDs.
-     *
-     * @param indexMap original index
-     * @param storageIds restrict results to this set of object types
-     * @param allStorageIds further restrict to this set of valid object types; null is treated like an empty set
-     */
-    <V, E> NavigableMap<V, NavigableSet<E>> filterIndex(IndexMap<V, E> indexMap, int[] storageIds, TreeSet<Integer> allStorageIds) {
+    private byte[] buildCompositeIndexEntry(ObjId id, CompositeIndex index) {
+        return Transaction.buildCompositeIndexEntry(this, id, index);
+    }
 
-        // Sanity check
-        if (storageIds == null)
-            throw new IllegalArgumentException("null objTypeStorageIds");
+    private static byte[] buildDefaultCompositeIndexEntry(ObjId id, CompositeIndex index) {
+        return Transaction.buildCompositeIndexEntry(null, id, index);
+    }
 
-        // Handle special case meaning "all types"
-        if (storageIds.length == 0)
-            return indexMap;
-
-        // Calculate intersection of specified storage IDs with all compatible storage IDs
-        final TreeSet<Integer> storageIdSet = Sets.newTreeSet(Ints.asList(storageIds));
-        for (Iterator<Integer> i = storageIdSet.iterator(); i.hasNext(); ) {
-            if (allStorageIds == null || !allStorageIds.contains(i.next()))
-                i.remove();
+    private static byte[] buildCompositeIndexEntry(Transaction tx, ObjId id, CompositeIndex index) {
+        final ByteWriter writer = new ByteWriter();
+        UnsignedIntEncoder.write(writer, index.storageId);
+        for (SimpleField<?> field : index.fields) {
+            final byte[] value = tx != null ? tx.kvt.get(field.buildKey(id)) : null;
+            writer.write(value != null ? value : field.fieldType.getDefaultValue());
         }
-        if (storageIdSet.isEmpty())
-            return new TreeMap<V, NavigableSet<E>>(indexMap.comparator());
-
-        // Transform map so each map value, i.e., set of entries, contains entries for only the desired types
-        NavigableMap<V, NavigableSet<E>> map = Maps.transformValues(indexMap, new Function<NavigableSet<E>, NavigableSet<E>>() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public NavigableSet<E> apply(NavigableSet<E> set) {
-                final IndexMap<V, E>.IndexSet indexSet = (IndexMap<V, E>.IndexSet)set;
-                final Function<Integer, IndexMap<V, E>.IndexSet> restrictor = new Function<Integer, IndexMap<V, E>.IndexSet>() {
-                    @Override
-                    public IndexMap<V, E>.IndexSet apply(Integer storageId) {
-                        return indexSet.forObjType(storageId);
-                    }
-                };
-                if (storageIdSet.size() == 1)
-                    return restrictor.apply(storageIdSet.iterator().next());
-                return NavigableSets.union(Iterables.transform(storageIdSet, restrictor));
-            }
-        });
-
-        // Filter out map entries where the set is empty, to keep consistent behavior
-        map = Maps.filterValues(map, new Predicate<NavigableSet<E>>() {
-            @Override
-            public boolean apply(NavigableSet<E> set) {
-                return !set.isEmpty();
-            }
-        });
-
-        // Done
-        return map;
+        id.writeTo(writer);
+        return writer.getBytes();
     }
 
 // Mutation

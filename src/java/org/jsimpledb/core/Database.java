@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -70,6 +68,11 @@ import org.slf4j.LoggerFactory;
  * @see org.jsimpledb
  */
 public class Database {
+
+    /**
+     * The maximum number of fields that may be indexed in a composite index ({@value #MAX_INDEXED_FIELDS}).
+     */
+    public static final int MAX_INDEXED_FIELDS = 2;
 
     // Prefix of all meta-data keys
     private static final byte METADATA_PREFIX = (byte)0x00;
@@ -158,7 +161,7 @@ public class Database {
      * </p>
      *
      * <p>
-     * For two schemas to "match", they must be identical in all respects, except that object and field names may differ.
+     * For two schemas to "match", they must be identical in all respects, except that object, field, and index names may differ.
      * In the core API, objects and fields are identified by storage ID, not name.
      * </p>
      *
@@ -490,10 +493,9 @@ public class Database {
         return writer.getBytes();
     }
 
-    static NavigableMap<Integer, NavigableSet<ObjId>> getVersionIndex(Transaction tx, int... storageIds) {
-        final IndexMap<Integer, ObjId> map = new IndexMap<>(tx,
-          VERSION_INDEX_PREFIX, new UnsignedIntType(), FieldTypeRegistry.OBJ_ID);
-        return tx.filterIndex(map, storageIds, tx.schema.objTypeStorageIds);
+    CoreIndex<Integer, ObjId> getVersionIndex(Transaction tx) {
+        return new CoreIndex<Integer, ObjId>(tx,
+          new IndexView<Integer, ObjId>(VERSION_INDEX_PREFIX, false, new UnsignedIntType(), FieldTypeRegistry.OBJ_ID));
     }
 
     /**

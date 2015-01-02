@@ -11,11 +11,16 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Ints;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.jsimpledb.schema.SchemaCompositeIndex;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaObjectType;
 
@@ -27,6 +32,8 @@ public class ObjType extends SchemaItem {
     final FieldTypeRegistry fieldTypeRegistry;
     final TreeMap<Integer, Field<?>> fields = new TreeMap<>();
     final TreeMap<String, Field<?>> fieldsByName = new TreeMap<>();
+    final TreeMap<Integer, CompositeIndex> compositeIndexes = new TreeMap<>();
+    final TreeMap<String, CompositeIndex> compositeIndexesByName = new TreeMap<>();
     final TreeMap<Integer, SimpleField<?>> simpleFields = new TreeMap<>();
     final TreeMap<Integer, ComplexField<?>> complexFields = new TreeMap<>();
     final TreeMap<Integer, CounterField> counterFields = new TreeMap<>();
@@ -46,7 +53,7 @@ public class ObjType extends SchemaItem {
         // Build fields
         final FieldBuilder fieldBuilder = new FieldBuilder(this.version, this.fieldTypeRegistry);
         for (SchemaField schemaField : schemaObjectType.getSchemaFields().values())
-            this.addField(schemaField.visit(fieldBuilder));
+            this.addSchemaItem(fields, fieldsByName, schemaField.visit(fieldBuilder));
 
         // Build mappings for various field types
         this.buildMap(this.simpleFields, SimpleField.class);
@@ -54,6 +61,23 @@ public class ObjType extends SchemaItem {
         this.buildMap(this.counterFields, CounterField.class);
         for (ReferenceField referenceField : Iterables.filter(this.getFieldsAndSubFields(), ReferenceField.class))
             this.referenceFields.put(referenceField.storageId, referenceField);
+
+        // Build composite indexes
+        for (SchemaCompositeIndex schemaIndex : schemaObjectType.getSchemaCompositeIndexes().values())
+            this.addCompositeIndex(this.version, schemaIndex);
+
+        // Link simple fields to the composite indexes they include
+        for (SimpleField<?> field : this.simpleFields.values()) {
+            final HashMap<CompositeIndex, Integer> indexMap = new HashMap<>();
+            for (CompositeIndex index : this.compositeIndexes.values()) {
+                final int i = index.fields.indexOf(field);
+                if (i != -1)
+                    indexMap.put(index, i);
+            }
+            assert field.compositeIndexMap == null;
+            if (!indexMap.isEmpty())
+                field.compositeIndexMap = Collections.unmodifiableMap(indexMap);
+        }
     }
 
     /**
@@ -84,8 +108,40 @@ public class ObjType extends SchemaItem {
      *
      * @return unmodifiable mapping from {@linkplain Field#getName field name} to field
      */
-    public SortedMap<String, Field<?>> getFieldByNames() {
+    public SortedMap<String, Field<?>> getFieldsByName() {
         return Collections.unmodifiableSortedMap(this.fieldsByName);
+    }
+
+    /**
+     * Get all composite indexes associated with this object type keyed by storage ID.
+     *
+     * @return unmodifiable mapping from {@linkplain CompositeIndex#getStorageId composite index storage ID} to field
+     */
+    public SortedMap<Integer, CompositeIndex> getCompositeIndexes() {
+        return Collections.unmodifiableSortedMap(this.compositeIndexes);
+    }
+
+    /**
+     * Get the {@link CompositeIndex} associated with this instance with the given storage ID.
+     *
+     * @param storageId storage ID
+     * @return the {@link CompositeIndex} with storage ID {@code storageID}
+     * @throws UnknownIndexException if no {@link CompositeIndex} with storage ID {@code storageId} exists
+     */
+    public CompositeIndex getCompositeIndex(int storageId) {
+        final CompositeIndex index = this.compositeIndexes.get(storageId);
+        if (index == null)
+            throw new UnknownIndexException(storageId, "composite index");
+        return index;
+    }
+
+    /**
+     * Get all composite indexes associated with this object type keyed by name.
+     *
+     * @return unmodifiable mapping from {@linkplain CompositeIndex#getName index name} to index
+     */
+    public SortedMap<String, CompositeIndex> getCompositeIndexesByName() {
+        return Collections.unmodifiableSortedMap(this.compositeIndexesByName);
     }
 
     /**
@@ -125,17 +181,45 @@ public class ObjType extends SchemaItem {
         }));
     }
 
-    private void addField(Field<?> field) {
-        Field<?> previous = this.fields.put(field.storageId, field);
+    private <T extends SchemaItem> void addSchemaItem(Map<Integer, T> byStorageId, Map<String, T> byName, T item) {
+        T previous = byStorageId.put(item.storageId, item);
         if (previous != null) {
-            throw new InconsistentDatabaseException("duplicate use of storage ID " + field.storageId
-              + " by fields `" + previous.name + "' and `" + field.name + "' in " + this);
+            throw new IllegalArgumentException("duplicate use of storage ID " + item.storageId
+              + " by " + previous + " and " + item + " in " + this);
         }
-        previous = this.fieldsByName.put(field.name, field);
+        previous = byName.put(item.name, item);
         if (previous != null) {
-            throw new InconsistentDatabaseException("duplicate use of name `" + field.storageId
-              + "' by `" + previous + "' and `" + field + "' in " + this);
+            throw new IllegalArgumentException("duplicate use of name `" + item.name
+              + "' by " + previous + " and " + item + " in " + this);
         }
+    }
+
+    private CompositeIndex addCompositeIndex(SchemaVersion version, SchemaCompositeIndex schemaIndex) {
+
+        // Get fields corresponding to specified storage IDs
+        final int[] storageIds = Ints.toArray(schemaIndex.getIndexedFields());
+        if (storageIds.length < 2 || storageIds.length > Database.MAX_INDEXED_FIELDS)
+            throw new IllegalArgumentException("invalid " + schemaIndex + ": can't index " + storageIds.length + " fields");
+        final ArrayList<SimpleField<?>> list = new ArrayList<>(storageIds.length);
+        int count = 0;
+        for (int storageId : storageIds) {
+            final Field<?> field = this.fields.get(storageId);
+            if (!(field instanceof SimpleField)) {
+                throw new IllegalArgumentException("invalid " + schemaIndex
+                  + ": no simple field with storage ID " + storageId + " found");
+            }
+            final SimpleField<?> simpleField = (SimpleField<?>)field;
+            if (simpleField.parent != null) {
+                throw new IllegalArgumentException("invalid " + schemaIndex
+                  + ": simple field with storage ID " + storageId + " is a sub-field of a complex field");
+            }
+            list.add(simpleField);
+        }
+
+        // Create and add index
+        final CompositeIndex index = new CompositeIndex(schemaIndex.getName(), schemaIndex.getStorageId(), version, this, list);
+        this.addSchemaItem(this.compositeIndexes, this.compositeIndexesByName, index);
+        return index;
     }
 }
 

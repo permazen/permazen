@@ -1,18 +1,8 @@
 
-- @IndexQuery and runtime index query type parameters must be assignable to widest type
-    - If narrower, restrict keys or values using KeyRanges
-    - Harmonize @IndexQuery and runtime index query
+- Add support for composite indexes on 3, 4, ... fields
 
 - Add support for XA transactions
     - But only if KVStore supports them
-
-- BUG: JDB querying index on reference field type A in schema version X where objects
-  in schema version Y exist and Y's version of reference field has a wider type B.
-  Then the keySet() of the index map will have type A but contain elements of type B,
-  resulting in runtime ClassCastExceptions.
-    -> Fix: restrict index map keySet() to the expected types (subtypes of A)
-
-- Add support for "skip regions" to AbstractKVIterator; use to fix above bug.
 
 - Annotation enhancements:
     - Allow storageId's to default to zero; if so, auto-generate them:
@@ -26,11 +16,6 @@
     - @JSimpleClass: add abstract() default false
         - If true then no corresponding object type is generated
         - Alows autoProperties to work for subtypes without creating supertype
-
-- Allow @IndexQuery and JTransaction.queryIndex() to accept set element type
-  that is wider than necessary (e.g., JObject instead of MyClass). This is
-  needed when reading an index containing types dropped from current schema.
-  We should already accept set element types that are narrower (e.g., MySubClass).
 
 - Build and distribute binary distribution
     - lib subdirectory with dependencies
@@ -69,18 +54,16 @@
     - Note for set element or map key sub-field, if both uniqueDefault = false
       and uniqueGlobal = false this is redundant
 
-- Composite indexes on multiple fields
-    - @JCompositeIndex(name = "foo", storageId = 123, fields = { 12, 23 })
-        - Or: @JCompositeIndex(fieldNames = { "friend", "foe"})
-    - public NavigableSet<?> queryIndex(int... storageId)
-        - Or: public NavigableSet<?> queryIndex("foo")
-
-- Add Vaadin GUI editor generator
+- Finish Vaadin GUI editor generator
+    - Implement collection fields
+    - Make more modular/pluggable
 
 - Ant task for easy validation of JLayer annotations during a build
 
 - Reimplement LockManager using Guava ranges?
     - https://code.google.com/p/guava-libraries/wiki/RangesExplained
+
+- Reimplement LockManager using KeyRanges?
 
 - More built-in field types:
     - BigInteger, BigDecimal
@@ -94,4 +77,14 @@
     - If any inconsistent information encountered
         - Log an error
         - Return reasonable default
+
+- Consistency checker
+    - Checks a JDB key-value store for consistency
+        - All field values are properly encoded
+        - Object vs. index entry consistency
+        - No extraneous key-value pairs exist
+    - Uses another, empty database to store its state
+        - Allows to run in multiple "chunked" transactions
+    - Generates inconsistency report
+    - Can auto-repair if necessary
 

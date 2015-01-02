@@ -54,7 +54,7 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
 
     @Override
-    public void validate() {
+    void validate() {
         super.validate();
         if (!FieldType.REFERENCE_TYPE_NAME.equals(this.getType())) {
             throw new InvalidSchemaException("invalid " + this + ": reference fields must have type `"

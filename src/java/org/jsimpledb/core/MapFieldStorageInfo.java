@@ -30,6 +30,26 @@ class MapFieldStorageInfo<K, V> extends ComplexFieldStorageInfo<NavigableMap<K, 
         return Arrays.asList(this.keyField, this.valueField);
     }
 
+    CoreIndex<K, ObjId> getKeyFieldIndex(Transaction tx) {
+        return new CoreIndex<K, ObjId>(tx,
+          new IndexView<K, ObjId>(this.keyField.storageId, this.keyField.fieldType, FieldTypeRegistry.OBJ_ID));
+    }
+
+    CoreIndex2<V, ObjId, K> getValueFieldIndex(Transaction tx) {
+        return new CoreIndex2<V, ObjId, K>(tx,
+          new Index2View<V, ObjId, K>(this.valueField.storageId,
+           this.valueField.fieldType, FieldTypeRegistry.OBJ_ID, this.keyField.fieldType));
+    }
+
+    @Override
+    CoreIndex<?, ObjId> getSimpleSubFieldIndex(Transaction tx, SimpleFieldStorageInfo<?> subField) {
+        if (subField.equals(this.keyField))
+            return this.getKeyFieldIndex(tx);
+        if (subField.equals(this.valueField))
+            return this.getValueFieldIndex(tx).asIndex();
+        throw new RuntimeException("internal eror");
+    }
+
     @Override
     void unreference(Transaction tx, int storageId, ObjId target, ObjId referrer, byte[] prefix) {
         final FieldTypeMap<?, ?> fieldMap = (FieldTypeMap<?, ?>)tx.readMapField(referrer, this.storageId, false);

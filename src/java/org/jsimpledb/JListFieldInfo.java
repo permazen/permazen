@@ -11,11 +11,8 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.List;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
 
 import org.jsimpledb.change.ListFieldAdd;
 import org.jsimpledb.change.ListFieldClear;
@@ -67,31 +64,6 @@ class JListFieldInfo extends JCollectionFieldInfo {
         types.add(new TypeToken<ListFieldReplace<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));
-    }
-
-    @Override
-    @SuppressWarnings("serial")
-    <T, E> void addIndexEntryReturnTypes(List<TypeToken<?>> types,
-      TypeToken<T> targetType, JSimpleFieldInfo subFieldInfo, TypeToken<E> elementType) {
-        assert subFieldInfo == this.getElementFieldInfo();
-        types.add(new TypeToken<NavigableMap<E, NavigableSet<ListIndexEntry<T>>>>() { }
-          .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<E>() { }, elementType.wrap()));
-    }
-
-    @Override
-    int getIndexEntryQueryType(TypeToken<?> queryObjectType) {
-        return queryObjectType.getRawType().equals(ListIndexEntry.class) ? LIST_INDEX_ENTRY_QUERY : 0;
-    }
-
-    @Override
-    Method getIndexEntryQueryMethod(int queryType) {
-        switch (queryType) {
-        case LIST_INDEX_ENTRY_QUERY:
-            return ClassGenerator.QUERY_LIST_FIELD_ENTRIES_METHOD;
-        default:
-            throw new UnsupportedOperationException();
-        }
     }
 
     @Override

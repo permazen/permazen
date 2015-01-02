@@ -47,12 +47,7 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
         this.storageId = storageId;
     }
 
-    /**
-     * Validate this instance.
-     *
-     * @throws InvalidSchemaException if this instance in invalid
-     */
-    public void validate() {
+    void validate() {
         if (name == null)
             throw new InvalidSchemaException(this + " must specify a name");
         if (!name.matches(SchemaItem.NAME_PATTERN))

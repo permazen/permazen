@@ -74,9 +74,9 @@ public class OnVersionChangeTest extends TestSupport {
             p5.setEnum1(Enum1.EEE);
 
             Assert.assertEquals(p1.getSchemaVersion(), 1);
-            TestSupport.checkMap(tx.queryVersion(null), buildMap(
+            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               1, buildSet(p1, p2, p3, p4, p5)));
-            TestSupport.checkMap(tx.queryIndex(Person1.class, "enum1", Enum1.class), buildMap(
+            TestSupport.checkMap(tx.querySimpleField(Person1.class, "enum1", Enum1.class).asMap(), buildMap(
               Enum1.AAA, buildSet(p1),
               Enum1.BBB, buildSet(p2),
               Enum1.CCC, buildSet(p3),
@@ -102,7 +102,7 @@ public class OnVersionChangeTest extends TestSupport {
             final Person2 p4 = jdb.getJObject(id4, Person2.class);
             final Person2 p5 = jdb.getJObject(id5, Person2.class);
 
-            TestSupport.checkMap(tx.queryVersion(null), buildMap(
+            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               1, buildSet(p1, p2, p3, p4, p5)));
 
             Assert.assertEquals(p1.getSchemaVersion(), 1);
@@ -124,7 +124,7 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertEquals(p1.getLastName(), "Smith");
             Assert.assertEquals(p1.getFirstName(), "Joe");
 
-            TestSupport.checkMap(tx.queryVersion(null), buildMap(
+            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               1, buildSet(p4, p5),
               2, buildSet(p1, p2, p3)));
 
@@ -144,9 +144,9 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertSame(p4.getEnum2(), Enum2.DDD);
             Assert.assertNull(p5.getEnum2());
 
-            TestSupport.checkMap(tx.queryVersion(null), buildMap(
+            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               2, buildSet(p1, p2, p3, p4, p5)));
-            TestSupport.checkMap(tx.queryIndex(Person2.class, "enum2", Enum2.class), buildMap(
+            TestSupport.checkMap(tx.querySimpleField(Person2.class, "enum2", Enum2.class).asMap(), buildMap(
               null, buildSet(p1, p5),
               Enum2.BBB, buildSet(p2),
               Enum2.CCC, buildSet(p3),
@@ -175,14 +175,14 @@ public class OnVersionChangeTest extends TestSupport {
             final Person3 p4 = jdb.getJObject(id4, Person3.class);
             final Person3 p5 = jdb.getJObject(id5, Person3.class);
 
-            TestSupport.checkMap(tx.queryVersion(null), buildMap(
+            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               2, buildSet(p1, p2, p3, p4, p5)));
 
             Assert.assertEquals(p1.getAge(), 10.0f);
             Assert.assertEquals(p2.getAge(), 20.0f);
             Assert.assertEquals(p3.getAge(), 30.0f);
 
-            TestSupport.checkMap(tx.queryVersion(null), buildMap(
+            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               2, buildSet(p4, p5),
               3, buildSet(p1, p2, p3)));
 
@@ -205,7 +205,7 @@ public class OnVersionChangeTest extends TestSupport {
             final Person4 p4 = jdb.getJObject(id4, Person4.class);
             final Person4 p5 = jdb.getJObject(id5, Person4.class);
 
-            TestSupport.checkMap(tx.queryVersion(null), buildMap(
+            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               2, buildSet(p4, p5),
               3, buildSet(p1, p2, p3)));
 
@@ -220,7 +220,7 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertEquals(p2.getAge(), 20.0f);
             Assert.assertEquals(p3.getAge(), 30.0f);
 
-            TestSupport.checkMap(tx.queryVersion(null), buildMap(
+            TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               2, buildSet(p4, p5),
               4, buildSet(p1, p2, p3, p1.getName(), p2.getName(), p3.getName())));
 
