@@ -43,6 +43,10 @@ public class ConvertedList<E, W> extends AbstractList<E> {
         this.converter = converter;
     }
 
+    public Converter<E, W> getConverter() {
+        return this.converter;
+    }
+
     @Override
     public E get(int index) {
         final W value = this.list.get(index);

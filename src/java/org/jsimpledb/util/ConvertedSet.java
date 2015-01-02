@@ -40,6 +40,10 @@ public class ConvertedSet<E, W> extends AbstractIterationSet<E> {
         this.converter = converter;
     }
 
+    public Converter<E, W> getConverter() {
+        return this.converter;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public boolean contains(Object obj) {
@@ -81,6 +85,16 @@ public class ConvertedSet<E, W> extends AbstractIterationSet<E> {
     @Override
     public void clear() {
         this.set.clear();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.set.isEmpty();
+    }
+
+    @Override
+    public int size() {
+        return this.set.size();
     }
 }
 

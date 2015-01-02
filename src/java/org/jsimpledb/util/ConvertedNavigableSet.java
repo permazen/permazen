@@ -13,6 +13,7 @@ import com.google.common.collect.Iterators;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NavigableSet;
+import java.util.NoSuchElementException;
 
 /**
  * Provides a transformed view of a wrapped {@link NavigableSet} using a strictly invertable {@link Converter}.
@@ -51,6 +52,10 @@ public class ConvertedNavigableSet<E, W> extends AbstractNavigableSet<E> {
             throw new IllegalArgumentException("null elementConverter");
         this.set = set;
         this.elementConverter = elementConverter;
+    }
+
+    public Converter<E, W> getConverter() {
+        return this.elementConverter;
     }
 
     @Override
@@ -99,6 +104,46 @@ public class ConvertedNavigableSet<E, W> extends AbstractNavigableSet<E> {
     @Override
     public void clear() {
         this.set.clear();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.set.isEmpty();
+    }
+
+    @Override
+    public int size() {
+        return this.set.size();
+    }
+
+    @Override
+    protected E searchBelow(E elem, boolean inclusive) {
+        try {
+            return super.searchBelow(elem, inclusive);
+        } catch (IllegalArgumentException e) {                      // handle case where elem is out of bounds
+            final E last;
+            try {
+                last = this.last();
+            } catch (NoSuchElementException e2) {
+                return null;
+            }
+            return this.getComparator(false).compare(elem, last) > 0 ? last : null;
+        }
+    }
+
+    @Override
+    protected E searchAbove(E elem, boolean inclusive) {
+        try {
+            return super.searchAbove(elem, inclusive);
+        } catch (IllegalArgumentException e) {                      // handle case where elem is out of bounds
+            final E first;
+            try {
+                first = this.first();
+            } catch (NoSuchElementException e2) {
+                return null;
+            }
+            return this.getComparator(false).compare(elem, first) < 0 ? first : null;
+        }
     }
 
     @Override

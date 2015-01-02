@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
@@ -63,6 +64,14 @@ public class ConvertedNavigableMap<K, V, WK, WV> extends AbstractNavigableMap<K,
         this.valueConverter = valueConverter;
     }
 
+    public Converter<K, WK> getKeyConverter() {
+        return this.keyConverter;
+    }
+
+    public Converter<V, WV> getValueConverter() {
+        return this.valueConverter;
+    }
+
     @Override
     public Comparator<? super K> comparator() {
         return new ConvertedComparator<K, WK>(this.map.comparator(), this.keyConverter);
@@ -85,8 +94,7 @@ public class ConvertedNavigableMap<K, V, WK, WV> extends AbstractNavigableMap<K,
 
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
-        return new ConvertedSet<Map.Entry<K, V>, Map.Entry<WK, WV>>(this.map.entrySet(),
-          new MapEntryConverter<K, V, WK, WV>(this.keyConverter, this.valueConverter));
+        return new ConvertedEntrySet<K, V, WK, WV>(this.map, this.keyConverter, this.valueConverter);
     }
 
     @Override
@@ -120,6 +128,46 @@ public class ConvertedNavigableMap<K, V, WK, WV> extends AbstractNavigableMap<K,
     @Override
     public void clear() {
         this.map.clear();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.map.isEmpty();
+    }
+
+    @Override
+    public int size() {
+        return this.map.size();
+    }
+
+    @Override
+    protected Map.Entry<K, V> searchBelow(K maxKey, boolean inclusive) {
+        try {
+            return super.searchBelow(maxKey, inclusive);
+        } catch (IllegalArgumentException e) {                      // handle case where elem is out of bounds
+            final Map.Entry<K, V> lastEntry;
+            try {
+                lastEntry = this.lastEntry();
+            } catch (NoSuchElementException e2) {
+                return null;
+            }
+            return this.getComparator(false).compare(maxKey, lastEntry.getKey()) > 0 ? lastEntry : null;
+        }
+    }
+
+    @Override
+    protected Map.Entry<K, V> searchAbove(K minKey, boolean inclusive) {
+        try {
+            return super.searchAbove(minKey, inclusive);
+        } catch (IllegalArgumentException e) {                      // handle case where elem is out of bounds
+            final Map.Entry<K, V> firstEntry;
+            try {
+                firstEntry = this.firstEntry();
+            } catch (NoSuchElementException e2) {
+                return null;
+            }
+            return this.getComparator(false).compare(minKey, firstEntry.getKey()) < 0 ? firstEntry : null;
+        }
     }
 
     @Override
