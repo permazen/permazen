@@ -81,7 +81,7 @@ public class ConvertedStuffTest extends TestSupport {
         iset.add(-1);
 
         final NavigableSet<String> sset = new ConvertedNavigableSet<String, Integer>(iset, this.s2i);
-        Assert.assertEquals(sset, buildSet("123", "45", "789", "-1"));
+        TestSupport.checkSet(sset, buildSet("123", "45", "789", "-1"));
         Assert.assertTrue(sset.contains("789"));
         Assert.assertFalse(sset.contains(789));
         Assert.assertEquals(Arrays.asList(sset.toArray()), buildList("-1", "45", "123", "789"));
@@ -96,7 +96,7 @@ public class ConvertedStuffTest extends TestSupport {
         Assert.assertEquals(iset, new ConvertedNavigableSet<Integer, String>(
           new ConvertedNavigableSet<String, Integer>(iset, this.s2i), this.i2s));
 
-        Assert.assertEquals(sset.tailSet("123"), buildSet("123", "789"));
+        TestSupport.checkSet(sset.tailSet("123"), buildSet("123", "789"));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class ConvertedStuffTest extends TestSupport {
         final NavigableMap<String, Object> smap
           = new ConvertedNavigableMap<String, Object, Integer, Object>(imap, this.s2i, identity);
 
-        Assert.assertEquals(smap, buildMap("123", obj123, "45", obj45, "789", obj789, "-1", objM1));
+        TestSupport.checkMap(smap, buildMap("123", obj123, "45", obj45, "789", obj789, "-1", objM1));
         Assert.assertTrue(smap.keySet().contains("789"));
         Assert.assertTrue(smap.containsKey("789"));
         Assert.assertFalse(smap.keySet().contains(789));

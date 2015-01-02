@@ -13,6 +13,7 @@ import java.util.NavigableSet;
 import org.jsimpledb.annotation.IndexQuery;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.util.NavigableSets;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -29,14 +30,20 @@ public class IndexQueryTest extends TestSupport {
         JTransaction.setCurrent(jtx);
         try {
 
-            Account a1 = jtx.create(Account.class);
-            Account a2 = jtx.create(Account.class);
+            final Account a1 = jtx.getJObject(new ObjId("0A1111111111A001"), Account.class);
+            final Account a2 = jtx.getJObject(new ObjId("0A2222222222A002"), Account.class);
+            jtx.recreate(a1);
+            jtx.recreate(a2);
 
-            Foo f1 = jtx.create(Foo.class);
-            Foo f2 = jtx.create(Foo.class);
+            final Foo f1 = jtx.getJObject(new ObjId("141111111111F001"), Foo.class);
+            final Foo f2 = jtx.getJObject(new ObjId("142222222222F002"), Foo.class);
+            jtx.recreate(f1);
+            jtx.recreate(f2);
 
-            Bar b1 = jtx.create(Bar.class);
-            Bar b2 = jtx.create(Bar.class);
+            final Bar b1 = jtx.getJObject(new ObjId("281111111111BA01"), Bar.class);
+            final Bar b2 = jtx.getJObject(new ObjId("282222222222BA02"), Bar.class);
+            jtx.recreate(b1);
+            jtx.recreate(b2);
 
             Jam j1 = jtx.create(Jam.class);
             j1.setAccount(a1);
@@ -46,20 +53,18 @@ public class IndexQueryTest extends TestSupport {
             b1.setAccount(a1);
             b2.setAccount(a2);
 
-        // @IndexQuery's
+        // Index queries
 
-            Assert.assertEquals(a1.getFoos(), buildSet(f1));
-            Assert.assertEquals(a1.getBars(), buildSet(b1));
-            Assert.assertEquals(a1.getHasAccounts(), buildSet(f1, b1, j1));
+            TestSupport.checkSet(a1.getFoos(), buildSet(f1));
+            TestSupport.checkSet(a1.getBars(), buildSet(b1));
+            TestSupport.checkSet(a1.getHasAccounts(), buildSet(f1, b1, j1));
 
-            Assert.assertEquals(a2.getFoos(), buildSet(f2));
-            Assert.assertEquals(a2.getBars(), buildSet(b2));
-            Assert.assertEquals(a2.getHasAccounts(), buildSet(f2, b2));
+            TestSupport.checkSet(a2.getFoos(), buildSet(f2));
+            TestSupport.checkSet(a2.getBars(), buildSet(b2));
+            TestSupport.checkSet(a2.getHasAccounts(), buildSet(f2, b2));
 
-            Assert.assertEquals(a1.getFooBars(), buildSet(f1, b1));
-            Assert.assertEquals(a2.getFooBars(), buildSet(f2, b2));
-
-        // JTransaction queries
+            TestSupport.checkSet(a1.getFooBars(), buildSet(f1, b1));
+            TestSupport.checkSet(a2.getFooBars(), buildSet(f2, b2));
 
             try {
                 jtx.queryIndex(HasAccount.class, "name", Account.class);
@@ -97,15 +102,15 @@ public class IndexQueryTest extends TestSupport {
 
     public interface HasAccount extends JObject {
 
-        @JField(storageId = 110)
+        @JField(storageId = 1)
         Account getAccount();
         void setAccount(Account x);
     }
 
-    @JSimpleClass(storageId = 120)
+    @JSimpleClass(storageId = 10)
     public abstract static class Account implements JObject {
 
-        @JField(storageId = 121)
+        @JField(storageId = 2)
         public abstract String getName();
         public abstract void setName(String x);
 
@@ -142,7 +147,7 @@ public class IndexQueryTest extends TestSupport {
         protected abstract NavigableMap<Account, NavigableSet<FooBar>> queryFooBar();
     }
 
-    @JSimpleClass(storageId = 130)
+    @JSimpleClass(storageId = 20)
     public abstract static class Foo implements HasAccount, FooBar {
 
         @Override
@@ -151,7 +156,7 @@ public class IndexQueryTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 135)
+    @JSimpleClass(storageId = 30)
     public abstract static class Jam implements HasAccount {
 
         @Override
@@ -160,7 +165,7 @@ public class IndexQueryTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 140)
+    @JSimpleClass(storageId = 40)
     public abstract static class Bar implements HasAccount, FooBar {
 
         @Override

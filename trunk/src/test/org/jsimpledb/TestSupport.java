@@ -7,6 +7,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.collect.Sets;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
@@ -147,6 +151,57 @@ public abstract class TestSupport {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static void checkSet(Set actual, Set expected) {
+        TestSupport.checkSet(actual, expected, true);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static void checkSet(Set actual, Set expected, boolean recurse) {
+
+        // Check set equals
+        Assert.assertEquals(actual, expected);
+
+        // Check iterators
+        Assert.assertEquals(Sets.newHashSet(actual.iterator()), expected);
+        Assert.assertEquals(actual, Sets.newHashSet(expected.iterator()));
+
+        // Check descending set
+        if (recurse && actual instanceof NavigableSet)
+            TestSupport.checkSet(((NavigableSet)actual).descendingSet(), expected, false);
+        if (recurse && expected instanceof NavigableSet)
+            TestSupport.checkSet(actual, ((NavigableSet)expected).descendingSet(), false);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static void checkMap(Map actual, Map expected) {
+        TestSupport.checkMap(actual, expected, true);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static void checkMap(Map actual, Map expected, boolean recurse) {
+
+        // Check key sets
+        TestSupport.checkSet(actual.keySet(), expected.keySet(), true);
+        if (actual instanceof NavigableMap) {
+            TestSupport.checkSet(((NavigableMap)actual).descendingMap().navigableKeySet(), expected.keySet(), true);
+            TestSupport.checkSet(((NavigableMap)actual).navigableKeySet().descendingSet(), expected.keySet(), true);
+        }
+        if (expected instanceof NavigableMap) {
+            TestSupport.checkSet(actual.keySet(), ((NavigableMap)expected).descendingMap().navigableKeySet(), true);
+            TestSupport.checkSet(actual.keySet(), ((NavigableMap)expected).navigableKeySet().descendingSet(), true);
+        }
+
+        // Check entry sets
+        TestSupport.checkSet(actual.entrySet(), expected.entrySet(), true);
+
+        // Check descending map
+        if (recurse && actual instanceof NavigableMap)
+            TestSupport.checkMap(((NavigableMap)actual).descendingMap(), expected, false);
+        if (recurse && expected instanceof NavigableMap)
+            TestSupport.checkMap(actual, ((NavigableMap)expected).descendingMap(), false);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Set buildSet(Object... items) {
         final HashSet set = new HashSet();
         for (int i = 0; i < items.length; i++)
@@ -256,6 +311,12 @@ public abstract class TestSupport {
         for (int i = 0; i < sa.length; i++)
             ba[i] = b(sa[i]);
         return ba;
+    }
+
+    protected static KVPair kv(String... key) {
+        if (key.length != 1 && key.length != 2)
+            throw new IllegalArgumentException();
+        return new KVPair(b(key[0]), key.length > 1 ? b(key[1]) : ByteUtil.EMPTY);
     }
 
     protected static byte[] b(String s) {

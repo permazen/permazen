@@ -133,30 +133,30 @@ public class IntersectionNavigableSetTest extends TestSupport {
         set2.add(27);
 
         final NavigableSet<Integer> intersect = NavigableSets.intersection(set1, set2);
-        Assert.assertEquals(intersect, buildSet(12, 16, 18, 21));
+        TestSupport.checkSet(intersect, buildSet(12, 16, 18, 21));
 
-        Assert.assertEquals(intersect.headSet(18, true), buildSet(12, 16, 18));
-        Assert.assertEquals(intersect.headSet(18, false), buildSet(12, 16));
-        Assert.assertEquals(intersect.tailSet(16, true), buildSet(16, 18, 21));
-        Assert.assertEquals(intersect.tailSet(16, false), buildSet(18, 21));
-        Assert.assertEquals(intersect.subSet(16, true, 21, false), buildSet(16, 18));
-        Assert.assertEquals(intersect.subSet(16, false, 21, true), buildSet(18, 21));
+        TestSupport.checkSet(intersect.headSet(18, true), buildSet(12, 16, 18));
+        TestSupport.checkSet(intersect.headSet(18, false), buildSet(12, 16));
+        TestSupport.checkSet(intersect.tailSet(16, true), buildSet(16, 18, 21));
+        TestSupport.checkSet(intersect.tailSet(16, false), buildSet(18, 21));
+        TestSupport.checkSet(intersect.subSet(16, true, 21, false), buildSet(16, 18));
+        TestSupport.checkSet(intersect.subSet(16, false, 21, true), buildSet(18, 21));
 
         NavigableSet<Integer> i = NavigableSets.intersection(set1, set2);
-        Assert.assertEquals(i.subSet(15, true, 25, true), buildSet(16, 18, 21));
+        TestSupport.checkSet(i.subSet(15, true, 25, true), buildSet(16, 18, 21));
 
         set1 = set1.subSet(15, true, 21, false);        // 16, 18, 20
         set2 = set2.subSet(16, true, 23, true);         // 16, 17, 18, 21, 23
 
         final NavigableSet<Integer> intersect2 = NavigableSets.intersection(set1, set2);
-        Assert.assertEquals(intersect2, buildSet(16, 18));
+        TestSupport.checkSet(intersect2, buildSet(16, 18));
 
-        Assert.assertEquals(intersect2.headSet(18, true), buildSet(16, 18));
-        Assert.assertEquals(intersect2.headSet(18, false), buildSet(16));
-        Assert.assertEquals(intersect2.tailSet(16, true), buildSet(16, 18));
-        Assert.assertEquals(intersect2.tailSet(16, false), buildSet(18));
-        Assert.assertEquals(intersect2.subSet(16, true, 21, false), buildSet(16, 18));
-        Assert.assertEquals(intersect2.subSet(16, false, 21, true), buildSet(18));
+        TestSupport.checkSet(intersect2.headSet(18, true), buildSet(16, 18));
+        TestSupport.checkSet(intersect2.headSet(18, false), buildSet(16));
+        TestSupport.checkSet(intersect2.tailSet(16, true), buildSet(16, 18));
+        TestSupport.checkSet(intersect2.tailSet(16, false), buildSet(18));
+        TestSupport.checkSet(intersect2.subSet(16, true, 21, false), buildSet(16, 18));
+        TestSupport.checkSet(intersect2.subSet(16, false, 21, true), buildSet(18));
 
         NavigableSet<Integer> set3 = new TreeSet<>();
         set3.add(100);
@@ -170,17 +170,17 @@ public class IntersectionNavigableSetTest extends TestSupport {
         set4 = set4.subSet(100, true, 450, false);
 
         final NavigableSet<Integer> intersect3 = NavigableSets.intersection(set3, set4);
-        Assert.assertEquals(intersect3, buildSet(100, 200));
+        TestSupport.checkSet(intersect3, buildSet(100, 200));
 
         final NavigableSet<Integer> intersect4 = NavigableSets.intersection(set4, set3);
-        Assert.assertEquals(intersect4, buildSet(100, 200));
+        TestSupport.checkSet(intersect4, buildSet(100, 200));
     }
 
     private void verifyIntersection(List<NavigableSet<Integer>> sets) {
         final NavigableSet<Integer> expected = this.calculateIntersection(sets);
         final IntersectionNavigableSet<Integer> actual = new IntersectionNavigableSet<Integer>(sets);
         Assert.assertEquals(actual, expected);
-        Assert.assertEquals(Sets.newTreeSet((Iterable<Integer>)actual), expected);
+        TestSupport.checkSet(Sets.newTreeSet((Iterable<Integer>)actual), expected);
     }
 
     private NavigableSet<Integer> calculateIntersection(List<NavigableSet<Integer>> sets) {

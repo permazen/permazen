@@ -17,7 +17,6 @@ import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 // This is to test what happens when the same reference field storage ID is used in different
@@ -119,80 +118,80 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         // Verify indexes
 
             // Name
-            Assert.assertEquals(jtx.queryIndex(TopClass.class, "name", String.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "name", String.class), buildMap(
               "foo", buildSet(a1, b1, c1),
               "bar-a", buildSet(a2),
               "bar-b", buildSet(b2),
               "bar-c", buildSet(c2)));
-            Assert.assertEquals(jtx.queryIndex(ClassA.class, "name", String.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassA.class, "name", String.class), buildMap(
               "foo", buildSet(a1),
               "bar-a", buildSet(a2)));
-            Assert.assertEquals(jtx.queryIndex(ClassB.class, "name", String.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassB.class, "name", String.class), buildMap(
               "foo", buildSet(b1),
               "bar-b", buildSet(b2)));
-            Assert.assertEquals(jtx.queryIndex(ClassC.class, "name", String.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassC.class, "name", String.class), buildMap(
               "foo", buildSet(c1),
               "bar-c", buildSet(c2)));
 
             // FieldR - check indexes
-            Assert.assertEquals(jtx.queryIndex(TopClass.class, "fieldR", JObject.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "fieldR", JObject.class), buildMap(
               a1, buildSet(a2, c1),
               a2, buildSet(c2),
               b1, buildSet(a1),
               b2, buildSet(b2),
               c1, buildSet(b1)));
-            Assert.assertEquals(jtx.queryIndex(ClassA.class, "fieldR", JObject.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassA.class, "fieldR", JObject.class), buildMap(
               a1, buildSet(a2),
               b1, buildSet(a1)));
-            Assert.assertEquals(jtx.queryIndex(ClassB.class, "fieldR", TopClass.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassB.class, "fieldR", TopClass.class), buildMap(
               c1, buildSet(b1),
               b2, buildSet(b2)));
-            Assert.assertEquals(jtx.queryIndex(ClassC.class, "fieldR", ClassA.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassC.class, "fieldR", ClassA.class), buildMap(
               a1, buildSet(c1),
               a2, buildSet(c2)));
 
             // FieldX
-            Assert.assertEquals(jtx.queryIndex(TopClass.class, "fieldX.element", Float.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "fieldX.element", Float.class), buildMap(
               2.0f, buildSet(b1),
               3.0f, buildSet(b1, c1),
               4.0f, buildSet(b1, c1),
               5.0f, buildSet(c1)));
-            Assert.assertEquals(jtx.queryIndex(ClassB.class, "fieldX.element", Float.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassB.class, "fieldX.element", Float.class), buildMap(
               2.0f, buildSet(b1),
               3.0f, buildSet(b1),
               4.0f, buildSet(b1)));
-            Assert.assertEquals(jtx.queryIndex(ClassC.class, "fieldX.element", Float.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassC.class, "fieldX.element", Float.class), buildMap(
               3.0f, buildSet(c1),
               4.0f, buildSet(c1),
               5.0f, buildSet(c1)));
 
             // FieldY
-            Assert.assertEquals(jtx.queryIndex(TopClass.class, "fieldY.element", Integer.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "fieldY.element", Integer.class), buildMap(
               100, buildSet(a1),
               200, buildSet(a1),
               300, buildSet(a1, c1),
               400, buildSet(c1),
               500, buildSet(c1)));
-            Assert.assertEquals(jtx.queryIndex(ClassA.class, "fieldY.element", Integer.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassA.class, "fieldY.element", Integer.class), buildMap(
               100, buildSet(a1),
               200, buildSet(a1),
               300, buildSet(a1)));
-            Assert.assertEquals(jtx.queryIndex(ClassC.class, "fieldY.element", Integer.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassC.class, "fieldY.element", Integer.class), buildMap(
               300, buildSet(c1),
               400, buildSet(c1),
               500, buildSet(c1)));
 
             // FieldZ
-            Assert.assertEquals(jtx.queryIndex(TopClass.class, "fieldZ.key", TopClass.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "fieldZ.key", TopClass.class), buildMap(
               a2, buildSet(a1),
               b2, buildSet(a1),
               c2, buildSet(a1, b1),
               c1, buildSet(b1)));
-            Assert.assertEquals(jtx.queryIndex(ClassA.class, "fieldZ.key", TopClass.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassA.class, "fieldZ.key", TopClass.class), buildMap(
               a2, buildSet(a1),
               b2, buildSet(a1),
               c2, buildSet(a1)));           // note b2 does not appear in set
-            Assert.assertEquals(jtx.queryIndex(ClassB.class, "fieldZ.key", ClassC.class), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassB.class, "fieldZ.key", ClassC.class), buildMap(
               c1, buildSet(b1),
               c2, buildSet(b1)));           // note a1 does not appear in set
 

@@ -127,13 +127,17 @@ public class TypeSafetyTest extends TestSupport {
 
             // Verify index on Bar.friend does not contain any type "Foo" keys
             final NavigableMap<Bar, NavigableSet<Bar>> friendIndex = jtx.queryIndex(Bar.class, "friend", Bar.class);
-            for (Bar key : friendIndex.keySet())
-                key.getClass();
+            for (Bar key : friendIndex.keySet()) {
+                if (key != null)
+                    key.dummy();
+            }
 
             // Verify index on Bar.set.element does not contain any type "Foo" keys
             final NavigableMap<Bar, NavigableSet<Bar>> setIndex = jtx.queryIndex(Bar.class, "set.element", Bar.class);
-            for (Bar key : setIndex.keySet())
-                key.getClass();
+            for (Bar key : setIndex.keySet()) {
+                if (key != null)
+                    key.dummy();
+            }
 
             // Verify bar1 has wrongly type'd field prior to upgrade
             Assert.assertEquals(jtx.getTransaction().readSimpleField(b1, 21, false), f1);
@@ -176,7 +180,7 @@ public class TypeSafetyTest extends TestSupport {
             final HashSet<ObjId> ids = new HashSet<>();
             for (Object obj : jtx.readSetField(bar3, 23, false))
                 ids.add(((JObject)obj).getObjId());
-            Assert.assertEquals(ids, buildSet(f1, f2, b1, b2));
+            TestSupport.checkSet(ids, buildSet(f1, f2, b1, b2));
 
             // Upgrade bar3 without doing any migration
             Assert.assertEquals(bar3.getSchemaVersion(), 1);
@@ -189,7 +193,7 @@ public class TypeSafetyTest extends TestSupport {
             ids.clear();
             for (Object obj : jtx.readSetField(bar3, 23, false))
                 ids.add(((JObject)obj).getObjId());
-            Assert.assertEquals(ids, buildSet(b1, b2));
+            TestSupport.checkSet(ids, buildSet(b1, b2));
 
         } finally {
             JTransaction.setCurrent(null);
@@ -228,6 +232,9 @@ public class TypeSafetyTest extends TestSupport {
         @Override
         public String toString() {
             return "Bar@" + this.getObjId();
+        }
+
+        public void dummy() {
         }
     }
 }

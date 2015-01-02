@@ -101,17 +101,17 @@ public class SnapshotTest extends TestSupport {
         Assert.assertFalse(tx2.exists(id3));
 
         // Check fields
-        Assert.assertEquals(tx2.getAll(1), buildSet(id1));
+        TestSupport.checkSet(tx2.getAll(1), buildSet(id1));
         Assert.assertEquals(tx2.readSimpleField(id1, 2, true), 123.45f);
         Assert.assertEquals(tx2.readSimpleField(id1, 3, true), id2);
-        Assert.assertEquals(tx2.readSetField(id1, 4, true), buildSet(123, 456));
+        TestSupport.checkSet(tx2.readSetField(id1, 4, true), buildSet(123, 456));
         Assert.assertEquals(tx2.readListField(id1, 6, true), buildList(234, 567, 234));
-        Assert.assertEquals(tx2.readMapField(id1, 8, true), buildSortedMap(321, "foo", 654, "bar", 987, "foo"));
+        TestSupport.checkMap(tx2.readMapField(id1, 8, true), buildSortedMap(321, "foo", 654, "bar", 987, "foo"));
 
         // Check indexes
-        Assert.assertEquals(tx2.querySimpleField(3), buildMap(id2, buildSet(id1)));
-        Assert.assertEquals(tx2.queryListField(6), buildMap(234, buildSet(id1), 567, buildSet(id1)));
-        Assert.assertEquals(tx2.queryMapFieldValue(8), buildMap("foo", buildSet(id1), "bar", buildSet(id1)));
+        TestSupport.checkMap(tx2.querySimpleField(3), buildMap(id2, buildSet(id1)));
+        TestSupport.checkMap(tx2.querySimpleField(7), buildMap(234, buildSet(id1), 567, buildSet(id1)));
+        TestSupport.checkMap(tx2.querySimpleField(10), buildMap("foo", buildSet(id1), "bar", buildSet(id1)));
 
         // Copy id2 and id3
         Assert.assertTrue(tx1.copy(id2, id2, tx2));
@@ -121,7 +121,7 @@ public class SnapshotTest extends TestSupport {
         Assert.assertFalse(tx1.copy(id1, id1, tx2));
 
         // Check fields
-        Assert.assertEquals(tx2.getAll(1), buildSet(id1, id2, id3));
+        TestSupport.checkSet(tx2.getAll(1), buildSet(id1, id2, id3));
         Assert.assertEquals(tx2.readSimpleField(id2, 2, true), Float.NEGATIVE_INFINITY);
         Assert.assertTrue(Float.isNaN((Float)tx2.readSimpleField(id3, 2, true)));
 
@@ -130,7 +130,7 @@ public class SnapshotTest extends TestSupport {
         Assert.assertEquals(tx2.readSimpleField(id3, 3, true), id1);
 
         // Check indexes
-        Assert.assertEquals(tx2.querySimpleField(3), buildMap(id1, buildSet(id3), id2, buildSet(id1), id3, buildSet(id2)));
+        TestSupport.checkMap(tx2.querySimpleField(3), buildMap(id1, buildSet(id3), id2, buildSet(id1), id3, buildSet(id2)));
 
         // Change id1 and then overwrite copy
         tx1.writeSimpleField(id1, 2, 456.78f, true);

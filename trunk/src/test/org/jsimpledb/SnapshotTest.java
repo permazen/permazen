@@ -78,8 +78,8 @@ public class SnapshotTest extends TestSupport {
             Assert.assertSame(p1, tx.getJSimpleDB().getJObject(p1.getObjId()));
             Assert.assertSame(p1a, stx.getJObject(p1.getObjId()));
 
-            Assert.assertEquals(tx.getAll(Person.class), buildSet(p1, p2, p3));
-            Assert.assertEquals(stx.getAll(Person.class), buildSet(p1a));
+            TestSupport.checkSet(tx.getAll(Person.class), buildSet(p1, p2, p3));
+            TestSupport.checkSet(stx.getAll(Person.class), buildSet(p1a));
 
             Person p2a = p1a.getSet().iterator().next();
 
@@ -198,9 +198,9 @@ public class SnapshotTest extends TestSupport {
 
             Assert.assertEquals(p1.getName(), "Another Name");
             Assert.assertEquals(p1.getAge(), 123);
-            Assert.assertEquals(p1.getSet(), buildSet(p2, p3));
-            Assert.assertEquals(p1.getMap1(), buildMap(p1, 123123f, p3, null));
-            Assert.assertEquals(p1.getMap2(), buildMap(64f, p1, 33.33f, p2, null, p3));
+            TestSupport.checkSet(p1.getSet(), buildSet(p2, p3));
+            TestSupport.checkMap(p1.getMap1(), buildMap(p1, 123123f, p3, null));
+            TestSupport.checkMap(p1.getMap2(), buildMap(64f, p1, 33.33f, p2, null, p3));
             Assert.assertTrue(flag[0]);
 
             tx2.commit();
@@ -263,17 +263,21 @@ public class SnapshotTest extends TestSupport {
         JTransaction.setCurrent(tx);
         try {
 
-            final Foo f1 = tx.create(Foo.class);
-            final Foo f2 = tx.create(Foo.class);
-            final Foo f3 = tx.create(Foo.class);
+            final Foo f1 = tx.getJObject(new ObjId("c811111111111111"), Foo.class);
+            final Foo f2 = tx.getJObject(new ObjId("c822222222222222"), Foo.class);
+            final Foo f3 = tx.getJObject(new ObjId("c833333333333333"), Foo.class);
+
+            Assert.assertTrue(tx.recreate(f1));
+            Assert.assertTrue(tx.recreate(f2));
+            Assert.assertTrue(tx.recreate(f3));
 
             f1.setRef(f2);
             f2.setRef(f3);
             f3.setRef(f1);
 
-            Assert.assertEquals(f1.getReferrers(), buildSet(f3));
-            Assert.assertEquals(f2.getReferrers(), buildSet(f1));
-            Assert.assertEquals(f3.getReferrers(), buildSet(f2));
+            TestSupport.checkSet(f1.getReferrers(), buildSet(f3));
+            TestSupport.checkSet(f2.getReferrers(), buildSet(f1));
+            TestSupport.checkSet(f3.getReferrers(), buildSet(f2));
 
             tx.copyTo(stx, new ObjIdSet(), f1.getWithRelatedObjects());
             final Foo f1s = stx.getJObject(f1.getObjId(), Foo.class);
@@ -285,9 +289,9 @@ public class SnapshotTest extends TestSupport {
             Assert.assertFalse(f2s.exists());
             Assert.assertTrue(f3s.exists());
 
-            Assert.assertEquals(f1s.getReferrers(), buildSet(f3));
-            Assert.assertEquals(f2s.getReferrers(), buildSet(f1));
-            Assert.assertEquals(f3s.getReferrers(), buildSet());
+            TestSupport.checkSet(f1s.getReferrers(), buildSet(f3s));
+            TestSupport.checkSet(f2s.getReferrers(), buildSet(f1s));
+            TestSupport.checkSet(f3s.getReferrers(), buildSet());
 
         } finally {
             JTransaction.setCurrent(null);
@@ -375,6 +379,11 @@ public class SnapshotTest extends TestSupport {
 
         public Iterable<Foo> getWithRelatedObjects() {
             return Iterables.concat(Collections.singleton(this), this.getReferrers());
+        }
+
+        @Override
+        public String toString() {
+            return this.getClass().getSimpleName() + "@" + this.getObjId();
         }
     }
 
