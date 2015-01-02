@@ -54,8 +54,8 @@ public class JEnumField extends JSimpleField {
     }
 
     @Override
-    JEnumFieldInfo toJFieldInfo(JComplexFieldInfo parentInfo) {
-        return new JEnumFieldInfo(this, parentInfo);
+    JEnumFieldInfo toJFieldInfo(int parentStorageId) {
+        return new JEnumFieldInfo(this, parentStorageId);
     }
 }
 

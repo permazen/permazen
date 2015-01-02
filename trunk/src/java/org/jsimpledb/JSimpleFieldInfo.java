@@ -21,20 +21,18 @@ import org.jsimpledb.core.Transaction;
 class JSimpleFieldInfo extends JFieldInfo {
 
     private final HashSet<TypeToken<?>> typeTokens = new HashSet<>();
+    private final int parentStorageId;
+
     private TypeToken<?> ancestorType;
-    private JComplexFieldInfo parent;
     private boolean indexed;
 
-    JSimpleFieldInfo(JSimpleField jfield, JComplexFieldInfo parent) {
+    JSimpleFieldInfo(JSimpleField jfield, int parentStorageId) {
         super(jfield);
-        this.parent = parent;
+        this.parentStorageId = parentStorageId;
     }
 
-    public JComplexFieldInfo getParent() {
-        return this.parent;
-    }
-    public void setParent(JComplexFieldInfo parent) {
-        this.parent = parent;
+    public int getParentStorageId() {
+        return this.parentStorageId;
     }
 
     @Override
@@ -93,7 +91,7 @@ class JSimpleFieldInfo extends JFieldInfo {
     @Override
     public String toString() {
         String string = super.toString();
-        if (this.parent != null)
+        if (this.parentStorageId != 0)
             string = string.replaceAll(" field", " sub-field");
         return string;
     }
@@ -105,12 +103,12 @@ class JSimpleFieldInfo extends JFieldInfo {
         if (!super.equals(obj))
             return false;
         final JSimpleFieldInfo that = (JSimpleFieldInfo)obj;
-        return this.parent != null ? that.parent != null && this.parent.storageId == that.parent.storageId : that.parent == null;
+        return this.parentStorageId == that.parentStorageId;
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.parent != null ? this.parent.storageId : 0);
+        return super.hashCode() ^ this.parentStorageId;
     }
 }
 

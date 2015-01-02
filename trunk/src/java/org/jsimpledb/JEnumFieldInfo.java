@@ -17,8 +17,8 @@ class JEnumFieldInfo extends JSimpleFieldInfo {
     final EnumConverter<?> converter;
 
     @SuppressWarnings("unchecked")
-    JEnumFieldInfo(JEnumField jfield, JComplexFieldInfo parent) {
-        super(jfield, parent);
+    JEnumFieldInfo(JEnumField jfield, int parentStorageId) {
+        super(jfield, parentStorageId);
         this.enumType = (Class<? extends Enum<?>>)jfield.getType().getRawType();
         this.converter = EnumConverter.createEnumConverter(this.enumType);
     }

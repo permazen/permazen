@@ -170,7 +170,7 @@ public class JSimpleDB {
                 // Add type and all @JSimpleClass-annotated superclasses
                 jsimpleClasses.add(type);
                 for (Class<?> supertype = type.getSuperclass(); type != null; type = type.getSuperclass()) {
-                    if (supertype.getAnnotation(JSimpleClass.class) != null)
+                    if (supertype.isAnnotationPresent(JSimpleClass.class))
                         jsimpleClasses.add(supertype);
                 }
             }
@@ -203,54 +203,45 @@ public class JSimpleDB {
         for (JClass<?> jclass : this.jclasses.values())
             jclass.createFields();
 
-        // Map fields to field info structures
-        final HashMap<JField, JFieldInfo> field2infoMap = new HashMap<>();
+        // Create canonical field info structures
+        final HashMap<Integer, String> fieldDescriptionMap = new HashMap<>();
         for (JClass<?> jclass : this.jclasses.values()) {
             for (JField jfield : jclass.jfields.values()) {
-                final JFieldInfo jfieldInfo = jfield.toJFieldInfo();
                 if (jfield instanceof JComplexField) {
                     final JComplexField complexField = (JComplexField)jfield;
-                    final JComplexFieldInfo complexFieldInfo = (JComplexFieldInfo)jfieldInfo;
-                    final List<JSimpleField> subFields = complexField.getSubFields();
-                    final List<JSimpleFieldInfo> subFieldInfos = new ArrayList<>(subFields.size());
-                    for (JSimpleField subField : subFields) {
-                        final JSimpleFieldInfo subFieldInfo = subField.toJFieldInfo(complexFieldInfo);
-                        subFieldInfos.add(subFieldInfo);
-                        field2infoMap.put(subField, subFieldInfo);
+                    final JComplexFieldInfo complexFieldInfo = (JComplexFieldInfo)jfield.toJFieldInfo();
+                    for (JSimpleField subField : complexField.getSubFields()) {
+                        this.addJFieldInfo(subField, subField.toJFieldInfo(jfield.storageId), fieldDescriptionMap);
+                        final JSimpleFieldInfo subFieldInfo = (JSimpleFieldInfo)this.jfieldInfos.get(subField.storageId);
+                        complexFieldInfo.getSubFieldInfos().add(subFieldInfo);
                     }
-                    complexFieldInfo.setSubFieldInfos(subFieldInfos);
-                }
-                field2infoMap.put(jfield, jfieldInfo);
+                    this.addJFieldInfo(complexField, complexFieldInfo, fieldDescriptionMap);
+                } else
+                    this.addJFieldInfo(jfield, jfield.toJFieldInfo(), fieldDescriptionMap);
             }
         }
 
-        // Check for conflicts; create canonical instances
-        final HashMap<Integer, String> descriptionMap = new HashMap<>();
-        for (Map.Entry<JField, JFieldInfo> entry : field2infoMap.entrySet())
-            entry.setValue(this.addJFieldInfo(entry.getKey(), entry.getValue(), descriptionMap));
-
-        // Update references to super-fields and sub-fields
+        // Witness all simple fields to corresponding simple field info's
         for (JClass<?> jclass : this.jclasses.values()) {
             for (JField jfield : jclass.jfields.values()) {
+                if (jfield instanceof JSimpleField) {
+                    final JSimpleField jsimpleField = (JSimpleField)jfield;
+                    final JSimpleFieldInfo jsimpleFieldInfo = (JSimpleFieldInfo)this.jfieldInfos.get(jfield.storageId);
+                    jsimpleFieldInfo.witness(jsimpleField);
+                }
                 if (jfield instanceof JComplexField) {
                     final JComplexField complexField = (JComplexField)jfield;
-                    final JComplexFieldInfo complexFieldInfo = (JComplexFieldInfo)field2infoMap.get(jfield);
-                    final List<JSimpleField> subFieldList = complexField.getSubFields();
-                    final List<JSimpleFieldInfo> subFieldInfoList = complexFieldInfo.getSubFieldInfos();
-                    for (int i = 0; i < subFieldList.size(); i++) {
-                        final JSimpleFieldInfo subFieldInfo = (JSimpleFieldInfo)field2infoMap.get(subFieldList.get(i));
-                        subFieldInfoList.set(i, subFieldInfo);
-                        subFieldInfo.setParent(complexFieldInfo);
+                    final JComplexFieldInfo complexFieldInfo = (JComplexFieldInfo)this.jfieldInfos.get(jfield.storageId);
+                    for (int i = 0; i < complexField.getSubFields().size(); i++) {
+                        final JSimpleField subField = complexField.getSubFields().get(i);
+                        final JSimpleFieldInfo subFieldInfo = (JSimpleFieldInfo)this.jfieldInfos.get(subField.storageId);
+                        subFieldInfo.witness(subField);
                     }
                 }
             }
         }
 
-        // Show all fields to corresponding info
-        for (Map.Entry<JField, JFieldInfo> entry : field2infoMap.entrySet())
-            entry.getValue().witness(entry.getKey());
-
-        // Scan for other annotations
+        // Scan for other method-level annotations
         for (JClass<?> jclass : this.jclasses.values())
             jclass.scanAnnotations();
 
@@ -597,21 +588,21 @@ public class JSimpleDB {
         this.jclassesByType.put(jclass.typeToken, jclass);
     }
 
-    // Add new JFieldInfo, checking for field conflicts
-    @SuppressWarnings("unchecked")
-    private <T extends JFieldInfo> T addJFieldInfo(JField jfield, T jfieldInfo, Map<Integer, String> descriptionMap) {
-        final T existing = (T)this.jfieldInfos.get(jfieldInfo.storageId);
+    // Add new JFieldInfo, checking for conflicts
+    private <T extends JFieldInfo> void addJFieldInfo(JField jfield, T fieldInfo, Map<Integer, String> descriptionMap) {
+        this.addInfo(jfield, fieldInfo, this.jfieldInfos, descriptionMap);
+    }
+
+    // Add new info, checking for storage ID conflicts
+    private <T> void addInfo(JSchemaObject item, T info, Map<Integer, T> infoMap, Map<Integer, String> descriptionMap) {
+        final T existing = infoMap.get(item.storageId);
         if (existing == null) {
-            this.jfieldInfos.put(jfieldInfo.storageId, jfieldInfo);
-            descriptionMap.put(jfieldInfo.storageId, jfield.description);
-        } else {
-            if (!jfieldInfo.equals(existing)) {
-                throw new IllegalArgumentException("invalid duplicate use of storage ID " + jfieldInfo.storageId
-                  + " for incompatible fields " + descriptionMap.get(existing.storageId) + " and " + jfield.description);
-            }
-            jfieldInfo = existing;
+            infoMap.put(item.storageId, info);
+            descriptionMap.put(item.storageId, item.description);
+        } else if (!info.equals(existing)) {
+            throw new IllegalArgumentException("incompatible duplicate use of storage ID " + item.storageId
+              + " for " + descriptionMap.get(item.storageId) + " and " + item.description);
         }
-        return jfieldInfo;
     }
 }
 

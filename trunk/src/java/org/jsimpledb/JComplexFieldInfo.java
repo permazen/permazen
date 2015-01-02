@@ -10,6 +10,7 @@ package org.jsimpledb;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import org.jsimpledb.core.ObjId;
 
 abstract class JComplexFieldInfo extends JFieldInfo {
 
-    private List<JSimpleFieldInfo> subFieldInfos;
+    private ArrayList<JSimpleFieldInfo> subFieldInfos = new ArrayList<>();
 
     JComplexFieldInfo(JComplexField jfield) {
         super(jfield);
@@ -25,9 +26,6 @@ abstract class JComplexFieldInfo extends JFieldInfo {
 
     public List<JSimpleFieldInfo> getSubFieldInfos() {
         return this.subFieldInfos;
-    }
-    public void setSubFieldInfos(List<JSimpleFieldInfo> subFieldInfos) {
-        this.subFieldInfos = subFieldInfos;
     }
 
     public abstract String getSubFieldInfoName(JSimpleFieldInfo subFieldInfo);

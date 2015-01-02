@@ -13,8 +13,8 @@ import org.jsimpledb.core.ObjId;
 
 class JReferenceFieldInfo extends JSimpleFieldInfo {
 
-    JReferenceFieldInfo(JReferenceField jfield, JComplexFieldInfo parent) {
-        super(jfield, parent);
+    JReferenceFieldInfo(JReferenceField jfield, int parentStorageId) {
+        super(jfield, parentStorageId);
     }
 
     @Override
