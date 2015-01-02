@@ -35,6 +35,14 @@ class ConvertedMapEntry<K, V, WK, WV> extends AbstractMap.SimpleEntry<K, V> {
         this.wentry = wentry;
     }
 
+    public Converter<K, WK> getKeyConverter() {
+        return this.keyConverter;
+    }
+
+    public Converter<V, WV> getValueConverter() {
+        return this.valueConverter;
+    }
+
     @Override
     public K getKey() {
         final WK key = this.wentry.getKey();

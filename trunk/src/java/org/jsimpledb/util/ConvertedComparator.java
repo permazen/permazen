@@ -26,6 +26,10 @@ class ConvertedComparator<E, W> implements Comparator<E> {
         this.converter = converter;
     }
 
+    public Converter<E, W> getConverter() {
+        return this.converter;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public int compare(E obj1, E obj2) {

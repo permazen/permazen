@@ -250,6 +250,8 @@ public class Bounds<T> {
         return upper ? diff < 0 : diff > 0;
     }
 
+// Object
+
     @Override
     public String toString() {
         return "Bounds[lower(" + this.lowerBoundType + ")=" + this.lowerBound
