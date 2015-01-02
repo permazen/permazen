@@ -630,9 +630,11 @@ public class JTransaction {
             return;
         final int storageId = fields.removeFirst();
         final JReferenceFieldInfo referenceFieldInfo = this.jdb.getJFieldInfo(storageId, JReferenceFieldInfo.class);
-        if (referenceFieldInfo.getParent() != null)
-            referenceFieldInfo.getParent().copyRecurse(seen, this, dest, srcId, storageId, fields);
-        else {
+        final int parentStorageId = referenceFieldInfo.getParentStorageId();
+        if (parentStorageId != 0) {
+            final JComplexFieldInfo parentInfo = this.jdb.getJFieldInfo(parentStorageId, JComplexFieldInfo.class);
+            parentInfo.copyRecurse(seen, this, dest, srcId, storageId, fields);
+        } else {
             assert referenceFieldInfo instanceof JReferenceFieldInfo;
             final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, storageId, false);
             if (referrent != null)

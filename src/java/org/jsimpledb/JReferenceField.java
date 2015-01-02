@@ -54,8 +54,8 @@ public class JReferenceField extends JSimpleField {
     }
 
     @Override
-    JReferenceFieldInfo toJFieldInfo(JComplexFieldInfo parent) {
-        return new JReferenceFieldInfo(this, parent);
+    JReferenceFieldInfo toJFieldInfo(int parentStorageId) {
+        return new JReferenceFieldInfo(this, parentStorageId);
     }
 }
 

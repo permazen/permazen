@@ -158,11 +158,11 @@ public class JSimpleField extends JField {
 
     @Override
     final JSimpleFieldInfo toJFieldInfo() {
-        return this.toJFieldInfo(null);
+        return this.toJFieldInfo(0);
     }
 
-    JSimpleFieldInfo toJFieldInfo(JComplexFieldInfo parentInfo) {
-        return new JSimpleFieldInfo(this, parentInfo);
+    JSimpleFieldInfo toJFieldInfo(int parentStorageId) {
+        return new JSimpleFieldInfo(this, parentStorageId);
     }
 }
 
