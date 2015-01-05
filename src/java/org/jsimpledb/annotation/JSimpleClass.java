@@ -65,13 +65,31 @@ public @interface JSimpleClass {
     String name() default "";
 
     /**
-     * Storage ID for this object type. Value must be positive.
+     * Storage ID for this object type. Value should be positive;
+     * if zero, the configured {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value.
+     *
+     * @see org.jsimpledb.StorageIdGenerator#generateClassStorageId StorageIdGenerator.generateClassStorageId()
      */
-    int storageId();
+    int storageId() default 0;
 
     /**
      * Composite indexes (i.e., indexes on two or more fields) defined on this type.
      */
     JCompositeIndex[] compositeIndexes() default {};
+
+    /**
+     * Whether to automatically generate database fields from un-annotated abstract Java bean methods.
+     *
+     * <p>
+     * If true, database fields corresponding to all <b>abstract</b> bean property getter methods will
+     * be auto-generated even if there is no {@link JField &#64;JField}, {@link JSetField &#64;JSetField},
+     * {@link JListField &#64;JListField}, or {@link JMapField &#64;JMapField} annotation.
+     * Getter methods with return type assignable to {@link java.util.Set}, {@link java.util.List}, and {@link java.util.Map}
+     * will cause the corresponding collection fields to be created; other getter/setter method pairs will cause
+     * the corresponding simple fields to be generated. Storage ID's for auto-generated fields will themselves be
+     * auto-generated using the configured {@link org.jsimpledb.StorageIdGenerator}.
+     * </p>
+     */
+    boolean autogenFields() default true;
 }
 

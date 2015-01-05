@@ -9,6 +9,8 @@ package org.jsimpledb;
 
 import com.google.common.reflect.TypeToken;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -72,6 +74,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see JObject
  * @see JTransaction
+ * @see JSimpleDBFactory
  * @see org.jsimpledb.annotation
  */
 public class JSimpleDB {
@@ -86,6 +89,7 @@ public class JSimpleDB {
     final ClassGenerator<UntypedJObject> untypedClassGenerator = new ClassGenerator<UntypedJObject>(UntypedJObject.class);
     final Database db;
     final int configuredVersion;
+    final StorageIdGenerator storageIdGenerator;
     final JObjectCache jobjectCache = new JObjectCache(this) {
         @Override
         protected JObject instantiate(ClassGenerator<?> classGenerator, ObjId id) throws Exception {
@@ -103,15 +107,11 @@ public class JSimpleDB {
 
     /**
      * Create an instance using an initially empty, in-memory {@link SimpleKVDatabase}.
-     * Generates a database schema by introspecting the {@code classes}; schema version number {@code 1} is assumed.
+     * Generates a database schema by introspecting the {@code classes}; schema version number {@code 1} is assumed
+     * and a {@link DefaultStorageIdGenerator} is used to auto-generate storage ID's where necessary.
      *
      * <p>
      * This constructor can also be used just to validate the annotations on the given classes.
-     * </p>
-     *
-     * <p>
-     * All {@link JSimpleClass &#64;JSimpleClass}-annotated super-classes of any {@link JSimpleClass &#64;JSimpleClass}-annotated
-     * class in {@code classes} will be included even if not explicitly specified.
      * </p>
      *
      * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations
@@ -120,27 +120,23 @@ public class JSimpleDB {
      * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
     public JSimpleDB(Iterable<? extends Class<?>> classes) {
-        this(new Database(new SimpleKVDatabase()), 1, classes);
+        this(new Database(new SimpleKVDatabase()), 1, new DefaultStorageIdGenerator(), classes);
     }
 
     /**
-     * Primary constructor. Generates a database schema by introspecting the provided classes.
-     *
-     * <p>
-     * All {@link JSimpleClass &#64;JSimpleClass}-annotated super-classes of any {@link JSimpleClass &#64;JSimpleClass}-annotated
-     * class in {@code classes} will be included even if not explicitly specified.
-     * </p>
+     * Primary constructor.
      *
      * @param database core database to use
      * @param version schema version number of the schema derived from {@code classes},
      *  or zero to use the highest version already recorded in the database
+     * @param storageIdGenerator generator for auto-generated storage ID's, or null to disallow auto-generation of storage ID's
      * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations; non-annotated classes are ignored
-     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if {@code database} or {@code classes} is null
      * @throws IllegalArgumentException if {@code version} is not greater than zero
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
      * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    public JSimpleDB(Database database, int version, Iterable<? extends Class<?>> classes) {
+    JSimpleDB(Database database, int version, StorageIdGenerator storageIdGenerator, Iterable<? extends Class<?>> classes) {
 
         // Initialize
         if (database == null)
@@ -151,6 +147,7 @@ public class JSimpleDB {
             throw new IllegalArgumentException("null classes");
         this.db = database;
         this.configuredVersion = version;
+        this.storageIdGenerator = storageIdGenerator;
 
         // Inventory classes; automatically add all @JSimpleClass-annotated superclasses of @JSimpleClass-annotated classes
         final HashSet<Class<?>> jsimpleClasses = new HashSet<>();
@@ -160,8 +157,13 @@ public class JSimpleDB {
             if (type == null)
                 throw new IllegalArgumentException("null class found in classes");
 
-            // Check for @JSimpleClass
-            if (type.isAnnotationPresent(JSimpleClass.class)) {
+            // Add type and all @JSimpleClass-annotated superclasses
+            do {
+
+                // Find annotation
+                final JSimpleClass annotation = type.getAnnotation(JSimpleClass.class);
+                if (annotation == null)
+                    continue;
 
                 // Sanity check type
                 if (type.isPrimitive() || type.isInterface() || type.isArray()) {
@@ -169,28 +171,31 @@ public class JSimpleDB {
                       + JSimpleClass.class.getSimpleName() + " annotation: not a normal class");
                 }
 
-                // Add type and all @JSimpleClass-annotated superclasses
+                // Add class
                 jsimpleClasses.add(type);
-                for (Class<?> supertype = type.getSuperclass(); type != null; type = type.getSuperclass()) {
-                    if (supertype.isAnnotationPresent(JSimpleClass.class))
-                        jsimpleClasses.add(supertype);
-                }
-            }
+            } while ((type = type.getSuperclass()) != null);
         }
 
         // Add Java model classes
         for (Class<?> type : jsimpleClasses) {
 
             // Create JClass
-            final JSimpleClass jclassAnnotation = type.getAnnotation(JSimpleClass.class);
-            final String name = jclassAnnotation.name().length() != 0 ? jclassAnnotation.name() : type.getSimpleName();
+            final JSimpleClass annotation = type.getAnnotation(JSimpleClass.class);
+            final String name = annotation.name().length() != 0 ? annotation.name() : type.getSimpleName();
             if (this.log.isTraceEnabled()) {
                 this.log.trace("found @" + JSimpleClass.class.getSimpleName() + " annotation on " + type
                   + " defining object type `" + name + "'");
             }
+
+            // Get storage ID
+            int storageId = annotation.storageId();
+            if (storageId == 0)
+                storageId = this.getStorageIdGenerator(annotation, type).generateClassStorageId(type, name);
+
+            // Create JClass
             JClass<?> jclass;
             try {
-                jclass = this.createJClass(name, jclassAnnotation.storageId(), Util.getWildcardedType(type));
+                jclass = this.createJClass(name, storageId, Util.getWildcardedType(type));
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("invalid @" + JSimpleClass.class.getSimpleName()
                   + " annotation on " + type + ": " + e, e);
@@ -203,7 +208,7 @@ public class JSimpleDB {
 
         // Create fields
         for (JClass<?> jclass : this.jclasses.values())
-            jclass.createFields();
+            jclass.createFields(this);
 
         // Create canonical field info structures
         final HashMap<Integer, String> fieldDescriptionMap = new HashMap<>();
@@ -246,10 +251,10 @@ public class JSimpleDB {
         // Add composite indexes to class; like fields, indexes are inherited (duplicated) from superclasses
         for (JClass<?> jclass : this.jclasses.values()) {
             for (Class<?> type = jclass.typeToken.getRawType(); type != null; type = type.getSuperclass()) {
-                final JSimpleClass jclassAnnotation = type.getAnnotation(JSimpleClass.class);
-                if (jclassAnnotation != null) {
-                    for (org.jsimpledb.annotation.JCompositeIndex indexAnnotation : jclassAnnotation.compositeIndexes())
-                        jclass.addCompositeIndex(indexAnnotation);
+                final JSimpleClass annotation = type.getAnnotation(JSimpleClass.class);
+                if (annotation != null) {
+                    for (org.jsimpledb.annotation.JCompositeIndex indexAnnotation : annotation.compositeIndexes())
+                        jclass.addCompositeIndex(this, indexAnnotation);
                 }
             }
         }
@@ -291,6 +296,15 @@ public class JSimpleDB {
     // This method exists solely to bind the generic type parameters
     private <T> JClass<T> createJClass(String name, int storageId, TypeToken<T> typeToken) {
         return new JClass<T>(this, name, storageId, typeToken);
+    }
+
+    StorageIdGenerator getStorageIdGenerator(Annotation annotation, AnnotatedElement target) {
+        if (this.storageIdGenerator == null) {
+            throw new IllegalArgumentException("invalid @" + annotation.getClass().getSimpleName()
+              + " annotation on " + target + ": no storage ID is given, but storage ID auto-generation is disabled"
+              + " because no " + StorageIdGenerator.class.getSimpleName() + " is configured");
+        }
+        return this.storageIdGenerator;
     }
 
     /**

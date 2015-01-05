@@ -4,19 +4,6 @@
 - Add support for XA transactions
     - But only if KVStore supports them
 
-- Annotation enhancements:
-    - Allow storageId's to default to zero; if so, auto-generate them:
-        - Object type: hash object type name
-        - Complex field: hash field name+field type (i.e., "list", "set", or "map")
-        - Simple field: hash field name+field type
-            - For sub-fields, name is "parent.element", "parent.key", or "parent.value"
-        - Hash to a value in the range 0xfb-0x100fa (so max 3 bytes encoded)
-    - @JSimpleClass: add autoProperties() default true
-        - All bean properties not marked @JTransient are added automatically
-    - @JSimpleClass: add abstract() default false
-        - If true then no corresponding object type is generated
-        - Alows autoProperties to work for subtypes without creating supertype
-
 - Build and distribute binary distribution
     - lib subdirectory with dependencies
     - add Main-Class and Classpath manifest headers to CLI and GUI jars

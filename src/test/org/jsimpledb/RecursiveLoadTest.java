@@ -7,7 +7,6 @@
 
 package org.jsimpledb;
 
-import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnChange;
 import org.jsimpledb.change.SimpleFieldChange;
@@ -34,14 +33,13 @@ public class RecursiveLoadTest extends TestSupport {
 
 // Model Classes
 
-    @JSimpleClass(storageId = 100)
+    @JSimpleClass
     public abstract static class Person implements JObject {
 
         protected Person() {
             this.setName("Some name");
         }
 
-        @JField(storageId = 101)
         public abstract String getName();
         public abstract void setName(String name);
 

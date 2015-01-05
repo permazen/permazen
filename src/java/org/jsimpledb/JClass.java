@@ -142,10 +142,13 @@ public class JClass<T> extends JSchemaObject {
 
 // Internal methods
 
-    void createFields() {
+    void createFields(JSimpleDB jdb) {
+
+        // Auto-generate properties?
+        final boolean autogenFields = this.typeToken.getRawType().getAnnotation(JSimpleClass.class).autogenFields();
 
         // Scan for Simple fields
-        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<T>(this);
+        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<T>(this, autogenFields);
         for (JFieldScanner<T>.MethodInfo info : simpleFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -157,6 +160,11 @@ public class JClass<T> extends JSchemaObject {
             if (this.log.isTraceEnabled())
                 this.log.trace("found " + description);
 
+            // Get storage ID
+            int storageId = annotation.storageId();
+            if (storageId == 0)
+                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);
+
             // Handle Counter fields
             if (fieldTypeToken.equals(TypeToken.of(Counter.class))) {
 
@@ -167,7 +175,7 @@ public class JClass<T> extends JSchemaObject {
                     throw new IllegalArgumentException("invalid " + description + ": counter fields cannot be indexed");
 
                 // Create counter field
-                final JCounterField jfield = new JCounterField(fieldName, annotation.storageId(),
+                final JCounterField jfield = new JCounterField(fieldName, storageId,
                   "counter field `" + fieldName + "' of object type `" + this.name + "'", getter);
                 jfield.parent = this;
 
@@ -186,7 +194,7 @@ public class JClass<T> extends JSchemaObject {
 
             // Create simple field
             final JSimpleField jfield = this.createSimpleField(description, fieldTypeToken,
-              fieldName, annotation.type(), annotation.storageId(), annotation.indexed(), annotation.onDelete(),
+              fieldName, annotation.type(), storageId, annotation.indexed(), annotation.onDelete(),
               getter, setter, "field `" + fieldName + "' of object type `" + this.name + "'");
             jfield.parent = this;
 
@@ -195,7 +203,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Set fields
-        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<T>(this);
+        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<T>(this, autogenFields);
         for (JSetFieldScanner<T>.MethodInfo info : setFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -207,18 +215,28 @@ public class JClass<T> extends JSchemaObject {
             if (this.log.isTraceEnabled())
                 this.log.trace("found " + description);
 
+            // Get storage ID's
+            int storageId = annotation.storageId();
+            if (storageId == 0)
+                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);
+            int elementStorageId = elementAnnotation.storageId();
+            if (elementStorageId == 0) {
+                elementStorageId = jdb.getStorageIdGenerator(elementAnnotation, getter)
+                  .generateSetElementStorageId(getter, fieldName);
+            }
+
             // Get element type (the raw return type has already been validated by the annotation scanner)
             final TypeToken<?> elementType = this.getParameterType(description, getter, 0);
 
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
-              elementType, SetField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementAnnotation.storageId(),
+              elementType, SetField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementStorageId,
               elementAnnotation.indexed(), elementAnnotation.onDelete(), null, null,
               "element field of set field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create set field
-            final JSetField jfield = new JSetField(fieldName, annotation.storageId(),
-              elementField, "set field `" + fieldName + "' in object type `" + this.name + "'", getter);
+            final JSetField jfield = new JSetField(fieldName, storageId, elementField,
+              "set field `" + fieldName + "' in object type `" + this.name + "'", getter);
             elementField.parent = jfield;
 
             // Add field
@@ -226,7 +244,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for List fields
-        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<T>(this);
+        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<T>(this, autogenFields);
         for (JListFieldScanner<T>.MethodInfo info : listFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -238,18 +256,28 @@ public class JClass<T> extends JSchemaObject {
             if (this.log.isTraceEnabled())
                 this.log.trace("found " + description);
 
+            // Get storage ID's
+            int storageId = annotation.storageId();
+            if (storageId == 0)
+                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);
+            int elementStorageId = elementAnnotation.storageId();
+            if (elementStorageId == 0) {
+                elementStorageId = jdb.getStorageIdGenerator(elementAnnotation, getter)
+                  .generateListElementStorageId(getter, fieldName);
+            }
+
             // Get element type (the raw return type has already been validated by the annotation scanner)
             final TypeToken<?> elementType = this.getParameterType(description, getter, 0);
 
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
-              elementType, ListField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementAnnotation.storageId(),
+              elementType, ListField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementStorageId,
               elementAnnotation.indexed(), elementAnnotation.onDelete(), null, null,
               "element field of list field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create list field
-            final JListField jfield = new JListField(fieldName, annotation.storageId(),
-              elementField, "list field `" + fieldName + "' in object type `" + this.name + "'", getter);
+            final JListField jfield = new JListField(fieldName, storageId, elementField,
+              "list field `" + fieldName + "' in object type `" + this.name + "'", getter);
             elementField.parent = jfield;
 
             // Add field
@@ -257,7 +285,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Map fields
-        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<T>(this);
+        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<T>(this, autogenFields);
         for (JMapFieldScanner<T>.MethodInfo info : mapFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -270,23 +298,34 @@ public class JClass<T> extends JSchemaObject {
             if (this.log.isTraceEnabled())
                 this.log.trace("found " + description);
 
+            // Get storage ID's
+            int storageId = annotation.storageId();
+            if (storageId == 0)
+                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);
+            int keyStorageId = keyAnnotation.storageId();
+            if (keyStorageId == 0)
+                keyStorageId = jdb.getStorageIdGenerator(keyAnnotation, getter).generateMapKeyStorageId(getter, fieldName);
+            int valueStorageId = valueAnnotation.storageId();
+            if (valueStorageId == 0)
+                valueStorageId = jdb.getStorageIdGenerator(valueAnnotation, getter).generateMapValueStorageId(getter, fieldName);
+
             // Get key and value types (the raw return type has already been validated by the annotation scanner)
             final TypeToken<?> keyType = this.getParameterType(description, getter, 0);
             final TypeToken<?> valueType = this.getParameterType(description, getter, 1);
 
             // Create key and value sub-fields
             final JSimpleField keyField = this.createSimpleField("key() property of " + description,
-              keyType, MapField.KEY_FIELD_NAME, keyAnnotation.type(), keyAnnotation.storageId(), keyAnnotation.indexed(),
+              keyType, MapField.KEY_FIELD_NAME, keyAnnotation.type(), keyStorageId, keyAnnotation.indexed(),
               keyAnnotation.onDelete(), null, null,
               "key field of map field `" + fieldName + "' in object type `" + this.name + "'");
             final JSimpleField valueField = this.createSimpleField("value() property of " + description,
-              valueType, MapField.VALUE_FIELD_NAME, valueAnnotation.type(), valueAnnotation.storageId(), valueAnnotation.indexed(),
+              valueType, MapField.VALUE_FIELD_NAME, valueAnnotation.type(), valueStorageId, valueAnnotation.indexed(),
               valueAnnotation.onDelete(), null, null,
               "value field of map field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create map field
-            final JMapField jfield = new JMapField(fieldName, annotation.storageId(),
-              keyField, valueField, "map field `" + fieldName + "' in object type `" + this.name + "'", getter);
+            final JMapField jfield = new JMapField(fieldName, storageId, keyField, valueField,
+              "map field `" + fieldName + "' in object type `" + this.name + "'", getter);
             keyField.parent = jfield;
             valueField.parent = jfield;
 
@@ -295,24 +334,39 @@ public class JClass<T> extends JSchemaObject {
         }
     }
 
-    void addCompositeIndex(org.jsimpledb.annotation.JCompositeIndex annotation) {
+    void addCompositeIndex(JSimpleDB jdb, org.jsimpledb.annotation.JCompositeIndex annotation) {
+
+        // Get info
+        final String indexName = annotation.name();
 
         // Resolve field names
         final String[] fieldNames = annotation.fields();
         final JSimpleField[] indexFields = new JSimpleField[fieldNames.length];
+        final int[] indexFieldStorageIds = new int[fieldNames.length];
         final HashSet<String> seenFieldNames = new HashSet<String>();
         for (int i = 0; i < fieldNames.length; i++) {
             final String fieldName = fieldNames[i];
             if (!seenFieldNames.add(fieldName))
                 throw this.invalidIndex(annotation, "field `" + fieldName + "' appears more than once");
             final JField jfield = this.jfieldsByName.get(fieldName);
-            if (!(jfield instanceof JSimpleField))
-                throw this.invalidIndex(annotation, jfield != null ? "not a simple field" : "field not found");
+            if (!(jfield instanceof JSimpleField)) {
+                throw this.invalidIndex(annotation, "field `" + fieldName + "' "
+                  + (jfield != null ? "is not a simple field" : "not found"));
+            }
             indexFields[i] = (JSimpleField)jfield;
+            indexFieldStorageIds[i] = jfield.storageId;
+        }
+
+        // Get storage ID
+        int storageId = annotation.storageId();
+        if (storageId == 0) {
+            final Class<?> type = this.typeToken.getRawType();
+            storageId = jdb.getStorageIdGenerator(annotation, type).generateCompositeIndexStorageId(
+              type, indexName, indexFieldStorageIds);
         }
 
         // Create and add index
-        final JCompositeIndex index = new JCompositeIndex(annotation.name(), annotation.storageId(), indexFields);
+        final JCompositeIndex index = new JCompositeIndex(indexName, storageId, indexFields);
         if (this.jcompositeIndexes.put(index.storageId, index) != null)
             throw this.invalidIndex(annotation, "duplicate use of storage ID " + index.storageId);
         if (this.jcompositeIndexesByName.put(index.name, index) != null)

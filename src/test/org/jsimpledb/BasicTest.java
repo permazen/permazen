@@ -20,12 +20,10 @@ import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.core.Database;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ReferencedObjectException;
 import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
-import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.tuple.Tuple2;
 import org.jsimpledb.tuple.Tuple3;
 import org.testng.Assert;
@@ -276,9 +274,7 @@ public class BasicTest extends TestSupport {
     }
 
     public static JSimpleDB getJSimpleDB(Iterable<Class<?>> classes) {
-        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
-        final Database db = new Database(kvstore);
-        return new JSimpleDB(db, 1, classes);
+        return new JSimpleDB(classes);
     }
 
 // Model Classes

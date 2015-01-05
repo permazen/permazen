@@ -45,13 +45,16 @@ public @interface JSetField {
     String name() default "";
 
     /**
-     * Storage ID for this field. Value must be positive and unique within the contained class.
+     * Storage ID for this field. Value should be positive and unique within the contained class.
+     * If zero, the configured {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value.
+     *
+     * @see org.jsimpledb.StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
      */
-    int storageId();
+    int storageId() default 0;
 
     /**
      * Storage ID and index setting for the field's elements. Note: the {@link JField#name name} property must be left unset.
      */
-    JField element();
+    JField element() default @JField();
 }
 

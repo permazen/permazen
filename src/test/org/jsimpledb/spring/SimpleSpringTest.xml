@@ -22,13 +22,15 @@
 
     <bean id="database" class="org.jsimpledb.core.Database" c:kvdb-ref="kvdb"/>
 
-    <bean id="jsimpledb" class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1">
-        <constructor-arg>
+    <bean id="jsimpledbFactory" class="org.jsimpledb.JSimpleDBFactory" p:database-ref="database" p:schemaVersion="1">
+        <property name="modelClasses">
             <jsimpledb:scan-classes base-package="org.jsimpledb.spring">
                 <jsimpledb:exclude-filter type="regex" expression=".*Banana.*"/>
             </jsimpledb:scan-classes>
-        </constructor-arg>
+        </property>
     </bean>
+
+    <bean id="jsimpledb" factory-bean="jsimpledbFactory" factory-method="newJSimpleDB"/>
 
     <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager" p:JSimpleDB-ref="jsimpledb"/>
 

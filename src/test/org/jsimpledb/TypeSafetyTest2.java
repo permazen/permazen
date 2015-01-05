@@ -32,7 +32,7 @@ public class TypeSafetyTest2 extends TestSupport {
 
     // Version 1
 
-        final JSimpleDB jdb1 = new JSimpleDB(db, 1, Arrays.<Class<?>>asList(Inventory1.class, Car.class, Boat.class));
+        final JSimpleDB jdb1 = new JSimpleDB(db, 1, null, Arrays.<Class<?>>asList(Inventory1.class, Car.class, Boat.class));
         JTransaction jtx = jdb1.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
 
@@ -58,7 +58,7 @@ public class TypeSafetyTest2 extends TestSupport {
 
     // Version 2
 
-        final JSimpleDB jdb2 = new JSimpleDB(db, 2, Arrays.<Class<?>>asList(Inventory2.class, Car.class, Boat.class));
+        final JSimpleDB jdb2 = new JSimpleDB(db, 2, null, Arrays.<Class<?>>asList(Inventory2.class, Car.class, Boat.class));
         jtx = jdb2.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
 

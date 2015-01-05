@@ -30,6 +30,7 @@
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="base->default"/>
         <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1+" conf="javac,gui,cli->default"/>
         <dependency force="true" org="org.aspectj" name="aspectj" rev="1.7.2" conf="weaver->tools;base->default"/>
+        <!-- Note: see util/AnnotationScanner.java when upgrading dellroad-stuff -->
         <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.946" conf="base->core; weaver->aspects"/>
         <dependency force="true" org="org.eclipse" name="jetty" rev="9.2.0.v20140526" conf="javac,gui->webapp,annotations"/>
         <dependency force="true" org="org.objectweb.asm" name="asm" rev="4.+" conf="javac,gui,build->default; jarjars->core,util"/>

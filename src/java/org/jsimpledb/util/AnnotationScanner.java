@@ -17,6 +17,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.dellroad.stuff.java.MethodAnnotationScanner;
 import org.jsimpledb.JClass;
@@ -53,6 +54,48 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     protected AnnotationScanner(Class<T> type, Class<A> annotationType) {
         super(type, annotationType);
         this.jclass = null;
+    }
+
+// TODO: remove the next two methods after upgrading to newer dellroad-stuff version
+
+    @Override
+    protected void findMethodInfos(Class<?> klass, Set<MethodInfo> set) {
+
+        // Stop at null
+        if (klass == null)
+            return;
+
+        // Search methods
+        for (Method method : klass.getDeclaredMethods()) {
+            final A annotation = this.getAnnotation(method);
+            if (annotation == null || !this.includeMethod(method, annotation))
+                continue;
+            final MethodInfo methodInfo = this.createMethodInfo(method, annotation);
+            if (methodInfo != null)
+                set.add(methodInfo);
+        }
+
+        // Recurse on interfaces
+        for (Class<?> iface : klass.getInterfaces())
+            this.findMethodInfos(iface, set);
+
+        // Recurse on superclass
+        this.findMethodInfos(klass.getSuperclass(), set);
+    }
+
+    /**
+     * Get the annotation on the given method.
+     *
+     * <p>
+     * The implementation in {@link MethodAnnotationScanner} just invokes {@code method.getAnnotation()}.
+     * Subclasses may override to automatically synthesize annotations, etc.
+     * </p>
+     *
+     * @param method method in question
+     * @return annotation for {@code method}, or null if there is none
+     */
+    protected A getAnnotation(Method method) {
+        return method.getAnnotation(this.annotationType);
     }
 
     /**
