@@ -35,34 +35,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstraction layer allowing access to a {@link Database} using normal Java objects.
+ * A JSimpleDB database.
  *
  * <p>
- * This class provides a natural, Java-centric view on top of the core {@link Database} class. This is done via two main
- * enhancements to the functionality provided by {@link Database}:
- * <ul>
- *  <li>{@linkplain org.jsimpledb.annotation Java annotations} are used to define all {@link Database} objects, fields,
- *      and composite indexes, and to automatically register various listeners.</li>
- *  <li>{@link Database} objects and fields are represented using actual Java model objects, where the Java model classes
- *      are automatically generated subclasses of the user-supplied Java bean model classes. That is, in the view that
- *      a {@link JSimpleDB} provides, all {@link Database} object references (which are all {@link ObjId} objects)
- *      are replaced by normal Java model objects of the appropriate type, and all {@link Database} fields are accessible
- *      through the corresponding model objects' Java bean getter and setter methods, instead of directly through
- *      a {@link Transaction} object. All Java model classes implement the {@link JObject} interface.</li>
- * </ul>
+ * JSimpleDB consists of two main layers. The lower level "core" API provides a rigourous database abstraction on top of
+ * a key/value store. It supports simple fields of any atomic Java type, as well as list, set, and map complex fields,
+ * tightly controlled schema versioning, simple and composite indexes, and lifecycle and change notifications.
+ * The core API is provided via the {@link Database} class.
  * </p>
  *
  * <p>
- * In addition, a {@link JSimpleDB} provides automatic incremental JSR 303 validation.
+ * This {@link JSimpleDB} class represents the upper layer. It sits on top of the core {@link Database} class and provides
+ * a fully type-safe Java view of a {@link Database}, where all access is through user-supplied Java model classes.
+ * In addition, a {@link JSimpleDB} provides automatic incremental JSR 303 validation. Database types and fields,
+ * as well as listener methods, are all declared using various {@linkplain org.jsimpledb.annotation Java annotations}.
  * </p>
  *
  * <p>
- * Not counting "snapshot" objects (see below), this class guarantees that for each {@link ObjId}
- * it will only create a single, globally unique, {@link JObject} Java model object.
- * Therefore, the same Java model objects can be used in and out of any transaction, and can serve as
- * unique database object identifiers (if you have not overridden {@link #equals equals()} in your model clases).
- * Except for their associated {@link ObjId}s, the generated Java model objects are stateless; all database field state
- * is contained within whichever transaction is {@linkplain JTransaction#getCurrent associated with the current thread}.
+ * User-provided Java model classes are typically abstract and declare fields as abstract Java bean methods. In any case,
+ * {@link JSimpleDB} generates concrete subclasses at runtime; these runtime classes will implement the {@link JObject} interface.
+ * The corresponding Java model objects are stateless; all database field state is derived from whichever transaction is
+ * {@linkplain JTransaction#getCurrent associated with the current thread}.
+ * </p>
+ *
+ * <p>
+ * Not counting "snapshot" objects (see below), this class guarantees that for each {@link ObjId} there will only ever be
+ * a single, globally unique, {@link JObject} Java model object. Therefore, the same Java model objects can be used in and
+ * out of any transaction.
  * </p>
  *
  * <p>

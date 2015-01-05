@@ -13,7 +13,7 @@ import org.jsimpledb.core.ObjId;
  * Interface implemented by {@link JSimpleDB} Java model objects.
  *
  * <p>
- * All {@link JSimpleDB} database objects are instances of runtime-generated sub-classes of the provided Java model classes.
+ * All {@link JSimpleDB} database objects are instances of runtime-generated sub-classes of user-provided Java model classes.
  * These generated subclasses will always implement this interface, providing convenient access to database operations.
  * Therefore, it is conveninent to declare Java model classes {@code abstract} and {@code implements JObject}.
  * However, this is not strictly necessary; all of the methods declared here ultimately delegate to one of the
@@ -23,8 +23,8 @@ import org.jsimpledb.core.ObjId;
  * <p>
  * There are two types of {@link JObject}s: normal instances, which always reflect the state of the {@link JTransaction}
  * {@linkplain JTransaction#getCurrent associated} with the current thread, and "snapshot" instances that reflect
- * the state of their associated {@link SnapshotJTransaction}. Use {@link #isSnapshot} to distinguish if necessary.
- * For example, some create/delete/change callback methods may not apply in a snapshot context.
+ * the state of their associated {@link SnapshotJTransaction}. Use {@link #isSnapshot} to distinguish if necessary
+ * Use {@link #copyIn copyIn()} and {@link #copyOut copyOut()} to copy data between normal and snapshot transactions.
  * </p>
  *
  * <p>
@@ -108,7 +108,7 @@ public interface JObject {
 
     /**
      * Recreate a deleted instance, if it does not exist, in its associated transaction.
-     * The fields of a recreated object are set to their initial values.
+     * The fields of a recreated object are set to their initial values. If the object already exists, nothing changes.
      *
      * @return true if instance was recreated, false if it already existed
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
@@ -181,15 +181,15 @@ public interface JObject {
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
      * The {@code seen} parameter tracks which objects have already been copied. For a "fresh" copy operation, pass a newly
-     * created instance; for a copy operation that is a continuation of a previous copy, the {@code seen} may be reused.
+     * created instance; for a copy operation that is a continuation of a previous copy, {@code seen} may be reused.
      * Note: if {@code target} is not equal to this instance's object ID, and through one of the {@code refPaths} there
      * is a circular reference back to this instance, then that reference is copied as-is (i.e., it is not copied
      * to {@code target}).
      * </p>
      *
      * <p>
-     * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
-     * deadlock could result.
+     * Warning: if two threads attempt to copy objects between the same two transactions at the same time
+     * but in opposite directions, deadlock could result.
      * </p>
      *
      * @param dest destination transaction for copies
