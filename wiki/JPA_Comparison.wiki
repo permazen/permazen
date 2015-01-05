@@ -14,7 +14,7 @@ Here's a quick comparison between JSimpleDB and JPA, the most common Java persis
 || Simple data types || SQL data types || Primitives, Date, etc. + any user-definable ||
 || Array types || `byte[]` only || Any type including multi-dimensional ||
 || Indexable data types || SQL data types || Any type ||
-|| Composite indexes || Supported || Coming soon ||
+|| Composite indexes || Supported || Supported ||
 || Collection types || Sets, lists, maps || Sets, lists, maps ||
 || Lockless counter type || Not supported || Supported (if key/value does) ||
 || Snapshot Transactions || Partial/implicit || Supported ||
