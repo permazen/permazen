@@ -196,7 +196,9 @@ To query the index, you invoke `JTransaction.querySimpleField()`:
         return JTransaction.getCurrent().querySimpleField(Person.class, "age", Integer.class).asMap();
     }</code>
 
-The `Person.class` and `Integer.class` parameters accomplish two goals: first, they eliminate any unchecked cast warnings. Secondly, they allow you to narrow or widen the type to suit your needs. For example, if `HappyPerson extends Person` and you only want to find happy people of a certain age, you can do this:
+The `Person.class` and `Integer.class` parameters accomplish two goals: first, they eliminate any unchecked cast warnings and allow JSimpleDB to verify the indexed types. Secondly, they allow you to narrow or widen the type to suit your needs.
+
+For example, if `HappyPerson extends Person` and you only want to find happy people of a certain age, you can do this:
 
 <code language="java">
     public static NavigableMap<Integer, NavigableSet<HappyPerson>> queryHappyPersonAges() {
@@ -210,9 +212,9 @@ Or, suppose your schema has evolved over time and the old superclass `Mammal` wh
         return JTransaction.getCurrent().querySimpleField(JObject.class, "age", Integer.class).asMap();
     }</code>
 
-In all cases, JSimpleDB guarantees type safety.
+Since your old `Mammal` class is long gone, the old `Mammal` objects will appear as <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/UntypedJObject.html">`UntypedJObject`</a>'s. You can still access their fields by directly invoking the corresponding `JTransaction` field access method.
 
-Since your old `Mammal` class is long gone, the old `Mammal` objects will appear as <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/UntypedJObject.html">`UntypedJObject`</a>'s. You can still access their fields using by directly invoking the various `JTransaction` field access methods.
+<b>In all cases, JSimpleDB guarantees type safety</b>.
 
 Now that we have an index on the `age` field, We can rewrite our old, inefficient `existsPersonOfAge()` method:
 
@@ -223,7 +225,7 @@ Now that we have an index on the `age` field, We can rewrite our old, inefficien
 
 Now it's obvious by inspection that this query will run efficiently.
 
-Since the mapping is a `NavigableMap`, you can efficiently find the minimum or maximum value, created a restricted range of values, iterate values in forward or reverse order, etc.
+Since the mapping is a `NavigableMap`, you can efficiently find the minimum or maximum value, create a restricted range of values, iterate values in forward or reverse order, etc.
 
 <code language="java">
     public static int getMaximumAge() {
@@ -231,7 +233,7 @@ Since the mapping is a `NavigableMap`, you can efficiently find the minimum or m
         return !index.isEmpty() ? index.lastKey() : -1;
     }</code>
 
-You may be wondering what sort order applies to `Person`. JSimpleDB sorts database objects by their type (i.e., Java class), and then by their unique object ID (the object ID is available via `JObject.getObjId()`). Object IDs are opaque 64-bit values. Newly created objects get a randomly generated value which avoids distributed database contention that would otherwise occur with an auto-increment counter.
+Since we have a `NavigableSet<Person>`, you may be wondering what sort order applies to `Person`. JSimpleDB sorts database objects by their type (i.e., Java class), and then by their unique object ID (the object ID is available via `JObject.getObjId()`). Object IDs are opaque 64-bit values. Newly created objects get a randomly generated value which avoids distributed database contention that would otherwise occur with an auto-increment counter.
 
 ==== Complex Field Indexes ====
 
@@ -239,6 +241,8 @@ You can also index complex fields, by indexing the `element` sub-field of a `Set
 <code language="java">
 @JSimpleClass
 public abstract class Student implements JObject {
+ 
+  // Database Fields
  
     // The classes this student is attending
     @JSetField(element = @JField(indexed = true))
@@ -251,6 +255,8 @@ public abstract class Student implements JObject {
     // This student's test scores
     @JMapField(key = @JField(indexed = true), value = @JField(indexed = true))
     public abstract Map<Test, Float> getTestScores();
+ 
+  // Index Query Methods
  
     // Map classes to students in the class
     public static NavigableMap<LectureClass, NavigableSet<Student>> queryStudentsByLectureClass() {
@@ -285,6 +291,7 @@ Indexes are a perfect way to provide Java access to both sides of a one-to-many,
 @JSimpleClass
 public abstract class User implements JObject {
  
+    // Get this user's account
     public abstract Account getAccount();
     public abstract void setAccount(Account account);
 }
@@ -292,7 +299,7 @@ public abstract class User implements JObject {
 @JSimpleClass
 public abstract class Account implements JObject {
  
-    // Get users associated with this account, or null if there are none
+    // Get all users with this account (or null if there are none)
     public NavigableSet<User> getUsers() {
         return this.getTransaction().querySimpleField(
           User.class, "account", Account.class).asMap().get(this);
@@ -331,8 +338,7 @@ Any higher-order index can be viewed as a lower-ordered index on any prefix of i
     // Maps each last name to the set of all associated first names
     public static NavigableMap<String, NavigableSet<String>> queryNamesLastFirst() {
         return Person.queryByLastNameFirstName().asIndex().asMap();
-    }
-}</code>
+    }</code>
 
 ==== Non-Unique Complex Field Indexes ====
 
@@ -350,13 +356,13 @@ public abstract class Student implements JObject {
  
     // Map teacher to students that rank the teacher AND the coresponding rank(s)
     public static Index2<Teacher, Student, Integer> queryStudentsRankings() {
-        return JTransaction.getCurrent().queryListField(            // not querySimpleField()
+        return JTransaction.getCurrent().queryListField(            // instead of querySimpleField()
           Student.class, "teacherRankings.element", Teacher.class);
     }
  
     // Map tests scores to the students who got that score on some test AND the test(s)
     public static Index2<Float, Student, Test> queryStudentsByTestScore() {
-        return JTransaction.getCurrent().queryMapValueField(        // not querySimpleField()
+        return JTransaction.getCurrent().queryMapValueField(        // instead of querySimpleField()
           Student.class, "testScores.value", Float.class, Test.class);
     }
 }</code>
@@ -378,20 +384,20 @@ Then we just do the "join" via set intersection:
 <code language="java">
     // Get all of my friends who are the specified age
     public NavigableSet<Person> getFriendOfAge(int age) {
-
+ 
         // Get all Person's of age 'age', whoever they are
         final NavigableSet<Person> peopleOfAge = this.queryPersonAges().get(age);
         if (peopleOfAge == null)
             return NavigableSets.<Person>empty();
-
+ 
         // Get all of my friends
         final NavigableSet<Person> myFriends = this.getFriends();
-
+ 
         // Return the intersection
         return NavigableSets.intersect(peopleOfAge, myFriends);
     }</code>
 
-The <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/util/NavigableSets.html">`NavigableSets`</a> utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements and a consistent sort order for those elements (which is what allows the intersection operation to be efficient). JSimpleDB provides this consistent ordering for you.
+The <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/util/NavigableSets.html">`NavigableSets`</a> utility class provides efficient methods for set intersection, union, and difference. The sets must have comparable elements and a consistent sort order for those elements (this property is what allows the intersection operation to be efficient). JSimpleDB provides this consistent ordering for you in all of its returned sets.
 
 === Reference Inversion ===
 
@@ -408,13 +414,14 @@ More generally, we can determine what objects refer to a given object indirectly
 <code language="java">
     // Who considers me a friend?
     public Set<Person> whoConsidersMeAFriend() {
-        return this.getTransaction().invertReferencePath(Person.class, "friend", Collections.singleton(this));
+        return this.getTransaction().invertReferencePath(
+          Person.class, "friend", Collections.singleton(this));
     }
  
     // Who considers any of my friends a friend of a friend (possibly someone other than me)?
     public Set<Person> whoConsidersAnyOfMyFriendsAFriendOfAFriend() {
-        return JTransaction.getCurrent().invertReferencePath(Person.class,
-          "friend.friend", this.getFriends());
+        return JTransaction.getCurrent().invertReferencePath(
+          Person.class, "friend.friend", this.getFriends());
     }</code>
 
 A reference path is simply a chain of reference fields via which one can hop through the graph defined by objects (nodes) and references (edges). Following a reference path in the forward direction is what one normally does in Java. JSimpleDB allows you to also invert reference paths, so now you can go in either direction. As always, type safety is guaranteed.
@@ -439,11 +446,15 @@ Snapshot transactions make a perfect foundation for user interface presentation 
 
 === Storage IDs ===
 
-Underneath the covers, every JSimpleDB model class, field (including sub-fields of complex fields, like the `element` sub-field of `friends`), and composite index has a unique *storage ID*. Internally, all database entities are identified by storage ID, not name.
+Underneath the covers, every JSimpleDB model class, field, and composite index has a unique *storage ID*. Internally, database identity and overall schema structure are defined by storage ID's, not names. The storage ID's, in encoded form, are used to prefix keys in the underlying key/value store.
 
-But you will normally not see them, except if necessary during a schema update following code refactoring. In that situation, storage ID's are how you access any fields that were moved or deleted in the refactoring. In other words, storage IDs provide a level of indirection between your Java code and database identity, allowing your Java code to change more freely while also providing a flexible, controlled and well-defined way to update database contents (if necessary) when the schema does change. See [#Schema_Management Schema Management] for more info.
+In other words, storage IDs provide a level of indirection between your Java code and database identity, allowing your Java code to change more freely while also providing a flexible, controlled and well-defined way to update database contents (if necessary) when the schema does change. See [#Schema_Management Schema Management] for more info on schema updates.
 
-You can assign storage ID's explicitly if you want to:
+Unless you specify them explicitly, JSimpleDB will auto-generate storage ID's for you based on the JSimpleDB name of the class, field, or composite index. So you normally do not need to bother with storage ID's.
+
+For classes and fields, the JSimpleDB name defaults to the class's simple name or the field's Java bean property name. Therefore, by default changing a class or getter method name will result in a schema change. To avoid unnecessary schema changes after simple name changes, you can explicitly set the name or the storage ID to its previous value in the corresponding annotation.
+
+The way that storage ID's are encoded requires fewer bytes for smaller values. Values up to 250 only require one byte; values up to 506 only require two bytes, values up to 65,786 only require three bytes, etc. The default auto-generation of storage ID's results in values that encode in three bytes, i.e., in the range 507-65786. To save a few bytes, you can assign storage ID's explicitly if you want to:
 <code language="java">
 @JSimpleClass(storageId = 100)
 public abstract class Person implements JObject {
@@ -457,8 +468,6 @@ public abstract class Person implements JObject {
     @JSetField(storageId = 102, element = @JField(storageId = 103))
     public abstract Set<Person> getFriends();
 }</code>
-
-If not explicitly given, JSimpleDB will auto-generate them for you based on the associated name.
 
 == Indexing and Detecting Changes ==
 
