@@ -16,7 +16,7 @@ import org.springframework.core.io.ResourceLoader;
 
 /**
  * Spring {@link BeanPostProcessor} that looks for {@link SpringXSLPersistentObjectSchemaUpdate} beans that don't have
- * an explicit {@link SpringXSLPersistentObjectSchemaUpdate#setTransform transform resource configured}, and configures
+ * an explicit {@linkplain SpringXSLPersistentObjectSchemaUpdate#setTransform transform resource configured}, and configures
  * them using a resource location based on the bean name, by simply adding a configured prefix and suffix.
  *
  * <p>
