@@ -26,6 +26,7 @@ There are also lots of other issues, some more subtle than others. For example:
  * Database queries just look ugly nested inside Java code, even with recent improvements such as JPA criteria queries. There's no way to make them look "natural".
  * ORM layers often have murky areas of unspecified or unpredictable behavior, largely due to their inherent complexity. Instead, there should be no ambiguity what is going to happen in any particular situation.
  * ORM layers attempt to hide the complexity of converting everything into SQL, but they do so incompletely and imperfectly, resulting in a layer of abstraction for which you still must expend mental energy understanding and paying attention to lower level details
+ * Lots of subtle violations of Java type-safety, e.g., when handling `Enum` types
 
 Moreover, Java applications have a few common requirements that normal databases don't provide support for, such as: how do you update your database schema without bringing down every node while you run `ALTER TABLE FOO` statements?
 
@@ -47,6 +48,7 @@ JSimpleDB's Java-centric persistence model is designed to:
  * Be simple to understand for Java programmers
    * Everything should be configured using annotations
    * Everything should be done using normal Java objects
+   * *Type Safety* is paramount
  * Be capable of scaling to large data sets and multiple nodes
    * JSimpleDB should be able to run on almost any database
      * SQL
