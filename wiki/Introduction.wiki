@@ -13,7 +13,7 @@ In other words, for the most part JSimpleDB is not trying to create solutions wh
 
 == A Persistence Layer ==
 
-JSimpleDB is a _Persistence Layer_. It runs on top of a transactional key/value database that you supply.
+JSimpleDB is a _Java Persistence Layer_. It provides a Java-centric view of a transactional key/value database that you supply.
 
 JSimpleDB includes adapters for some existing databases, such as [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/fdb/FoundationKVDatabase.html FoundationDB] (recommended) and [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/sql/package-summary.html SQL] databases, as well as [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/SimpleKVDatabase.html in-memory] and [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/XMLKVDatabase.html XML flat file] key/value stores for testing and prototyping.
 
@@ -21,19 +21,17 @@ JSimpleDB includes adapters for some existing databases, such as [http://jsimple
 
 JSimpleDB attempts to minimize the distinction between "normal Java" and "persistence Java".
 
-JSimpleDB does not have or need a "query language". All data access is done through normal Java code, using objects and method calls.
+For example, JSimpleDB does not have or need a "query language". All data access is done through normal Java code, using objects and method calls.
 
-As you can see in the example below, in some cases JSimpleDB provides method _implementations_. But your code that invokes those methods is normal Java.
-
-Your "database schema", as such, is defined by your Java classes and their fields. These implicitly define your one-to-one, many-to-one, and many-to-many relationships. JSimpleDB also provides controlled and well-defined schema versioning support.
-
-JSimpleDB does all of this while remaining *completely Java type safe*.
+Your "database schema" is defined by your Java classes and their fields. These implicitly define your one-to-one, many-to-one, and many-to-many relationships. JSimpleDB provides tightly controlled and well-defined schema versioning support so that you can safely refactor your code without worry.
 
 JSimpleDB also avoids design choices that would limit _scalability_. Some JSimpleDB design choices that support scalability are:
  * JSimpleDB runs on top of any database that can [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/KVDatabase.html look like] a transactional key/value store
  * JSimpleDB avoids the use of "bottleneck" keys (e.g., auto-increment counters) that can cause high contention between transactions
  * JSimpleDB provides support not only for indexing fields, but also tools to support building your own custom indexes, so that virtually anything you frequently query can be indexed
  * JSimpleDB provides explicit support for rolling, no-downtime software updates that involve running different versions of your code (with different schemas) on different nodes at the same time
+
+Most importantly, JSimpleDB does all of this while remaining *completely type safe*.
 
 == Quick Example ==
 
@@ -51,22 +49,23 @@ public abstract class Person implements JObject {
 }</code>
 
 Of note:
- * We are defining a persistent database object `Person` containing two fields:
+ * We are defining a database object type `Person` that has two fields:
    * An `int` field named `age` of type `int`
    * A `Set` field named `friends` with element type `Person`
- * The getter methods for `age` and `friends` are declared `abstract`
-   * JSimpleDB overrides these methods in an auto-generated subclass at runtime
-   * The generated subclass will implement the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a> interface
+ * The methods for `age` and `friends` are declared `abstract`
+   * JSimpleDB overrides these methods at runtime in an auto-generated subclass
  * There is no setter method for the `friends` set
-   * The set will always exist
+   * Collection fields are initially empty but always _exist_
+ * `Person` is declared to implement the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a> interface
+   * The generated subclasses always implement <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a>
 
 === Field Types ===
 
 JSimpleDB supports two kinds of fields: simple and complex.
 
-A simple field is any field that can be considered as a single value and encoded into binary form. This inclues primitive types and primitive wrapper types, `String`, the other usual suspects such as `Date`, `UUID`, etc., and `Enum` types.
+A simple field is any field that can be considered as a single atomic value and encoded into binary form. This inclues primitive types and primitive wrapper types, `String`, other usual suspects such as `Date`, `UUID`, etc., and any `Enum` type.
 
-Reference fields, which are fields that refer to database object types, are also considered simple.
+Reference fields, which are fields that refer to database object types, are also simple.
 
 All simple fields have a well-defined sort order, which is also reflected in their binary encodings.
 
@@ -79,12 +78,10 @@ In the case of complex fields with primitive sub-field type, both true primitive
 @JSimpleClass
 public abstract class Person implements JObject {
  
-    // Type defaults to java.lang.Integer
-    public abstract Set<Integer> wrapperSet();
+    public abstract Set<Integer> wrapperSet();      // element type is java.lang.Integer
  
-    // Type explicitly set to primitive integer type
     @JField(type = "int")
-    public abstract Set<Integer> primitiveSet();
+    public abstract Set<Integer> primitiveSet();    // element type is int
  
     public void test() {
         this.wrapperSet().add(null);        // OK
@@ -98,6 +95,12 @@ You can define your own simple types by providing a class annotated with <a href
 
 Once you have defined your classes, programming with JSimpleDB is just normal Java programming, with just a few differences.
 
+<a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`, which returns the instance associated with the current thread.
+
+All state associated with JSimpleDB objects lives in the `JTransaction`. The model objects themselves are stateless. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no such `JTransaction`, an `IllegalStateException` is thrown.
+
+Java model objects do not change from transaction to transaction like with JPA. You will get, and can use, the same `Person` object over and over again in multiple transactions. Of course, the person's fields may have different values in different transactions.
+
 === Finding Objects ===
 
 To get all persistent `Person`s:
@@ -109,7 +112,6 @@ To get all persistent `Person`s:
     }</code>
 
 The parameter to `JTransaction.getAll()` can be any Java type, including interface types, e.g.:
-
 <code language="java">
     // Get all objects that implement HasName
     public static Set<HasName> getAllNamed() {
@@ -123,6 +125,8 @@ All objects have an internal 64-bit object ID which is represented by the <a hre
         return JTransaction.getCurrent().getJObject(id, Person.class);
     }</code>
 
+If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `JObject.exists()`, and (if need be) recreate the object (with all fields reset) via `JObject.recreate()`.
+
 === Object Lifecycle ===
 
 To create a persistent `Person` instance, invoke `create()` on a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> object, e.g.:
@@ -132,14 +136,6 @@ To create a persistent `Person` instance, invoke `create()` on a <a href="http:/
     public static Person create() {
         return JTransaction.getCurrent().create(Person.class);
     }</code>
-
-<a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`, which returns the instance associated with the current thread.
-
-All state associated with JSimpleDB objects lives in the `JTransaction`. The model objects themselves are stateless, except for their internal object ID. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no such `JTransaction`, an `IllegalStateException` is thrown.
-
-Java model objects do not change from transaction to transaction like with JPA. You will get, and can use, the same `Person` object over and over again in multiple transactions. Of course, the person's fields may have different values in different transactions.
-
-If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `JObject.exists()`, and (if need be) recreate the object (with all fields reset) via `JObject.recreate()`.
 
 To delete a persistent `Person`:
 
@@ -154,7 +150,7 @@ JSimpleDB provides an equivalent of SQL `ON DELETE ...` for reference fields. Th
 
 You have four choices, represented by the constants in the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/DeleteAction.html">`DeleteAction`</a> enum class:
 
- * `EXCEPTION` - Disallow deletion of such an object; instead, throw `ReferencedObjectException`.
+ * `EXCEPTION` - Disallow deletion of such an object; instead, throw `ReferencedObjectException`. This is the default value.
  * `UNREFERENCE` - Set all references to the object to null (in the case of simple reference fields) or remove the corresponding collection entry (in the case of sets, lists, and maps).
  * `DELETE` - Delete all objects referring to the deleted object, repeating recursively as necessary. Cycles in the reference graph are properly handled to avoid infinite loops.
  * `NOTHING` - Do nothing; subsequent attempts to dereference the deleted object will result in a `DeletedObjectException`.
@@ -167,7 +163,7 @@ If you want to be be guaranteed to never see any `DeletedObjectException`s, then
 
 === Indexes ===
 
-Given the above `Person` class, if you wanted to calculate whether any `Person` having a specific age existed, you would have to write this code:
+Given the above `Person` class (without any indexes configured), if you wanted to calculate whether any `Person` having a specific age existed, you would have to write this code:
 <code language="java">
     public boolean existsPersonOfAge(int age) {
         for (Person person : Person.getAll()) {
@@ -189,14 +185,14 @@ Of course this is the perfect situation for an *index* on the `age` field. Here 
     public abstract int getAge();
     public abstract void setAge(int age);</code>
 
-To read that index, you invoke `JTransaction.querySimpleField()`:
+An index on a single field is basically just a mapping from each field value to the set of all objects having that value in the field. JSimpleDB simple indexes implement the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/index/Index.html">`Index`</a> interface, which allows viewing the index as either a map or a set of tuples.
+
+To query the index, you invoke `JTransaction.querySimpleField()`:
 
 <code language="java">
     public static NavigableMap<Integer, NavigableSet<Person>> queryPersonAges() {
         return JTransaction.getCurrent().querySimpleField(Person.class, "age", Integer.class).asMap();
     }</code>
-
-An index on a single field is basically just a mapping from field value to the set of objects having that value in the field. JSimpleDB simple indexes implement the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/index/Index.html">`Index`</a> interface, which allows viewing the index as either a map or a set of tuples.
 
 Now we can rewrite our `existsPersonOfAge()` method:
 
@@ -204,6 +200,8 @@ Now we can rewrite our `existsPersonOfAge()` method:
     public static boolean existsPersonOfAge(int age) {
         return Person.queryPersonAges().containsKey(age);
     }</code>
+
+Now it's obvious by inspection that this query will run efficiently.
 
 Since the mapping is a `NavigableMap`, you can efficiently find the minimum or maximum value, created a restricted range of values, iterate values in forward or reverse order, etc.
 
@@ -236,26 +234,31 @@ public abstract class Student implements JObject {
  
     // Map classes to students in the class
     public static NavigableMap<LectureClass, NavigableSet<Student>> queryStudentsByLectureClass() {
-        return JTransaction.getCurrent().querySimpleField(Student.class, "lectureClasses.element", LectureClass.class).asMap();
+        return JTransaction.getCurrent().querySimpleField(
+          Student.class, "lectureClasses.element", LectureClass.class).asMap();
     }
  
     // Map teacher to students that rank the teacher
     public static NavigableMap<Teacher, Student> queryStudentsRankings() {
-        return JTransaction.getCurrent().querySimpleField(Student.class, "teacherRankings.element", Teacher.class).asMap();
+        return JTransaction.getCurrent().querySimpleField(
+          Student.class, "teacherRankings.element", Teacher.class).asMap();
     }
  
     // Map tests to students who have a score on the test
     public static NavigableMap<Test, NavigableSet<Student>> queryStudentsByTest() {
-        return JTransaction.getCurrent().querySimpleField(Student.class, "testScores.key", Test.class).asMap();
+        return JTransaction.getCurrent().querySimpleField(
+          Student.class, "testScores.key", Test.class).asMap();
     }
  
     // Map tests scores to the students who got that score on some test
     public static NavigableMap<Float, NavigableSet<Student>> queryStudentsByTestScore() {
-        return JTransaction.getCurrent().querySimpleField(Student.class, "testScores.value", Float.class).asMap();
+        return JTransaction.getCurrent().querySimpleField(
+          Student.class, "testScores.value", Float.class).asMap();
     }
 }</code>
 
-In JSimpleDB, reference fields are always indexed (the same logic applies to SQL, where an index is required for foreign key constraints). So in the above example, the field annotations are all unnecessary except for `testScores.value`. 
+In JSimpleDB, reference fields are always indexed (the same logic applies to SQL, where an index is required for foreign key constraints). So in the above example, the field annotations are all unnecessary except for `testScores.value`.
+
 Indexes are a perfect way to provide Java access to both sides of a one-to-many, many-to-one, or many-to-many relationship, without there having to actually be any redundant information: you just query the index for the "inverse" side of the relationship:
 
 <code language="java">
@@ -265,13 +268,14 @@ public abstract class User implements JObject {
     public abstract Account getAccount();
     public abstract void setAccount(Account account);
 }
-
+ 
 @JSimpleClass
 public abstract class Account implements JObject {
  
     // Get users associated with this account, or null if there are none
     public NavigableSet<User> getUsers() {
-        return JTransaction.getCurrent().querySimpleField(User.class, "account", Account.class).asMap().get(this);
+        return this.getTransaction().querySimpleField(
+          User.class, "account", Account.class).asMap().get(this);
     }
 }</code>
 
@@ -353,7 +357,7 @@ In JSimpleDB reference fields, including sub-fields of a collection field, are a
 <code language="java">
     // Who considers me a friend?
     public Set<Person> whoConsidersMeAFriend() {
-        return JTransaction.getCurrent().querySimpleField(Person.class, "friends.element", Person.class).get(this);
+        return this.getTransaction().querySimpleField(Person.class, "friends.element", Person.class).get(this);
     }</code>
 
 More generally, we can determine what objects refer to a given object indirectly, through an arbitrary sequence of reference fields. Such a sequence is called a *reference path*, and JSimpleDB exposes this functionality via `JTransaction.invertReferencePath()`:
@@ -361,7 +365,7 @@ More generally, we can determine what objects refer to a given object indirectly
 <code language="java">
     // Who considers me a friend?
     public Set<Person> whoConsidersMeAFriend() {
-        return JTransaction.getCurrent().invertReferencePath(Person.class, "friend", Collections.singleton(this));
+        return this.getTransaction().invertReferencePath(Person.class, "friend", Collections.singleton(this));
     }
  
     // Who considers any of my friends a friend of a friend (possibly someone other than me)?
