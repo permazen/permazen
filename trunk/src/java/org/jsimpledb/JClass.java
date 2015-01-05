@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
@@ -175,30 +173,15 @@ public class JClass<T> extends JSchemaObject {
 
                 // Add field
                 this.addField(jfield);
-                if (this.log.isTraceEnabled())
-                    this.log.trace("added counter field `" + fieldName + "' to object type `" + this.name + "'");
                 continue;
             }
 
             // Find corresponding setter method
-            final Matcher matcher = Pattern.compile("(is|get)(.+)").matcher(getter.getName());
-            if (!matcher.matches()) {
-                throw new IllegalArgumentException("invalid " + description
-                  + ": can't infer setter method name because getter method name does not follow Java bean naming conventions");
-            }
-            final String setterName = "set" + matcher.group(2);
-            Method setter = null;
-            for (TypeToken<?> superType : this.typeToken.getTypes()) {
-                try {
-                    setter = superType.getRawType().getMethod(setterName, fieldTypeToken.getRawType());
-                } catch (NoSuchMethodException e) {
-                    continue;
-                }
-                break;
-            }
-            if (setter == null) {
-                throw new IllegalArgumentException("invalid " + description
-                  + ": can't find any corresponding setter method " + setterName + "() taking " + fieldTypeToken);
+            final Method setter;
+            try {
+                setter = Util.findSetterMethod(this.typeToken, getter);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage());
             }
 
             // Create simple field
@@ -209,8 +192,6 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
-            if (this.log.isTraceEnabled())
-                this.log.trace("added simple field `" + fieldName + "' to object type `" + this.name + "'");
         }
 
         // Scan for Set fields
@@ -242,8 +223,6 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
-            if (this.log.isTraceEnabled())
-                this.log.trace("added set field `" + fieldName + "' to object type `" + this.name + "'");
         }
 
         // Scan for List fields
@@ -275,8 +254,6 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
-            if (this.log.isTraceEnabled())
-                this.log.trace("added list field `" + fieldName + "' to object type `" + this.name + "'");
         }
 
         // Scan for Map fields
@@ -315,8 +292,6 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
-            if (this.log.isTraceEnabled())
-                this.log.trace("added map field `" + fieldName + "' to object type `" + this.name + "'");
         }
     }
 
@@ -370,7 +345,7 @@ public class JClass<T> extends JSchemaObject {
     }
 
     private IllegalArgumentException invalidIndex(org.jsimpledb.annotation.JCompositeIndex annotation, String message) {
-        return new IllegalArgumentException("invalid @JCompositeIndex `" + annotation.name()
+        return new IllegalArgumentException("invalid @JCompositeIndex annotation for index `" + annotation.name()
           + "' on " + this.typeToken.getRawType() + ": " + message);
     }
 
@@ -389,6 +364,10 @@ public class JClass<T> extends JSchemaObject {
         if ((other = this.jfieldsByName.get(jfield.name)) != null)
             throw new IllegalArgumentException("illegal duplicate use of field name `" + jfield.name + "' in " + this);
         this.jfieldsByName.put(jfield.name, jfield);
+
+        // Logging
+        if (this.log.isTraceEnabled())
+            this.log.trace("added " + jfield + " to object type `" + this.name + "'");
     }
 
     // Get field name, deriving it from the getter property name if necessary
