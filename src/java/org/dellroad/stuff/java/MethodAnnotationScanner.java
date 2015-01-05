@@ -116,7 +116,7 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
 
         // Search methods
         for (Method method : klass.getDeclaredMethods()) {
-            final A annotation = method.getAnnotation(this.annotationType);
+            final A annotation = this.getAnnotation(method);
             if (annotation == null || !this.includeMethod(method, annotation))
                 continue;
             final MethodInfo methodInfo = this.createMethodInfo(method, annotation);
@@ -130,6 +130,21 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
 
         // Recurse on superclass
         this.findMethodInfos(klass.getSuperclass(), set);
+    }
+
+    /**
+     * Get the annotation on the given method.
+     *
+     * <p>
+     * The implementation in {@link MethodAnnotationScanner} just invokes {@code method.getAnnotation()}.
+     * Subclasses may override to automatically synthesize annotations, etc.
+     * </p>
+     *
+     * @param method method in question
+     * @return annotation for {@code method}, or null if there is none
+     */
+    protected A getAnnotation(Method method) {
+        return method.getAnnotation(this.annotationType);
     }
 
     /**
