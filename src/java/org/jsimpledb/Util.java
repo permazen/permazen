@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.validation.Constraint;
 
@@ -64,6 +66,31 @@ final class Util {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Find the setter method corresponding to a getter method.
+     */
+    public static Method findSetterMethod(TypeToken<?> type, Method getter) {
+        final Matcher matcher = Pattern.compile("(is|get)(.+)").matcher(getter.getName());
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("can't infer setter method name from getter method "
+              + getter.getName() + "() because name does not follow Java bean naming conventions");
+        }
+        final String setterName = "set" + matcher.group(2);
+        for (TypeToken<?> superType : type.getTypes()) {
+            try {
+                final Method setter = superType.getRawType().getMethod(setterName, getter.getReturnType());
+                if (setter.getReturnType() != Void.TYPE)
+                    continue;
+                return setter;
+            } catch (NoSuchMethodException e) {
+                continue;
+            }
+        }
+        throw new IllegalArgumentException("can't find any setter method " + setterName
+          + "() corresponding to getter method " + getter.getName() + "() taking " + getter.getReturnType()
+          + " and returning void");
     }
 
     /**
