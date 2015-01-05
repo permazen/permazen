@@ -91,7 +91,7 @@ public @interface JField {
      * &#64;JSimpleClass(storageId = 10)
      * public class Team {
      *
-     *     &#64;JListField(storageId = 11,
+     *     &#64;JSetField(storageId = 11,
      *       element = &#64;JField(storageId = 12, <b>type = "float"</b>)) // nulls will be disallowed
      *     public abstract List&lt;<b>Float</b>&gt; getScores();
      * }
@@ -101,9 +101,16 @@ public @interface JField {
     String type() default "";
 
     /**
-     * Storage ID for this field. Value must be positive and unique within the contained class.
+     * Storage ID for this field. Value should be positive and unique within the contained class.
+     * If zero, the configured {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value.
+     *
+     * @see org.jsimpledb.StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
+     * @see org.jsimpledb.StorageIdGenerator#generateSetElementStorageId StorageIdGenerator.generateSetElementStorageId()
+     * @see org.jsimpledb.StorageIdGenerator#generateListElementStorageId StorageIdGenerator.generateListElementStorageId()
+     * @see org.jsimpledb.StorageIdGenerator#generateMapKeyStorageId StorageIdGenerator.generateMapKeyStorageId()
+     * @see org.jsimpledb.StorageIdGenerator#generateMapValueStorageId StorageIdGenerator.generateMapValueStorageId()
      */
-    int storageId();
+    int storageId() default 0;
 
     /**
      * Whether this field is indexed or not.

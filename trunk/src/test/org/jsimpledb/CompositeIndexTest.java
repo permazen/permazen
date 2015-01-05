@@ -31,7 +31,7 @@ public class CompositeIndexTest extends TestSupport {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
 
-        final JSimpleDB jdb = new JSimpleDB(db, 2, this.getClasses());
+        final JSimpleDB jdb = new JSimpleDB(db, 2, null, this.getClasses());
 
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);

@@ -111,7 +111,7 @@ public class Main extends AbstractMain {
             db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
 
         // Load JSimpleDB layer, if specified
-        final JSimpleDB jdb = this.schemaClasses != null ? new JSimpleDB(db, this.schemaVersion, this.schemaClasses) : null;
+        final JSimpleDB jdb = this.schemaClasses != null ? this.getJSimpleDBFactory(db).newJSimpleDB() : null;
 
         // Sanity check consistent schema model if both --schema-file and --schema-pkg were specified
         if (jdb != null && schemaModel != null) {

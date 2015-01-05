@@ -113,7 +113,7 @@ public class TypeSafetyTest extends TestSupport {
 
     // Version 2
 
-        JSimpleDB jdb = new JSimpleDB(db, 2, Arrays.<Class<?>>asList(Bar.class));       // note: no Foo.class, only Bar.class
+        JSimpleDB jdb = new JSimpleDB(db, 2, null, Arrays.<Class<?>>asList(Bar.class));       // note: no Foo.class, only Bar.class
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

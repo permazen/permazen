@@ -219,7 +219,7 @@ public class DuplicateReferenceFieldTest extends TestSupport {
 
     public abstract static class TopClass implements JObject {
 
-        @JField(storageId = 101, indexed = true)
+        @JField(indexed = true)
         public abstract String getName();
         public abstract void setName(String name);
 
@@ -229,58 +229,51 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 200)
+    @JSimpleClass
     public abstract static class ClassA extends TopClass {
 
         // Field R
-        @JField(storageId = 120)
         public abstract JObject getFieldR();                            // note reference type is JObject
         public abstract void setFieldR(JObject ref);
 
         // Field Y
-        @JListField(storageId = 310, element = @JField(storageId = 311, type = "int", indexed = true))
+        @JListField(element = @JField(type = "int", indexed = true))
         public abstract List<Integer> getFieldY();
 
         // Field Z
-        @JMapField(storageId = 320,
-          key = @JField(storageId = 321, indexed = true),
-          value = @JField(storageId = 322, indexed = true))
+        @JMapField(key = @JField(indexed = true), value = @JField(indexed = true))
         public abstract NavigableMap<TopClass, String> getFieldZ();     // note key type is TopClass
     }
 
-    @JSimpleClass(storageId = 210)
+    @JSimpleClass
     public abstract static class ClassB extends TopClass {
 
         // Field R
-        @JField(storageId = 120)
         public abstract TopClass getFieldR();                           // note reference type is TopClass
         public abstract void setFieldR(TopClass ref);
 
         // Field X
-        @JSetField(storageId = 300, element = @JField(storageId = 301, type = "float", indexed = true))
+        @JSetField(element = @JField(type = "float", indexed = true))
         public abstract NavigableSet<Float> getFieldX();
 
         // Field Z
-        @JMapField(storageId = 320,
-          key = @JField(storageId = 321, indexed = true),
-          value = @JField(storageId = 322, indexed = true))
+        @JMapField(key = @JField(indexed = true), value = @JField(indexed = true))
         public abstract NavigableMap<ClassC, String> getFieldZ();       // note key type is ClassC
     }
 
-    @JSimpleClass(storageId = 220)
+    @JSimpleClass
     public abstract static class ClassC extends TopClass {
 
         // Field R
-        @JField(storageId = 120)
         public abstract ClassA getFieldR();                             // note reference type is ClassA
         public abstract void setFieldR(ClassA ref);
 
         // Field X
-        @JSetField(storageId = 300, element = @JField(storageId = 301, type = "float", indexed = true))
+        @JSetField(element = @JField(type = "float", indexed = true))
         public abstract NavigableSet<Float> getFieldX();
 
         // Field C
-        @JListField(storageId = 310, element = @JField(storageId = 311, type = "int", indexed = true))
+        @JListField(element = @JField(type = "int", indexed = true))
         public abstract List<Integer> getFieldY();
     }
 }

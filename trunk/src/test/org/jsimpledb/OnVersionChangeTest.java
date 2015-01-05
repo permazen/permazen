@@ -37,7 +37,7 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 1
 
-        JSimpleDB jdb = new JSimpleDB(db, 1, Arrays.<Class<?>>asList(Person1.class));
+        JSimpleDB jdb = new JSimpleDB(db, 1, null, Arrays.<Class<?>>asList(Person1.class));
         JTransaction tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -91,7 +91,7 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 2
 
-        jdb = new JSimpleDB(db, 2, Arrays.<Class<?>>asList(Person2.class));
+        jdb = new JSimpleDB(db, 2, null, Arrays.<Class<?>>asList(Person2.class));
         tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -164,7 +164,7 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 3
 
-        jdb = new JSimpleDB(db, 3, Arrays.<Class<?>>asList(Person3.class));
+        jdb = new JSimpleDB(db, 3, null, Arrays.<Class<?>>asList(Person3.class));
         tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -194,7 +194,7 @@ public class OnVersionChangeTest extends TestSupport {
 
     // Version 4
 
-        jdb = new JSimpleDB(db, 4, Arrays.<Class<?>>asList(Person4.class, Name.class));
+        jdb = new JSimpleDB(db, 4, null, Arrays.<Class<?>>asList(Person4.class, Name.class));
         tx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -286,7 +286,7 @@ public class OnVersionChangeTest extends TestSupport {
         DDD;    // 2
     }
 
-    @JSimpleClass(storageId = 100)
+    @JSimpleClass(storageId = 100, autogenFields = false)
     public abstract static class Person2 implements JObject, HasName {
 
         @JField(storageId = 97)
@@ -381,7 +381,7 @@ public class OnVersionChangeTest extends TestSupport {
 
 // Version 3
 
-    @JSimpleClass(storageId = 100)
+    @JSimpleClass(storageId = 100, autogenFields = false)
     public abstract static class Person3 implements JObject, HasName {
 
         @JField(storageId = 101, indexed = true)
@@ -406,7 +406,7 @@ public class OnVersionChangeTest extends TestSupport {
 
 // Version 4
 
-    @JSimpleClass(storageId = 100)
+    @JSimpleClass(storageId = 100, autogenFields = false)
     public abstract static class Person4 implements JObject, HasName {
 
         @JField(storageId = 105)
@@ -434,7 +434,7 @@ public class OnVersionChangeTest extends TestSupport {
         }
     }
 
-    @JSimpleClass(storageId = 200)
+    @JSimpleClass(storageId = 200, autogenFields = false)
     public abstract static class Name implements JObject, HasName {
 
         @JField(storageId = 201, indexed = true)

@@ -17,7 +17,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 
 import org.dellroad.stuff.main.MainClass;
+import org.jsimpledb.JSimpleDBFactory;
 import org.jsimpledb.annotation.JFieldType;
+import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
@@ -143,6 +145,13 @@ public abstract class AbstractMain extends MainClass {
 
     public String getDatabaseDescription() {
         return this.databaseDescription;
+    }
+
+    public JSimpleDBFactory getJSimpleDBFactory(Database db) {
+        return new JSimpleDBFactory()
+          .setModelClasses(this.schemaClasses)
+          .setSchemaVersion(this.schemaVersion)
+          .setDatabase(db);
     }
 
     /**

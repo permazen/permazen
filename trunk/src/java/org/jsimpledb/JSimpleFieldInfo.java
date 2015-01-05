@@ -29,6 +29,11 @@ class JSimpleFieldInfo extends JFieldInfo {
         this.parentStorageId = parentStorageId;
     }
 
+    /**
+     * Get parent complex field storage info, if any.
+     *
+     * @return parent complex field storage info, or zero if this instance does not represent a sub-field
+     */
     public int getParentStorageId() {
         return this.parentStorageId;
     }

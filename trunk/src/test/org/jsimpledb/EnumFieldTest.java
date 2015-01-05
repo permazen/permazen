@@ -98,7 +98,7 @@ public class EnumFieldTest extends TestSupport {
 
     // Version 2
 
-        JSimpleDB jdb = new JSimpleDB(db, 2, Arrays.<Class<?>>asList(Foo.class));
+        JSimpleDB jdb = new JSimpleDB(db, 2, null, Arrays.<Class<?>>asList(Foo.class));
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {
@@ -122,7 +122,7 @@ public class EnumFieldTest extends TestSupport {
         final Database db = new Database(kvstore);
 
         try {
-            new JSimpleDB(db, 1, Arrays.<Class<?>>asList(EnumConflict1.class, EnumConflict2.class));
+            new JSimpleDB(db, 1, null, Arrays.<Class<?>>asList(EnumConflict1.class, EnumConflict2.class));
             assert false : "expected exception";
         } catch (IllegalArgumentException e) {
             log.info("got expected exception: " + e);

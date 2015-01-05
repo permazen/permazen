@@ -34,9 +34,12 @@ public @interface JCompositeIndex {
     String name();
 
     /**
-     * The storage ID for this composite index. Value must be positive.
+     * The storage ID for this composite index. Value should be positive; if zero, the configured
+     * {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value.
+     *
+     * @see org.jsimpledb.StorageIdGenerator#generateCompositeIndexStorageId StorageIdGenerator.generateCompositeIndexStorageId()
      */
-    int storageId();
+    int storageId() default 0;
 
     /**
      * The names of the indexed fields, in the desired order. At least two fields must be specified.

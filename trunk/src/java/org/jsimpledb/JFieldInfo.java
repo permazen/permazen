@@ -82,6 +82,7 @@ abstract class JFieldInfo {
     abstract void registerChangeListener(Transaction tx, int[] path, Iterable<Integer> types, AllChangesListener listener);
 
     void witness(JField jfield) {
+        assert jfield.storageId == this.storageId;
         this.names.add(jfield.name);
         this.requiresValidation |= jfield.requiresValidation;
     }

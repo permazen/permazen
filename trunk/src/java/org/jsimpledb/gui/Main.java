@@ -128,7 +128,7 @@ public class Main extends AbstractMain implements GUIConfig {
                 db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
 
             // Create JSimpleDB instance
-            this.jdb = new JSimpleDB(db, this.schemaVersion, this.schemaClasses);
+            this.jdb = this.getJSimpleDBFactory(db).newJSimpleDB();
 
             // Verify schema
             this.verifySchema();
