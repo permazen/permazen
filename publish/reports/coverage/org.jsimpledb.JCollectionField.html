@@ -12,7 +12,7 @@
 <div class="separator">&nbsp;</div>
 <table class="report">
 <thead><tr>  <td class="heading">Classes in this File</td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Line Coverage</a></td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Branch Coverage</a></td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Complexity</a></td></tr></thead>
-  <tr><td><a href="org.jsimpledb.JCollectionField.html">JCollectionField</a></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">76%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:76px"><span class="text">13/17</span></div></div></td></tr></table></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">66%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:66px"><span class="text">4/6</span></div></div></td></tr></table></td><td class="value"><span class="hidden">2.0;</span>2</td></tr>
+  <tr><td><a href="org.jsimpledb.JCollectionField.html">JCollectionField</a></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">58%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:58px"><span class="text">10/17</span></div></div></td></tr></table></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">33%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:33px"><span class="text">2/6</span></div></div></td></tr></table></td><td class="value"><span class="hidden">2.0;</span>2</td></tr>
 
 </table>
 <div class="separator">&nbsp;</div>
@@ -66,11 +66,11 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;25</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    JCollectionField(String name, <span class="keyword">int</span> storageId, JSimpleField elementField, String description, Method getter) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;26</td>  <td class="nbHitsCovered">&nbsp;41</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(name, storageId, description, getter);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsUncovered"><a title="Line 27: Conditional coverage 50% (1/2).">&nbsp;41</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 27: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (elementField == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;26</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(name, storageId, description, getter);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsUncovered"><a title="Line 27: Conditional coverage 50% (1/2).">&nbsp;50</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 27: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (elementField == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null elementField"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;41</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.elementField = elementField;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsCovered">&nbsp;41</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.elementField = elementField;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;31</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;32</td>  <td class="nbHits">&nbsp;</td>
@@ -96,7 +96,7 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;43</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> List&lt;JSimpleField&gt; getSubFields() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;44</td>  <td class="nbHitsCovered">&nbsp;42</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> Collections.&lt;JSimpleField&gt;singletonList(<span class="keyword">this</span>.elementField);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;44</td>  <td class="nbHitsCovered">&nbsp;200</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> Collections.&lt;JSimpleField&gt;singletonList(<span class="keyword">this</span>.elementField);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;45</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;46</td>  <td class="nbHits">&nbsp;</td>
@@ -105,9 +105,9 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;48</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> JSimpleField getSubField(String name) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered"><a title="Line 49: Conditional coverage 100% (2/2).">&nbsp;23</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 49: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (CollectionField.ELEMENT_FIELD_NAME.equals(name))</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;22</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.elementField;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;51</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"unknown sub-field `"</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsUncovered"><a title="Line 49: Conditional coverage 50% (1/2).">&nbsp;86</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 49: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (CollectionField.ELEMENT_FIELD_NAME.equals(name))</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;86</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.elementField;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;51</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"unknown sub-field `"</span></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;52</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + name + <span class="string">"' (did you mean `"</span> + CollectionField.ELEMENT_FIELD_NAME + <span class="string">"' instead?)"</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;53</td>  <td class="nbHits">&nbsp;</td>
@@ -118,8 +118,8 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;56</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    String getSubFieldName(JSimpleField subField) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsUncovered"><a title="Line 57: Conditional coverage 50% (1/2).">&nbsp;6</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 57: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (subField == <span class="keyword">this</span>.elementField)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsCovered">&nbsp;6</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> CollectionField.ELEMENT_FIELD_NAME;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsUncovered"><a title="Line 57: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 57: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (subField == <span class="keyword">this</span>.elementField)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span> CollectionField.ELEMENT_FIELD_NAME;</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"unknown sub-field"</span>);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;60</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
@@ -128,20 +128,20 @@
 <tr>  <td class="numLine">&nbsp;62</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;63</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;    <span class="keyword">abstract</span> CollectionSchemaField toSchemaItem();</pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;    <span class="keyword">abstract</span> CollectionSchemaField toSchemaItem(JSimpleDB jdb);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;64</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;65</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;    <span class="keyword">void</span> initialize(CollectionSchemaField schemaField) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;66</td>  <td class="nbHitsCovered">&nbsp;41</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>.initialize(schemaField);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;67</td>  <td class="nbHitsCovered">&nbsp;41</td>  <td class="src"><pre class="src">&nbsp;        schemaField.setElementField(<span class="keyword">this</span>.elementField.toSchemaItem());</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;68</td>  <td class="nbHitsCovered">&nbsp;41</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+  <td class="src"><pre class="src">&nbsp;    <span class="keyword">void</span> initialize(JSimpleDB jdb, CollectionSchemaField schemaField) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;66</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>.initialize(jdb, schemaField);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;67</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;        schemaField.setElementField(<span class="keyword">this</span>.elementField.toSchemaItem(jdb));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;68</td>  <td class="nbHitsCovered">&nbsp;50</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;69</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;}</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;70</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 8/18/14 11:45 AM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/5/15 12:39 PM.</div>
 </body>
 </html>

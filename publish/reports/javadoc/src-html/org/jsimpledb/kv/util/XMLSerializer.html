@@ -125,7 +125,7 @@
 <span class="sourceLineNo">117</span>                throw new XMLStreamException("invalid hexadecimal value", reader.getLocation(), e);<a name="line.117"></a>
 <span class="sourceLineNo">118</span>            }<a name="line.118"></a>
 <span class="sourceLineNo">119</span>            this.kv.put(key, value);<a name="line.119"></a>
-<span class="sourceLineNo">120</span>            this.expect(reader, true);              // read closing &lt;/entry&gt; tag<a name="line.120"></a>
+<span class="sourceLineNo">120</span>            this.expectClose(reader);               // read closing &lt;/entry&gt; tag<a name="line.120"></a>
 <span class="sourceLineNo">121</span>        }<a name="line.121"></a>
 <span class="sourceLineNo">122</span>    }<a name="line.122"></a>
 <span class="sourceLineNo">123</span><a name="line.123"></a>
