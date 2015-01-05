@@ -13,7 +13,6 @@ import org.jsimpledb.core.ObjId;
 
 /**
  * Converts {@link ObjId}s into {@link JObject}s and vice-versa.
- * Casts {@link JObject}s to the specified narrower type, throwing {@link TypeNotInSchemaVersionException} if the cast fails.
  */
 class ReferenceConverter<T> extends Converter<T, ObjId> {
 
