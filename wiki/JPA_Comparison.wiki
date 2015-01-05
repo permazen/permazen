@@ -115,9 +115,8 @@ JSimpleDB solves this problem by not creating two representations of the same re
   // class Parent
     
     public NavigableSet<Child> getChildren() {
-        Index<Parent, Child> index = this.getTransaction().querySimpleField(
-          Child.class, "parent", Parent.class);
-        final NavigableSet<Person> kids = index.asMap().get(this);
+        final NavigableSet<Person> kids = this.getTransaction().querySimpleField(
+          Child.class, "parent", Parent.class).asMap().get(this);
         return kids != null ? kids : NavigableSets.empty();
     }</code>
 
@@ -144,13 +143,15 @@ In contrast, JSimpleDB provides a direct Java-level view into your defined index
 In addition, there is less need for composite (multi-field) indexes. In JSimpleDB, every index resolves to a `NavigableSet` of objects, and these sets can always be efficiently unioned and intersected using the methods in the `NavigableSets` utility class. For example:
 
 <code language="java">
-    // class Person
+  // Person fields
     
     public abstract String getLastName();
     public abstract void setLastName(String lastName);
     
     public abstract String getFirstName();
     public abstract void setFirstName(String firstName);
+    
+  // Person index queries
     
     public static NavigableMap<String, NavigableSet<Person>> queryLastName() {
         return JTransaction.getCurrent().querySimpleField(Person.class, "lastName", String.class).asMap();
@@ -160,9 +161,9 @@ In addition, there is less need for composite (multi-field) indexes. In JSimpleD
         return JTransaction.getCurrent().querySimpleField(Person.class, "firstName", String.class).asMap();
     }
      
-    public NavigableSet<Person> getByLastAndFirstName(String lastName, String firsName) {
-        final NavigableSet<Person> byLastName = this.queryLastName().get(lastName);
-        final NavigableSet<Person> byFirstName = this.queryFirstName().get(firstName);
+    public static NavigableSet<Person> getByLastAndFirstName(String lastName, String firsName) {
+        final NavigableSet<Person> byLastName = Person.queryLastName().get(lastName);
+        final NavigableSet<Person> byFirstName = Person.queryFirstName().get(firstName);
         if (byLastName == null || byFirstName == null)
             return NavigableSets.empty();
         return NavigableSets.intersection(byLastName, byFirstName);
