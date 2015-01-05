@@ -258,8 +258,8 @@
                 <path refid="vaadin7.classpath"/>
             </additional-classpath>
             <links>
-                <link href="http://download.oracle.com/javase/7/docs/api/"/>
-                <link href="http://download.oracle.com/javaee/7/api/"/>
+                <link href="https://docs.oracle.com/javase/7/docs/api/"/>
+                <link href="https://docs.oracle.com/javaee/7/api/"/>
                 <link href="http://docs.spring.io/spring/docs/4.0.x/javadoc-api/"/>
                 <link href="http://jibx.sourceforge.net/api/"/>
                 <link href="http://opencsv.sourceforge.net/apidocs/"/>
