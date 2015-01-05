@@ -12,6 +12,7 @@ import com.google.common.reflect.TypeToken;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,6 +122,20 @@ public class JSimpleDB {
      */
     public JSimpleDB(Iterable<? extends Class<?>> classes) {
         this(new Database(new SimpleKVDatabase()), 1, new DefaultStorageIdGenerator(), classes);
+    }
+
+    /**
+     * Create an instance using an initially empty, in-memory {@link SimpleKVDatabase}.
+     *
+     * <p>
+     * Equivalent to {@link #JSimpleDB(Iterable) JSimpleDB}{@code (Arrays.asList(classes))}.
+     * </p>
+     *
+     * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations
+     * @see #JSimpleDB(Iterable)
+     */
+    public JSimpleDB(Class<?>... classes) {
+        this(Arrays.asList(classes));
     }
 
     /**
