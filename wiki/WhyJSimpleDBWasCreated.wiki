@@ -77,4 +77,5 @@ JSimpleDB's Java-centric persistence model is designed to:
    * `@OnDelete`
  * Support copying object state into and out of transactions
    * "Snapshot" transactions retain a portion of transaction state indefinitely
+ * Support a Java-centric command line interface (CLI)
 
