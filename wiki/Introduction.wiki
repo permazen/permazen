@@ -57,11 +57,11 @@ Of note:
  * There is no setter method for the `friends` set
    * Collection fields are initially empty but always _exist_
  * `Person` is declared to implement the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a> interface
-   * The generated subclasses always implement <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a>
+   * Generated subclasses always implement <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a>
 
 === Field Types ===
 
-JSimpleDB supports two kinds of fields: simple and complex.
+JSimpleDB supports three kinds of fields: simple, complex, and counter.
 
 A simple field is any field that can be considered as a single atomic value and encoded into binary form. This inclues primitive types and primitive wrapper types, `String`, other usual suspects such as `Date`, `UUID`, etc., and any `Enum` type.
 
@@ -91,15 +91,19 @@ public abstract class Person implements JObject {
 
 You can define your own simple types by providing a class annotated with <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/JFieldType.html">`@JFieldType`</a> that implements the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/FieldType.html">`FieldType`</a> interface.
 
+<a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/CounterField.html">Counter</a> fields are a special type optimized for lock-free addition/substraction.
+
 == Accessing Database Objects ==
 
-Once you have defined your classes, programming with JSimpleDB is just normal Java programming, with just a few differences.
+Once you have defined your classes, programming with JSimpleDB is normal Java programming, with just a few differences.
 
-<a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`, which returns the instance associated with the current thread.
+A <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> represents a JSimpleDB transaction. The `JTransaction` associated with the current thread is available from the static method `JTransaction.getCurrent()`.
 
-All state associated with JSimpleDB objects lives in the `JTransaction`. The model objects themselves are stateless. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no such `JTransaction`, an `IllegalStateException` is thrown.
+All state associated with JSimpleDB objects lives in the `JTransaction`; the model objects themselves are stateless. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no such `JTransaction`, an `IllegalStateException` is thrown.
 
-Java model objects do not change from transaction to transaction like with JPA. You will get, and can use, the same `Person` object over and over again in multiple transactions. Of course, the person's fields may have different values in different transactions.
+Java model objects do not change from transaction to transaction like with JPA. You will get, and can use, the exact same `Person` object over and over again in multiple transactions. Of course, the person's fields may have different values in different transactions.
+
+If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `JObject.exists()`, and (if need be) recreate the object (with all fields reset) via `JObject.recreate()`.
 
 === Finding Objects ===
 
@@ -113,7 +117,7 @@ To get all persistent `Person`s:
 
 The parameter to `JTransaction.getAll()` can be any Java type, including interface types, e.g.:
 <code language="java">
-    // Get all objects that implement HasName
+    // Get all objects that implement the HasName interface
     public static Set<HasName> getAllNamed() {
         return JTransaction.getCurrent().getAll(HasName.class);
     }</code>
@@ -124,8 +128,6 @@ All objects have an internal 64-bit object ID which is represented by the <a hre
     public static Person find(ObjId id) {
         return JTransaction.getCurrent().getJObject(id, Person.class);
     }</code>
-
-If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `JObject.exists()`, and (if need be) recreate the object (with all fields reset) via `JObject.recreate()`.
 
 === Object Lifecycle ===
 
@@ -194,7 +196,25 @@ To query the index, you invoke `JTransaction.querySimpleField()`:
         return JTransaction.getCurrent().querySimpleField(Person.class, "age", Integer.class).asMap();
     }</code>
 
-Now we can rewrite our `existsPersonOfAge()` method:
+The `Person.class` and `Integer.class` parameters accomplish two goals: first, they eliminate any unchecked cast warnings. Secondly, they allow you to narrow or widen the type to suit your needs. For example, if `HappyPerson extends Person` and you only want to find happy people of a certain age, you can do this:
+
+<code language="java">
+    public static NavigableMap<Integer, NavigableSet<HappyPerson>> queryHappyPersonAges() {
+        return JTransaction.getCurrent().querySimpleField(HappyPerson.class, "age", Integer.class).asMap();
+    }</code>
+
+Or, suppose your schema has evolved over time and the old superclass `Mammal` which `Person` used to extend no longer exists, but you still have some leftover non-human `Mammal`'s in your database and you want to include them in the index query. Then you can do this:
+
+<code language="java">
+    public static NavigableMap<Integer, NavigableSet<JObject>> queryObjectAges() {
+        return JTransaction.getCurrent().querySimpleField(JObject.class, "age", Integer.class).asMap();
+    }</code>
+
+In all cases, JSimpleDB guarantees type safety.
+
+Since your old `Mammal` class is long gone, the old `Mammal` objects will appear as <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/UntypedJObject.html">`UntypedJObject`</a>'s. You can still access their fields using by directly invoking the various `JTransaction` field access methods.
+
+Now that we have an index on the `age` field, We can rewrite our old, inefficient `existsPersonOfAge()` method:
 
 <code language="java">
     public static boolean existsPersonOfAge(int age) {
@@ -220,15 +240,15 @@ You can also index complex fields, by indexing the `element` sub-field of a `Set
 @JSimpleClass
 public abstract class Student implements JObject {
  
-    // Classes this student is attending
+    // The classes this student is attending
     @JSetField(element = @JField(indexed = true))
     public abstract Set<LectureClass> getLectureClasses();
  
-    // Students ranking of their teachers
+    // This student's ranking of his/her teachers
     @JListField(element = @JField(indexed = true))
     public abstract List<Teacher> getTeacherRankings();
  
-    // Student test scores
+    // This student's test scores
     @JMapField(key = @JField(indexed = true), value = @JField(indexed = true))
     public abstract Map<Test, Float> getTestScores();
  
@@ -257,9 +277,9 @@ public abstract class Student implements JObject {
     }
 }</code>
 
-In JSimpleDB, reference fields are always indexed (the same logic applies to SQL, where an index is required for foreign key constraints). So in the above example, the field annotations are all unnecessary except for `testScores.value`.
+In JSimpleDB, reference fields are always indexed (analogous to SQL, where an index is required for foreign key constraints). So in the above example, the field annotations are all unnecessary except for `testScores.value`.
 
-Indexes are a perfect way to provide Java access to both sides of a one-to-many, many-to-one, or many-to-many relationship, without there having to actually be any redundant information: you just query the index for the "inverse" side of the relationship:
+Indexes are a perfect way to provide Java access to both sides of a one-to-many, many-to-one, or many-to-many relationship without there having to actually be any redundant information: you just query the index for the "inverse" side of the relationship:
 
 <code language="java">
 @JSimpleClass
@@ -285,22 +305,34 @@ JSimpleDB indexes are always "up-to-date", reflecting the current transaction st
 
 ==== Composite Indexes ====
 
-JSimpleDB also supports composite indexes. A composite index is an index on two or more fields. Composite indexes are mainly useful when you need to efficiently sort on multiple fields at once:
+JSimpleDB also supports composite indexes. A composite index is an index on more than one field. Composite indexes are mainly useful when you need to efficiently sort on multiple fields at once:
 <code language="java">
-@JSimpleClass(compositeIndexs = @JCompositeIndex(name = "byName", fields = { "lastName", "firstName" }))
+@JSimpleClass(compositeIndexs =
+  @JCompositeIndex(name = "byName", fields = { "lastName", "firstName" }))
 public abstract class Person implements JObject {
+ 
     public abstract String getLastName();
     public abstract void setLastName(String lastName);
  
     public abstract String getFirstName();
     public abstract void setFirstName(String firstName);
  
+    // Get Person's sorted by last name, then first name
     public static Index2<String, String, Person> queryByLastNameFirstName() {
         return JTransaction.getCurrent().queryCompositeIndex(Person.class, "byName", String.class, String.class);
     }
 }</code>
 
 A composite index on two fields is returned as an <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/index/Index2.html">`Index2`</a>, a composite index on three fields is returned as an <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/index/Index2.html">`Index3`</a>, etc.
+
+Any higher-order index can be viewed as a lower-ordered index on any prefix of its indexed fields, e.g.:
+<code language="java">
+ 
+    // Maps each last name to the set of all associated first names
+    public static NavigableMap<String, NavigableSet<String>> queryNamesLastFirst() {
+        return Person.queryByLastNameFirstName().asIndex().asMap();
+    }
+}</code>
 
 ==== Non-Unique Complex Field Indexes ====
 
@@ -309,20 +341,23 @@ Since the same value can appear multiple times as a list element or map value, i
 @JSimpleClass
 public abstract class Student implements JObject {
  
-    // Students ranking of their teachers
+    // This student's ranking of his/her teachers
     public abstract List<Teacher> getTeacherRankings();
  
-    // Student test scores
+    // This student's test scores
+    @JMapField(value = @JField(indexed = true))
     public abstract Map<Test, Float> getTestScores();
  
-    // Map teacher to students that rank the teacher AND the coresponding rank
+    // Map teacher to students that rank the teacher AND the coresponding rank(s)
     public static Index2<Teacher, Student, Integer> queryStudentsRankings() {
-        return JTransaction.getCurrent().queryListField(Student.class, "teacherRankings.element", Teacher.class);
+        return JTransaction.getCurrent().queryListField(            // not querySimpleField()
+          Student.class, "teacherRankings.element", Teacher.class);
     }
  
-    // Map tests scores to the students who got that score on some test AND the test
+    // Map tests scores to the students who got that score on some test AND the test(s)
     public static Index2<Float, Student, Test> queryStudentsByTestScore() {
-        return JTransaction.getCurrent().queryMapValueField(Student.class, "testScores.value", Float.class, Test.class);
+        return JTransaction.getCurrent().queryMapValueField(        // not querySimpleField()
+          Student.class, "testScores.value", Float.class, Test.class);
     }
 }</code>
 
@@ -330,7 +365,7 @@ public abstract class Student implements JObject {
 
 Back to our indexed `age` field, now suppose the question you need to frequently answer is not whether any person exists of a specific age, but whether a specifc `Person` has any _friend_ of a specific age.
 
-We just need to somehow intersect the set of that `Person`'s friends with the set of people of a specified age. This is the equivalent of an SQL `INNER JOIN`.
+We just need to somehow intersect the set of that `Person`'s friends with the set of people of a specified age. This is the equivalent of an SQL `INNER JOIN`. JSimpleDB provides a clean way to do this.
 
 First we need to make sure `friends` is declared as a `NavigableSet` (which is what it really is):
 
@@ -341,11 +376,19 @@ First we need to make sure `friends` is declared as a `NavigableSet` (which is w
 Then we just do the "join" via set intersection:
 
 <code language="java">
-    public boolean existsFriendOfAge(int age) {
+    // Get all of my friends who are the specified age
+    public NavigableSet<Person> getFriendOfAge(int age) {
+
+        // Get all Person's of age 'age', whoever they are
         final NavigableSet<Person> peopleOfAge = this.queryPersonAges().get(age);
         if (peopleOfAge == null)
-            return false;
-        return !NavigableSets.intersect(peopleOfAge, this.getFriends()).isEmpty();
+            return NavigableSets.<Person>empty();
+
+        // Get all of my friends
+        final NavigableSet<Person> myFriends = this.getFriends();
+
+        // Return the intersection
+        return NavigableSets.intersect(peopleOfAge, myFriends);
     }</code>
 
 The <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/util/NavigableSets.html">`NavigableSets`</a> utility class provides efficient methods for set intersection, union, and difference. Of course, the sets must have comparable elements and a consistent sort order for those elements (which is what allows the intersection operation to be efficient). JSimpleDB provides this consistent ordering for you.
@@ -374,7 +417,7 @@ More generally, we can determine what objects refer to a given object indirectly
           "friend.friend", this.getFriends());
     }</code>
 
-A reference path is simply a chain of reference fields via which one can hop through the graph defined by objects (nodes) and references (edges). Following a reference path in the forward direction is what one normally does in Java. JSimpleDB allows you to also invert reference paths, so now you can go in either direction.
+A reference path is simply a chain of reference fields via which one can hop through the graph defined by objects (nodes) and references (edges). Following a reference path in the forward direction is what one normally does in Java. JSimpleDB allows you to also invert reference paths, so now you can go in either direction. As always, type safety is guaranteed.
 
 When inverting reference paths, JSimpleDB eliminates duplicates (caused by multiple routes to the same destination) as soon as possible. However, there's no magic surrounding how reference paths are followed. If you're not careful, you can create a combinatorial explosion when there is a high degree of fan-in.
 
