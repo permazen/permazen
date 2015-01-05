@@ -24,7 +24,7 @@
 <span class="sourceLineNo">016</span>import org.jsimpledb.core.CollectionField;<a name="line.16"></a>
 <span class="sourceLineNo">017</span><a name="line.17"></a>
 <span class="sourceLineNo">018</span>/**<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * A collection field in one version of a {@link SchemaObject}.<a name="line.19"></a>
+<span class="sourceLineNo">019</span> * A collection field in one version of a {@link SchemaObjectType}.<a name="line.19"></a>
 <span class="sourceLineNo">020</span> */<a name="line.20"></a>
 <span class="sourceLineNo">021</span>public abstract class CollectionSchemaField extends ComplexSchemaField {<a name="line.21"></a>
 <span class="sourceLineNo">022</span><a name="line.22"></a>
@@ -43,9 +43,9 @@
 <span class="sourceLineNo">035</span>    }<a name="line.35"></a>
 <span class="sourceLineNo">036</span><a name="line.36"></a>
 <span class="sourceLineNo">037</span>    @Override<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    void readSubElements(XMLStreamReader reader) throws XMLStreamException {<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        this.elementField = this.readSubField(reader);<a name="line.39"></a>
-<span class="sourceLineNo">040</span>        this.expect(reader, true);<a name="line.40"></a>
+<span class="sourceLineNo">038</span>    void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {<a name="line.38"></a>
+<span class="sourceLineNo">039</span>        this.elementField = this.readSubField(reader, formatVersion, CollectionField.ELEMENT_FIELD_NAME);<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        this.expectClose(reader);<a name="line.40"></a>
 <span class="sourceLineNo">041</span>    }<a name="line.41"></a>
 <span class="sourceLineNo">042</span><a name="line.42"></a>
 <span class="sourceLineNo">043</span>// Object<a name="line.43"></a>

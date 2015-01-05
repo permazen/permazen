@@ -73,11 +73,34 @@
 <span class="sourceLineNo">065</span>    String name() default "";<a name="line.65"></a>
 <span class="sourceLineNo">066</span><a name="line.66"></a>
 <span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * Storage ID for this object type. Value must be positive.<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    int storageId();<a name="line.70"></a>
-<span class="sourceLineNo">071</span>}<a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">068</span>     * Storage ID for this object type. Value should be positive;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * if zero, the configured {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     *<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * @see org.jsimpledb.StorageIdGenerator#generateClassStorageId StorageIdGenerator.generateClassStorageId()<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    int storageId() default 0;<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * Composite indexes (i.e., indexes on two or more fields) defined on this type.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    JCompositeIndex[] compositeIndexes() default {};<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>    /**<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * Whether to automatically generate database fields from un-annotated abstract Java bean methods.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * &lt;p&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * If true, database fields corresponding to all &lt;b&gt;abstract&lt;/b&gt; bean property getter methods will<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * be auto-generated even if there is no {@link JField &amp;#64;JField}, {@link JSetField &amp;#64;JSetField},<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * {@link JListField &amp;#64;JListField}, or {@link JMapField &amp;#64;JMapField} annotation.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * Getter methods with return type assignable to {@link java.util.Set}, {@link java.util.List}, and {@link java.util.Map}<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * will cause the corresponding collection fields to be created; other getter/setter method pairs will cause<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * the corresponding simple fields to be generated. Storage ID's for auto-generated fields will themselves be<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * auto-generated using the configured {@link org.jsimpledb.StorageIdGenerator}.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * &lt;/p&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    boolean autogenFields() default true;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>}<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
 
 
 

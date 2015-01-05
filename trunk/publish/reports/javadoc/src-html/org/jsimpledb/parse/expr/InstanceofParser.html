@@ -47,7 +47,7 @@
 <span class="sourceLineNo">039</span>        return new Node() {<a name="line.39"></a>
 <span class="sourceLineNo">040</span>            @Override<a name="line.40"></a>
 <span class="sourceLineNo">041</span>            public Value evaluate(final ParseSession session) {<a name="line.41"></a>
-<span class="sourceLineNo">042</span>                return new Value(cl.isInstance(node.evaluate(session).get(session)));<a name="line.42"></a>
+<span class="sourceLineNo">042</span>                return new ConstValue(cl.isInstance(node.evaluate(session).get(session)));<a name="line.42"></a>
 <span class="sourceLineNo">043</span>            }<a name="line.43"></a>
 <span class="sourceLineNo">044</span>        };<a name="line.44"></a>
 <span class="sourceLineNo">045</span>    }<a name="line.45"></a>

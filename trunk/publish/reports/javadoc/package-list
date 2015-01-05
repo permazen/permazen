@@ -6,6 +6,7 @@ org.jsimpledb.cli.cmd
 org.jsimpledb.cli.func
 org.jsimpledb.core
 org.jsimpledb.gui
+org.jsimpledb.index
 org.jsimpledb.kv
 org.jsimpledb.kv.fdb
 org.jsimpledb.kv.simple
@@ -17,4 +18,5 @@ org.jsimpledb.parse.func
 org.jsimpledb.parse.util
 org.jsimpledb.schema
 org.jsimpledb.spring
+org.jsimpledb.tuple
 org.jsimpledb.util

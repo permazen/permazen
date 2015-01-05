@@ -33,27 +33,24 @@
 <span class="sourceLineNo">025</span>            @Override<a name="line.25"></a>
 <span class="sourceLineNo">026</span>            public Value evaluate(ParseSession session) {<a name="line.26"></a>
 <span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>                // Get left-hand value<a name="line.28"></a>
-<span class="sourceLineNo">029</span>                final Value oldValue = lhs.evaluate(session);<a name="line.29"></a>
-<span class="sourceLineNo">030</span>                final Setter setter = oldValue.getSetter();<a name="line.30"></a>
-<span class="sourceLineNo">031</span>                if (setter == null)<a name="line.31"></a>
-<span class="sourceLineNo">032</span>                    throw new EvalException("invalid assignment to non-assignable value");<a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>                // Calculate new value<a name="line.34"></a>
-<span class="sourceLineNo">035</span>                Value newValue = rhs.evaluate(session);<a name="line.35"></a>
-<span class="sourceLineNo">036</span>                if (op != Op.EQUALS)<a name="line.36"></a>
-<span class="sourceLineNo">037</span>                    newValue = Op.forSymbol(op.getSymbol().replaceAll("=", "")).apply(session, oldValue, newValue);<a name="line.37"></a>
+<span class="sourceLineNo">028</span>                // Get left-hand value, which must be an LValue<a name="line.28"></a>
+<span class="sourceLineNo">029</span>                final LValue lvalue = lhs.evaluate(session).asLValue("assignment");<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>                // Calculate new value<a name="line.31"></a>
+<span class="sourceLineNo">032</span>                Value value = rhs.evaluate(session);<a name="line.32"></a>
+<span class="sourceLineNo">033</span>                if (op != Op.EQUALS)<a name="line.33"></a>
+<span class="sourceLineNo">034</span>                    value = Op.forSymbol(op.getSymbol().replaceAll("=", "")).apply(session, lvalue, value);<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>                // Assign new value to lvalue<a name="line.36"></a>
+<span class="sourceLineNo">037</span>                lvalue.set(session, value);<a name="line.37"></a>
 <span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>                // Assign new value<a name="line.39"></a>
-<span class="sourceLineNo">040</span>                setter.set(session, newValue);<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>                // Done<a name="line.42"></a>
-<span class="sourceLineNo">043</span>                return newValue;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>            }<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        };<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
-<span class="sourceLineNo">047</span>}<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">039</span>                // Done<a name="line.39"></a>
+<span class="sourceLineNo">040</span>                return value;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>            }<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        };<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    }<a name="line.43"></a>
+<span class="sourceLineNo">044</span>}<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
 
 
 

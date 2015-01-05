@@ -68,11 +68,11 @@
 <span class="sourceLineNo">060</span>    }<a name="line.60"></a>
 <span class="sourceLineNo">061</span><a name="line.61"></a>
 <span class="sourceLineNo">062</span>    @Override<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    abstract CollectionSchemaField toSchemaItem();<a name="line.63"></a>
+<span class="sourceLineNo">063</span>    abstract CollectionSchemaField toSchemaItem(JSimpleDB jdb);<a name="line.63"></a>
 <span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>    void initialize(CollectionSchemaField schemaField) {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        super.initialize(schemaField);<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        schemaField.setElementField(this.elementField.toSchemaItem());<a name="line.67"></a>
+<span class="sourceLineNo">065</span>    void initialize(JSimpleDB jdb, CollectionSchemaField schemaField) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        super.initialize(jdb, schemaField);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        schemaField.setElementField(this.elementField.toSchemaItem(jdb));<a name="line.67"></a>
 <span class="sourceLineNo">068</span>    }<a name="line.68"></a>
 <span class="sourceLineNo">069</span>}<a name="line.69"></a>
 <span class="sourceLineNo">070</span><a name="line.70"></a>

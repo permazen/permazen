@@ -21,7 +21,7 @@
 <span class="sourceLineNo">013</span> * Interface implemented by {@link JSimpleDB} Java model objects.<a name="line.13"></a>
 <span class="sourceLineNo">014</span> *<a name="line.14"></a>
 <span class="sourceLineNo">015</span> * &lt;p&gt;<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * All {@link JSimpleDB} database objects are instances of runtime-generated sub-classes of the provided Java model classes.<a name="line.16"></a>
+<span class="sourceLineNo">016</span> * All {@link JSimpleDB} database objects are instances of runtime-generated sub-classes of user-provided Java model classes.<a name="line.16"></a>
 <span class="sourceLineNo">017</span> * These generated subclasses will always implement this interface, providing convenient access to database operations.<a name="line.17"></a>
 <span class="sourceLineNo">018</span> * Therefore, it is conveninent to declare Java model classes {@code abstract} and {@code implements JObject}.<a name="line.18"></a>
 <span class="sourceLineNo">019</span> * However, this is not strictly necessary; all of the methods declared here ultimately delegate to one of the<a name="line.19"></a>
@@ -31,8 +31,8 @@
 <span class="sourceLineNo">023</span> * &lt;p&gt;<a name="line.23"></a>
 <span class="sourceLineNo">024</span> * There are two types of {@link JObject}s: normal instances, which always reflect the state of the {@link JTransaction}<a name="line.24"></a>
 <span class="sourceLineNo">025</span> * {@linkplain JTransaction#getCurrent associated} with the current thread, and "snapshot" instances that reflect<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * the state of their associated {@link SnapshotJTransaction}. Use {@link #isSnapshot} to distinguish if necessary.<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * For example, some create/delete/change callback methods may not apply in a snapshot context.<a name="line.27"></a>
+<span class="sourceLineNo">026</span> * the state of their associated {@link SnapshotJTransaction}. Use {@link #isSnapshot} to distinguish if necessary<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * Use {@link #copyIn copyIn()} and {@link #copyOut copyOut()} to copy data between normal and snapshot transactions.<a name="line.27"></a>
 <span class="sourceLineNo">028</span> * &lt;/p&gt;<a name="line.28"></a>
 <span class="sourceLineNo">029</span> *<a name="line.29"></a>
 <span class="sourceLineNo">030</span> * &lt;p&gt;<a name="line.30"></a>
@@ -116,7 +116,7 @@
 <span class="sourceLineNo">108</span><a name="line.108"></a>
 <span class="sourceLineNo">109</span>    /**<a name="line.109"></a>
 <span class="sourceLineNo">110</span>     * Recreate a deleted instance, if it does not exist, in its associated transaction.<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * The fields of a recreated object are set to their initial values.<a name="line.111"></a>
+<span class="sourceLineNo">111</span>     * The fields of a recreated object are set to their initial values. If the object already exists, nothing changes.<a name="line.111"></a>
 <span class="sourceLineNo">112</span>     *<a name="line.112"></a>
 <span class="sourceLineNo">113</span>     * @return true if instance was recreated, false if it already existed<a name="line.113"></a>
 <span class="sourceLineNo">114</span>     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}<a name="line.114"></a>
@@ -171,162 +171,131 @@
 <span class="sourceLineNo">163</span>     * &lt;p&gt;<a name="line.163"></a>
 <span class="sourceLineNo">164</span>     * This method will copy this object's fields into the object with ID {@code target} (or this instance's object ID if<a name="line.164"></a>
 <span class="sourceLineNo">165</span>     * {@code target} is null) in the {@code dest} transaction, overwriting any previous values there, along with all other<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * objects reachable from this instance through any of the specified {@linkplain ReferencePath reference paths} or, if<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     * {@code refPaths} is null, the objects returned by {@link #getRelatedObjects()}. If {@code target} (or any other referenced<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     * object) already exists in {@code dest}, it will have its schema version updated first, if necessary, otherwise it will<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     * be created. Any {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnVersionChange}, {@link org.jsimpledb.annotation.OnCreate<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     * &amp;#64;OnCreate}, and {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnChange} methods will be notified accordingly as usual<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     * (in {@code dest}); however, for {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnCreate} and<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     * {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnChange}, the annotation must have {@code snapshotTransactions = true}.<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     * &lt;/p&gt;<a name="line.173"></a>
-<span class="sourceLineNo">174</span>     *<a name="line.174"></a>
-<span class="sourceLineNo">175</span>     * &lt;p&gt;<a name="line.175"></a>
-<span class="sourceLineNo">176</span>     * If {@code refPaths} is explicitly specified as null, then {@link #getRelatedObjects} will be invoked to determine<a name="line.176"></a>
-<span class="sourceLineNo">177</span>     * the additional objects to copy. This allows the determination of what additional objects to be copied along<a name="line.177"></a>
-<span class="sourceLineNo">178</span>     * to be made by the Java model object itself.<a name="line.178"></a>
+<span class="sourceLineNo">166</span>     * objects reachable from this instance through any of the specified {@linkplain ReferencePath reference paths}.<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * If {@code target} (or any other referenced object) already exists in {@code dest}, it will have its schema version<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * updated first, if necessary, otherwise it will be created.<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * Any {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnVersionChange}, {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnCreate},<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * and {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnChange} methods will be notified accordingly as usual (in {@code dest});<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * however, for {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnCreate} and<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnChange}, the annotation must have {@code snapshotTransactions = true}<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * if {@code dest} is a {@link SnapshotJTransaction}.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * &lt;/p&gt;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     *<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * &lt;p&gt;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * The two transactions must be compatible in that for any schema versions encountered, those schema versions<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * must be identical in both transactions.<a name="line.178"></a>
 <span class="sourceLineNo">179</span>     * &lt;/p&gt;<a name="line.179"></a>
 <span class="sourceLineNo">180</span>     *<a name="line.180"></a>
 <span class="sourceLineNo">181</span>     * &lt;p&gt;<a name="line.181"></a>
-<span class="sourceLineNo">182</span>     * The two transactions must be compatible in that for any schema versions encountered, those schema versions<a name="line.182"></a>
-<span class="sourceLineNo">183</span>     * must be identical in both transactions.<a name="line.183"></a>
-<span class="sourceLineNo">184</span>     * &lt;/p&gt;<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     *<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     * &lt;p&gt;<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     * Circular references are handled properly: if an object is encountered more than once, it is not copied again.<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     * Note: if {@code target} is not equal to this instance's object ID, and through one of the {@code refPaths} there<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     * is a circular reference back to this instance, then that reference is copied as-is (i.e., it is not changed from<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     * this instance to {@code target}).<a name="line.190"></a>
-<span class="sourceLineNo">191</span>     * &lt;/p&gt;<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     *<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     * &lt;p&gt;<a name="line.193"></a>
-<span class="sourceLineNo">194</span>     * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,<a name="line.194"></a>
-<span class="sourceLineNo">195</span>     * deadlock could result.<a name="line.195"></a>
-<span class="sourceLineNo">196</span>     * &lt;/p&gt;<a name="line.196"></a>
-<span class="sourceLineNo">197</span>     *<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     * @param dest destination transaction for copies<a name="line.198"></a>
-<span class="sourceLineNo">199</span>     * @param target target object ID in {@code dest} onto which to copy this instance's fields, or null for this instance<a name="line.199"></a>
-<span class="sourceLineNo">200</span>     * @param refPaths zero or more reference paths that refer to additional objects to be copied, or null to indicate<a name="line.200"></a>
-<span class="sourceLineNo">201</span>     *  that {@link #getRelatedObjects} should be invoked to determine which additional objects to copy (if any)<a name="line.201"></a>
-<span class="sourceLineNo">202</span>     * @return the copied version of this instance in {@code dest}<a name="line.202"></a>
-<span class="sourceLineNo">203</span>     * @throws org.jsimpledb.core.DeletedObjectException<a name="line.203"></a>
-<span class="sourceLineNo">204</span>     *  if this object does not exist in the {@link JTransaction} associated with this instance<a name="line.204"></a>
-<span class="sourceLineNo">205</span>     *  (no exception is thrown however if an indirectly referenced object does not exist)<a name="line.205"></a>
-<span class="sourceLineNo">206</span>     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}<a name="line.206"></a>
-<span class="sourceLineNo">207</span>     *  associated with the current thread<a name="line.207"></a>
-<span class="sourceLineNo">208</span>     * @throws org.jsimpledb.core.SchemaMismatchException<a name="line.208"></a>
-<span class="sourceLineNo">209</span>     *  if the schema corresponding to this object's version is not identical in both the {@link JTransaction}<a name="line.209"></a>
-<span class="sourceLineNo">210</span>     *  associated with this instance and {@code dest} (as well for any referenced objects)<a name="line.210"></a>
-<span class="sourceLineNo">211</span>     * @throws IllegalArgumentException if {@code dest} or {@code target} is null<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid<a name="line.212"></a>
-<span class="sourceLineNo">213</span>     * @see #copyIn copyIn()<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     * @see #copyOut copyOut()<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     * @see #getRelatedObjects getRelatedObjects()<a name="line.215"></a>
-<span class="sourceLineNo">216</span>     */<a name="line.216"></a>
-<span class="sourceLineNo">217</span>    JObject copyTo(JTransaction dest, ObjId target, String... refPaths);<a name="line.217"></a>
-<span class="sourceLineNo">218</span><a name="line.218"></a>
-<span class="sourceLineNo">219</span>    /**<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     * Snapshot this instance and other instances it references.<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     *<a name="line.221"></a>
-<span class="sourceLineNo">222</span>     * &lt;p&gt;<a name="line.222"></a>
-<span class="sourceLineNo">223</span>     * This method will copy this object and all of its fields, along all other objects reachable through<a name="line.223"></a>
-<span class="sourceLineNo">224</span>     * any of the specified {@linkplain ReferencePath reference paths} or, if {@code refPaths} is null,<a name="line.224"></a>
-<span class="sourceLineNo">225</span>     * the objects returned by {@link #getRelatedObjects()}, into the {@link SnapshotJTransaction}<a name="line.225"></a>
-<span class="sourceLineNo">226</span>     * {@linkplain JTransaction#getSnapshotTransaction corresponding} to this instance's associated transaction.<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     * If any object already exists there, it will be overwritten, otherwise it will be created.<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     * {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnChange}<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     * notifications will be delivered accordingly; however, the annotation must have {@code snapshotTransactions = true}.<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     * &lt;/p&gt;<a name="line.230"></a>
-<span class="sourceLineNo">231</span>     *<a name="line.231"></a>
-<span class="sourceLineNo">232</span>     * &lt;p&gt;<a name="line.232"></a>
-<span class="sourceLineNo">233</span>     * Normally this method would only be invoked on a regular database {@link JObject}.<a name="line.233"></a>
-<span class="sourceLineNo">234</span>     * The returned object will always be a snapshot {@link JObject}.<a name="line.234"></a>
-<span class="sourceLineNo">235</span>     * &lt;/p&gt;<a name="line.235"></a>
-<span class="sourceLineNo">236</span>     *<a name="line.236"></a>
-<span class="sourceLineNo">237</span>     * &lt;p&gt;<a name="line.237"></a>
-<span class="sourceLineNo">238</span>     * This is a convenience method, and is equivalent to invoking:<a name="line.238"></a>
-<span class="sourceLineNo">239</span>     *  &lt;blockquote&gt;&lt;code&gt;<a name="line.239"></a>
-<span class="sourceLineNo">240</span>     *  this.copyTo(this.getTransaction().getSnapshotTransaction(), null, refPaths);<a name="line.240"></a>
-<span class="sourceLineNo">241</span>     *  &lt;/code&gt;&lt;/blockquote&gt;<a name="line.241"></a>
-<span class="sourceLineNo">242</span>     * &lt;/p&gt;<a name="line.242"></a>
-<span class="sourceLineNo">243</span>     *<a name="line.243"></a>
-<span class="sourceLineNo">244</span>     * @param refPaths zero or more reference paths that refer to additional objects to be copied, or null to indicate<a name="line.244"></a>
-<span class="sourceLineNo">245</span>     *  that {@link #getRelatedObjects} should be invoked to determine which additional objects to copy (if any)<a name="line.245"></a>
-<span class="sourceLineNo">246</span>     * @return the snapshot {@link JObject} copy of this instance<a name="line.246"></a>
-<span class="sourceLineNo">247</span>     * @throws org.jsimpledb.core.DeletedObjectException<a name="line.247"></a>
-<span class="sourceLineNo">248</span>     *  if this object does not exist in the {@link JTransaction} associated with this instance<a name="line.248"></a>
-<span class="sourceLineNo">249</span>     *  (no exception is thrown however if an indirectly referenced object does not exist)<a name="line.249"></a>
-<span class="sourceLineNo">250</span>     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}<a name="line.250"></a>
-<span class="sourceLineNo">251</span>     *  associated with the current thread<a name="line.251"></a>
-<span class="sourceLineNo">252</span>     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid<a name="line.252"></a>
-<span class="sourceLineNo">253</span>     * @see #copyIn copyIn()<a name="line.253"></a>
-<span class="sourceLineNo">254</span>     */<a name="line.254"></a>
-<span class="sourceLineNo">255</span>    JObject copyOut(String... refPaths);<a name="line.255"></a>
-<span class="sourceLineNo">256</span><a name="line.256"></a>
-<span class="sourceLineNo">257</span>    /**<a name="line.257"></a>
-<span class="sourceLineNo">258</span>     * Copy this instance and other instances it references into the transaction associated with the current thread.<a name="line.258"></a>
-<span class="sourceLineNo">259</span>     *<a name="line.259"></a>
-<span class="sourceLineNo">260</span>     * &lt;p&gt;<a name="line.260"></a>
-<span class="sourceLineNo">261</span>     * This method will copy this object and all of its fields, along all other objects reachable through any of the<a name="line.261"></a>
-<span class="sourceLineNo">262</span>     * specified {@linkplain ReferencePath reference paths} or, if {@code refPaths} is null, the objects returned by<a name="line.262"></a>
-<span class="sourceLineNo">263</span>     * {@link #getRelatedObjects()}, into the {@link JTransaction} {@linkplain JTransaction#getCurrent associated}<a name="line.263"></a>
-<span class="sourceLineNo">264</span>     * with the current thread.<a name="line.264"></a>
-<span class="sourceLineNo">265</span>     * If any object already exists in the current thread's transaction, it will be overwritten, otherwise it will be created.<a name="line.265"></a>
-<span class="sourceLineNo">266</span>     * {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnChange}<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     * notifications will be delivered accordingly; however, the annotation must have {@code snapshotTransactions = true}.<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     * &lt;/p&gt;<a name="line.268"></a>
-<span class="sourceLineNo">269</span>     *<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     * &lt;p&gt;<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     * Normally this method would only be invoked on a snapshot {@link JObject}.<a name="line.271"></a>
-<span class="sourceLineNo">272</span>     * The returned object will always be a regular database {@link JObject}.<a name="line.272"></a>
-<span class="sourceLineNo">273</span>     * &lt;/p&gt;<a name="line.273"></a>
-<span class="sourceLineNo">274</span>     *<a name="line.274"></a>
-<span class="sourceLineNo">275</span>     * &lt;p&gt;<a name="line.275"></a>
-<span class="sourceLineNo">276</span>     * This is a convenience method, and is equivalent to invoking:<a name="line.276"></a>
-<span class="sourceLineNo">277</span>     *  &lt;blockquote&gt;&lt;code&gt;<a name="line.277"></a>
-<span class="sourceLineNo">278</span>     *  this.copyTo(JTransaction.getCurrent(), null, refPaths)<a name="line.278"></a>
-<span class="sourceLineNo">279</span>     *  &lt;/code&gt;&lt;/blockquote&gt;<a name="line.279"></a>
-<span class="sourceLineNo">280</span>     * &lt;/p&gt;<a name="line.280"></a>
-<span class="sourceLineNo">281</span>     *<a name="line.281"></a>
-<span class="sourceLineNo">282</span>     * @param refPaths zero or more reference paths that refer to additional objects to be copied, or null to indicate<a name="line.282"></a>
-<span class="sourceLineNo">283</span>     *  that {@link #getRelatedObjects} should be invoked to determine which additional objects to copy (if any)<a name="line.283"></a>
-<span class="sourceLineNo">284</span>     * @return the regular database copy of this instance<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     * @throws org.jsimpledb.core.DeletedObjectException<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     *  if this object does not exist in the {@link JTransaction} associated with this instance<a name="line.286"></a>
-<span class="sourceLineNo">287</span>     *  (no exception is thrown however if an indirectly referenced object does not exist)<a name="line.287"></a>
-<span class="sourceLineNo">288</span>     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}<a name="line.288"></a>
-<span class="sourceLineNo">289</span>     *  associated with the current thread<a name="line.289"></a>
-<span class="sourceLineNo">290</span>     * @throws org.jsimpledb.core.SchemaMismatchException<a name="line.290"></a>
-<span class="sourceLineNo">291</span>     *  if the schema corresponding to this object's version is not identical in both transactions<a name="line.291"></a>
-<span class="sourceLineNo">292</span>     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid<a name="line.292"></a>
-<span class="sourceLineNo">293</span>     * @see #copyOut copyOut()<a name="line.293"></a>
-<span class="sourceLineNo">294</span>     */<a name="line.294"></a>
-<span class="sourceLineNo">295</span>    JObject copyIn(String... refPaths);<a name="line.295"></a>
-<span class="sourceLineNo">296</span><a name="line.296"></a>
-<span class="sourceLineNo">297</span>    /**<a name="line.297"></a>
-<span class="sourceLineNo">298</span>     * Identify any other objects that should be copied along with this object when it is being copied into a<a name="line.298"></a>
-<span class="sourceLineNo">299</span>     * different transaction and a null reference path array is specified. This method is consulted whenever<a name="line.299"></a>
-<span class="sourceLineNo">300</span>     * {@link #copyIn copyIn()}, {@link #copyOut copyOut()}, or {@link #copyTo copyTo()} is invoked with a null {@code refPaths}.<a name="line.300"></a>
-<span class="sourceLineNo">301</span>     * This allows Java instances themselves to determine which "related" should be included in the copy operation.<a name="line.301"></a>
-<span class="sourceLineNo">302</span>     * The precise definition of "related" is application specific, of course.<a name="line.302"></a>
-<span class="sourceLineNo">303</span>     * Common examples include objects in a collection field that need to be referenceable in the destination transaction,<a name="line.303"></a>
-<span class="sourceLineNo">304</span>     * and objects that reference this object when reference inversion will be used in the destination transaction.<a name="line.304"></a>
-<span class="sourceLineNo">305</span>     *<a name="line.305"></a>
-<span class="sourceLineNo">306</span>     * &lt;p&gt;<a name="line.306"></a>
-<span class="sourceLineNo">307</span>     * Unlike the other methods in the {@link JObject} interface, this method is to be (optionally) implemented by the<a name="line.307"></a>
-<span class="sourceLineNo">308</span>     * user-provided Java model class. All of the objects in the returned {@link Iterable} will be copied as well<a name="line.308"></a>
-<span class="sourceLineNo">309</span>     * (along with objects on any explicitly provided reference paths; the same object may safely appear more than once).<a name="line.309"></a>
-<span class="sourceLineNo">310</span>     * &lt;/p&gt;<a name="line.310"></a>
-<span class="sourceLineNo">311</span>     *<a name="line.311"></a>
-<span class="sourceLineNo">312</span>     * &lt;p&gt;<a name="line.312"></a>
-<span class="sourceLineNo">313</span>     * This method is optional in the sense that if it is not implemented in the user-provided Java model class,<a name="line.313"></a>
-<span class="sourceLineNo">314</span>     * {@link JSimpleDB} will create a stub implementation of this method in the generated subclass that returns null.<a name="line.314"></a>
-<span class="sourceLineNo">315</span>     * &lt;/p&gt;<a name="line.315"></a>
-<span class="sourceLineNo">316</span>     *<a name="line.316"></a>
-<span class="sourceLineNo">317</span>     * @return {@link Iterable} of additional objects to be copied, or null for none; any null values are ignored<a name="line.317"></a>
-<span class="sourceLineNo">318</span>     */<a name="line.318"></a>
-<span class="sourceLineNo">319</span>    Iterable&lt;? extends JObject&gt; getRelatedObjects();<a name="line.319"></a>
-<span class="sourceLineNo">320</span>}<a name="line.320"></a>
-<span class="sourceLineNo">321</span><a name="line.321"></a>
+<span class="sourceLineNo">182</span>     * Circular references are handled properly: if an object is encountered more than once, it is not copied again.<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * The {@code seen} parameter tracks which objects have already been copied. For a "fresh" copy operation, pass a newly<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     * created instance; for a copy operation that is a continuation of a previous copy, {@code seen} may be reused.<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * Note: if {@code target} is not equal to this instance's object ID, and through one of the {@code refPaths} there<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * is a circular reference back to this instance, then that reference is copied as-is (i.e., it is not copied<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * to {@code target}).<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * &lt;/p&gt;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     *<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * &lt;p&gt;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * Warning: if two threads attempt to copy objects between the same two transactions at the same time<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * but in opposite directions, deadlock could result.<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * &lt;/p&gt;<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     *<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     * @param dest destination transaction for copies<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     * @param target target object ID in {@code dest} onto which to copy this instance's fields, or null for this instance<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * @param seen tracks which indirectly referenced objects have already been copied<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * @param refPaths zero or more reference paths that refer to additional objects to be copied<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * @return the copied version of this instance in {@code dest}<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * @throws org.jsimpledb.core.DeletedObjectException<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     *  if this object does not exist in the {@link JTransaction} associated with this instance<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     *  (no exception is thrown however if an indirectly referenced object does not exist)<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     *  associated with the current thread<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * @throws org.jsimpledb.core.SchemaMismatchException<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     *  if the schema corresponding to this object's version is not identical in both the {@link JTransaction}<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     *  associated with this instance and {@code dest} (as well for any referenced objects)<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * @throws IllegalArgumentException if {@code dest}, {@code seen}, or {@code refPaths} is null<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     * @see #copyIn copyIn()<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * @see #copyOut copyOut()<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * @see JTransaction#copyTo(JTransaction, JObject, ObjId, ObjIdSet, String[]) JTransaction.copyTo()<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     */<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    JObject copyTo(JTransaction dest, ObjId target, ObjIdSet seen, String... refPaths);<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>    /**<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     * Snapshot this instance and other instances it references.<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     *<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * &lt;p&gt;<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * This method will copy this object and all of its fields, along all other objects reachable through<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * any of the specified {@linkplain ReferencePath reference paths} into the {@link SnapshotJTransaction}<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * {@linkplain JTransaction#getSnapshotTransaction corresponding} to this instance's associated transaction.<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * If any object already exists there, it will be overwritten, otherwise it will be created.<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnChange}<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * notifications will be delivered accordingly; however, the annotation must have {@code snapshotTransactions = true}.<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * &lt;/p&gt;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     *<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * &lt;p&gt;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     * Normally this method would only be invoked on a regular database {@link JObject}.<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * The returned object will always be a snapshot {@link JObject}.<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     * &lt;/p&gt;<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     *<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * &lt;p&gt;<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * This is a convenience method, and is equivalent to invoking:<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     *  &lt;blockquote&gt;&lt;code&gt;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     *  this.copyTo(this.getTransaction().getSnapshotTransaction(), null, new ObjIdSet(), refPaths);<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     *  &lt;/code&gt;&lt;/blockquote&gt;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * &lt;/p&gt;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     *<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * @param refPaths zero or more reference paths that refer to additional objects to be copied<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * @return the snapshot {@link JObject} copy of this instance<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * @throws org.jsimpledb.core.DeletedObjectException<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     *  if this object does not exist in the {@link JTransaction} associated with this instance<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     *  (no exception is thrown however if an indirectly referenced object does not exist)<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     *  associated with the current thread<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * @see #copyIn copyIn()<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     */<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    JObject copyOut(String... refPaths);<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>    /**<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * Copy this instance and other instances it references into the transaction associated with the current thread.<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     *<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     * &lt;p&gt;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * This method will copy this object and all of its fields, along all other objects reachable through any of the<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     * specified {@linkplain ReferencePath reference paths} into the {@link JTransaction}<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * {@linkplain JTransaction#getCurrent associated} with the current thread.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * If any object already exists in the current thread's transaction, it will be overwritten, otherwise it will be created.<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnChange}<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * notifications will be delivered accordingly.<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * &lt;/p&gt;<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     *<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     * &lt;p&gt;<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * Normally this method would only be invoked on a snapshot {@link JObject}.<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * The returned object will always be a regular database {@link JObject}.<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     * &lt;/p&gt;<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     *<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * &lt;p&gt;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * This is a convenience method, and is equivalent to invoking:<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     *  &lt;blockquote&gt;&lt;code&gt;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     *  this.copyTo(JTransaction.getCurrent(), null, new ObjIdSet(), refPaths)<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     *  &lt;/code&gt;&lt;/blockquote&gt;<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     * &lt;/p&gt;<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     *<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * @param refPaths zero or more reference paths that refer to additional objects to be copied<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     * @return the regular database copy of this instance<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * @throws org.jsimpledb.core.DeletedObjectException<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     *  if this object does not exist in the {@link JTransaction} associated with this instance<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     *  (no exception is thrown however if an indirectly referenced object does not exist)<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     *  associated with the current thread<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * @throws org.jsimpledb.core.SchemaMismatchException<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     *  if the schema corresponding to this object's version is not identical in both transactions<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * @throws IllegalArgumentException if any path in {@code refPaths} is invalid<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     * @see #copyOut copyOut()<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     */<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    JObject copyIn(String... refPaths);<a name="line.288"></a>
+<span class="sourceLineNo">289</span>}<a name="line.289"></a>
+<span class="sourceLineNo">290</span><a name="line.290"></a>
 
 
 

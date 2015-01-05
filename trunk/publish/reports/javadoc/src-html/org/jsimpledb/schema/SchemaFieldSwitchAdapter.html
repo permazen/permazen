@@ -88,52 +88,65 @@
 <span class="sourceLineNo">080</span>    }<a name="line.80"></a>
 <span class="sourceLineNo">081</span><a name="line.81"></a>
 <span class="sourceLineNo">082</span>    /**<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * Handle a {@link CounterSchemaField}.<a name="line.83"></a>
+<span class="sourceLineNo">083</span>     * Handle a {@link EnumSchemaField}.<a name="line.83"></a>
 <span class="sourceLineNo">084</span>     *<a name="line.84"></a>
 <span class="sourceLineNo">085</span>     * &lt;p&gt;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseDefault caseDefault()}.<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     * &lt;/p&gt;<a name="line.87"></a>
+<span class="sourceLineNo">086</span>     * The implementation in {@link SchemaFieldSwitchAdapter} delegates to<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * {@link #caseSimpleSchemaField caseSimpleSchemaField()}.<a name="line.87"></a>
 <span class="sourceLineNo">088</span>     * &lt;/p&gt;<a name="line.88"></a>
 <span class="sourceLineNo">089</span>     */<a name="line.89"></a>
 <span class="sourceLineNo">090</span>    @Override<a name="line.90"></a>
-<span class="sourceLineNo">091</span>    public R caseCounterSchemaField(CounterSchemaField field) {<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        return this.caseDefault(field);<a name="line.92"></a>
+<span class="sourceLineNo">091</span>    public R caseEnumSchemaField(EnumSchemaField field) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        return this.caseSimpleSchemaField(field);<a name="line.92"></a>
 <span class="sourceLineNo">093</span>    }<a name="line.93"></a>
 <span class="sourceLineNo">094</span><a name="line.94"></a>
 <span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * Adapter class roll-up method.<a name="line.96"></a>
+<span class="sourceLineNo">096</span>     * Handle a {@link CounterSchemaField}.<a name="line.96"></a>
 <span class="sourceLineNo">097</span>     *<a name="line.97"></a>
 <span class="sourceLineNo">098</span>     * &lt;p&gt;<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseComplexSchemaField caseComplexSchemaField()}.<a name="line.99"></a>
+<span class="sourceLineNo">099</span>     * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseDefault caseDefault()}.<a name="line.99"></a>
 <span class="sourceLineNo">100</span>     * &lt;/p&gt;<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    protected R caseCollectionSchemaField(CollectionSchemaField field) {<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        return this.caseComplexSchemaField(field);<a name="line.103"></a>
-<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>    /**<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * Adapter class roll-up method.<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     *<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     * &lt;p&gt;<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseDefault caseDefault()}.<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * &lt;/p&gt;<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     */<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    protected R caseComplexSchemaField(ComplexSchemaField field) {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>        return this.caseDefault(field);<a name="line.114"></a>
-<span class="sourceLineNo">115</span>    }<a name="line.115"></a>
-<span class="sourceLineNo">116</span><a name="line.116"></a>
-<span class="sourceLineNo">117</span>    /**<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     * Adapter class roll-up method.<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     *<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     * &lt;p&gt;<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     * The implementation in {@link SchemaFieldSwitchAdapter} always throws {@link UnsupportedOperationException}.<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     * &lt;/p&gt;<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     */<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    protected R caseDefault(SchemaField field) {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        throw new UnsupportedOperationException("field type not handled: " + field);<a name="line.125"></a>
-<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
-<span class="sourceLineNo">127</span>}<a name="line.127"></a>
-<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">101</span>     * &lt;/p&gt;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     */<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    @Override<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public R caseCounterSchemaField(CounterSchemaField field) {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        return this.caseDefault(field);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * Adapter class roll-up method.<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     *<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * &lt;p&gt;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseComplexSchemaField caseComplexSchemaField()}.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * &lt;/p&gt;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     */<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    protected R caseCollectionSchemaField(CollectionSchemaField field) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        return this.caseComplexSchemaField(field);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    /**<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * Adapter class roll-up method.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     *<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * &lt;p&gt;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseDefault caseDefault()}.<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * &lt;/p&gt;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     */<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    protected R caseComplexSchemaField(ComplexSchemaField field) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        return this.caseDefault(field);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    }<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>    /**<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * Adapter class roll-up method.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     *<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * &lt;p&gt;<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * The implementation in {@link SchemaFieldSwitchAdapter} always throws {@link UnsupportedOperationException}.<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * &lt;/p&gt;<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     */<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    protected R caseDefault(SchemaField field) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        throw new UnsupportedOperationException("field type not handled: " + field);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    }<a name="line.139"></a>
+<span class="sourceLineNo">140</span>}<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
 
 
 

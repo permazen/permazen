@@ -37,7 +37,7 @@
 <span class="sourceLineNo">029</span>        super(source);<a name="line.29"></a>
 <span class="sourceLineNo">030</span>        if (change == null)<a name="line.30"></a>
 <span class="sourceLineNo">031</span>            throw new IllegalArgumentException("null change");<a name="line.31"></a>
-<span class="sourceLineNo">032</span>        this.change = change.visit(new ChangeCopier(true));<a name="line.32"></a>
+<span class="sourceLineNo">032</span>        this.change = change.visit(new ChangeCopier());<a name="line.32"></a>
 <span class="sourceLineNo">033</span>    }<a name="line.33"></a>
 <span class="sourceLineNo">034</span><a name="line.34"></a>
 <span class="sourceLineNo">035</span>    /**<a name="line.35"></a>
