@@ -7,6 +7,8 @@
 
 package org.jsimpledb;
 
+import java.util.Arrays;
+
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 
@@ -40,6 +42,20 @@ public class JSimpleDBFactory {
     public JSimpleDBFactory setModelClasses(Iterable<? extends Class<?>> classes) {
         this.classes = classes;
         return this;
+    }
+
+    /**
+     * Configure the Java model classes.
+     *
+     * <p>
+     * Equivalent to {@link #setModelClasses(Iterable) setModelClasses}{@code (Arrays.asList(classes))}.
+     * </p>
+     *
+     * @param classes classes annotated with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations
+     * @see #setModelClasses(Iterable)
+     */
+    public JSimpleDBFactory setModelClasses(Class<?>... classes) {
+        return this.setModelClasses(Arrays.asList(classes));
     }
 
     /**
