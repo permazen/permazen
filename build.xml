@@ -260,10 +260,10 @@
             <links>
                 <link href="https://docs.oracle.com/javase/7/docs/api/"/>
                 <link href="https://docs.oracle.com/javaee/7/api/"/>
-                <link href="http://docs.spring.io/spring/docs/4.0.x/javadoc-api/"/>
+                <link href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/"/>
                 <link href="http://jibx.sourceforge.net/api/"/>
                 <link href="http://opencsv.sourceforge.net/apidocs/"/>
-                <link href="http://vaadin.com/download/release/7.1/7.1.15/docs/api/"/>
+                <link href="http://vaadin.com/download/release/7.3/7.3.7/docs/api/"/>
                 <link href="http://www.slf4j.org/api/"/>
                 <link href="http://www.eclipse.org/aspectj/doc/released/runtime-api/"/>
                 <link href="http://docs.guava-libraries.googlecode.com/git/javadoc/"/>
