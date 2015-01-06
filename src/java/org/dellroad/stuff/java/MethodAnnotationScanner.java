@@ -98,7 +98,7 @@ public class MethodAnnotationScanner<T, A extends Annotation> {
         // Return result
         final HashSet<MethodInfo> result = new HashSet<MethodInfo>();
         for (HashSet<MethodInfo> nameSet : nameSetMap.values())
-            result.addAll(set);
+            result.addAll(nameSet);
         return result;
     }
 
