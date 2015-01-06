@@ -29,7 +29,7 @@ import java.util.Set;
  *
  * <p>
  * Subclasses may validate the annotations, and control which annotated methods to include and/or reject, by overriding
- * {@link #includeMethod includeMethod()}.
+ * {@link #getAnnotation getAnnotation()} and/or {@link #includeMethod includeMethod()}.
  * </p>
  *
  * @param <T> Java type to be introspected
