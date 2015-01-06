@@ -1,3 +1,8 @@
+Version Next
+
+    - Fixed bug in MethodAnnotationScanner that allowed duplicate methods
+    - Upgraded several library dependencies
+
 Version 1.0.946 Released November 12, 2014
 
     - Added HTTP request and response parameters to ExceptionLoggingFilter methods

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.core.env.StandardEnvironment;
 import org.w3c.dom.Element;
 
 /**
@@ -45,8 +44,7 @@ public abstract class AbstractBeanDefinitionParser extends org.springframework.b
      * @param parserContext parser context
      */
     protected void parseStandardAttributes(AbstractBeanDefinition beanDefinition, Element element, ParserContext parserContext) {
-        BeanDefinitionParserDelegate delegate = new BeanDefinitionParserDelegate(parserContext.getReaderContext(),
-          new StandardEnvironment());
+        BeanDefinitionParserDelegate delegate = new BeanDefinitionParserDelegate(parserContext.getReaderContext());
         delegate.parseBeanDefinitionAttributes(element, "", null, beanDefinition);
     }
 
