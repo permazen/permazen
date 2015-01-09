@@ -11,7 +11,6 @@ import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -158,7 +157,7 @@ public class JClass<T> extends JSchemaObject {
             final Method getter = info.getMethod();
             final String description = simpleFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
-            final TypeToken<?> fieldTypeToken = this.resolveType(getter.getGenericReturnType());
+            final TypeToken<?> fieldTypeToken = this.typeToken.resolveType(getter.getGenericReturnType());
             if (this.log.isTraceEnabled())
                 this.log.trace("found " + description);
 
@@ -228,7 +227,7 @@ public class JClass<T> extends JSchemaObject {
             }
 
             // Get element type (the raw return type has already been validated by the annotation scanner)
-            final TypeToken<?> elementType = this.resolveType(this.getParameterType(description, getter, 0));
+            final TypeToken<?> elementType = this.typeToken.resolveType(this.getParameterType(description, getter, 0));
 
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
@@ -269,7 +268,7 @@ public class JClass<T> extends JSchemaObject {
             }
 
             // Get element type (the raw return type has already been validated by the annotation scanner)
-            final TypeToken<?> elementType = this.resolveType(this.getParameterType(description, getter, 0));
+            final TypeToken<?> elementType = this.typeToken.resolveType(this.getParameterType(description, getter, 0));
 
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
@@ -312,8 +311,8 @@ public class JClass<T> extends JSchemaObject {
                 valueStorageId = jdb.getStorageIdGenerator(valueAnnotation, getter).generateMapValueStorageId(getter, fieldName);
 
             // Get key and value types (the raw return type has already been validated by the annotation scanner)
-            final TypeToken<?> keyType = this.resolveType(this.getParameterType(description, getter, 0));
-            final TypeToken<?> valueType = this.resolveType(this.getParameterType(description, getter, 1));
+            final TypeToken<?> keyType = this.typeToken.resolveType(this.getParameterType(description, getter, 0));
+            final TypeToken<?> valueType = this.typeToken.resolveType(this.getParameterType(description, getter, 1));
 
             // Create key and value sub-fields
             final JSimpleField keyField = this.createSimpleField("key() property of " + description,
@@ -334,20 +333,6 @@ public class JClass<T> extends JSchemaObject {
             // Add field
             this.addField(jfield);
         }
-    }
-
-    private TypeToken<?> resolveType(Type type) {
-
-        // If type is a type variable with an upper bound, use that
-        if (type instanceof TypeVariable) {
-            for (Type bound : ((TypeVariable<?>)type).getBounds()) {
-                if (TypeToken.of(type).getRawType().isAssignableFrom(TypeToken.of(bound).getRawType()))
-                    type = bound;
-            }
-        }
-
-        // Resolve the type in the context of this class
-        return this.typeToken.resolveType(type);
     }
 
     void addCompositeIndex(JSimpleDB jdb, org.jsimpledb.annotation.JCompositeIndex annotation) {
