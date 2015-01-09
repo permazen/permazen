@@ -184,16 +184,17 @@ final class Util {
 
     /**
      * Get the n'th generic type parameter.
+     *
+     * @throws IllegalArgumentException if {@code type} is not a parameterized type with more than {@code index} type variables
      */
-    public static TypeToken<?> getTypeParameter(TypeToken<?> typeToken, int index) {
-        final Type type = typeToken.getType();
+    public static Type getTypeParameter(Type type, int index) {
         if (!(type instanceof ParameterizedType))
             throw new IllegalArgumentException("type is missing generic type parameter(s)");
         final ParameterizedType parameterizedType = (ParameterizedType)type;
         final Type[] parameters = parameterizedType.getActualTypeArguments();
         if (index >= parameters.length)
             throw new IllegalArgumentException("type is missing generic type parameter(s)");
-        return TypeToken.of(parameters[index]);
+        return parameters[index];
     }
 
     /**

@@ -41,7 +41,22 @@ public class GenericsFunTest extends TestSupport {
         }
     }
 
-// Model Classes
+    @Test
+    public void testGenerics3() throws Exception {
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Class2.class, Class3.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        JTransaction.setCurrent(jtx);
+        try {
+            final Class2 c2 = jtx.create(Class2.class);
+            final Class3 c3 = jtx.create(Class3.class);
+            c2.setFriend(c3);
+            c3.setFriend(c2);
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+// Model Classes #1
 
     public abstract static class AbstractData<T extends AbstractData<T>> implements JObject {
 
@@ -75,6 +90,22 @@ public class GenericsFunTest extends TestSupport {
 
     @JSimpleClass(storageId = 400)
     public abstract static class Widget extends AbstractData<Widget> {
+    }
+
+// Model Classes #2
+
+    public abstract static class Class1<T> implements JObject {
+
+        public abstract T getFriend();
+        public abstract void setFriend(T friend);
+    }
+
+    @JSimpleClass
+    public abstract static class Class2 extends Class1<Class3> {
+    }
+
+    @JSimpleClass
+    public abstract static class Class3 extends Class1<Class2> {
     }
 }
 
