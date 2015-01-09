@@ -56,6 +56,24 @@ public class GenericsFunTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testGenerics4() throws Exception {
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Class2.class, Class3.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        JTransaction.setCurrent(jtx);
+        try {
+            final Class2 c2 = jtx.create(Class2.class);
+            try {
+                c2.setWrong(c2);
+                assert false;
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes #1
 
     public abstract static class AbstractData<T extends AbstractData<T>> implements JObject {
@@ -98,6 +116,11 @@ public class GenericsFunTest extends TestSupport {
 
         public abstract T getFriend();
         public abstract void setFriend(T friend);
+
+        @SuppressWarnings("unchecked")
+        public void setWrong(Object obj) {
+            this.setFriend((T)obj);
+        }
     }
 
     @JSimpleClass
