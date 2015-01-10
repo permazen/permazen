@@ -120,6 +120,10 @@ import org.slf4j.LoggerFactory;
  *      - Access the composite index associated with a map value field that includes corresponding map keys</li>
  *  <li>{@link #queryCompositeIndex(Class, String, Class, Class) queryCompositeIndex()}
  *      - Access a composite index defined on two fields</li>
+ * <!--
+ *  <li>{@link #queryCompositeIndex(Class, String, Class, Class, Class) queryCompositeIndex()}
+ *      - Access a composite index defined on three fields</li>
+ * -->
  * </ul>
  * </p>
  *
@@ -289,6 +293,13 @@ public class JTransaction {
      */
     public Transaction getTransaction() {
         return this.tx;
+    }
+
+    /**
+     * Get the {@link ValidationMode} configured for this instance.
+     */
+    public ValidationMode getValidationMode() {
+        return this.validationMode;
     }
 
     /**
