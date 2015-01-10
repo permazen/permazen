@@ -47,6 +47,8 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
     protected boolean isAutoPropertyCandidate(Method method) {
         if (!this.autogenFields)
             return false;
+        if (this.isOverriddenByConcreteMethod(method))
+            return false;
         if ((method.getModifiers() & (Modifier.ABSTRACT | Modifier.STATIC)) != Modifier.ABSTRACT)
             return false;
         if (!Pattern.compile("(is|get)(.+)").matcher(method.getName()).matches())
@@ -56,6 +58,23 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
         if (method.getReturnType() == Void.TYPE)
             return false;
         return true;
+    }
+
+    private boolean isOverriddenByConcreteMethod(Method method) {
+        final Class<?> methodType = method.getDeclaringClass();
+        for (Class<?> type = this.jclass.typeToken.getRawType();
+          type != null && methodType.isAssignableFrom(type) && !type.equals(methodType);
+          type = type.getSuperclass()) {
+            final Method otherMethod;
+            try {
+                otherMethod = type.getDeclaredMethod(method.getName(), method.getParameterTypes());
+            } catch (NoSuchMethodException e) {
+                continue;
+            }
+            if (otherMethod != null && (otherMethod.getModifiers() & Modifier.ABSTRACT) == 0)
+                return true;
+        }
+        return false;
     }
 }
 
