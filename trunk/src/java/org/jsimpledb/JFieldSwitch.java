@@ -11,6 +11,7 @@ package org.jsimpledb;
  * Visitor pattern interface for {@link JField}s.
  *
  * @param <R> switch method return type
+ * @see JField#visit
  */
 public interface JFieldSwitch<R> {
 
