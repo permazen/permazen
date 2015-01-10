@@ -11,6 +11,7 @@ package org.jsimpledb.schema;
  * Visitor pattern interface for {@link SchemaField}s.
  *
  * @param <R> switch method return type
+ * @see SchemaField#visit
  */
 public interface SchemaFieldSwitch<R> {
 
