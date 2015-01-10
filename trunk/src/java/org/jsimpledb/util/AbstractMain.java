@@ -10,6 +10,9 @@ package org.jsimpledb.util;
 import com.google.common.base.Function;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -57,6 +60,8 @@ public abstract class AbstractMain extends MainClass {
      * @return -1 to proceed, otherwise process exit value
      */
     public int parseOptions(ArrayDeque<String> params) {
+
+        // Parse options
         while (!params.isEmpty() && params.peekFirst().startsWith("-")) {
             final String option = params.removeFirst();
             if (option.equals("-h") || option.equals("--help")) {
@@ -64,7 +69,11 @@ public abstract class AbstractMain extends MainClass {
                 return 0;
             } else if (option.equals("-ro") || option.equals("--read-only"))
                 this.readOnly = true;
-            else if (option.equals("-v") || option.equals("--verbose"))
+            else if (option.equals("-cp") || option.equals("--classpath")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.appendClasspath(params.removeFirst());
+            } else if (option.equals("-v") || option.equals("--verbose"))
                 this.verbose = true;
             else if (option.equals("--version")) {
                 if (params.isEmpty())
@@ -86,7 +95,7 @@ public abstract class AbstractMain extends MainClass {
                 if (params.isEmpty())
                     this.usageError();
                 this.scanTypeClasses(params.removeFirst());
-            } else if (option.equals("--scan-pkg")) {
+            } else if (option.equals("-p") || option.equals("--scan-pkg")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String packageName = params.removeFirst();
@@ -128,6 +137,8 @@ public abstract class AbstractMain extends MainClass {
             System.err.println(this.getName() + ": option `--prefix' is only valid in combination with `--fdb'");
             this.usageError();
         }
+
+        // Done
         return -1;
     }
 
@@ -161,6 +172,29 @@ public abstract class AbstractMain extends MainClass {
      */
     protected boolean parseOption(String option, ArrayDeque<String> params) {
         return false;
+    }
+
+    /**
+     * Append a path to the classpath.
+     */
+    protected boolean appendClasspath(String path) {
+        try {
+
+            // Get URLClassLoader.addURL() method and make accessible
+            final Method addURLMethod = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+            addURLMethod.setAccessible(true);
+
+            // Split path and add components
+            for (String file : path.split(System.getProperty("file.separator", ":"))) {
+                if (file.length() == 0)
+                    continue;
+                addURLMethod.invoke(ClassLoader.getSystemClassLoader(), new Object[] { new File(file).toURI().toURL() });
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println(this.getName() + ": can't append `" + path + " to classpath: " + e);
+            return false;
+        }
     }
 
     private void scanSchemaClasses(String pkgname) {
@@ -256,18 +290,19 @@ public abstract class AbstractMain extends MainClass {
      */
     protected void outputFlags(String[][] subclassOpts) {
         final String[][] baseOpts = new String[][] {
-            { "--fdb file",             "Use FoundationDB with specified cluster file" },
-            { "--mem",                  "Use an empty in-memory database (default)" },
-            { "--prefix prefix",        "FoundationDB key prefix (hex or string)" },
-            { "--read-only",            "Disallow database modifications" },
-            { "--new-schema",           "Allow recording of a new database schema version" },
-            { "--xml file",             "Use the specified XML flat file database" },
-            { "--version num",          "Specify database schema version (default highest recorded)" },
-            { "--schema-pkg package",   "Scan for @JSimpleClass types under Java package to build schema (=> JSimpleDB mode)" },
-            { "--types-pkg package",    "Scan for @JFieldType types under Java package to register custom types" },
-            { "--scan-pkg package",     "Equivalent to `--schema-pkg package --types-pkg package'" },
-            { "--help, -h",             "Show this help message" },
-            { "--verbose, -v",          "Show verbose error messages" },
+            { "-cp, --classpath path",      "Append to the classpath (useful with `java -jar ...')" },
+            { "--fdb file",                 "Use FoundationDB with specified cluster file" },
+            { "--mem",                      "Use an empty in-memory database (default)" },
+            { "--prefix prefix",            "FoundationDB key prefix (hex or string)" },
+            { "-ro, --read-only",           "Disallow database modifications" },
+            { "--new-schema",               "Allow recording of a new database schema version" },
+            { "--xml file",                 "Use the specified XML flat file database" },
+            { "--version num",              "Specify database schema version (default highest recorded)" },
+            { "--schema-pkg package",       "Scan for @JSimpleClass types under Java package to build schema (=> JSimpleDB mode)" },
+            { "--types-pkg package",        "Scan for @JFieldType types under Java package to register custom types" },
+            { "-p, --scan-pkg package",     "Equivalent to `--schema-pkg package --types-pkg package'" },
+            { "-h, --help, -h",                 "Show this help message" },
+            { "--verbose, -v",              "Show verbose error messages" },
         };
         final String[][] combinedOpts = new String[baseOpts.length + subclassOpts.length][];
         System.arraycopy(baseOpts, 0, combinedOpts, 0, baseOpts.length);
