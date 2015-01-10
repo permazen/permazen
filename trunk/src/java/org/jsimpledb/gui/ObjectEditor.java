@@ -34,6 +34,7 @@ public class ObjectEditor extends HorizontalLayout {
 
     private final JTransaction dest;
     private final ParseSession session;
+    private final String name;
     private final Class<?> type;
     private final Property<JObject> property;
     private final JObjectContainer.RefLabelPropertyDef refLabelPropertyDef = new JObjectContainer.RefLabelPropertyDef();
@@ -56,8 +57,8 @@ public class ObjectEditor extends HorizontalLayout {
     /**
      * Conveinence constructor. Sets {@code allowNull} to true.
      */
-    public ObjectEditor(JTransaction dest, ParseSession session, Class<?> type, Property<JObject> property) {
-        this(dest, session, type, property, true);
+    public ObjectEditor(JTransaction dest, ParseSession session, String name, Class<?> type, Property<JObject> property) {
+        this(dest, session, name, type, property, true);
     }
 
     /**
@@ -65,21 +66,26 @@ public class ObjectEditor extends HorizontalLayout {
      *
      * @param dest destination transaction for the chosen object
      * @param session session for expression parsing
+     * @param name name of the property
      * @param type type restriction, or null for none
      * @param property reference property to edit
      * @param allowNull whether null value is allowed
      */
-    public ObjectEditor(JTransaction dest, ParseSession session, Class<?> type, Property<JObject> property, boolean allowNull) {
+    public ObjectEditor(JTransaction dest, ParseSession session,
+      String name, Class<?> type, Property<JObject> property, boolean allowNull) {
 
         // Initialize
         if (dest == null)
             throw new IllegalArgumentException("null dest");
         if (session == null)
             throw new IllegalArgumentException("null session");
+        if (name == null)
+            throw new IllegalArgumentException("null name");
         if (property == null)
             throw new IllegalArgumentException("null property");
         this.dest = dest;
         this.session = session;
+        this.name = name;
         this.type = type;
         this.property = property;
 
@@ -142,7 +148,7 @@ public class ObjectEditor extends HorizontalLayout {
         private final ObjectChooser objectChooser;
 
         ChangeWindow() {
-            super(ObjectEditor.this.getUI(), "Select Object");
+            super(ObjectEditor.this.getUI(), "Select " + ObjectEditor.this.name);
             this.setWidth(800, Sizeable.Unit.PIXELS);
             this.setHeight(500, Sizeable.Unit.PIXELS);
             this.objectChooser = new ObjectChooser(ObjectEditor.this.dest.getJSimpleDB(),
@@ -170,7 +176,11 @@ public class ObjectEditor extends HorizontalLayout {
                 Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
                 return false;
             }
-            ObjectEditor.this.property.setValue(jobj.copyTo(ObjectEditor.this.dest, id, new ObjIdSet(), (String[])null));
+            try {
+                ObjectEditor.this.property.setValue(jobj.copyTo(ObjectEditor.this.dest, id, new ObjIdSet()));
+            } catch (Exception e) {
+                Notification.show("Error: " + e, null, Notification.Type.ERROR_MESSAGE);
+            }
             return true;
         }
     }

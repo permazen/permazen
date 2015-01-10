@@ -68,6 +68,7 @@ public class ObjectTable extends AbstractTable<JObjectContainer> {
             case JObjectContainer.OBJECT_ID_PROPERTY:
                 title = "ID";
                 width = 120;
+                showField = false;
                 break;
             case JObjectContainer.TYPE_PROPERTY:
                 title = "Type";
@@ -76,6 +77,7 @@ public class ObjectTable extends AbstractTable<JObjectContainer> {
             case JObjectContainer.VERSION_PROPERTY:
                 title = "Version";
                 width = 40;
+                showField = false;
                 break;
             default:
                 break;
