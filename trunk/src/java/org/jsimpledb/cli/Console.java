@@ -103,8 +103,14 @@ public class Console {
         try {
 
             this.console.println("Welcome to JSimpleDB. You are in "
-              + (this.session.hasJSimpleDB() ? "JSimpleDB" : "Core API") + " Mode. Type `help' for help.");
+              + (this.session.hasJSimpleDB() ? "JSimpleDB" : "Core API") + " CLI Mode. Type `help' for help.");
             while (!session.isDone()) {
+
+                // Spit out warning
+                if (this.session.getSchemaVersion() == 0) {
+                    this.console.println("Warning: uninitialized database schema. Please use the `--new-schema', `--version',");
+                    this.console.println("`--schema-file' and/or `--schema-pkg' flags to configure the schema and version.");
+                }
 
                 // Read command line
                 String line;

@@ -39,6 +39,7 @@ public class Session {
     private SchemaModel schemaModel;
     private ValidationMode validationMode;
     private NameIndex nameIndex;
+    private String databaseDescription;
     private int schemaVersion;
     private boolean allowNewSchema;
     private boolean readOnly;
@@ -132,6 +133,16 @@ public class Session {
     }
 
     /**
+     * Get a description of the database.
+     */
+    public String getDatabaseDescription() {
+        return this.databaseDescription;
+    }
+    public void setDatabaseDescription(String databaseDescription) {
+        this.databaseDescription = databaseDescription;
+    }
+
+    /**
      * Get the schema version associated with this instance.
      * If this is left unconfigured, the highest numbered schema version will be
      * used and after the first transaction this property will be updated accordingly.
@@ -159,7 +170,7 @@ public class Session {
      * Get whether the recording of new schema versions should be allowed.
      * Default value is false.
      */
-    public boolean getAllowNewSchema() {
+    public boolean isAllowNewSchema() {
         return this.allowNewSchema;
     }
     public void setAllowNewSchema(boolean allowNewSchema) {

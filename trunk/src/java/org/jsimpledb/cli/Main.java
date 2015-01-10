@@ -128,6 +128,7 @@ public class Main extends AbstractMain {
           new Console(db, new FileInputStream(FileDescriptor.in), System.out);
         final CliSession session = console.getSession();
         console.setHistoryFile(new File(new File(System.getProperty("user.home")), ".jsimpledb_history"));
+        session.setDatabaseDescription(this.getDatabaseDescription());
         session.setReadOnly(this.readOnly);
         session.setVerbose(this.verbose);
         session.setSchemaModel(schemaModel);
