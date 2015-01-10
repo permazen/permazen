@@ -85,11 +85,11 @@ public class QueryFunction extends AbstractFunction {
         final SimpleField<?> field = result.getField();
         final ComplexField<?> parentField = result.getParentField();
         if (parentField instanceof ListField<?>)
-            return tx.queryListField(parentField.getStorageId());
+            return tx.queryListElementIndex(parentField.getStorageId());
         else if (parentField instanceof MapField<?, ?> && ((MapField<?, ?>)parentField).getValueField().equals(field))
-            return tx.queryMapValueField(parentField.getStorageId());
+            return tx.queryMapValueIndex(parentField.getStorageId());
         else
-            return tx.querySimpleField(field.getStorageId());
+            return tx.queryIndex(field.getStorageId());
     }
 }
 

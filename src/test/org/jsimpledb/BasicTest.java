@@ -367,55 +367,55 @@ public class BasicTest extends TestSupport {
     public abstract static class Indexer implements JObject {
 
         public Index<String, Person> queryNicknames() {
-            return this.getTransaction().querySimpleField(Person.class, "nicknames.element", String.class);
+            return this.getTransaction().queryIndex(Person.class, "nicknames.element", String.class);
         }
 
         public Index<Person, MeanPerson> queryHaters() {
-            return this.getTransaction().querySimpleField(MeanPerson.class, "enemies.element", Person.class);
+            return this.getTransaction().queryIndex(MeanPerson.class, "enemies.element", Person.class);
         }
 
     // Person queries
 
         public Index<Mood, Person> queryMoods() {
-            return this.getTransaction().querySimpleField(Person.class, "mood", Mood.class);
+            return this.getTransaction().queryIndex(Person.class, "mood", Mood.class);
         }
 
         public Index<Integer, Person> queryScores() {
-            return this.getTransaction().querySimpleField(Person.class, "scores.element", Integer.class);
+            return this.getTransaction().queryIndex(Person.class, "scores.element", Integer.class);
         }
 
         public Index2<Integer, Person, Integer> queryScoreEntries() {
-            return this.getTransaction().queryListField(Person.class, "scores.element", Integer.class);
+            return this.getTransaction().queryListElementIndex(Person.class, "scores.element", Integer.class);
         }
 
         public Index<Person, Person> queryRatingKeys() {
-            return this.getTransaction().querySimpleField(Person.class, "ratings.key", Person.class);
+            return this.getTransaction().queryIndex(Person.class, "ratings.key", Person.class);
         }
 
         public Index2<Float, Person, Person> queryRatingValueEntries() {
-            return this.getTransaction().queryMapValueField(Person.class, "ratings.value", Float.class, Person.class);
+            return this.getTransaction().queryMapValueIndex(Person.class, "ratings.value", Float.class, Person.class);
         }
 
     // MeanPerson queries
 
         public Index<Mood, MeanPerson> queryMoodsMean() {
-            return this.getTransaction().querySimpleField(MeanPerson.class, "mood", Mood.class);
+            return this.getTransaction().queryIndex(MeanPerson.class, "mood", Mood.class);
         }
 
         public Index<Integer, MeanPerson> queryScoresMean() {
-            return this.getTransaction().querySimpleField(MeanPerson.class, "scores.element", Integer.class);
+            return this.getTransaction().queryIndex(MeanPerson.class, "scores.element", Integer.class);
         }
 
         public Index2<Integer, MeanPerson, Integer> queryScoreEntriesMean() {
-            return this.getTransaction().queryListField(MeanPerson.class, "scores.element", Integer.class);
+            return this.getTransaction().queryListElementIndex(MeanPerson.class, "scores.element", Integer.class);
         }
 
         public Index<Person, MeanPerson> queryRatingKeysMean() {
-            return this.getTransaction().querySimpleField(MeanPerson.class, "ratings.key", Person.class);
+            return this.getTransaction().queryIndex(MeanPerson.class, "ratings.key", Person.class);
         }
 
         public Index2<Float, MeanPerson, Person> queryRatingValueEntriesMean() {
-            return this.getTransaction().queryMapValueField(MeanPerson.class, "ratings.value", Float.class, Person.class);
+            return this.getTransaction().queryMapValueIndex(MeanPerson.class, "ratings.value", Float.class, Person.class);
         }
     }
 }

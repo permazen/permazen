@@ -65,13 +65,13 @@ public class IndexQueryTest extends TestSupport {
             TestSupport.checkSet(a2.getFooBars(), buildSet(f2, b2));
 
             try {
-                jtx.querySimpleField(HasAccount.class, "name", Account.class);
+                jtx.queryIndex(HasAccount.class, "name", Account.class);
                 assert false;
             } catch (IllegalArgumentException e) {
                 // expected
             }
 
-            TestSupport.checkMap(jtx.querySimpleField(Jam.class, "account", Account.class).asMap(),
+            TestSupport.checkMap(jtx.queryIndex(Jam.class, "account", Account.class).asMap(),
               buildMap(a1, buildSet(j1)));
 
             jtx.commit();
@@ -121,19 +121,19 @@ public class IndexQueryTest extends TestSupport {
         }
 
         public static Index<Account, HasAccount> queryHasAccount() {
-            return JTransaction.getCurrent().querySimpleField(HasAccount.class, "account", Account.class);
+            return JTransaction.getCurrent().queryIndex(HasAccount.class, "account", Account.class);
         }
 
         public static Index<Account, Foo> queryFoo() {
-            return JTransaction.getCurrent().querySimpleField(Foo.class, "account", Account.class);
+            return JTransaction.getCurrent().queryIndex(Foo.class, "account", Account.class);
         }
 
         public static Index<Account, Bar> queryBar() {
-            return JTransaction.getCurrent().querySimpleField(Bar.class, "account", Account.class);
+            return JTransaction.getCurrent().queryIndex(Bar.class, "account", Account.class);
         }
 
         public static Index<Account, FooBar> queryFooBar() {
-            return JTransaction.getCurrent().querySimpleField(FooBar.class, "account", Account.class);
+            return JTransaction.getCurrent().queryIndex(FooBar.class, "account", Account.class);
         }
     }
 

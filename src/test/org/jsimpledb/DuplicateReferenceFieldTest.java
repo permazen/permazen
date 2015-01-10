@@ -118,80 +118,80 @@ public class DuplicateReferenceFieldTest extends TestSupport {
         // Verify indexes
 
             // Name
-            TestSupport.checkMap(jtx.querySimpleField(TopClass.class, "name", String.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "name", String.class).asMap(), buildMap(
               "foo", buildSet(a1, b1, c1),
               "bar-a", buildSet(a2),
               "bar-b", buildSet(b2),
               "bar-c", buildSet(c2)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassA.class, "name", String.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassA.class, "name", String.class).asMap(), buildMap(
               "foo", buildSet(a1),
               "bar-a", buildSet(a2)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassB.class, "name", String.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassB.class, "name", String.class).asMap(), buildMap(
               "foo", buildSet(b1),
               "bar-b", buildSet(b2)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassC.class, "name", String.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassC.class, "name", String.class).asMap(), buildMap(
               "foo", buildSet(c1),
               "bar-c", buildSet(c2)));
 
             // FieldR - check indexes
-            TestSupport.checkMap(jtx.querySimpleField(TopClass.class, "fieldR", JObject.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "fieldR", JObject.class).asMap(), buildMap(
               a1, buildSet(a2, c1),
               a2, buildSet(c2),
               b1, buildSet(a1),
               b2, buildSet(b2),
               c1, buildSet(b1)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassA.class, "fieldR", JObject.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassA.class, "fieldR", JObject.class).asMap(), buildMap(
               a1, buildSet(a2),
               b1, buildSet(a1)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassB.class, "fieldR", TopClass.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassB.class, "fieldR", TopClass.class).asMap(), buildMap(
               c1, buildSet(b1),
               b2, buildSet(b2)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassC.class, "fieldR", ClassA.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassC.class, "fieldR", ClassA.class).asMap(), buildMap(
               a1, buildSet(c1),
               a2, buildSet(c2)));
 
             // FieldX
-            TestSupport.checkMap(jtx.querySimpleField(TopClass.class, "fieldX.element", Float.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "fieldX.element", Float.class).asMap(), buildMap(
               2.0f, buildSet(b1),
               3.0f, buildSet(b1, c1),
               4.0f, buildSet(b1, c1),
               5.0f, buildSet(c1)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassB.class, "fieldX.element", Float.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassB.class, "fieldX.element", Float.class).asMap(), buildMap(
               2.0f, buildSet(b1),
               3.0f, buildSet(b1),
               4.0f, buildSet(b1)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassC.class, "fieldX.element", Float.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassC.class, "fieldX.element", Float.class).asMap(), buildMap(
               3.0f, buildSet(c1),
               4.0f, buildSet(c1),
               5.0f, buildSet(c1)));
 
             // FieldY
-            TestSupport.checkMap(jtx.querySimpleField(TopClass.class, "fieldY.element", Integer.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "fieldY.element", Integer.class).asMap(), buildMap(
               100, buildSet(a1),
               200, buildSet(a1),
               300, buildSet(a1, c1),
               400, buildSet(c1),
               500, buildSet(c1)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassA.class, "fieldY.element", Integer.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassA.class, "fieldY.element", Integer.class).asMap(), buildMap(
               100, buildSet(a1),
               200, buildSet(a1),
               300, buildSet(a1)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassC.class, "fieldY.element", Integer.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassC.class, "fieldY.element", Integer.class).asMap(), buildMap(
               300, buildSet(c1),
               400, buildSet(c1),
               500, buildSet(c1)));
 
             // FieldZ
-            TestSupport.checkMap(jtx.querySimpleField(TopClass.class, "fieldZ.key", TopClass.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(TopClass.class, "fieldZ.key", TopClass.class).asMap(), buildMap(
               a2, buildSet(a1),
               b2, buildSet(a1),
               c2, buildSet(a1, b1),
               c1, buildSet(b1)));
-            TestSupport.checkMap(jtx.querySimpleField(ClassA.class, "fieldZ.key", TopClass.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassA.class, "fieldZ.key", TopClass.class).asMap(), buildMap(
               a2, buildSet(a1),
               b2, buildSet(a1),
               c2, buildSet(a1)));           // note b2 does not appear in set
-            TestSupport.checkMap(jtx.querySimpleField(ClassB.class, "fieldZ.key", ClassC.class).asMap(), buildMap(
+            TestSupport.checkMap(jtx.queryIndex(ClassB.class, "fieldZ.key", ClassC.class).asMap(), buildMap(
               c1, buildSet(b1),
               c2, buildSet(b1)));           // note a1 does not appear in set
 
@@ -205,7 +205,7 @@ public class DuplicateReferenceFieldTest extends TestSupport {
     private void verifyValueType(JTransaction jtx, Class<?> startType, String fieldName, Class<?> valueType, Class<?> correctType) {
         IllegalArgumentException failure = null;
         try {
-            jtx.querySimpleField(startType, fieldName, valueType);
+            jtx.queryIndex(startType, fieldName, valueType);
         } catch (IllegalArgumentException e) {
             failure = e;
         }

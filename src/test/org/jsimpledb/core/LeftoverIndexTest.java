@@ -54,7 +54,7 @@ public class LeftoverIndexTest extends TestSupport {
         set.add(123);
 
         TestSupport.checkSet(set, buildSet(123));
-        TestSupport.checkMap(tx.querySimpleField(3).asMap(), buildMap(123, buildSet(id1)));
+        TestSupport.checkMap(tx.queryIndex(3).asMap(), buildMap(123, buildSet(id1)));
 
         tx.commit();
 
@@ -63,7 +63,7 @@ public class LeftoverIndexTest extends TestSupport {
         tx = db.createTransaction(schema2, 2, true);
 
         Assert.assertEquals(tx.getSchemaVersion(id1), 1);
-        TestSupport.checkMap(tx.querySimpleField(3).asMap(), buildMap(123, buildSet(id1)));
+        TestSupport.checkMap(tx.queryIndex(3).asMap(), buildMap(123, buildSet(id1)));
 
         tx.updateSchemaVersion(id1);
 
@@ -74,7 +74,7 @@ public class LeftoverIndexTest extends TestSupport {
         } catch (UnknownFieldException e) {
             this.log.info("got expected " + e);
         }
-        TestSupport.checkMap(tx.querySimpleField(3).asMap(), buildMap());        // verify index is now empty!
+        TestSupport.checkMap(tx.queryIndex(3).asMap(), buildMap());        // verify index is now empty!
 
         tx.commit();
     }

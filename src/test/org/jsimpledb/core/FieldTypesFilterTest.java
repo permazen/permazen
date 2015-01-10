@@ -87,7 +87,7 @@ public class FieldTypesFilterTest extends TestSupport {
         tx.writeSimpleField(id2, 11, "aaa", true);
         tx.writeSimpleField(id3, 11, "bbb", true);
 
-        final CoreIndex<String, ObjId> index = (CoreIndex<String, ObjId>)tx.querySimpleField(11);
+        final CoreIndex<String, ObjId> index = (CoreIndex<String, ObjId>)tx.queryIndex(11);
         TestSupport.checkSet(index.asSet(), buildSet(
           new Tuple2<String, ObjId>("aaa", id1),
           new Tuple2<String, ObjId>("aaa", id2),

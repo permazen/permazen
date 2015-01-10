@@ -126,14 +126,14 @@ public class TypeSafetyTest extends TestSupport {
             final Bar bar3 = jtx.getJObject(b3, Bar.class);
 
             // Verify index on Bar.friend does not contain any type "Foo" keys
-            final NavigableMap<Bar, NavigableSet<Bar>> friendIndex = jtx.querySimpleField(Bar.class, "friend", Bar.class).asMap();
+            final NavigableMap<Bar, NavigableSet<Bar>> friendIndex = jtx.queryIndex(Bar.class, "friend", Bar.class).asMap();
             for (Bar key : friendIndex.keySet()) {
                 if (key != null)
                     key.dummy();
             }
 
             // Verify index on Bar.set.element does not contain any type "Foo" keys
-            final NavigableMap<Bar, NavigableSet<Bar>> setIndex = jtx.querySimpleField(Bar.class, "set.element", Bar.class).asMap();
+            final NavigableMap<Bar, NavigableSet<Bar>> setIndex = jtx.queryIndex(Bar.class, "set.element", Bar.class).asMap();
             for (Bar key : setIndex.keySet()) {
                 if (key != null)
                     key.dummy();
