@@ -21,7 +21,6 @@ import org.jsimpledb.JField;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleField;
-import org.jsimpledb.JTransaction;
 
 /**
  * Container that contains all possible sort keys for a given {@link JClass}.
@@ -158,6 +157,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
 
         private final int storageId;
         private final String fieldName;
+        private final Class<?> fieldType;
         private final boolean isSubField;
 
         FieldSortKey(JSimpleField jfield) {
@@ -167,13 +167,14 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
             this.storageId = jfield.getStorageId();
             this.isSubField = jfield.getParentField() != null;
             this.fieldName = (this.isSubField ? jfield.getParentField().getName() + "." : "") + jfield.getName();
+            this.fieldType = jfield.getType().wrap().getRawType();
         }
 
         @Override
         public String getExpression(JObject startingPoint, boolean reverse) {       // TODO: starting point and sort order
-            String values = (SortKeyContainer.this.jclass != null ?
-              "query(" + SortKeyContainer.this.jclass.getName() + "." + this.fieldName + ")" :
-              JTransaction.class.getName() + ".getCurrent().queryIndex(" + this.storageId + ")") + ".values()";
+            String values = "queryIndex("
+              + (SortKeyContainer.this.type != null ? SortKeyContainer.this.type : JObject.class).getName()
+              + ", " + this.fieldName + ", " + this.fieldType.getName() + ").asMap().values()";
             final String typeAll = SortKeyContainer.this.getAllExpression();
             if (!typeAll.equals("all()"))
                 values = "transform(" + values + ", $value," + " $value & " + typeAll + ")";
