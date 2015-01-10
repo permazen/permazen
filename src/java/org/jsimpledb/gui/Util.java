@@ -30,7 +30,7 @@ final class Util {
     static SortedMap<Integer, JField> getCommonJFields(Iterable<? extends JClass<?>> jclasses) {
         if (jclasses == null)
             throw new IllegalArgumentException("null jclasses");
-        TreeMap<Integer, JField> jfields = new TreeMap<>();
+        TreeMap<Integer, JField> jfields = null;
         for (JClass<?> jclass : jclasses) {     // TODO: keep only fields with the same name; prefer indexed (sub-)fields
             if (jfields == null)
                 jfields = new TreeMap<Integer, JField>(jclass.getJFieldsByStorageId());

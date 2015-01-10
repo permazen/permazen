@@ -16,7 +16,6 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,20 +76,21 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #VERSION_PROPERTY}: Object schema version</li>
  *  <li>{@link #REFERENCE_LABEL_PROPERTY}: Object <b>reference label</b>, which is a short description identifying the
  *      object. Reference labels are used to provide "names" for objects that are more meaningful than object ID's
- *      and are used as such in other {@link JSimpleDB} GUI classes. To define the reference label for a Java model class,
- *      provide a {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated method
- *      (see below); otherwise, this property will return the same thing as {@link #OBJECT_ID_PROPERTY}.</i>
+ *      and are used as such in other {@link JSimpleDB} GUI classes. To customize the reference label for a Java model class,
+ *      annotate a method with {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}{@code (}{@link
+ *      JObjectContainer#REFERENCE_LABEL_PROPERTY REFERENCE_LABEL_PROPERTY}{@code )};
+ *      otherwise, the value of this property will be the same as {@link #OBJECT_ID_PROPERTY}.</i>
  *  <li>A property for every {@link JSimpleDB} field that is common to all object types that sub-type
  *      this instance's configured type. The property's ID is the field name; its value is as follows:
  *      <ul>
  *          <li>Simple fields will show their string values</li>
  *          <li>Reference fields show the {@link #REFERENCE_LABEL_PROPERTY} of the referred-to object, or "Null"
  *              if the reference is null</li>
- *          <li>Set, list, and map fields show the first few entries</li>
+ *          <li>Set, list, and map fields show the first few entries in the collection</li>
  *      </ul>
  *  </li>
  *  <li>A property for each {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated method
- *      in the specified <b>type</b>. These properties will add to, or override, the properties listed above.
+ *      in the specified <b>type</b>. These properties will add to (or override) the properties listed above.
  * </ul>
  * </p>
  *
@@ -438,11 +438,16 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * by {@link #getDependencies getDependencies()}, via {@link JTransaction#copyTo(JTransaction, ObjIdSet, Iterable)}.
      * </p>
      *
-     * @param target the object to copy
+     * @param target the object to copy, or null (ignored)
      * @param seen object ID's already copied
-     * @return the copy of {@code target} in the current {@link org.jsimpledb.SnapshotJTransaction}
+     * @return the copy of {@code target} in the current {@link org.jsimpledb.SnapshotJTransaction},
+     *  or null if {@code target} is null
      */
     protected JObject copyOut(JObject target, ObjIdSet seen) {
+
+        // Ignore null
+        if (target == null)
+            return null;
 
         // Copy out object
         final ObjId targetId = target.getObjId();
@@ -550,20 +555,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     @SuppressWarnings("unchecked")
     private static <V> V extractProperty(PropertyExtractor<?> propertyExtractor, PropertyDef<V> propertyDef, JObject jobj) {
         try {
-
-            // try/catch is a workaround for a dellroad-stuff bug which is fixed in r907
-            try {
-                return ((PropertyExtractor<JObject>)propertyExtractor).getPropertyValue(jobj, propertyDef);
-            } catch (RuntimeException e) {
-                if (e.getCause() instanceof InvocationTargetException) {
-                    final InvocationTargetException e2 = (InvocationTargetException)e.getCause();
-                    if (e2.getCause() instanceof RuntimeException)
-                        throw (RuntimeException)e2.getCause();
-                    if (e2.getCause() instanceof Error)
-                        throw (Error)e2.getCause();
-                }
-                throw e;
-            }
+            return ((PropertyExtractor<JObject>)propertyExtractor).getPropertyValue(jobj, propertyDef);
         } catch (DeletedObjectException e) {
             try {
                 return propertyDef.getType().cast(new SizedLabel("<i>Missing</i>", ContentMode.HTML));

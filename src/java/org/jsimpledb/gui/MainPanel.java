@@ -43,7 +43,10 @@ import org.dellroad.stuff.vaadin7.FieldBuilder;
 import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.dellroad.stuff.vaadin7.VaadinUtil;
 import org.jsimpledb.JClass;
+import org.jsimpledb.JCollectionField;
 import org.jsimpledb.JField;
+import org.jsimpledb.JFieldSwitchAdapter;
+import org.jsimpledb.JMapField;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JReferenceField;
 import org.jsimpledb.JSimpleDB;
@@ -58,7 +61,6 @@ import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ReferencedObjectException;
 import org.jsimpledb.core.Transaction;
-import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.parse.ParseSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,7 +228,7 @@ public class MainPanel extends VerticalLayout {
         final JClass<?> jclass;
         try {
             jclass = this.jdb.getJClass(storageId);
-        } catch (UnknownTypeException e) {
+        } catch (IllegalArgumentException e) {
             Notification.show("Can't edit object " + id + " having unknown type",
               e.getMessage(), Notification.Type.WARNING_MESSAGE);
             return;
@@ -239,10 +241,60 @@ public class MainPanel extends VerticalLayout {
     @RetryTransaction
     @Transactional("jsimpledbGuiTransactionManager")
     private JObject doCopyForEdit(ObjId id) {
-        JObject jobj = JTransaction.getCurrent().getJObject(id);
+
+        // Get object
+        final JObject jobj = JTransaction.getCurrent().getJObject(id);
         if (!jobj.exists())
             return null;
-        return jobj.copyOut((String[])null);
+
+        // Copy object and dependencies
+        final ObjIdSet idSet = new ObjIdSet();
+        final JObject copy = this.objectChooser.getObjectContainer().copyOut(jobj, idSet);
+
+        // Copy out all objects this object refers to, so we can display their reference labels
+        for (JField jfield : this.jdb.getJClass(id).getJFieldsByStorageId().values()) {
+            jfield.visit(new JFieldSwitchAdapter<Void>() {
+
+                @Override
+                public Void caseJReferenceField(JReferenceField field) {
+                    MainPanel.this.objectChooser.getObjectContainer().copyOut(
+                      (JObject)field.getValue(JTransaction.getCurrent(), jobj), idSet);
+                    return null;
+                }
+
+                @Override
+                public Void caseJMapField(JMapField field) {
+                    if (field.getKeyField() instanceof JReferenceField || field.getValueField() instanceof JReferenceField) {
+                        for (Map.Entry<?, ?> entry : field.getValue(JTransaction.getCurrent(), jobj).entrySet()) {
+                            final Object key = entry.getKey();
+                            if (key instanceof JObject)
+                                MainPanel.this.objectChooser.getObjectContainer().copyOut((JObject)key, idSet);
+                            final Object value = entry.getKey();
+                            if (value instanceof JObject)
+                                MainPanel.this.objectChooser.getObjectContainer().copyOut((JObject)value, idSet);
+                        }
+                    }
+                    return null;
+                }
+
+                @Override
+                protected Void caseJCollectionField(JCollectionField field) {
+                    if (field.getElementField() instanceof JReferenceField) {
+                        for (Object elem : field.getValue(JTransaction.getCurrent(), jobj))
+                            MainPanel.this.objectChooser.getObjectContainer().copyOut((JObject)elem, idSet);
+                    }
+                    return null;
+                }
+
+                @Override
+                protected Void caseJField(JField field) {
+                    return null;
+                }
+            });
+        }
+
+        // Done
+        return copy;
     }
 
 // New
@@ -395,8 +447,9 @@ public class MainPanel extends VerticalLayout {
         @Override
         protected void addContent(VerticalLayout layout) {
             if (!this.create) {
-                layout.addComponent((Component)MainPanel.this.objectChooser.getObjectContainer().getContainerProperty(
-                  this.jobj.getObjId(), JObjectContainer.REFERENCE_LABEL_PROPERTY).getValue());
+                Object refLabel = MainPanel.this.objectChooser.getObjectContainer().getContainerProperty(
+                  this.jobj.getObjId(), JObjectContainer.REFERENCE_LABEL_PROPERTY).getValue();
+                layout.addComponent(refLabel instanceof Component ? (Component)refLabel : new Label("" + refLabel));
             }
             final FormLayout formLayout = new FormLayout();
             for (Editor editor : this.editorMap.values())
@@ -501,8 +554,8 @@ public class MainPanel extends VerticalLayout {
             // Use object choosers for references
             if (jfield instanceof JReferenceField) {
                 final JReferenceField refField = (JReferenceField)jfield;
-                final ObjectEditor objectEditor = new ObjectEditor(this.jobj.getTransaction(),
-                  MainPanel.this.session, refField.getGetter().getReturnType(), (Property<JObject>)property, allowNull);
+                final ObjectEditor objectEditor = new ObjectEditor(this.jobj.getTransaction(), MainPanel.this.session,
+                  refField.getName(), refField.getGetter().getReturnType(), (Property<JObject>)property, allowNull);
                 return new Editor(objectEditor);
             }
 
