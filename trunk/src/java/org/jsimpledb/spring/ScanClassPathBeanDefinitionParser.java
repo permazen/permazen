@@ -65,9 +65,9 @@ abstract class ScanClassPathBeanDefinitionParser extends ComponentScanBeanDefini
             final Element childElement = (Element)node;
             try {
                 if (INCLUDE_FILTER_ELEMENT.equals(localName))
-                    includeFilters.add(this.createTypeFilter(childElement, classLoader));
+                    includeFilters.add(this.createTypeFilter(childElement, classLoader, parserContext));
                 if (EXCLUDE_FILTER_ELEMENT.equals(localName))
-                    excludeFilters.add(this.createTypeFilter(childElement, classLoader));
+                    excludeFilters.add(this.createTypeFilter(childElement, classLoader, parserContext));
             } catch (Exception e) {
                 readerContext.error(e.getMessage(), readerContext.extractSource(element), e.getCause());
             }

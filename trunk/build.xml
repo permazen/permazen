@@ -144,7 +144,7 @@
 
     <!-- JARs -->
     <target name="jars" depends="javac, resources, weaving, build.classpath" unless="jar.completed"
-      description="Build main JAR">
+      description="Build main JARs">
         <dellroad:ivyput pattern="build/[artifact].[ext]" conf="jarjars"/>
         <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="build.classpath"/>
         <mkdir dir="build/dist"/>
@@ -163,11 +163,13 @@
             <!-- JSimpleDB core classes -->
             <fileset dir="build/classes">
                 <exclude name="org/jsimpledb/cli/**/*"/>
+                <exclude name="org/jsimpledb/demo/**/*"/>
                 <exclude name="org/jsimpledb/gui/**/*"/>
                 <exclude name="org/jsimpledb/spring/**/*"/>
             </fileset>
             <fileset dir="build/resources">
                 <exclude name="org/jsimpledb/cli/**/*"/>
+                <exclude name="org/jsimpledb/demo/**/*"/>
                 <exclude name="org/jsimpledb/gui/**/*"/>
                 <exclude name="org/jsimpledb/spring/**/*"/>
             </fileset>
@@ -244,30 +246,6 @@
         <property name="jar.completed" value="true"/>
     </target>
 
-    <!-- Build CLI deployment -->
-    <target name="cli" description="Build CLI deployment" depends="jars" unless="cli.completed">
-        <delete dir="build/cli"/>
-        <mkdir dir="build/cli/libs"/>
-        <dellroad:ivyput pattern="build/cli/libs/[module]-[artifact].[ext]" conf="cli"/>
-        <copy tofile="build/cli/log4j.xml" file="src/xml/log4j-cli.xml"/>
-        <copy file="build/dist/${ant.project.name}-core-${library.version}.jar" toDir="build/cli/libs"/>
-        <copy file="build/dist/${ant.project.name}-spring-${library.version}.jar" toDir="build/cli/libs"/>
-        <copy file="build/dist/${ant.project.name}-cli-${library.version}.jar" toDir="build/cli/libs"/>
-        <property name="cli.completed" value="true"/>
-    </target>
-
-    <!-- Build GUI deployment -->
-    <target name="gui" description="Build GUI deployment" depends="jars" unless="gui.completed">
-        <delete dir="build/gui"/>
-        <mkdir dir="build/gui/libs"/>
-        <dellroad:ivyput pattern="build/gui/libs/[module]-[artifact].[ext]" conf="gui"/>
-        <copy tofile="build/gui/log4j.xml" file="src/xml/log4j-gui.xml"/>
-        <copy file="build/dist/${ant.project.name}-core-${library.version}.jar" toDir="build/gui/libs"/>
-        <copy file="build/dist/${ant.project.name}-gui-${library.version}.jar" toDir="build/gui/libs"/>
-        <copy file="build/dist/${ant.project.name}-spring-${library.version}.jar" toDir="build/gui/libs"/>
-        <property name="gui.completed" value="true"/>
-    </target>
-
     <!-- All distribution files -->
     <target name="otherjars" depends="javadoc" unless="otherjars.completed"
       description="Build source and Javadoc ZIPs">
@@ -304,8 +282,8 @@
                 <link href="https://docs.oracle.com/javaee/7/api/"/>
                 <link href="http://docs.guava-libraries.googlecode.com/git/javadoc/"/>
                 <link href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/"/>
-                <link href="http://docs.spring.io/spring/docs/4.0.x/javadoc-api/"/>
-                <link href="https://foundationdb.com/documentation/javadoc/"/>
+                <link href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/"/>
+                <link href="https://foundationdb.com/key-value-store/documentation/javadoc/"/>
                 <link href="https://vaadin.com/api/"/>
                 <link href="http://www.slf4j.org/api/"/>
             </links>
@@ -360,6 +338,105 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
+    </target>
+
+    <!-- Build distribution ZIP file -->
+    <target name="dist" description="Build distribution ZIP file" depends="jars, otherjars">
+
+        <!-- Start afresh -->
+        <delete dir="build/distfile"/>
+
+        <!-- Copy JSimpleDB and dependency libraries into place -->
+        <mkdir dir="build/distfile/libs"/>
+        <copy todir="build/distfile/libs">
+            <fileset dir="build/dist">
+                <include name="${ant.project.name}-core-${library.version}.jar"/>
+                <include name="${ant.project.name}-spring-${library.version}.jar"/>
+                <include name="${ant.project.name}-gui-${library.version}.jar"/>
+                <include name="${ant.project.name}-cli-${library.version}.jar"/>
+            </fileset>
+        </copy>
+        <mkdir dir="build/distfile/libs/cli"/>
+        <dellroad:ivyput pattern="build/distfile/libs/cli/[artifact]-[revision].[ext]" conf="cli"/>
+        <mkdir dir="build/distfile/libs/gui"/>
+        <dellroad:ivyput pattern="build/distfile/libs/gui/[artifact]-[revision].[ext]" conf="gui"/>
+        <exec executable="sh" logError="true" failonerror="true">
+            <arg value="-c"/>
+            <arg value="
+                set -e;
+                cd build/distfile/libs/cli;
+                for JAR in *.jar; do
+                  if [ -f ../gui/&quot;$${JAR}&quot; ]; then
+                    rm &quot;$${JAR}&quot;;
+                    mv ../gui/&quot;$${JAR}&quot; ..;
+                  fi;
+                done
+            "/>
+        </exec>
+
+        <!-- Copy demo classes -->
+        <mkdir dir="build/distfile/demo-classes"/>
+        <copy todir="build/distfile/demo-classes">
+            <fileset dir="src/java">
+                <include name="org/jsimpledb/demo/**/*"/>
+            </fileset>
+            <fileset dir="build/classes">
+                <include name="org/jsimpledb/demo/**/*"/>
+            </fileset>
+        </copy>
+
+        <!-- Build CLI executable JAR -->
+        <manifestclasspath property="cli.jar.classpath" jarfile="build/distfile/dummy.jar">
+            <classpath>
+                <fileset dir="build/distfile">
+                    <include name="libs/*.jar"/>
+                    <include name="libs/cli/*.jar"/>
+                    <exclude name="libs/${ant.project.name}-gui-${library.version}.jar"/>
+                </fileset>
+            </classpath>
+        </manifestclasspath>
+        <jar destfile="build/distfile/${ant.project.name}-cli.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.jsimpledb.cli.Main"/>
+                <attribute name="Class-Path" value="${cli.jar.classpath}"/>
+            </manifest>
+            <mappedresources>
+                <fileset dir="src/xml" includes="log4j-cli.xml"/>
+                <globmapper from="*-cli.xml" to="*.xml"/>
+            </mappedresources>
+        </jar>
+
+        <!-- Build GUI executable JAR -->
+        <manifestclasspath property="gui.jar.classpath" jarfile="build/distfile/dummy.jar">
+            <classpath>
+                <fileset dir="build/distfile">
+                    <include name="libs/*.jar"/>
+                    <include name="libs/gui/*.jar"/>
+                    <exclude name="libs/${ant.project.name}-cli-${library.version}.jar"/>
+                </fileset>
+            </classpath>
+        </manifestclasspath>
+        <jar destfile="build/distfile/${ant.project.name}-gui.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.jsimpledb.gui.Main"/>
+                <attribute name="Class-Path" value="${gui.jar.classpath}"/>
+            </manifest>
+            <mappedresources>
+                <fileset dir="src/xml" includes="log4j-gui.xml"/>
+                <globmapper from="*-gui.xml" to="*.xml"/>
+            </mappedresources>
+        </jar>
+
+        <!-- Build distribution ZIP file -->
+        <copy todir="build/distfile">
+            <fileset dir="src/dist"/>
+            <fileset dir="." includes="CHANGES.txt, LICENSE.txt"/>
+        </copy>
+        <delete dir="build/${ant.project.name}-${library.version}"/>
+        <move file="build/distfile" tofile="build/${ant.project.name}-${library.version}"/>
+        <zip destfile="build/dist/${ant.project.name}-${library.version}.zip" duplicate="fail" level="9">
+            <fileset dir="build" includes="${ant.project.name}-${library.version}/**/*"/>
+        </zip>
     </target>
 
     <!-- Maven macro -->
@@ -465,11 +542,11 @@
     <target name="reports-project" depends="javadoc, checkstyle, tests"/>
 
     <!-- Release time stuff -->
-    <target name="release" depends="clean, jars, reports, publish, maven-stage"
+    <target name="release" depends="clean, dist, reports, publish, maven-stage"
       description="Perform release-time tasks"/>
 
     <!-- Default target -->
-    <target name="build" depends="clean, jars, reports"/>
+    <target name="build" depends="clean, dist, reports"/>
 
 </project>
 

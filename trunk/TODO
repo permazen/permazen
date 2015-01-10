@@ -22,7 +22,8 @@
     - Record UUID in database schema
     - Verify on load
 
-- Add new @JField property: boolean cascadeDelete()
+- Add new @JField property: boolean cascadeDelete() default false
+    - Deletion of object causes deletion of referred-to object
 
 - Add @JField uniqueness constraints:
     - Field must be indexed (obviously)

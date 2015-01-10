@@ -40,6 +40,7 @@ public class Main extends AbstractMain {
             if (params.isEmpty())
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
+            this.allowAutoDemo = false;
         } else if (option.equals("--cmdpkg")) {
             if (params.isEmpty())
                 this.usageError();
