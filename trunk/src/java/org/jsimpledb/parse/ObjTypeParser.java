@@ -15,6 +15,7 @@ import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaObjectType;
 
@@ -41,7 +42,7 @@ public class ObjTypeParser implements Parser<ObjType> {
         try {
             final int storageId = db.getFieldTypeRegistry().getFieldType(TypeToken.of(Integer.TYPE)).fromParseableString(ctx);
             return tx.getSchemaVersion().getObjType(storageId);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | UnknownTypeException e) {
             // ignore
         }
         ctx.setIndex(startIndex);
