@@ -12,31 +12,32 @@
         <conf name="base" description="JARs required pretty much everywhere"/>
         <conf name="javac" extends="base" description="JARs required for javac"/>
         <conf name="build" extends="javac" description="JARs required for other build-time steps"/>
-        <conf name="gui" extends="base" description="JARs required for the Vaadin GUI"/>
-        <conf name="cli" extends="base" description="JARs required for the command line interface (CLI)"/>
         <conf name="aspects" extends="base" description="JARs containing required AOP aspects"/>
         <conf name="weaver" description="JARs containing AspectJ compiler"/>
         <conf name="jarjars" transitive="false" description="JAR(s) to embed into our JAR"/>
+        <conf name="runtime" extends="base" description="General runtime dependencies"/>
+        <conf name="gui" extends="runtime" description="GUI runtime dependencies"/>
+        <conf name="cli" extends="runtime" description="CLI runtime dependencies"/>
         <conf name="test" extends="build" description="JARs required during testing"/>
     </configurations>
 
     <dependencies>
         <dependency force="true" org="com.google.guava" name="guava" rev="18.0" conf="base->default"/>
-        <dependency force="true" org="com.mysql" name="mysql-connector-java" rev="5.1+" conf="javac,test-&gt;default"/>
+        <dependency force="true" org="com.mysql" name="mysql-connector-java" rev="5.1+" conf="base,test-&gt;default"/>
         <dependency force="true" org="com.tonicsystems" name="jarjar" rev="1.4" conf="build->default"/>
-        <dependency force="true" org="com.foundationdb" name="fdb-java" rev="2.+" conf="base,test->default"/>
-        <dependency force="true" org="com.vaadin" name="vaadin" rev="7.1+" conf="javac,gui,cli,aspects->default"/>
+        <dependency force="true" org="com.foundationdb" name="fdb-java" rev="3.+" conf="base,test->default"/>
+        <dependency force="true" org="com.vaadin" name="vaadin" rev="7.3+" conf="javac,gui,aspects->default"/>
         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.1.0" conf="javac,gui,aspects->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="base->default"/>
-        <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1+" conf="javac,gui,cli->default"/>
-        <dependency force="true" org="org.aspectj" name="aspectj" rev="1.7.2" conf="weaver->tools;base->default"/>
+        <dependency force="true" org="org.apache.commons" name="commons-logging" rev="1.1+" conf="base->default"/>
+        <dependency force="true" org="org.aspectj" name="aspectj" rev="1.8.4" conf="weaver->tools;base->default"/>
         <!-- Note: see util/AnnotationScanner.java when upgrading dellroad-stuff -->
         <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.946" conf="base->core; weaver->aspects"/>
-        <dependency force="true" org="org.eclipse" name="jetty" rev="9.2.0.v20140526" conf="javac,gui->webapp,annotations"/>
-        <dependency force="true" org="org.objectweb.asm" name="asm" rev="4.+" conf="javac,gui,build->default; jarjars->core,util"/>
-        <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7.7" conf="base->default;test,gui,cli->log4j"/>
+        <dependency force="true" org="org.eclipse" name="jetty" rev="9.2.6.v20141205" conf="javac,gui->webapp,annotations"/>
+        <dependency force="true" org="org.objectweb.asm" name="asm" rev="4.+" conf="javac,build,gui->default; jarjars->core,util"/>
+        <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7+" conf="base->default; test,runtime->log4j"/>
         <dependency force="true" org="org.sonatype.jline" name="jline" rev="2.12" conf="javac,cli->default"/>
-        <dependency force="true" org="org.springframework" name="spring" rev="4.0+"
+        <dependency force="true" org="org.springframework" name="spring" rev="4.1+"
           conf="javac,gui->aop,aspects,beans,context,tx,web; cli->context"/>
         <dependency force="true" org="org.testng" name="testng" rev="6.8+" conf="test->default"/>
     </dependencies>

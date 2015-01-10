@@ -32,7 +32,7 @@ public class FoundationKVDatabase implements KVDatabase {
     /**
      * The API version used by this class.
      */
-    public static final int API_VERSION = 200;
+    public static final int API_VERSION = 300;
 
     private final FDB fdb = FDB.selectAPIVersion(API_VERSION);
     private final NetworkOptions options = this.fdb.options();

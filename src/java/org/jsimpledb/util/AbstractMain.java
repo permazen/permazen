@@ -40,6 +40,9 @@ public abstract class AbstractMain extends MainClass {
     protected static final int KV_FDB = 1;
     protected static final int KV_XML = 2;
 
+    private static final File DEMO_XML_FILE = new File("demo-database.xml");
+    private static final File DEMO_SUBDIR = new File("demo-classes");
+
     protected int kvType = KV_MEM;
     protected String fdbClusterFile;
     protected File xmlFile;
@@ -53,6 +56,7 @@ public abstract class AbstractMain extends MainClass {
 
     protected KVDatabase kvdb;
     protected String databaseDescription;
+    protected boolean allowAutoDemo = true;
 
     /**
      * Parse command line options.
@@ -91,6 +95,7 @@ public abstract class AbstractMain extends MainClass {
                 if (params.isEmpty())
                     this.usageError();
                 this.scanSchemaClasses(params.removeFirst());
+                this.allowAutoDemo = false;
             } else if (option.equals("--types-pkg")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -101,11 +106,13 @@ public abstract class AbstractMain extends MainClass {
                 final String packageName = params.removeFirst();
                 this.scanSchemaClasses(packageName);
                 this.scanTypeClasses(packageName);
+                this.allowAutoDemo = false;
             } else if (option.equals("--new-schema"))
                 this.allowNewSchema = true;
-            else if (option.equals("--mem"))
+            else if (option.equals("--mem")) {
                 this.kvType = KV_MEM;
-            else if (option.equals("--prefix")) {
+                this.allowAutoDemo = false;
+            } else if (option.equals("--prefix")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String value = params.removeFirst();
@@ -114,6 +121,8 @@ public abstract class AbstractMain extends MainClass {
                 } catch (IllegalArgumentException e) {
                     this.keyPrefix = value.getBytes(Charset.forName("UTF-8"));
                 }
+                if (this.keyPrefix.length > 0)
+                    this.allowAutoDemo = false;
             } else if (option.equals("--fdb")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -121,11 +130,13 @@ public abstract class AbstractMain extends MainClass {
                 this.fdbClusterFile = params.removeFirst();
                 if (!new File(this.fdbClusterFile).exists())
                     System.err.println(this.getName() + ": file `" + this.fdbClusterFile + "' does not exist");
+                this.allowAutoDemo = false;
             } else if (option.equals("--xml")) {
                 if (params.isEmpty())
                     this.usageError();
                 this.kvType = KV_XML;
                 this.xmlFile = new File(params.removeFirst());
+                this.allowAutoDemo = false;
             } else if (option.equals("--"))
                 break;
             else if (!this.parseOption(option, params)) {
@@ -137,6 +148,10 @@ public abstract class AbstractMain extends MainClass {
             System.err.println(this.getName() + ": option `--prefix' is only valid in combination with `--fdb'");
             this.usageError();
         }
+
+        // Automatically go into demo mode if appropriate
+        if (this.allowAutoDemo && DEMO_XML_FILE.exists() && DEMO_SUBDIR.exists())
+            this.configureDemoMode();
 
         // Done
         return -1;
@@ -172,6 +187,20 @@ public abstract class AbstractMain extends MainClass {
      */
     protected boolean parseOption(String option, ArrayDeque<String> params) {
         return false;
+    }
+
+    protected void configureDemoMode() {
+
+        // Configure database
+        System.err.println(this.getName() + ": auto-configuring use of demo database `" + DEMO_XML_FILE + "'");
+        this.kvType = KV_XML;
+        this.xmlFile = DEMO_XML_FILE;
+
+        // Add demo subdirectory to class path
+        this.appendClasspath(DEMO_SUBDIR.toString());
+
+        // Scan classes
+        this.scanSchemaClasses("org.jsimpledb.demo");
     }
 
     /**
