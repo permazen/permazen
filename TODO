@@ -4,12 +4,6 @@
 - Add support for XA transactions
     - But only if KVStore supports them
 
-- Build and distribute binary distribution
-    - lib subdirectory with dependencies
-    - add Main-Class and Classpath manifest headers to CLI and GUI jars
-    - Example database and commands to run CLI and GUI
-    - README's etc.
-
 - Expression parsing
     - Aggregate functions: min(), max(), avg(), sum()
 
