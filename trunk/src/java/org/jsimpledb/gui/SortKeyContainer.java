@@ -173,7 +173,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         public String getExpression(JObject startingPoint, boolean reverse) {       // TODO: starting point and sort order
             String values = (SortKeyContainer.this.jclass != null ?
               "query(" + SortKeyContainer.this.jclass.getName() + "." + this.fieldName + ")" :
-              JTransaction.class.getName() + ".getCurrent().querySimpleField(" + this.storageId + ")") + ".values()";
+              JTransaction.class.getName() + ".getCurrent().queryIndex(" + this.storageId + ")") + ".values()";
             final String typeAll = SortKeyContainer.this.getAllExpression();
             if (!typeAll.equals("all()"))
                 values = "transform(" + values + ", $value," + " $value & " + typeAll + ")";

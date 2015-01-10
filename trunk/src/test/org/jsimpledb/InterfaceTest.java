@@ -66,11 +66,11 @@ public class InterfaceTest extends TestSupport {
         public abstract Set<Pet> getPets();
 
         public static Index<Dog, Pet> queryEnemies() {
-            return JTransaction.getCurrent().querySimpleField(Pet.class, "enemy", Dog.class);
+            return JTransaction.getCurrent().queryIndex(Pet.class, "enemy", Dog.class);
         }
 
         public static Index<Pet, Person> queryPets() {
-            return JTransaction.getCurrent().querySimpleField(Person.class, "pets.element", Pet.class);
+            return JTransaction.getCurrent().queryIndex(Person.class, "pets.element", Pet.class);
         }
     }
 
@@ -86,7 +86,7 @@ public class InterfaceTest extends TestSupport {
         public abstract void setEnemy(Dog enemy);
 
         public static Index<Pet, Cat> queryFriend() {
-            return JTransaction.getCurrent().querySimpleField(Cat.class, "friend", Pet.class);
+            return JTransaction.getCurrent().queryIndex(Cat.class, "friend", Pet.class);
         }
     }
 

@@ -76,7 +76,7 @@ public class OnVersionChangeTest extends TestSupport {
             Assert.assertEquals(p1.getSchemaVersion(), 1);
             TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               1, buildSet(p1, p2, p3, p4, p5)));
-            TestSupport.checkMap(tx.querySimpleField(Person1.class, "enum1", Enum1.class).asMap(), buildMap(
+            TestSupport.checkMap(tx.queryIndex(Person1.class, "enum1", Enum1.class).asMap(), buildMap(
               Enum1.AAA, buildSet(p1),
               Enum1.BBB, buildSet(p2),
               Enum1.CCC, buildSet(p3),
@@ -146,7 +146,7 @@ public class OnVersionChangeTest extends TestSupport {
 
             TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               2, buildSet(p1, p2, p3, p4, p5)));
-            TestSupport.checkMap(tx.querySimpleField(Person2.class, "enum2", Enum2.class).asMap(), buildMap(
+            TestSupport.checkMap(tx.queryIndex(Person2.class, "enum2", Enum2.class).asMap(), buildMap(
               null, buildSet(p1, p5),
               Enum2.BBB, buildSet(p2),
               Enum2.CCC, buildSet(p3),

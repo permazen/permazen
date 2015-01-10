@@ -37,7 +37,7 @@ public class RawTypeTest extends TestSupport {
 
         @SuppressWarnings("rawtypes")
         public static Index<String, AbstractData> queryByName() {
-            return JTransaction.getCurrent().querySimpleField(AbstractData.class, "name", String.class);
+            return JTransaction.getCurrent().queryIndex(AbstractData.class, "name", String.class);
         }
     }
 

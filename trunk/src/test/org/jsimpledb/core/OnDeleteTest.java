@@ -424,13 +424,13 @@ public class OnDeleteTest extends TestSupport {
         TestSupport.checkMap(tx.queryVersion().asMap(), buildMap(
           1, buildSet(other1, other2, referrers[0]),
           3, buildSet(referrers[2])));
-        TestSupport.checkMap(tx.querySimpleField(2).asMap(), buildMap(
+        TestSupport.checkMap(tx.queryIndex(2).asMap(), buildMap(
           target, buildSet(referrers[0], other1),
           null, buildSet(other2, referrers[2])));
-        TestSupport.checkMap(tx.querySimpleField(20).asMap(), buildMap(
+        TestSupport.checkMap(tx.queryIndex(20).asMap(), buildMap(
           target, buildSet(referrers[0], other2),
           other1, buildSet(other2)));
-        TestSupport.checkSet(tx.queryListField(11).asSet(), buildSet(
+        TestSupport.checkSet(tx.queryListElementIndex(11).asSet(), buildSet(
           new Tuple3<ObjId, ObjId, Integer>(target, other1, 0),
           new Tuple3<ObjId, ObjId, Integer>(target, other1, 2),
           new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 0),
@@ -438,10 +438,10 @@ public class OnDeleteTest extends TestSupport {
           new Tuple3<ObjId, ObjId, Integer>(other2, other1, 1),
           new Tuple3<ObjId, ObjId, Integer>(referrers[0], referrers[0], 1),
           new Tuple3<ObjId, ObjId, Integer>(referrers[2], referrers[2], 0)));
-        TestSupport.checkMap(tx.querySimpleField(22).asMap(), buildMap(
+        TestSupport.checkMap(tx.queryIndex(22).asMap(), buildMap(
           target, buildSet(other2, referrers[0]),
           other1, buildSet(other2)));
-        TestSupport.checkSet(tx.queryMapValueField(13).asSet(), buildSet(
+        TestSupport.checkSet(tx.queryMapValueIndex(13).asSet(), buildSet(
           new Tuple3<ObjId, ObjId, Integer>(target, other1, 789),
           new Tuple3<ObjId, ObjId, Integer>(target, other1, 636),
           new Tuple3<ObjId, ObjId, Integer>(target, referrers[0], 452),

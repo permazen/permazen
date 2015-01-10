@@ -374,7 +374,7 @@ public class SnapshotTest extends TestSupport {
         }
 
         public Index<Foo, Foo> queryFoo() {
-            return this.getTransaction().querySimpleField(Foo.class, "ref", Foo.class);
+            return this.getTransaction().queryIndex(Foo.class, "ref", Foo.class);
         }
 
         public Iterable<Foo> getWithRelatedObjects() {

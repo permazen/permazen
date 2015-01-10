@@ -123,7 +123,7 @@ public class TypeSafetyTest2 extends TestSupport {
         public abstract NavigableMap<Car, Color> getCarMap();         // note: key restricted to "Car" from "Vehicle"
 
         public static Index2<Color, Inventory2, Car> queryColorIndex() {
-            return JTransaction.getCurrent().queryMapValueField(Inventory2.class, "carMap.value", Color.class, Car.class);
+            return JTransaction.getCurrent().queryMapValueIndex(Inventory2.class, "carMap.value", Color.class, Car.class);
         }
     }
 }

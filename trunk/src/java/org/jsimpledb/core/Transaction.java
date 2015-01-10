@@ -153,14 +153,14 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Index Queries</b>
  * <ul>
- *  <li>{@link #querySimpleField querySimpleField()} - Query the index associated with a {@link SimpleField}
+ *  <li>{@link #queryIndex queryIndex()} - Query the index associated with a {@link SimpleField}
  *      to identify all values and all objects having those values</li>
- *  <li>{@link #queryListField queryListField()} - Query the index associated with a {@link ListField}
- *      to identify all list elements and all objects having those elements in the list</li>
- *  <li>{@link #queryMapValueField queryMapValueField()} - Query the index associated with a {@link MapField}
- *      to identify all map values and all objects having those values in the map</li>
- *  <li>{@link #queryCompositeIndex2 queryCompositeIndex2()} - Query a composite index on two fields</li>
+ *  <li>{@link #queryListElementIndex queryListElementIndex()} - Query the index associated with a {@link ListField}
+ *      to identify all list elements, all objects having those elements in the list, and thier corresponding indicies</li>
+ *  <li>{@link #queryMapValueIndex queryMapValueIndex()} - Query the index associated with a {@link MapField}
+ *      to identify all map values, all objects having those values in the map, and the corresponding keys</li>
  *  <li>{@link #queryCompositeIndex queryCompositeIndex()} - Query any composite index</li>
+ *  <li>{@link #queryCompositeIndex2 queryCompositeIndex2()} - Query a composite index on two fields</li>
  * </ul>
  * </p>
  *
@@ -1419,7 +1419,7 @@ public class Transaction {
      * Get all objects in the database.
      *
      * <p>
-     * The returned set includes objects from all schema versions. Use {@link #queryVersion queryVersion()} to
+     * The returned set includes objects from all schema versions. Use {@link #queryVersion} to
      * find objects with a specific schema version.
      * </p>
      *
@@ -2458,7 +2458,7 @@ public class Transaction {
      * @throws UnknownFieldException if no {@link SimpleField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized CoreIndex<?, ObjId> querySimpleField(int storageId) {
+    public synchronized CoreIndex<?, ObjId> queryIndex(int storageId) {
         if (this.stale)
             throw new StaleTransactionException(this);
         final SimpleFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
@@ -2483,7 +2483,7 @@ public class Transaction {
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized CoreIndex2<?, ObjId, Integer> queryListField(int storageId) {
+    public synchronized CoreIndex2<?, ObjId, Integer> queryListElementIndex(int storageId) {
         if (this.stale)
             throw new StaleTransactionException(this);
         final ListFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
@@ -2503,7 +2503,7 @@ public class Transaction {
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public synchronized CoreIndex2<?, ObjId, ?> queryMapValueField(int storageId) {
+    public synchronized CoreIndex2<?, ObjId, ?> queryMapValueIndex(int storageId) {
         if (this.stale)
             throw new StaleTransactionException(this);
         final MapFieldStorageInfo<?, ?> fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
@@ -2554,7 +2554,7 @@ public class Transaction {
     @SuppressWarnings("unchecked")
     private NavigableMap<ObjId, NavigableSet<ObjId>> queryReferences(int storageId) {
         assert this.schema.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class) != null;
-        return (NavigableMap<ObjId, NavigableSet<ObjId>>)this.querySimpleField(storageId).asMap();
+        return (NavigableMap<ObjId, NavigableSet<ObjId>>)this.queryIndex(storageId).asMap();
     }
 
     /**
@@ -2589,7 +2589,7 @@ public class Transaction {
                         continue;
 
                     // Query index on this field, restricting to those only references coming from objType objects
-                    final NavigableSet<ObjId> refs = this.querySimpleField(field.storageId)
+                    final NavigableSet<ObjId> refs = this.queryIndex(field.storageId)
                       .filter(1, new KeyRanges(ObjId.getKeyRange(objType.storageId))).asMap().get(target);
                     if (refs == null)
                         continue;

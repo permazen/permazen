@@ -21,7 +21,7 @@ public class GenericsFunTest extends TestSupport {
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
-            jtx.querySimpleField(AbstractData.class, "name", String.class);
+            jtx.queryIndex(AbstractData.class, "name", String.class);
         } finally {
             JTransaction.setCurrent(null);
         }
@@ -33,9 +33,9 @@ public class GenericsFunTest extends TestSupport {
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(jtx);
         try {
-            jtx.querySimpleField(AbstractData.class, "name", String.class);
-            jtx.querySimpleField(Account.class, "name", String.class);
-            jtx.querySimpleField(AccountEvent.class, "account", Account.class);
+            jtx.queryIndex(AbstractData.class, "name", String.class);
+            jtx.queryIndex(Account.class, "name", String.class);
+            jtx.queryIndex(AccountEvent.class, "account", Account.class);
         } finally {
             JTransaction.setCurrent(null);
         }

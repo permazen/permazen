@@ -112,12 +112,12 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Index Queries</b>
  * <ul>
- *  <li>{@link #querySimpleField querySimpleField()}
+ *  <li>{@link #queryIndex(Class, String, Class) queryIndex()}
  *      - Access the index associated with a simple field</li>
- *  <li>{@link #queryListField queryListField()}
- *      - Access the index associated with a list field, including corresponding list indicies</li>
- *  <li>{@link #queryMapValueField queryMapValueField()}
- *      - Access the index associated with a map value field, including corresponding map keys</li>
+ *  <li>{@link #queryListElementIndex queryListElementIndex()}
+ *      - Access the composite index associated with a list field that includes corresponding list indicies</li>
+ *  <li>{@link #queryMapValueIndex queryMapValueIndex()}
+ *      - Access the composite index associated with a map value field that includes corresponding map keys</li>
  *  <li>{@link #queryCompositeIndex(Class, String, Class, Class) queryCompositeIndex()}
  *      - Access a composite index defined on two fields</li>
  * </ul>
@@ -1067,21 +1067,16 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <V, T> Index<V, T> querySimpleField(Class<T> targetType, String fieldName, Class<V> valueType) {
+    public <V, T> Index<V, T> queryIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
         final IndexInfo info = this.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
-        final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.querySimpleField(info.fieldInfo.storageId));
+        final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.queryIndex(info.fieldInfo.storageId));
         final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex(index, valueConverter, targetConverter);
     }
 
     /**
-     * Get the index on a list field with list indicies.
-     *
-     * <p>
-     * This method is a variant of {@link #querySimpleField(Class, String, Class) querySimpleField()}
-     * that also provides the list indicies associated with each occuring value.
-     * </p>
+     * Get the composite index on a list field that includes list indicies.
      *
      * @param targetType type containing the indexed field; may also be any super-type (e.g., an interface type),
      *  as long as {@code fieldName} is not ambiguous among all sub-types
@@ -1092,23 +1087,18 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <V, T> Index2<V, T, Integer> queryListField(Class<T> targetType, String fieldName, Class<V> valueType) {
+    public <V, T> Index2<V, T, Integer> queryListElementIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
         final IndexInfo info = this.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
         if (!(info.superFieldInfo instanceof JListFieldInfo))
             throw new IllegalArgumentException("`" + fieldName + "' is not a list element sub-field");
-        final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListField(info.superFieldInfo.storageId));
+        final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(info.superFieldInfo.storageId));
         final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex2(index, valueConverter, targetConverter, Converter.<Integer>identity());
     }
 
     /**
-     * Get the index on a map value field with map keys.
-     *
-     * <p>
-     * This method is a variant of {@link #querySimpleField(Class, String, Class) getSimpleField()}
-     * that also provides the map keys associated with each occuring value.
-     * </p>
+     * Get the composite index on a map value field that includes map keys.
      *
      * @param targetType type containing the indexed field; may also be any super-type (e.g., an interface type),
      *  as long as {@code fieldName} is not ambiguous among all sub-types
@@ -1119,7 +1109,7 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <V, T, K> Index2<V, T, K> queryMapValueField(Class<T> targetType,
+    public <V, T, K> Index2<V, T, K> queryMapValueIndex(Class<T> targetType,
       String fieldName, Class<V> valueType, Class<K> keyType) {
         final IndexInfo info = this.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType, keyType));
         if (!(info.superFieldInfo instanceof JMapFieldInfo))
@@ -1127,7 +1117,7 @@ public class JTransaction {
         final JMapFieldInfo mapFieldInfo = (JMapFieldInfo)info.superFieldInfo;
         if (!info.fieldInfo.equals(mapFieldInfo.getValueFieldInfo()))
             throw new IllegalArgumentException("`" + fieldName + "' is not a map value sub-field");
-        final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueField(mapFieldInfo.storageId));
+        final CoreIndex2<?, ObjId, ?> index = info.applyFilters(this.tx.queryMapValueIndex(mapFieldInfo.storageId));
         final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
         final Converter<?, ?> keyConverter = this.getReverseConverter(mapFieldInfo.getKeyFieldInfo());
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
@@ -1232,17 +1222,17 @@ public class JTransaction {
         final JComplexFieldInfo parentInfo = parentStorageId != 0 ?
           this.jdb.getJFieldInfo(parentStorageId, JComplexFieldInfo.class) : null;
         if (parentInfo instanceof JListFieldInfo) {
-            return new ConvertedIndex2(this.tx.queryListField(fieldInfo.storageId),
+            return new ConvertedIndex2(this.tx.queryListElementIndex(fieldInfo.storageId),
               valueConverter, referenceConverter, Converter.identity());
         } else if (parentInfo instanceof JMapFieldInfo
           && ((JMapFieldInfo)parentInfo).getSubFieldInfoName(fieldInfo).equals(MapField.VALUE_FIELD_NAME)) {
             final JMapFieldInfo mapFieldInfo = (JMapFieldInfo)parentInfo;
             final JSimpleFieldInfo keyFieldInfo = mapFieldInfo.getKeyFieldInfo();
             final Converter<?, ?> keyConverter = this.getReverseConverter(keyFieldInfo);
-            return new ConvertedIndex2(this.tx.queryMapValueField(fieldInfo.storageId),
+            return new ConvertedIndex2(this.tx.queryMapValueIndex(fieldInfo.storageId),
               valueConverter, referenceConverter, keyConverter);
         } else
-            return new ConvertedIndex(this.tx.querySimpleField(fieldInfo.storageId), valueConverter, referenceConverter);
+            return new ConvertedIndex(this.tx.queryIndex(fieldInfo.storageId), valueConverter, referenceConverter);
     }
 
     private IndexInfo getIndexInfo(IndexInfoKey key) {
