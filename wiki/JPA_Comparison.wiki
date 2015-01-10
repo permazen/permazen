@@ -115,7 +115,7 @@ JSimpleDB solves this problem by not creating two representations of the same re
   // class Parent
     
     public NavigableSet<Child> getChildren() {
-        final NavigableSet<Person> kids = this.getTransaction().querySimpleField(
+        final NavigableSet<Person> kids = this.getTransaction().queryIndex(
           Child.class, "parent", Parent.class).asMap().get(this);
         return kids != null ? kids : NavigableSets.empty();
     }</code>
@@ -154,11 +154,11 @@ In addition, there is less need for composite (multi-field) indexes. In JSimpleD
   // Person index queries
     
     public static NavigableMap<String, NavigableSet<Person>> queryLastName() {
-        return JTransaction.getCurrent().querySimpleField(Person.class, "lastName", String.class).asMap();
+        return JTransaction.getCurrent().queryIndex(Person.class, "lastName", String.class).asMap();
     }
     
     public static NavigableMap<String, NavigableSet<Person>> queryFirstName() {
-        return JTransaction.getCurrent().querySimpleField(Person.class, "firstName", String.class).asMap();
+        return JTransaction.getCurrent().queryIndex(Person.class, "firstName", String.class).asMap();
     }
      
     public static NavigableSet<Person> getByLastAndFirstName(String lastName, String firsName) {

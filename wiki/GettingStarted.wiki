@@ -204,7 +204,7 @@ public class JSimpleDBExample {
  
         // Inverse of friends
         public Set<Person> getFriendsToMe() {
-            return this.getTransaction().querySimpleField(
+            return this.getTransaction().queryIndex(
               Person.class, "friends.element", Person.class).asMap().get(this);
         }
  

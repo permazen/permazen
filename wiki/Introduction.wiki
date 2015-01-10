@@ -189,11 +189,11 @@ Of course this is the perfect situation for an *index* on the `age` field. Here 
 
 An index on a single field is basically just a mapping from each field value to the set of all objects having that value in the field. JSimpleDB simple indexes implement the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/index/Index.html">`Index`</a> interface, which allows viewing the index as either a map or a set of tuples.
 
-To query the index, you invoke `JTransaction.querySimpleField()`:
+To query the index, you invoke `JTransaction.queryIndex()`:
 
 <code language="java">
     public static NavigableMap<Integer, NavigableSet<Person>> queryPersonAges() {
-        return JTransaction.getCurrent().querySimpleField(Person.class, "age", Integer.class).asMap();
+        return JTransaction.getCurrent().queryIndex(Person.class, "age", Integer.class).asMap();
     }</code>
 
 The `Person.class` and `Integer.class` parameters accomplish two goals: first, they eliminate any unchecked cast warnings and allow JSimpleDB to verify the indexed types. Secondly, they allow you to narrow or widen the type to suit your needs.
@@ -202,14 +202,14 @@ For example, if `HappyPerson extends Person` and you only want to find happy peo
 
 <code language="java">
     public static NavigableMap<Integer, NavigableSet<HappyPerson>> queryHappyPersonAges() {
-        return JTransaction.getCurrent().querySimpleField(HappyPerson.class, "age", Integer.class).asMap();
+        return JTransaction.getCurrent().queryIndex(HappyPerson.class, "age", Integer.class).asMap();
     }</code>
 
 Or, suppose your schema has evolved over time and the old superclass `Mammal` which `Person` used to extend no longer exists, but you still have some leftover non-human `Mammal`'s in your database and you want to include them in the index query. Then you can do this:
 
 <code language="java">
     public static NavigableMap<Integer, NavigableSet<JObject>> queryObjectAges() {
-        return JTransaction.getCurrent().querySimpleField(JObject.class, "age", Integer.class).asMap();
+        return JTransaction.getCurrent().queryIndex(JObject.class, "age", Integer.class).asMap();
     }</code>
 
 Since your old `Mammal` class is long gone, the old `Mammal` objects will appear as <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/UntypedJObject.html">`UntypedJObject`</a>'s. You can still access their fields by directly invoking the corresponding `JTransaction` field access method.
@@ -260,25 +260,25 @@ public abstract class Student implements JObject {
  
     // Map classes to students in the class
     public static NavigableMap<LectureClass, NavigableSet<Student>> queryStudentsByLectureClass() {
-        return JTransaction.getCurrent().querySimpleField(
+        return JTransaction.getCurrent().queryIndex(
           Student.class, "lectureClasses.element", LectureClass.class).asMap();
     }
  
     // Map teacher to students that rank the teacher
     public static NavigableMap<Teacher, Student> queryStudentsRankings() {
-        return JTransaction.getCurrent().querySimpleField(
+        return JTransaction.getCurrent().queryIndex(
           Student.class, "teacherRankings.element", Teacher.class).asMap();
     }
  
     // Map tests to students who have a score on the test
     public static NavigableMap<Test, NavigableSet<Student>> queryStudentsByTest() {
-        return JTransaction.getCurrent().querySimpleField(
+        return JTransaction.getCurrent().queryIndex(
           Student.class, "testScores.key", Test.class).asMap();
     }
  
     // Map tests scores to the students who got that score on some test
     public static NavigableMap<Float, NavigableSet<Student>> queryStudentsByTestScore() {
-        return JTransaction.getCurrent().querySimpleField(
+        return JTransaction.getCurrent().queryIndex(
           Student.class, "testScores.value", Float.class).asMap();
     }
 }</code>
@@ -301,7 +301,7 @@ public abstract class Account implements JObject {
  
     // Get all users with this account (or null if there are none)
     public NavigableSet<User> getUsers() {
-        return this.getTransaction().querySimpleField(
+        return this.getTransaction().queryIndex(
           User.class, "account", Account.class).asMap().get(this);
     }
 }</code>
@@ -356,13 +356,13 @@ public abstract class Student implements JObject {
  
     // Map teacher to students that rank the teacher AND the coresponding rank(s)
     public static Index2<Teacher, Student, Integer> queryStudentsRankings() {
-        return JTransaction.getCurrent().queryListField(            // instead of querySimpleField()
+        return JTransaction.getCurrent().queryListElementIndex(     // instead of querySimpleField()
           Student.class, "teacherRankings.element", Teacher.class);
     }
  
     // Map tests scores to the students who got that score on some test AND the test(s)
     public static Index2<Float, Student, Test> queryStudentsByTestScore() {
-        return JTransaction.getCurrent().queryMapValueField(        // instead of querySimpleField()
+        return JTransaction.getCurrent().queryMapValueIndex(        // instead of querySimpleField()
           Student.class, "testScores.value", Float.class, Test.class);
     }
 }</code>
@@ -406,7 +406,7 @@ In JSimpleDB reference fields, including sub-fields of a collection field, are a
 <code language="java">
     // Who considers me a friend?
     public Set<Person> whoConsidersMeAFriend() {
-        return this.getTransaction().querySimpleField(Person.class, "friends.element", Person.class).get(this);
+        return this.getTransaction().queryIndex(Person.class, "friends.element", Person.class).get(this);
     }</code>
 
 More generally, we can determine what objects refer to a given object indirectly, through an arbitrary sequence of reference fields. Such a sequence is called a *reference path*, and JSimpleDB exposes this functionality via `JTransaction.invertReferencePath()`:
