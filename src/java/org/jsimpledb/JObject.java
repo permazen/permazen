@@ -217,7 +217,7 @@ public interface JObject {
      * Snapshot this instance and other instances it references.
      *
      * <p>
-     * This method will copy this object and all of its fields, along all other objects reachable through
+     * This method will copy this object and all of its fields, along with all other objects reachable through
      * any of the specified {@linkplain ReferencePath reference paths} into the {@link SnapshotJTransaction}
      * {@linkplain JTransaction#getSnapshotTransaction corresponding} to this instance's associated transaction.
      * If any object already exists there, it will be overwritten, otherwise it will be created.
@@ -253,7 +253,7 @@ public interface JObject {
      * Copy this instance and other instances it references into the transaction associated with the current thread.
      *
      * <p>
-     * This method will copy this object and all of its fields, along all other objects reachable through any of the
+     * This method will copy this object and all of its fields, along with all other objects reachable through any of the
      * specified {@linkplain ReferencePath reference paths} into the {@link JTransaction}
      * {@linkplain JTransaction#getCurrent associated} with the current thread.
      * If any object already exists in the current thread's transaction, it will be overwritten, otherwise it will be created.
