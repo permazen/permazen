@@ -20,6 +20,13 @@ public class LiteralNode implements Node {
         this.value = value;
     }
 
+    /**
+     * Get the literal value.
+     */
+    public Object getLiteralValue() {
+        return this.value;
+    }
+
     @Override
     public Value evaluate(ParseSession session) {
         return new ConstValue(this.value);
