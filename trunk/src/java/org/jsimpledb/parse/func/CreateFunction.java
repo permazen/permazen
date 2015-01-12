@@ -14,7 +14,6 @@ import org.jsimpledb.parse.ObjTypeParser;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.expr.AssignmentExprParser;
 import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
@@ -59,13 +58,7 @@ public class CreateFunction extends AbstractFunction {
 
         // Get version
         this.spaceParser.parse(ctx, complete);
-        final Node version = AssignmentExprParser.INSTANCE.parse(session, ctx, complete);
-        this.spaceParser.parse(ctx, complete);
-
-        // Finish parse
-        ctx.skipWhitespace();
-        if (!ctx.tryLiteral(")"))
-            throw new ParseException(ctx, "expected `)'").addCompletion(") ");
+        final Node version = this.parseExpressionParams(session, ctx, complete, 1, 1, 1)[0];
 
         // Done
         return new ParamInfo(storageId, version);

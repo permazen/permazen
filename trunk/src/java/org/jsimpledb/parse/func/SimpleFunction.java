@@ -7,12 +7,8 @@
 
 package org.jsimpledb.parse.func;
 
-import java.util.ArrayList;
-
 import org.jsimpledb.parse.ParseContext;
-import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 
@@ -61,41 +57,7 @@ public abstract class SimpleFunction extends AbstractFunction {
 
     @Override
     public final Node[] parseParams(ParseSession session, ParseContext ctx, boolean complete) {
-
-        // Parse parameters
-        final ArrayList<Node> params = new ArrayList<Node>(Math.min(this.maxArgs, this.minArgs * 2));
-        while (true) {
-            if (ctx.isEOF()) {
-                final ParseException e = new ParseException(ctx, "truncated input");
-                if (!params.isEmpty() && params.size() < this.minArgs)
-                    e.addCompletion(", ");
-                else if (params.size() >= this.minArgs)
-                    e.addCompletion(") ");
-                throw e;
-            }
-            if (ctx.tryLiteral(")"))
-                break;
-            if (!params.isEmpty()) {
-                if (!ctx.tryLiteral(","))
-                    throw new ParseException(ctx, "expected `,' between " + this.name + "() function parameters")
-                      .addCompletion(", ");
-                this.spaceParser.parse(ctx, complete);
-            }
-            params.add(ExprParser.INSTANCE.parse(session, ctx, complete));
-            ctx.skipWhitespace();
-        }
-
-        // Check number
-        if (params.size() < this.minArgs) {
-            throw new ParseException(ctx, "at least " + this.minArgs + " argument(s) are required for function "
-              + this.getName() + "()");
-        } else if (params.size() > this.maxArgs) {
-            throw new ParseException(ctx, "at most " + this.maxArgs + " argument(s) are allowed for function "
-              + this.getName() + "()");
-        }
-
-        // Done
-        return params.toArray(new Node[params.size()]);
+        return this.parseExpressionParams(session, ctx, complete, 0, this.minArgs, this.maxArgs);
     }
 
     @Override
