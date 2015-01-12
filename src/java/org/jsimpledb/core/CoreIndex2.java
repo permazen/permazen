@@ -74,7 +74,7 @@ public class CoreIndex2<V1, V2, T> extends AbstractCoreIndex implements Index2<V
         final Index2View<V1, V2, T> iv = this.getIndex2View();
 
         // Create new IndexView
-        final IndexView<Tuple2<V1, V2>, T> tupleIV = iv.asTupleIndexView();
+        final IndexView<Tuple2<V1, V2>, T> tupleIV = iv.asTuple2IndexView();
 
         // Build map and apply filtering
         IndexMap<Tuple2<V1, V2>, NavigableSet<T>> indexMap = new IndexMap.OfValues<Tuple2<V1, V2>, T>(this.tx, tupleIV);

@@ -31,9 +31,10 @@ class CompositeIndexStorageInfo extends StorageInfo {
         switch (fields.size()) {
         case 2:
             return this.buildIndex(tx, this.fields.get(0).fieldType, this.fields.get(1).fieldType);
-/*
         case 3:
             return this.buildIndex(tx, this.fields.get(0).fieldType, this.fields.get(1).fieldType, this.fields.get(2).fieldType);
+        // COMPOSITE-INDEX
+/*
         case 4:
             return this.buildIndex(tx, this.fields.get(0).fieldType, this.fields.get(1).fieldType,
               this.fields.get(2).fieldType, this.fields.get(3).fieldType);
@@ -53,7 +54,6 @@ class CompositeIndexStorageInfo extends StorageInfo {
           FieldTypeRegistry.OBJ_ID));
     }
 
-/*
     // This method exists solely to bind the generic type parameters
     private <V1, V2, V3> CoreIndex3<V1, V2, V3, ObjId> buildIndex(Transaction tx,
       FieldType<V1> value1Type,
@@ -66,6 +66,7 @@ class CompositeIndexStorageInfo extends StorageInfo {
           FieldTypeRegistry.OBJ_ID));
     }
 
+/*
     // This method exists solely to bind the generic type parameters
     private <V1, V2, V3, V4> CoreIndex4<V1, V2, V3, V4, ObjId> buildIndex(Transaction tx,
       FieldType<V1> value1Type,

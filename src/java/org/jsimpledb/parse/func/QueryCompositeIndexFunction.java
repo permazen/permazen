@@ -71,9 +71,10 @@ public class QueryCompositeIndexFunction extends AbstractQueryFunction {
                 switch (valueTypes.length) {
                 case 2:
                     return JTransaction.getCurrent().queryCompositeIndex(objectType, indexName, valueTypes[0], valueTypes[1]);
-                // TODO: add support for Index3, etc
-                // case 3:
-                //     return JTransaction.getCurrent().queryCompositeIndex(objectType, indexName, valueTypes[0], valueTypes[1]);
+                case 3:
+                    return JTransaction.getCurrent().queryCompositeIndex(objectType,
+                      indexName, valueTypes[0], valueTypes[1], valueTypes[2]);
+                // COMPOSITE-INDEX
                 default:
                     throw new IllegalArgumentException("wrong number of value types (" + valueTypes.length
                       + ") provided for composite index `" + indexName + "'");

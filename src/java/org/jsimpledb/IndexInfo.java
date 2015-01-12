@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import org.jsimpledb.core.CoreIndex;
 import org.jsimpledb.core.CoreIndex2;
+import org.jsimpledb.core.CoreIndex3;
 import org.jsimpledb.kv.KeyRanges;
 
 /**
@@ -168,7 +169,7 @@ class IndexInfo {
         return index;
     }
 
-    public <V, T, E> CoreIndex2<V, T, E> applyFilters(CoreIndex2<V, T, E> index) {
+    public <V1, V2, T> CoreIndex2<V1, V2, T> applyFilters(CoreIndex2<V1, V2, T> index) {
         for (int i = 0; i < this.filters.size(); i++) {
             final KeyRanges filter = this.filters.get(i);
             if (filter != null && !filter.isFull())
@@ -177,7 +178,16 @@ class IndexInfo {
         return index;
     }
 
-    // TODO: add support for CoreIndex3, CoreIndex4, etc.
+    public <V1, V2, V3, T> CoreIndex3<V1, V2, V3, T> applyFilters(CoreIndex3<V1, V2, V3, T> index) {
+        for (int i = 0; i < this.filters.size(); i++) {
+            final KeyRanges filter = this.filters.get(i);
+            if (filter != null && !filter.isFull())
+                index = index.filter(i, filter);
+        }
+        return index;
+    }
+
+    // COMPOSITE-INDEX
 
     @Override
     public String toString() {

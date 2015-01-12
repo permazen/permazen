@@ -12,7 +12,7 @@ import com.google.common.base.Converter;
 import org.jsimpledb.index.Index;
 
 /**
- * Converts {@link Index}es into {@link ConvertedIndex}es using the provided element {@link IndexConverter}.
+ * Converts {@link Index}es.
  *
  * @param <V> value type of converted indexes
  * @param <T> target type of converted indexes

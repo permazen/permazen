@@ -37,6 +37,7 @@ import javax.validation.ConstraintViolation;
 import org.dellroad.stuff.validation.ValidationUtil;
 import org.jsimpledb.core.CoreIndex;
 import org.jsimpledb.core.CoreIndex2;
+import org.jsimpledb.core.CoreIndex3;
 import org.jsimpledb.core.CreateListener;
 import org.jsimpledb.core.DeleteListener;
 import org.jsimpledb.core.DeletedObjectException;
@@ -58,6 +59,7 @@ import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.core.VersionChangeListener;
 import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
+import org.jsimpledb.index.Index3;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.AbstractKVNavigableSet;
 import org.jsimpledb.util.ConvertedNavigableMap;
@@ -120,10 +122,9 @@ import org.slf4j.LoggerFactory;
  *      - Access the composite index associated with a map value field that includes corresponding map keys</li>
  *  <li>{@link #queryCompositeIndex(Class, String, Class, Class) queryCompositeIndex()}
  *      - Access a composite index defined on two fields</li>
- * <!--
  *  <li>{@link #queryCompositeIndex(Class, String, Class, Class, Class) queryCompositeIndex()}
  *      - Access a composite index defined on three fields</li>
- * -->
+ *  <!-- COMPOSITE-INDEX -->
  * </ul>
  * </p>
  *
@@ -1157,7 +1158,7 @@ public class JTransaction {
         return new ConvertedIndex2(index, value1Converter, value2Converter, targetConverter);
     }
 
-/*  /*
+    /**
      * Access a composite index on three fields.
      *
      * @param targetType type containing the indexed fields; may also be any super-type (e.g., an interface type)
@@ -1168,7 +1169,7 @@ public class JTransaction {
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
-     * ////
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, V3, T> Index3<V1, V2, V3, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type, Class<V3> value3Type) {
@@ -1180,7 +1181,6 @@ public class JTransaction {
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
         return new ConvertedIndex3(index, value1Converter, value2Converter, value3Converter, targetConverter);
     }
-*/
 
     /**
      * Query an index by storage ID. For storage ID's corresponding to simple fields, this method returns an
@@ -1206,11 +1206,21 @@ public class JTransaction {
             final Converter<JObject, ObjId> targetConverter = new ReferenceConverter<JObject>(this, JObject.class);
             switch (indexInfo.jfieldInfos.size()) {
             case 2:
+            {
                 final Converter<?, ?> value1Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(0));
                 final Converter<?, ?> value2Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(1));
                 return new ConvertedIndex2(this.tx.queryCompositeIndex2(indexInfo.storageId),
                   value1Converter, value2Converter, targetConverter);
-            // TODO: add Index3, etc.
+            }
+            case 3:
+            {
+                final Converter<?, ?> value1Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(0));
+                final Converter<?, ?> value2Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(1));
+                final Converter<?, ?> value3Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(2));
+                return new ConvertedIndex3(this.tx.queryCompositeIndex3(indexInfo.storageId),
+                  value1Converter, value2Converter, value3Converter, targetConverter);
+            }
+            // COMPOSITE-INDEX
             default:
                 throw new RuntimeException("internal error");
             }

@@ -75,7 +75,9 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
         return new Index2View<V1, V2, T>(this);
     }
 
-    public IndexView<Tuple2<V1, V2>, T> asTupleIndexView() {
+// Tuple views
+
+    public IndexView<Tuple2<V1, V2>, T> asTuple2IndexView() {
 
         // Create new IndexView
         IndexView<Tuple2<V1, V2>, T> indexView = new IndexView<Tuple2<V1, V2>, T>(this.prefix, this.prefixMode,
@@ -104,6 +106,8 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
         return indexView;
     }
 
+// Prefix view
+
     public IndexView<V1, V2> asIndexView() {
 
         // Create IndexView
@@ -120,6 +124,8 @@ class Index2View<V1, V2, T> extends AbstractIndexView {
         // Done
         return indexView;
     }
+
+// Suffix view
 
     public IndexView<V2, T> asIndexView(byte[] keyPrefix) {
 
