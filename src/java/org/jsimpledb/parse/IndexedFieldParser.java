@@ -20,7 +20,7 @@ import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.SimpleField;
 
 /**
- * Parses an indexed field.
+ * Parses the name of an indexed field.
  *
  * <p>
  * Syntax examples:
@@ -55,10 +55,11 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
         final String fieldName = fieldMatcher.group();
         final Field<?> field;
         try {
-            field = ParseUtil.resolveField(session, objType, fieldName);
-        } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, e.getMessage()).addCompletions(ParseUtil.complete(Iterables.transform(Iterables.filter(
-              objType.getFields().values(), new HasIndexedPredicate()), new FieldNameFunction()), fieldName));
+            field = Iterables.find(this.filterFields(objType.getFields().values()), new ParseUtil.HasNamePredicate(fieldName));
+        } catch (NoSuchElementException e) {
+            throw new ParseException(ctx, "error accessing field `" + fieldName + "': there is no such indexed field in " + objType)
+              .addCompletions(ParseUtil.complete(Iterables.transform(Iterables.filter(
+                this.filterFields(objType.getFields().values()), new HasIndexedPredicate()), new FieldNameFunction()), fieldName));
         }
 
         // Get sub-field if field is a complex field
@@ -78,11 +79,13 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
                 final String subName = subfieldMatcher.group();
                 final SimpleField<?> subField;
                 try {
-                    subField = Iterables.find(field.getSubFields(), new HasNamePredicate(subName));
+                    subField = Iterables.find(IndexedFieldParser.this.filterSubFields(field.getSubFields()),
+                      new ParseUtil.HasNamePredicate(subName));
                 } catch (NoSuchElementException e) {
                     throw new ParseException(ctx, "unknown sub-field `" + subName + "' of complex field `" + fieldName + "'")
                       .addCompletions(ParseUtil.complete(Iterables.transform(Iterables.filter(
-                        field.getSubFields(), new IsIndexedPredicate()), new FieldNameFunction()), fieldName));
+                         IndexedFieldParser.this.filterSubFields(field.getSubFields()), new IsIndexedPredicate()),
+                        new FieldNameFunction()), fieldName));
                 }
                 return new Result(fieldName + "." + subName, this.verifyIndexedSimple(subField), field);
             }
@@ -98,6 +101,14 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
                 return (SimpleField<?>)field;
             }
         });
+    }
+
+    protected Iterable<? extends Field<?>> filterFields(Iterable<? extends Field<?>> fields) {
+        return fields;
+    }
+
+    protected Iterable<? extends SimpleField<?>> filterSubFields(Iterable<? extends SimpleField<?>> subFields) {
+        return subFields;
     }
 
 // Return type
@@ -151,20 +162,6 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
         @Override
         public String apply(Field<?> field) {
             return field.getName();
-        }
-    }
-
-    private static class HasNamePredicate implements Predicate<Field<?>> {
-
-        private final String name;
-
-        HasNamePredicate(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public boolean apply(Field<?> field) {
-            return field.getName().equals(this.name);
         }
     }
 

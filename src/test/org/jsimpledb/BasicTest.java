@@ -129,21 +129,20 @@ public class BasicTest extends TestSupport {
             Assert.assertEquals(t2.getBooleanArray(), new boolean[] { false, true, false });
 
             // Check indexes
-            final Indexer i = tx.create(Indexer.class);
-            TestSupport.checkMap(i.queryNicknames().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryNicknames().asMap(), buildMap(
               "dinkle",     buildSet(t1),
               "banana",     buildSet(t1),
               "apple",      buildSet(t1)));
-            TestSupport.checkMap(i.queryHaters().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryHaters().asMap(), buildMap(
               t3,           buildSet(t1)));
-            TestSupport.checkMap(i.queryScores().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryScores().asMap(), buildMap(
               21,           buildSet(t1),
               22,           buildSet(t1),
               23,           buildSet(t1),
               123,          buildSet(t2, t3),
               456,          buildSet(t2, t3),
               789,          buildSet(t3)));
-            TestSupport.checkSet(i.queryScoreEntries().asSet(), buildSet(
+            TestSupport.checkSet(BasicTest.queryScoreEntries().asSet(), buildSet(
               new Tuple3<Integer, Person, Integer>(21, t1, 1),
               new Tuple3<Integer, Person, Integer>(21, t1, 3),
               new Tuple3<Integer, Person, Integer>(22, t1, 2),
@@ -154,47 +153,47 @@ public class BasicTest extends TestSupport {
               new Tuple3<Integer, Person, Integer>(456, t3, 1),
               new Tuple3<Integer, Person, Integer>(456, t3, 3),
               new Tuple3<Integer, Person, Integer>(789, t3, 0)));
-            TestSupport.checkMap(i.queryRatingKeys().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryRatingKeys().asMap(), buildMap(
               t1,           buildSet(t1, t3),
               t2,           buildSet(t1),
               null,         buildSet(t1)));
-            TestSupport.checkSet(i.queryRatingValueEntries().asSet(), buildSet(
+            TestSupport.checkSet(BasicTest.queryRatingValueEntries().asSet(), buildSet(
               new Tuple3<Float, Person, Person>(100.0f, t1, t1),
               new Tuple3<Float, Person, Person>(-99.0f, t1, t2),
               new Tuple3<Float, Person, Person>(-0.0f, t1, null),
               new Tuple3<Float, Person, Person>(-3.0f, t3, t1)));
-            TestSupport.checkMap(i.queryMoods().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryMoods().asMap(), buildMap(
               Mood.HAPPY,   buildSet(t1),
               Mood.NORMAL,  buildSet(t3),
               null,         buildSet(t2)));
 
             // Check restricted indexes
-            TestSupport.checkMap(i.queryScoresMean().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryScoresMean().asMap(), buildMap(
               21,           buildSet(t1),
               22,           buildSet(t1),
               23,           buildSet(t1)));
-            TestSupport.checkSet(i.queryScoreEntriesMean().asSet(), buildSet(
+            TestSupport.checkSet(BasicTest.queryScoreEntriesMean().asSet(), buildSet(
               new Tuple3<Integer, MeanPerson, Integer>(21, t1, 1),
               new Tuple3<Integer, MeanPerson, Integer>(21, t1, 3),
               new Tuple3<Integer, MeanPerson, Integer>(22, t1, 2),
               new Tuple3<Integer, MeanPerson, Integer>(23, t1, 0)));
-            TestSupport.checkMap(i.queryScoreEntriesMean().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryScoreEntriesMean().asMap(), buildMap(
               new Tuple2<Integer, MeanPerson>(21, t1),  buildSet(1, 3),
               new Tuple2<Integer, MeanPerson>(22, t1),  buildSet(2),
               new Tuple2<Integer, MeanPerson>(23, t1),  buildSet(0)));
-            TestSupport.checkSet(i.queryScoreEntriesMean().asIndex().asSet(), buildSet(
+            TestSupport.checkSet(BasicTest.queryScoreEntriesMean().asIndex().asSet(), buildSet(
               new Tuple2<Integer, MeanPerson>(21, t1),
               new Tuple2<Integer, MeanPerson>(22, t1),
               new Tuple2<Integer, MeanPerson>(23, t1)));
-            TestSupport.checkMap(i.queryRatingKeysMean().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryRatingKeysMean().asMap(), buildMap(
               t1,           buildSet(t1),
               t2,           buildSet(t1),
               null,         buildSet(t1)));
-            TestSupport.checkSet(i.queryRatingValueEntriesMean().asSet(), buildSet(
+            TestSupport.checkSet(BasicTest.queryRatingValueEntriesMean().asSet(), buildSet(
               new Tuple3<Float, MeanPerson, Person>(100.0f, t1, t1),
               new Tuple3<Float, MeanPerson, Person>(-99.0f, t1, t2),
               new Tuple3<Float, MeanPerson, Person>(-0.0f, t1, null)));
-            TestSupport.checkMap(i.queryMoodsMean().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryMoodsMean().asMap(), buildMap(
               Mood.HAPPY,   buildSet(t1)));
 
             try {
@@ -207,8 +206,8 @@ public class BasicTest extends TestSupport {
 
             boolean deleted = t1.delete();
             Assert.assertTrue(deleted);
-            TestSupport.checkMap(i.queryHaters().asMap(), buildMap());
-            TestSupport.checkMap(i.queryMoods().asMap(), buildMap(
+            TestSupport.checkMap(BasicTest.queryHaters().asMap(), buildMap());
+            TestSupport.checkMap(BasicTest.queryMoods().asMap(), buildMap(
               Mood.NORMAL,  buildSet(t3),
               null,         buildSet(t2)));
 
@@ -266,7 +265,7 @@ public class BasicTest extends TestSupport {
     }
 
     public static JSimpleDB getJSimpleDB() {
-        return BasicTest.getJSimpleDB(MeanPerson.class, Person.class, Indexer.class);
+        return BasicTest.getJSimpleDB(MeanPerson.class, Person.class);
     }
 
     public static JSimpleDB getJSimpleDB(Class... classes) {
@@ -275,6 +274,58 @@ public class BasicTest extends TestSupport {
 
     public static JSimpleDB getJSimpleDB(Iterable<Class<?>> classes) {
         return new JSimpleDB(classes);
+    }
+
+// Person queries
+
+    public static Index<String, Person> queryNicknames() {
+        return JTransaction.getCurrent().queryIndex(Person.class, "nicknames.element", String.class);
+    }
+
+    public static Index<Mood, Person> queryMoods() {
+        return JTransaction.getCurrent().queryIndex(Person.class, "mood", Mood.class);
+    }
+
+    public static Index<Integer, Person> queryScores() {
+        return JTransaction.getCurrent().queryIndex(Person.class, "scores.element", Integer.class);
+    }
+
+    public static Index2<Integer, Person, Integer> queryScoreEntries() {
+        return JTransaction.getCurrent().queryListElementIndex(Person.class, "scores.element", Integer.class);
+    }
+
+    public static Index<Person, Person> queryRatingKeys() {
+        return JTransaction.getCurrent().queryIndex(Person.class, "ratings.key", Person.class);
+    }
+
+    public static Index2<Float, Person, Person> queryRatingValueEntries() {
+        return JTransaction.getCurrent().queryMapValueIndex(Person.class, "ratings.value", Float.class, Person.class);
+    }
+
+// MeanPerson queries
+
+    public static Index<Person, MeanPerson> queryHaters() {
+        return JTransaction.getCurrent().queryIndex(MeanPerson.class, "enemies.element", Person.class);
+    }
+
+    public static Index<Mood, MeanPerson> queryMoodsMean() {
+        return JTransaction.getCurrent().queryIndex(MeanPerson.class, "mood", Mood.class);
+    }
+
+    public static Index<Integer, MeanPerson> queryScoresMean() {
+        return JTransaction.getCurrent().queryIndex(MeanPerson.class, "scores.element", Integer.class);
+    }
+
+    public static Index2<Integer, MeanPerson, Integer> queryScoreEntriesMean() {
+        return JTransaction.getCurrent().queryListElementIndex(MeanPerson.class, "scores.element", Integer.class);
+    }
+
+    public static Index<Person, MeanPerson> queryRatingKeysMean() {
+        return JTransaction.getCurrent().queryIndex(MeanPerson.class, "ratings.key", Person.class);
+    }
+
+    public static Index2<Float, MeanPerson, Person> queryRatingValueEntriesMean() {
+        return JTransaction.getCurrent().queryMapValueIndex(MeanPerson.class, "ratings.value", Float.class, Person.class);
     }
 
 // Model Classes
@@ -361,62 +412,6 @@ public class BasicTest extends TestSupport {
 
         @JListField(storageId = 150, element = @JField(storageId = 151))
         public abstract List<Person> getEnemies();
-    }
-
-    @JSimpleClass(storageId = 300)
-    public abstract static class Indexer implements JObject {
-
-        public Index<String, Person> queryNicknames() {
-            return this.getTransaction().queryIndex(Person.class, "nicknames.element", String.class);
-        }
-
-        public Index<Person, MeanPerson> queryHaters() {
-            return this.getTransaction().queryIndex(MeanPerson.class, "enemies.element", Person.class);
-        }
-
-    // Person queries
-
-        public Index<Mood, Person> queryMoods() {
-            return this.getTransaction().queryIndex(Person.class, "mood", Mood.class);
-        }
-
-        public Index<Integer, Person> queryScores() {
-            return this.getTransaction().queryIndex(Person.class, "scores.element", Integer.class);
-        }
-
-        public Index2<Integer, Person, Integer> queryScoreEntries() {
-            return this.getTransaction().queryListElementIndex(Person.class, "scores.element", Integer.class);
-        }
-
-        public Index<Person, Person> queryRatingKeys() {
-            return this.getTransaction().queryIndex(Person.class, "ratings.key", Person.class);
-        }
-
-        public Index2<Float, Person, Person> queryRatingValueEntries() {
-            return this.getTransaction().queryMapValueIndex(Person.class, "ratings.value", Float.class, Person.class);
-        }
-
-    // MeanPerson queries
-
-        public Index<Mood, MeanPerson> queryMoodsMean() {
-            return this.getTransaction().queryIndex(MeanPerson.class, "mood", Mood.class);
-        }
-
-        public Index<Integer, MeanPerson> queryScoresMean() {
-            return this.getTransaction().queryIndex(MeanPerson.class, "scores.element", Integer.class);
-        }
-
-        public Index2<Integer, MeanPerson, Integer> queryScoreEntriesMean() {
-            return this.getTransaction().queryListElementIndex(MeanPerson.class, "scores.element", Integer.class);
-        }
-
-        public Index<Person, MeanPerson> queryRatingKeysMean() {
-            return this.getTransaction().queryIndex(MeanPerson.class, "ratings.key", Person.class);
-        }
-
-        public Index2<Float, MeanPerson, Person> queryRatingValueEntriesMean() {
-            return this.getTransaction().queryMapValueIndex(MeanPerson.class, "ratings.value", Float.class, Person.class);
-        }
     }
 }
 

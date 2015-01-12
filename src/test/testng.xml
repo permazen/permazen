@@ -15,6 +15,7 @@
             <package name="org.jsimpledb.kv.util"/>
             <package name="org.jsimpledb.parse"/>
             <package name="org.jsimpledb.parse.expr"/>
+            <package name="org.jsimpledb.parse.func"/>
             <package name="org.jsimpledb.spring"/>
             <package name="org.jsimpledb.util"/>
         </packages>

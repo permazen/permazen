@@ -7,9 +7,14 @@
 
 package org.jsimpledb.parse.func;
 
+import java.util.ArrayList;
+
 import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.SpaceParser;
+import org.jsimpledb.parse.expr.ExprParser;
+import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,5 +99,58 @@ public abstract class AbstractFunction {
      * @throws RuntimeException if there is an error
      */
     public abstract Value apply(ParseSession session, Object params);
+
+    /**
+     * Parse some number of Java expression function arguments. We assume we have parsed the opening parenthesis,
+     * zero or more previous arguments followed by commas, and optional whitespace.
+     *
+     * @param session parse session
+     * @param ctx parse context
+     * @param complete false if parse is "for real", true if only for tab completion calculation
+     * @param skippedArgs the number of arguments already parsed
+     * @param minArgs minimum number of arguments
+     * @param maxArgs maximum number of arguments
+     * @return parsed expressions
+     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
+     */
+    public Node[] parseExpressionParams(ParseSession session, ParseContext ctx, boolean complete,
+      int skippedArgs, int minArgs, int maxArgs) {
+
+        // Parse parameters
+        final ArrayList<Node> params = new ArrayList<Node>(Math.min(maxArgs, minArgs * 2));
+        while (params.size() <= maxArgs) {
+            if (ctx.isEOF()) {
+                final ParseException e = new ParseException(ctx, "truncated input");
+                if (!params.isEmpty() && params.size() < minArgs)
+                    e.addCompletion(", ");
+                else if (params.size() >= minArgs)
+                    e.addCompletion(")");
+                throw e;
+            }
+            if (ctx.tryLiteral(")"))
+                break;
+            if (!params.isEmpty()) {
+                if (!ctx.tryLiteral(",")) {
+                    throw new ParseException(ctx, "expected `,' between " + this.getName() + "() function parameters")
+                      .addCompletion(", ");
+                }
+                this.spaceParser.parse(ctx, complete);
+            }
+            params.add(ExprParser.INSTANCE.parse(session, ctx, complete));
+            ctx.skipWhitespace();
+        }
+
+        // Check number of parameters
+        if (params.size() < minArgs) {
+            throw new ParseException(ctx, "at least " + (skippedArgs + minArgs) + " argument(s) are required for function "
+              + this.getName() + "()");
+        } else if (params.size() > maxArgs) {
+            throw new ParseException(ctx, "at most " + (skippedArgs + maxArgs) + " argument(s) are allowed for function "
+              + this.getName() + "()");
+        }
+
+        // Done
+        return params.toArray(new Node[params.size()]);
+    }
 }
 

@@ -229,6 +229,8 @@ public class Session {
      *
      * @param tx transaction in which to perform the action, or null to create a new one (if necessary)
      * @param action action to perform
+     * @return true if {@code action} completed successfully, false if the transaction could not be created
+     *  or {@code action} threw an exception
      * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance
      * @throws IllegalArgumentException if {@code action} is null
      */
