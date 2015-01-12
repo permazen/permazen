@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.SpaceParser;
 import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
@@ -24,8 +23,6 @@ public abstract class SimpleFunction extends AbstractFunction {
 
     protected final int minArgs;
     protected final int maxArgs;
-
-    private final SpaceParser spaceParser = new SpaceParser();
 
 // Constructors
 

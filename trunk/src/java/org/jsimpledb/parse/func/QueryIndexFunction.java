@@ -12,7 +12,6 @@ import org.jsimpledb.parse.IndexedFieldParser;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.SpaceParser;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.Node;
@@ -20,8 +19,6 @@ import org.jsimpledb.parse.expr.Value;
 
 @Function
 public class QueryIndexFunction extends AbstractFunction {
-
-    private final SpaceParser spaceParser = new SpaceParser();
 
     public QueryIndexFunction() {
         super("queryIndex");

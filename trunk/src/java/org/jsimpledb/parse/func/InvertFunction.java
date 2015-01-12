@@ -18,7 +18,6 @@ import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.SpaceParser;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.ExprParser;
@@ -29,8 +28,6 @@ import org.jsimpledb.parse.util.CastFunction;
 
 @Function(worksInCoreAPIMode = false)
 public class InvertFunction extends AbstractFunction {
-
-    private final SpaceParser spaceParser = new SpaceParser();
 
     public InvertFunction() {
         super("invert");
