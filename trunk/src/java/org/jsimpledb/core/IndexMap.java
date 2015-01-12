@@ -11,6 +11,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.jsimpledb.index.Index;
+import org.jsimpledb.index.Index2;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
@@ -147,6 +148,44 @@ abstract class IndexMap<K, V> extends FieldTypeMap<K, V> {
         @Override
         protected CoreIndex<V2, T> decodeValue(byte[] keyPrefix) {
             return new CoreIndex<V2, T>(this.tx, this.indexView.asIndexView(keyPrefix));
+        }
+    }
+
+// OfIndex2
+
+    /**
+     * Implements {@link NavigableMap} views of composite indexes where the map values are of type {@link CoreIndex2}.
+     */
+    static class OfIndex2<V1, V2, V3, T> extends IndexMap<V1, Index2<V2, V3, T>> {
+
+        private final Index3View<V1, V2, V3, T> indexView;
+
+        // Primary constructor
+        OfIndex2(Transaction tx, Index3View<V1, V2, V3, T> indexView) {
+            super(tx, indexView.getValue1Type(), indexView.prefix);
+            this.indexView = indexView;
+        }
+
+        // Internal constructor
+        private OfIndex2(Transaction tx, Index3View<V1, V2, V3, T> indexView,
+          boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<V1> bounds) {
+            super(tx, indexView.getValue1Type(), reversed, indexView.prefix, keyRange, keyFilter, bounds);
+            this.indexView = indexView;
+        }
+
+    // AbstractKVNavigableMap
+
+        @Override
+        protected NavigableMap<V1, Index2<V2, V3, T>> createSubMap(boolean newReversed,
+          KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<V1> newBounds) {
+            return new OfIndex2<V1, V2, V3, T>(this.tx, this.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);
+        }
+
+    // IndexMap
+
+        @Override
+        protected CoreIndex2<V2, V3, T> decodeValue(byte[] keyPrefix) {
+            return new CoreIndex2<V2, V3, T>(this.tx, this.indexView.asIndex2View(keyPrefix));
         }
     }
 }

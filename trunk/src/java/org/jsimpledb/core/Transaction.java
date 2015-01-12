@@ -161,6 +161,8 @@ import org.slf4j.LoggerFactory;
  *      to identify all map values, all objects having those values in the map, and the corresponding keys</li>
  *  <li>{@link #queryCompositeIndex queryCompositeIndex()} - Query any composite index</li>
  *  <li>{@link #queryCompositeIndex2 queryCompositeIndex2()} - Query a composite index on two fields</li>
+ *  <li>{@link #queryCompositeIndex3 queryCompositeIndex3()} - Query a composite index on three fields</li>
+ *  <!-- COMPOSITE-INDEX -->
  * </ul>
  * </p>
  *
@@ -2531,6 +2533,29 @@ public class Transaction {
               + " is on " + indexInfo.fields.size() + " != 2 fields");
         }
         return (CoreIndex2<?, ?, ObjId>)index;
+    }
+
+    /**
+     * Access a composite index on three fields.
+     *
+     * <p>
+     * The returned index contains objects from all recorded schema versions in which the composite index is defined.
+     * </p>
+     *
+     * @param storageId composite index's storage ID
+     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
+     * @throws UnknownIndexException if {@code storageID} is unknown or does not correspond to a composite index on two fields
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    @SuppressWarnings("unchecked")
+    public CoreIndex3<?, ?, ?, ObjId> queryCompositeIndex3(int storageId) {
+        final CompositeIndexStorageInfo indexInfo = this.schema.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
+        final Object index = indexInfo.getIndex(this);
+        if (!(index instanceof CoreIndex3)) {
+            throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
+              + " is on " + indexInfo.fields.size() + " != 3 fields");
+        }
+        return (CoreIndex3<?, ?, ?, ObjId>)index;
     }
 
     /**
