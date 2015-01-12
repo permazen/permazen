@@ -9,6 +9,7 @@ package org.jsimpledb.parse.func;
 
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.SpaceParser;
 import org.jsimpledb.parse.expr.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractFunction {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    protected final SpaceParser spaceParser = new SpaceParser();
     protected final String name;
 
 // Constructors

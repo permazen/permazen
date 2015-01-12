@@ -14,7 +14,6 @@ import org.jsimpledb.parse.ObjTypeParser;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.SpaceParser;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.ExprParser;
@@ -24,8 +23,6 @@ import org.jsimpledb.parse.expr.Value;
 
 @Function
 public class AllFunction extends AbstractFunction {
-
-    private final SpaceParser spaceParser = new SpaceParser();
 
     public AllFunction() {
         super("all");
