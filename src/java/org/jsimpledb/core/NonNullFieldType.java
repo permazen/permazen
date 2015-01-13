@@ -14,12 +14,12 @@ import com.google.common.reflect.TypeToken;
  */
 abstract class NonNullFieldType<T> extends FieldType<T> {
 
-    protected NonNullFieldType(String name, TypeToken<T> type) {
-        super(name, type);
+    protected NonNullFieldType(String name, TypeToken<T> type, long signature) {
+        super(name, type, signature);
     }
 
-    protected NonNullFieldType(Class<T> type) {
-       super(type);
+    protected NonNullFieldType(Class<T> type, long signature) {
+       super(type, signature);
     }
 
     /**

@@ -26,7 +26,7 @@ abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T> {
     final int size;
 
     TupleFieldType(TypeToken<T> typeToken, FieldType<?>... fieldTypes) {
-        super("Tuple" + fieldTypes.length, typeToken);
+        super("Tuple" + fieldTypes.length, typeToken, TupleFieldType.hashEncodingSignatures(fieldTypes));
         this.fieldTypes = Arrays.<FieldType<?>>asList(fieldTypes);
         this.size = this.fieldTypes.size();
     }
@@ -116,6 +116,14 @@ abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T> {
         if (list.size() != this.size)
             throw new IllegalArgumentException("tuple has the wrong cardinality " + list.size() + " != " + this.size);
         return list;
+    }
+
+    // This is not entirely fool-proof, but the signature shouldn't really matter as this class is only used internally
+    private static long hashEncodingSignatures(FieldType<?>... fieldTypes) {
+        long hash = 0;
+        for (FieldType<?> fieldType : fieldTypes)
+            hash = hash * 65537 + fieldType.getEncodingSignature();
+        return hash;
     }
 
     // This method exists solely to bind the generic type parameters

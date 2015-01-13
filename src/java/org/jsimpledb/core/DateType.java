@@ -21,7 +21,7 @@ import org.jsimpledb.util.LongEncoder;
 class DateType extends NonNullFieldType<Date> {
 
     DateType() {
-        super(Date.class);
+        super(Date.class, 0);
     }
 
 // FieldType

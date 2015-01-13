@@ -21,7 +21,7 @@ abstract class PrimitiveType<T> extends NonNullFieldType<T> {
     final Primitive<T> primitive;
 
     PrimitiveType(Primitive<T> primitive) {
-        super(primitive.getName(), TypeToken.of(primitive.getType()));
+        super(primitive.getName(), TypeToken.of(primitive.getType()), 0);
         this.primitive = primitive;
     }
 

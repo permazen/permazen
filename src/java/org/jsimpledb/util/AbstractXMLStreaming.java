@@ -135,7 +135,7 @@ public abstract class AbstractXMLStreaming {
     }
 
     /**
-     * Get an attribute from the current element and parse as an integer value.
+     * Get an attribute from the current element and parse as a decimal integer value.
      *
      * @param reader XML input
      * @param name attribute name
@@ -153,7 +153,30 @@ public abstract class AbstractXMLStreaming {
             return Integer.parseInt(text, 10);
         } catch (NumberFormatException e) {
             throw new XMLStreamException("<" + reader.getName().getLocalPart() + "> element attribute \""
-              + name + "\" value `" + text + "' is invalid: not an integer value", reader.getLocation(), e);
+              + name + "\" value `" + text + "' is invalid: not a valid value", reader.getLocation(), e);
+        }
+    }
+
+    /**
+     * Get an attribute from the current element and parse as a decimal long value.
+     *
+     * @param reader XML input
+     * @param name attribute name
+     * @param required whether attribute must be present
+     * @return attribute value, or null if not {@code required} and no attribute is present
+     * @throws IllegalStateException if the current event is not a start element event
+     * @throws XMLStreamException if {@code required} is true and no such attribute is found
+     * @throws XMLStreamException if attribute is not an integer value
+     */
+    protected Long getLongAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {
+        final String text = this.getAttr(reader, name, required);
+        if (text == null)
+            return null;
+        try {
+            return Long.parseLong(text, 10);
+        } catch (NumberFormatException e) {
+            throw new XMLStreamException("<" + reader.getName().getLocalPart() + "> element attribute \""
+              + name + "\" value `" + text + "' is invalid: not a valid long value", reader.getLocation(), e);
         }
     }
 

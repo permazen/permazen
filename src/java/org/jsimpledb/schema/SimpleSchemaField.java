@@ -22,6 +22,7 @@ import org.jsimpledb.core.InvalidSchemaException;
 public class SimpleSchemaField extends SchemaField {
 
     private String type;
+    private long encodingSignature;
     private boolean indexed;
 
     /**
@@ -45,6 +46,16 @@ public class SimpleSchemaField extends SchemaField {
         this.indexed = indexed;
     }
 
+    /**
+     * Get the encoding signature associated with this field's type.
+     */
+    public long getEncodingSignature() {
+        return this.encodingSignature;
+    }
+    public void setEncodingSignature(long encodingSignature) {
+        this.encodingSignature = encodingSignature;
+    }
+
     @Override
     void validate() {
         super.validate();
@@ -66,6 +77,8 @@ public class SimpleSchemaField extends SchemaField {
         final SimpleSchemaField that = (SimpleSchemaField)that0;
         if (!this.type.equals(that.type))
             return false;
+        if (this.encodingSignature != that.encodingSignature)
+            return false;
         if (this.indexed != that.indexed)
             return false;
         return true;
@@ -82,6 +95,9 @@ public class SimpleSchemaField extends SchemaField {
         final Boolean indexedAttr = this.getBooleanAttr(reader, INDEXED_ATTRIBUTE, false);
         if (indexedAttr != null)
             this.setIndexed(indexedAttr);
+        final Long encodingSignatureAttr = this.getLongAttr(reader, ENCODING_SIGNATURE_ATTRIBUTE, false);
+        if (encodingSignatureAttr != null)
+            this.setEncodingSignature(encodingSignatureAttr);
     }
 
     @Override
@@ -100,6 +116,10 @@ public class SimpleSchemaField extends SchemaField {
     final void writeAttributes(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
         super.writeAttributes(writer, includeName);
         this.writeSimpleAttributes(writer);
+        if (this.encodingSignature != 0) {
+            writer.writeAttribute(ENCODING_SIGNATURE_ATTRIBUTE.getNamespaceURI(), ENCODING_SIGNATURE_ATTRIBUTE.getLocalPart(),
+              "" + this.encodingSignature);
+        }
     }
 
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
@@ -113,7 +133,9 @@ public class SimpleSchemaField extends SchemaField {
 
     @Override
     public String toString() {
-        return super.toString() + (this.type != null ? " of type " + this.type : "");
+        return super.toString()
+          + (this.type != null ? " of type " + this.type : "")
+          + (this.encodingSignature != 0 ? " (encoding " + this.encodingSignature + ")" : "");
     }
 
     @Override
@@ -123,12 +145,17 @@ public class SimpleSchemaField extends SchemaField {
         if (!super.equals(obj))
             return false;
         final SimpleSchemaField that = (SimpleSchemaField)obj;
-        return (this.type != null ? this.type.equals(that.type) : that.type == null) && this.indexed == that.indexed;
+        return (this.type != null ? this.type.equals(that.type) : that.type == null)
+          && this.encodingSignature == that.encodingSignature
+          && this.indexed == that.indexed;
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() ^ (this.type != null ? this.type.hashCode() : 0) ^ (this.indexed ? 1 : 0);
+        return super.hashCode()
+          ^ (this.type != null ? this.type.hashCode() : 0)
+          ^ ((Long)this.encodingSignature).hashCode()
+          ^ (this.indexed ? 1 : 0);
     }
 
 // Cloneable

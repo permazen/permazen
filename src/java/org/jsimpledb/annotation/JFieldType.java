@@ -26,8 +26,10 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Note that once a certain encoding has been used for a given type name in a database, the encoding should not
- * be changed without creating a new type (and type name), or else {@link org.jsimpledb.core.InconsistentDatabaseException}s
- * could result when the new type attempts to decode the old encoding or vice-versa.
+ * be changed without creating a new type (and type name), or changing the
+ * {@linkplain org.jsimpledb.core.FieldType#getEncodingSignature encoding signature}.
+ * Otherwise, {@link org.jsimpledb.core.InconsistentDatabaseException}s can result when the new type unexpectedly
+ * encounters the old encoding or vice-versa.
  * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)

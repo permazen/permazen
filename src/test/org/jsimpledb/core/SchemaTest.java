@@ -7,6 +7,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Converter;
+
 import java.io.ByteArrayInputStream;
 
 import org.jsimpledb.TestSupport;
@@ -22,6 +24,9 @@ public class SchemaTest extends TestSupport {
         xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Schema formatVersion=\"1\">\n" + xml + "</Schema>\n";
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
+
+        // Register custom type
+        db.getFieldTypeRegistry().add(new StringEncodedType<Bar>("testType", Bar.class, 12345, new BarConverter()));
 
         // Validate XML
         final SchemaModel schema;
@@ -57,6 +62,32 @@ public class SchemaTest extends TestSupport {
             assert valid : "upgrade schema was supposed to be invalid";
         } catch (InvalidSchemaException e) {
             assert !valid : "upgrade schema was supposed to be valid: " + this.show(e);
+        }
+    }
+
+    public static class Bar {
+
+        private final String value;
+
+        public Bar(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
+    }
+
+    public static class BarConverter extends Converter<Bar, String> {
+
+        @Override
+        protected String doForward(Bar value) {
+            return value != null ? value.getValue() : null;
+        }
+
+        @Override
+        protected Bar doBackward(String value) {
+            return value != null ? new Bar(value) : null;
         }
     }
 
@@ -387,6 +418,22 @@ public class SchemaTest extends TestSupport {
           { false,
             "<!-- test 36 -->\n"
           + "<ObjectType storageId=\"10\"/>\n"
+          },
+
+          // Correct signature
+          { true,
+            "<!-- test 37 -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"bar\" type=\"testType\" encodingSignature=\"12345\" storageId=\"20\"/>\n"
+          + "</ObjectType>\n"
+          },
+
+          // Incorrect signature
+          { false,
+            "<!-- test 38 -->\n"
+          + "<ObjectType name=\"Foo\" storageId=\"10\">\n"
+          + "  <SimpleField name=\"bar\" type=\"testType\" storageId=\"20\"/>\n"
+          + "</ObjectType>\n"
           },
 
         };

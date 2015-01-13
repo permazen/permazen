@@ -8,6 +8,7 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Converter;
+import com.google.common.reflect.TypeToken;
 
 import org.dellroad.stuff.string.StringEncoder;
 import org.jsimpledb.parse.ParseContext;
@@ -19,7 +20,8 @@ import org.jsimpledb.util.ByteWriter;
  * A {@link Converter} is used to convert between native and {@link String} forms.
  *
  * <p>
- * Null values are not supported by this class; instead, you would normally wrap this class in a {@link NullSafeType}.
+ * Null values are not supported by this class; instead, use {@link StringEncodedType}, which is the
+ * null-supporting wrapper around this class.
  * </p>
  *
  * @param <T> The associated Java type
@@ -27,35 +29,23 @@ import org.jsimpledb.util.ByteWriter;
 class StringConvertedType<T> extends NonNullFieldType<T> {
 
     private final StringType stringType = new StringType();
-    private final String name;
     private final Converter<T, String> converter;
-
-    /**
-     * Convenience constructor. Uses the simple name of the {@code type} as the {@link FieldType} name.
-     *
-     * @param type represented Java type
-     * @param converter converts between native form and {@link String} form
-     * @throws IllegalArgumentException if any parameter is null
-     */
-    protected StringConvertedType(Class<T> type, Converter<T, String> converter) {
-        this(type, type.getSimpleName(), converter);
-    }
 
     /**
      * Primary constructor.
      *
-     * @param type represented Java type
      * @param name the name for this {@link FieldType}
+     * @param type represented Java type
+     * @param signature binary encoding signature (in this case, {@link String} encoding signature)
      * @param converter converts between native form and {@link String} form
      * @throws IllegalArgumentException if any parameter is null
      */
-    protected StringConvertedType(Class<T> type, String name, Converter<T, String> converter) {
-        super(type);
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+    protected StringConvertedType(String name, TypeToken<T> type, long signature, Converter<T, String> converter) {
+        super(name, type, signature);
         if (converter == null)
             throw new IllegalArgumentException("null converter");
-        this.name = name;
+        if (converter.convert(null) != null || converter.reverse().convert(null) != null)
+            throw new IllegalArgumentException("invalid converter: does not convert null <-> null");
         this.converter = converter;
     }
 
@@ -65,7 +55,7 @@ class StringConvertedType<T> extends NonNullFieldType<T> {
         try {
             string = this.stringType.read(reader);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid encoded " + this.name, e);
+            throw new IllegalArgumentException("invalid encoded " + this.getName(), e);
         }
         return this.converter.reverse().convert(string);
     }
@@ -83,7 +73,7 @@ class StringConvertedType<T> extends NonNullFieldType<T> {
     @Override
     public String toString(T obj) {
         if (obj == null)
-            throw new IllegalArgumentException("illegal null " + this.name);
+            throw new IllegalArgumentException("illegal null " + this.getName());
         return this.converter.convert(obj);
     }
 
