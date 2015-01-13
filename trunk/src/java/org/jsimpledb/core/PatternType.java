@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 class PatternType extends StringEncodedType<Pattern> {
 
     PatternType() {
-        super(Pattern.class, new Converter<Pattern, String>() {
+        super(Pattern.class, 0, new Converter<Pattern, String>() {
 
             @Override
             protected String doForward(Pattern pattern) {

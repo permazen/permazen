@@ -23,7 +23,7 @@ class UUIDType extends NonNullFieldType<UUID> {
     private static final String PATTERN = "\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}";
 
     UUIDType() {
-        super(UUID.class);
+        super(UUID.class, 0);
     }
 
 // FieldType

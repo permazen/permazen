@@ -29,7 +29,7 @@ class StringType extends NonNullFieldType<String> {
     private static final int ESCAPE = 0x01;
 
     StringType() {
-       super(String.class);
+       super(String.class, 0);
     }
 
     @Override

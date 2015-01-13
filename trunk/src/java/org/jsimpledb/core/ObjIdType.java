@@ -17,7 +17,7 @@ import org.jsimpledb.util.ByteWriter;
 class ObjIdType extends NonNullFieldType<ObjId> {
 
     ObjIdType() {
-        super(ObjId.class);
+        super(ObjId.class, 0);
     }
 
 // FieldType

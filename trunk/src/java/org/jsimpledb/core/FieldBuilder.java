@@ -64,11 +64,15 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
 
     @Override
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
+        if (field.getEncodingSignature() != 0)
+            throw new IllegalArgumentException("encoding signature must be zero for " + field);
         return new ReferenceField(field.getName(), field.getStorageId(), this.version, field.getOnDelete(), field.getObjectTypes());
     }
 
     @Override
     public EnumField caseEnumSchemaField(EnumSchemaField field) {
+        if (field.getEncodingSignature() != 0)
+            throw new IllegalArgumentException("encoding signature must be zero for " + field);
         return new EnumField(field.getName(), field.getStorageId(), this.version,
           field.isIndexed(), field.getType(), field.getIdentifiers());
     }
@@ -82,6 +86,10 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
 
     // This method exists solely to bind the generic type parameters
     private <T> SimpleField<T> buildSimpleField(SimpleSchemaField field, String fieldName, FieldType<T> fieldType) {
+        if (field.getEncodingSignature() != fieldType.getEncodingSignature()) {
+            throw new IllegalArgumentException("incompatible encoding signatures: field type `" + fieldType.getName()
+              + "' has " + fieldType.getEncodingSignature() + " but schema is using " + field.getEncodingSignature());
+        }
         return new SimpleField<T>(fieldName, field.getStorageId(), this.version, fieldType, field.isIndexed());
     }
 

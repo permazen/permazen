@@ -17,7 +17,7 @@ import java.io.File;
 class FileType extends StringEncodedType<File> {
 
     FileType() {
-        super(File.class, new Converter<File, String>() {
+        super(File.class, 0, new Converter<File, String>() {
 
             @Override
             protected String doForward(File file) {

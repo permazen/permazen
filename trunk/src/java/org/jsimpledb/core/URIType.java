@@ -20,7 +20,7 @@ import java.net.URISyntaxException;
 class URIType extends StringEncodedType<URI> {
 
     URIType() {
-        super(URI.class, new Converter<URI, String>() {
+        super(URI.class, 0, new Converter<URI, String>() {
 
             @Override
             protected String doForward(URI uri) {

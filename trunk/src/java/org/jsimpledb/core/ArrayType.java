@@ -50,7 +50,7 @@ abstract class ArrayType<T, E> extends NonNullFieldType<T> {
      * @param typeToken array type token
      */
     protected ArrayType(FieldType<E> elementType, TypeToken<T> typeToken) {
-        super(elementType.name + "[]", typeToken);
+        super(elementType.name + "[]", typeToken, elementType.getEncodingSignature());
         this.elementType = elementType;
         this.dimensions = elementType instanceof ArrayType ? ((ArrayType)elementType).dimensions + 1 : 1;
         if (this.dimensions > MAX_DIMENSIONS)

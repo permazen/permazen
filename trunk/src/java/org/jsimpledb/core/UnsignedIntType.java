@@ -21,7 +21,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 class UnsignedIntType extends NonNullFieldType<Integer> {
 
     UnsignedIntType() {
-        super("uint", TypeToken.of(Integer.class));
+        super("uint", TypeToken.of(Integer.class), 0);
     }
 
     @Override

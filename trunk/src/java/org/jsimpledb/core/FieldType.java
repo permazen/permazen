@@ -46,6 +46,8 @@ import org.jsimpledb.util.ByteWriter;
  *  <li>{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare} and
  *      have binary and string encodings just like any other value. Typically, null sorts last.</li>
  *  <li>There is a {@linkplain #getDefaultValue default value}; it must be null for types that support null.</li>
+ *  <li>An optional {@linkplain #getEncodingSignature encoding signature} protects against incompatible encodings
+ *      when a {@link FieldType}'s encoding evolves</li>
  * </ul>
  * </p>
  *
@@ -77,16 +79,20 @@ public abstract class FieldType<T> implements Comparator<T> {
 
     final String name;
     final TypeToken<T> typeToken;
+    final long signature;
+
+// Constructors
 
     /**
      * Constructor.
      *
      * @param name the name of this type
      * @param typeToken Java type for the field's values
+     * @param signature binary encoding signature
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      */
-    protected FieldType(String name, TypeToken<T> typeToken) {
+    protected FieldType(String name, TypeToken<T> typeToken, long signature) {
         if (name == null)
             throw new IllegalArgumentException("null name");
         if (!name.matches(FieldType.NAME_PATTERN))
@@ -95,6 +101,7 @@ public abstract class FieldType<T> implements Comparator<T> {
             throw new IllegalArgumentException("null typeToken");
         this.name = name;
         this.typeToken = typeToken;
+        this.signature = signature;
     }
 
     /**
@@ -102,11 +109,14 @@ public abstract class FieldType<T> implements Comparator<T> {
      * The {@linkplain #getName name} of this instance will be the {@linkplain Class#getName name} of the given class.
      *
      * @param type Java type for the field's values
+     * @param signature binary encoding signature
      * @throws NullPointerException if {@code type} is null
      */
-    protected FieldType(Class<T> type) {
-        this(type.getName(), TypeToken.of(type));
+    protected FieldType(Class<T> type, long signature) {
+        this(type.getName(), TypeToken.of(type), signature);
     }
+
+// Public methods
 
     /**
      * Get the name of this type. {@link FieldType} names must be unique in the registry.
@@ -120,6 +130,21 @@ public abstract class FieldType<T> implements Comparator<T> {
      */
     public TypeToken<T> getTypeToken() {
         return this.typeToken;
+    }
+
+    /**
+     * Get the binary encoding signature of this type.
+     *
+     * <p>
+     * The binary encoding signature is analogous to the {@code serialVersionUID} used by Java serialization.
+     * It represents a specific binary encoding for Java values. In the case that a {@link FieldType} implementation
+     * changes its binary encoding, but not it's name, it <b>must</b> use a new, different binary encoding signature
+     * to eliminate the possibility of mixing incompatible encodings in software vs. persistent storage.
+     * Typically a value of zero is used until if/when such a change occurs.
+     * </p>
+     */
+    public long getEncodingSignature() {
+        return this.signature;
     }
 
     /**
