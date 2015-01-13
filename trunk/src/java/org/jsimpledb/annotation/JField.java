@@ -16,30 +16,53 @@ import java.lang.annotation.Target;
 import org.jsimpledb.core.DeleteAction;
 
 /**
- * Java annotation for simple fields, including reference fields that refer to other Java model object types.
+ * Java annotation for creating simple fields, including reference fields that refer to other Java model object types.
  *
  * <p>
- * This annotation is used in two ways:
+ * This annotation is used in two scenarios:
  * <ul>
- *  <li>To annotate the getter method of a Java bean property in a Java model object class</li>
- *  <li>To define the sub-field(s) of a complex field such as a set, list, or map,
- *      i.e., the collection element or map key and value types</li>
+ *  <li>To describe a simple database field by annotating the corresponding abstract Java bean property `getter' method</li>
+ *  <li>To describe the sub-field(s) of a complex database field (i.e., set, list, or map),
+ *      i.e., the collection element or map key and value</li>
  * </ul>
  * </p>
  *
  * <p>
- * If the field is a reference field, the property type must be (a super-type of) the Java model object type
- * to which it refers.
+ * Note that this annotation can be applied to superclass and interface methods to have the corresponding
+ * field defined in all sub-types.
  * </p>
  *
  * <p>
- * If the field is not a reference field, the property type, which can either be specified by {@link #name}
- * or inferred from the annotated method, must be supported by a some {@link org.jsimpledb.core.FieldType}
- * registered in the {@link org.jsimpledb.core.FieldTypeRegistry} (perhaps via {@link JFieldType &#64;JFieldType}).
+ * This annotation is not required when auto-generation of properties is enabled; see {@link JSimpleClass#autogenFields}.
+ * </p>
+ *
+ * <p><b>Non-Reference Fields</b></p>
+ *
+ * <p>
+ * If the field is not a reference field, the property type is inferred from the type of the annotated method or,
+ * in the case of complex sub-fields, the generic type of the collection class. The name of the property type
+ * must be registered in the {@link org.jsimpledb.core.FieldTypeRegistry} (perhaps via {@link JFieldType &#64;JFieldType}),
+ * and the corresponding {@link org.jsimpledb.core.FieldType} is then used to encode/decode field values.
+ * The type name may also be specified explicitly by {@link #name}.
  * </p>
  *
  * <p>
  * Simple fields may be {@link #indexed}; see {@link org.jsimpledb.index} for information on querying indexes.
+ * </p>
+ *
+ * <p><b>Reference Fields</b></p>
+ *
+ * <p>
+ * If the type of the field is (assignable to) a {@link JSimpleClass &#64;JsimpleClass}-annotated Java model object type,
+ * then the field is a reference field.
+ * </p>
+ *
+ * <p>
+ * Reference fields have configurable behavior when the referred-to object is deleted; see {@link #onDelete}.
+ * </p>
+ *
+ * <p>
+ * Reference fields are always indexed; the value of {@link #indexed} is ignored.
  * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -102,7 +125,8 @@ public @interface JField {
 
     /**
      * Storage ID for this field. Value should be positive and unique within the contained class.
-     * If zero, the configured {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value.
+     * If zero, the configured {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value
+     * unless {@link JSimpleClass#autogenFields} is false (in which case an error occurs).
      *
      * @see org.jsimpledb.StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
      * @see org.jsimpledb.StorageIdGenerator#generateSetElementStorageId StorageIdGenerator.generateSetElementStorageId()
@@ -116,7 +140,12 @@ public @interface JField {
      * Whether this field is indexed or not.
      *
      * <p>
-     * Note: reference fields are always indexed; for reference fields, this property is ignored.
+     * Setting this property to true creates a simple index on this field. To have this field participate in
+     * a composite index on multiple fields, use {@link JSimpleClass#compositeIndexes}.
+     * </p>
+     *
+     * <p>
+     * Note: reference fields are always indexed (for reference fields, this property is ignored).
      * </p>
      */
     boolean indexed() default false;
