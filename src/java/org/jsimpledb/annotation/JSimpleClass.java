@@ -83,12 +83,18 @@ public @interface JSimpleClass {
      * <p>
      * If true, database fields corresponding to all <b>abstract</b> bean property getter methods will
      * be auto-generated even if there is no {@link JField &#64;JField}, {@link JSetField &#64;JSetField},
-     * {@link JListField &#64;JListField}, or {@link JMapField &#64;JMapField} annotation.
+     * {@link JListField &#64;JListField}, or {@link JMapField &#64;JMapField} annotation. Note <i>this includes
+     * superclass and interface methods</i>.
+     * </p>
+     *
+     * <p>
      * Getter methods with return type assignable to {@link java.util.Set}, {@link java.util.List}, and {@link java.util.Map}
      * will cause the corresponding collection fields to be created; other getter/setter method pairs will cause
-     * the corresponding simple fields to be generated. Storage ID's for auto-generated fields will themselves be
-     * auto-generated using the configured {@link org.jsimpledb.StorageIdGenerator}.
+     * the corresponding simple fields to be generated. Auto-generation of storage ID's is performed by the
+     * configured {@link org.jsimpledb.StorageIdGenerator}.
      * </p>
+     *
+     * @see org.jsimpledb.JSimpleDBFactory#setStorageIdGenerator JSimpleDBFactory.setStorageIdGenerator()
      */
     boolean autogenFields() default true;
 }
