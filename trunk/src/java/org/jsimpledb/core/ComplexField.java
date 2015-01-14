@@ -67,6 +67,13 @@ public abstract class ComplexField<T> extends Field<T> {
      */
     abstract T getValueReadOnlyCopy(Transaction tx, ObjId id);
 
+    /**
+     * Iterate all values in the specified subfield.
+     *
+     * @throws IllegalArgumentException if {@code subField} is not a sub-field of this instance
+     */
+    abstract <F> Iterable<F> iterateSubField(Transaction tx, ObjId id, SimpleField<F> subField);
+
     @Override
     abstract ComplexFieldStorageInfo<T> toStorageInfo();
 

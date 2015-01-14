@@ -112,6 +112,16 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 // Non-public methods
 
     @Override
+    @SuppressWarnings("unchecked")
+    <F> Iterable<F> iterateSubField(Transaction tx, ObjId id, SimpleField<F> subField) {
+        if (subField == this.keyField)
+            return (Iterable<F>)this.getValue(tx, id).keySet();
+        if (subField == this.valueField)
+            return (Iterable<F>)this.getValue(tx, id).values();
+        throw new IllegalArgumentException("unknown sub-field");
+    }
+
+    @Override
     NavigableMap<K, V> getValueInternal(Transaction tx, ObjId id) {
         return new JSMap<K, V>(tx, this, id);
     }

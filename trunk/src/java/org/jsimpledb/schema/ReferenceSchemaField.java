@@ -24,6 +24,7 @@ import org.jsimpledb.core.InvalidSchemaException;
 public class ReferenceSchemaField extends SimpleSchemaField {
 
     private DeleteAction onDelete;
+    private boolean cascadeDelete;
     private SortedSet<Integer> objectTypes;
 
     public ReferenceSchemaField() {
@@ -39,6 +40,16 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
     public void setOnDelete(DeleteAction onDelete) {
         this.onDelete = onDelete;
+    }
+
+    /**
+     * Determine whether the referred-to object should be deleted when an object containing this field is deleted.
+     */
+    public boolean isCascadeDelete() {
+        return this.cascadeDelete;
+    }
+    public void setCascadeDelete(boolean cascadeDelete) {
+        this.cascadeDelete = cascadeDelete;
     }
 
     /**
@@ -78,6 +89,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
             return false;
         if (!this.onDelete.equals(that.onDelete))
             return false;
+        if (this.cascadeDelete != that.cascadeDelete)
+            return false;
         if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
             return false;
         return true;
@@ -98,6 +111,9 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         } else
             action = DeleteAction.EXCEPTION;
         this.setOnDelete(action);
+        final Boolean cascadeDeleteAttr = this.getBooleanAttr(reader, CASCADE_DELETE_ATTRIBUTE, false);
+        if (cascadeDeleteAttr != null)
+            this.setCascadeDelete(cascadeDeleteAttr);
     }
 
     @Override
@@ -145,6 +161,10 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     @Override
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
         // don't need to write type or indexed
+        if (this.cascadeDelete) {
+            writer.writeAttribute(CASCADE_DELETE_ATTRIBUTE.getNamespaceURI(), CASCADE_DELETE_ATTRIBUTE.getLocalPart(),
+              "" + this.cascadeDelete);
+        }
     }
 
 // Object
@@ -157,12 +177,14 @@ public class ReferenceSchemaField extends SimpleSchemaField {
             return false;
         final ReferenceSchemaField that = (ReferenceSchemaField)obj;
         return this.onDelete == that.onDelete
+          && this.cascadeDelete == that.cascadeDelete
           && (this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null);
     }
 
     @Override
     public int hashCode() {
         return super.hashCode()
+          ^ (this.cascadeDelete ? 1 : 0)
           ^ (this.onDelete != null ? this.onDelete.hashCode() : 0)
           ^ (this.objectTypes != null ? this.objectTypes.hashCode() : 0);
     }
