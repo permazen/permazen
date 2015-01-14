@@ -158,6 +158,9 @@ public @interface JField {
      * <p>
      * This field is ignored for non-reference fields.
      * </p>
+     *
+     * @see #cascadeDelete
+     * @see org.jsimpledb.JObject#delete
      */
     DeleteAction onDelete() default DeleteAction.EXCEPTION;
 
@@ -169,6 +172,9 @@ public @interface JField {
      * <p>
      * This field is ignored for non-reference fields.
      * </p>
+     *
+     * @see #onDelete
+     * @see org.jsimpledb.JObject#delete
      */
     boolean cascadeDelete() default false;
 }

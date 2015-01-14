@@ -9,6 +9,8 @@ package org.jsimpledb.core;
 
 /**
  * Describes what action to take when an object that is still referred to by some other object is deleted.
+ *
+ * @see org.jsimpledb.core.Transaction#delete Transaction.delete()
  */
 public enum DeleteAction {
 
