@@ -58,7 +58,8 @@ import org.jsimpledb.core.DeleteAction;
  * </p>
  *
  * <p>
- * Reference fields have configurable behavior when the referred-to object is deleted; see {@link #onDelete}.
+ * Reference fields have configurable behavior when the containing object or the referred-to object is deleted;
+ * see {@link #onDelete} and {@link cascadeDelete}.
  * </p>
  *
  * <p>
@@ -151,7 +152,7 @@ public @interface JField {
     boolean indexed() default false;
 
     /**
-     * For reference fields, configure the behavior when a referred-to object is
+     * For reference fields, configure the behavior when the referred-to object is
      * {@linkplain org.jsimpledb.JObject#delete deleted}.
      *
      * <p>
@@ -159,5 +160,16 @@ public @interface JField {
      * </p>
      */
     DeleteAction onDelete() default DeleteAction.EXCEPTION;
+
+    /**
+     * For reference fields, configure cascading behavior when the containing object is
+     * {@linkplain org.jsimpledb.JObject#delete deleted}. If set to true, the referred-to object
+     * is automatically deleted as well.
+     *
+     * <p>
+     * This field is ignored for non-reference fields.
+     * </p>
+     */
+    boolean cascadeDelete() default false;
 }
 

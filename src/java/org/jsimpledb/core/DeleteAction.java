@@ -8,13 +8,13 @@
 package org.jsimpledb.core;
 
 /**
- * Describes what action to take when an object that is still referred to by
- * one or more other objects is deleted.
+ * Describes what action to take when an object that is still referred to by some other object is deleted.
  */
 public enum DeleteAction {
 
     /**
-     * Do nothing. Subsequent attempts to access the deleted object will result in {@link DeletedObjectException}.
+     * Do nothing. The reference will still exist, but subsequent attempts to access the fields of the deleted object
+     * will result in {@link DeletedObjectException}.
      */
     NOTHING,
 
