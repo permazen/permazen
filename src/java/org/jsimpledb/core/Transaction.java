@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -752,6 +753,17 @@ public class Transaction {
             ObjInfo.write(this, id, info.getVersionNumber(), true);
             for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
                 listener.onDelete(this, id);
+        }
+
+        // Find all objects referred to by a reference field with cascadeDelete = true and add them to deletables
+        for (ReferenceField field : Iterables.filter(
+          Iterables.filter(info.getObjType().referenceFields.values(), ReferenceField.class), new HasCascadeDelete())) {
+            final Iterable<ObjId> refs = field.parent != null ?
+              field.parent.iterateSubField(this, id, field) : Collections.singleton(field.getValue(this, id));
+            for (ObjId ref : refs) {
+                if (ref != null)
+                    deletables.add(ref);
+            }
         }
 
         // Actually delete the object
@@ -2785,6 +2797,15 @@ public class Transaction {
         @Override
         public boolean apply(FieldMonitor monitor) {
             return monitor.storageId == this.storageId && (monitor.types == null || monitor.types.contains(this.id.getBytes()));
+        }
+    }
+
+    // Matches ReferenceFields that have cascadeDelete = true
+    private final class HasCascadeDelete implements Predicate<ReferenceField> {
+
+        @Override
+        public boolean apply(ReferenceField field) {
+            return field.cascadeDelete;
         }
     }
 }

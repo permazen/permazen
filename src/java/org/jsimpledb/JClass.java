@@ -195,7 +195,7 @@ public class JClass<T> extends JSchemaObject {
 
             // Create simple field
             final JSimpleField jfield = this.createSimpleField(description, fieldTypeToken,
-              fieldName, annotation.type(), storageId, annotation.indexed(), annotation.onDelete(),
+              fieldName, annotation.type(), storageId, annotation.indexed(), annotation.onDelete(), annotation.cascadeDelete(),
               getter, setter, "field `" + fieldName + "' of object type `" + this.name + "'");
             jfield.parent = this;
 
@@ -232,7 +232,7 @@ public class JClass<T> extends JSchemaObject {
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
               elementType, SetField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementStorageId,
-              elementAnnotation.indexed(), elementAnnotation.onDelete(), null, null,
+              elementAnnotation.indexed(), elementAnnotation.onDelete(), elementAnnotation.cascadeDelete(), null, null,
               "element field of set field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create set field
@@ -273,7 +273,7 @@ public class JClass<T> extends JSchemaObject {
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
               elementType, ListField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementStorageId,
-              elementAnnotation.indexed(), elementAnnotation.onDelete(), null, null,
+              elementAnnotation.indexed(), elementAnnotation.onDelete(), elementAnnotation.cascadeDelete(), null, null,
               "element field of list field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create list field
@@ -317,11 +317,11 @@ public class JClass<T> extends JSchemaObject {
             // Create key and value sub-fields
             final JSimpleField keyField = this.createSimpleField("key() property of " + description,
               keyType, MapField.KEY_FIELD_NAME, keyAnnotation.type(), keyStorageId, keyAnnotation.indexed(),
-              keyAnnotation.onDelete(), null, null,
+              keyAnnotation.onDelete(), keyAnnotation.cascadeDelete(), null, null,
               "key field of map field `" + fieldName + "' in object type `" + this.name + "'");
             final JSimpleField valueField = this.createSimpleField("value() property of " + description,
               valueType, MapField.VALUE_FIELD_NAME, valueAnnotation.type(), valueStorageId, valueAnnotation.indexed(),
-              valueAnnotation.onDelete(), null, null,
+              valueAnnotation.onDelete(), valueAnnotation.cascadeDelete(), null, null,
               "value field of map field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create map field
@@ -448,7 +448,7 @@ public class JClass<T> extends JSchemaObject {
     // Create a simple field, either regular object field or sub-field of complex field
     @SuppressWarnings("unchecked")
     private JSimpleField createSimpleField(String description, TypeToken<?> fieldTypeToken, String fieldName,
-      String typeName, int storageId, boolean indexed, DeleteAction onDelete, Method getter, Method setter,
+      String typeName, int storageId, boolean indexed, DeleteAction onDelete, boolean cascadeDelete, Method getter, Method setter,
       String fieldDescription) {
 
         // Complex sub-field?
@@ -530,7 +530,8 @@ public class JClass<T> extends JSchemaObject {
         try {
             return
               isReferenceType ?
-                new JReferenceField(fieldName, storageId, fieldDescription, fieldTypeToken, onDelete, getter, setter) :
+                new JReferenceField(fieldName, storageId, fieldDescription,
+                  fieldTypeToken, onDelete, cascadeDelete, getter, setter) :
               enumType != null ?
                 new JEnumField(fieldName, storageId, enumType, indexed, fieldDescription, getter, setter) :
                 new JSimpleField(fieldName, storageId, fieldTypeToken,

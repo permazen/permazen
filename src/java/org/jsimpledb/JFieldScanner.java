@@ -45,6 +45,10 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         public DeleteAction onDelete() {
             return DeleteAction.EXCEPTION;
         }
+        @Override
+        public boolean cascadeDelete() {
+            return false;
+        }
     };
 
     JFieldScanner(JClass<T> jclass, boolean autogenFields) {

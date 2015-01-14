@@ -66,7 +66,8 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
         if (field.getEncodingSignature() != 0)
             throw new IllegalArgumentException("encoding signature must be zero for " + field);
-        return new ReferenceField(field.getName(), field.getStorageId(), this.version, field.getOnDelete(), field.getObjectTypes());
+        return new ReferenceField(field.getName(), field.getStorageId(),
+          this.version, field.getOnDelete(), field.isCascadeDelete(), field.getObjectTypes());
     }
 
     @Override

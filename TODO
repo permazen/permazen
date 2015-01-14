@@ -14,9 +14,6 @@
 - Add KVStore support for Google Cloud Datastore
     - https://cloud.google.com/datastore/docs/concepts/overview
 
-- Add new @JField property: boolean cascadeDelete() default false
-    - Deletion of object causes deletion of referred-to object
-
 - Add new uniqueness constraint annotation @Unique for simple fields
     - Field must be indexed (obviously)
     - optional property String ignore() default ""

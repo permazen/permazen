@@ -22,11 +22,13 @@ import org.jsimpledb.schema.ReferenceSchemaField;
 public class JReferenceField extends JSimpleField {
 
     final DeleteAction onDelete;
+    final boolean cascadeDelete;
 
     JReferenceField(String name, int storageId, String description,
-      TypeToken<?> typeToken, DeleteAction onDelete, Method getter, Method setter) {
+      TypeToken<?> typeToken, DeleteAction onDelete, boolean cascadeDelete, Method getter, Method setter) {
         super(name, storageId, typeToken, FieldType.REFERENCE_TYPE_NAME, true, description, getter, setter);
         this.onDelete = onDelete;
+        this.cascadeDelete = cascadeDelete;
     }
 
     @Override
@@ -46,11 +48,19 @@ public class JReferenceField extends JSimpleField {
         return this.onDelete;
     }
 
+    /**
+     * Determine whether the referred-to object should be deleted when an object containing this field is deleted.
+     */
+    public boolean isCascadeDelete() {
+        return this.cascadeDelete;
+    }
+
     @Override
     ReferenceSchemaField toSchemaItem(JSimpleDB jdb) {
         final ReferenceSchemaField schemaField = new ReferenceSchemaField();
         super.initialize(jdb, schemaField);
         schemaField.setOnDelete(this.onDelete);
+        schemaField.setCascadeDelete(this.cascadeDelete);
         final TreeSet<Integer> objectTypes = new TreeSet<>();
         for (JClass<?> jclass : jdb.getJClasses(this.typeToken))
             objectTypes.add(jclass.storageId);

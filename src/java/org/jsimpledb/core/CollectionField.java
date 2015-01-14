@@ -72,6 +72,14 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
 // Non-public methods
 
     @Override
+    @SuppressWarnings("unchecked")
+    <F> Iterable<F> iterateSubField(Transaction tx, ObjId id, SimpleField<F> subField) {
+        if (subField == this.elementField)
+            return (Iterable<F>)this.getValue(tx, id);
+        throw new IllegalArgumentException("unknown sub-field");
+    }
+
+    @Override
     abstract CollectionFieldStorageInfo<C, E> toStorageInfo();
 
     @Override

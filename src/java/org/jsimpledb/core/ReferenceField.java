@@ -24,6 +24,7 @@ import java.util.SortedSet;
 public class ReferenceField extends SimpleField<ObjId> {
 
     final DeleteAction onDelete;
+    final boolean cascadeDelete;
 
     /**
      * Constructor.
@@ -32,16 +33,19 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @param storageId field storage ID
      * @param version schema version
      * @param onDelete deletion behavior
+     * @param cascadeDelete whether to cascade deletes
      * @param objectTypes allowed object type storage IDs, or null for no restriction
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is invalid
      */
-    ReferenceField(String name, int storageId, SchemaVersion version, DeleteAction onDelete, Set<Integer> objectTypes) {
+    ReferenceField(String name, int storageId, SchemaVersion version,
+      DeleteAction onDelete, boolean cascadeDelete, Set<Integer> objectTypes) {
         super(name, storageId, version, new ReferenceFieldType(objectTypes), true);
         if (onDelete == null)
             throw new IllegalArgumentException("null onDelete");
         this.onDelete = onDelete;
+        this.cascadeDelete = cascadeDelete;
     }
 
 // Public methods
@@ -51,6 +55,13 @@ public class ReferenceField extends SimpleField<ObjId> {
      */
     public DeleteAction getOnDelete() {
         return this.onDelete;
+    }
+
+    /**
+     * Determine whether the referred-to object should be deleted when an object containing this field is deleted.
+     */
+    public boolean isCascadeDelete() {
+        return this.cascadeDelete;
     }
 
     /**
