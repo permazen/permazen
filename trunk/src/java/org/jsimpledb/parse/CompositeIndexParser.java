@@ -33,7 +33,6 @@ public class CompositeIndexParser implements Parser<CompositeIndex> {
         // Get object type
         final int typeStart = ctx.getIndex();
         final ObjType objType = new ObjTypeParser().parse(session, ctx, complete);
-        final String typeName = ctx.getOriginalInput().substring(typeStart, ctx.getIndex()).trim();
 
         // Get composite index name and resolve index
         ctx.skipWhitespace();

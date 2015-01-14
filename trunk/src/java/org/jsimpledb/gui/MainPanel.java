@@ -43,10 +43,7 @@ import org.dellroad.stuff.vaadin7.FieldBuilder;
 import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.dellroad.stuff.vaadin7.VaadinUtil;
 import org.jsimpledb.JClass;
-import org.jsimpledb.JCollectionField;
 import org.jsimpledb.JField;
-import org.jsimpledb.JFieldSwitchAdapter;
-import org.jsimpledb.JMapField;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JReferenceField;
 import org.jsimpledb.JSimpleDB;
@@ -126,6 +123,8 @@ public class MainPanel extends VerticalLayout {
             @Override
             protected void reportException(Exception e) {
                 Notification.show("Error: " + e.getMessage(), null, Notification.Type.ERROR_MESSAGE);
+                if (MainPanel.this.guiConfig.isVerbose())
+                    MainPanel.this.log.info("exception in parse session", e);
             }
         };
         this.session.setReadOnly(this.guiConfig.isReadOnly());
@@ -248,52 +247,7 @@ public class MainPanel extends VerticalLayout {
             return null;
 
         // Copy object and dependencies
-        final ObjIdSet idSet = new ObjIdSet();
-        final JObject copy = this.objectChooser.getObjectContainer().copyOut(jobj, idSet);
-
-        // Copy out all objects this object refers to, so we can display their reference labels
-        for (JField jfield : this.jdb.getJClass(id).getJFieldsByStorageId().values()) {
-            jfield.visit(new JFieldSwitchAdapter<Void>() {
-
-                @Override
-                public Void caseJReferenceField(JReferenceField field) {
-                    MainPanel.this.objectChooser.getObjectContainer().copyOut(field.getValue(jobj), idSet);
-                    return null;
-                }
-
-                @Override
-                public Void caseJMapField(JMapField field) {
-                    if (field.getKeyField() instanceof JReferenceField || field.getValueField() instanceof JReferenceField) {
-                        for (Map.Entry<?, ?> entry : field.getValue(jobj).entrySet()) {
-                            final Object key = entry.getKey();
-                            if (key instanceof JObject)
-                                MainPanel.this.objectChooser.getObjectContainer().copyOut((JObject)key, idSet);
-                            final Object value = entry.getKey();
-                            if (value instanceof JObject)
-                                MainPanel.this.objectChooser.getObjectContainer().copyOut((JObject)value, idSet);
-                        }
-                    }
-                    return null;
-                }
-
-                @Override
-                protected Void caseJCollectionField(JCollectionField field) {
-                    if (field.getElementField() instanceof JReferenceField) {
-                        for (Object elem : field.getValue(jobj))
-                            MainPanel.this.objectChooser.getObjectContainer().copyOut((JObject)elem, idSet);
-                    }
-                    return null;
-                }
-
-                @Override
-                protected Void caseJField(JField field) {
-                    return null;
-                }
-            });
-        }
-
-        // Done
-        return copy;
+        return this.objectChooser.getObjectContainer().copyOut(jobj, new ObjIdSet());
     }
 
 // New
@@ -548,13 +502,13 @@ public class MainPanel extends VerticalLayout {
         protected Editor buildSimpleFieldEditor(JSimpleField jfield, Property<?> property, boolean allowNull) {
 
             // Get property type
-            final Class<?> propertyType = jfield.getGetter().getReturnType();
+            final Class<?> propertyType = jfield.getType().getRawType();
 
             // Use object choosers for references
             if (jfield instanceof JReferenceField) {
                 final JReferenceField refField = (JReferenceField)jfield;
                 final ObjectEditor objectEditor = new ObjectEditor(this.jobj.getTransaction(), MainPanel.this.session,
-                  refField.getName(), refField.getGetter().getReturnType(), (Property<JObject>)property, allowNull);
+                  refField.getName(), refField.getType().getRawType(), (Property<JObject>)property, allowNull);
                 return new Editor(objectEditor);
             }
 
@@ -625,7 +579,7 @@ public class MainPanel extends VerticalLayout {
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         private Property<?> buildProperty(JSimpleField jfield) {
-            return new MethodProperty(jfield.getGetter().getReturnType(), this.jobj, jfield.getGetter(), jfield.getSetter());
+            return new MethodProperty(jfield.getType().getRawType(), this.jobj, jfield.getGetter(), jfield.getSetter());
         }
 
         @SuppressWarnings({ "unchecked", "rawtypes" })

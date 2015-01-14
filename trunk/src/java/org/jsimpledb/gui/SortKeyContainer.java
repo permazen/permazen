@@ -13,6 +13,7 @@ import com.vaadin.ui.DefaultFieldFactory;
 import java.util.ArrayList;
 import java.util.SortedMap;
 
+import org.dellroad.stuff.string.StringEncoder;
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SelfKeyedContainer;
 import org.jsimpledb.JClass;
@@ -21,6 +22,7 @@ import org.jsimpledb.JField;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleField;
+import org.jsimpledb.parse.ParseSession;
 
 /**
  * Container that contains all possible sort keys for a given {@link JClass}.
@@ -74,15 +76,10 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         this.load(sortKeys);
     }
 
-    private String getAllExpression() {
-        final StringBuilder buf = new StringBuilder();
-        buf.append("all(");
-        if (this.jclass != null)
-            buf.append(this.jclass.getName());
-        else if (this.type != null)
-            buf.append(this.type.getName() + ".class");
-        buf.append(")");
-        return buf.toString();
+    private String getTypeExpression(ParseSession session, boolean defaultJObject) {
+        return this.jclass != null ? this.jclass.getName() :
+          this.type != null ? session.relativizeClassName(this.type) + ".class" :
+          defaultJObject ? session.relativizeClassName(Object.class) + ".class" : "";
     }
 
 // SortKey
@@ -119,7 +116,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
             return "SortKey[" + this.description + "]";
         }
 
-        public abstract String getExpression(JObject startingPoint, boolean reverse);
+        public abstract String getExpression(ParseSession session, JObject startingPoint, boolean reverse);
     }
 
     // Sorts by object ID
@@ -130,8 +127,11 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         }
 
         @Override
-        public String getExpression(JObject startingPoint, boolean reverse) {       // TODO: starting point and sort order
-            return SortKeyContainer.this.getAllExpression();
+        public String getExpression(ParseSession session, JObject startingPoint, boolean reverse) {       // TODO: starting point
+            String expr = "all(" + SortKeyContainer.this.getTypeExpression(session, false) + ")";
+            if (reverse)
+                expr += ".descendingSet()";
+            return expr;
         }
     }
 
@@ -143,12 +143,13 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         }
 
         @Override
-        public String getExpression(JObject startingPoint, boolean reverse) {       // TODO: starting point and sort order
-            String versions = "queryVersion().values()";
-            final String typeAll = SortKeyContainer.this.getAllExpression();
-            if (!typeAll.equals("all()"))
-                versions = "transform(" + versions + ", $version," + " $version & " + typeAll + ")";
-            return "concat(" + versions + ")";
+        public String getExpression(ParseSession session, JObject startingPoint, boolean reverse) {       // TODO: starting point
+            String expr = "queryVersion(" + SortKeyContainer.this.getTypeExpression(session, false) + ")";
+            if (reverse)
+                expr += ".descendingMap()";
+            expr += ".values()";
+            expr = "concat(\n  " + expr + ")";
+            return expr;
         }
     }
 
@@ -171,14 +172,14 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         }
 
         @Override
-        public String getExpression(JObject startingPoint, boolean reverse) {       // TODO: starting point and sort order
-            String values = "queryIndex("
-              + (SortKeyContainer.this.type != null ? SortKeyContainer.this.type : JObject.class).getName()
-              + ", " + this.fieldName + ", " + this.fieldType.getName() + ").asMap().values()";
-            final String typeAll = SortKeyContainer.this.getAllExpression();
-            if (!typeAll.equals("all()"))
-                values = "transform(" + values + ", $value," + " $value & " + typeAll + ")";
-            return "concat(" + values + ")";
+        public String getExpression(ParseSession session, JObject startingPoint, boolean reverse) {       // TODO: starting point
+            String expr = "queryIndex(" + SortKeyContainer.this.getTypeExpression(session, true) + ", "
+              + StringEncoder.enquote(this.fieldName) + ", " + session.relativizeClassName(this.fieldType) + ".class).asMap()";
+            if (reverse)
+                expr += ".descendingMap()";
+            expr += ".values()";
+            expr = "concat(\n  " + expr + ")";
+            return expr;
         }
 
         @Override

@@ -40,6 +40,11 @@ public interface GUIConfig {
     boolean isReadOnly();
 
     /**
+     * Determine whether verbose mode is enabled.
+     */
+    boolean isVerbose();
+
+    /**
      * Get any custom {@link org.jsimpledb.parse.func.AbstractFunction} classes.
      */
     Iterable<Class<?>> getFunctionClasses();

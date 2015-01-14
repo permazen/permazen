@@ -102,7 +102,8 @@ public abstract class AbstractFunction {
 
     /**
      * Parse some number of Java expression function arguments. We assume we have parsed the opening parenthesis,
-     * zero or more previous arguments followed by commas, and optional whitespace.
+     * zero or more previous arguments followed by commas, and optional whitespace. This will parse through
+     * the closing parenthesis.
      *
      * @param session parse session
      * @param ctx parse context
@@ -118,7 +119,7 @@ public abstract class AbstractFunction {
 
         // Parse parameters
         final ArrayList<Node> params = new ArrayList<Node>(Math.min(maxArgs, minArgs * 2));
-        while (params.size() <= maxArgs) {
+        while (true) {
             if (ctx.isEOF()) {
                 final ParseException e = new ParseException(ctx, "truncated input");
                 if (!params.isEmpty() && params.size() < minArgs)
@@ -127,8 +128,17 @@ public abstract class AbstractFunction {
                     e.addCompletion(")");
                 throw e;
             }
-            if (ctx.tryLiteral(")"))
+            if (ctx.tryLiteral(")")) {
+                if (params.size() < minArgs) {
+                    throw new ParseException(ctx, "at least " + (skippedArgs + minArgs) + " argument(s) are required for function "
+                      + this.getName() + "()");
+                }
                 break;
+            }
+            if (params.size() >= maxArgs) {
+                throw new ParseException(ctx, "at most " + (skippedArgs + maxArgs) + " argument(s) are allowed for function "
+                  + this.getName() + "()");
+            }
             if (!params.isEmpty()) {
                 if (!ctx.tryLiteral(",")) {
                     throw new ParseException(ctx, "expected `,' between " + this.getName() + "() function parameters")
@@ -138,15 +148,6 @@ public abstract class AbstractFunction {
             }
             params.add(ExprParser.INSTANCE.parse(session, ctx, complete));
             ctx.skipWhitespace();
-        }
-
-        // Check number of parameters
-        if (params.size() < minArgs) {
-            throw new ParseException(ctx, "at least " + (skippedArgs + minArgs) + " argument(s) are required for function "
-              + this.getName() + "()");
-        } else if (params.size() > maxArgs) {
-            throw new ParseException(ctx, "at most " + (skippedArgs + maxArgs) + " argument(s) are allowed for function "
-              + this.getName() + "()");
         }
 
         // Done

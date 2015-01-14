@@ -168,6 +168,26 @@ public class ParseSession extends Session {
         return null;
     }
 
+    /**
+     * Relativize the given class's name, so that it is as short as possible given the configured imports.
+     * For example, for class {@link String} this will return {@code String}, but for class {@link ArrayList}
+     * this will return {@code java.util.ArrayList} unless {@code java.util.*} has been imported.
+     *
+     * @param klass class whose name to relativize
+     * @throws IllegalArgumentException if {@code klass} is null
+     */
+    public String relativizeClassName(Class<?> klass) {
+        if (klass == null)
+            throw new IllegalArgumentException("null klass");
+        final String name = klass.getName();
+        for (int pos = name.lastIndexOf('.'); pos > 0; pos = name.lastIndexOf('.', pos - 1)) {
+            final String shortName = name.substring(pos + 1);
+            if (this.resolveClass(shortName) == klass)
+                return shortName;
+        }
+        return klass.getName();
+    }
+
 // Action
 
     /**
