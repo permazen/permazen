@@ -205,7 +205,27 @@ public class ValidationTest extends TestSupport {
         } finally {
             JTransaction.setCurrent(null);
         }
+    }
 
+    @Test
+    public void testValidationOnCreate() {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+
+        // Transaction with validation disabled
+        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+            jtx.create(Person.class);           // a newly created person is invalid due to having a null name
+            try {
+                jtx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                // expected
+            }
+        } finally {
+            JTransaction.setCurrent(null);
+        }
     }
 
 // Model Classes
