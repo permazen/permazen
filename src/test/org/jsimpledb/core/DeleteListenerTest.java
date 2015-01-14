@@ -45,13 +45,13 @@ public class DeleteListenerTest extends TestSupport {
             @Override
             public void onDelete(Transaction tx2, ObjId id) {
                 Assert.assertEquals(tx2, tx);
-                if (id == id1) {
+                if (id.equals(id1)) {
                     notify1[0]++;
                     tx.delete(id1);
-                } else if (id == id2) {
+                } else if (id.equals(id2)) {
                     notify2[0]++;
                     tx.delete(id2);
-                } else if (id == id3) {
+                } else if (id.equals(id3)) {
                     notify3[0]++;
                     tx.delete(id2);
                 }
