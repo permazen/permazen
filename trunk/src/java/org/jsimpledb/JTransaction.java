@@ -233,11 +233,15 @@ public class JTransaction {
         this.tx = tx;
         this.validationMode = validationMode;
 
-        // Register listeners as needed
-        if (this.jdb.hasOnCreateMethods)
+        // Register listeners for @OnCreate
+        if (this.jdb.hasOnCreateMethods || validationMode == ValidationMode.AUTOMATIC)
             this.tx.addCreateListener(this.internalCreateListener);
+
+        // Register listeners for @OnDelete
         if (this.jdb.hasOnDeleteMethods)
             this.tx.addDeleteListener(this.internalDeleteListener);
+
+        // Register listeners for @OnChange
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
                 if (this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
@@ -246,12 +250,16 @@ public class JTransaction {
                 changeInfo.registerChangeListener(this);
             }
         }
+
+        // Register listeners for @Validate and JSR 303 constraints
         if (validationMode == ValidationMode.AUTOMATIC) {
             for (JFieldInfo jfieldInfo : this.jdb.jfieldInfos.values()) {
                 if (jfieldInfo.isRequiresValidation())
                     jfieldInfo.registerChangeListener(this.tx, new int[0], null, this.validationListener);
             }
         }
+
+        // Register listeners for @OnVersionChange
         if (this.jdb.hasOnVersionChangeMethods)
             this.tx.addVersionChangeListener(this.internalVersionChangeListener);
     }
