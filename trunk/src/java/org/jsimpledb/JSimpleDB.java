@@ -7,6 +7,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.annotation.Annotation;
@@ -611,6 +612,67 @@ public class JSimpleDB {
 
     ReferencePath parseReferencePath(TypeToken<?> startType, String path, Boolean lastIsSubField) {
         return this.referencePathCache.get(startType, path, lastIsSubField);
+    }
+
+// Misc utility
+
+    /**
+     * Utility method to get all of the objects directly referenced by a given object via any field.
+     *
+     * <p>
+     * Note: the returned {@link Iterable} may contain duplicates; these can be eliminated using an {@link ObjIdSet}
+     * if necessary.
+     * </p>
+     *
+     * @param jobj starting object
+     * @return all objects directly referenced by {@code jobj}
+     * @throws IllegalArgumentException if {@code jobj} is null
+     */
+    public Iterable<JObject> getReferencedObjects(final JObject jobj) {
+
+        // Sanity check
+        if (jobj == null)
+            throw new IllegalArgumentException("null jobj");
+        final ObjId id = jobj.getObjId();
+
+        // Visit fields
+        final ArrayList<Iterable<JObject>> iterables = new ArrayList<>();
+        for (JField jfield : this.getJClass(id).getJFieldsByStorageId().values()) {
+            jfield.visit(new JFieldSwitchAdapter<Void>() {
+
+                @Override
+                public Void caseJReferenceField(JReferenceField field) {
+                    final JObject ref = field.getValue(jobj);
+                    if (ref != null)
+                        iterables.add(Collections.singleton(ref));
+                    return null;
+                }
+
+                @Override
+                public Void caseJMapField(JMapField field) {
+                    if (field.getKeyField() instanceof JReferenceField)
+                        iterables.add(Iterables.filter(field.getValue(jobj).keySet(), JObject.class));
+                    if (field.getValueField() instanceof JReferenceField)
+                        iterables.add(Iterables.filter(field.getValue(jobj).values(), JObject.class));
+                    return null;
+                }
+
+                @Override
+                protected Void caseJCollectionField(JCollectionField field) {
+                    if (field.getElementField() instanceof JReferenceField)
+                        iterables.add(Iterables.filter(field.getValue(jobj), JObject.class));
+                    return null;
+                }
+
+                @Override
+                protected Void caseJField(JField field) {
+                    return null;
+                }
+            });
+        }
+
+        // Done
+        return Iterables.concat(iterables);
     }
 
 // Internal Stuff
