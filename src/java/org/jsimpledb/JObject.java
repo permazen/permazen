@@ -78,6 +78,11 @@ public interface JObject {
     /**
      * Delete this instance, if it exists, in this instance's associated transaction.
      *
+     * <p>
+     * See {@link org.jsimpledb.core.Transaction#delete Transaction.delete()} for details on secondary deletions from
+     * {@link org.jsimpledb.core.DeleteAction#DELETE} and {@link org.jsimpledb.annotation.JField#cascadeDelete}.
+     * </p>
+     *
      * @return true if instance was deleted, false if it did not exist
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread

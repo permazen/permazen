@@ -679,6 +679,21 @@ public class Transaction {
      * This method does <i>not</i> change the object's schema version if it has a different version that this transaction.
      * </p>
      *
+     * <p><b>Secondary Deletions</b></p>
+     *
+     * <p>
+     * Deleting an object can trigger additional secondary deletions. Specifically,
+     * if the object contains reference fields with {@linkplain ReferenceField#cascadeDelete delete cascade} enabled,
+     * any objects referred to through those fields will also be deleted, and if the object is referred to by any other objects
+     * through fields configured for {@link DeleteAction#DELETE}, those referring objects will be deleted.
+     * </p>
+     *
+     * <p>
+     * In any case, deletions occur one at a time, and only when an object is actually deleted are any associated secondary
+     * deletions added to an internal deletion queue. However, the order in which objects on this deletion queue are
+     * processed is unspecified.
+     * </p>
+     *
      * @param id object ID of the object to delete
      * @return true if object was found and deleted, false if object was not found,
      *  or if {@code id} specifies an unknown object type
@@ -705,23 +720,18 @@ public class Transaction {
             return false;
         }
 
-        // Handle recurive DeleteAction.DELETE without hogging Java stack
-        final ArrayList<ObjId> deletables = new ArrayList<>(1);
+        // Handle delete cascade and recurive DeleteAction.DELETE without hogging Java stack
+        final ObjIdSet deletables = new ObjIdSet();
         deletables.add(id);
         boolean found = false;
-        while (true) {
-            final int size = deletables.size();
-            if (size == 0)
-                break;
-            id = deletables.remove(size - 1);
-            found |= this.doDelete(id, deletables);
-        }
+        while (!deletables.isEmpty())
+            found |= this.doDelete(deletables.iterator().next(), deletables);
 
         // Done
         return found;
     }
 
-    private synchronized boolean doDelete(final ObjId id, List<ObjId> deletables) {
+    private synchronized boolean doDelete(final ObjId id, ObjIdSet deletables) {
 
         // Loop here to handle any mutations within delete notification listener callbacks
         ObjInfo info;
@@ -731,6 +741,7 @@ public class Transaction {
             try {
                 info = this.getObjectInfo(id, false);
             } catch (DeletedObjectException e) {                    // possibly due to a cycle of DeleteAction.DELETE references
+                deletables.remove(id);
                 return false;
             } catch (UnknownTypeException e) {
                 throw new InconsistentDatabaseException("encountered reference with unknown type during delete cascade: " + id, e);
@@ -768,6 +779,7 @@ public class Transaction {
 
         // Actually delete the object
         this.deleteObjectData(info);
+        deletables.remove(id);
 
         // Find all UNREFERENCE references and unreference them
         for (ReferenceFieldStorageInfo fieldInfo :
