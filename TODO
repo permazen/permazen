@@ -17,23 +17,17 @@
 - Add new @JField property: boolean cascadeDelete() default false
     - Deletion of object causes deletion of referred-to object
 
-- Add @JField uniqueness constraints:
+- Add new uniqueness constraint annotation @Unique for simple fields
     - Field must be indexed (obviously)
-    - boolean unique() default false
-    - String uniqueIgnore() default ""
+    - optional property String ignore() default ""
         - optional value which is excepted from uniqueness constraint
-        - for example "NaN" for float/double
-    - boolean uniquePerObject() default false
-        - for simple fields: must be false, error otherwise
-        - for collection sub-fields: whether constraint is per-object, or global
+        - for example "NaN" for float/double, null for Strings, etc.
     - Verify in deferred manner as follows:
         - Add validation check for uniqueness
         - Register SimpleFieldChangeListener on affected fields
         - When listener invoked (or object created), enqueue object for validation
     - Note: adding unique() in a schema upgrade can create unchecked violations
         - So just add updated objects to validation queue
-    - Note: for set element or map key sub-fields, if uniqueIgnore() = ""
-      and uniquePerObject() = true this is redundant
 
 - Finish Vaadin GUI editor generator
     - Implement collection fields
