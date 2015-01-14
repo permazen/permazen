@@ -41,19 +41,19 @@ public class FunctionTest extends TestSupport {
         try {
 
             this.sun = jtx.create(Star.class);
-            sun.setName("Sun");
+            this.sun.setName("Sun");
 
             this.earth = jtx.create(Planet.class);
             this.earth.setName("Earth");
-            this.earth.setParent(sun);
+            this.earth.setParent(this.sun);
 
             this.mars = jtx.create(Planet.class);
-            this.earth.setName("Mars");
-            this.earth.setParent(sun);
+            this.mars.setName("Mars");
+            this.mars.setParent(this.sun);
 
             this.moon = jtx.create(Moon.class);
             this.moon.setName("Moon");
-            this.moon.setParent(earth);
+            this.moon.setParent(this.earth);
 
             jtx.commit();
 
@@ -64,8 +64,7 @@ public class FunctionTest extends TestSupport {
         // Create parse session and register functions
         this.session = new ParseSession(jdb);
         this.session.setValidationMode(ValidationMode.AUTOMATIC);
-        for (String className :
-          new AnnotatedClassScanner(Function.class).scanForClasses(ParseSession.class.getPackage().getName()))
+        for (String className : new AnnotatedClassScanner(Function.class).scanForClasses(ParseSession.class.getPackage().getName()))
             session.registerFunction(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
     }
 
