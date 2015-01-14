@@ -5,14 +5,12 @@
  * $Id$
  */
 
-package org.jsimpledb;
+package org.jsimpledb.core;
 
 import java.util.AbstractSet;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import org.jsimpledb.core.ObjId;
 
 /**
  * A set of {@link ObjId}s.
@@ -27,7 +25,7 @@ import org.jsimpledb.core.ObjId;
  * Instances do not accept null values and are not thread safe.
  * </p>
  *
- * @see JObject#copyTo
+ * @see org.jsimpledb.JObject#copyTo
  */
 public class ObjIdSet extends AbstractSet<ObjId> {
 

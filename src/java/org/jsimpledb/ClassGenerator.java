@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjIdSet;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;

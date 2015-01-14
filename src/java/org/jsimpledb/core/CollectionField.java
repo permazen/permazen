@@ -66,6 +66,9 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
         return this.getValue(tx, id).isEmpty();
     }
 
+    @Override
+    public abstract C getValue(Transaction tx, ObjId id);
+
 // Non-public methods
 
     @Override

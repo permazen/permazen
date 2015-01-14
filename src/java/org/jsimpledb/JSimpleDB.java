@@ -620,8 +620,8 @@ public class JSimpleDB {
      * Utility method to get all of the objects directly referenced by a given object via any field.
      *
      * <p>
-     * Note: the returned {@link Iterable} may contain duplicates; these can be eliminated using an {@link ObjIdSet}
-     * if necessary.
+     * Note: the returned {@link Iterable} may contain duplicates; these can be eliminated using an
+     * {@link org.jsimpledb.core.ObjIdSet} if necessary.
      * </p>
      *
      * @param jobj starting object

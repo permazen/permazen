@@ -20,6 +20,7 @@ import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.Transaction;
 
 class JSetFieldInfo extends JCollectionFieldInfo {

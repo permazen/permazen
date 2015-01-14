@@ -12,6 +12,7 @@ import java.util.Deque;
 import java.util.List;
 
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjIdSet;
 
 abstract class JComplexFieldInfo extends JFieldInfo {
 

@@ -19,6 +19,7 @@ import org.jsimpledb.change.ListFieldClear;
 import org.jsimpledb.change.ListFieldRemove;
 import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.Transaction;
 
 class JListFieldInfo extends JCollectionFieldInfo {

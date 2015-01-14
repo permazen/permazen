@@ -24,6 +24,7 @@ import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SetFieldChangeListener;
 import org.jsimpledb.core.Transaction;

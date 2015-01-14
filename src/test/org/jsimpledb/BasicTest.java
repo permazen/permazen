@@ -21,6 +21,7 @@ import org.jsimpledb.annotation.JMapField;
 import org.jsimpledb.annotation.JSetField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeletedObjectException;
+import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.ReferencedObjectException;
 import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
