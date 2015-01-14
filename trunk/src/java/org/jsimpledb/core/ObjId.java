@@ -40,6 +40,8 @@ public class ObjId implements Comparable<ObjId> {
 
     private final long value;
 
+// Constructors
+
     /**
      * Create a new, random instance with the given storage ID.
      *
@@ -70,6 +72,21 @@ public class ObjId implements Comparable<ObjId> {
         if (reader == null)
             throw new IllegalArgumentException("null reader");
         this.value = ByteUtil.readLong(reader);
+        this.validateStorageId();
+    }
+
+    /**
+     * Constructor using a long value previously returned by {@link #asLong}.
+     *
+     * @param value long encoding of an instance
+     * @throws IllegalArgumentException if {@code value} is invalid
+     */
+    public ObjId(long value) {
+        this.value = value;
+        this.validateStorageId();
+    }
+
+    private void validateStorageId() {
         final int storageId;
         try {
             storageId = this.getStorageId();
@@ -79,6 +96,8 @@ public class ObjId implements Comparable<ObjId> {
         if (storageId <= 0)
             throw new IllegalArgumentException("invalid object ID containing storage ID " + storageId);
     }
+
+// Methods
 
     /**
      * Get the storage ID associated with this instance.
