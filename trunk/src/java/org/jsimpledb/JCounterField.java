@@ -24,12 +24,10 @@ public class JCounterField extends JField {
     }
 
     @Override
-    public Counter getValue(JTransaction jtx, JObject jobj) {
-        if (jtx == null)
-            throw new IllegalArgumentException("null jtx");
+    public Counter getValue(JObject jobj) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        return jtx.readCounterField(jobj, this.storageId, false);
+        return jobj.getTransaction().readCounterField(jobj, this.storageId, false);
     }
 
     @Override

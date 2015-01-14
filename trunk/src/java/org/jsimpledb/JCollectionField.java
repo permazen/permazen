@@ -37,7 +37,7 @@ public abstract class JCollectionField extends JComplexField {
     }
 
     @Override
-    public abstract Collection<?> getValue(JTransaction jtx, JObject jobj);
+    public abstract Collection<?> getValue(JObject jobj);
 
     @Override
     public List<JSimpleField> getSubFields() {

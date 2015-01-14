@@ -23,12 +23,10 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    public NavigableSet<?> getValue(JTransaction jtx, JObject jobj) {
-        if (jtx == null)
-            throw new IllegalArgumentException("null jtx");
+    public NavigableSet<?> getValue(JObject jobj) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        return jtx.readSetField(jobj, this.storageId, false);
+        return jobj.getTransaction().readSetField(jobj, this.storageId, false);
     }
 
     @Override

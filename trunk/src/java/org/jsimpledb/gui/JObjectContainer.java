@@ -679,28 +679,27 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         @Override
         public Component extract(final JObject jobj) {
             final JField jfield = JObjectContainer.this.jdb.getJClass(jobj.getObjId()).getJField(this.storageId, JField.class);
-            final JTransaction jtx = jobj.getTransaction();
             try {
                 return jfield.visit(new JFieldSwitchAdapter<Component>() {
 
                     @Override
                     public Component caseJSimpleField(JSimpleField field) {
-                        return ObjFieldPropertyDef.this.handleValue(field.getValue(jtx, jobj));
+                        return ObjFieldPropertyDef.this.handleValue(field.getValue(jobj));
                     }
 
                     @Override
                     public Component caseJCounterField(JCounterField field) {
-                        return ObjFieldPropertyDef.this.handleValue(field.getValue(jtx, jobj).get());
+                        return ObjFieldPropertyDef.this.handleValue(field.getValue(jobj).get());
                     }
 
                     @Override
                     protected Component caseJCollectionField(JCollectionField field) {
-                        return ObjFieldPropertyDef.this.handleCollectionField(field.getValue(jtx, jobj));
+                        return ObjFieldPropertyDef.this.handleCollectionField(field.getValue(jobj));
                     }
 
                     @Override
                     public Component caseJMapField(JMapField field) {
-                        return ObjFieldPropertyDef.this.handleMultiple(Iterables.transform(field.getValue(jtx, jobj).entrySet(),
+                        return ObjFieldPropertyDef.this.handleMultiple(Iterables.transform(field.getValue(jobj).entrySet(),
                           new Function<Map.Entry<?, ?>, Component>() {
                             @Override
                             public Component apply(Map.Entry<?, ?> entry) {

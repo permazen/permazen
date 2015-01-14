@@ -81,12 +81,10 @@ public class JSimpleField extends JField {
     }
 
     @Override
-    public Object getValue(JTransaction jtx, JObject jobj) {
-        if (jtx == null)
-            throw new IllegalArgumentException("null jtx");
+    public Object getValue(JObject jobj) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        return jtx.readSimpleField(jobj, this.storageId, false);
+        return jobj.getTransaction().readSimpleField(jobj, this.storageId, false);
     }
 
     @Override
