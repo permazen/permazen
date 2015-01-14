@@ -7,6 +7,9 @@
 
 package org.jsimpledb.demo;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.jsimpledb.JObject;
 import org.jsimpledb.annotation.JField;
@@ -22,6 +25,7 @@ public interface Body extends JObject {
      */
     @JField(indexed = true)
     @ProvidesProperty(JObjectContainer.REFERENCE_LABEL_PROPERTY)
+    @NotNull
     String getName();
     void setName(String name);
 
@@ -29,6 +33,7 @@ public interface Body extends JObject {
      * Get the mass of this instance in kilograms.
      */
     @JField(indexed = true)
+    @Min(0)
     float getMass();
     void setMass(float name);
 }
