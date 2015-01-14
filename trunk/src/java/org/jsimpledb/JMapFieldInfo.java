@@ -21,6 +21,7 @@ import org.jsimpledb.change.MapFieldRemove;
 import org.jsimpledb.change.MapFieldReplace;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.Transaction;
 
 class JMapFieldInfo extends JComplexFieldInfo {

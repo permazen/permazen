@@ -8,6 +8,7 @@
 package org.jsimpledb;
 
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ObjIdSet;
 
 /**
  * Interface implemented by {@link JSimpleDB} Java model objects.

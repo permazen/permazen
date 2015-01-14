@@ -9,7 +9,7 @@ package org.jsimpledb.change;
 
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.ObjIdSet;
+import org.jsimpledb.core.ObjIdSet;
 
 /**
  * Creates a new {@link Change} object based on an existing one where the {@link JObject}s referred to by the
