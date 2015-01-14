@@ -7,6 +7,8 @@
 
 package org.jsimpledb.demo;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Implemented by heavenly bodies that can orbit around other heavenly bodies.
  *
@@ -17,8 +19,9 @@ public interface Satellite<P extends HasSatellites<?>> extends Body {
     /**
      * Get the parent around which this instance orbits, if any.
      *
-     * @return parent heavenly body, or null if this heavenly body is just floating around in space
+     * @return parent heavenly body
      */
+    @NotNull
     P getParent();
     void setParent(P parent);
 }
