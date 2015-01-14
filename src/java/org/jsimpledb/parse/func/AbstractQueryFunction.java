@@ -7,10 +7,13 @@
 
 package org.jsimpledb.parse.func;
 
+import org.jsimpledb.core.ObjType;
+import org.jsimpledb.parse.ObjTypeParser;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.ExprParser;
+import org.jsimpledb.parse.expr.LiteralNode;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 
@@ -62,8 +65,25 @@ abstract class AbstractQueryFunction extends AbstractFunction {
         }
         ctx.setIndex(typeStart);
 
-        // Parse first parameter
-        final Node param1 = ExprParser.INSTANCE.parse(session, ctx, complete);
+        // Attempt to parse first form with type name (JSimpleDB mode only)
+        Node param1 = null;
+        if (session.hasJSimpleDB()) {
+            try {
+                final ObjType objType = new ObjTypeParser().parse(session, ctx, complete);
+                final int mark = ctx.getIndex();
+                ctx.skipWhitespace();
+                if (!ctx.tryLiteral(","))                   // verify this is the first form
+                    throw new ParseException(ctx);
+                ctx.setIndex(mark);
+                param1 = new LiteralNode(session.getJSimpleDB().getJClass(objType.getStorageId()).getTypeToken().getRawType());
+            } catch (ParseException e) {
+                ctx.setIndex(typeStart);
+            }
+        }
+
+        // Parse first parameter as expression
+        if (param1 == null)
+            param1 = ExprParser.INSTANCE.parse(session, ctx, complete);
 
         // Only one parameter? Assume it's the third form.
         ctx.skipWhitespace();

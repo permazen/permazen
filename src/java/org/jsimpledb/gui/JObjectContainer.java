@@ -482,14 +482,17 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * all of the other objects on which any container property of {@code jobj} may depend.
      *
      * <p>
-     * The implementation in {@link JObjectContainer} returns an empty collection.
+     * The implementation in {@link JObjectContainer} returns all objects that are directly referenced by {@code jobj},
+     * delegating to {@link JSimpleDB#getReferencedObjects JSimpleDB.getReferencedObjects()}.
+     * Subclasses may override this method to refine the selection.
      * </p>
      *
      * @param jobj the object being copied
      * @return {@link Iterable} of additional objects to be copied, or null for none; any null values are ignored
+     * @throws IllegalArgumentException if {@code jobj} is null
      */
     protected Iterable<? extends JObject> getDependencies(JObject jobj) {
-        return Collections.<JObject>emptySet();
+        return this.jdb.getReferencedObjects(jobj);
     }
 
     /**

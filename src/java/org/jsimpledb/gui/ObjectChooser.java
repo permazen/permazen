@@ -13,15 +13,18 @@ import com.vaadin.server.Sizeable;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextArea;
 
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.jsimpledb.JClass;
+import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.parse.ParseSession;
@@ -42,6 +45,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
             ObjectChooser.this.showButtonClicked();
         }
     });
+    private final CheckBox reverseCheckBox = new CheckBox("Reverse sort");
 
     private final JSimpleDB jdb;
     private final ParseSession session;
@@ -90,7 +94,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         this.showForm.setMargin(false);
         this.showForm.setWidth("100%");
 
-        // Add "Show all by" combo box
+        // Add "Show all by" combo box and "Reverse sort" check box
         final HorizontalLayout sortLayout = new HorizontalLayout();
         sortLayout.setCaption("Show all by:");
         sortLayout.setSpacing(true);
@@ -102,12 +106,14 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         this.sortComboBox.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
         this.sortComboBox.setItemCaptionPropertyId(SortKeyContainer.DESCRIPTION_PROPERTY);
         this.sortComboBox.setImmediate(true);
+        this.reverseCheckBox.setImmediate(true);
         sortLayout.addComponent(this.sortComboBox);
+        sortLayout.addComponent(this.reverseCheckBox);
         this.showForm.addComponent(sortLayout);
 
         // Add show/expression field
         this.exprField.setCaption("Expression:");
-        this.exprField.setRows(4);
+        this.exprField.setRows(6);
         this.exprField.setWidth("100%");
         this.exprField.addStyleName("jsdb-fixed-width");
         this.showForm.addComponent(this.exprField);
@@ -121,13 +127,15 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
             }
         });
 
-        // Listen to "Show all by" selection
-        this.sortComboBox.addValueChangeListener(new Property.ValueChangeListener() {
+        // Listen to "Show all by" and "Reverse sort" selections
+        final Property.ValueChangeListener sortListener = new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                ObjectChooser.this.selectSort((SortKeyContainer.SortKey)event.getProperty().getValue());
+                ObjectChooser.this.selectSort();
             }
-        });
+        };
+        this.sortComboBox.addValueChangeListener(sortListener);
+        this.reverseCheckBox.addValueChangeListener(sortListener);
 
         // Populate table
         this.selectType(TypeToken.of(type != null ? type : Object.class), true);
@@ -238,15 +246,20 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
 
         // Default to sorting by object ID
         this.sortComboBox.setValue(this.sortKeyContainer.new ObjectIdSortKey());
-        this.selectSort((SortKeyContainer.SortKey)this.sortComboBox.getValue());
+        this.selectSort();
         this.showObjects();
     }
 
+    // Update sort based on current selection
+    private void selectSort() {
+        this.selectSort((SortKeyContainer.SortKey)this.sortComboBox.getValue(), this.reverseCheckBox.getValue());
+    }
+
     // Invoked when a sort choice is made
-    private void selectSort(SortKeyContainer.SortKey sortKey) {
+    private void selectSort(SortKeyContainer.SortKey sortKey, boolean reverse) {
         if (sortKey == null)
             return;
-        this.exprField.setValue(sortKey.getExpression(null, false));        // TODO: starting point and sort order
+        this.exprField.setValue(sortKey.getExpression(this.session, null, reverse));          // TODO: starting point
         this.showObjects();
     }
 
@@ -271,6 +284,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
             this.splitPanel.removeComponent(this.objectTable);
         }
         this.objectContainer.setType(type);
+        this.objectContainer.load(Collections.<JObject>emptySet());
         this.objectTable = new ObjectTable(this.jdb, this.objectContainer, this.session, this.showFields);
         for (Property.ValueChangeListener listener : this.listeners)
             this.objectTable.addValueChangeListener(listener);

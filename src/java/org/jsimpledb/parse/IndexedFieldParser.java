@@ -40,7 +40,6 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
         // Get object type
         final int typeStart = ctx.getIndex();
         final ObjType objType = new ObjTypeParser().parse(session, ctx, complete);
-        final String typeName = ctx.getOriginalInput().substring(typeStart, ctx.getIndex()).trim();
 
         // Get indexed field
         ctx.skipWhitespace();

@@ -51,15 +51,13 @@ public class ObjectTable extends AbstractTable<JObjectContainer> {
 
     @Override
     protected void configureColumns() {
-
-        // Add columns
         this.setColumnCollapsingAllowed(true);
-        for (String fieldName : this.getContainer().getOrderedPropertyNames()) {
-            String title = DefaultFieldFactory.createCaptionByPropertyId(fieldName);
+        for (String propertyName : this.getContainer().getOrderedPropertyNames()) {
+            String title = DefaultFieldFactory.createCaptionByPropertyId(propertyName);
             Table.Align align = Table.Align.CENTER;
             int width = 120;
             boolean showField = this.showFields;
-            switch (fieldName) {
+            switch (propertyName) {
             case JObjectContainer.REFERENCE_LABEL_PROPERTY:
                 title = "Label";
                 width = 120;
@@ -82,14 +80,10 @@ public class ObjectTable extends AbstractTable<JObjectContainer> {
             default:
                 break;
             }
-            this.addColumn(fieldName, title, width, align);
-            this.setColumnExpandRatio(fieldName, width / 120.0f);
-            this.setColumnCollapsed(fieldName, !showField);
+            this.addColumn(propertyName, title, width, align);
+            this.setColumnExpandRatio(propertyName, width / 120.0f);
+            this.setColumnCollapsed(propertyName, !showField);
         }
-
-        // Adjust columns
-        this.setColumnCollapsingAllowed(true);
-        this.setColumnCollapsed(JObjectContainer.OBJECT_ID_PROPERTY, true);
     }
 }
 

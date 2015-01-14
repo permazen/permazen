@@ -170,6 +170,11 @@ public class Main extends AbstractMain implements GUIConfig {
     }
 
     @Override
+    public boolean isVerbose() {
+        return this.verbose;
+    }
+
+    @Override
     public Set<Class<?>> getFunctionClasses() {
         return this.functionClasses;
     }

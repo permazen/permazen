@@ -10,6 +10,8 @@ package org.jsimpledb.parse;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.dellroad.stuff.string.StringEncoder;
+
 /**
  * Utility class supporting parsing of strings.
  *
@@ -259,6 +261,8 @@ public class ParseContext implements Cloneable {
         return new IllegalArgumentException(text);
     }
 
+// Object
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null || obj.getClass() != this.getClass())
@@ -270,6 +274,11 @@ public class ParseContext implements Cloneable {
     @Override
     public int hashCode() {
         return this.input.hashCode() ^ this.index;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[index=" + this.index + ",input=" + StringEncoder.enquote(this.input) + "]";
     }
 }
 
