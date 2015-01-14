@@ -9,7 +9,6 @@ package org.jsimpledb.parse.expr;
 
 import org.jsimpledb.JField;
 import org.jsimpledb.JObject;
-import org.jsimpledb.JTransaction;
 import org.jsimpledb.parse.ParseSession;
 
 /**
@@ -40,7 +39,7 @@ public class JFieldValue extends AbstractValue {
     @Override
     public Object get(ParseSession session) {
         try {
-            return this.jfield.getValue(JTransaction.getCurrent(), this.jobj);
+            return this.jfield.getValue(this.jobj);
         } catch (Exception e) {
             throw new EvalException("error reading field `" + this.jfield.getName() + "' from object " + this.jobj.getObjId()
               + ": " + (e.getMessage() != null ? e.getMessage() : e));

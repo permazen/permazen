@@ -52,13 +52,12 @@ public abstract class JField extends JSchemaObject {
      * Get the Java value of this field in the given Java model object.
      * Does not alter the schema version of the object.
      *
-     * @param jtx transaction
      * @param jobj object containing this field
      * @throws DeletedObjectException if {@code jobj} does not exist in {@code jtx}
-     * @throws StaleTransactionException if {@code jtx} is no longer usable
-     * @throws IllegalArgumentException if either parameter is null
+     * @throws StaleTransactionException if the {@link JTransaction} associated with {@code jobj} is no longer usable
+     * @throws IllegalArgumentException if {@code jobj} is null
      */
-    public abstract Object getValue(JTransaction jtx, JObject jobj);
+    public abstract Object getValue(JObject jobj);
 
     /**
      * Apply visitor pattern.

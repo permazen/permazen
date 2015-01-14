@@ -30,6 +30,11 @@ public class JReferenceField extends JSimpleField {
     }
 
     @Override
+    public JObject getValue(JObject jobj) {
+        return (JObject)super.getValue(jobj);
+    }
+
+    @Override
     public <R> R visit(JFieldSwitch<R> target) {
         return target.caseJReferenceField(this);
     }

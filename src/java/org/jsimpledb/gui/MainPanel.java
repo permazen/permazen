@@ -257,15 +257,14 @@ public class MainPanel extends VerticalLayout {
 
                 @Override
                 public Void caseJReferenceField(JReferenceField field) {
-                    MainPanel.this.objectChooser.getObjectContainer().copyOut(
-                      (JObject)field.getValue(JTransaction.getCurrent(), jobj), idSet);
+                    MainPanel.this.objectChooser.getObjectContainer().copyOut(field.getValue(jobj), idSet);
                     return null;
                 }
 
                 @Override
                 public Void caseJMapField(JMapField field) {
                     if (field.getKeyField() instanceof JReferenceField || field.getValueField() instanceof JReferenceField) {
-                        for (Map.Entry<?, ?> entry : field.getValue(JTransaction.getCurrent(), jobj).entrySet()) {
+                        for (Map.Entry<?, ?> entry : field.getValue(jobj).entrySet()) {
                             final Object key = entry.getKey();
                             if (key instanceof JObject)
                                 MainPanel.this.objectChooser.getObjectContainer().copyOut((JObject)key, idSet);
@@ -280,7 +279,7 @@ public class MainPanel extends VerticalLayout {
                 @Override
                 protected Void caseJCollectionField(JCollectionField field) {
                     if (field.getElementField() instanceof JReferenceField) {
-                        for (Object elem : field.getValue(JTransaction.getCurrent(), jobj))
+                        for (Object elem : field.getValue(jobj))
                             MainPanel.this.objectChooser.getObjectContainer().copyOut((JObject)elem, idSet);
                     }
                     return null;
