@@ -59,7 +59,7 @@ import org.jsimpledb.core.DeleteAction;
  *
  * <p>
  * Reference fields have configurable behavior when the containing object or the referred-to object is deleted;
- * see {@link #onDelete} and {@link cascadeDelete}.
+ * see {@link #onDelete} and {@link #cascadeDelete}.
  * </p>
  *
  * <p>
