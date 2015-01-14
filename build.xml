@@ -11,7 +11,8 @@
     <property name="maven.group.id" value="org.jsimpledb"/>
     <property name="library.version" value="1.1.0-SNAPSHOT"/>
     <property name="javac.compiler.flags" value="-Xlint:all"/>
-    <property name="coverage.report" value="true"/>
+    <property name="coverage" value="true"/>
+    <property name="javadoc" value="true"/>
     <property name="custom.theme.name" value="jsdb"/>
 
     <!-- Import generic build macros -->
@@ -266,28 +267,36 @@
       description="Build API JavaDocs">
         <delete dir="build/javadoc"/>
         <mkdir dir="build/javadoc"/>
-        <copy todir="build/javadoc">
-            <fileset dir="src/java/org/jsimpledb" includes="overview.html"/>
-            <filterset>
-                <filter token="VERSION" value="${library.version}"/>
-                <filter token="SVN_REVISION" value="${svn.revision}"/>
-            </filterset>
-        </copy>
-        <dellroad:javadoc overview="build/javadoc/overview.html">
-            <additional-classpath>
-                <pathelement path="build/classes"/>
-            </additional-classpath>
-            <links>
-                <link href="https://docs.oracle.com/javase/7/docs/api/"/>
-                <link href="https://docs.oracle.com/javaee/7/api/"/>
-                <link href="http://docs.guava-libraries.googlecode.com/git/javadoc/"/>
-                <link href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/"/>
-                <link href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/"/>
-                <link href="https://foundationdb.com/key-value-store/documentation/javadoc/"/>
-                <link href="https://vaadin.com/api/"/>
-                <link href="http://www.slf4j.org/api/"/>
-            </links>
-        </dellroad:javadoc>
+        <antcontrib:if>
+            <equals arg1="${javadoc}" arg2="true"/>
+            <antcontrib:then>
+                <copy todir="build/javadoc">
+                    <fileset dir="src/java/org/jsimpledb" includes="overview.html"/>
+                    <filterset>
+                        <filter token="VERSION" value="${library.version}"/>
+                        <filter token="SVN_REVISION" value="${svn.revision}"/>
+                    </filterset>
+                </copy>
+                <dellroad:javadoc overview="build/javadoc/overview.html">
+                    <additional-classpath>
+                        <pathelement path="build/classes"/>
+                    </additional-classpath>
+                    <links>
+                        <link href="https://docs.oracle.com/javase/7/docs/api/"/>
+                        <link href="https://docs.oracle.com/javaee/7/api/"/>
+                        <link href="http://docs.guava-libraries.googlecode.com/git/javadoc/"/>
+                        <link href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/"/>
+                        <link href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/"/>
+                        <link href="https://foundationdb.com/key-value-store/documentation/javadoc/"/>
+                        <link href="https://vaadin.com/api/"/>
+                        <link href="http://www.slf4j.org/api/"/>
+                    </links>
+                </dellroad:javadoc>
+            </antcontrib:then>
+            <antcontrib:else>
+                <mkdir dir="build/reports/javadoc"/>
+            </antcontrib:else>
+        </antcontrib:if>
         <property name="javadoc.completed" value="true"/>
     </target>
 
@@ -312,7 +321,7 @@
             <fileset dir="src/spring" includes="spring.*"/>
         </copy>
         <copy file="src/xml/log4j-build.xml" tofile="build/test/log4j.xml"/>
-        <dellroad:unit-tests cobertura="${coverage.report}">
+        <dellroad:unit-tests cobertura="${coverage}">
             <addclasspath>
                 <path refid="build.classpath"/>
                 <path refid="javac.classpath"/>
