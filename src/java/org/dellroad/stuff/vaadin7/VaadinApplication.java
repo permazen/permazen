@@ -33,6 +33,11 @@ import org.slf4j.LoggerFactory;
  * <blockquote><pre>
  *  &lt;bean class="org.dellroad.stuff.vaadin7.VaadinApplication"/&gt;
  * </pre></blockquote>
+ * If your {@link VaadinApplication} instance allocates any resources on startup, be sure to configure it so
+ * that it cleans them up on application context shutdown, for example, by specifying {@code destroy-method="..."}.
+ * </p>
+ *
+ * <p>
  * If you are in a clustered environment and are subclassing this class, {@code scope="session"} is recommended;
  * without it, there will be one instance per server+session rather than one unique instance per session. Of course,
  * whether that matters depends on the semantics of the subclass fields. In any case, be aware that no instance will
