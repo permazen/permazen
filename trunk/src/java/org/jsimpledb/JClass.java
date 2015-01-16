@@ -456,6 +456,9 @@ public class JClass<T> extends JSchemaObject {
       String typeName, int storageId, boolean indexed, DeleteAction onDelete, boolean cascadeDelete, Method getter, Method setter,
       String fieldDescription) {
 
+        // Include containing type for annotation description; with autogenProperties it can be more than one
+        description += " in " + this.typeToken.getRawType();
+
         // Complex sub-field?
         final boolean isSubField = getter == null;
 
