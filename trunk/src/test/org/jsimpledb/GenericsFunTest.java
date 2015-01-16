@@ -7,9 +7,6 @@
 
 package org.jsimpledb;
 
-import java.util.List;
-import java.util.Set;
-
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnChange;
@@ -133,26 +130,5 @@ public class GenericsFunTest extends TestSupport {
     @JSimpleClass
     public abstract static class Class3 extends Class1<Class2> {
     }
-
-// Model Classes #3
-
-    public interface Foo {
-    }
-
-    @JSimpleClass
-    public abstract static class Super1<F extends Foo> {
-
-        public abstract F getFoo();
-        public abstract F setFoo();
-    }
-
-    @JSimpleClass
-    public abstract static class Sub1 extends Super1<Sub2> {
-    }
-
-    @JSimpleClass
-    public abstract static class Sub2 extends Super1<Sub1> {
-    }
-
 }
 
