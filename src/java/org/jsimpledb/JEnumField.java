@@ -20,9 +20,9 @@ import org.jsimpledb.schema.SimpleSchemaField;
  */
 public class JEnumField extends JSimpleField {
 
-    JEnumField(String name, int storageId, Class<? extends Enum<?>> enumType,
+    JEnumField(JSimpleDB jdb, String name, int storageId, Class<? extends Enum<?>> enumType,
       boolean indexed, String description, Method getter, Method setter) {
-        super(name, storageId, TypeToken.of(enumType.asSubclass(Enum.class)),
+        super(jdb, name, storageId, TypeToken.of(enumType.asSubclass(Enum.class)),
           enumType.getName(), indexed, description, getter, setter);
     }
 

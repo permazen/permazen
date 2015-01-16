@@ -17,8 +17,8 @@ import org.jsimpledb.schema.ComplexSchemaField;
  */
 public abstract class JComplexField extends JField {
 
-    JComplexField(String name, int storageId, String description, Method getter) {
-        super(name, storageId, description, getter);
+    JComplexField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
+        super(jdb, name, storageId, description, getter);
         if (name == null)
             throw new IllegalArgumentException("null name");
     }

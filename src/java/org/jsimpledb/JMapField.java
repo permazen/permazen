@@ -24,8 +24,9 @@ public class JMapField extends JComplexField {
     final JSimpleField keyField;
     final JSimpleField valueField;
 
-    JMapField(String name, int storageId, JSimpleField keyField, JSimpleField valueField, String description, Method getter) {
-        super(name, storageId, description, getter);
+    JMapField(JSimpleDB jdb, String name, int storageId,
+      JSimpleField keyField, JSimpleField valueField, String description, Method getter) {
+        super(jdb, name, storageId, description, getter);
         if (keyField == null)
             throw new IllegalArgumentException("null keyField");
         if (valueField == null)

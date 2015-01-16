@@ -42,7 +42,6 @@ public class JClass<T> extends JSchemaObject {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    final JSimpleDB jdb;
     final TypeToken<T> typeToken;
     final ClassGenerator<T> classGenerator;
     final TreeMap<Integer, JField> jfields = new TreeMap<>();
@@ -70,12 +69,9 @@ public class JClass<T> extends JSchemaObject {
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
     JClass(JSimpleDB jdb, String name, int storageId, TypeToken<T> typeToken) {
-        super(name, storageId, "object type `" + name + "' (" + typeToken + ")");
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
+        super(jdb, name, storageId, "object type `" + name + "' (" + typeToken + ")");
         if (name == null)
             throw new IllegalArgumentException("null name");
-        this.jdb = jdb;
         this.typeToken = typeToken;
         this.classGenerator = new ClassGenerator<T>(this);
     }
@@ -86,13 +82,6 @@ public class JClass<T> extends JSchemaObject {
     }
 
 // Public API
-
-    /**
-     * Get the {@link JSimpleDB} with which this instance is associated.
-     */
-    public JSimpleDB getJSimpleDB() {
-        return this.jdb;
-    }
 
     /**
      * Get the Java model object type associated with this instance.
@@ -177,7 +166,7 @@ public class JClass<T> extends JSchemaObject {
                     throw new IllegalArgumentException("invalid " + description + ": counter fields cannot be indexed");
 
                 // Create counter field
-                final JCounterField jfield = new JCounterField(fieldName, storageId,
+                final JCounterField jfield = new JCounterField(this.jdb, fieldName, storageId,
                   "counter field `" + fieldName + "' of object type `" + this.name + "'", getter);
                 jfield.parent = this;
 
@@ -237,7 +226,7 @@ public class JClass<T> extends JSchemaObject {
               "element field of set field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create set field
-            final JSetField jfield = new JSetField(fieldName, storageId, elementField,
+            final JSetField jfield = new JSetField(this.jdb, fieldName, storageId, elementField,
               "set field `" + fieldName + "' in object type `" + this.name + "'", getter);
             elementField.parent = jfield;
 
@@ -278,7 +267,7 @@ public class JClass<T> extends JSchemaObject {
               "element field of list field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create list field
-            final JListField jfield = new JListField(fieldName, storageId, elementField,
+            final JListField jfield = new JListField(this.jdb, fieldName, storageId, elementField,
               "list field `" + fieldName + "' in object type `" + this.name + "'", getter);
             elementField.parent = jfield;
 
@@ -326,7 +315,7 @@ public class JClass<T> extends JSchemaObject {
               "value field of map field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create map field
-            final JMapField jfield = new JMapField(fieldName, storageId, keyField, valueField,
+            final JMapField jfield = new JMapField(this.jdb, fieldName, storageId, keyField, valueField,
               "map field `" + fieldName + "' in object type `" + this.name + "'", getter);
             keyField.parent = jfield;
             valueField.parent = jfield;
@@ -368,7 +357,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Create and add index
-        final JCompositeIndex index = new JCompositeIndex(indexName, storageId, indexFields);
+        final JCompositeIndex index = new JCompositeIndex(this.jdb, indexName, storageId, indexFields);
         if (this.jcompositeIndexes.put(index.storageId, index) != null)
             throw this.invalidIndex(annotation, "duplicate use of storage ID " + index.storageId);
         if (this.jcompositeIndexesByName.put(index.name, index) != null)
@@ -538,11 +527,11 @@ public class JClass<T> extends JSchemaObject {
         try {
             return
               isReferenceType ?
-                new JReferenceField(fieldName, storageId, fieldDescription,
+                new JReferenceField(this.jdb, fieldName, storageId, fieldDescription,
                   fieldTypeToken, onDelete, cascadeDelete, getter, setter) :
               enumType != null ?
-                new JEnumField(fieldName, storageId, enumType, indexed, fieldDescription, getter, setter) :
-                new JSimpleField(fieldName, storageId, fieldTypeToken,
+                new JEnumField(this.jdb, fieldName, storageId, enumType, indexed, fieldDescription, getter, setter) :
+                new JSimpleField(this.jdb, fieldName, storageId, fieldTypeToken,
                  nonReferenceType.getName(), indexed, fieldDescription, getter, setter);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("invalid " + description + ": " + e, e);

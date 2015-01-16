@@ -24,14 +24,15 @@ public class JCompositeIndex extends JSchemaObject {
     /**
      * Constructor.
      *
+     * @param jdb associated database
      * @param name the name of the object type
      * @param storageId object type storage ID
      * @param type object type Java model class
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    JCompositeIndex(String name, int storageId, JSimpleField... jfields) {
-        super(name, storageId, "composite index `" + name + "' on fields " + Arrays.asList(jfields));
+    JCompositeIndex(JSimpleDB jdb, String name, int storageId, JSimpleField... jfields) {
+        super(jdb, name, storageId, "composite index `" + name + "' on fields " + Arrays.asList(jfields));
         if (name == null)
             throw new IllegalArgumentException("null name");
         if (jfields.length < 2 || jfields.length > Database.MAX_INDEXED_FIELDS)
