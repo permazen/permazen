@@ -24,9 +24,9 @@ public class JReferenceField extends JSimpleField {
     final DeleteAction onDelete;
     final boolean cascadeDelete;
 
-    JReferenceField(String name, int storageId, String description,
+    JReferenceField(JSimpleDB jdb, String name, int storageId, String description,
       TypeToken<?> typeToken, DeleteAction onDelete, boolean cascadeDelete, Method getter, Method setter) {
-        super(name, storageId, typeToken, FieldType.REFERENCE_TYPE_NAME, true, description, getter, setter);
+        super(jdb, name, storageId, typeToken, FieldType.REFERENCE_TYPE_NAME, true, description, getter, setter);
         this.onDelete = onDelete;
         this.cascadeDelete = cascadeDelete;
     }

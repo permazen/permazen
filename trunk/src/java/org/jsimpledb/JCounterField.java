@@ -19,8 +19,8 @@ import org.objectweb.asm.ClassWriter;
  */
 public class JCounterField extends JField {
 
-    JCounterField(String name, int storageId, String description, Method getter) {
-        super(name, storageId, description, getter);
+    JCounterField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
+        super(jdb, name, storageId, description, getter);
     }
 
     @Override

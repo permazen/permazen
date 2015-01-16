@@ -22,8 +22,8 @@ public abstract class JCollectionField extends JComplexField {
 
     final JSimpleField elementField;
 
-    JCollectionField(String name, int storageId, JSimpleField elementField, String description, Method getter) {
-        super(name, storageId, description, getter);
+    JCollectionField(JSimpleDB jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
+        super(jdb, name, storageId, description, getter);
         if (elementField == null)
             throw new IllegalArgumentException("null elementField");
         this.elementField = elementField;

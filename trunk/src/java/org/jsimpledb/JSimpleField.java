@@ -28,9 +28,9 @@ public class JSimpleField extends JField {
     final boolean indexed;
     final Method setter;
 
-    JSimpleField(String name, int storageId, TypeToken<?> typeToken,
+    JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken,
       String typeName, boolean indexed, String description, Method getter, Method setter) {
-        super(name, storageId, description, getter);
+        super(jdb, name, storageId, description, getter);
         if (typeName == null)
             throw new IllegalArgumentException("null typeName");
         if (typeToken == null)

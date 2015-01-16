@@ -18,8 +18,8 @@ import org.objectweb.asm.ClassWriter;
  */
 public class JListField extends JCollectionField {
 
-    JListField(String name, int storageId, JSimpleField elementField, String description, Method getter) {
-        super(name, storageId, elementField, description, getter);
+    JListField(JSimpleDB jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
+        super(jdb, name, storageId, elementField, description, getter);
     }
 
     @Override

@@ -18,8 +18,8 @@ import org.objectweb.asm.ClassWriter;
  */
 public class JSetField extends JCollectionField {
 
-    JSetField(String name, int storageId, JSimpleField elementField, String description, Method getter) {
-        super(name, storageId, elementField, description, getter);
+    JSetField(JSimpleDB jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
+        super(jdb, name, storageId, elementField, description, getter);
     }
 
     @Override

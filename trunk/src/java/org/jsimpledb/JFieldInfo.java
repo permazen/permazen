@@ -26,12 +26,16 @@ import org.jsimpledb.core.Transaction;
  */
 abstract class JFieldInfo {
 
+    final JSimpleDB jdb;
     final int storageId;
 
     private final HashSet<String> names = new HashSet<>();
     private boolean requiresValidation;
 
     JFieldInfo(JField jfield) {
+        if (jfield == null)
+            throw new IllegalArgumentException("null jfield");
+        this.jdb = jfield.jdb;
         this.storageId = jfield.storageId;
     }
 

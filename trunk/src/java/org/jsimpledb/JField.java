@@ -28,8 +28,8 @@ public abstract class JField extends JSchemaObject {
 
     JSchemaObject parent;
 
-    JField(String name, int storageId, String description, Method getter) {
-        super(name, storageId, description);
+    JField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
+        super(jdb, name, storageId, description);
         this.getter = getter;
 
         // Check for validation
