@@ -47,9 +47,13 @@ abstract class JFieldInfo {
     }
 
     /**
-     * Get the type of this field, widened to encompass all associated fields.
+     * Get the type of this field when the containing object type is known to be restricted to {@code context}.
+     *
+     * @param jdb database
+     * @param context Java type containing this field
+     * @throws IllegalArgumentException if no sub-type of {@code context} contains this field
      */
-    public abstract TypeToken<?> getTypeToken();
+    public abstract TypeToken<?> getTypeToken(TypeToken<?> context);
 
     /**
      * Determine whether any associated {@link JField} requires validation.
@@ -77,6 +81,9 @@ abstract class JFieldInfo {
     /**
      * Add the {@link FieldChange} sub-types that are valid parameter types for
      * @OnChange-annotated methods that watch this field as the target field.
+     *
+     * @param types place to add valid parameter types to
+     * @param targetType the type of the class containing the changed field
      */
     abstract <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType);
 

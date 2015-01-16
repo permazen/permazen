@@ -18,10 +18,8 @@ import org.jsimpledb.core.Transaction;
 
 class JSimpleFieldInfo extends JFieldInfo {
 
-    private final HashSet<TypeToken<?>> typeTokens = new HashSet<>();
     private final int parentStorageId;
 
-    private TypeToken<?> ancestorType;
     private boolean indexed;
 
     JSimpleFieldInfo(JSimpleField jfield, int parentStorageId) {
@@ -39,19 +37,37 @@ class JSimpleFieldInfo extends JFieldInfo {
     }
 
     @Override
-    void witness(JField jfield) {
-        super.witness(jfield);
-        final JSimpleField jsimpleField = (JSimpleField)jfield;
-        if (this.typeTokens.add(jsimpleField.typeToken))
-            this.ancestorType = null;
-        this.indexed |= jsimpleField.indexed;
+    public TypeToken<?> getTypeToken(TypeToken<?> context) {
+        final HashSet<TypeToken<?>> contextFieldTypes = new HashSet<>();
+        for (JClass<?> jclass : this.jdb.jclasses.values()) {
+
+            // Check if jclass is under consideration
+            if (!context.isAssignableFrom(jclass.typeToken))
+                continue;
+
+            // Find this field in jclass, if it exists
+            final JSimpleField jfield;
+            if (this.parentStorageId != 0) {
+                final JComplexField parentField = (JComplexField)jclass.jfields.get(this.parentStorageId);
+                if (parentField == null)
+                    continue;
+                jfield = parentField.getSubField(this.storageId);
+            } else if ((jfield = (JSimpleField)jclass.jfields.get(this.storageId)) == null)
+                continue;
+
+            // Add field's type in jclass
+            contextFieldTypes.add(jfield.typeToken);
+        }
+        if (contextFieldTypes.isEmpty())
+            throw new IllegalArgumentException("no sub-type of " + context + " contains " + this);
+        return Util.findLowestCommonAncestor(contextFieldTypes);
     }
 
     @Override
-    public TypeToken<?> getTypeToken() {
-        if (this.ancestorType == null)
-            this.ancestorType = Util.findLowestCommonAncestor(this.typeTokens);
-        return this.ancestorType;
+    void witness(JField jfield) {
+        super.witness(jfield);
+        final JSimpleField jsimpleField = (JSimpleField)jfield;
+        this.indexed |= jsimpleField.indexed;
     }
 
     /**
@@ -68,7 +84,7 @@ class JSimpleFieldInfo extends JFieldInfo {
 
     @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
-        this.addChangeParameterTypes(types, targetType, this.getTypeToken());
+        this.addChangeParameterTypes(types, targetType, this.getTypeToken(targetType));
     }
 
     // This method exists solely to bind the generic type parameters
