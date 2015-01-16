@@ -7,8 +7,16 @@
 
 package org.jsimpledb;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 
+import javax.validation.Constraint;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.Payload;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -228,6 +236,52 @@ public class ValidationTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testNameThing1() {
+        this.testNameThing(NameThing1.class);
+    }
+
+    @Test
+    public void testNameThing2() {
+        this.testNameThing(NameThing2.class);
+    }
+
+    @Test
+    public void testNameThing3() {
+        this.testNameThing(NameThing3.class);
+    }
+
+    @Test
+    public void testNameThing4() {
+        this.testNameThing(NameThing4.class);
+    }
+
+    @Test
+    public void testNameThing5() {
+        this.testNameThing(NameThing5.class);
+    }
+
+    private <T extends NameThing> void testNameThing(Class<T> type) {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(type);
+
+        // Transaction with validation disabled
+        JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+            final NameThing nameThing = jtx.create(type);
+            nameThing.setName("");
+            try {
+                jtx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                // expected
+            }
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     @JSimpleClass(storageId = 100)
@@ -262,6 +316,91 @@ public class ValidationTest extends TestSupport {
             if (this.checks == -1)
                 throw new ValidationException(this, "checks == -1");
             this.checks++;
+        }
+    }
+
+    public abstract static class NameThing implements JObject {
+
+        public abstract String getName();
+        public abstract void setName(String name);
+
+        @Override
+        public String toString() {
+            return this.getName();
+        }
+    }
+
+// This class has only a type-level JSR 303 constraint
+
+    @JSimpleClass
+    @NonEmptyToString
+    public abstract static class NameThing1 extends NameThing {
+    }
+
+// This class has only a @Validate method
+
+    @JSimpleClass
+    public abstract static class NameThing2 extends NameThing {
+        @Validate
+        public void validateMe() {
+            throw new ValidationException(this, "sorry");
+        }
+    }
+
+// This class extends a class with only a type-level JSR 303 constraint
+
+    @JSimpleClass
+    public abstract static class NameThing3 extends NameThing1 {
+    }
+
+// This class implements an interface with a method having a JSR 303 constraint
+
+    public interface Foobar {
+        @NotNull
+        Object getFoo();
+    }
+
+    @JSimpleClass
+    public abstract static class NameThing4 extends NameThing implements Foobar {
+        public Object getFoo() {
+            return null;
+        }
+    }
+
+// This class implements an interface with a method having a @Validate constraint
+
+    public interface ValidateMe {
+        @Validate
+        void validateMe();
+    }
+
+    @JSimpleClass
+    public abstract static class NameThing5 extends NameThing implements ValidateMe {
+        public void validateMe() {
+            throw new ValidationException(this, "sorry");
+        }
+    }
+
+// NonEmptyToString
+
+    @Constraint(validatedBy = NonEmptyToStringValidator.class)
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface NonEmptyToString {
+        String message() default "toString() returnend an empty string";
+        Class<?>[] groups() default {};
+        Class<? extends Payload>[] payload() default {};
+    }
+
+    public static class NonEmptyToStringValidator implements ConstraintValidator<NonEmptyToString, Object> {
+
+        @Override
+        public void initialize(NonEmptyToString annotation) {
+        }
+
+        @Override
+        public boolean isValid(Object obj, ConstraintValidatorContext context) {
+            return obj == null || obj.toString().length() > 0;
         }
     }
 }

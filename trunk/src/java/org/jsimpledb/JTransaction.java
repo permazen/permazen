@@ -235,7 +235,8 @@ public class JTransaction {
         this.validationMode = validationMode;
 
         // Register listeners for @OnCreate
-        if (this.jdb.hasOnCreateMethods || validationMode == ValidationMode.AUTOMATIC)
+        if (this.jdb.hasOnCreateMethods
+          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresInitialValidation))
             this.tx.addCreateListener(this.internalCreateListener);
 
         // Register listeners for @OnDelete
@@ -252,7 +253,7 @@ public class JTransaction {
             }
         }
 
-        // Register listeners for @Validate and JSR 303 constraints
+        // Register field change listeners to trigger validation of corresponding JSR 303 constraints
         if (validationMode == ValidationMode.AUTOMATIC) {
             for (JFieldInfo jfieldInfo : this.jdb.jfieldInfos.values()) {
                 if (jfieldInfo.isRequiresValidation())
@@ -1524,7 +1525,7 @@ public class JTransaction {
                     jobj = JTransaction.this.getJObject(id);
                 Util.invoke(info.getMethod(), jobj);
             }
-            if (validationMode == ValidationMode.AUTOMATIC)
+            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresInitialValidation)
                 JTransaction.this.revalidate(Collections.singleton(id));
         }
     }
