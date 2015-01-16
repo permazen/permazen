@@ -13,6 +13,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -25,6 +26,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.validation.Constraint;
+
+import org.jsimpledb.annotation.Validate;
 
 /**
  * Utility routines;
@@ -55,14 +58,54 @@ final class Util {
     }
 
     /**
-     * Determine if there is an annotation on {@code thing} with a {@link Constraint} meta-annotation.
+     * Determine if instances of the given type require validation on creation in mode {@link ValidationMode#AUTOMATIC}.
+     *
+     * @see ValidationMode
      */
-    public static boolean requiresValidation(AnnotatedElement thing) {
-        if (thing == null)
-            throw new IllegalArgumentException("null thing");
-        for (Annotation annotation : thing.getAnnotations()) {
-            final Class<?> atype = annotation.annotationType();
-            if (atype.isAnnotationPresent(Constraint.class))
+    public static boolean requiresInitialValidation(Class<?> type) {
+        if (type == null)
+            return false;
+        if (Util.hasValidationAnnotation(type))
+            return true;
+        for (Method method : type.getDeclaredMethods()) {
+            if (method.isAnnotationPresent(Validate.class)
+              || ((method.getModifiers() & Modifier.PUBLIC) != 0 && Util.hasValidationAnnotation(method)))
+                return true;
+        }
+        for (TypeToken<?> typeToken : TypeToken.of(type).getTypes()) {
+            final Class<?> superType = typeToken.getRawType();
+            if (superType != type && Util.requiresInitialValidation(superType))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Determine if the given getter method or any method it overrides has a JSR 303 validation constraint.
+     *
+     * @see ValidationMode
+     */
+    public static boolean requiresValidation(Method method) {
+        for (TypeToken<?> typeToken : TypeToken.of(method.getDeclaringClass()).getTypes()) {
+            final Class<?> superType = typeToken.getRawType();
+            try {
+                method = superType.getMethod(method.getName(), method.getParameterTypes());
+            } catch (NoSuchMethodException e) {
+                continue;
+            }
+            if (Util.hasValidationAnnotation(method))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Determine whether the given object has a JSR 303 annotation.
+     */
+    public static boolean hasValidationAnnotation(AnnotatedElement obj) {
+        for (Annotation annotation : obj.getAnnotations()) {
+            final Class<?> annotationType = annotation.annotationType();
+            if (annotationType.isAnnotationPresent(Constraint.class))
                 return true;
         }
         return false;

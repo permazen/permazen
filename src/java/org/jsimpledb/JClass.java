@@ -57,6 +57,7 @@ public class JClass<T> extends JSchemaObject {
     ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
 
     int[] subtypeStorageIds;
+    boolean requiresInitialValidation;
 
     /**
      * Constructor.
@@ -382,6 +383,10 @@ public class JClass<T> extends JSchemaObject {
         final OnVersionChangeScanner<T> onVersionChangeScanner = new OnVersionChangeScanner<T>(this);
         this.onVersionChangeMethods = new ArrayList<>(onVersionChangeScanner.findAnnotatedMethods());
         Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);
+    }
+
+    void calculateInitialValidationRequirement() {
+        this.requiresInitialValidation = Util.requiresInitialValidation(this.typeToken.getRawType());
     }
 
     @Override

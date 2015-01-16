@@ -32,6 +32,7 @@ import java.lang.annotation.Target;
  *
  * @see org.jsimpledb.JTransaction#validate
  * @see org.jsimpledb.JObject#revalidate
+ * @see org.jsimpledb.ValidationMode
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
