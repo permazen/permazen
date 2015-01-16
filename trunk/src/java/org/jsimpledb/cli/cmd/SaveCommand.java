@@ -31,7 +31,7 @@ import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
-import org.jsimpledb.parse.util.CastFunction;
+import org.jsimpledb.parse.util.ParseCastFunction;
 import org.jsimpledb.parse.util.StripPrefixFunction;
 import org.jsimpledb.util.XMLObjectSerializer;
 
@@ -83,7 +83,7 @@ public class SaveCommand extends AbstractCommand {
                       XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8"));
                     writer.writeStartDocument("UTF-8", "1.0");
                     count = new XMLObjectSerializer(session.getTransaction()).write(writer, nameFormat,
-                      Iterables.transform(i, new CastFunction<ObjId>(ObjId.class) {
+                      Iterables.transform(i, new ParseCastFunction<ObjId>(ObjId.class) {
                         @Override
                         public ObjId apply(Object obj) {
                             return obj instanceof JObject ? ((JObject)obj).getObjId() : super.apply(obj);
@@ -124,7 +124,7 @@ public class SaveCommand extends AbstractCommand {
                 final ArrayList<CharSequence> list = new ArrayList<>();
                 final int index = new FileNameCompleter().complete(path, path.length(), list);
                 throw new ParseException(ctx, "can't write to file `" + path + "'").addCompletions(
-                  Lists.transform(Lists.transform(list, new CastFunction<String>(String.class)),
+                  Lists.transform(Lists.transform(list, new ParseCastFunction<String>(String.class)),
                     new StripPrefixFunction(path.substring(index))));
             }
 

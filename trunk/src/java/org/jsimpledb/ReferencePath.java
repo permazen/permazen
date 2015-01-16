@@ -15,6 +15,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.jsimpledb.util.CastFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -381,20 +382,6 @@ public class ReferencePath {
     }
 
 // Functions
-
-    private static class CastFunction<T> implements Function<Object, T> {
-
-        private final Class<? extends T> type;
-
-        CastFunction(Class<? extends T> type) {
-            this.type = type;
-        }
-
-        @Override
-        public T apply(Object obj) {
-            return this.type.cast(obj);
-        }
-    }
 
     private static class JReferenceFieldTypeFunction implements Function<JReferenceField, TypeToken<?>> {
 

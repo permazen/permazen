@@ -21,7 +21,7 @@ import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.Node;
-import org.jsimpledb.parse.util.CastFunction;
+import org.jsimpledb.util.CastFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.ApplicationEventMulticaster;

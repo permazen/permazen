@@ -24,7 +24,7 @@ import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.IdentNode;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
-import org.jsimpledb.parse.util.CastFunction;
+import org.jsimpledb.parse.util.ParseCastFunction;
 
 @Function(worksInCoreAPIMode = false)
 public class InvertFunction extends AbstractFunction {
@@ -114,7 +114,7 @@ public class InvertFunction extends AbstractFunction {
 
                 // Evaluate expression
                 final Iterable<?> items = info.getExpr().evaluate(session).checkType(session, "invert()", Iterable.class);
-                final Iterable<JObject> jobjs = Iterables.transform(items, new CastFunction<JObject>(JObject.class));
+                final Iterable<JObject> jobjs = Iterables.transform(items, new ParseCastFunction<JObject>(JObject.class));
 
                 // Invert references to iterated objects
                 try {
