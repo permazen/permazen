@@ -7,17 +7,19 @@
 
 package org.jsimpledb.kv.util;
 
-import org.jsimpledb.kv.CountingKVStore;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
 
 /**
- * Adpater superclass that implements {@link CountingKVStore} using a simple big-endian encoding.
+ * {@link KVStore} support superclass that implements the {@link #encodeCounter encodeCounter()},
+ * {@link #decodeCounter decodeCounter()}, and {@link #adjustCounter adjustCounter()} methods.
+ * This class uses a simple big-endian encoding and of course provides no lock-free behavior.
  */
-public abstract class CountingKVStoreAdapter implements CountingKVStore {
+public abstract class AbstractCountingKVStore implements KVStore {
 
-    protected CountingKVStoreAdapter() {
+    protected AbstractCountingKVStore() {
     }
 
     @Override

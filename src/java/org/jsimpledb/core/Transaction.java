@@ -26,7 +26,6 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.jsimpledb.kv.CountingKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
@@ -273,14 +272,6 @@ public class Transaction {
      */
     public KVTransaction getKVTransaction() {
         return this.kvt;
-    }
-
-    private CountingKVStore getCountingKVTransaction() {
-        try {
-            return (CountingKVStore)this.kvt;
-        } catch (ClassCastException e) {
-            throw new UnsupportedOperationException("the underlying key/value transaction does not support counters");
-        }
     }
 
 // Transaction Lifecycle
@@ -652,9 +643,8 @@ public class Transaction {
 
         // Initialize counters to zero
         if (!objType.counterFields.isEmpty()) {
-            final CountingKVStore ckv = this.getCountingKVTransaction();
             for (CounterField field : objType.counterFields.values())
-                ckv.put(field.buildKey(id), ckv.encodeCounter(0));
+                this.kvt.put(field.buildKey(id), this.kvt.encodeCounter(0));
         }
 
         // Write simple field index entries
@@ -1210,7 +1200,7 @@ public class Transaction {
             final byte[] key = Field.buildKey(id, storageId);
             if (oldField != null && oldValueMap != null) {
                 final byte[] oldValue = this.kvt.get(key);
-                final long value = oldValue != null ? this.getCountingKVTransaction().decodeCounter(oldValue) : 0;
+                final long value = oldValue != null ? this.kvt.decodeCounter(oldValue) : 0;
                 oldValueMap.put(storageId, value);
             }
 
@@ -1722,7 +1712,7 @@ public class Transaction {
         final byte[] value = this.kvt.get(key);
 
         // Decode value
-        return value != null ? this.getCountingKVTransaction().decodeCounter(value) : 0;
+        return value != null ? this.kvt.decodeCounter(value) : 0;
     }
 
     /**
@@ -1768,8 +1758,7 @@ public class Transaction {
 
         // Set value
         final byte[] key = field.buildKey(id);
-        final CountingKVStore ckv = this.getCountingKVTransaction();
-        ckv.put(key, ckv.encodeCounter(value));
+        this.kvt.put(key, this.kvt.encodeCounter(value));
     }
 
     /**
@@ -1816,7 +1805,7 @@ public class Transaction {
             throw new UnknownFieldException(info.getObjType(), storageId, "counter field");
 
         // Adjust counter value
-        this.getCountingKVTransaction().adjustCounter(field.buildKey(id), offset);
+        this.kvt.adjustCounter(field.buildKey(id), offset);
     }
 
     /**

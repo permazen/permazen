@@ -11,22 +11,17 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 
 /**
- * Represents a 64-bit counter value that can be adjusted concurrently by multiple transactions without locking.
- * Supported by {@link org.jsimpledb.kv.KVDatabase}s whose {@linkplain org.jsimpledb.kv.KVDatabase#createTransaction transactions}
- * implement the {@link org.jsimpledb.kv.CountingKVStore} interface.
+ * Represents a 64-bit counter value that can be adjusted concurrently by multiple transactions,
+ * typically without locking (depending on the underlying key/value store).
  *
  * <p>
  * To define a field of type {@link Counter}, annotate the field's getter method as a normal field using
  * {@link org.jsimpledb.annotation.JField &#64;JField}. No setter method should be defined.
+ * Counter fields do not support indexing or change listeners.
  * </p>
  *
  * <p>
- * If you access a {@link Counter} field while running on a non-supporting database,
- * an {@link UnsupportedOperationException} will be thrown.
- * </p>
- *
- * <p>
- * During version change notification, counter fields appear as plain {@code long} values.
+ * Note: during schema version change notification, counter field values appear as plain {@code long} values.
  * </p>
  */
 public class Counter {

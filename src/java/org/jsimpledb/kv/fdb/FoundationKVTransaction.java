@@ -20,7 +20,6 @@ import com.google.common.primitives.Bytes;
 
 import java.util.Iterator;
 
-import org.jsimpledb.kv.CountingKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
@@ -34,7 +33,7 @@ import org.jsimpledb.util.ByteWriter;
 /**
  * FoundationDB transaction.
  */
-public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
+public class FoundationKVTransaction implements KVTransaction {
 
     private static final byte[] MIN_KEY = new byte[0];                      // minimum possible key (inclusive)
     private static final byte[] MAX_KEY = new byte[] { (byte)0xff };        // maximum possible key (exclusive)
@@ -218,8 +217,6 @@ public class FoundationKVTransaction implements KVTransaction, CountingKVStore {
             // ignore
         }
     }
-
-// CountingKVStore
 
     @Override
     public byte[] encodeCounter(long value) {

@@ -13,22 +13,13 @@ import com.google.common.reflect.TypeToken;
  * Counter fields.
  *
  * <p>
- * Counter fields have {@code long} values and support lock-free addition/subtraction.
+ * Counter fields have {@code long} values and can be adjusted concurrently by multiple transactions,
+ * typically without locking (depending on the underlying key/value store).
  * Counter fields do not support indexing or change listeners.
  * </p>
  *
  * <p>
- * Supported in {@link org.jsimpledb.kv.KVDatabase}s whose {@linkplain org.jsimpledb.kv.KVDatabase#createTransaction transactions}
- * implement the {@link org.jsimpledb.kv.CountingKVStore} interface.
- * </p>
- *
- * <p>
- * If you access a counter field while running on a non-supporting database,
- * an {@link UnsupportedOperationException} will be thrown.
- * </p>
- *
- * <p>
- * During version change notification, counter fields appear as plain {@code long} values.
+ * Note: during schema version change notification, counter field values appear as plain {@code long} values.
  * </p>
  */
 public class CounterField extends Field<Long> {
