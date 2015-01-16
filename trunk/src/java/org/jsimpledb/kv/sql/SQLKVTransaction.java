@@ -19,13 +19,14 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
+import org.jsimpledb.kv.util.AbstractCountingKVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * {@link SQLKVDatabase} transaction.
  */
-public class SQLKVTransaction implements KVTransaction {
+public class SQLKVTransaction extends AbstractCountingKVStore implements KVTransaction {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 

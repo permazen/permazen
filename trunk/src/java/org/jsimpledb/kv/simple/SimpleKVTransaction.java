@@ -17,7 +17,7 @@ import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.StaleTransactionException;
-import org.jsimpledb.kv.util.CountingKVStoreAdapter;
+import org.jsimpledb.kv.util.AbstractCountingKVStore;
 import org.jsimpledb.kv.util.LockOwner;
 import org.jsimpledb.util.ByteUtil;
 
@@ -29,7 +29,7 @@ import org.jsimpledb.util.ByteUtil;
  * not the Java monitor of this instance.
  * </p>
  */
-public class SimpleKVTransaction extends CountingKVStoreAdapter implements KVTransaction {
+public class SimpleKVTransaction extends AbstractCountingKVStore implements KVTransaction {
 
     final SimpleKVDatabase kvdb;
     final TreeSet<Mutation> mutations = new TreeSet<>(KeyRange.SORT_BY_MIN);

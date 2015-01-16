@@ -19,10 +19,10 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
 
 /**
- * Provides a {@link org.jsimpledb.kv.CountingKVStore} view of an underlying {@link NavigableMap NavigableMap<byte[], byte[]>}
+ * Provides a {@link org.jsimpledb.kv.KVStore} view of an underlying {@link NavigableMap NavigableMap<byte[], byte[]>}
  * whose keys are sorted lexicographically as unsigned bytes.
  */
-public class NavigableMapKVStore extends CountingKVStoreAdapter {
+public class NavigableMapKVStore extends AbstractCountingKVStore {
 
     private final NavigableMap<byte[], byte[]> map;
 
