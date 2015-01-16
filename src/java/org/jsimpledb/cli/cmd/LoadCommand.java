@@ -22,7 +22,7 @@ import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
-import org.jsimpledb.parse.util.CastFunction;
+import org.jsimpledb.parse.util.ParseCastFunction;
 import org.jsimpledb.parse.util.StripPrefixFunction;
 import org.jsimpledb.util.XMLObjectSerializer;
 
@@ -88,7 +88,7 @@ public class LoadCommand extends AbstractCommand {
                 final ArrayList<CharSequence> list = new ArrayList<>();
                 final int index = new FileNameCompleter().complete(path, path.length(), list);
                 throw new ParseException(ctx, "can't read file `" + file + "'").addCompletions(
-                  Lists.transform(Lists.transform(list, new CastFunction<String>(String.class)),
+                  Lists.transform(Lists.transform(list, new ParseCastFunction<String>(String.class)),
                     new StripPrefixFunction(path.substring(index))));
             }
 

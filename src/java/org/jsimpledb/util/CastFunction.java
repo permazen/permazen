@@ -5,20 +5,24 @@
  * $Id$
  */
 
-package org.jsimpledb.parse.util;
+package org.jsimpledb.util;
 
 import com.google.common.base.Function;
 
-import org.jsimpledb.parse.expr.EvalException;
-
 /**
- * Casts to a type.
+ * A {@link Function} that casts objects to some type.
  */
 public class CastFunction<T> implements Function<Object, T> {
 
     protected final Class<T> type;
 
-    public CastFunction(Class<T> type) {
+    /**
+     * Constructor.
+     *
+     * @param type desired type
+     * @throws IllegalArgumentException if {@code type} is null
+     */
+     public CastFunction(Class<T> type) {
         if (type == null)
             throw new IllegalArgumentException("null type");
         this.type = type;
@@ -39,7 +43,7 @@ public class CastFunction<T> implements Function<Object, T> {
      * Generate an exception to throw when a cast failure occurs.
      *
      * <p>
-     * The implementation in {@link CastFunction} returns an {@link EvalException}
+     * The implementation in {@link CastFunction} just throws {@code e}.
      * </p>
      *
      * @param obj object on which cast failed
@@ -47,7 +51,7 @@ public class CastFunction<T> implements Function<Object, T> {
      * @return exception to throw
      */
     protected RuntimeException handleFailure(Object obj, ClassCastException e) {
-        return new EvalException("can't cast object of type " + obj.getClass().getName() + " to " + this.type.getName());
+        return e;
     }
 }
 
