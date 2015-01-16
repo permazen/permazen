@@ -53,7 +53,7 @@ abstract class JFieldInfo {
      * @param context Java type containing this field
      * @throws IllegalArgumentException if no sub-type of {@code context} contains this field
      */
-    public abstract TypeToken<?> getTypeToken(TypeToken<?> context);
+    public abstract TypeToken<?> getTypeToken(Class<?> context);
 
     /**
      * Determine whether any associated {@link JField} requires validation.
@@ -85,7 +85,7 @@ abstract class JFieldInfo {
      * @param types place to add valid parameter types to
      * @param targetType the type of the class containing the changed field
      */
-    abstract <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType);
+    abstract <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType);
 
     /**
      * Register the given listener as a change listener for this field.

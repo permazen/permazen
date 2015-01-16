@@ -83,8 +83,8 @@ public class GenericsFunTest extends TestSupport {
     public void testGenerics5() throws Exception {
         final JSimpleDB jdb = BasicTest.getJSimpleDB(ListSub1.class, ListSub2.class);
 
-        final ReferencePath path1 = jdb.parseReferencePath(TypeToken.of(ListSub1.class), "list.element");
-        final ReferencePath path2 = jdb.parseReferencePath(TypeToken.of(ListSub2.class), "list.element");
+        final ReferencePath path1 = jdb.parseReferencePath(ListSub1.class, "list.element");
+        final ReferencePath path2 = jdb.parseReferencePath(ListSub2.class, "list.element");
 
         Assert.assertEquals(path1.getTargetFieldType(), TypeToken.of(ListSub2.class));
         Assert.assertEquals(path2.getTargetFieldType(), TypeToken.of(ListSub1.class));

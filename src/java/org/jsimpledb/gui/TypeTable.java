@@ -7,8 +7,6 @@
 
 package org.jsimpledb.gui;
 
-import com.google.common.reflect.TypeToken;
-
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TreeTable;
 
@@ -58,8 +56,8 @@ public class TypeTable extends TreeTable {
         this.getContainer().connect();
 
         // Expand all root nodes
-        for (TypeToken<?> typeToken : this.getContainer().rootItemIds())
-            this.setCollapsed(typeToken, false);
+        for (Class<?> type : this.getContainer().rootItemIds())
+            this.setCollapsed(type, false);
     }
 
     @Override

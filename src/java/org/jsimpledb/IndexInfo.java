@@ -30,7 +30,7 @@ class IndexInfo {
     // For composite indexes only
     final JCompositeIndexInfo indexInfo;
 
-    private final TypeToken<?> startType;
+    private final Class<?> startType;
     private final ArrayList<KeyRanges> filters = new ArrayList<>();
 
 // Constructors
@@ -57,7 +57,7 @@ class IndexInfo {
         // Get start type
         if (startType.isPrimitive() || startType.isArray())
             throw new IllegalArgumentException("invalid startType " + startType);
-        this.startType = Util.getWildcardedType(startType);
+        this.startType = startType;
 
         // Parse reference path
         final ReferencePath path = jdb.parseReferencePath(this.startType, fieldName, true);
@@ -112,7 +112,7 @@ class IndexInfo {
         // Get start type
         if (startType.isPrimitive() || startType.isArray())
             throw new IllegalArgumentException("invalid startType " + startType);
-        this.startType = Util.getWildcardedType(startType);
+        this.startType = startType;
 
         // Find index
         this.indexInfo = IndexInfo.findCompositeIndex(jdb, startType, indexName, valueTypes.length);
@@ -127,7 +127,7 @@ class IndexInfo {
         }
 
         // Verify target type
-        valueChecks.add(new ValueCheck("target type", startType, TypeToken.of(startType)));
+        valueChecks.add(new ValueCheck("target type", startType, startType));
 
         // Check values
         for (ValueCheck check : valueChecks)
@@ -136,7 +136,7 @@ class IndexInfo {
 
     private static JCompositeIndexInfo findCompositeIndex(JSimpleDB jdb, Class<?> startType, String indexName, int numValues) {
         JCompositeIndexInfo indexInfo = null;
-        for (JClass<?> jclass : jdb.getJClasses(TypeToken.of(startType))) {
+        for (JClass<?> jclass : jdb.getJClasses(startType)) {
             final JCompositeIndex index = jclass.jcompositeIndexesByName.get(indexName);
             if (index != null) {
                 final JCompositeIndexInfo candidate = jdb.jcompositeIndexInfos.get(index.storageId);
@@ -225,8 +225,8 @@ class IndexInfo {
         }
 
         // Constructor for target type
-        public ValueCheck(String description, Class<?> actualType, TypeToken<?> expectedType) {
-            this(description, actualType, expectedType, true, false);
+        public ValueCheck(String description, Class<?> actualType, Class<?> expectedType) {
+            this(description, actualType, TypeToken.of(expectedType), true, false);
         }
 
         public KeyRanges checkAndGetKeyRanges(JSimpleDB jdb, Class<?> startType, String queryDescription) {

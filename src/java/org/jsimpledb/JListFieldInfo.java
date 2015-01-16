@@ -31,7 +31,7 @@ class JListFieldInfo extends JCollectionFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken(TypeToken<?> context) {
+    public TypeToken<?> getTypeToken(Class<?> context) {
         return this.buildTypeToken(this.getElementFieldInfo().getTypeToken(context).wrap());
     }
 
@@ -47,13 +47,13 @@ class JListFieldInfo extends JCollectionFieldInfo {
     }
 
     @Override
-    <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
+    <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
         this.addChangeParameterTypes(types, targetType, this.getElementFieldInfo().getTypeToken(targetType));
     }
 
     // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
-    private <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<E> elementType) {
+    private <T, E> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<E> elementType) {
         types.add(new TypeToken<ListFieldAdd<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));

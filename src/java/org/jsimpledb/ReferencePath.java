@@ -93,11 +93,17 @@ import org.slf4j.LoggerFactory;
  * In cases where multiple sub-types of a common super-type type have fields with the same name but different storage IDs,
  * the storage ID may be explicitly specified as a suffix, for example, {@code "name#123"}.
  * </p>
+ *
+ * <p>
+ * Reference paths are created via {@link JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()}.
+ * </p>
+ *
+ * @see JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()
  */
 public class ReferencePath {
 
-    final TypeToken<?> startType;
-    final TypeToken<?> targetType;
+    final Class<?> startType;
+    final Class<?> targetType;
     final JFieldInfo targetFieldInfo;
     final JComplexFieldInfo targetSuperFieldInfo;
     final ArrayList<JReferenceFieldInfo> referenceFieldInfos = new ArrayList<>();
@@ -116,7 +122,7 @@ public class ReferencePath {
      * @throws IllegalArgumentException if {@code jdb}, {@code startType}, or {@code path} is null
      * @throws IllegalArgumentException if {@code path} is invalid
      */
-    ReferencePath(JSimpleDB jdb, TypeToken<?> startType, String path, Boolean lastIsSubField) {
+    ReferencePath(JSimpleDB jdb, Class<?> startType, String path, Boolean lastIsSubField) {
 
         // Sanity check
         if (jdb == null)
@@ -148,7 +154,7 @@ public class ReferencePath {
         }
 
         // Initialize loop state
-        TypeToken<?> currentType = this.startType;
+        Class<?> currentType = this.startType;
         JFieldInfo fieldInfo = null;
         JComplexFieldInfo superFieldInfo = null;
         if (this.log.isTraceEnabled()) {
@@ -184,7 +190,7 @@ public class ReferencePath {
             // Find all JFields matching 'fieldName' in some JClass whose type matches 'typeToken'
             final HashMap<JClass<?>, JField> matchingFields = new HashMap<>();
             for (JClass<?> jclass : jdb.jclasses.values()) {
-                if (!currentType.isAssignableFrom(jclass.typeToken))
+                if (!currentType.isAssignableFrom(jclass.type))
                     continue;
                 final JField jfield = jclass.jfieldsByName.get(searchName);
                 if (jfield == null)
@@ -214,7 +220,8 @@ public class ReferencePath {
             fieldInfo = jdb.getJFieldInfo(fieldStorageId, JFieldInfo.class);
 
             // Get common supertype of all types containing the field
-            currentType = Util.findLowestCommonAncestor(Iterables.transform(matchingFields.keySet(), new JClassTypeFunction()));
+            currentType = Util.findLowestCommonAncestorOfClasses(
+              Iterables.transform(matchingFields.keySet(), new JClassTypeFunction())).getRawType();
 
             // Logging
             if (this.log.isTraceEnabled())
@@ -273,7 +280,7 @@ public class ReferencePath {
             // Advance through the reference, using the narrowest type possible
             currentType = Util.findLowestCommonAncestor(Iterables.transform(
                Iterables.transform(matchingFields.values(), new CastFunction<JReferenceField>(JReferenceField.class)),
-              new JReferenceFieldTypeFunction()));
+              new JReferenceFieldTypeFunction())).getRawType();
 
             // Logging
             if (this.log.isTraceEnabled())
@@ -302,7 +309,7 @@ public class ReferencePath {
      * field exists only in a sub-type.
      * </p>
      */
-    public TypeToken<?> getStartType() {
+    public Class<?> getStartType() {
         return this.startType;
     }
 
@@ -315,7 +322,7 @@ public class ReferencePath {
      * if the target field exists only in a sub-type.
      * </p>
      */
-    public TypeToken<?> getTargetType() {
+    public Class<?> getTargetType() {
         return this.targetType;
     }
 
@@ -386,11 +393,11 @@ public class ReferencePath {
         }
     }
 
-    private static class JClassTypeFunction implements Function<JClass<?>, TypeToken<?>> {
+    private static class JClassTypeFunction implements Function<JClass<?>, Class<?>> {
 
         @Override
-        public TypeToken<?> apply(JClass<?> jclass) {
-            return jclass.typeToken;
+        public Class<?> apply(JClass<?> jclass) {
+            return jclass.type;
         }
     }
 }

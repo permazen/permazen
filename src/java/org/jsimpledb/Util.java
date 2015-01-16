@@ -7,6 +7,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.annotation.Annotation;
@@ -114,14 +116,14 @@ final class Util {
     /**
      * Find the setter method corresponding to a getter method.
      */
-    public static Method findSetterMethod(TypeToken<?> type, Method getter) {
+    public static Method findSetterMethod(Class<?> type, Method getter) {
         final Matcher matcher = Pattern.compile("(is|get)(.+)").matcher(getter.getName());
         if (!matcher.matches()) {
             throw new IllegalArgumentException("can't infer setter method name from getter method "
               + getter.getName() + "() because name does not follow Java bean naming conventions");
         }
         final String setterName = "set" + matcher.group(2);
-        for (TypeToken<?> superType : type.getTypes()) {
+        for (TypeToken<?> superType : TypeToken.of(type).getTypes()) {
             try {
                 final Method setter = superType.getRawType().getMethod(setterName, getter.getReturnType());
                 if (setter.getReturnType() != Void.TYPE)
@@ -134,6 +136,18 @@ final class Util {
         throw new IllegalArgumentException("can't find any setter method " + setterName
           + "() corresponding to getter method " + getter.getName() + "() taking " + getter.getReturnType()
           + " and returning void");
+    }
+
+    /**
+     * Find the narrowest type that is a supertype of all of the given types.
+     */
+    public static TypeToken<?> findLowestCommonAncestorOfClasses(Iterable<Class<?>> types) {
+        return Util.findLowestCommonAncestor(Iterables.transform(types, new Function<Class<?>, TypeToken<?>>() {
+            @Override
+            public TypeToken<?> apply(Class<?> type) {
+                return TypeToken.of(type);
+            }
+        }));
     }
 
     /**

@@ -8,7 +8,6 @@
 package org.jsimpledb;
 
 import com.google.common.collect.Iterables;
-import com.google.common.reflect.TypeToken;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -84,7 +83,7 @@ public class JSimpleDB {
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
     final TreeMap<Integer, JClass<?>> jclasses = new TreeMap<>();
-    final HashMap<TypeToken<?>, JClass<?>> jclassesByType = new HashMap<>();
+    final HashMap<Class<?>, JClass<?>> jclassesByType = new HashMap<>();
     final TreeMap<Integer, JFieldInfo> jfieldInfos = new TreeMap<>();
     final TreeMap<Integer, JCompositeIndexInfo> jcompositeIndexInfos = new TreeMap<>();
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
@@ -212,7 +211,7 @@ public class JSimpleDB {
             // Create JClass
             JClass<?> jclass;
             try {
-                jclass = this.createJClass(name, storageId, Util.getWildcardedType(type));
+                jclass = this.createJClass(name, storageId, type);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("invalid @" + JSimpleClass.class.getSimpleName()
                   + " annotation on " + type + ": " + e, e);
@@ -267,7 +266,7 @@ public class JSimpleDB {
 
         // Add composite indexes to class; like fields, indexes are inherited (duplicated) from superclasses
         for (JClass<?> jclass : this.jclasses.values()) {
-            for (Class<?> type = jclass.typeToken.getRawType(); type != null; type = type.getSuperclass()) {
+            for (Class<?> type = jclass.type; type != null; type = type.getSuperclass()) {
                 final JSimpleClass annotation = type.getAnnotation(JSimpleClass.class);
                 if (annotation != null) {
                     for (org.jsimpledb.annotation.JCompositeIndex indexAnnotation : annotation.compositeIndexes())
@@ -321,8 +320,8 @@ public class JSimpleDB {
     }
 
     // This method exists solely to bind the generic type parameters
-    private <T> JClass<T> createJClass(String name, int storageId, TypeToken<T> typeToken) {
-        return new JClass<T>(this, name, storageId, typeToken);
+    private <T> JClass<T> createJClass(String name, int storageId, Class<T> type) {
+        return new JClass<T>(this, name, storageId, type);
     }
 
     StorageIdGenerator getStorageIdGenerator(Annotation annotation, AnnotatedElement target) {
@@ -460,7 +459,7 @@ public class JSimpleDB {
      *
      * @return read-only mapping from storage ID to {@link JClass}
      */
-    public SortedMap<Integer, JClass<?>> getJClassesByStorageId() {
+    public SortedMap<Integer, JClass<?>> getJClasses() {
         return Collections.unmodifiableSortedMap(this.jclasses);
     }
 
@@ -469,23 +468,8 @@ public class JSimpleDB {
      *
      * @return read-only mapping from Java model type to {@link JClass}
      */
-    public Map<TypeToken<?>, JClass<?>> getJClassesByType() {
+    public Map<Class<?>, JClass<?>> getJClassesByType() {
         return Collections.unmodifiableMap(this.jclassesByType);
-    }
-
-    /**
-     * Get the {@link JClass} modeled by the given type.
-     *
-     * @param typeToken an annotated Java object model type
-     * @return associated {@link JClass}
-     * @throws IllegalArgumentException if {@code type} is not a known Java object model type
-     */
-    @SuppressWarnings("unchecked")
-    public <T> JClass<T> getJClass(TypeToken<T> typeToken) {
-        final JClass<?> jclass = this.jclassesByType.get(typeToken);
-        if (jclass == null)
-            throw new IllegalArgumentException("java model type is not recognized: " + typeToken);
-        return (JClass<T>)jclass;
     }
 
     /**
@@ -493,10 +477,14 @@ public class JSimpleDB {
      *
      * @param type an annotated Java object model type
      * @return associated {@link JClass}
-     * @throws IllegalArgumentException if {@code type} is not a known Java object model type
+     * @throws IllegalArgumentException if {@code type} is not equal to a known Java object model type
      */
+    @SuppressWarnings("unchecked")
     public <T> JClass<T> getJClass(Class<T> type) {
-        return this.getJClass(TypeToken.of(type));
+        final JClass<?> jclass = this.jclassesByType.get(type);
+        if (jclass == null)
+            throw new IllegalArgumentException("java model type is not recognized: " + type);
+        return (JClass<T>)jclass;
     }
 
     /**
@@ -533,14 +521,14 @@ public class JSimpleDB {
     /**
      * Get all {@link JClass}es which sub-type the given type.
      *
-     * @param typeToken type restriction, or null for no restrction
-     * @return list of {@link JClass}es whose type is {@code typeToken} or a sub-type (if not null), ordered by storage ID
+     * @param type type restriction, or null for no restrction
+     * @return list of {@link JClass}es whose type is {@code type} or a sub-type, ordered by storage ID
      */
     @SuppressWarnings("unchecked")
-    public <T> List<JClass<? extends T>> getJClasses(TypeToken<T> typeToken) {
+    public <T> List<JClass<? extends T>> getJClasses(Class<T> type) {
         final ArrayList<JClass<? extends T>> list = new ArrayList<>();
         for (JClass<?> jclass : this.jclasses.values()) {
-            if (typeToken == null || typeToken.isAssignableFrom(jclass.typeToken))
+            if (type == null || type.isAssignableFrom(jclass.type))
                 list.add((JClass<? extends T>)jclass);
         }
         return list;
@@ -556,7 +544,7 @@ public class JSimpleDB {
         if (type == null)
             return KeyRanges.FULL;
         final ArrayList<KeyRange> list = new ArrayList<>(this.jclasses.size());
-        for (JClass<?> jclass : this.getJClasses(TypeToken.of(type)))
+        for (JClass<?> jclass : this.getJClasses(type))
             list.add(ObjId.getKeyRange(jclass.storageId));
         return new KeyRanges(list);
     }
@@ -617,11 +605,11 @@ public class JSimpleDB {
      * @throws IllegalArgumentException if {@code startType} or {@code path} is null
      * @see ReferencePath
      */
-    public ReferencePath parseReferencePath(TypeToken<?> startType, String path) {
+    public ReferencePath parseReferencePath(Class<?> startType, String path) {
         return this.parseReferencePath(startType, path, null);
     }
 
-    ReferencePath parseReferencePath(TypeToken<?> startType, String path, Boolean lastIsSubField) {
+    ReferencePath parseReferencePath(Class<?> startType, String path, Boolean lastIsSubField) {
         return this.referencePathCache.get(startType, path, lastIsSubField);
     }
 
@@ -727,8 +715,8 @@ public class JSimpleDB {
               + jclass.storageId + " for both " + other + " and " + jclass);
         }
         this.jclasses.put(jclass.storageId, jclass);
-        assert !this.jclassesByType.containsKey(jclass.typeToken);              // this should never conflict, no need to check
-        this.jclassesByType.put(jclass.typeToken, jclass);
+        assert !this.jclassesByType.containsKey(jclass.type);                   // this should never conflict, no need to check
+        this.jclassesByType.put(jclass.type, jclass);
     }
 
     // Add new JFieldInfo, checking for conflicts

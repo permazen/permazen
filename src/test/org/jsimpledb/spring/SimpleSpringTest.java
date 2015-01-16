@@ -52,8 +52,8 @@ public class SimpleSpringTest extends SpringTest {
     @Test
     public void testFilter() {
         final JSimpleDB db = this.context.getBean(JSimpleDB.class);
-        Assert.assertTrue(db.getJClassesByStorageId().keySet().contains(100));
-        Assert.assertFalse(db.getJClassesByStorageId().keySet().contains(200));
+        Assert.assertTrue(db.getJClasses().keySet().contains(100));
+        Assert.assertFalse(db.getJClasses().keySet().contains(200));
     }
 
 // Bean methods

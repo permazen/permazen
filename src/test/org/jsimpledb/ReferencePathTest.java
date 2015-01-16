@@ -7,8 +7,6 @@
 
 package org.jsimpledb;
 
-import com.google.common.reflect.TypeToken;
-
 import java.util.List;
 import java.util.NavigableMap;
 
@@ -23,12 +21,10 @@ import org.testng.annotations.Test;
 public class ReferencePathTest extends TestSupport {
 
     @Test(dataProvider = "paths")
-    public void testReferencePath(Class<?> startClass, Class<?> targetClass, int targetField,
+    public void testReferencePath(Class<?> startType, Class<?> targetType, int targetField,
       int targetSuperField, int[] refs, Boolean lastIsSubField, String pathString) throws Exception {
 
         // Prepare args
-        final TypeToken<?> startType = TypeToken.of(startClass);
-        final TypeToken<?> targetType = targetClass != null ? TypeToken.of(targetClass) : null;
         final boolean valid = targetType != null;
         if (refs == null)
             refs = new int[0];

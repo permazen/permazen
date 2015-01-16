@@ -42,7 +42,7 @@ public class JClass<T> extends JSchemaObject {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    final TypeToken<T> typeToken;
+    final Class<T> type;
     final ClassGenerator<T> classGenerator;
     final TreeMap<Integer, JField> jfields = new TreeMap<>();
     final TreeMap<String, JField> jfieldsByName = new TreeMap<>();
@@ -68,11 +68,11 @@ public class JClass<T> extends JSchemaObject {
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    JClass(JSimpleDB jdb, String name, int storageId, TypeToken<T> typeToken) {
-        super(jdb, name, storageId, "object type `" + name + "' (" + typeToken + ")");
+    JClass(JSimpleDB jdb, String name, int storageId, Class<T> type) {
+        super(jdb, name, storageId, "object type `" + name + "' (" + type + ")");
         if (name == null)
             throw new IllegalArgumentException("null name");
-        this.typeToken = typeToken;
+        this.type = type;
         this.classGenerator = new ClassGenerator<T>(this);
     }
 
@@ -86,8 +86,8 @@ public class JClass<T> extends JSchemaObject {
     /**
      * Get the Java model object type associated with this instance.
      */
-    public TypeToken<T> getTypeToken() {
-        return this.typeToken;
+    public Class<T> getType() {
+        return this.type;
     }
 
     /**
@@ -136,7 +136,7 @@ public class JClass<T> extends JSchemaObject {
     void createFields(JSimpleDB jdb) {
 
         // Auto-generate properties?
-        final boolean autogenFields = this.typeToken.getRawType().getAnnotation(JSimpleClass.class).autogenFields();
+        final boolean autogenFields = this.type.getAnnotation(JSimpleClass.class).autogenFields();
 
         // Scan for Simple fields
         final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<T>(this, autogenFields);
@@ -147,7 +147,7 @@ public class JClass<T> extends JSchemaObject {
             final Method getter = info.getMethod();
             final String description = simpleFieldScanner.getAnnotationDescription() + " annotation on method " + getter;
             final String fieldName = this.getFieldName(annotation.name(), info, description);
-            final TypeToken<?> fieldTypeToken = this.typeToken.resolveType(getter.getGenericReturnType());
+            final TypeToken<?> fieldTypeToken = TypeToken.of(this.type).resolveType(getter.getGenericReturnType());
             if (this.log.isTraceEnabled())
                 this.log.trace("found " + description);
 
@@ -178,7 +178,7 @@ public class JClass<T> extends JSchemaObject {
             // Find corresponding setter method
             final Method setter;
             try {
-                setter = Util.findSetterMethod(this.typeToken, getter);
+                setter = Util.findSetterMethod(this.type, getter);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage());
             }
@@ -217,7 +217,7 @@ public class JClass<T> extends JSchemaObject {
             }
 
             // Get element type (the raw return type has already been validated by the annotation scanner)
-            final TypeToken<?> elementType = this.typeToken.resolveType(this.getParameterType(description, getter, 0));
+            final TypeToken<?> elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));
 
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
@@ -258,7 +258,7 @@ public class JClass<T> extends JSchemaObject {
             }
 
             // Get element type (the raw return type has already been validated by the annotation scanner)
-            final TypeToken<?> elementType = this.typeToken.resolveType(this.getParameterType(description, getter, 0));
+            final TypeToken<?> elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));
 
             // Create element sub-field
             final JSimpleField elementField = this.createSimpleField("element() property of " + description,
@@ -301,8 +301,8 @@ public class JClass<T> extends JSchemaObject {
                 valueStorageId = jdb.getStorageIdGenerator(valueAnnotation, getter).generateMapValueStorageId(getter, fieldName);
 
             // Get key and value types (the raw return type has already been validated by the annotation scanner)
-            final TypeToken<?> keyType = this.typeToken.resolveType(this.getParameterType(description, getter, 0));
-            final TypeToken<?> valueType = this.typeToken.resolveType(this.getParameterType(description, getter, 1));
+            final TypeToken<?> keyType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));
+            final TypeToken<?> valueType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 1));
 
             // Create key and value sub-fields
             final JSimpleField keyField = this.createSimpleField("key() property of " + description,
@@ -351,9 +351,8 @@ public class JClass<T> extends JSchemaObject {
         // Get storage ID
         int storageId = annotation.storageId();
         if (storageId == 0) {
-            final Class<?> type = this.typeToken.getRawType();
-            storageId = jdb.getStorageIdGenerator(annotation, type).generateCompositeIndexStorageId(
-              type, indexName, indexFieldStorageIds);
+            storageId = jdb.getStorageIdGenerator(annotation, type)
+              .generateCompositeIndexStorageId(this.type, indexName, indexFieldStorageIds);
         }
 
         // Create and add index
@@ -375,7 +374,7 @@ public class JClass<T> extends JSchemaObject {
     }
 
     void calculateInitialValidationRequirement() {
-        this.requiresInitialValidation = Util.requiresInitialValidation(this.typeToken.getRawType());
+        this.requiresInitialValidation = Util.requiresInitialValidation(this.type);
     }
 
     @Override
@@ -394,8 +393,8 @@ public class JClass<T> extends JSchemaObject {
     }
 
     private IllegalArgumentException invalidIndex(org.jsimpledb.annotation.JCompositeIndex annotation, String message) {
-        return new IllegalArgumentException("invalid @JCompositeIndex annotation for index `" + annotation.name()
-          + "' on " + this.typeToken.getRawType() + ": " + message);
+        return new IllegalArgumentException("invalid @JCompositeIndex annotation for index `"
+          + annotation.name() + "' on " + this.type + ": " + message);
     }
 
     // Add new JField (and sub-fields, if any), checking for name and storage ID conflicts
@@ -446,7 +445,7 @@ public class JClass<T> extends JSchemaObject {
       String fieldDescription) {
 
         // Include containing type for annotation description; with autogenProperties it can be more than one
-        description += " in " + this.typeToken.getRawType();
+        description += " in " + this.type;
 
         // Complex sub-field?
         final boolean isSubField = getter == null;
@@ -458,7 +457,7 @@ public class JClass<T> extends JSchemaObject {
         // See if field type encompasses one or more JClass types and is therefore a reference type
         boolean isReferenceType = false;
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
-            if (fieldTypeToken.isAssignableFrom(jclass.typeToken)) {
+            if (fieldTypeToken.getRawType().isAssignableFrom(jclass.type)) {
                 isReferenceType = true;
                 break;
             }

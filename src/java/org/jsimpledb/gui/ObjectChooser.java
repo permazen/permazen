@@ -7,7 +7,6 @@
 
 package org.jsimpledb.gui;
 
-import com.google.common.reflect.TypeToken;
 import com.vaadin.data.Property;
 import com.vaadin.server.Sizeable;
 import com.vaadin.shared.ui.combobox.FilteringMode;
@@ -123,7 +122,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         this.typeTable.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                ObjectChooser.this.selectType((TypeToken<?>)event.getProperty().getValue(), false);
+                ObjectChooser.this.selectType((Class<?>)event.getProperty().getValue(), false);
             }
         });
 
@@ -138,7 +137,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         this.reverseCheckBox.addValueChangeListener(sortListener);
 
         // Populate table
-        this.selectType(TypeToken.of(type != null ? type : Object.class), true);
+        this.selectType(type != null ? type : Object.class, true);
     }
 
     /**
@@ -230,12 +229,12 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
 // GUI Updates
 
     // Invoked when a type is clicked on
-    private void selectType(TypeToken<?> typeToken, boolean force) {
+    private void selectType(Class<?> type, boolean force) {
 
         // Anything to do?
-        if (typeToken == null)
+        if (type == null)
             return;
-        if (!this.setNewType(!typeToken.equals(TypeToken.of(Object.class)) ? typeToken.getRawType() : null, force))
+        if (!this.setNewType(!type.equals(Object.class) ? type : null, force))
             return;
 
         // Rebuild the sort combobox

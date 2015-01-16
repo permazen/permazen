@@ -41,9 +41,8 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
      * @param jclass Java model class
      * @param annotationType annotation to scan for
      */
-    @SuppressWarnings("unchecked")
     protected AnnotationScanner(JClass<T> jclass, Class<A> annotationType) {
-        super((Class<T>)jclass.getTypeToken().getRawType(), annotationType);
+        super(jclass.getType(), annotationType);
         this.jclass = jclass;
     }
 
@@ -265,7 +264,7 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
      */
     protected String getErrorPrefix(Method method) {
         return "invalid " + this.getAnnotationDescription() + " annotation on method " + method
-          + " for type " + this.jclass.getTypeToken() + ": ";
+          + " for type `" + this.jclass.getName() + "': ";
     }
 }
 

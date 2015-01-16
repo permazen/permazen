@@ -187,7 +187,7 @@ public class MainPanel extends VerticalLayout {
         this.setExpandRatio(spacer2, 1.0f);
 
         // Populate table
-        //this.selectType(TypeToken.of(Object.class), true);
+        //this.selectType(Object.class, true);
     }
 
 // GUI Updates
@@ -259,7 +259,7 @@ public class MainPanel extends VerticalLayout {
               "Please select an object type first", Notification.Type.WARNING_MESSAGE);
             return;
         }
-        this.log.info("creating new object of type " + jclass.getTypeToken());
+        this.log.info("creating new object of type " + jclass.getType().getName());
         new EditWindow(this.doCreateForEdit(jclass), jclass, true).show();
     }
 
