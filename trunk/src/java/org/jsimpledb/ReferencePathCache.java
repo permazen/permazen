@@ -10,7 +10,6 @@ package org.jsimpledb;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.util.concurrent.ExecutionException;
@@ -45,7 +44,7 @@ class ReferencePathCache {
      *
      * @see ReferencePath#ReferencePath
      */
-    public ReferencePath get(TypeToken<?> startType, String path, Boolean lastIsSubField) {
+    public ReferencePath get(Class<?> startType, String path, Boolean lastIsSubField) {
         Throwable cause;
         try {
             return this.cache.get(new Key(startType, path, lastIsSubField));
@@ -65,17 +64,17 @@ class ReferencePathCache {
 
     private static class Key {
 
-        private final TypeToken<?> startType;
+        private final Class<?> startType;
         private final String path;
         private final Boolean lastIsSubField;
 
-        Key(TypeToken<?> startType, String path, Boolean lastIsSubField) {
+        Key(Class<?> startType, String path, Boolean lastIsSubField) {
             this.startType = startType;
             this.path = path;
             this.lastIsSubField = lastIsSubField;
         }
 
-        public TypeToken<?> getStartType() {
+        public Class<?> getStartType() {
             return this.startType;
         }
 
@@ -94,13 +93,15 @@ class ReferencePathCache {
             if (obj == null || obj.getClass() != this.getClass())
                 return false;
             final Key that = (Key)obj;
-            return this.startType.equals(that.startType) && this.path.equals(that.path)
+            return this.startType.equals(that.startType)
+              && this.path.equals(that.path)
               && (this.lastIsSubField != null ? this.lastIsSubField.equals(that.lastIsSubField) : that.lastIsSubField == null);
         }
 
         @Override
         public int hashCode() {
-            return this.startType.hashCode() ^ this.path.hashCode()
+            return this.startType.hashCode()
+              ^ this.path.hashCode()
               ^ (this.lastIsSubField != null ? this.lastIsSubField.hashCode() : -1);
         }
     }

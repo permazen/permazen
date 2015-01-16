@@ -37,12 +37,12 @@ class JSimpleFieldInfo extends JFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken(TypeToken<?> context) {
+    public TypeToken<?> getTypeToken(Class<?> context) {
         final HashSet<TypeToken<?>> contextFieldTypes = new HashSet<>();
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
 
             // Check if jclass is under consideration
-            if (!context.isAssignableFrom(jclass.typeToken))
+            if (!context.isAssignableFrom(jclass.type))
                 continue;
 
             // Find this field in jclass, if it exists
@@ -83,13 +83,13 @@ class JSimpleFieldInfo extends JFieldInfo {
     }
 
     @Override
-    <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
+    <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
         this.addChangeParameterTypes(types, targetType, this.getTypeToken(targetType));
     }
 
     // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
-    private <T, V> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType, TypeToken<V> fieldType) {
+    private <T, V> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType, TypeToken<V> fieldType) {
         types.add(new TypeToken<SimpleFieldChange<T, V>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<V>() { }, fieldType.wrap()));

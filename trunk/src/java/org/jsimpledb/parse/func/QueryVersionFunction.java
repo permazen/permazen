@@ -76,7 +76,7 @@ public class QueryVersionFunction extends AbstractFunction {
                 if (session.hasJSimpleDB()) {
                     final Class<?> type =
                       param instanceof ObjType ?
-                        session.getJSimpleDB().getJClass(((ObjType)param).getStorageId()).getTypeToken().getRawType() :
+                        session.getJSimpleDB().getJClass(((ObjType)param).getStorageId()).getType() :
                       param instanceof Node ?
                         ((Node)param).evaluate(session).checkType(session, QueryVersionFunction.this.getName(), Class.class) :
                         Object.class;

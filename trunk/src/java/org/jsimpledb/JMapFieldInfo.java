@@ -54,8 +54,9 @@ class JMapFieldInfo extends JComplexFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken(TypeToken<?> context) {
-        return this.buildTypeToken(this.getKeyFieldInfo().getTypeToken(context).wrap(),
+    public TypeToken<?> getTypeToken(Class<?> context) {
+        return this.buildTypeToken(
+          this.getKeyFieldInfo().getTypeToken(context).wrap(),
           this.getValueFieldInfo().getTypeToken(context).wrap());
     }
 
@@ -73,15 +74,16 @@ class JMapFieldInfo extends JComplexFieldInfo {
     }
 
     @Override
-    <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
+    <T> void addChangeParameterTypes(List<TypeToken<?>> types, Class<T> targetType) {
         this.addChangeParameterTypes(types, targetType,
-          this.getKeyFieldInfo().getTypeToken(targetType), this.getValueFieldInfo().getTypeToken(targetType));
+          this.getKeyFieldInfo().getTypeToken(targetType),
+          this.getValueFieldInfo().getTypeToken(targetType));
     }
 
     // This method exists solely to bind the generic type parameters
     @SuppressWarnings("serial")
     private <T, K, V> void addChangeParameterTypes(List<TypeToken<?>> types,
-      TypeToken<T> targetType, TypeToken<K> keyType, TypeToken<V> valueType) {
+      Class<T> targetType, TypeToken<K> keyType, TypeToken<V> valueType) {
         types.add(new TypeToken<MapFieldAdd<T, K, V>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<K>() { }, keyType.wrap())

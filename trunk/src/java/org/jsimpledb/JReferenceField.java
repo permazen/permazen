@@ -62,7 +62,7 @@ public class JReferenceField extends JSimpleField {
         schemaField.setOnDelete(this.onDelete);
         schemaField.setCascadeDelete(this.cascadeDelete);
         final TreeSet<Integer> objectTypes = new TreeSet<>();
-        for (JClass<?> jclass : jdb.getJClasses(this.typeToken))
+        for (JClass<?> jclass : jdb.getJClasses(this.typeToken.getRawType()))
             objectTypes.add(jclass.storageId);
         schemaField.setObjectTypes(objectTypes);
         return schemaField;

@@ -80,7 +80,7 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             return false;
         if (returnType != Counter.class) {
             try {
-                Util.findSetterMethod(this.jclass.typeToken, method);
+                Util.findSetterMethod(this.jclass.type, method);
             } catch (IllegalArgumentException e) {
                 return false;
             }

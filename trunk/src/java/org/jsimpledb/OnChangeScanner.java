@@ -81,7 +81,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
             // Get start type
             this.isStatic = (method.getModifiers() & Modifier.STATIC) != 0;
-            TypeToken<?> startType = Util.getWildcardedType(method.getDeclaringClass());
+            Class<?> startType = method.getDeclaringClass();
             if (annotation.startType() != void.class) {
                 if (!this.isStatic) {
                     throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
@@ -91,7 +91,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
                       + "invalid startType() " + annotation.startType());
                 }
-                startType = Util.getWildcardedType(annotation.startType());
+                startType = annotation.startType();
             }
 
             // Replace empty reference path list with "all fields in this object"

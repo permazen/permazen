@@ -7,7 +7,6 @@
 
 package org.jsimpledb.gui;
 
-import com.google.common.reflect.TypeToken;
 import com.vaadin.ui.DefaultFieldFactory;
 
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
     private final Class<?> type;
 
     public SortKeyContainer(JSimpleDB jdb, JClass<?> jclass) {
-        this(jdb, jclass, jclass.getTypeToken().getRawType());
+        this(jdb, jclass, jclass.getType());
     }
 
     public SortKeyContainer(JSimpleDB jdb, Class<?> type) {
@@ -56,8 +55,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
         sortKeys.add(new VersionSortKey());
 
         // Identify fields common to all sub-types of `type'
-        SortedMap<Integer, JField> commonFields = Util.getCommonJFields(
-          this.jdb.getJClasses(TypeToken.of(this.type != null ? this.type : Object.class)));
+        SortedMap<Integer, JField> commonFields = Util.getCommonJFields(this.jdb.getJClasses(this.type));
 
         // Add sort keys for all indexed fields common to all sub-types
         if (commonFields != null) {

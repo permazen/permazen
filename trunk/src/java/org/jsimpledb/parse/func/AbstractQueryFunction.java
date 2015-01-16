@@ -75,7 +75,7 @@ abstract class AbstractQueryFunction extends AbstractFunction {
                 if (!ctx.tryLiteral(","))                   // verify this is the first form
                     throw new ParseException(ctx);
                 ctx.setIndex(mark);
-                param1 = new LiteralNode(session.getJSimpleDB().getJClass(objType.getStorageId()).getTypeToken().getRawType());
+                param1 = new LiteralNode(session.getJSimpleDB().getJClass(objType.getStorageId()).getType());
             } catch (ParseException e) {
                 ctx.setIndex(typeStart);
             }

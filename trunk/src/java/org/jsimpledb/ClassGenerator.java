@@ -123,7 +123,7 @@ class ClassGenerator<T> {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected final JClass<T> jclass;
-    protected final Class<? super T> superclass;
+    protected final Class<T> modelClass;
     protected final ClassLoader loader;
 
     private Class<? extends T> subclass;
@@ -135,23 +135,23 @@ class ClassGenerator<T> {
      * Constructor for application classes.
      */
     public ClassGenerator(JClass<T> jclass) {
-        this(jclass, jclass.typeToken.getRawType());
+        this(jclass, jclass.type);
     }
 
     /**
      * Constructor for a "JObject" class with no fields.
      */
-    public ClassGenerator(Class<T> superclass) {
-        this(null, superclass);
+    public ClassGenerator(Class<T> modelClass) {
+        this(null, modelClass);
     }
 
     /**
      * Internal constructor.
      */
-    public ClassGenerator(JClass<T> jclass, Class<? super T> superclass) {
+    public ClassGenerator(JClass<T> jclass, Class<T> modelClass) {
         this.jclass = jclass;
-        this.superclass = superclass;
-        this.loader = new ClassLoader(superclass.getClassLoader()) {
+        this.modelClass = modelClass;
+        this.loader = new ClassLoader(modelClass.getClassLoader()) {
             @Override
             protected Class<?> findClass(String name) throws ClassNotFoundException {
                 final byte[] bytes;
@@ -240,10 +240,10 @@ class ClassGenerator<T> {
     }
 
     /**
-     * Get superclass internal name.
+     * Get superclass (i.e., original Java model class) internal name.
      */
     private String getSuperclassName() {
-        return Type.getInternalName(this.superclass);
+        return Type.getInternalName(this.modelClass);
     }
 
 // Database class

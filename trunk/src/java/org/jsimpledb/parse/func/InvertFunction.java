@@ -83,7 +83,7 @@ public class InvertFunction extends AbstractFunction {
 
         // Verify reference path is valid (although we don't verify the last field in the path is a reference field here)
         try {
-            session.getJSimpleDB().parseReferencePath(jclass.getTypeToken(), fieldPath);
+            session.getJSimpleDB().parseReferencePath(jclass.getType(), fieldPath);
         } catch (IllegalArgumentException e) {
             ctx.setIndex(mark);
             throw new ParseException(ctx, "invalid path `" + fieldPath + "': " + e.getMessage(), e);
@@ -118,8 +118,7 @@ public class InvertFunction extends AbstractFunction {
 
                 // Invert references to iterated objects
                 try {
-                    return JTransaction.getCurrent().invertReferencePath(
-                      info.getJClass().getTypeToken().getRawType(), info.getFieldPath(), jobjs);
+                    return JTransaction.getCurrent().invertReferencePath(info.getJClass().getType(), info.getFieldPath(), jobjs);
                 } catch (Exception e) {
                     throw new EvalException("invert() failed: " + e, e);
                 }

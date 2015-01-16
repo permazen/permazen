@@ -62,7 +62,7 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
 
     private boolean isOverriddenByConcreteMethod(Method method) {
         final Class<?> methodType = method.getDeclaringClass();
-        for (Class<?> type = this.jclass.typeToken.getRawType();
+        for (Class<?> type = this.jclass.type;
           type != null && methodType.isAssignableFrom(type) && !type.equals(methodType);
           type = type.getSuperclass()) {
             final Method otherMethod;

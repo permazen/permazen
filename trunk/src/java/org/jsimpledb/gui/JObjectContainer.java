@@ -11,7 +11,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.reflect.TypeToken;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -526,8 +525,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         pdefs.setPropertyDef(this.objVersionPropertyDef);
 
         // Add properties for all fields common to all sub-types of our configured type
-        final SortedMap<Integer, JField> jfields = Util.getCommonJFields(
-          this.jdb.getJClasses(this.type != null ? TypeToken.of(this.type) : null));
+        final SortedMap<Integer, JField> jfields = Util.getCommonJFields(this.jdb.getJClasses(this.type));
         if (jfields != null) {
             for (JField jfield : jfields.values())
                 pdefs.setPropertyDef(new ObjFieldPropertyDef(jfield.getStorageId(), jfield.getName()));

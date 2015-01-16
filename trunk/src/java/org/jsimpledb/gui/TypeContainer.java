@@ -9,7 +9,6 @@ package org.jsimpledb.gui;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.reflect.TypeToken;
 import com.vaadin.data.Container;
 import com.vaadin.shared.ui.label.ContentMode;
 
@@ -29,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * Hierarical container that contains the tree of all Java model classes in the database schema.
  */
 @SuppressWarnings("serial")
-public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContainer.Node> implements Container.Hierarchical {
+public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.Node> implements Container.Hierarchical {
 
     public static final String NAME_PROPERTY = "name";
     public static final String STORAGE_ID_PROPERTY = "storageId";
@@ -64,8 +63,8 @@ public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContai
     }
 
     @Override
-    public TypeToken<?> getKeyFor(Node node) {
-        return node.getTypeToken();
+    public Class<?> getKeyFor(Node node) {
+        return node.getType();
     }
 
     public void reload() {
@@ -74,7 +73,7 @@ public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContai
         final ArrayList<Node> nodes = new ArrayList<>();
 
         // Create root node for type if it doesn't correspond to a JClass
-        final TypeToken<?> topType = this.type != null ? TypeToken.of(this.type) : TypeToken.of(Object.class);
+        final Class<?> topType = this.type != null ? this.type : Object.class;
         boolean needsTop = this.type == null;
         if (!needsTop) {
             try {
@@ -87,21 +86,21 @@ public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContai
             nodes.add(new Node(topType));
 
         // Create Node's for each JClass
-        for (JClass<?> jclass : this.jdb.getJClassesByStorageId().values()) {
-            if (topType.isAssignableFrom(jclass.getTypeToken()))
+        for (JClass<?> jclass : this.jdb.getJClasses().values()) {
+            if (topType.isAssignableFrom(jclass.getType()))
                 nodes.add(new Node(jclass));
         }
 
         // Determine parents by inspecting Java types
         for (Node node1 : nodes) {
-            final TypeToken<?> type1 = node1.getTypeToken();
+            final Class<?> type1 = node1.getType();
             for (Node node2 : nodes) {
                 if (node2 == node1)
                     continue;
-                final TypeToken<?> type2 = node2.getTypeToken();
+                final Class<?> type2 = node2.getType();
                 if (type2.isAssignableFrom(type1)) {
                     final Node previous = node1.getParent();
-                    if (previous == null || previous.getTypeToken().isAssignableFrom(type2))
+                    if (previous == null || previous.getType().isAssignableFrom(type2))
                         node1.setParent(node2);
                 }
             }
@@ -130,36 +129,36 @@ public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContai
 
     public static class Node {
 
-        public static final Function<Node, TypeToken<?>> TYPE_TOKEN_FUNCTION = new Function<Node, TypeToken<?>>() {
+        public static final Function<Node, Class<?>> TYPE_FUNCTION = new Function<Node, Class<?>>() {
             @Override
-            public TypeToken<?> apply(Node node) {
-                return node.getTypeToken();
+            public Class<?> apply(Node node) {
+                return node.getType();
             }
         };
 
-        private final TypeToken<?> typeToken;
+        private final Class<?> type;
         private final JClass<?> jclass;
         private final ArrayList<Node> childs = new ArrayList<>();
 
         private Node parent;
 
         public Node(JClass<?> jclass) {
-            this(jclass.getTypeToken(), jclass);
+            this(jclass.getType(), jclass);
         }
 
-        public Node(TypeToken<?> typeToken) {
-            this(typeToken, null);
+        public Node(Class<?> type) {
+            this(type, null);
         }
 
-        private Node(TypeToken<?> typeToken, JClass<?> jclass) {
-            if (typeToken == null)
-                throw new IllegalArgumentException("null typeToken");
-            this.typeToken = typeToken;
+        private Node(Class<?> type, JClass<?> jclass) {
+            if (type == null)
+                throw new IllegalArgumentException("null type");
+            this.type = type;
             this.jclass = jclass;
         }
 
-        public TypeToken<?> getTypeToken() {
-            return this.typeToken;
+        public Class<?> getType() {
+            return this.type;
         }
 
         public Node getParent() {
@@ -174,43 +173,43 @@ public class TypeContainer extends SimpleKeyedContainer<TypeToken<?>, TypeContai
         }
 
         @ProvidesProperty(TypeContainer.NAME_PROPERTY)
-        public String getName() {
-            return this.jclass != null ? this.jclass.getName() : this.typeToken.getRawType().getSimpleName();
+        public String propertyName() {
+            return this.jclass != null ? this.jclass.getName() : this.type.getSimpleName();
         }
 
         @ProvidesProperty(TypeContainer.STORAGE_ID_PROPERTY)
-        public Integer getStorageId() {
+        public Integer propertyStorageId() {
             return this.jclass != null ? this.jclass.getStorageId() : null;
         }
 
         @ProvidesProperty(TypeContainer.TYPE_PROPERTY)
-        public SizedLabel getType() {
-            return new SizedLabel("<code>" + this.getTypeToken().toString() + "</code>", ContentMode.HTML);
+        public SizedLabel proeprtyType() {
+            return new SizedLabel("<code>" + this.getType().toString() + "</code>", ContentMode.HTML);
         }
     }
 
 // Container.Hierarchical methods
 
     @Override
-    public Collection<TypeToken<?>> getChildren(Object itemId) {
+    public Collection<Class<?>> getChildren(Object itemId) {
         final Node node = this.getJavaObject(itemId);
-        return node != null ? Lists.transform(node.getChilds(), Node.TYPE_TOKEN_FUNCTION) : Collections.<TypeToken<?>>emptySet();
+        return node != null ? Lists.transform(node.getChilds(), Node.TYPE_FUNCTION) : Collections.<Class<?>>emptySet();
     }
 
     @Override
-    public TypeToken<?> getParent(Object itemId) {
+    public Class<?> getParent(Object itemId) {
         final Node child = this.getJavaObject(itemId);
         if (child == null)
             return null;
         final Node parent = child.getParent();
         if (parent == null)
             return null;
-        return parent.getTypeToken();
+        return parent.getType();
     }
 
     @Override
-    public Collection<TypeToken<?>> rootItemIds() {
-        return Lists.transform(this.rootList, Node.TYPE_TOKEN_FUNCTION);
+    public Collection<Class<?>> rootItemIds() {
+        return Lists.transform(this.rootList, Node.TYPE_FUNCTION);
     }
 
     @Override

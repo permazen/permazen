@@ -15,7 +15,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
-import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.util.ArrayDeque;
@@ -393,11 +392,11 @@ public class JTransaction {
     public byte[] getKey(JObject jobj, String fieldName) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        final TypeToken<?> type = this.jdb.getJClass(jobj.getObjId()).typeToken;
+        final Class<?> type = this.jdb.getJClass(jobj.getObjId()).type;
         final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, false);
         if (refPath.getReferenceFields().length > 0)
             throw new IllegalArgumentException("invalid field name `" + fieldName + "'");
-        if (!refPath.targetType.getRawType().isInstance(jobj))
+        if (!refPath.targetType.isInstance(jobj))
             throw new IllegalArgumentException("jobj is not an instance of " + refPath.targetType); // should never happen
         return this.tx.getKey(jobj.getObjId(), refPath.targetFieldInfo.storageId);
     }
@@ -495,7 +494,7 @@ public class JTransaction {
             return dest.getJObject(dstId);
 
         // Parse paths
-        final TypeToken<?> startType = this.jdb.getJClass(srcId).typeToken;
+        final Class<?> startType = this.jdb.getJClass(srcId).type;
         final HashSet<ReferencePath> paths = new HashSet<>(refPaths.length);
         for (String refPath : refPaths) {
 
@@ -728,7 +727,7 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> T create(Class<T> type) {
-        return this.create(this.jdb.getJClass(TypeToken.of(type)));
+        return this.create(this.jdb.getJClass(type));
     }
 
     /**
@@ -740,10 +739,9 @@ public class JTransaction {
      * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    @SuppressWarnings("unchecked")
     public <T> T create(JClass<T> jclass) {
         final ObjId id = this.tx.create(jclass.storageId);
-        return (T)jclass.getTypeToken().getRawType().cast(this.getJObject(id));
+        return jclass.getType().cast(this.getJObject(id));
     }
 
     /**
@@ -1060,7 +1058,7 @@ public class JTransaction {
     public <T> NavigableSet<T> invertReferencePath(Class<T> startType, String path, Iterable<? extends JObject> targetObjects) {
         if (targetObjects == null)
             throw new IllegalArgumentException("null targetObjects");
-        final ReferencePath refPath = this.jdb.parseReferencePath(TypeToken.of(startType), path, true);
+        final ReferencePath refPath = this.jdb.parseReferencePath(startType, path, true);
         final int targetField = refPath.getTargetField();
         try {
             this.jdb.getJFieldInfo(targetField, JReferenceFieldInfo.class);
