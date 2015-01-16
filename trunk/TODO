@@ -14,11 +14,13 @@
 - Add KVStore support for Google Cloud Datastore
     - https://cloud.google.com/datastore/docs/concepts/overview
 
-- Add new uniqueness constraint annotation @Unique for simple fields
+- Add @JField uniqueness constraints:
     - Field must be indexed (obviously)
-    - optional property String ignore() default ""
+    - boolean unique() default false
+    - String uniqueIgnore() default ""
         - optional value which is excepted from uniqueness constraint
-        - for example "NaN" for float/double, null for Strings, etc.
+        - for example "NaN" for float/double
+        - not allowed for reference fields
     - Verify in deferred manner as follows:
         - Add validation check for uniqueness
         - Register SimpleFieldChangeListener on affected fields
