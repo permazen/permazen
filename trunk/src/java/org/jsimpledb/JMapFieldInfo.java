@@ -54,8 +54,9 @@ class JMapFieldInfo extends JComplexFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken() {
-        return this.buildTypeToken(this.getKeyFieldInfo().getTypeToken().wrap(), this.getValueFieldInfo().getTypeToken().wrap());
+    public TypeToken<?> getTypeToken(TypeToken<?> context) {
+        return this.buildTypeToken(this.getKeyFieldInfo().getTypeToken(context).wrap(),
+          this.getValueFieldInfo().getTypeToken(context).wrap());
     }
 
     // This method exists solely to bind the generic type parameters
@@ -74,7 +75,7 @@ class JMapFieldInfo extends JComplexFieldInfo {
     @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
         this.addChangeParameterTypes(types, targetType,
-          this.getKeyFieldInfo().getTypeToken(), this.getValueFieldInfo().getTypeToken());
+          this.getKeyFieldInfo().getTypeToken(targetType), this.getValueFieldInfo().getTypeToken(targetType));
     }
 
     // This method exists solely to bind the generic type parameters

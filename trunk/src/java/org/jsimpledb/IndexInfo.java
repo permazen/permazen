@@ -40,7 +40,7 @@ class IndexInfo {
         this(jdb, startType, fieldName, valueType, null);
     }
 
-    // Constructor for map value simple index queries
+    // Primary constructor (keyType is null except for map value simple index queries)
     IndexInfo(JSimpleDB jdb, Class<?> startType, String fieldName, Class<?> valueType, Class<?> keyType) {
 
         // Sanity check
@@ -78,7 +78,7 @@ class IndexInfo {
 
         // Verify value type
         final ArrayList<ValueCheck> valueChecks = new ArrayList<>(3);
-        valueChecks.add(new ValueCheck("value type", valueType, path.targetFieldType, this.fieldInfo, true));
+        valueChecks.add(new ValueCheck("value type", valueType, path.getTargetFieldType(), this.fieldInfo, true));
 
         // Verify target type
         valueChecks.add(new ValueCheck("target type", startType, path.targetType));
@@ -88,7 +88,7 @@ class IndexInfo {
             final JMapFieldInfo mapInfo = (JMapFieldInfo)this.superFieldInfo;
             final JSimpleFieldInfo keyInfo = mapInfo.getKeyFieldInfo();
             assert this.fieldInfo.equals(mapInfo.getValueFieldInfo());
-            valueChecks.add(new ValueCheck("map key type", keyType, keyInfo.getTypeToken(), keyInfo, true));
+            valueChecks.add(new ValueCheck("map key type", keyType, keyInfo.getTypeToken(this.startType), keyInfo, true));
         }
 
         // Check values
@@ -123,7 +123,7 @@ class IndexInfo {
             final Class<?> valueType = valueTypes[i];
             final JSimpleFieldInfo jfieldInfo = indexInfo.jfieldInfos.get(i);
             valueChecks.add(new ValueCheck("value type #" + (i + 1), valueType,
-              jfieldInfo.getTypeToken(), jfieldInfo instanceof JReferenceFieldInfo, true));
+              jfieldInfo.getTypeToken(this.startType), jfieldInfo instanceof JReferenceFieldInfo, true));
         }
 
         // Verify target type

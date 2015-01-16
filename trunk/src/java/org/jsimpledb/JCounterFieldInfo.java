@@ -20,7 +20,7 @@ class JCounterFieldInfo extends JFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken() {
+    public TypeToken<?> getTypeToken(TypeToken<?> context) {
         return TypeToken.of(Counter.class);
     }
 

@@ -31,8 +31,8 @@ class JListFieldInfo extends JCollectionFieldInfo {
     }
 
     @Override
-    public TypeToken<?> getTypeToken() {
-        return this.buildTypeToken(this.getElementFieldInfo().getTypeToken().wrap());
+    public TypeToken<?> getTypeToken(TypeToken<?> context) {
+        return this.buildTypeToken(this.getElementFieldInfo().getTypeToken(context).wrap());
     }
 
     // This method exists solely to bind the generic type parameters
@@ -48,7 +48,7 @@ class JListFieldInfo extends JCollectionFieldInfo {
 
     @Override
     <T> void addChangeParameterTypes(List<TypeToken<?>> types, TypeToken<T> targetType) {
-        this.addChangeParameterTypes(types, targetType, this.getElementFieldInfo().getTypeToken());
+        this.addChangeParameterTypes(types, targetType, this.getElementFieldInfo().getTypeToken(targetType));
     }
 
     // This method exists solely to bind the generic type parameters
