@@ -11,6 +11,11 @@
     - Shows only differences
     - New CLI command "schema-diff vers1 vers2"
 
+- Add KVStore support for:
+    - Google Cloud Datastore
+        - https://cloud.google.com/datastore/docs/concepts/overview
+    - Berkeley DB Java
+
 - Add KVStore support for Google Cloud Datastore
     - https://cloud.google.com/datastore/docs/concepts/overview
 
