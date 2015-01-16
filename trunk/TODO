@@ -16,9 +16,6 @@
         - https://cloud.google.com/datastore/docs/concepts/overview
     - Berkeley DB Java
 
-- Add KVStore support for Google Cloud Datastore
-    - https://cloud.google.com/datastore/docs/concepts/overview
-
 - Add @JField uniqueness constraints:
     - Field must be indexed (obviously)
     - boolean unique() default false
