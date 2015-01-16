@@ -7,10 +7,15 @@
 
 package org.jsimpledb;
 
+import com.google.common.reflect.TypeToken;
+
+import java.util.List;
+
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.OnChange;
 import org.jsimpledb.change.SimpleFieldChange;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class GenericsFunTest extends TestSupport {
@@ -65,6 +70,31 @@ public class GenericsFunTest extends TestSupport {
             final Class2 c2 = jtx.create(Class2.class);
             try {
                 c2.setWrong(c2);
+                assert false;
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
+    @Test
+    public void testGenerics5() throws Exception {
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(ListSub1.class, ListSub2.class);
+
+        final ReferencePath path1 = jdb.parseReferencePath(TypeToken.of(ListSub1.class), "list.element");
+        final ReferencePath path2 = jdb.parseReferencePath(TypeToken.of(ListSub2.class), "list.element");
+
+        Assert.assertEquals(path1.getTargetFieldType(), TypeToken.of(ListSub2.class));
+        Assert.assertEquals(path2.getTargetFieldType(), TypeToken.of(ListSub1.class));
+
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        JTransaction.setCurrent(jtx);
+        try {
+            final ListSub1 sub1 = jtx.create(ListSub1.class);
+            try {
+                sub1.addListWrong(sub1);            // ListSub1's list only accepts object of type ListSub2
                 assert false;
             } catch (IllegalArgumentException e) {
                 // expected
@@ -129,6 +159,26 @@ public class GenericsFunTest extends TestSupport {
 
     @JSimpleClass
     public abstract static class Class3 extends Class1<Class2> {
+    }
+
+// Model Classes #3
+
+    public abstract static class ListSuper<E extends JObject> implements JObject {
+
+        public abstract List<E> getList();
+
+        @SuppressWarnings("unchecked")
+        public void addListWrong(Object obj) {
+            this.getList().add((E)obj);
+        }
+    }
+
+    @JSimpleClass
+    public abstract static class ListSub1 extends ListSuper<ListSub2> {
+    }
+
+    @JSimpleClass
+    public abstract static class ListSub2 extends ListSuper<ListSub1> {
     }
 }
 
