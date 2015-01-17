@@ -566,7 +566,7 @@ Imagine a database with many distributed nodes on the network, and on each node 
 
 JSimpleDB leaves it up to you whether the size of a collection should be explicitly maintained. After all, the size of a collection is just another type of index (derived information).
 
-To support such usage, JSimpleDB provides the `Counter` field type, which holds a `long` value and can be adjusted (adding/subtracting) by concurrent transactions entirely without locking. The underlying key/value store must support this optional feature, however, indicated by implementing the `CountingKVStore` interface.
+To support such usage, JSimpleDB provides the `Counter` field type, which holds a `long` value and can be mutated via addition/subtraction without actually reading the value; on many key/value stores, this operation can be performed concurrently entirely without locking.
 
 === Lifecycle Notifications ===
 
