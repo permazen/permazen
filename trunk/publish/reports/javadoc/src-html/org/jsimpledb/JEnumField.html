@@ -28,9 +28,9 @@
 <span class="sourceLineNo">020</span> */<a name="line.20"></a>
 <span class="sourceLineNo">021</span>public class JEnumField extends JSimpleField {<a name="line.21"></a>
 <span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>    JEnumField(String name, int storageId, Class&lt;? extends Enum&lt;?&gt;&gt; enumType,<a name="line.23"></a>
+<span class="sourceLineNo">023</span>    JEnumField(JSimpleDB jdb, String name, int storageId, Class&lt;? extends Enum&lt;?&gt;&gt; enumType,<a name="line.23"></a>
 <span class="sourceLineNo">024</span>      boolean indexed, String description, Method getter, Method setter) {<a name="line.24"></a>
-<span class="sourceLineNo">025</span>        super(name, storageId, TypeToken.of(enumType.asSubclass(Enum.class)),<a name="line.25"></a>
+<span class="sourceLineNo">025</span>        super(jdb, name, storageId, TypeToken.of(enumType.asSubclass(Enum.class)),<a name="line.25"></a>
 <span class="sourceLineNo">026</span>          enumType.getName(), indexed, description, getter, setter);<a name="line.26"></a>
 <span class="sourceLineNo">027</span>    }<a name="line.27"></a>
 <span class="sourceLineNo">028</span><a name="line.28"></a>

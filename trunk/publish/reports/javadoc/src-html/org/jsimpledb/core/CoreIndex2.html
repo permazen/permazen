@@ -82,7 +82,7 @@
 <span class="sourceLineNo">074</span>        final Index2View&lt;V1, V2, T&gt; iv = this.getIndex2View();<a name="line.74"></a>
 <span class="sourceLineNo">075</span><a name="line.75"></a>
 <span class="sourceLineNo">076</span>        // Create new IndexView<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        final IndexView&lt;Tuple2&lt;V1, V2&gt;, T&gt; tupleIV = iv.asTupleIndexView();<a name="line.77"></a>
+<span class="sourceLineNo">077</span>        final IndexView&lt;Tuple2&lt;V1, V2&gt;, T&gt; tupleIV = iv.asTuple2IndexView();<a name="line.77"></a>
 <span class="sourceLineNo">078</span><a name="line.78"></a>
 <span class="sourceLineNo">079</span>        // Build map and apply filtering<a name="line.79"></a>
 <span class="sourceLineNo">080</span>        IndexMap&lt;Tuple2&lt;V1, V2&gt;, NavigableSet&lt;T&gt;&gt; indexMap = new IndexMap.OfValues&lt;Tuple2&lt;V1, V2&gt;, T&gt;(this.tx, tupleIV);<a name="line.80"></a>

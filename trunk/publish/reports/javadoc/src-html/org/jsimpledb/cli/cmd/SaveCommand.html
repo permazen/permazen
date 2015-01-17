@@ -39,7 +39,7 @@
 <span class="sourceLineNo">031</span>import org.jsimpledb.parse.Parser;<a name="line.31"></a>
 <span class="sourceLineNo">032</span>import org.jsimpledb.parse.expr.Node;<a name="line.32"></a>
 <span class="sourceLineNo">033</span>import org.jsimpledb.parse.expr.Value;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.jsimpledb.parse.util.CastFunction;<a name="line.34"></a>
+<span class="sourceLineNo">034</span>import org.jsimpledb.parse.util.ParseCastFunction;<a name="line.34"></a>
 <span class="sourceLineNo">035</span>import org.jsimpledb.parse.util.StripPrefixFunction;<a name="line.35"></a>
 <span class="sourceLineNo">036</span>import org.jsimpledb.util.XMLObjectSerializer;<a name="line.36"></a>
 <span class="sourceLineNo">037</span><a name="line.37"></a>
@@ -91,7 +91,7 @@
 <span class="sourceLineNo">083</span>                      XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8"));<a name="line.83"></a>
 <span class="sourceLineNo">084</span>                    writer.writeStartDocument("UTF-8", "1.0");<a name="line.84"></a>
 <span class="sourceLineNo">085</span>                    count = new XMLObjectSerializer(session.getTransaction()).write(writer, nameFormat,<a name="line.85"></a>
-<span class="sourceLineNo">086</span>                      Iterables.transform(i, new CastFunction&lt;ObjId&gt;(ObjId.class) {<a name="line.86"></a>
+<span class="sourceLineNo">086</span>                      Iterables.transform(i, new ParseCastFunction&lt;ObjId&gt;(ObjId.class) {<a name="line.86"></a>
 <span class="sourceLineNo">087</span>                        @Override<a name="line.87"></a>
 <span class="sourceLineNo">088</span>                        public ObjId apply(Object obj) {<a name="line.88"></a>
 <span class="sourceLineNo">089</span>                            return obj instanceof JObject ? ((JObject)obj).getObjId() : super.apply(obj);<a name="line.89"></a>
@@ -132,7 +132,7 @@
 <span class="sourceLineNo">124</span>                final ArrayList&lt;CharSequence&gt; list = new ArrayList&lt;&gt;();<a name="line.124"></a>
 <span class="sourceLineNo">125</span>                final int index = new FileNameCompleter().complete(path, path.length(), list);<a name="line.125"></a>
 <span class="sourceLineNo">126</span>                throw new ParseException(ctx, "can't write to file `" + path + "'").addCompletions(<a name="line.126"></a>
-<span class="sourceLineNo">127</span>                  Lists.transform(Lists.transform(list, new CastFunction&lt;String&gt;(String.class)),<a name="line.127"></a>
+<span class="sourceLineNo">127</span>                  Lists.transform(Lists.transform(list, new ParseCastFunction&lt;String&gt;(String.class)),<a name="line.127"></a>
 <span class="sourceLineNo">128</span>                    new StripPrefixFunction(path.substring(index))));<a name="line.128"></a>
 <span class="sourceLineNo">129</span>            }<a name="line.129"></a>
 <span class="sourceLineNo">130</span><a name="line.130"></a>

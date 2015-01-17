@@ -55,7 +55,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="keyword">import</span> org.jsimpledb.parse.SpaceParser;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;18</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;19</td>  <td class="nbHitsCovered">&nbsp;177</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">public</span> <span class="keyword">class</span> CastExprParser <span class="keyword">implements</span> Parser&lt;Node&gt; {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;19</td>  <td class="nbHitsCovered">&nbsp;182</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">public</span> <span class="keyword">class</span> CastExprParser <span class="keyword">implements</span> Parser&lt;Node&gt; {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;20</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;21</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> CastExprParser INSTANCE = <span class="keyword">new</span> CastExprParser();</pre></td></tr>
@@ -72,10 +72,10 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;28</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Try cast</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;180</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Matcher castMatcher = ctx.tryPattern(<span class="string">"\\(("</span> + IdentNode.NAME_PATTERN</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;185</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Matcher castMatcher = ctx.tryPattern(<span class="string">"\\(("</span> + IdentNode.NAME_PATTERN</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;30</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + <span class="string">"(\\s*\\.\\s*"</span> + IdentNode.NAME_PATTERN + <span class="string">")*)\\s*\\)\\s*"</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsCovered"><a title="Line 31: Conditional coverage 100% (2/2).">&nbsp;180</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 31: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (castMatcher != <span class="keyword">null</span>) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsCovered"><a title="Line 31: Conditional coverage 100% (2/2).">&nbsp;185</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 31: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (castMatcher != <span class="keyword">null</span>) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsCovered">&nbsp;4</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> String className = castMatcher.group(1).replaceAll(<span class="string">"\\s"</span>, <span class="string">""</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;33</td>  <td class="nbHitsCovered">&nbsp;4</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> Node target = <span class="keyword">this</span>.parse(session, ctx, complete);             <span class="comment">// associates right-to-left</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;34</td>  <td class="nbHitsCovered">&nbsp;4</td>  <td class="src"><pre class="src">&nbsp;            ctx.skipWhitespace();</pre></td></tr>
@@ -190,7 +190,7 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;102</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Parse unary</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;103</td>  <td class="nbHitsCovered">&nbsp;176</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> UnaryExprParser.INSTANCE.parse(session, ctx, complete);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;103</td>  <td class="nbHitsCovered">&nbsp;181</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> UnaryExprParser.INSTANCE.parse(session, ctx, complete);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;104</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;105</td>  <td class="nbHits">&nbsp;</td>
@@ -199,6 +199,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/5/15 12:39 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/17/15 9:43 AM.</div>
 </body>
 </html>

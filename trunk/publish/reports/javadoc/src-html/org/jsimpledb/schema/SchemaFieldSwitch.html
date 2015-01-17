@@ -19,45 +19,46 @@
 <span class="sourceLineNo">011</span> * Visitor pattern interface for {@link SchemaField}s.<a name="line.11"></a>
 <span class="sourceLineNo">012</span> *<a name="line.12"></a>
 <span class="sourceLineNo">013</span> * @param &lt;R&gt; switch method return type<a name="line.13"></a>
-<span class="sourceLineNo">014</span> */<a name="line.14"></a>
-<span class="sourceLineNo">015</span>public interface SchemaFieldSwitch&lt;R&gt; {<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>    /**<a name="line.17"></a>
-<span class="sourceLineNo">018</span>     * Handle a {@link SetSchemaField}.<a name="line.18"></a>
-<span class="sourceLineNo">019</span>     */<a name="line.19"></a>
-<span class="sourceLineNo">020</span>    R caseSetSchemaField(SetSchemaField field);<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>    /**<a name="line.22"></a>
-<span class="sourceLineNo">023</span>     * Handle a {@link ListSchemaField}.<a name="line.23"></a>
-<span class="sourceLineNo">024</span>     */<a name="line.24"></a>
-<span class="sourceLineNo">025</span>    R caseListSchemaField(ListSchemaField field);<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>    /**<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * Handle a {@link MapSchemaField}.<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>    R caseMapSchemaField(MapSchemaField field);<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>    /**<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     * Handle a {@link SimpleSchemaField}.<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     */<a name="line.34"></a>
-<span class="sourceLineNo">035</span>    R caseSimpleSchemaField(SimpleSchemaField field);<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>    /**<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     * Handle a {@link ReferenceSchemaField}.<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     */<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    R caseReferenceSchemaField(ReferenceSchemaField field);<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>    /**<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     * Handle a {@link EnumSchemaField}.<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     */<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    R caseEnumSchemaField(EnumSchemaField field);<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>    /**<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     * Handle a {@link CounterSchemaField}.<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     */<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    R caseCounterSchemaField(CounterSchemaField field);<a name="line.50"></a>
-<span class="sourceLineNo">051</span>}<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">014</span> * @see SchemaField#visit<a name="line.14"></a>
+<span class="sourceLineNo">015</span> */<a name="line.15"></a>
+<span class="sourceLineNo">016</span>public interface SchemaFieldSwitch&lt;R&gt; {<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>    /**<a name="line.18"></a>
+<span class="sourceLineNo">019</span>     * Handle a {@link SetSchemaField}.<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     */<a name="line.20"></a>
+<span class="sourceLineNo">021</span>    R caseSetSchemaField(SetSchemaField field);<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>    /**<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     * Handle a {@link ListSchemaField}.<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     */<a name="line.25"></a>
+<span class="sourceLineNo">026</span>    R caseListSchemaField(ListSchemaField field);<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>    /**<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * Handle a {@link MapSchemaField}.<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    R caseMapSchemaField(MapSchemaField field);<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>    /**<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * Handle a {@link SimpleSchemaField}.<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    R caseSimpleSchemaField(SimpleSchemaField field);<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    /**<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * Handle a {@link ReferenceSchemaField}.<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    R caseReferenceSchemaField(ReferenceSchemaField field);<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * Handle a {@link EnumSchemaField}.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    R caseEnumSchemaField(EnumSchemaField field);<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * Handle a {@link CounterSchemaField}.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    R caseCounterSchemaField(CounterSchemaField field);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>}<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
 
 
 

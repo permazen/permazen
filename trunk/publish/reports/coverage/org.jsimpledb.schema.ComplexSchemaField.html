@@ -59,28 +59,28 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * A complex field in one version of a {@link SchemaObjectType}.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;21</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;22</td>  <td class="nbHitsCovered">&nbsp;314</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> ComplexSchemaField <span class="keyword">extends</span> SchemaField {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;22</td>  <td class="nbHitsCovered">&nbsp;328</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> ComplexSchemaField <span class="keyword">extends</span> SchemaField {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;23</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;24</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;25</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">void</span> validate() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;26</td>  <td class="nbHitsCovered">&nbsp;507</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>.validate();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsCovered"><a title="Line 27: Conditional coverage 100% (2/2).">&nbsp;507</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 27: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (Map.Entry&lt;String, SimpleSchemaField&gt; entry : <span class="keyword">this</span>.getSubFields().entrySet()) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered">&nbsp;718</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> String subFieldName = entry.getKey();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;718</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> SimpleSchemaField subField = entry.getValue();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsCovered">&nbsp;718</td>  <td class="src"><pre class="src">&nbsp;            subField.validate();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsUncovered"><a title="Line 31: Conditional coverage 50% (1/2).">&nbsp;718</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 31: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (subField == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;26</td>  <td class="nbHitsCovered">&nbsp;528</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>.validate();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsCovered"><a title="Line 27: Conditional coverage 100% (2/2).">&nbsp;528</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 27: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (Map.Entry&lt;String, SimpleSchemaField&gt; entry : <span class="keyword">this</span>.getSubFields().entrySet()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered">&nbsp;745</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> String subFieldName = entry.getKey();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;745</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> SimpleSchemaField subField = entry.getValue();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsCovered">&nbsp;745</td>  <td class="src"><pre class="src">&nbsp;            subField.validate();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsUncovered"><a title="Line 31: Conditional coverage 50% (1/2).">&nbsp;745</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 31: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (subField == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">throw</span> <span class="keyword">new</span> InvalidSchemaException(<span class="string">"invalid "</span> + <span class="keyword">this</span> + <span class="string">": missing sub-field `"</span> + subFieldName + <span class="string">"'"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;33</td>  <td class="nbHitsCovered"><a title="Line 33: Conditional coverage 100% (2/2).">&nbsp;718</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 33: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!subFieldName.equals(subField.getName())) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;33</td>  <td class="nbHitsCovered"><a title="Line 33: Conditional coverage 100% (2/2).">&nbsp;745</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 33: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!subFieldName.equals(subField.getName())) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;34</td>  <td class="nbHitsCovered">&nbsp;3</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">throw</span> <span class="keyword">new</span> InvalidSchemaException(<span class="string">"sub-"</span> + subField + <span class="string">" of "</span> + <span class="keyword">this</span> + <span class="string">" has the wrong name `"</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;35</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                  + subField.getName() + <span class="string">"' != `"</span> + subFieldName + <span class="string">"'"</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;36</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;37</td>  <td class="nbHitsCovered">&nbsp;715</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;38</td>  <td class="nbHitsCovered">&nbsp;504</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;37</td>  <td class="nbHitsCovered">&nbsp;742</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;38</td>  <td class="nbHitsCovered">&nbsp;525</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;39</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;40</td>  <td class="nbHits">&nbsp;</td>
@@ -91,27 +91,27 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;43</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">boolean</span> isCompatibleWithInternal(AbstractSchemaItem that0) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;44</td>  <td class="nbHitsCovered">&nbsp;188</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ComplexSchemaField that = (ComplexSchemaField)that0;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsUncovered"><a title="Line 45: Conditional coverage 50% (1/2).">&nbsp;188</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 45: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.getSubFields().keySet().equals(that.getSubFields().keySet()))</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;44</td>  <td class="nbHitsCovered">&nbsp;195</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ComplexSchemaField that = (ComplexSchemaField)that0;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsUncovered"><a title="Line 45: Conditional coverage 50% (1/2).">&nbsp;195</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 45: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.getSubFields().keySet().equals(that.getSubFields().keySet()))</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;46</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span> <span class="keyword">false</span>;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered"><a title="Line 47: Conditional coverage 100% (2/2).">&nbsp;188</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 47: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (String subFieldName : <span class="keyword">this</span>.getSubFields().keySet()) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;266</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> SimpleSchemaField thisSubField = <span class="keyword">this</span>.getSubFields().get(subFieldName);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;266</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> SimpleSchemaField thatSubField = that.getSubFields().get(subFieldName);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsUncovered"><a title="Line 50: Conditional coverage 50% (1/2).">&nbsp;266</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 50: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (!thisSubField.isCompatibleWith(thatSubField))</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered"><a title="Line 47: Conditional coverage 100% (2/2).">&nbsp;195</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 47: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (String subFieldName : <span class="keyword">this</span>.getSubFields().keySet()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;275</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> SimpleSchemaField thisSubField = <span class="keyword">this</span>.getSubFields().get(subFieldName);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;275</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> SimpleSchemaField thatSubField = that.getSubFields().get(subFieldName);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsUncovered"><a title="Line 50: Conditional coverage 50% (1/2).">&nbsp;275</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 50: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (!thisSubField.isCompatibleWith(thatSubField))</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;51</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">return</span> <span class="keyword">false</span>;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;52</td>  <td class="nbHitsCovered">&nbsp;266</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;53</td>  <td class="nbHitsCovered">&nbsp;188</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">true</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;52</td>  <td class="nbHitsCovered">&nbsp;275</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;53</td>  <td class="nbHitsCovered">&nbsp;195</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">true</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;54</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;55</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;56</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    SimpleSchemaField readSubField(XMLStreamReader reader, <span class="keyword">int</span> formatVersion, String name) <span class="keyword">throws</span> XMLStreamException {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered">&nbsp;289</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleSchemaField field = <span class="keyword">this</span>.readMappedType(reader, <span class="keyword">false</span>, SchemaModel.SIMPLE_FIELD_TAG_MAP);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsCovered">&nbsp;288</td>  <td class="src"><pre class="src">&nbsp;        field.readXML(reader, formatVersion);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsCovered"><a title="Line 59: Conditional coverage 100% (2/2).">&nbsp;288</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 59: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (field.getName() == <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;60</td>  <td class="nbHitsCovered">&nbsp;281</td>  <td class="src"><pre class="src">&nbsp;            field.setName(name);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;61</td>  <td class="nbHitsCovered">&nbsp;288</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> field;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered">&nbsp;298</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleSchemaField field = <span class="keyword">this</span>.readMappedType(reader, <span class="keyword">false</span>, SchemaModel.SIMPLE_FIELD_TAG_MAP);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsCovered">&nbsp;297</td>  <td class="src"><pre class="src">&nbsp;        field.readXML(reader, formatVersion);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsCovered"><a title="Line 59: Conditional coverage 100% (2/2).">&nbsp;297</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 59: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (field.getName() == <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;60</td>  <td class="nbHitsCovered">&nbsp;290</td>  <td class="src"><pre class="src">&nbsp;            field.setName(name);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;61</td>  <td class="nbHitsCovered">&nbsp;297</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> field;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;62</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;63</td>  <td class="nbHits">&nbsp;</td>
@@ -120,13 +120,13 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;65</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">void</span> writeXML(XMLStreamWriter writer) <span class="keyword">throws</span> XMLStreamException {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;66</td>  <td class="nbHitsCovered">&nbsp;272</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> QName tag = <span class="keyword">this</span>.getXMLTag();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;67</td>  <td class="nbHitsCovered">&nbsp;272</td>  <td class="src"><pre class="src">&nbsp;        writer.writeStartElement(tag.getNamespaceURI(), tag.getLocalPart());</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;68</td>  <td class="nbHitsCovered">&nbsp;272</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.writeAttributes(writer);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered"><a title="Line 69: Conditional coverage 100% (2/2).">&nbsp;272</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 69: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (SimpleSchemaField subField : <span class="keyword">this</span>.getSubFields().values())</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsCovered">&nbsp;397</td>  <td class="src"><pre class="src">&nbsp;            subField.writeXML(writer, <span class="keyword">false</span>);                               <span class="comment">// omit (redundant) names for sub-fields</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;71</td>  <td class="nbHitsCovered">&nbsp;272</td>  <td class="src"><pre class="src">&nbsp;        writer.writeEndElement();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;72</td>  <td class="nbHitsCovered">&nbsp;272</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;66</td>  <td class="nbHitsCovered">&nbsp;286</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> QName tag = <span class="keyword">this</span>.getXMLTag();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;67</td>  <td class="nbHitsCovered">&nbsp;286</td>  <td class="src"><pre class="src">&nbsp;        writer.writeStartElement(tag.getNamespaceURI(), tag.getLocalPart());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;68</td>  <td class="nbHitsCovered">&nbsp;286</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.writeAttributes(writer);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered"><a title="Line 69: Conditional coverage 100% (2/2).">&nbsp;286</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 69: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (SimpleSchemaField subField : <span class="keyword">this</span>.getSubFields().values())</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsCovered">&nbsp;415</td>  <td class="src"><pre class="src">&nbsp;            subField.writeXML(writer, <span class="keyword">false</span>);                               <span class="comment">// omit (redundant) names for sub-fields</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;71</td>  <td class="nbHitsCovered">&nbsp;286</td>  <td class="src"><pre class="src">&nbsp;        writer.writeEndElement();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;72</td>  <td class="nbHitsCovered">&nbsp;286</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;73</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;74</td>  <td class="nbHits">&nbsp;</td>
@@ -141,7 +141,7 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;79</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> ComplexSchemaField clone() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;80</td>  <td class="nbHitsCovered">&nbsp;403</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (ComplexSchemaField)<span class="keyword">super</span>.clone();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;80</td>  <td class="nbHitsCovered">&nbsp;431</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (ComplexSchemaField)<span class="keyword">super</span>.clone();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;81</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;82</td>  <td class="nbHits">&nbsp;</td>
@@ -150,6 +150,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/5/15 12:39 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/17/15 9:43 AM.</div>
 </body>
 </html>

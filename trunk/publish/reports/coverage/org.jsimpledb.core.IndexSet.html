@@ -66,8 +66,8 @@
   <td class="src"><pre class="src">&nbsp;    <span class="comment">// Primary constructor</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;25</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    IndexSet(Transaction tx, FieldType&lt;E&gt; entryType, <span class="keyword">boolean</span> prefixMode, <span class="keyword">byte</span>[] prefix) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;26</td>  <td class="nbHitsCovered">&nbsp;5404</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, entryType, prefixMode, prefix);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsCovered">&nbsp;5404</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;26</td>  <td class="nbHitsCovered">&nbsp;5609</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, entryType, prefixMode, prefix);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsCovered">&nbsp;5609</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;28</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;29</td>  <td class="nbHits">&nbsp;</td>
@@ -76,8 +76,8 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> IndexSet(Transaction tx, FieldType&lt;E&gt; entryType, <span class="keyword">boolean</span> prefixMode, <span class="keyword">boolean</span> reversed,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;31</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;      <span class="keyword">byte</span>[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds&lt;E&gt; bounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsCovered">&nbsp;3749</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, entryType, prefixMode, reversed, prefix, keyRange, keyFilter, bounds);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;33</td>  <td class="nbHitsCovered">&nbsp;3749</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsCovered">&nbsp;3752</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, entryType, prefixMode, reversed, prefix, keyRange, keyFilter, bounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;33</td>  <td class="nbHitsCovered">&nbsp;3752</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;34</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;35</td>  <td class="nbHits">&nbsp;</td>
@@ -109,7 +109,7 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;49</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> NavigableSet&lt;E&gt; createSubSet(<span class="keyword">boolean</span> newReversed, KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds&lt;E&gt; newBounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;3749</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> IndexSet&lt;E&gt;(<span class="keyword">this</span>.tx, <span class="keyword">this</span>.fieldType,</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;3752</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> IndexSet&lt;E&gt;(<span class="keyword">this</span>.tx, <span class="keyword">this</span>.fieldType,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;51</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.prefixMode, newReversed, <span class="keyword">this</span>.prefix, newKeyRange, newKeyFilter, newBounds);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;52</td>  <td class="nbHits">&nbsp;</td>
@@ -120,7 +120,7 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;55</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> IndexSet&lt;E&gt; filterKeys(KeyFilter keyFilter) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;56</td>  <td class="nbHitsCovered">&nbsp;3483</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (IndexSet&lt;E&gt;)<span class="keyword">super</span>.filterKeys(keyFilter);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;56</td>  <td class="nbHitsCovered">&nbsp;3484</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (IndexSet&lt;E&gt;)<span class="keyword">super</span>.filterKeys(keyFilter);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;57</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;58</td>  <td class="nbHits">&nbsp;</td>
@@ -129,6 +129,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/5/15 12:39 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/17/15 9:43 AM.</div>
 </body>
 </html>
