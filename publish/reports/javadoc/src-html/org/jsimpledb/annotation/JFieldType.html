@@ -34,16 +34,18 @@
 <span class="sourceLineNo">026</span> *<a name="line.26"></a>
 <span class="sourceLineNo">027</span> * &lt;p&gt;<a name="line.27"></a>
 <span class="sourceLineNo">028</span> * Note that once a certain encoding has been used for a given type name in a database, the encoding should not<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * be changed without creating a new type (and type name), or else {@link org.jsimpledb.core.InconsistentDatabaseException}s<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * could result when the new type attempts to decode the old encoding or vice-versa.<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * &lt;/p&gt;<a name="line.31"></a>
-<span class="sourceLineNo">032</span> */<a name="line.32"></a>
-<span class="sourceLineNo">033</span>@Retention(RetentionPolicy.RUNTIME)<a name="line.33"></a>
-<span class="sourceLineNo">034</span>@Target(ElementType.TYPE)<a name="line.34"></a>
-<span class="sourceLineNo">035</span>@Documented<a name="line.35"></a>
-<span class="sourceLineNo">036</span>public @interface JFieldType {<a name="line.36"></a>
-<span class="sourceLineNo">037</span>}<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">029</span> * be changed without creating a new type (and type name), or changing the<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * {@linkplain org.jsimpledb.core.FieldType#getEncodingSignature encoding signature}.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * Otherwise, {@link org.jsimpledb.core.InconsistentDatabaseException}s can result when the new type unexpectedly<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * encounters the old encoding or vice-versa.<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;/p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> */<a name="line.34"></a>
+<span class="sourceLineNo">035</span>@Retention(RetentionPolicy.RUNTIME)<a name="line.35"></a>
+<span class="sourceLineNo">036</span>@Target(ElementType.TYPE)<a name="line.36"></a>
+<span class="sourceLineNo">037</span>@Documented<a name="line.37"></a>
+<span class="sourceLineNo">038</span>public @interface JFieldType {<a name="line.38"></a>
+<span class="sourceLineNo">039</span>}<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
 
 
 
