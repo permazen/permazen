@@ -61,6 +61,7 @@ import org.testng.annotations.Parameters;
 public abstract class TestSupport {
 
     private static boolean reportedSeed;
+    private static long defaultRandomSeed = System.currentTimeMillis();
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -74,9 +75,9 @@ public abstract class TestSupport {
     }
 
     @BeforeClass
-    @Parameters({ "randomSeed" })
+    @Parameters("randomSeed")
     public void seedRandom(String randomSeed) {
-        this.random = getRandom(randomSeed);
+        this.random = TestSupport.getRandom(randomSeed);
     }
 
     public static Random getRandom(String randomSeed) {
@@ -84,7 +85,7 @@ public abstract class TestSupport {
         try {
             seed = Long.parseLong(randomSeed);
         } catch (NumberFormatException e) {
-            seed = System.currentTimeMillis();
+            seed = TestSupport.defaultRandomSeed;
         }
         if (!reportedSeed) {
             reportedSeed = true;
