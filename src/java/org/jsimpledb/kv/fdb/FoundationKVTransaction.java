@@ -113,9 +113,11 @@ public class FoundationKVTransaction implements KVTransaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         if (minKey != null && minKey.length > 0 && minKey[0] == (byte)0xff)
-            return null;
+            minKey = MAX_KEY;
         if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
             maxKey = null;
+        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
+            throw new IllegalArgumentException("minKey > maxKey");
         try {
             return Iterators.transform(this.tx.getRange(this.addPrefix(minKey, maxKey),
               ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator(), new Function<KeyValue, KVPair>() {
