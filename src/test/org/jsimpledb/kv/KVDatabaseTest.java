@@ -8,7 +8,9 @@
 package org.jsimpledb.kv;
 
 import com.google.common.base.Converter;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,7 +23,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.jsimpledb.TestSupport;
+import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
+import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
+import org.jsimpledb.kv.sql.IsolationLevel;
+import org.jsimpledb.kv.sql.MySQLKVDatabase;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ConvertedNavigableMap;
@@ -29,6 +35,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 public class KVDatabaseTest extends TestSupport {
@@ -36,6 +44,34 @@ public class KVDatabaseTest extends TestSupport {
     private ExecutorService executor;
 
     private long timeoutTestStartTime;
+    private boolean testSimpleKV;
+    private String fdbClusterFile;
+    private String mysqlURL;
+    private String berkeleyDirPrefix;
+
+    @BeforeClass
+    @Parameters("testSimpleKV")
+    public void setTestSimpleKV(@Optional String testSimpleKV) {
+        this.testSimpleKV = testSimpleKV != null && Boolean.valueOf(testSimpleKV);
+    }
+
+    @BeforeClass
+    @Parameters("fdbClusterFile")
+    public void setFoundationDBClusterFile(@Optional String fdbClusterFile) {
+        this.fdbClusterFile = fdbClusterFile;
+    }
+
+    @BeforeClass
+    @Parameters("mysqlURL")
+    public void setMySQLURL(@Optional String mysqlURL) {
+        this.mysqlURL = mysqlURL;
+    }
+
+    @BeforeClass
+    @Parameters("berkeleyDirPrefix")
+    public void setBerkeleyDirPrefix(@Optional String berkeleyDirPrefix) {
+        this.berkeleyDirPrefix = berkeleyDirPrefix;
+    }
 
     @BeforeClass
     public void setup() {
@@ -52,33 +88,53 @@ public class KVDatabaseTest extends TestSupport {
         final ArrayList<Object[]> list = new ArrayList<>();
 
         // SimpleKVDatabase
-        final TreeMap<byte[], byte[]> storeData = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
-        final NavigableMapKVStore kv = new NavigableMapKVStore(storeData);
-        final SimpleKVDatabase store = new SimpleKVDatabase(kv, 100, 250);
-        list.add(new Object[] { store, storeData });
+        if (this.testSimpleKV) {
+            final NavigableMapKVStore kv = new NavigableMapKVStore();
+            final SimpleKVDatabase simple = new SimpleKVDatabase(kv, 250, 500);
+            list.add(new Object[] { simple });
+        }
 
         // FoundationDB
-//        final org.jsimpledb.kv.fdb.FoundationKVDatabase fdb = new org.jsimpledb.kv.fdb.FoundationKVDatabase();
-//        fdb.setClusterFilePath("fdb.cluster");
-//        fdb.start();
-//        list.add(new Object[] { fdb, null });
+        if (this.fdbClusterFile != null) {
+            final FoundationKVDatabase fdb = new FoundationKVDatabase();
+            fdb.setClusterFilePath(this.fdbClusterFile);
+            fdb.start();
+            list.add(new Object[] { fdb });
+        }
 
         // MySQL
-//        final org.jsimpledb.kv.sql.MySQLKVDatabase mysql = new org.jsimpledb.kv.sql.MySQLKVDatabase();
-//        final com.mysql.jdbc.jdbc2.optional.MysqlDataSource dataSource = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
-//        dataSource.setUrl("jdbc:mysql://127.0.0.1:3306/jsimpledb?logger=com.mysql.jdbc.log.Slf4JLogger");
-//        dataSource.setUser("jsimpledb");
-//        dataSource.setPassword("jsimpledb");
-//        mysql.setDataSource(dataSource);
-//        list.add(new Object[] { mysql, null });
+        if (this.mysqlURL != null) {
+            final MysqlDataSource dataSource = new MysqlDataSource();
+            dataSource.setUrl(this.mysqlURL);
+            final MySQLKVDatabase mysql = new MySQLKVDatabase();
+            mysql.setDataSource(dataSource);
+            mysql.setIsolationLevel(IsolationLevel.SERIALIZABLE);
+            list.add(new Object[] { mysql });
+        }
+
+        // Berkeley DB Java Edition
+        if (this.berkeleyDirPrefix != null) {
+            final File dir = File.createTempFile("berkeleyDirPrefix", null);
+            Assert.assertTrue(dir.delete());
+            Assert.assertTrue(dir.mkdirs());
+            dir.deleteOnExit();
+            final BerkeleyKVDatabase bdb = new BerkeleyKVDatabase();
+            bdb.setDirectory(dir);
+            bdb.start();
+            list.add(new Object[] { bdb });
+        }
 
         // Done
         return list.toArray(new Object[list.size()][]);
     }
 
-    @Test(dataProvider = "kvdbs")
-    public void testKV1(KVDatabase store, NavigableMap<byte[], byte[]> storeData) throws Exception {
-        this.log.info("starting testKV1() on " + store);
+    @Test
+    public void testSimpleKVConflicts() throws Exception {
+
+        // SimpleKVDatabase
+        final NavigableMapKVStore kv = new NavigableMapKVStore();
+        final SimpleKVDatabase store = new SimpleKVDatabase(kv, 100, 250);
+        this.log.info("starting testSimpleKVConflicts() on " + store);
 
         // Clear database
         KVTransaction tx = store.createTransaction();
@@ -189,12 +245,16 @@ public class KVDatabaseTest extends TestSupport {
                 txs[i] = null;
             }
         }
-        this.log.info("finished testKV1() on " + store);
+        this.log.info("finished testSimpleKVConflicts() on " + store);
     }
 
+    /**
+     * This test runs transactions in parallel and verifies there is no "leakage" between them.
+     * Database must be configured for serializable isolation.
+     */
     @Test(dataProvider = "kvdbs")
-    public void testKV2(KVDatabase store, NavigableMap<byte[], byte[]> storeData) throws Exception {
-        this.log.info("starting testKV2() on " + store);
+    public void testParallelTransactions(KVDatabase store) throws Exception {
+        this.log.info("starting testParallelTransactions() on " + store);
         for (int count = 0; count < 25; count++) {
             final RandomTask[] tasks = new RandomTask[25];
             for (int i = 0; i < tasks.length; i++) {
@@ -209,20 +269,34 @@ public class KVDatabaseTest extends TestSupport {
                     throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
             }
         }
-        this.log.info("finished testKV2() on " + store);
+        this.log.info("finished testParallelTransactions() on " + store);
     }
 
+    /**
+     * This test runs transactions sequentially and verifies that each transaction sees
+     * the changes that were committed in the previous transaction.
+     */
     @Test(dataProvider = "kvdbs")
-    public void testKV3(KVDatabase store, NavigableMap<byte[], byte[]> storeData) throws Exception {
-        this.log.info("starting testKV3() on " + store);
+    public void testSequentialTransactions(KVDatabase store) throws Exception {
+        this.log.info("starting testSequentialTransactions() on " + store);
+
+        // Zero out database
+        final KVTransaction tx = store.createTransaction();
+        tx.removeRange(null, null);
+        tx.commit();
+
+        // Keep an in-memory record of what is in the committed database
+        final TreeMap<byte[], byte[]> committedData = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+
+        // Run transactions
         for (int i = 0; i < 50; i++) {
-            final RandomTask task = new RandomTask(i, store, storeData, this.random.nextLong());
+            final RandomTask task = new RandomTask(i, store, committedData, this.random.nextLong());
             task.run();
             final Throwable fail = task.getFail();
             if (fail != null)
                 throw new Exception("task #" + i + " failed: >>>" + this.show(fail).trim() + "<<<");
         }
-        this.log.info("finished testKV3() on " + store);
+        this.log.info("finished testSequentialTransactions() on " + store);
     }
 
     @Test
@@ -373,7 +447,7 @@ public class KVDatabaseTest extends TestSupport {
         private final int id;
         private final KVDatabase store;
         private final Random random;
-        private final NavigableMap<byte[], byte[]> storeData;
+        private final NavigableMap<byte[], byte[]> committedData;       // current committed data, if known
         private final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
 
         private Throwable fail;
@@ -382,12 +456,12 @@ public class KVDatabaseTest extends TestSupport {
             this(id, store, null, seed);
         }
 
-        public RandomTask(int id, KVDatabase store, NavigableMap<byte[], byte[]> storeData, long seed) {
+        public RandomTask(int id, KVDatabase store, NavigableMap<byte[], byte[]> committedData, long seed) {
             super("Random[" + id + "]");
             this.log("seed = " + seed);
             this.id = id;
             this.store = store;
-            this.storeData = storeData;
+            this.committedData = committedData;
             this.random = new Random(seed);
         }
 
@@ -414,16 +488,25 @@ public class KVDatabaseTest extends TestSupport {
               knownValues, this.converter, this.converter);
             final KVTransaction tx = this.store.createTransaction();
 
-            // Snapshot database, if known
-            if (this.storeData != null)
-                knownValues.putAll(this.storeData);
-            final Map<String, String> storeDataView = this.storeData != null ?
-              new ConvertedNavigableMap<String, String, byte[], byte[]>(this.storeData, this.converter, this.converter) : null;
+            // Load committed database contents into "known values" tracker
+            if (this.committedData != null)
+                knownValues.putAll(this.committedData);
+            final Map<String, String> committedDataView = this.committedData != null ?
+              new ConvertedNavigableMap<String, String, byte[], byte[]>(this.committedData, this.converter, this.converter) : null;
+
+            // Verify committed data before starting
+            if (this.committedData != null) {
+                final TreeMap<byte[], byte[]> actualValues = this.readDatabase(tx);
+                Assert.assertEquals(
+                  new ConvertedNavigableMap<String, String, byte[], byte[]>(actualValues, this.converter, this.converter),
+                  knownValuesView);
+            }
 
             // Make a bunch of random changes
             boolean knownValuesChanged = false;
             try {
-                for (int j = 0; j < this.r(1000); j++) {
+                final int limit = this.r(1000);
+                for (int j = 0; j < limit; j++) {
                     byte[] key;
                     byte[] val;
                     byte[] min;
@@ -523,13 +606,11 @@ public class KVDatabaseTest extends TestSupport {
                     this.log("rolled-back");
                 } else {
                     tx.commit();
+                    if (this.committedData != null) {
+                        this.committedData.clear();
+                        this.committedData.putAll(knownValues);
+                    }
                     this.log("committed");
-                }
-
-                // Verify contents equal what's expected
-                if (!rollback && this.storeData != null) {
-                    Assert.assertEquals(storeDataView, knownValuesView,
-                      "\n*** ACTUAL:\n" + storeDataView + "\n*** EXPECTED:\n" + knownValuesView + "\n");
                 }
 
             } catch (TransactionTimeoutException e) {
@@ -537,6 +618,38 @@ public class KVDatabaseTest extends TestSupport {
             } catch (RetryTransactionException e) {
                 this.log("got " + e);
             }
+
+            // Verify committed database contents are equal to what's expected
+            if (this.committedData != null) {
+                knownValues.clear();
+                knownValues.putAll(this.readDatabase());
+                Assert.assertEquals(knownValuesView, committedDataView,
+                  "\n*** ACTUAL:\n" + knownValuesView + "\n*** EXPECTED:\n" + committedDataView + "\n");
+            }
+        }
+
+        private TreeMap<byte[], byte[]> readDatabase() {
+            final KVTransaction tx = this.store.createTransaction();
+            final TreeMap<byte[], byte[]> values = this.readDatabase(tx);
+            tx.commit();
+            return values;
+        }
+
+        private TreeMap<byte[], byte[]> readDatabase(KVTransaction tx) {
+            final TreeMap<byte[], byte[]> values = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+            final Iterator<KVPair> i = tx.getRange(null, null, false);
+            while (i.hasNext()) {
+                final KVPair pair = i.next();
+                values.put(pair.getKey(), pair.getValue());
+            }
+            if (i instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable)i).close();
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+            return values;
         }
 
         private void log(String s) {
