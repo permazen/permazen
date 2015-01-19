@@ -59,6 +59,11 @@ public class SQLKVDatabase implements KVDatabase {
     protected String valueColumnName = DEFAULT_VALUE_COLUMN_NAME;
 
     /**
+     * The configured transaction isolation level. Default is {@link IsolationLevel#SERIALIZABLE}.
+     */
+    protected IsolationLevel isolationLevel = IsolationLevel.SERIALIZABLE;
+
+    /**
      * Get the {@link DataSource} used with this instance.
      */
     public DataSource getDataSource() {
@@ -146,7 +151,41 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
+     * Get the transaction isolation level.
+     *
+     * <p>
+     * Default value is {@link IsolationLevel#SERIALIZABLE}.
+     * </p>
+     */
+    public IsolationLevel getIsolationLevel() {
+        return this.isolationLevel;
+    }
+
+    /**
+     * Configure the transaction isolation level.
+     *
+     * @param isolationLevel isolation level
+     * @throws IllegalArgumentException if {@code isolationLevel} is null
+     */
+    public void setIsolationLevel(IsolationLevel isolationLevel) {
+        if (isolationLevel == null)
+            throw new IllegalArgumentException("null isolationLevel");
+        this.isolationLevel = isolationLevel;
+    }
+
+    /**
      * Create a new transaction.
+     *
+     * <p>
+     * The implementation in {@link SQLKVDatabase} invokes {@link #createTransactionConnection createTransactionConnection()}
+     * to get a {@link Connection} for the new transaction, then invokes these methods in order:
+     *  <ol>
+     *  <li>{@link #preBeginTransaction preBeginTransaction()}</li>
+     *  <li>{@link #beginTransaction beginTransaction()}</li>
+     *  <li>{@link #postBeginTransaction postBeginTransaction()}</li>
+     *  <li>{@link #createSQLKVTransaction createSQLKVTransaction()}</li>
+     *  </ol>
+     * and returns the result.
      *
      * @throws KVDatabaseException if an unexpected error occurs
      * @throws IllegalStateException if no {@link DataSource} is {@linkplain #setDataSource configured}
@@ -156,7 +195,11 @@ public class SQLKVDatabase implements KVDatabase {
         if (this.dataSource == null)
             throw new IllegalStateException("no DataSource configured");
         try {
-            return this.createSQLKVTransaction(this.createConnection());
+            final Connection connection = this.createTransactionConnection();
+            this.preBeginTransaction(connection);
+            this.beginTransaction(connection);
+            this.postBeginTransaction(connection);
+            return this.createSQLKVTransaction(connection);
         } catch (SQLException e) {
             throw new KVDatabaseException(this, e);
         }
@@ -166,23 +209,56 @@ public class SQLKVDatabase implements KVDatabase {
      * Create a {@link Connection} for a new transaction.
      *
      * <p>
-     * Note: this method is responsible for beginning the SQL transaction.
-     * </p>
-     *
-     * <p>
      * The implementation in {@link SQLKVDatabase} invokes {@link DataSource#getConnection()} on the
-     * {@linkplain #dataSource configured DataSource} and then {@link Connection#setAutoCommit Connection.setAutoCommit(false)}
-     * to open the transaction.
+     * {@linkplain #dataSource configured} {@link DataSource}.
      * </p>
      */
-    protected Connection createConnection() throws SQLException {
-        final Connection connection = this.dataSource.getConnection();
+    protected Connection createTransactionConnection() throws SQLException {
+        return this.dataSource.getConnection();
+    }
+
+    /**
+     * Subclass hook invoked just before opening a new SQL transaction.
+     *
+     * <p>
+     * The implementation in {@link SQLKVDatabase} does nothing. Note: subclasses must ensure the transaction is
+     * configured for the {@link IsolationLevel} configured on this instance.
+     * </p>
+     *
+     * @see #createSQLKVTransaction createSQLKVTransaction()
+     */
+    protected void preBeginTransaction(Connection connection) throws SQLException {
+    }
+
+    /**
+     * Open a new SQL transaction on the given {@link Connection}.
+     *
+     * <p>
+     * The implementation in {@link SQLKVDatabase} invokes {@link Connection#setAutoCommit Connection.setAutoCommit(false)}.
+     * </p>
+     *
+     * @see #createSQLKVTransaction createSQLKVTransaction()
+     */
+    protected void beginTransaction(Connection connection) throws SQLException {
         connection.setAutoCommit(false);
-        return connection;
+    }
+
+    /**
+     * Subclass hook invoked just after opening a new SQL transaction.
+     *
+     * <p>
+     * The implementation in {@link SQLKVDatabase} does nothing. Note: subclasses must ensure the transaction is
+     * configured for the {@link IsolationLevel} configured on this instance.
+     * </p>
+     *
+     * @see #createSQLKVTransaction createSQLKVTransaction()
+     */
+    protected void postBeginTransaction(Connection connection) throws SQLException {
     }
 
     /**
      * Create a new {@link SQLKVTransaction} for a new transaction given the specified {@link Connection}.
+     * There will already be an SQL transaction open on {@code connection}.
      *
      * <p>
      * The implementation in {@link SQLKVDatabase} just invokes

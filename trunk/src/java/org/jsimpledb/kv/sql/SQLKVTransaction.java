@@ -7,6 +7,7 @@
 
 package org.jsimpledb.kv.sql;
 
+import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,7 +35,7 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
     protected final Connection connection;
     protected final HashMap<StmtType, PreparedStatement> preparedStatements = new HashMap<StmtType, PreparedStatement>();
 
-    private int timeout;
+    private long timeout;
     private boolean closed;
     private boolean stale;
 
@@ -57,7 +58,9 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
 
     @Override
     public void setTimeout(long timeout) {
-        this.timeout = (int)((timeout + 999) / 1000);
+        if (timeout < 0)
+            throw new IllegalArgumentException("negative timeout");
+        this.timeout = timeout;
     }
 
     @Override
@@ -161,7 +164,15 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
         }
     }
 
-    private KVTransactionException handleException(SQLException e) {
+    /**
+     * Handle an unexpected SQL exception.
+     *
+     * <p>
+     * The implementation in {@link SQLKVTransaction} rolls back the SQL transaction, closes the associated {@link Connection},
+     * and wraps the exception via {@link SQLKVDatabase#wrapException SQLKVDatabase.wrapException()}.
+     * </p>
+     */
+    protected KVTransactionException handleException(SQLException e) {
         this.stale = true;
         try {
             this.connection.rollback();
@@ -235,7 +246,7 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
             }
             for (int i = 0; i < params.length; i++)
                 preparedStatement.setBytes(i + 1, params[i]);
-            preparedStatement.setQueryTimeout(this.timeout);
+            preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
                 this.log.trace("SQL query: " + preparedStatement);
             final ResultSet resultSet = preparedStatement.executeQuery();
@@ -257,7 +268,7 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
             }
             for (int i = 0; i < params.length; i++)
                 preparedStatement.setBytes(i + 1, params[i]);
-            preparedStatement.setQueryTimeout(this.timeout);
+            preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
                 this.log.trace("SQL update: " + preparedStatement);
             preparedStatement.executeUpdate();
@@ -275,35 +286,39 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
 
 // ResultSetIterator
 
-    private class ResultSetIterator implements Iterator<KVPair> {
+    private class ResultSetIterator implements Iterator<KVPair>, Closeable {
 
         private ResultSet resultSet;
         private boolean ready;
         private byte[] removeKey;
 
         ResultSetIterator(ResultSet resultSet) {
+            if (resultSet == null)
+                throw new IllegalArgumentException("null database");
             this.resultSet = resultSet;
+            synchronized (this) { }
         }
 
+    // Iterator
+
         @Override
-        public boolean hasNext() {
+        public synchronized boolean hasNext() {
             if (this.resultSet == null)
                 return false;
             if (this.ready)
                 return true;
             try {
-                if (!(this.ready = this.resultSet.next())) {
-                    this.resultSet.close();
-                    this.resultSet = null;
-                }
+                this.ready = this.resultSet.next();
             } catch (SQLException e) {
                 throw SQLKVTransaction.this.handleException(e);
             }
+            if (!this.ready)
+                this.close();
             return this.ready;
         }
 
         @Override
-        public KVPair next() {
+        public synchronized KVPair next() {
             if (!this.hasNext())
                 throw new NoSuchElementException();
             final byte[] key;
@@ -320,20 +335,34 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
         }
 
         @Override
-        public void remove() {
+        public synchronized void remove() {
             if (this.resultSet == null || this.removeKey == null)
                 throw new IllegalStateException();
             SQLKVTransaction.this.remove(this.removeKey);
             this.removeKey = null;
         }
 
+    // Closeable
+
+        @Override
+        public synchronized void close() {
+            if (this.resultSet == null)
+                return;
+            try {
+                this.resultSet.close();
+            } catch (Exception e) {
+                // ignore
+            } finally {
+                this.resultSet = null;
+            }
+        }
+
+    // Object
+
         @Override
         protected void finalize() throws Throwable {
             try {
-                if (this.resultSet != null)
-                    this.resultSet.close();
-            } catch (Exception e) {
-                // ignore
+                this.close();
             } finally {
                 super.finalize();
             }

@@ -8,6 +8,7 @@
 package org.jsimpledb.kv.sql;
 
 import com.mysql.jdbc.MysqlErrorNumbers;
+import com.mysql.jdbc.exceptions.MySQLTimeoutException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,12 +29,15 @@ import org.jsimpledb.kv.RetryTransactionException;
  */
 public class MySQLKVDatabase extends SQLKVDatabase {
 
+    private static final int DEFAULT_LOCK_TIMEOUT = 10;             // 10 seconds
+
     @Override
-    protected Connection createConnection() throws SQLException {
-        final Connection connection = super.createConnection();
+    protected void preBeginTransaction(Connection connection) throws SQLException {
         final Statement statement = connection.createStatement();
-        statement.execute("SET SESSION sql_mode = 'TRADITIONAL'");      // force error if key or value is too long
-        return connection;
+        statement.execute("SET TRANSACTION ISOLATION LEVEL " + this.isolationLevel.name().replace('_', ' '));
+        statement.execute("SET innodb_lock_wait_timeout = " + DEFAULT_LOCK_TIMEOUT);
+        statement.execute("SET SESSION sql_mode = 'TRADITIONAL'");              // force error if key or value is too long
+        statement.close();
     }
 
     /**
@@ -60,6 +64,8 @@ public class MySQLKVDatabase extends SQLKVDatabase {
         case MysqlErrorNumbers.ER_LOCK_DEADLOCK:
             return new RetryTransactionException(tx, e);
         default:
+            if (e instanceof MySQLTimeoutException)
+                return new RetryTransactionException(tx, e);
             return super.wrapException(tx, e);
         }
     }
