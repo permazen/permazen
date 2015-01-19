@@ -26,6 +26,7 @@
         <dependency force="true" org="com.mysql" name="mysql-connector-java" rev="5.1+" conf="base,test-&gt;default"/>
         <dependency force="true" org="com.tonicsystems" name="jarjar" rev="1.4" conf="build->default"/>
         <dependency force="true" org="com.foundationdb" name="fdb-java" rev="3.+" conf="base,test->default"/>
+        <dependency force="true" org="com.sleepycat" name="berkeley-db-java" rev="6.2.31" conf="base,test->default"/>
         <dependency force="true" org="com.vaadin" name="vaadin" rev="7.3+" conf="javac,gui,aspects->default"/>
         <dependency force="true" org="javax.servlet" name="servletapi" rev="3.1.0" conf="javac,gui,aspects->default"/>
         <dependency force="true" org="javax.validation" name="validation-api" rev="1.0.0.GA" conf="base->default"/>
