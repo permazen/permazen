@@ -25,6 +25,10 @@ package org.jsimpledb.kv;
  * </p>
  *
  * <p>
+ * If an instance throws a {@link KVTransactionException}, the transaction should be implicitly rolled back.
+ * </p>
+ *
+ * <p>
  * Implementations must throw {@link StaleTransactionException} if {@link #commit} or {@link #rollback} has already
  * been invoked, or if the {@link KVTransaction} instance is no longer usable for some other reason. In particular,
  * implementations should throw {@link TransactionTimeoutException} if an operation is attempted on a transaction

@@ -97,6 +97,7 @@ public interface KVStore {
      * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
      * @param reverse true to return key/value pairs in reverse order (i.e., keys descending)
      * @return iteration of key/value pairs in the range {@code minKey} (inclusive) to {@code maxKey} (exclusive)
+     * @throws IllegalArgumentException if {@code minKey > maxKey}
      */
     Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse);
 
