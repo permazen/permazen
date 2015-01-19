@@ -315,6 +315,7 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
                 throw SQLKVTransaction.this.handleException(e);
             }
             this.removeKey = key.clone();
+            this.ready = false;
             return new KVPair(key, value);
         }
 
