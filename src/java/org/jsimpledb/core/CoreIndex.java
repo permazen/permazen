@@ -7,6 +7,7 @@
 
 package org.jsimpledb.core;
 
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.jsimpledb.index.Index;
@@ -46,7 +47,7 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
 // Index
 
     @Override
-    public IndexSet<Tuple2<V, T>> asSet() {
+    public NavigableSet<Tuple2<V, T>> asSet() {
 
         // Get index view
         final IndexView<V, T> iv = this.getIndexView();
@@ -64,7 +65,7 @@ public class CoreIndex<V, T> extends AbstractCoreIndex implements Index<V, T> {
     }
 
     @Override
-    public IndexMap<V, NavigableSet<T>> asMap() {
+    public NavigableMap<V, NavigableSet<T>> asMap() {
 
         // Get index view
         final IndexView<V, T> iv = this.getIndexView();
