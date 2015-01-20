@@ -7,6 +7,7 @@
 
 package org.jsimpledb.core;
 
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 
 import org.jsimpledb.index.Index;
@@ -52,7 +53,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
 // Index3
 
     @Override
-    public IndexSet<Tuple4<V1, V2, V3, T>> asSet() {
+    public NavigableSet<Tuple4<V1, V2, V3, T>> asSet() {
 
         // Get index view
         final Index3View<V1, V2, V3, T> iv = this.getIndex3View();
@@ -72,7 +73,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
     }
 
     @Override
-    public IndexMap<Tuple3<V1, V2, V3>, NavigableSet<T>> asMap() {
+    public NavigableMap<Tuple3<V1, V2, V3>, NavigableSet<T>> asMap() {
 
         // Get index view
         final Index3View<V1, V2, V3, T> iv = this.getIndex3View();
@@ -90,7 +91,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
     }
 
     @Override
-    public IndexMap<Tuple2<V1, V2>, Index<V3, T>> asMapOfIndex() {
+    public NavigableMap<Tuple2<V1, V2>, Index<V3, T>> asMapOfIndex() {
 
         // Get index view
         final Index3View<V1, V2, V3, T> iv = this.getIndex3View();
@@ -108,7 +109,7 @@ public class CoreIndex3<V1, V2, V3, T> extends AbstractCoreIndex implements Inde
     }
 
     @Override
-    public IndexMap<V1, Index2<V2, V3, T>> asMapOfIndex2() {
+    public NavigableMap<V1, Index2<V2, V3, T>> asMapOfIndex2() {
 
         // Get index view
         final Index3View<V1, V2, V3, T> iv = this.getIndex3View();
