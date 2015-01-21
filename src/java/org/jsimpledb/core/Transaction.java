@@ -1737,16 +1737,14 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized void writeCounterField(final ObjId id, final int storageId, final long value, final boolean updateVersion) {
-        this.mutateAndNotify(id, new Mutation<Void>() {
-            @Override
-            public Void mutate() {
-                Transaction.this.doWriteCounterField(id, storageId, value, updateVersion);
-                return null;
-            }
-        });
-    }
 
-    private synchronized void doWriteCounterField(ObjId id, int storageId, long value, boolean updateVersion) {
+        // Sanity check
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        if (id == null)
+            throw new IllegalArgumentException("null id");
+        if (this.readOnly)
+            throw new ReadOnlyTransactionException(this);
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
