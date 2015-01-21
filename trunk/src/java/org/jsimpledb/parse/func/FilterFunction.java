@@ -9,8 +9,11 @@ package org.jsimpledb.parse.func;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 import java.util.Map;
+import java.util.NavigableSet;
+import java.util.Set;
 
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.AbstractValue;
@@ -48,23 +51,34 @@ public class FilterFunction extends ApplyExprFunction {
             @Override
             public Object get(final ParseSession session) {
 
-                // Evaluate items
-                Object items = params.getItems().evaluate(session).checkNotNull(session, "filter()");
-                if (items instanceof Map)
-                    items = ((Map<?, ?>)items).entrySet();
-                if (!(items instanceof Iterable)) {
-                    throw new EvalException("invalid filter() operation on non-Iterable object of type "
-                      + items.getClass().getName());
-                }
-
-                // Return filtered view
-                return Iterables.filter((Iterable<?>)items, new Predicate<Object>() {
+                // Build predicate
+                final Predicate<Object> predicate = new Predicate<Object>() {
                     @Override
                     public boolean apply(Object item) {
                         return FilterFunction.this.evaluate(session, params.getVariable(),
                           new ConstValue(item), params.getExpr()).checkBoolean(session, "filter()");
                     }
-                });
+                };
+
+                // Evaluate items
+                Object items = params.getItems().evaluate(session).checkNotNull(session, "filter()");
+                if (items instanceof Map)
+                    items = ((Map<?, ?>)items).entrySet();
+
+                // Preserve NavigableSet if possible
+                if (items instanceof NavigableSet)
+                    return Sets.filter((NavigableSet<?>)items, predicate);
+
+                // Preserve Set if possible
+                if (items instanceof Set)
+                    return Sets.filter((Set<?>)items, predicate);
+
+                // Return Iterable view
+                if (items instanceof Iterable)
+                    return Iterables.filter((Iterable<?>)items, predicate);
+
+                // Wrong type
+                throw new EvalException("invalid filter() operation on non-Iterable object of type " + items.getClass().getName());
             }
         };
     }
