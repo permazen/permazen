@@ -26,11 +26,11 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  */
 class JSList<E> extends AbstractList<E> implements RandomAccess {
 
-    final Transaction tx;
-    final ObjId id;
-    final ListField<E> field;
-    final FieldType<E> elementType;
-    final byte[] contentPrefix;
+    private final Transaction tx;
+    private final ObjId id;
+    private final ListField<E> field;
+    private final FieldType<E> elementType;
+    private final byte[] contentPrefix;
 
 // Constructors
 
