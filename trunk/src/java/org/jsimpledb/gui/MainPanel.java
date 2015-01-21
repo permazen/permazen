@@ -539,7 +539,7 @@ public class MainPanel extends VerticalLayout {
             final TextField textField = new TextField();
             textField.setWidth("100%");
             textField.setNullRepresentation("");
-            final FieldType<?> fieldType = this.getFieldType(jfield);
+            final FieldType<?> fieldType = jfield.getFieldType();
             textField.setConverter(this.buildSimpleFieldConverter(fieldType));
             textField.setPropertyDataSource(property);
             return new Editor(textField, allowNull ? this.addNullCheckbox(textField) : textField);
@@ -589,10 +589,6 @@ public class MainPanel extends VerticalLayout {
 
         private <T> SimpleFieldConverter<T> buildSimpleFieldConverter(FieldType<T> fieldType) {
             return new SimpleFieldConverter<T>(fieldType);
-        }
-
-        private FieldType<?> getFieldType(JSimpleField jfield) {
-            return MainPanel.this.jdb.getDatabase().getFieldTypeRegistry().getFieldType(jfield.getTypeName());
         }
 
         private String buildCaption(String fieldName, boolean includeColon) {

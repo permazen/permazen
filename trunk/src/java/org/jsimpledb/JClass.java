@@ -56,7 +56,7 @@ public class JClass<T> extends JSchemaObject {
     ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
 
     int[] subtypeStorageIds;
-    boolean requiresInitialValidation;
+    boolean requiresValidation;
 
     /**
      * Constructor.
@@ -185,8 +185,7 @@ public class JClass<T> extends JSchemaObject {
 
             // Create simple field
             final JSimpleField jfield = this.createSimpleField(description, fieldTypeToken,
-              fieldName, annotation.type(), storageId, annotation.indexed(), annotation.onDelete(), annotation.cascadeDelete(),
-              getter, setter, "field `" + fieldName + "' of object type `" + this.name + "'");
+              fieldName, storageId, annotation, getter, setter, "field `" + fieldName + "' of object type `" + this.name + "'");
             jfield.parent = this;
 
             // Add field
@@ -220,9 +219,8 @@ public class JClass<T> extends JSchemaObject {
             final TypeToken<?> elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));
 
             // Create element sub-field
-            final JSimpleField elementField = this.createSimpleField("element() property of " + description,
-              elementType, SetField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementStorageId,
-              elementAnnotation.indexed(), elementAnnotation.onDelete(), elementAnnotation.cascadeDelete(), null, null,
+            final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,
+              SetField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,
               "element field of set field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create set field
@@ -261,9 +259,8 @@ public class JClass<T> extends JSchemaObject {
             final TypeToken<?> elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));
 
             // Create element sub-field
-            final JSimpleField elementField = this.createSimpleField("element() property of " + description,
-              elementType, ListField.ELEMENT_FIELD_NAME, elementAnnotation.type(), elementStorageId,
-              elementAnnotation.indexed(), elementAnnotation.onDelete(), elementAnnotation.cascadeDelete(), null, null,
+            final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,
+              ListField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,
               "element field of list field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create list field
@@ -305,13 +302,11 @@ public class JClass<T> extends JSchemaObject {
             final TypeToken<?> valueType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 1));
 
             // Create key and value sub-fields
-            final JSimpleField keyField = this.createSimpleField("key() property of " + description,
-              keyType, MapField.KEY_FIELD_NAME, keyAnnotation.type(), keyStorageId, keyAnnotation.indexed(),
-              keyAnnotation.onDelete(), keyAnnotation.cascadeDelete(), null, null,
+            final JSimpleField keyField = this.createSimpleField("key() property of " + description, keyType,
+              MapField.KEY_FIELD_NAME, keyStorageId, keyAnnotation, null, null,
               "key field of map field `" + fieldName + "' in object type `" + this.name + "'");
-            final JSimpleField valueField = this.createSimpleField("value() property of " + description,
-              valueType, MapField.VALUE_FIELD_NAME, valueAnnotation.type(), valueStorageId, valueAnnotation.indexed(),
-              valueAnnotation.onDelete(), valueAnnotation.cascadeDelete(), null, null,
+            final JSimpleField valueField = this.createSimpleField("value() property of " + description, valueType,
+              MapField.VALUE_FIELD_NAME, valueStorageId, valueAnnotation, null, null,
               "value field of map field `" + fieldName + "' in object type `" + this.name + "'");
 
             // Create map field
@@ -323,6 +318,10 @@ public class JClass<T> extends JSchemaObject {
             // Add field
             this.addField(jfield);
         }
+
+        // Calculate which fields require validation
+        for (JField jfield : this.jfields.values())
+            jfield.calculateRequiresValidation();
     }
 
     void addCompositeIndex(JSimpleDB jdb, org.jsimpledb.annotation.JCompositeIndex annotation) {
@@ -373,8 +372,11 @@ public class JClass<T> extends JSchemaObject {
         Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);
     }
 
-    void calculateInitialValidationRequirement() {
-        this.requiresInitialValidation = Util.requiresInitialValidation(this.type);
+    void calculateValidationRequirement() {
+
+        // Check for JSR 303 or @Validate annotations
+        if ((this.requiresValidation = Util.requiresValidation(this.type)))
+            return;
     }
 
     @Override
@@ -441,18 +443,16 @@ public class JClass<T> extends JSchemaObject {
     // Create a simple field, either regular object field or sub-field of complex field
     @SuppressWarnings("unchecked")
     private JSimpleField createSimpleField(String description, TypeToken<?> fieldTypeToken, String fieldName,
-      String typeName, int storageId, boolean indexed, DeleteAction onDelete, boolean cascadeDelete, Method getter, Method setter,
-      String fieldDescription) {
+      int storageId, org.jsimpledb.annotation.JField annotation, Method getter, Method setter, String fieldDescription) {
+
+        // Get explicit type name, if any
+        final String typeName = annotation.type().length() > 0 ? annotation.type() : null;
 
         // Include containing type for annotation description; with autogenProperties it can be more than one
         description += " in " + this.type;
 
         // Complex sub-field?
         final boolean isSubField = getter == null;
-
-        // Empty type name same as null
-        if (typeName.length() == 0)
-            typeName = null;
 
         // See if field type encompasses one or more JClass types and is therefore a reference type
         boolean isReferenceType = false;
@@ -522,18 +522,23 @@ public class JClass<T> extends JSchemaObject {
             }
         }
 
+        // Sanity check annotation some more
+        if (!isReferenceType && annotation.onDelete() != DeleteAction.EXCEPTION)
+            throw new IllegalArgumentException("invalid " + description + ": onDelete() only allowed on reference fields");
+        if (!isReferenceType && annotation.cascadeDelete())
+            throw new IllegalArgumentException("invalid " + description + ": cascadeDelete() only allowed on reference fields");
+
         // Create simple, enum, or reference field
         try {
             return
               isReferenceType ?
-                new JReferenceField(this.jdb, fieldName, storageId, fieldDescription,
-                  fieldTypeToken, onDelete, cascadeDelete, getter, setter) :
+                new JReferenceField(this.jdb, fieldName, storageId, fieldDescription, fieldTypeToken, annotation, getter, setter) :
               enumType != null ?
-                new JEnumField(this.jdb, fieldName, storageId, enumType, indexed, fieldDescription, getter, setter) :
+                new JEnumField(this.jdb, fieldName, storageId, enumType, annotation, fieldDescription, getter, setter) :
                 new JSimpleField(this.jdb, fieldName, storageId, fieldTypeToken,
-                 nonReferenceType.getName(), indexed, fieldDescription, getter, setter);
+                  nonReferenceType, annotation.indexed(), annotation, fieldDescription, getter, setter);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("invalid " + description + ": " + e, e);
+            throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage(), e);
         }
     }
 }

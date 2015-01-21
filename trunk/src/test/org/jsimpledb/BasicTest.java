@@ -270,7 +270,7 @@ public class BasicTest extends TestSupport {
     }
 
     public static JSimpleDB getJSimpleDB(Class... classes) {
-        return getJSimpleDB(Arrays.<Class<?>>asList(classes));
+        return BasicTest.getJSimpleDB(Arrays.<Class<?>>asList(classes));
     }
 
     public static JSimpleDB getJSimpleDB(Iterable<Class<?>> classes) {

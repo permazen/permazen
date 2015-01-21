@@ -20,7 +20,7 @@ class JEnumFieldInfo extends JSimpleFieldInfo {
     JEnumFieldInfo(JEnumField jfield, int parentStorageId) {
         super(jfield, parentStorageId);
         this.enumType = (Class<? extends Enum<?>>)jfield.getType().getRawType();
-        this.converter = EnumConverter.createEnumConverter(this.enumType);
+        this.converter = jfield.converter;
     }
 
     public Class<? extends Enum<?>> getEnumType() {

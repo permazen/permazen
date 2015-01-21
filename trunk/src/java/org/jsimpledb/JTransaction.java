@@ -208,7 +208,7 @@ public class JTransaction {
         public IndexInfo load(IndexInfoKey key) {
             return key.getIndexInfo(JTransaction.this.jdb);
         }
-      });
+    });
 
     private SnapshotJTransaction snapshotTransaction;
     private boolean committing;
@@ -233,9 +233,9 @@ public class JTransaction {
         this.tx = tx;
         this.validationMode = validationMode;
 
-        // Register listeners for @OnCreate
+        // Register listeners for @OnCreate and validation on creation
         if (this.jdb.hasOnCreateMethods
-          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresInitialValidation))
+          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresValidation))
             this.tx.addCreateListener(this.internalCreateListener);
 
         // Register listeners for @OnDelete
@@ -260,8 +260,9 @@ public class JTransaction {
             }
         }
 
-        // Register listeners for @OnVersionChange
-        if (this.jdb.hasOnVersionChangeMethods)
+        // Register listeners for @OnVersionChange and validation on upgrade
+        if (this.jdb.hasOnVersionChangeMethods
+          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresValidation))
             this.tx.addVersionChangeListener(this.internalVersionChangeListener);
     }
 
@@ -1477,8 +1478,13 @@ public class JTransaction {
             if (!this.tx.exists(id))
                 continue;
 
-            // Do JSR 303 validation
+            // Get object and verify type exists in current schema (if not, the remaining validation is unneccessary)
             final JObject jobj = this.getJObject(id);
+            final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
+            if (jclass == null)
+                return;
+
+            // Do JSR 303 validation
             final Set<ConstraintViolation<JObject>> violations = ValidationUtil.validate(jobj);
             if (!violations.isEmpty()) {
                 throw new ValidationException(jobj, violations, "validation error for object " + id + " of type `"
@@ -1486,7 +1492,6 @@ public class JTransaction {
             }
 
             // Do @Validate validation
-            final JClass<?> jclass = this.jdb.getJClass(id);
             for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods)
                 Util.invoke(info.getMethod(), jobj);
         }
@@ -1515,6 +1520,12 @@ public class JTransaction {
 
         // This method exists solely to bind the generic type parameters
         private <T> void doOnCreate(JClass<T> jclass, ObjId id) {
+
+            // Enqueue for revalidation
+            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresValidation)
+                JTransaction.this.revalidate(Collections.singleton(id));
+
+            // Notify @OnCreate methods
             Object jobj = null;
             for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods) {
                 if (JTransaction.this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
@@ -1523,8 +1534,6 @@ public class JTransaction {
                     jobj = JTransaction.this.getJObject(id);
                 Util.invoke(info.getMethod(), jobj);
             }
-            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresInitialValidation)
-                JTransaction.this.revalidate(Collections.singleton(id));
         }
     }
 
@@ -1574,6 +1583,14 @@ public class JTransaction {
         // This method exists solely to bind the generic type parameters
         private <T> void doOnVersionChange(JClass<T> jclass, ObjId id,
           int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
+
+            // Enqueue for revalidation
+            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresValidation)
+                JTransaction.this.revalidate(Collections.singleton(id));
+
+            // Skip the rest if there are no @OnChange methods
+            if (jclass.onVersionChangeMethods.isEmpty())
+                return;
 
             // Get old object type info
             final SchemaVersion oldSchema = JTransaction.this.tx.getSchema().getVersion(oldVersion);

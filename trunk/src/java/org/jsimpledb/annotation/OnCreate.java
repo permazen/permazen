@@ -34,14 +34,14 @@ import java.lang.annotation.Target;
  * <p>
  * For example, instead of this:
  * <pre>
- *  &#64;JSimpleClass(storageId = 10)
+ *  &#64;JSimpleClass
  *  public abstract class Event {
  *
  *      protected Event() {
  *          this.setUUID(UUID.randomUUID());
  *      }
  *
- *      &#64;JSetField(storageId = 11)
+ *      &#64;JSetField
  *      public abstract UUID getUUID();
  *      public abstract void setUUID(UUID uuid);
  *
@@ -49,7 +49,7 @@ import java.lang.annotation.Target;
  * </pre>
  * do this:
  * <pre>
- *  &#64;JSimpleClass(storageId = 10)
+ *  &#64;JSimpleClass
  *  public abstract class Event {
  *
  *      &#64;OnCreate(snapshotTransactions = true)
@@ -57,7 +57,7 @@ import java.lang.annotation.Target;
  *          this.setUUID(UUID.randomUUID());
  *      }
  *
- *      &#64;JSetField(storageId = 11)
+ *      &#64;JSetField
  *      public abstract UUID getUUID();
  *      public abstract void setUUID(UUID uuid);
  *

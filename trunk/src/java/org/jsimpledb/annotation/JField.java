@@ -21,9 +21,9 @@ import org.jsimpledb.core.DeleteAction;
  * <p>
  * This annotation is used in two scenarios:
  * <ul>
- *  <li>To describe a simple database field by annotating the corresponding abstract Java bean property `getter' method</li>
- *  <li>To describe the sub-field(s) of a complex database field (i.e., set, list, or map),
- *      i.e., the collection element or map key and value</li>
+ *  <li>To describe a <b>simple</b> database field by annotating the corresponding abstract Java bean property `getter' method</li>
+ *  <li>To describe the <b>sub-field(s)</b> of a <b>complex</b> database field (i.e., set, list, or map),
+ *      that is, the collection element or map key and value</li>
  * </ul>
  * </p>
  *
@@ -85,7 +85,7 @@ public @interface JField {
     String name() default "";
 
     /**
-     * The type of this field.
+     * Optional override for the type of this field.
      *
      * <p>
      * If set, this must equal the name of a type registered in the {@link org.jsimpledb.core.FieldTypeRegistry}
@@ -106,19 +106,10 @@ public @interface JField {
      *
      * <p>
      * For sub-fields of complex fields, this property can be used to force a primitive sub-field type instead of a
-     * primitive wrapper type. In that case, the complex field will disallow nulls.
-     * </p>
-     *
-     * <p>
-     * For example:
+     * primitive wrapper type. In that case, the complex field will disallow null values. For example:
      * <pre>
-     * &#64;JSimpleClass(storageId = 10)
-     * public class Team {
-     *
-     *     &#64;JSetField(storageId = 11,
-     *       element = &#64;JField(storageId = 12, <b>type = "float"</b>)) // nulls will be disallowed
-     *     public abstract List&lt;<b>Float</b>&gt; getScores();
-     * }
+     *  &#64;JSetField(element = &#64;JField(<b>type = "float"</b>)) // nulls will be disallowed
+     *  public abstract List&lt;<b>Float</b>&gt; getScores();
      * </pre>
      * </p>
      */
@@ -156,7 +147,7 @@ public @interface JField {
      * {@linkplain org.jsimpledb.JObject#delete deleted}.
      *
      * <p>
-     * This field is ignored for non-reference fields.
+     * For non-reference fields this property must be equal to its default value.
      * </p>
      *
      * @see #cascadeDelete
@@ -170,7 +161,7 @@ public @interface JField {
      * is automatically deleted as well.
      *
      * <p>
-     * This field is ignored for non-reference fields.
+     * For non-reference fields this property must be equal to its default value.
      * </p>
      *
      * @see #onDelete

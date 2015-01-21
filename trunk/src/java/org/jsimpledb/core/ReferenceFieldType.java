@@ -15,8 +15,7 @@ import java.util.TreeSet;
 import org.jsimpledb.util.ByteWriter;
 
 /**
- * The {@link FieldType} for {@link ReferenceField}s. This class wraps {@link ObjIdType},
- * adding null support and object type restriction.
+ * The {@link FieldType} for {@link ReferenceField}s. Instances support object type restriction.
  *
  * <p>
  * Null values are supported by this class.
