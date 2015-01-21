@@ -25,6 +25,7 @@ import org.jsimpledb.annotation.JFieldType;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
@@ -39,12 +40,15 @@ public abstract class AbstractMain extends MainClass {
     protected static final int KV_MEM = 0;
     protected static final int KV_FDB = 1;
     protected static final int KV_XML = 2;
+    protected static final int KV_BDB = 3;
 
     private static final File DEMO_XML_FILE = new File("demo-database.xml");
     private static final File DEMO_SUBDIR = new File("demo-classes");
 
     protected int kvType = KV_MEM;
     protected String fdbClusterFile;
+    protected File bdbDirectory;
+    protected String bdbDatabaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
     protected File xmlFile;
     protected byte[] keyPrefix;
     protected int schemaVersion;
@@ -89,7 +93,7 @@ public abstract class AbstractMain extends MainClass {
                         throw new IllegalArgumentException("schema version is negative");
                 } catch (Exception e) {
                     System.err.println(this.getName() + ": invalid schema version `" + vstring + "': " + e.getMessage());
-                    this.usageError();
+                    return 1;
                 }
             } else if (option.equals("--schema-pkg")) {
                 if (params.isEmpty())
@@ -107,9 +111,10 @@ public abstract class AbstractMain extends MainClass {
                 this.scanSchemaClasses(packageName);
                 this.scanTypeClasses(packageName);
                 this.allowAutoDemo = false;
-            } else if (option.equals("--new-schema"))
+            } else if (option.equals("--new-schema")) {
                 this.allowNewSchema = true;
-            else if (option.equals("--mem")) {
+                this.allowAutoDemo = false;
+            } else if (option.equals("--mem")) {
                 this.kvType = KV_MEM;
                 this.allowAutoDemo = false;
             } else if (option.equals("--prefix")) {
@@ -128,8 +133,10 @@ public abstract class AbstractMain extends MainClass {
                     this.usageError();
                 this.kvType = KV_FDB;
                 this.fdbClusterFile = params.removeFirst();
-                if (!new File(this.fdbClusterFile).exists())
+                if (!new File(this.fdbClusterFile).exists()) {
                     System.err.println(this.getName() + ": file `" + this.fdbClusterFile + "' does not exist");
+                    return 1;
+                }
                 this.allowAutoDemo = false;
             } else if (option.equals("--xml")) {
                 if (params.isEmpty())
@@ -137,16 +144,36 @@ public abstract class AbstractMain extends MainClass {
                 this.kvType = KV_XML;
                 this.xmlFile = new File(params.removeFirst());
                 this.allowAutoDemo = false;
+            } else if (option.equals("--bdb")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.kvType = KV_BDB;
+                this.bdbDirectory = new File(params.removeFirst());
+                if (!this.bdbDirectory.exists()) {
+                    System.err.println(this.getName() + ": directory `" + this.bdbDirectory + "' does not exist");
+                    return 1;
+                }
+                if (!this.bdbDirectory.isDirectory()) {
+                    System.err.println(this.getName() + ": file `" + this.bdbDirectory + "' is not a directory");
+                    return 1;
+                }
+                this.allowAutoDemo = false;
+            } else if (option.equals("--bdb-database")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.bdbDatabaseName = params.removeFirst();
             } else if (option.equals("--"))
                 break;
             else if (!this.parseOption(option, params)) {
                 System.err.println(this.getName() + ": unknown option `" + option + "'");
                 this.usageError();
+                return 1;
             }
         }
         if (this.kvType != KV_FDB && this.keyPrefix != null) {
             System.err.println(this.getName() + ": option `--prefix' is only valid in combination with `--fdb'");
             this.usageError();
+            return 1;
         }
 
         // Automatically go into demo mode if appropriate
@@ -285,14 +312,26 @@ public abstract class AbstractMain extends MainClass {
             fdb.setKeyPrefix(this.keyPrefix);
             fdb.start();
             this.kvdb = fdb;
-            this.databaseDescription = "FoundationDB";
+            this.databaseDescription = "FoundationDB " + new File(this.fdbClusterFile).getName();
             if (this.keyPrefix != null)
                 this.databaseDescription += " [0x" + ByteUtil.toString(this.keyPrefix) + "]";
             break;
         }
+        case KV_BDB:
+        {
+            final BerkeleyKVDatabase bdb = new BerkeleyKVDatabase();
+            bdb.setDirectory(this.bdbDirectory);
+            bdb.setDatabaseName(this.bdbDatabaseName);
+//            if (this.readOnly)
+//                bdb.setDatabaseConfig(bdb.getDatabaseConfig().setReadOnly(true));
+            bdb.start();
+            this.kvdb = bdb;
+            this.databaseDescription = "BerkeleyDB " + this.bdbDirectory.getName();
+            break;
+        }
         case KV_XML:
             this.kvdb = new XMLKVDatabase(this.xmlFile);
-            this.databaseDescription = this.xmlFile.getName();
+            this.databaseDescription = "XML DB " + this.xmlFile.getName();
             break;
         default:
             throw new RuntimeException("internal error");
@@ -304,6 +343,9 @@ public abstract class AbstractMain extends MainClass {
             switch (this.kvType) {
             case KV_FDB:
                 ((FoundationKVDatabase)this.kvdb).stop();
+                break;
+            case KV_BDB:
+                ((BerkeleyKVDatabase)this.kvdb).stop();
                 break;
             default:
                 break;
@@ -321,6 +363,9 @@ public abstract class AbstractMain extends MainClass {
         final String[][] baseOpts = new String[][] {
             { "-cp, --classpath path",      "Append to the classpath (useful with `java -jar ...')" },
             { "--fdb file",                 "Use FoundationDB with specified cluster file" },
+            { "--bdb directory",            "Use Berkeley DB Java Edition in specified directory" },
+            { "--bdb-database",             "Specify Berkeley DB database name (default `"
+                                              + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "'" },
             { "--mem",                      "Use an empty in-memory database (default)" },
             { "--prefix prefix",            "FoundationDB key prefix (hex or string)" },
             { "-ro, --read-only",           "Disallow database modifications" },
@@ -330,8 +375,8 @@ public abstract class AbstractMain extends MainClass {
             { "--schema-pkg package",       "Scan for @JSimpleClass types under Java package to build schema (=> JSimpleDB mode)" },
             { "--types-pkg package",        "Scan for @JFieldType types under Java package to register custom types" },
             { "-p, --scan-pkg package",     "Equivalent to `--schema-pkg package --types-pkg package'" },
-            { "-h, --help, -h",                 "Show this help message" },
-            { "--verbose, -v",              "Show verbose error messages" },
+            { "-h, --help",                 "Show this help message" },
+            { "-v, --verbose",              "Show verbose error messages" },
         };
         final String[][] combinedOpts = new String[baseOpts.length + subclassOpts.length][];
         System.arraycopy(baseOpts, 0, combinedOpts, 0, baseOpts.length);
