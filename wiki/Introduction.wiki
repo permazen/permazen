@@ -370,7 +370,11 @@ Any higher-order index can be viewed as a lower-ordered index on any prefix of i
 
 ==== Non-Unique Complex Field Indexes ====
 
-Since the same value can appear multiple times as a list element or map value, indexes on those two complex sub-fields can also be viewed as a type of composite index, where the "extra" field is the list index or map key, respectively. For example:
+The `List` element and `Map` value complex sub-fields are special, because their values are not unique to the field. In other words, the same value can appear more than once in a `List` or as a `Map` value.
+
+Therefore, indexes on these two complex sub-fields can also be viewed as a type of composite index, where the "extra" field is the distinguishing value, i.e., the list index or map key.
+
+For example:
 <code language="java">
 @JSimpleClass
 public abstract class Student implements JObject {
@@ -434,7 +438,8 @@ In JSimpleDB reference fields, including sub-fields of a collection field, are a
 <code language="java">
     // Who considers me a friend?
     public Set<Person> whoConsidersMeAFriend() {
-        return this.getTransaction().queryIndex(Person.class, "friends.element", Person.class).get(this);
+        return this.getTransaction().queryIndex(
+                  Person.class, "friends.element", Person.class).get(this);
     }</code>
 
 More generally, we can determine what objects refer to a given object indirectly, through an arbitrary sequence of reference fields. Such a sequence is called a *reference path*, and JSimpleDB exposes this functionality via `JTransaction.invertReferencePath()`:
@@ -778,7 +783,9 @@ An important point here is that the validation constraint is only checked when r
 
 === Uniqueness Constraints ===
 
-In addition to JSR 303 validation and the `@Validate` annnotation, JSimpleDB also supports validation of uniqueness constraints on simple fields. These constraints verify that each object's value in some field is unique among all objects containing that field. Fields with uniqueness constraints must be indexed. For example, this code would ensure all usernames were unique:
+In addition to JSR 303 validation and the `@Validate` annnotation, JSimpleDB also supports validation of uniqueness constraints on simple fields. These constraints verify that each object's value in some field is unique among all objects containing that field. Fields with uniqueness constraints must be indexed.
+
+For example, this code would ensure all usernames were unique:
 
 <code language="java">
     @JSimpleClass
@@ -791,17 +798,18 @@ In addition to JSR 303 validation and the `@Validate` annnotation, JSimpleDB als
 
 ==== Excluded Values ====
 
-Often there is a special value or two that you want to exclude from a uniqueness constraint, for example null values, or a value of zero. JSimpleDB gives you complete flexibility using the `uniqueExclude()` property:
+Often there is a special value or two that you want to exclude from a uniqueness constraint, for example null values, or a value of zero. JSimpleDB gives you complete flexibility using the `uniqueExclude()` property.
+
+For example:
 
 <code language="java">
     @JField(indexed = true, unique = true, uniqueExclude = { "NaN", "Infinity", "-Infinity" })
     public abstract float getPriority();
-    public abstract void setPriority(float priority);
-    }</code>
+    public abstract void setPriority(float priority);</code>
 
 == Spring Integration ==
 
-JSimpleDB includes support for use with the <a href="http://projects.spring.io/spring-framework/">Spring Framework</a>, including a transaction manager that integrates with Spring's `@Transactional` annotation.
+JSimpleDB includes support for use with the <a href="http://projects.spring.io/spring-framework/">Spring Framework</a>, including a <a href="http://docs.spring.io/spring/docs/current/javadoc-api/?org/springframework/transaction/PlatformTransactionManager.html">`PlatformTransactionManager`</a> that integrates with Spring's <a href="http://docs.spring.io/spring/docs/current/javadoc-api/?org/springframework/transaction/annotation/Transactional.html">`@Transactional`</a> annotation.
 
 See the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/spring/package-summary.html">API Javadocs</a> for more info.
 
@@ -933,4 +941,3 @@ Any storage ID that is used by two or more schema versions must be used consiste
 There is one exception, however: simple fields may change whether they are indexed between schema versions. When a field's indexing is turned on or off between schemas, an object containing that field will appear in the index only when the schema associated with the object's version configures the field as being indexed.
 
 JSimpleDB validates all of this for you, and will throw an exception if you try to do anything invalid.
-
