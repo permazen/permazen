@@ -211,7 +211,7 @@ public @interface JField {
      * <p>
      * The specified values must be valid {@link String} encodings of the associated field. For example:
      * <pre>
-     *  &#64;JField(unique = "true", uniqueExclude = { "Infinity", "-Infinity" })
+     *  &#64;JField(indexed = true, unique = true, uniqueExclude = { "Infinity", "-Infinity" })
      *  public abstract float getPriority();
      * </pre>
      * </p>
