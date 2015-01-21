@@ -151,7 +151,7 @@ public class ParamParser implements Parser<Map<String, Object>> {
         while (true) {
             new SpaceParser(needSpace).parse(ctx, complete);
             needSpace = false;
-            if (ctx.getInput().matches("^--([\\s;].*)?$")) {
+            if (ctx.getInput().matches("(?s)^--([\\s;].*)?$")) {
                 ctx.setIndex(ctx.getIndex() + 2);
                 needSpace = !this.params.isEmpty() && this.params.get(0).getMin() > 0;
                 break;
@@ -190,10 +190,9 @@ public class ParamParser implements Parser<Map<String, Object>> {
             final String typeName = param.getTypeName();
             final Parser<?> parser = param.getParser();
             while (paramValues.size() < param.getMax()) {
-
                 new SpaceParser(needSpace).parse(ctx, complete);
                 needSpace = false;
-                if (!ctx.getInput().matches("^[^\\s;].*$")) {
+                if (!ctx.getInput().matches("(?s)^[^\\s;].*$")) {
                     if (complete) {
                         parser.parse(session, new ParseContext(""), true);      // calculate completions from empty string
                         throw new ParseException(ctx, "");                      // should never get here
@@ -222,7 +221,7 @@ public class ParamParser implements Parser<Map<String, Object>> {
 
         // Check for trailing garbage
         new SpaceParser().parse(ctx, complete);
-        if (!ctx.getInput().matches("^(;.*)?$"))
+        if (!ctx.getInput().matches("(?s)^(;.*)?$"))
             throw new ParseException(ctx);
 
         // Done

@@ -104,6 +104,7 @@ public class Console {
 
             this.console.println("Welcome to JSimpleDB. You are in "
               + (this.session.hasJSimpleDB() ? "JSimpleDB" : "Core API") + " CLI Mode. Type `help' for help.");
+            this.console.println();
             while (!session.isDone()) {
 
                 // Spit out warning
@@ -139,7 +140,6 @@ public class Console {
                 if (continuation)
                     continue;
                 final ParseContext ctx = new ParseContext(lineBuffer.toString());
-                lineBuffer.setLength(0);
 
                 // Skip initial whitespace
                 ctx.skipWhitespace();
@@ -150,12 +150,26 @@ public class Console {
 
                 // Parse command(s)
                 final ArrayList<CliSession.Action> actions = new ArrayList<>();
-                if (!this.session.perform(new CliSession.Action() {
+                final boolean[] needMoreInput = new boolean[1];
+                final boolean ok = this.session.perform(new CliSession.Action() {
                     @Override
                     public void run(CliSession session) {
-                        actions.addAll(commandListParser.parse(session, ctx, false));
+                        try {
+                            actions.addAll(commandListParser.parse(session, ctx, false));
+                        } catch (ParseException e) {
+                            if (ctx.getInput().length() == 0)
+                                needMoreInput[0] = true;
+                            else
+                                throw e;
+                        }
                     }
-                }))
+                });
+                if (needMoreInput[0]) {
+                    lineBuffer.append('\n');
+                    continue;
+                }
+                lineBuffer.setLength(0);
+                if (!ok)
                     continue;
 
                 // Execute commands
