@@ -7,11 +7,13 @@
 
 package org.jsimpledb.parse.func;
 
+import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.parse.ObjTypeParser;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.LiteralNode;
 import org.jsimpledb.parse.expr.Node;
@@ -143,7 +145,17 @@ abstract class AbstractQueryFunction extends AbstractFunction {
      * @param session parse session
      * @param storageId field or composite index storage ID
      */
-    protected abstract Value apply(ParseSession session, int storageId);
+    protected Value apply(ParseSession session, final int storageId) {
+        return new AbstractValue() {
+            @Override
+            public Object get(ParseSession session) {
+                if (session.hasJSimpleDB())
+                    return JTransaction.getCurrent().queryIndex(storageId);
+                else
+                    return session.getTransaction().queryIndex(storageId);
+            }
+        };
+    }
 
     /**
      * Handle multi-argument form.

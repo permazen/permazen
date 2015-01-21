@@ -54,16 +54,6 @@ public class QueryCompositeIndexFunction extends AbstractQueryFunction {
     }
 
     @Override
-    protected Value apply(ParseSession session, final int storageId) {
-        return new AbstractValue() {
-            @Override
-            public Object get(ParseSession session) {
-                return session.getTransaction().queryIndex(storageId);
-            }
-        };
-    }
-
-    @Override
     protected Value apply(ParseSession session, final Class<?> objectType, final String indexName, final Class<?>[] valueTypes) {
         return new AbstractValue() {
             @Override
