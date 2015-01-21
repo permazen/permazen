@@ -5,7 +5,7 @@
 
 JSimpleDB makes powerful persistence easy for Java programmers.
 
-JSimpleDB's goal is to make scalable Java persistence as simple as possible, exposing complexity to the developer only when there is inherent underlying complexity in the problem space, and even then doing so in the most straightforward manner, all the while remaining strictly type safe.
+JSimpleDB's goal is to make scalable Java persistence as *simple* as possible, exposing complexity to the developer only when there is inherent underlying complexity in the problem space, and even then doing so in the most straightforward manner, all the while remaining strictly *type safe*.
 
 JSimpleDB does this by relegating the database to the simplest role possible - storing data as key/value pairs - and reimplementing the usual database supporting features, such as indexes and notifications, in a simpler, type-safe, Java-centric way. JSimpleDB also adds important new features that traditional databases don't provide.
 
@@ -19,21 +19,22 @@ In other words, for the most part JSimpleDB is not trying to create solutions wh
 
 JSimpleDB is a _Java Persistence Layer_. It provides a Java-centric view of a transactional key/value database that you supply.
 
-JSimpleDB includes adapters for existing databases, such as [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/fdb/FoundationKVDatabase.html FoundationDB] (recommended), [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html Oracle's Berkeley DB Java Edition], and any [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/sql/package-summary.html SQL database], as well as [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/SimpleKVDatabase.html in-memory] and [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/XMLKVDatabase.html XML flat file] key/value stores for testing and prototyping.
+JSimpleDB includes adapters for existing databases, such as [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/fdb/FoundationKVDatabase.html FoundationDB], [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html Oracle's Berkeley DB Java Edition], and any [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/sql/package-summary.html SQL database], as well as [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/SimpleKVDatabase.html in-memory] and [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/XMLKVDatabase.html XML flat file] key/value stores for testing and prototyping.
 
 === "Normal" Java vs. "Persistence" Java ===
 
-JSimpleDB attempts to minimize the distinction between "normal Java" and "persistence Java".
+JSimpleDB eliminates the distinction between "normal Java" and "persistence Java".
 
 For example, JSimpleDB does not have or need a "query language". All data access is done through normal Java code, using objects and method calls.
 
-Your "database schema" is defined by your Java classes and their fields. These implicitly define your one-to-one, many-to-one, and many-to-many relationships. JSimpleDB provides tightly controlled and well-defined schema versioning support so that you can safely refactor your code without worry.
+Your "database schema" is defined by your Java classes and their fields. These implicitly define your one-to-one, many-to-one, and many-to-many relationships. JSimpleDB provides tightly controlled and well-defined schema versioning support so that you can safely refactor your code freely.
 
 JSimpleDB also avoids design choices that would limit _scalability_. Some JSimpleDB design choices that support scalability are:
  * JSimpleDB runs on top of any database that can [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/KVDatabase.html look like] a transactional key/value store
  * JSimpleDB avoids the use of "bottleneck" keys (e.g., auto-increment counters) that can cause high contention between transactions
  * JSimpleDB provides support not only for indexing fields, but also tools to support building your own custom indexes, so that virtually anything you frequently query can be indexed
  * JSimpleDB provides explicit support for rolling, no-downtime software updates that involve running different versions of your code (with different schemas) on different nodes at the same time
+ * JSimpleDB does not include or require any operations that affect the entire database
 
 Most importantly, JSimpleDB does all of this while remaining *completely type safe*.
 
@@ -53,16 +54,16 @@ public abstract class Person implements JObject {
 }</code>
 
 Of note:
- * The model class is `abstract`
-   * JSimpleDB will generate a concrete subclass that overrides the declared bean property methods at runtime 
-   * The generated subclass will implement <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a>
- * `Person` is declared to implement the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a> interface
-   * This makes life easier, but strictly speaking there is no requirement that the model class extend or implement anything
  * We are defining a database object type `Person` that has two fields:
    * An `int` field named `age` of type `int`
    * A `Set` field named `friends` with element type `Person`
  * There is no setter method for the `friends` set
    * Collection fields are initially empty but always _exist_; `getFriends()` will never return `null`
+ * The model class is `abstract`
+   * JSimpleDB will generate a concrete subclass that overrides the declared bean property methods at runtime 
+   * JSimpleDB ensures the generated subclass will implement <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a>
+ * `Person` is declared to implement the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JObject.html">`JObject`</a> interface
+   * This makes life easier, but there is no requirement that the model class extend or implement anything
 
 === Field Types ===
 
@@ -72,15 +73,19 @@ JSimpleDB supports three kinds of fields: *simple* atomic fields, *complex* coll
 
 A simple field is any field that can be considered as a single atomic value and encoded into binary form. This inclues primitive types and primitive wrapper types, `String`, other usual suspects such as `Date`, `UUID`, etc., and any `Enum` type.
 
-Simple fields also include *reference* fields, which are fields that refer to other Java database objects.
-
 All simple fields have a well-defined sort order, which is also reflected in their binary encodings in the key/value store.
 
 Simple fields with *array type* up to 255 dimensions are also supported. Array types are read and written atomically by value.
 
+Simple fields also include *reference* fields, which are fields that refer to other Java database objects.
+
+You can define your own simple types by providing a class annotated with <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/JFieldType.html">`@JFieldType`</a> that implements the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/FieldType.html">`FieldType`</a> interface.
+
 ==== Complex Fields ====
 
-The supported complex field types are `Set` (actually `NavigableSet`), `List`, and `Map` (actually `NavigableMap`). JSimpleDB includes explicit support for these types, including indexing, change notification, etc. The complex types support any simple field type for their *sub-field(s)*, i.e., the `Set` and `List` element, and `Map` key and value.
+The supported complex field types are `Set` (actually `NavigableSet`), `List`, and `Map` (actually `NavigableMap`). JSimpleDB includes explicit support for these types, including indexing, change notification, etc.
+
+The complex field types support any simple field type for their *sub-field(s)*, i.e., the `Set` and `List` element, and `Map` key and value.
 
 In the case of complex fields with primitive sub-field type, both true primitive and primitive wrapper types are supported. In the former case, null values are not allowed:
 <code language="java">
@@ -98,11 +103,9 @@ public abstract class Person implements JObject {
     }
 }</code>
 
-You can define your own simple types by providing a class annotated with <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/JFieldType.html">`@JFieldType`</a> that implements the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/FieldType.html">`FieldType`</a> interface.
-
 ==== Counter Fields ====
 
-<a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/CounterField.html">`Counter`</a> fields are a special type optimized for lock-free addition/subtraction, allowing a high degree of concurrency.
+<a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/CounterField.html">`Counter`</a> fields are a special type optimized for lock-free addition/subtraction, allowing a high degree of concurrency. Counter fields contain a 64-bit counter value.
 
 == Accessing Database Objects ==
 
@@ -112,7 +115,7 @@ A <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/ind
 
 All state associated with JSimpleDB objects lives in the `JTransaction`; the model objects themselves are stateless. When you access a field of a model object, you are implicitly accessing that field's value in the `JTransaction` associated with the current thread. If there is no `JTransaction` open in the current thread, an `IllegalStateException` is thrown.
 
-Java model objects do not change from transaction to transaction like with JPA. You will get, and can use, the exact same `Person` object over and over again in multiple transactions. Of course, the person's fields may have different values in different transactions.
+However, the Java model objects do not change from transaction to transaction like with JPA. You will get, and can use, the exact same `Person` object over and over again in multiple transactions. Of course, the person's fields may have different values in different transactions.
 
 If you try to access a `Person` object in a new transaction when that `Person` has been deleted in some earlier committed transaction, you get a `DeletedObjectException`. You can check for this condition via `JObject.exists()`, and (if need be) recreate the object (with all fields reset) via `JObject.recreate()`.
 
@@ -142,7 +145,7 @@ All objects have an internal 64-bit object ID which is represented by the <a hre
 
 === Object Lifecycle ===
 
-To create a persistent `Person` instance, invoke `create()` on a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> object, e.g.:
+To create a `Person`, invoke `create()` on a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> object, e.g.:
 
 <code language="java">
     // Create a Person
@@ -150,7 +153,7 @@ To create a persistent `Person` instance, invoke `create()` on a <a href="http:/
         return JTransaction.getCurrent().create(Person.class);
     }</code>
 
-To delete a persistent `Person`:
+To delete a `Person`:
 
 <code language="java">
     person.delete();</code>
@@ -161,34 +164,34 @@ The `exists()`, `delete()`, and `recreate()` methods are part of the <a href="ht
 
 In regular Java, you can't explicitly delete objects, you can only unreference them. Since they are unreferenced, there is by definition no issue with other objects still referring to them.
 
-However, all persistence layers that support references between "objects" must decide with what to do when deleting an object which is either referenced by, or itself refereneces, other objects that still exist.
+However, all persistence layers that support references between "objects" must decide with what to do when deleting an object which is either referenced by, or itself references, other objects that still exist.
 
 ==== Delete Action ====
 
-First we consider the situation where an object is deleted, but that object still has one or more other objects referencing it. In SQL we have `ON DELETE ...` for this situation with.
+First we consider the situation where an object is deleted, but that object still has one or more other objects referencing it. In SQL we have `ON DELETE ...` for this situation.
 
-In JSimpleDB, every reference field is configured with a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/DeleteAction.html">`DeleteAction`</a> to be taken when a referenced object is deleted. There are four choices:
+In JSimpleDB, every reference field is configured with a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/DeleteAction.html">`DeleteAction`</a> to be taken when a still referred-to object is deleted. There are four choices:
 
  * `EXCEPTION` - Disallow deletion of such an object; instead, throw `ReferencedObjectException`. This is the default value.
- * `UNREFERENCE` - Set all references to the object to null (in the case of simple reference fields) or remove the corresponding collection field entry (in the case of sets, lists, and maps).
- * `DELETE` - Delete all objects referring to the deleted object, repeating recursively as necessary. Cycles in the reference graph are properly handled to avoid infinite loops.
+ * `UNREFERENCE` - Set all references to the object to null (in the case of simple reference fields) or remove the corresponding entry (in the case of sets, lists, and maps).
+ * `DELETE` - Delete all objects referring to the deleted object, repeating recursively as necessary. Cycles in the reference graph are handled correctly.
  * `NOTHING` - Do nothing; subsequent attempts to dereference the deleted object will result in a `DeletedObjectException`.
 
-Note that JSimpleDB's `DeleteAction` is better suited for Java that SQL `ON DELETE ...`. For example, with `UNREFERENCE`, if an deleted object is referred to by another object's `List` field, the object will be removed from the list instead of the list entry being set to null.
+Note the subtle difference between SQL's `ON DELETE SET NULL` and `DeleteAction.UNREFERENCE`. For simple fields they work the same, but for collection fields, the reference is _removed_ from the collection rather than being set to null.
 
-If you want to be be guaranteed to never see any `DeletedObjectException`s, then do the following:
- # Configure reference fields as `DeleteAction.EXCEPTION`, `DeleteAction.UNREFERENCE`, or `DeleteAction.DELETE`
+To be be guaranteed to never see any `DeletedObjectException`s, you can do the following:
+ # Avoid configuring reference fields with `DeleteAction.NOTHING`
  # Always check `exists()` before using a Java model object that has been brought in from outside the transaction
 
 ==== Delete Cascade ====
 
-JSimpleDB also allows object deletion to cascade to other objects referenced by the deleted object. If so configured, these other objects will also be deleted, and the cascade will proceed recursively if needed (cycles in the graph of refereneces are handled correctly).
+JSimpleDB also allows object deletion to cascade to other objects referenced by the deleted object. If so configured, these other objects will also be deleted, and the cascade will proceed recursively if needed (cycles in the graph of references are handled correctly).
 
 See <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/JField.html">`@JField`</a> for details on configuring the delete behavior for reference fields.
 
 === Indexes ===
 
-Given the above `Person` class (without any indexes configured), if you wanted to calculate whether any `Person` having a specific age existed, you would have to write this code:
+Given the above `Person` class with no indexes configured, if you wanted to calculate whether any `Person` having a specific age existed, you would have to write this code:
 <code language="java">
     public boolean existsPersonOfAge(int age) {
         for (Person person : Person.getAll()) {
@@ -198,9 +201,9 @@ Given the above `Person` class (without any indexes configured), if you wanted t
         return false;
     }</code>
 
-Having to write that code is a _good_ thing: JSimpleDB is exposing the underlying performance reality and forcing the developer to confront the fact that the cost of calculating this function is an iteration over every `Person` in the database. With other persistence layers such as JPA, this cost would be hidden - the number of database rows visited and decided elsewhere and unobvious.
+Having to write that code is a _good_ thing: JSimpleDB is exposing the underlying performance reality and forcing the developer to confront the fact that the cost of calculating this function is an iteration over every `Person` in the database. With other persistence layers such as JPA, this cost would be hidden - the number of database rows visited is decided elsewhere and completely non-obvious from looking at Java code.
 
-With a large database, such a whole database iteration could be impractically slow. In JSimpleDB it will be slow for an obvious reason, not mysteriously so. An explicit goal of JSimpleDB is that it not be possible to have queries be horribly slow unless you write them that way yourself!
+With a large database, such a whole database iteration could be impractically slow. At least with JSimpleDB it will be slow for an obvious reason, not mysteriously so. An explicit goal of JSimpleDB is that it not be possible to have queries be horribly slow unless you write them that way yourself!
 
 Of course this is the perfect situation for an *index* on the `age` field. Here we create one by adding `indexed = true` to the `@JField` annotation:
 
@@ -249,9 +252,9 @@ Or, suppose your schema has evolved over time and the old superclass `Mammal` wh
 
 Since your old `Mammal` class is long gone, the old `Mammal` objects will appear as <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/UntypedJObject.html">`UntypedJObject`</a>'s. You can still access their fields by directly invoking the corresponding `JTransaction` field access method.
 
-<b>In all cases, JSimpleDB guarantees type safety</b>, even in the fact of arbitrary refactoring of your code over time.
+<b>In all cases, JSimpleDB guarantees type safety</b>, even in the face of arbitrary refactoring of your code over time.
 
-Since index mapping are `NavigableMap`s, you can efficiently find the minimum or maximum value, create a restricted range of values, iterate values in forward or reverse order, etc.
+Since index maps are `NavigableMap`s, you can efficiently find the minimum or maximum value, create a restricted range of values, iterate values in forward or reverse order, etc.
 
 <code language="java">
     public static int getMaximumAge() {
@@ -334,7 +337,7 @@ public abstract class Account implements JObject {
 
 Contrast with JPA, where it's possible for e.g., `parent.getChildren()` and `child.getParent()` to get out of sync.
 
-JSimpleDB indexes are always "up-to-date", reflecting the current transaction state.
+In JSimpleDB, indexes are always up-to-date, reflecting the current transaction state.
 
 ==== Composite Indexes ====
 
@@ -810,21 +813,21 @@ The JSimpleDB CLI has these features:
  * Database maintenance commands
   * Schema inspection and management
   * XML import/export
- * Command line history and editing (provided via <a href="https://github.com/jline/jline2">JLine</a>)
  * Include your own custom CLI commands, defined by annotated classes on the classpath
+ * Command line history searching and editing (provided via <a href="https://github.com/jline/jline2">JLine</a>)
  * Pervasive tab-completion, supported by all internal parsers
  * Java expression parser/evaluator
    * Use regular Java expressions for database queries and changes
    * Built-in parse customizations, such as object ID literals
    * Extended expression syntax with built-in functions such as `foreach()`, `concat()`, etc.
- * Include your own custom functions, defined by annotated classes on the classpath
+   * Include your own custom functions, defined by annotated classes on the classpath
 
 Here's a few examples of using the CLI to query into the provided demo database (you can view the model classes <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/demo/package-summary.html">here</a>).
 
 First, we count how many planets there are and then show them sorted by mass:
-{{{
+<blockquote><pre>
 Welcome to JSimpleDB. You are in JSimpleDB CLI Mode. Type `help' for help.
-
+ 
 JSimpleDB> import org.jsimpledb.demo.*              # works the same as Java's import statement
 JSimpleDB> eval count(all(Planet))                  # count how many planets there are
 9
@@ -841,51 +844,47 @@ Name: Earth      Mass: 5969999912619192000000000
 Name: Uranus     Mass: 86800001317335690000000000
 Name: Neptune    Mass: 101999998530235880000000000
 Name: Saturn     Mass: 568000005560064000000000000
-Name: Jupiter    Mass: 1897999959991329600000000000
-}}}
+Name: Jupiter    Mass: 1897999959991329600000000000</pre></blockquote>
+
+You can see the use of the built-in top-level functions `count()`, `all()`, `foreach()`, `concat()`, `queryIndex()`, and `print()`. You can add your own custom functions using <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/parse/fun/Function.html">`@Function`</a>-annotated classes from the classpath.
 
 Now let's set a few variables for some planets we are interested in:
 
-{{{
+<blockquote><pre>
 JSimpleDB> eval $earth = filter(all(Planet), $x, $x.name.equals("Earth")).iterator().next()
 org.jsimpledb.demo.Planet$$JSimpleDB@364ee37d
 JSimpleDB> eval $earth.mass
 5.97E24
 JSimpleDB> eval $jupiter = filter(all(Planet), $x, $x.name.equals("Jupiter")).iterator().next()
-org.jsimpledb.demo.Planet$$JSimpleDB@4cd452db
-}}}
+org.jsimpledb.demo.Planet$$JSimpleDB@4cd452db</pre></blockquote>
 
 Note Java bean properties can be accessed using dot-property notation. Let's show Jupiter's moons:
 
-{{{
+<blockquote><pre>
 JSimpleDB> eval $jupiter.satellites
-[org.jsimpledb.demo.Moon$$JSimpleDB@3963a1b8, org.jsimpledb.demo.Moon$$JSimpleDB@3c0e5477, org.jsimpledb.demo.Moon$$JSimpleDB@50cb6f6e, org.jsimpledb.demo.Moon$$JSimpleDB@5c00c832]
-}}}
+[org.jsimpledb.demo.Moon$$JSimpleDB@3963a1b8, org.jsimpledb.demo.Moon$$JSimpleDB@3c0e5477, ...</pre></blockquote>
 
 Instead of their `toString()` values, let's show their names:
 
-{{{
+<blockquote><pre>
 JSimpleDB> eval transform($jupiter.satellites, $x, $x.name)
-[Io, Europa, Ganymede, Callisto]
-}}}
+[Io, Europa, Ganymede, Callisto]</pre></blockquote>
 
-The CLI extends regular Java operators with additional smarts. For example, the `&` operator, when applied to two `NavigableSet`s, will intersect them. For example, to find all moons of Jupiter above a certain mass:
+The CLI extends regular Java operators with additional smarts. For example, the `&` operator, when applied to two `Set`s, will intersect them. For example, to find all moons of Jupiter above a certain mass:
 
-{{{
+<blockquote><pre>
 JSimpleDB> eval $heavy_objects = filter(all(), $x, $x.mass >= 1e23)
 [org.jsimpledb.demo.Star$$JSimpleDB@4bad1871, org.jsimpledb.demo.Planet$$JSimpleDB@511fc987, ...
 JSimpleDB> eval transform($jupiter.satellites & $heavy_objects, $x, $x.name)
-[Ganymede, Callisto]
-}}}
+[Ganymede, Callisto]</pre></blockquote>
 
 Objects can be referred to using object ID literals, which have the form `@` followed by 16 hex digits:
 
-{{{
+<blockquote><pre>
 JSimpleDB> eval $jupiter.objId
 fc21bf0000000005
 JSimpleDB> eval @fc21bf0000000005.name
-Jupiter
-}}}
+Jupiter</pre></blockquote>
 
 == Vaadin GUI ==
 
