@@ -34,6 +34,7 @@ public class DeletedAccessTest extends TestSupport {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           + "<Schema formatVersion=\"2\">\n"
           + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
+          + "    <CounterField name=\"counter\" storageId=\"5\"/>\n"
           + "    <SetField name=\"set\" storageId=\"10\">\n"
           + "      <SimpleField type=\"int\" storageId=\"11\"/>\n"
           + "    </SetField>"
@@ -82,6 +83,29 @@ public class DeletedAccessTest extends TestSupport {
     // Delete object
 
         tx.delete(id);
+
+    // Verify counter is inaccessible
+
+        try {
+            tx.readCounterField(id, 5, false);
+            assert false : "can access counter after object is deleted";
+        } catch (DeletedObjectException e) {
+            // expected
+        }
+
+        try {
+            tx.writeCounterField(id, 5, 123L, false);
+            assert false : "can access counter after object is deleted";
+        } catch (DeletedObjectException e) {
+            // expected
+        }
+
+        try {
+            tx.adjustCounterField(id, 5, 99, false);
+            assert false : "can access counter after object is deleted";
+        } catch (DeletedObjectException e) {
+            // expected
+        }
 
     // Verify read-only methods show empty
 
