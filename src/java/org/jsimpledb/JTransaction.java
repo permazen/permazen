@@ -1512,7 +1512,6 @@ public class JTransaction {
             for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods)
                 Util.invoke(info.getMethod(), jobj);
 
-    fieldLoop:
             // Do uniqueness validation
             for (JSimpleField jfield : Iterables.filter(jclass.jfields.values(), JSimpleField.class)) {
 
@@ -1521,14 +1520,13 @@ public class JTransaction {
                     continue;
                 assert jfield.indexed;
 
-                // Check for excluded values
+                // Get field's (core API) value
                 final Object value = this.tx.readSimpleField(id, jfield.storageId, false);
-                if (jfield.uniqueExcludes != null) {
-                    for (Object excludedValue : jfield.uniqueExcludes) {
-                        if (((Comparator<Object>)jfield.fieldType).compare(value, excludedValue) == 0)
-                            continue fieldLoop;
-                    }
-                }
+
+                // Compare to excluded value list
+                if (jfield.uniqueExcludes != null
+                  && Collections.binarySearch(jfield.uniqueExcludes, value, (Comparator<Object>)jfield.fieldType) >= 0)
+                    continue;
 
                 // Seach for other objects with the same value in the field and report violation if any are found
                 final ArrayList<ObjId> conflictors = new ArrayList<>(MAX_UNIQUE_CONFLICTORS);
