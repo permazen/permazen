@@ -24,16 +24,17 @@ import org.objectweb.asm.Type;
 public abstract class JField extends JSchemaObject {
 
     final Method getter;
-    final boolean requiresValidation;
 
     JSchemaObject parent;
+    boolean requiresValidation;
 
     JField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
         super(jdb, name, storageId, description);
         this.getter = getter;
+    }
 
-        // Check for validation
-        this.requiresValidation = getter != null && Util.requiresValidation(getter);
+    void calculateRequiresValidation() {
+        this.requiresValidation = this.getter != null && Util.requiresValidation(this.getter);
     }
 
     @Override

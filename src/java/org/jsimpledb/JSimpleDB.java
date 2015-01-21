@@ -100,7 +100,7 @@ public class JSimpleDB {
     final boolean hasOnCreateMethods;
     final boolean hasOnDeleteMethods;
     final boolean hasOnVersionChangeMethods;
-    final boolean anyJClassRequiresInitialValidation;
+    final boolean anyJClassRequiresValidation;
 
     volatile int actualVersion;
 
@@ -294,13 +294,13 @@ public class JSimpleDB {
 
         // Determine which JClass's have validation requirement(s) on creation
         for (JClass<?> jclass : this.jclasses.values())
-            jclass.calculateInitialValidationRequirement();
-        boolean anyInitialValidation = false;
+            jclass.calculateValidationRequirement();
+        boolean anyValidation = false;
         for (JClass<?> jclass : this.jclasses.values()) {
-            if ((anyInitialValidation |= jclass.requiresInitialValidation))
+            if ((anyValidation |= jclass.requiresValidation))
                 break;
         }
-        this.anyJClassRequiresInitialValidation = anyInitialValidation;
+        this.anyJClassRequiresValidation = anyValidation;
 
         // Detect whether we have any @OnCreate, @OnDelete, and/or @OnVersionChange methods
         boolean anyOnCreateMethods = false;
@@ -326,7 +326,7 @@ public class JSimpleDB {
 
     StorageIdGenerator getStorageIdGenerator(Annotation annotation, AnnotatedElement target) {
         if (this.storageIdGenerator == null) {
-            throw new IllegalArgumentException("invalid @" + annotation.getClass().getSimpleName()
+            throw new IllegalArgumentException("invalid @" + annotation.annotationType().getSimpleName()
               + " annotation on " + target + ": no storage ID is given, but storage ID auto-generation is disabled"
               + " because no " + StorageIdGenerator.class.getSimpleName() + " is configured");
         }

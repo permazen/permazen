@@ -7,23 +7,30 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 
 import org.dellroad.stuff.java.EnumUtil;
+import org.jsimpledb.core.EnumFieldType;
+import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.schema.EnumSchemaField;
 import org.jsimpledb.schema.SimpleSchemaField;
 
 /**
- * Represents an enum field in a {@link JClass}.
+ * Represents an {@link Enum} field in a {@link JClass}.
  */
 public class JEnumField extends JSimpleField {
 
+    final EnumConverter<?> converter;
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     JEnumField(JSimpleDB jdb, String name, int storageId, Class<? extends Enum<?>> enumType,
-      boolean indexed, String description, Method getter, Method setter) {
+      org.jsimpledb.annotation.JField annotation, String description, Method getter, Method setter) {
         super(jdb, name, storageId, TypeToken.of(enumType.asSubclass(Enum.class)),
-          enumType.getName(), indexed, description, getter, setter);
+          new EnumFieldType((Class)enumType), annotation.indexed(), annotation, description, getter, setter);
+        this.converter = EnumConverter.createEnumConverter(enumType);
     }
 
     @Override
@@ -35,6 +42,11 @@ public class JEnumField extends JSimpleField {
     @SuppressWarnings("unchecked")
     public TypeToken<? extends Enum<?>> getType() {
         return (TypeToken<? extends Enum<?>>)this.typeToken;
+    }
+
+    @Override
+    public Converter<EnumValue, ? extends Enum<?>> getConverter(JTransaction jtx) {
+        return this.converter.reverse();
     }
 
     @Override

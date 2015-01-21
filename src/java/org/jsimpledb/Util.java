@@ -60,11 +60,12 @@ final class Util {
     }
 
     /**
-     * Determine if instances of the given type require validation on creation in mode {@link ValidationMode#AUTOMATIC}.
+     * Determine if instances of the given type require validation on creation or schema upgrade
+     * when in mode {@link ValidationMode#AUTOMATIC}.
      *
      * @see ValidationMode
      */
-    public static boolean requiresInitialValidation(Class<?> type) {
+    public static boolean requiresValidation(Class<?> type) {
         if (type == null)
             return false;
         if (Util.hasValidationAnnotation(type))
@@ -76,7 +77,7 @@ final class Util {
         }
         for (TypeToken<?> typeToken : TypeToken.of(type).getTypes()) {
             final Class<?> superType = typeToken.getRawType();
-            if (superType != type && Util.requiresInitialValidation(superType))
+            if (superType != type && Util.requiresValidation(superType))
                 return true;
         }
         return false;

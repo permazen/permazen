@@ -7,13 +7,15 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.TreeSet;
 
 import org.jsimpledb.core.DeleteAction;
-import org.jsimpledb.core.FieldType;
+import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ReferenceFieldType;
 import org.jsimpledb.schema.ReferenceSchemaField;
 
 /**
@@ -24,11 +26,11 @@ public class JReferenceField extends JSimpleField {
     final DeleteAction onDelete;
     final boolean cascadeDelete;
 
-    JReferenceField(JSimpleDB jdb, String name, int storageId, String description,
-      TypeToken<?> typeToken, DeleteAction onDelete, boolean cascadeDelete, Method getter, Method setter) {
-        super(jdb, name, storageId, typeToken, FieldType.REFERENCE_TYPE_NAME, true, description, getter, setter);
-        this.onDelete = onDelete;
-        this.cascadeDelete = cascadeDelete;
+    JReferenceField(JSimpleDB jdb, String name, int storageId, String description, TypeToken<?> typeToken,
+      org.jsimpledb.annotation.JField annotation, Method getter, Method setter) {
+        super(jdb, name, storageId, typeToken, new ReferenceFieldType(), true, annotation, description, getter, setter);
+        this.onDelete = annotation.onDelete();
+        this.cascadeDelete = annotation.cascadeDelete();
     }
 
     @Override
@@ -39,6 +41,11 @@ public class JReferenceField extends JSimpleField {
     @Override
     public <R> R visit(JFieldSwitch<R> target) {
         return target.caseJReferenceField(this);
+    }
+
+    @Override
+    public Converter<ObjId, JObject> getConverter(JTransaction jtx) {
+        return new ReferenceConverter<JObject>(jtx, JObject.class).reverse();
     }
 
     /**

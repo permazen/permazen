@@ -7,11 +7,13 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 
 import org.dellroad.stuff.java.Primitive;
+import org.jsimpledb.core.FieldType;
 import org.jsimpledb.schema.SimpleSchemaField;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -24,19 +26,27 @@ import org.objectweb.asm.Type;
 public class JSimpleField extends JField {
 
     final TypeToken<?> typeToken;
-    final String typeName;
+    final FieldType<?> fieldType;
     final boolean indexed;
     final Method setter;
 
-    JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken,
-      String typeName, boolean indexed, String description, Method getter, Method setter) {
+    JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken, String typeName, boolean indexed,
+      org.jsimpledb.annotation.JField annotation, String description, Method getter, Method setter) {
+        this(jdb, name, storageId, typeToken,
+          jdb.db.getFieldTypeRegistry().getFieldType(typeName), indexed, annotation, description, getter, setter);
+    }
+
+    JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken, FieldType<?> fieldType, boolean indexed,
+      org.jsimpledb.annotation.JField annotation, String description, Method getter, Method setter) {
         super(jdb, name, storageId, description, getter);
-        if (typeName == null)
-            throw new IllegalArgumentException("null typeName");
         if (typeToken == null)
             throw new IllegalArgumentException("null typeToken");
+        if (fieldType == null)
+            throw new IllegalArgumentException("null fieldType");
+        if (annotation == null)
+            throw new IllegalArgumentException("null annotation");
         this.typeToken = typeToken;
-        this.typeName = typeName;
+        this.fieldType = fieldType;
         this.indexed = indexed;
         this.setter = setter;
     }
@@ -58,10 +68,16 @@ public class JSimpleField extends JField {
     }
 
     /**
-     * Get name of this field's {@link org.jsimpledb.core.FieldType}.
+     * Get the {@link org.jsimpledb.core.FieldType} used by the core API to encode this field's values.
+     *
+     * <p>
+     * Note that for {@link Enum} and reference fields, the core API uses a different type than the Java model
+     * classes ({@link org.jsimpledb.core.EnumValue} and {@link org.jsimpledb.core.ObjId}, respectively).
+     * Values can always be properly converted using the {@link Converter} returned by {@link #getConverter getConverter()}.
+     * </p>
      */
-    public String getTypeName() {
-        return this.typeName;
+    public FieldType<?> getFieldType() {
+        return this.fieldType;
     }
 
     /**
@@ -93,6 +109,17 @@ public class JSimpleField extends JField {
     }
 
     /**
+     * Get a {@link Converter} that converts this field values between core API type and Java model type.
+     * Only {@link Enum} and reference types require conversion; for all other types, this returns an identity converter.
+     *
+     * @param jtx transaction
+     * @return {@link Converter} from core API field type to Java model field type
+     */
+    public Converter<?, ?> getConverter(JTransaction jtx) {
+        return Converter.<Object>identity();
+    }
+
+    /**
      * Set the Java value of this field in the given object.
      * Does not alter the schema version of the object.
      *
@@ -121,7 +148,7 @@ public class JSimpleField extends JField {
 
     void initialize(JSimpleDB jdb, SimpleSchemaField schemaField) {
         super.initialize(jdb, schemaField);
-        schemaField.setType(this.typeName);
+        schemaField.setType(this.fieldType.getName());
         schemaField.setIndexed(this.indexed);
     }
 

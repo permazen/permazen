@@ -32,9 +32,11 @@ public enum ValidationMode {
      * <p>
      * In this mode, objects are enqueued for validation whenever {@link JObject#revalidate} is invoked, or automatically when:
      * <ul>
-     *  <li>An instance is created, and the Java model type (or any super-type) has a JSR 303 or
-     *      {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on itself or a public method</li>
-     *  <li>An instance field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
+     *  <li>An instance is {@linkplain org.jsimpledb.JTransaction#create created}, and the Java model type (or any super-type)
+     *      has a JSR 303 or {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on itself or a public method</li>
+     *  <li>An instance is {@linkplain org.jsimpledb.JObject#upgrade upgraded}, and the Java model type (or any super-type)
+     *      has a JSR 303 or {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on itself or a public method</li>
+     *  <li>A database field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
      * </ul>
      * </p>
      *

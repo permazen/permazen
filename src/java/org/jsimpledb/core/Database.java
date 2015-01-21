@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
  *  <li>Complex fields of type {@link java.util.List}, {@link java.util.NavigableSet}, and {@link java.util.NavigableMap}</li>
  *  <li>Invertable reference fields with strong referential integrity and configurable delete cascading</li>
  *  <li>Configurable indexing of any simple field or complex sub-field</li>
+ *  <li>Composite indexes on multiple simple fields</li>
  *  <li>Notification of object creation and deletion</li>
  *  <li>Notification of object field changes, as seen through an arbitrary path of references</li>
  *  <li>Automatic schema tracking and object versioning with schema change notification support</li>
@@ -56,11 +57,12 @@ import org.slf4j.LoggerFactory;
  * Compared to {@link org.jsimpledb.JSimpleDB}, a {@link Database} has these differences:
  * <ul>
  *  <li>A {@link SchemaModel} must be explicitly provided to define the schema in use, whereas when using a
- *      {@link org.jsimpledb.JSimpleDB} the schema is derived automatically from the corresponding Java model classes</li>
- *  <li>Object references are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type</li>
- *  <li>All object types and fields are referenced by storage ID</li>
- *  <li>Enum values are represented by {@link EnumValue} objects</li>
- *  <li>There is no automatic validation support</li>
+ *      {@link org.jsimpledb.JSimpleDB} the schema is derived automatically from annotated Java model classes.</li>
+ *  <li>Object references are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type.
+ *      However, reference fields may be configured with a restricted set of referrable types.</li>
+ *  <li>All object types and fields are referenced by explicit storage ID.</li>
+ *  <li>Enum values are represented by {@link EnumValue} objects.</li>
+ *  <li>There is no automatic validation support.</li>
  * </ul>
  * </p>
  *

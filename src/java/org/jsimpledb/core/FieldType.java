@@ -47,7 +47,7 @@ import org.jsimpledb.util.ByteWriter;
  *      have binary and string encodings just like any other value. Typically, null sorts last.</li>
  *  <li>There is a {@linkplain #getDefaultValue default value}; it must be null for types that support null.</li>
  *  <li>An optional {@linkplain #getEncodingSignature encoding signature} protects against incompatible encodings
- *      when a {@link FieldType}'s encoding evolves</li>
+ *      when a {@link FieldType}'s binary or string encoding changes without changing the {@linkplain #getName name}</li>
  * </ul>
  * </p>
  *
@@ -137,10 +137,15 @@ public abstract class FieldType<T> implements Comparator<T> {
      *
      * <p>
      * The binary encoding signature is analogous to the {@code serialVersionUID} used by Java serialization.
-     * It represents a specific binary encoding for Java values. In the case that a {@link FieldType} implementation
-     * changes its binary encoding, but not it's name, it <b>must</b> use a new, different binary encoding signature
-     * to eliminate the possibility of mixing incompatible encodings in software vs. persistent storage.
+     * It represents a specific binary and/or {@link String} encoding for Java values. In the case that a {@link FieldType}
+     * implementation changes its binary encoding, but not it's name, it <b>must</b> use a new, different binary encoding
+     * signature to eliminate the possibility of mixing incompatible encodings in software vs. persistent storage.
      * Typically a value of zero is used until if/when such a change occurs.
+     * </p>
+     *
+     * <p>
+     * Note that another option when encodings change is simply to change the {@linkplain #getName name} of the type
+     * (encoding signatures are scoped to a single {@link FieldType} name).
      * </p>
      */
     public long getEncodingSignature() {
