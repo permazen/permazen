@@ -7,6 +7,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
@@ -377,6 +378,14 @@ public class JClass<T> extends JSchemaObject {
         // Check for JSR 303 or @Validate annotations
         if ((this.requiresValidation = Util.requiresValidation(this.type)))
             return;
+
+        // Check for any uniqueness constraints
+        for (JSimpleField jfield : Iterables.filter(this.jfields.values(), JSimpleField.class)) {
+            if (jfield.unique) {
+                this.requiresValidation = true;
+                return;
+            }
+        }
     }
 
     @Override
@@ -454,6 +463,14 @@ public class JClass<T> extends JSchemaObject {
         // Complex sub-field?
         final boolean isSubField = getter == null;
 
+        // Sanity check annotation
+        if (isSubField && annotation.unique())
+            throw new IllegalArgumentException("invalid " + description + ": unique() constraint not allowed on complex sub-field");
+        if (annotation.uniqueExclude().length > 0 && !annotation.unique())
+            throw new IllegalArgumentException("invalid " + description + ": use of uniqueExclude() requires unique = true");
+        if (annotation.uniqueExcludeNull() && !annotation.unique())
+            throw new IllegalArgumentException("invalid " + description + ": use of uniqueExcludeNull() requires unique = true");
+
         // See if field type encompasses one or more JClass types and is therefore a reference type
         boolean isReferenceType = false;
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
@@ -527,6 +544,12 @@ public class JClass<T> extends JSchemaObject {
             throw new IllegalArgumentException("invalid " + description + ": onDelete() only allowed on reference fields");
         if (!isReferenceType && annotation.cascadeDelete())
             throw new IllegalArgumentException("invalid " + description + ": cascadeDelete() only allowed on reference fields");
+        if (!isReferenceType && annotation.unique() && !annotation.indexed())
+            throw new IllegalArgumentException("invalid " + description + ": unique() constraint requires field to be indexed");
+        if (nonReferenceType != null && nonReferenceType.getTypeToken().isPrimitive() && annotation.uniqueExcludeNull()) {
+            throw new IllegalArgumentException("invalid " + description + ": uniqueExcludeNull() is incompatible with fields"
+              + " having primitive type");
+        }
 
         // Create simple, enum, or reference field
         try {

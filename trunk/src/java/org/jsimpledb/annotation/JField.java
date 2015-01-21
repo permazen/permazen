@@ -65,6 +65,30 @@ import org.jsimpledb.core.DeleteAction;
  * <p>
  * Reference fields are always indexed; the value of {@link #indexed} is ignored.
  * </p>
+ *
+ * <p><b>Uniqueness Constraints</b></p>
+ *
+ * <p>
+ * Fields that are not complex sub-fields may be marked as {@link #unique} to impose a uniqueness constraint on the value.
+ * Fields with uniqueness constraints must be indexed. Uniqueness constraints are handled at the JSimpleDB layer and function as
+ * an implicit validation constraint. In other words, the constraint is verified when the validation queue is processed
+ * and is affected by the transaction's configured {@link org.jsimpledb.ValidationMode}.
+ * </p>
+ *
+ * <p>
+ * Optionally, specific field values may be marked as excluded from the uniqueness constraint via {@link #uniqueExclude}.
+ * If so, the specified values may appear in multiple objects without violating the constraint. Because null values
+ * are not allowed in annotations, {@link #uniqueExcludeNull} is provided to exclude the null value.
+ * </p>
+ *
+ * <p>
+ * In {@link org.jsimpledb.ValidationMode#AUTOMATIC}, any upgraded {@link org.jsimpledb.JObject}s are automatically
+ * added to the validation queue, so a uniqueness constraint added in a new schema version will be automatically verified
+ * when any object is upgraded.
+ * However, simpley adding, removing, or changing uniqueness constraints on an existing field doesn't force a schema
+ * version change. Therefore, existing database objects that were previously valid could be in violation of a uniqueness
+ * constraint that is added without one. To avoid this possibililty, change the schema version number as well.
+ * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -168,5 +192,49 @@ public @interface JField {
      * @see org.jsimpledb.JObject#delete
      */
     boolean cascadeDelete() default false;
+
+    /**
+     * Require this field's value to be unique among all database objects.
+     *
+     * <p>
+     * This property must be false for sub-fields of complex fields.
+     * </p>
+     *
+     * @see #uniqueExclude
+     * @see #uniqueExcludeNull
+     */
+    boolean unique() default false;
+
+    /**
+     * Specify field value(s) which are excluded from the uniqueness constraint.
+     *
+     * <p>
+     * The specified values must be valid {@link String} encodings of the associated field. For example:
+     * <pre>
+     *  &#64;JField(unique = "true", uniqueExclude = { "Infinity", "-Infinity" })
+     *  public abstract float getPriority();
+     * </pre>
+     * </p>
+     *
+     * <p>
+     * This property must be left empty when {@link #unique} is false.
+     * </p>
+     *
+     * @see #unique
+     * @see #uniqueExcludeNull
+     */
+    String[] uniqueExclude() default {};
+
+    /**
+     * Specify that the null value is excluded from the uniqueness constraint.
+     *
+     * <p>
+     * This property must be left false when {@link #unique} is false or the field has primitive type.
+     * </p>
+     *
+     * @see #unique
+     * @see #uniqueExclude
+     */
+    boolean uniqueExcludeNull() default false;
 }
 

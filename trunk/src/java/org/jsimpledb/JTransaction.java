@@ -18,9 +18,11 @@ import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -189,6 +191,7 @@ import org.slf4j.LoggerFactory;
 public class JTransaction {
 
     private static final ThreadLocal<JTransaction> CURRENT = new ThreadLocal<>();
+    private static final int MAX_UNIQUE_CONFLICTORS = 5;
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -252,7 +255,7 @@ public class JTransaction {
             }
         }
 
-        // Register field change listeners to trigger validation of corresponding JSR 303 constraints
+        // Register field change listeners to trigger validation of corresponding JSR 303 and uniqueness constraints
         if (validationMode == ValidationMode.AUTOMATIC) {
             for (JFieldInfo jfieldInfo : this.jdb.jfieldInfos.values()) {
                 if (jfieldInfo.isRequiresValidation())
@@ -1472,6 +1475,7 @@ public class JTransaction {
 
 // Internal methods
 
+    @SuppressWarnings("unchecked")
     private void doValidate() {
         while (true) {
 
@@ -1507,6 +1511,39 @@ public class JTransaction {
             // Do @Validate validation
             for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods)
                 Util.invoke(info.getMethod(), jobj);
+
+    fieldLoop:
+            // Do uniqueness validation
+            for (JSimpleField jfield : Iterables.filter(jclass.jfields.values(), JSimpleField.class)) {
+
+                // Does this field have a uniqueness constraint?
+                if (!jfield.unique)
+                    continue;
+                assert jfield.indexed;
+
+                // Check for excluded values
+                final Object value = this.tx.readSimpleField(id, jfield.storageId, false);
+                if (jfield.uniqueExcludes != null) {
+                    for (Object excludedValue : jfield.uniqueExcludes) {
+                        if (((Comparator<Object>)jfield.fieldType).compare(value, excludedValue) == 0)
+                            continue fieldLoop;
+                    }
+                }
+
+                // Seach for other objects with the same value in the field and report violation if any are found
+                final ArrayList<ObjId> conflictors = new ArrayList<>(MAX_UNIQUE_CONFLICTORS);
+                for (ObjId conflictor : this.tx.queryIndex(jfield.storageId).asMap().get(value)) {
+                    if (conflictor.equals(id))                          // ignore jobj's own index entry
+                        continue;
+                    conflictors.add(conflictor);
+                    if (conflictors.size() >= MAX_UNIQUE_CONFLICTORS)
+                        break;
+                }
+                if (!conflictors.isEmpty()) {
+                    throw new ValidationException(jobj, "uniqueness constraint on " + jfield + " failed: field value "
+                      + value + " is also shared by object(s) " + conflictors);
+                }
+            }
         }
     }
 

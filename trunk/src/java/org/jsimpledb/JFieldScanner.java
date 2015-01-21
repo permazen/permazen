@@ -42,6 +42,18 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             return false;
         }
         @Override
+        public boolean unique() {
+            return false;
+        }
+        @Override
+        public String[] uniqueExclude() {
+            return new String[0];
+        }
+        @Override
+        public boolean uniqueExcludeNull() {
+            return false;
+        }
+        @Override
         public DeleteAction onDelete() {
             return DeleteAction.EXCEPTION;
         }
