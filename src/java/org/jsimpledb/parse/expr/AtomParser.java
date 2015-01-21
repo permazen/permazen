@@ -203,7 +203,7 @@ public class AtomParser implements Parser<Node> {
     }
 
     private String tryFollow(ParseContext ctx, String pattern, String follow) {
-        final Matcher matcher = Pattern.compile("(" + pattern + ")(" + follow + ".*)?").matcher(ctx.getInput());
+        final Matcher matcher = Pattern.compile("(" + pattern + ")(" + follow + "(?s:.*))?").matcher(ctx.getInput());
         if (!matcher.matches())
             return null;
         final String match = matcher.group(1);
