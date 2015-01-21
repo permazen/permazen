@@ -762,7 +762,20 @@ public class JTransaction {
      */
     public boolean delete(JObject jobj) {
         jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
-        return this.tx.delete(jobj.getObjId());
+
+        // Delete object
+        final ObjId id = jobj.getObjId();
+        final boolean deleted = this.tx.delete(id);
+
+        // Remove object from validation queue if enqueued
+        if (deleted) {
+            synchronized (this) {
+                this.validationQueue.remove(id);
+            }
+        }
+
+        // Done
+        return deleted;
     }
 
     /**
