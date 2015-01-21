@@ -19,12 +19,12 @@ class ObjInfo {
     private static final int META_DATA_VERSION = 1;
 
     // Stored meta-data
+    private final Transaction tx;
     private final ObjId id;
     private final int versionNumber;
     private final boolean deleteNotified;
 
     // Additional derived meta-data
-    private Transaction tx;
     private SchemaVersion version;
     private ObjType objType;
 
