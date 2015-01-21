@@ -12,6 +12,8 @@ import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.core.FieldType;
@@ -30,7 +32,7 @@ public class JSimpleField extends JField {
     final FieldType<?> fieldType;
     final boolean indexed;
     final boolean unique;
-    final ArrayList<Object> uniqueExcludes;         // note: these are core API values
+    final ArrayList<Object> uniqueExcludes;         // note: these are core API values, sorted by this.fieldType
     final Method setter;
 
     JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken, String typeName, boolean indexed,
@@ -39,6 +41,7 @@ public class JSimpleField extends JField {
           jdb.db.getFieldTypeRegistry().getFieldType(typeName), indexed, annotation, description, getter, setter);
     }
 
+    @SuppressWarnings("unchecked")
     JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken, FieldType<?> fieldType, boolean indexed,
       org.jsimpledb.annotation.JField annotation, String description, Method getter, Method setter) {
         super(jdb, name, storageId, description, getter);
@@ -67,6 +70,7 @@ public class JSimpleField extends JField {
                     throw new IllegalArgumentException("invalid uniqueExclude() value `" + string + "': " + e.getMessage(), e);
                 }
             }
+            Collections.sort(this.uniqueExcludes, (Comparator<Object>)this.fieldType);
         } else
             this.uniqueExcludes = null;
     }
