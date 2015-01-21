@@ -206,6 +206,7 @@ public class FieldTypeRegistry {
      * types such as primitive types, {@link String}, etc.) already registered.
      */
     public FieldTypeRegistry() {
+        this.add(FieldTypeRegistry.REFERENCE);
         this.add(FieldTypeRegistry.VOID_WRAPPER);
         this.add(FieldTypeRegistry.BOOLEAN);
         this.add(FieldTypeRegistry.BOOLEAN_WRAPPER);

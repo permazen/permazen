@@ -15,25 +15,13 @@
     - Google Cloud Datastore
         - https://cloud.google.com/datastore/docs/concepts/overview
 
-- Add @JField uniqueness constraints:
-    - Field must be indexed (obviously)
-    - boolean unique() default false
-    - String uniqueIgnore() default ""
-        - optional value which is excepted from uniqueness constraint
-        - for example "NaN" for float/double
-        - not allowed for reference fields
-    - Verify in deferred manner as follows:
-        - Add validation check for uniqueness
-        - Register SimpleFieldChangeListener on affected fields
-        - When listener invoked (or object created), enqueue object for validation
-    - Note: adding unique() in a schema upgrade can create unchecked violations
-        - So just add updated objects to validation queue
-
 - Finish Vaadin GUI editor generator
     - Implement collection fields
     - Make more modular/pluggable
 
 - Ant task for easy validation of JLayer annotations during a build
+    - Basic validation of annotations
+    - Schema comparison (generated vs. expected schema XML)
 
 - Reimplement LockManager using Guava ranges?
     - https://code.google.com/p/guava-libraries/wiki/RangesExplained

@@ -11,6 +11,7 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.core.FieldType;
@@ -28,6 +29,8 @@ public class JSimpleField extends JField {
     final TypeToken<?> typeToken;
     final FieldType<?> fieldType;
     final boolean indexed;
+    final boolean unique;
+    final ArrayList<Object> uniqueExcludes;         // note: these are core API values
     final Method setter;
 
     JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken, String typeName, boolean indexed,
@@ -48,7 +51,24 @@ public class JSimpleField extends JField {
         this.typeToken = typeToken;
         this.fieldType = fieldType;
         this.indexed = indexed;
+        this.unique = annotation.unique();
         this.setter = setter;
+
+        // Parse uniqueExcludes
+        final int numExcludes = annotation.uniqueExclude().length + (annotation.uniqueExcludeNull() ? 1 : 0);
+        if (numExcludes > 0) {
+            this.uniqueExcludes = new ArrayList<>(numExcludes);
+            if (annotation.uniqueExcludeNull())
+                this.uniqueExcludes.add(null);
+            for (String string : annotation.uniqueExclude()) {
+                try {
+                    this.uniqueExcludes.add(this.fieldType.fromString(string));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("invalid uniqueExclude() value `" + string + "': " + e.getMessage(), e);
+                }
+            }
+        } else
+            this.uniqueExcludes = null;
     }
 
     /**
@@ -144,6 +164,12 @@ public class JSimpleField extends JField {
         final SimpleSchemaField schemaField = new SimpleSchemaField();
         this.initialize(jdb, schemaField);
         return schemaField;
+    }
+
+    @Override
+    void calculateRequiresValidation() {
+        super.calculateRequiresValidation();
+        this.requiresValidation |= this.unique;
     }
 
     void initialize(JSimpleDB jdb, SimpleSchemaField schemaField) {
