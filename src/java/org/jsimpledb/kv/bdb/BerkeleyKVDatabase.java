@@ -61,7 +61,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
       .setAllowCreate(true)
       .setTransactional(true)
       .setTxnSerializableIsolation(true);
-    private volatile TransactionConfig defaultTransactionConfig = TransactionConfig.DEFAULT;
+    private TransactionConfig defaultTransactionConfig = TransactionConfig.DEFAULT;
     private File directory;
     private String databaseName = DEFAULT_DATABASE_NAME;
 
@@ -75,6 +75,13 @@ public class BerkeleyKVDatabase implements KVDatabase {
     }
 
     /**
+     * Get the filesystem directory containing the database.
+     */
+    public synchronized File getDirectory() {
+        return this.directory;
+    }
+
+    /**
      * Configure the filesystem directory containing the database. Required property.
      */
     public synchronized void setDirectory(File directory) {
@@ -82,14 +89,34 @@ public class BerkeleyKVDatabase implements KVDatabase {
     }
 
     /**
-     * Configure the database name. Defaults to {@link #DEFAULT_DATABASE_NAME}.
+     * Get the configured {@link Database} name.
+     */
+    public synchronized String getDatabaseName() {
+        return this.databaseName;
+    }
+
+    /**
+     * Configure the {@link Database} name. Defaults to {@link #DEFAULT_DATABASE_NAME}.
      */
     public synchronized void setDatabaseName(String databaseName) {
         this.databaseName = databaseName;
     }
 
     /**
-     * Set a custom {@link EnvironmentConfig} to be used by this instance.
+     * Get the {@link EnvironmentConfig} to be used by this instance.
+     *
+     * <p>
+     * This method returns a copy; use {@link #setEnvironmentConfig setEnvironmentConfig()} to change.
+     * </p>
+     *
+     * @return environment config
+     */
+    public synchronized EnvironmentConfig getEnvironmentConfig() {
+        return this.environmentConfig.clone();
+    }
+
+    /**
+     * Set a custom {@link EnvironmentConfig} to be used by this instance at startup.
      *
      * <p>
      * The default {@link EnvironmentConfig} is configured for
@@ -113,9 +140,25 @@ public class BerkeleyKVDatabase implements KVDatabase {
     }
 
     /**
+     * Get the default {@link TransactionConfig} to be used by this instance.
+     *
+     * <p>
+     * This method returns a copy; use {@link #setTransactionConfig setTransactionConfig()} to change.
+     * </p>
+     *
+     * @return transaction config
+     */
+    public synchronized TransactionConfig getTransactionConfig() {
+        return this.defaultTransactionConfig.clone();
+    }
+
+    /**
      * Configure a custom default {@link TransactionConfig} to be used by this instance for transactions.
-     * This configures the default, which can be overridden <i>for the next transaction in the
+     *
+     * <p>
+     * Note: this configures the default; this default config can be overridden <i>for the next transaction in the
      * current thread only</i> via {@link #setNextTransactionConfig setNextTransactionConfig()}.
+     * </p>
      *
      * <p>
      * The default setting for this property is {@link TransactionConfig#DEFAULT}.
@@ -125,7 +168,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code config} is null
      * @see #setNextTransactionConfig setNextTransactionConfig()
      */
-    public void setTransactionConfig(TransactionConfig config) {
+    public synchronized void setTransactionConfig(TransactionConfig config) {
         if (config == null)
             throw new IllegalArgumentException("null config");
         this.defaultTransactionConfig = config;
@@ -148,7 +191,21 @@ public class BerkeleyKVDatabase implements KVDatabase {
     }
 
     /**
-     * Apply selected database configuration parameters from the given instance.
+     * Get the {@link DatabaseConfig} to be used by this instance.
+     *
+     * <p>
+     * This method returns a copy; use {@link #setDatabaseConfig setDatabaseConfig()} to change.
+     * </p>
+     *
+     * @return database config
+     */
+    public synchronized DatabaseConfig getDatabaseConfig() {
+        return this.databaseConfig.clone();
+    }
+
+    /**
+     * Apply selected database configuration parameters from the given instance to the
+     * {@link DatabaseConfig} this instance will use when opening the {@link Database} at startup.
      *
      * <p>
      * The default {@link DatabaseConfig} is configured for transactional operation and with
@@ -205,6 +262,8 @@ public class BerkeleyKVDatabase implements KVDatabase {
         assert this.database != null;
         return this.database;
     }
+
+// KVDatabase
 
     /**
      * Create a new transaction.
