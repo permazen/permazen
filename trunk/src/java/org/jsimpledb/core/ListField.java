@@ -20,6 +20,10 @@ import org.jsimpledb.util.ByteWriter;
 /**
  * List field.
  *
+ * <p>
+ * JSimpleDB list fields have performance characteristics similar to {@link ArrayList}.
+ * </p>
+ *
  * @param <E> Java type for the list elements
  */
 public class ListField<E> extends CollectionField<List<E>, E> {
