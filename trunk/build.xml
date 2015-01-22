@@ -3,6 +3,7 @@
 <!-- $Id$ -->
 <project name="jsimpledb" default="build"
   xmlns:dellroad="urn:org.dellroad.ant"
+  xmlns:jsimpledb="urn:org.dellroad.jsimpledb"
   xmlns:antcontrib="urn:net.sf.antcontrib"
   xmlns:artifact="antlib:org.apache.maven.artifact.ant"
   xmlns:ivy="urn:org.apache.ivy.ant">
@@ -393,6 +394,16 @@
                 <include name="org/jsimpledb/demo/**/*"/>
             </fileset>
         </copy>
+
+        <!-- Verify demo schema -->
+        <path id="schema.classpath">
+            <path refid="build.classpath"/>
+            <pathelement location="build/classes"/>
+        </path>
+        <taskdef uri="urn:org.dellroad.jsimpledb" name="schema"
+          classname="org.jsimpledb.ant.SchemaGeneratorTask" classpathref="schema.classpath"/>
+        <jsimpledb:schema mode="verify" classpathref="schema.classpath"
+          file="src/dist/demo-schema.xml" packages="org.jsimpledb.demo"/>
 
         <!-- Build CLI executable JAR -->
         <manifestclasspath property="cli.jar.classpath" jarfile="build/distfile/dummy.jar">

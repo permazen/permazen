@@ -19,10 +19,6 @@
     - Implement collection fields
     - Make more modular/pluggable
 
-- Ant task for easy validation of JLayer annotations during a build
-    - Basic validation of annotations
-    - Schema comparison (generated vs. expected schema XML)
-
 - Reimplement LockManager using Guava ranges?
     - https://code.google.com/p/guava-libraries/wiki/RangesExplained
 
