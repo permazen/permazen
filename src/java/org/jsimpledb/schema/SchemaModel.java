@@ -77,6 +77,10 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
     /**
      * Serialize an instance to the given XML output.
      *
+     * <p>
+     * The {@code output} is not closed by this method.
+     * </p>
+     *
      * @param output XML output
      * @param indent true to pretty print the XML
      * @throws IOException if an I/O error occurs
