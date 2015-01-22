@@ -20,16 +20,24 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
-import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.DefaultStorageIdGenerator;
+import org.jsimpledb.JSimpleDBFactory;
+import org.jsimpledb.StorageIdGenerator;
+import org.jsimpledb.annotation.JFieldType;
+import org.jsimpledb.core.Database;
+import org.jsimpledb.core.FieldType;
+import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.spring.JSimpleDBClassScanner;
+import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
 
 /**
  * Ant task for schema XML generation and/or verification.
  *
  * <p>
- * This task scans the configured classpath for {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated
- * classes and either writes the corresponding schema to an XML file or verifies the contents of an existing file.
+ * This task scans the configured classpath for classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
+ * and {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations and either writes the generated schema
+ * to an XML file, or verifies the schema from an existing XML file.
  * </p>
  *
  * <p>
@@ -47,34 +55,76 @@ import org.jsimpledb.spring.JSimpleDBClassScanner;
  * <tr>
  *  <td>{@code mode}</td>
  *  <td>No</td>
- *  <td>Set to {@code generate} to generate a new XML file, or {@code verify} to verify an existing XML file.
+ *  <td>
+ *      <p>
+ *      Set to {@code generate} to generate a new XML file, or {@code verify} to verify an existing XML file.
+ *      </p>
+ *
+ *      <p>
  *      Default is {@code verify}.</td>
+ *      </p>
+ * </td>
  * </tr>
  * <tr>
  *  <td>{@code file}</td>
  *  <td>Yes</td>
- *  <td>The XML file to generate or verify.</td>
+ *  <td>
+ *      <p>
+ *      The XML file to generate or verify.
+ *      </p>
+ * </td>
  * </tr>
  * <tr>
  *  <td>{@code matchNames}</td>
  *  <td>No</td>
- *  <td>Whether to verify not only schema compatibility but also that the same names are used for
- *      object types, fields, and composite indexes. Two schemas that are equivalent except for names are considered
- *      compatible, because the core API uses storage ID's, not names. However, if names change then some
- *      JSimpleDB layer operations, such as index queries and reference path inversion, may need to be updated.
+ *  <td>
+ *      <p>
+ *      Whether to verify not only schema compatibility but also that the same names are used for
+ *      object types, fields, and composite indexes.
+ *      </p>
+ *
+ *      <p>
+ *      Two schemas that are equivalent except for names are considered compatible, because the core API uses
+ *      storage ID's, not names. However, if names change then some JSimpleDB layer operations, such as index
+ *      queries and reference path inversion, may need to be updated.
+ *      </p>
+ *
+ *      <p>
  *      Default is {@code true}. Ignored unless {@code mode} is {@code verify}.</td>
+ *      </p>
  * </tr>
  * <tr>
  *  <td>{@code classpath} or {@code classpathref}</td>
  *  <td>Yes</td>
- *  <td>Specifies the search path for classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
- *      annotations.</td>
+ *  <td>
+ *      <p>
+ *      Specifies the search path for classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
+ *      annotations.
+ *      </p>
+ * </td>
  * </tr>
  * <tr>
  *  <td>{@code packages}</td>
  *  <td>Yes</td>
- *  <td>Specifies one or more Java package names (separated by commas and/or whitespace) under which to look
- *      for {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations.</td>
+ *  <td>
+ *      <p>
+ *      Specifies one or more Java package names (separated by commas and/or whitespace) under which to look
+ *      for classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
+ *      and {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations.
+ *      </p>
+ * </td>
+ * </tr>
+ * <tr>
+ *  <td>{@code storageIdGeneratorClass}</td>
+ *  <td>No</td>
+ *  <td>
+ *      <p>
+ *      Specifies the name of an optional custom {@link StorageIdGenerator} class.
+ *      </p>
+ *
+ *      <p>
+ *      By default, a {@link DefaultStorageIdGenerator} is used.</td>
+ *      </p>
  * </tr>
  * </table>
  * </div>
@@ -100,14 +150,15 @@ public class SchemaGeneratorTask extends Task {
     public static final String MODE_VERIFY = "verify";
     public static final String MODE_GENERATE = "generate";
 
-    private String packages;
+    private String[] packages;
     private String mode = MODE_VERIFY;
     private boolean matchNames = true;
     private File file;
     private Path classPath;
+    private String storageIdGeneratorClassName = DefaultStorageIdGenerator.class.getName();
 
     public void setPackages(String packages) {
-        this.packages = packages;
+        this.packages = packages.split("[\\s,]");
     }
 
     public void setMode(String mode) {
@@ -133,6 +184,10 @@ public class SchemaGeneratorTask extends Task {
 
     public void setClasspathRef(Reference ref) {
         this.classPath = (Path)ref.getReferencedObject(getProject());
+    }
+
+    public void setStorageIdGeneratorClass(String storageIdGeneratorClassName) {
+        this.storageIdGeneratorClassName = storageIdGeneratorClassName;
     }
 
     /**
@@ -164,22 +219,60 @@ public class SchemaGeneratorTask extends Task {
         loader.setThreadContextLoader();
         try {
 
-            // Scan for classes
-            final HashSet<Class<?>> classes = new HashSet<>();
-            for (String className : new JSimpleDBClassScanner().scanForClasses(this.packages.split("[\\s,]"))) {
+            // Scan for @JSimpleClass classes
+            final HashSet<Class<?>> modelClasses = new HashSet<>();
+            for (String className : new JSimpleDBClassScanner().scanForClasses(this.packages)) {
                 this.log("adding JSimpleDB schema class " + className);
                 try {
-                    classes.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
+                    modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                 } catch (ClassNotFoundException e) {
                     throw new BuildException("failed to load class `" + className + "'", e);
                 }
             }
 
+            // Scan for @JFieldType classes
+            final HashSet<FieldType<?>> fieldTypes = new HashSet<>();
+            for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(this.packages)) {
+                this.log("adding JSimpleDB field type class " + className);
+                try {
+                    fieldTypes.add(this.asFieldTypeClass(
+                      Class.forName(className, false, Thread.currentThread().getContextClassLoader())).newInstance());
+                } catch (Exception e) {
+                    throw new BuildException("failed to instantiate class `" + className + "'", e);
+                }
+            }
+
+            // Instantiate StorageIdGenerator
+            final StorageIdGenerator storageIdGenerator;
+            try {
+                storageIdGenerator = Class.forName(this.storageIdGeneratorClassName,
+                  false, Thread.currentThread().getContextClassLoader()).asSubclass(StorageIdGenerator.class).newInstance();
+            } catch (Exception e) {
+                throw new BuildException("failed to instantiate class `" + storageIdGeneratorClassName + "'", e);
+            }
+
+            // Set up database and configure field type classes
+            final Database db = new Database(new SimpleKVDatabase());
+            for (FieldType<?> fieldType : fieldTypes) {
+                try {
+                    db.getFieldTypeRegistry().add(fieldType);
+                } catch (Exception e) {
+                    throw new BuildException("failed to register custom field type " + fieldType.getClass().getName(), e);
+                }
+            }
+
+            // Set up factory
+            final JSimpleDBFactory factory = new JSimpleDBFactory();
+            factory.setDatabase(db);
+            factory.setSchemaVersion(1);
+            factory.setStorageIdGenerator(storageIdGenerator);
+            factory.setModelClasses(modelClasses);
+
             // Build schema model
             this.log("generating JSimpleDB schema from schema classes");
             final SchemaModel schemaModel;
             try {
-                schemaModel = new JSimpleDB(classes).getSchemaModel();
+                schemaModel = factory.newJSimpleDB().getSchemaModel();
             } catch (Exception e) {
                 throw new BuildException("schema generation failed: " + e, e);
             }
@@ -212,6 +305,16 @@ public class SchemaGeneratorTask extends Task {
         } finally {
             loader.resetThreadContextLoader();
             loader.cleanup();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Class<? extends FieldType<?>> asFieldTypeClass(Class<?> klass) {
+        try {
+            return (Class<? extends FieldType<?>>)klass.asSubclass(FieldType.class);
+        } catch (ClassCastException e) {
+            throw new BuildException("invalid @" + JFieldType.class.getSimpleName() + " annotation on "
+              + klass + ": type is not a subclass of " + FieldType.class);
         }
     }
 }
