@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -99,6 +100,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
                 throw (IOException)e.getCause();
             throw new RuntimeException("internal error", e);
         }
+        new PrintStream(output, true).println();
         output.flush();
     }
 
