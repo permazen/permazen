@@ -1,4 +1,18 @@
 
+Version Next
+
+    - Added Vaadin GUI auto-generator
+    - Added support for XML object import/export
+    - Added support for composite indexes
+    - Added uniqueness constraint validation
+    - Added index for object schema versions
+    - Added ant task to generate/verify schema
+    - Eliminated the need for storage ID's
+    - CLI rewrite with many improvements
+    - Fixed several type safety corner cases
+    - Build a distribution ZIP file with demo
+    - Lots of bugs fixes and improvements
+
 Version 1.0.161 Released May 6, 2014
 
     - Added command line interface
