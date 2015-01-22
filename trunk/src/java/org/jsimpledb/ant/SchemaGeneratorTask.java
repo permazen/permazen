@@ -13,8 +13,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashSet;
 
 import org.apache.tools.ant.AntClassLoader;
@@ -27,8 +25,72 @@ import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.spring.JSimpleDBClassScanner;
 
 /**
- * Ant task that scans the configured classpath for {@link org.jsimpledb.annotation.JSimpleClass}-annotated
- * classes and writes the corresponding schema to an XML file.
+ * Ant task for schema XML generation and/or verification.
+ *
+ * <p>
+ * This task scans the configured classpath for {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated
+ * classes and either writes the corresponding schema to an XML file or verifies the contents of an existing file.
+ * </p>
+ *
+ * <p>
+ * The following tasks are supported:
+ * </p>
+ *
+ * <p>
+ * <div style="margin-left: 20px;">
+ * <table border="1" cellpadding="3" cellspacing="0">
+ * <tr bgcolor="#ccffcc">
+ *  <th align="left">Attribute</th>
+ *  <th align="left">Required?</th>
+ *  <th align="left">Description</th>
+ * </tr>
+ * <tr>
+ *  <td>{@code mode}</td>
+ *  <td>No</td>
+ *  <td>Set to {@code generate} to generate a new XML file, or {@code verify} to verify an existing XML file.
+ *      Default is {@code verify}.</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code file}</td>
+ *  <td>Yes</td>
+ *  <td>The XML file to generate or verify.</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code matchNames}</td>
+ *  <td>No</td>
+ *  <td>Whether to verify not only schema compatibility but also that the same names are used for
+ *      object types, fields, and composite indexes. Two schemas that are equivalent except for names are considered
+ *      compatible, because the core API uses storage ID's, not names. However, if names change then some
+ *      JSimpleDB layer operations, such as index queries and reference path inversion, may need to be updated.
+ *      Default is {@code true}. Ignored unless {@code mode} is {@code verify}.</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code classpath} or {@code classpathref}</td>
+ *  <td>Yes</td>
+ *  <td>Specifies the search path for classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
+ *      annotations.</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code packages}</td>
+ *  <td>Yes</td>
+ *  <td>Specifies one or more Java package names (separated by commas and/or whitespace) under which to look
+ *      for {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations.</td>
+ * </tr>
+ * </table>
+ * </div>
+ * </p>
+ *
+ * <p>
+ * Example:
+ * <pre>
+ *  &lt;project xmlns:jsimpledb="urn:org.dellroad.jsimpledb" ... &gt;
+ *      ...
+ *      &lt;taskdef uri="urn:org.dellroad.jsimpledb" name="schema"
+ *        classname="org.jsimpledb.ant.SchemaGeneratorTask" classpathref="jsimpledb.classpath"/&gt;
+ *      &lt;jsimpledb:schema mode="verify" classpathref="myclasses.classpath"
+ *        file="expected-schema.xml" packages="com.example.model"/&gt;
+ * </pre>
+ * </p>
  *
  * @see org.jsimpledb.JSimpleDB
  * @see org.jsimpledb.schema.SchemaModel
@@ -40,7 +102,7 @@ public class SchemaGeneratorTask extends Task {
 
     private String packages;
     private String mode = MODE_VERIFY;
-    private boolean matchNames;
+    private boolean matchNames = true;
     private File file;
     private Path classPath;
 
@@ -87,6 +149,8 @@ public class SchemaGeneratorTask extends Task {
         final boolean generate = this.mode.equalsIgnoreCase(MODE_GENERATE);
         if (this.packages == null)
             throw new BuildException("`packages' attribute is required specifying packages to scan for Java model classes");
+        if (this.classPath == null)
+            throw new BuildException("`classpath' attribute is required specifying search path for scanned classes");
 
         // Create directory containing file
         if (generate && this.file.getParent() != null && !this.file.getParentFile().exists() && !this.file.getParentFile().mkdirs())
