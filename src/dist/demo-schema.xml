@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    This is the core API schema that is derived from the demo Java model classes.
+    This shows the schema that the core API uses to model the various classes.
+
+    Normally you don't need to supply this file, as it gets generated automatically.
+    However, you can use these files during your build to verify that the schema
+    generated from your Java model classes will be as expected, thereby ensuring
+    that no schema version change will need to occur. You can use the provided
+    <jsimpledb:schema> ant task to generate or verify XML schema files like this.
+    See the Javadoc for org.jsimpledb.ant.SchemaGeneratorTask for more info.
+-->
+
+<!-- $Id$ -->
+<Schema formatVersion="2">
+    <ObjectType storageId="935" name="Star">
+        <SimpleField storageId="36701" name="luminosity" type="float"/>
+        <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
+        <SimpleField storageId="62200" name="mass" type="float" indexed="true"/>
+    </ObjectType>
+    <ObjectType storageId="8890" name="Planet">
+        <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
+        <ReferenceField storageId="54749" name="parent" onDelete="EXCEPTION">
+            <ObjectTypes>
+                <ObjectType storageId="935"/>
+            </ObjectTypes>
+        </ReferenceField>
+        <SimpleField storageId="55451" name="ringed" type="boolean"/>
+        <SimpleField storageId="62200" name="mass" type="float" indexed="true"/>
+    </ObjectType>
+    <ObjectType storageId="63949" name="Moon">
+        <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
+        <ReferenceField storageId="54749" name="parent" onDelete="EXCEPTION">
+            <ObjectTypes>
+                <ObjectType storageId="8890"/>
+            </ObjectTypes>
+        </ReferenceField>
+        <SimpleField storageId="62200" name="mass" type="float" indexed="true"/>
+    </ObjectType>
+</Schema>
