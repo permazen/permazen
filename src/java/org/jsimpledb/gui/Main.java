@@ -28,7 +28,6 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.ValidationMode;
 import org.jsimpledb.core.Database;
-import org.jsimpledb.parse.func.AbstractFunction;
 import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.spring.AnnotatedClassScanner;
 import org.jsimpledb.util.AbstractMain;
@@ -77,9 +76,6 @@ public class Main extends AbstractMain implements GUIConfig {
 
         // Set singleton
         Main.instance = this;
-
-        // Register built-in functions
-        this.scanFunctionClasses(AbstractFunction.class.getPackage().getName());
 
         // Parse command line
         final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));

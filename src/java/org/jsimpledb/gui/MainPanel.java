@@ -131,11 +131,19 @@ public class MainPanel extends VerticalLayout {
         this.session.setSchemaModel(this.jdb.getSchemaModel());
         this.session.setSchemaVersion(this.guiConfig.getSchemaVersion());
         this.session.setAllowNewSchema(this.guiConfig.isAllowNewSchema());
-        for (Class<?> cl : this.guiConfig.getFunctionClasses()) {
-            try {
-                this.session.registerFunction(cl);
-            } catch (IllegalArgumentException e) {
-                this.log.warn("failed to register function " + cl + ": " + e.getMessage());
+
+        // Register built-in functions
+        this.session.registerStandardFunctions();
+
+        // Register custom functions
+        final Iterable<? extends Class<?>> customFunctionClasses = this.guiConfig.getFunctionClasses();
+        if (customFunctionClasses != null) {
+            for (Class<?> cl : customFunctionClasses) {
+                try {
+                    this.session.registerFunction(cl);
+                } catch (IllegalArgumentException e) {
+                    this.log.warn("failed to register function " + cl + ": " + e.getMessage());
+                }
             }
         }
 
