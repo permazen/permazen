@@ -44,18 +44,10 @@ Here's an example setup with Spring that uses a simple flat file for persistence
     <!-- Define the underlying key/value store -->
     <bean id="kvstore" class="org.jsimpledb.kv.simple.XMLKVDatabase" c:file="${user.home}/jsimpledb.xml"/>
  
-    <!-- Define the core Database layer on top of that -->
-    <bean id="database" class="org.jsimpledb.core.Database" c:kvdb-ref="kvstore"/>
- 
-    <!-- Configure the factory that will build our JSimpleDB instance -->
-    <bean id="jsimpledbFactory" class="org.jsimpledb.JSimpleDBFactory" p:database-ref="database" p:schemaVersion="1">
-        <property name="modelClasses">
-            <jsimpledb:scan-classpath base-package="com.example.myapp.model"/> 
-        </property>
-    </bean>
- 
-    <!-- Build the JSimpleDB instance -->
-    <bean id="jsimpledb" factory-bean="jsimpledbFactory" factory-method="newJSimpleDB"/>
+    <!-- Define the JSimpleDB database on top of that -->
+    <jsimpledb:jsimpledb id="jsimpledb" kvstore="kvstore" schema-version="1">
+        <jsimpledb:scan-classes base-package="com.example.myapp.model"/>
+    </jsimpledb:jsimpledb>
  
     <!-- Create a Spring transaction manager -->
     <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
