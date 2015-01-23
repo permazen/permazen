@@ -41,11 +41,11 @@ public class Main extends AbstractMain {
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
             this.allowAutoDemo = false;
-        } else if (option.equals("--cmdpkg")) {
+        } else if (option.equals("--cmd-pkg")) {
             if (params.isEmpty())
                 this.usageError();
             this.scanCommandClasses(params.removeFirst());
-        } else if (option.equals("--funcpkg")) {
+        } else if (option.equals("--func-pkg")) {
             if (params.isEmpty())
                 this.usageError();
             this.scanFunctionClasses(params.removeFirst());
@@ -114,7 +114,7 @@ public class Main extends AbstractMain {
         // Load JSimpleDB layer, if specified
         final JSimpleDB jdb = this.schemaClasses != null ? this.getJSimpleDBFactory(db).newJSimpleDB() : null;
 
-        // Sanity check consistent schema model if both --schema-file and --schema-pkg were specified
+        // Sanity check consistent schema model if both --schema-file and --model-pkg were specified
         if (jdb != null && schemaModel != null) {
             if (!schemaModel.equals(jdb.getSchemaModel())) {
                 System.err.println(this.getName() + ": schema from `" + this.schemaFile + "' conflicts with schema generated"
@@ -175,8 +175,8 @@ public class Main extends AbstractMain {
         System.err.println("Options:");
         this.outputFlags(new String[][] {
           { "--schema-file file",   "Load core database schema from XML file" },
-          { "--cmdpkg package",     "Register @Command-annotated classes found under the specified Java package" },
-          { "--funcpkg package",    "Register @Function-annotated classes found under the specified Java package" },
+          { "--cmd-pkg package",    "Register @Command-annotated classes found under the specified Java package" },
+          { "--func-pkg package",   "Register @Function-annotated classes found under the specified Java package" },
         });
     }
 
