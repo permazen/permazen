@@ -31,6 +31,7 @@ import org.jsimpledb.util.AbstractMain;
 public class Main extends AbstractMain {
 
     private File schemaFile;
+    private boolean coreMode;
     private final LinkedHashSet<Class<?>> commandClasses = new LinkedHashSet<>();
     private final LinkedHashSet<Class<?>> functionClasses = new LinkedHashSet<>();
 
@@ -41,7 +42,9 @@ public class Main extends AbstractMain {
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
             this.allowAutoDemo = false;
-        } else if (option.equals("--cmd-pkg")) {
+        } else if (option.equals("--core-mode"))
+            this.coreMode = true;
+        else if (option.equals("--cmd-pkg")) {
             if (params.isEmpty())
                 this.usageError();
             this.scanCommandClasses(params.removeFirst());
@@ -115,16 +118,22 @@ public class Main extends AbstractMain {
         final JSimpleDB jdb = this.schemaClasses != null ? this.getJSimpleDBFactory(db).newJSimpleDB() : null;
 
         // Sanity check consistent schema model if both --schema-file and --model-pkg were specified
-        if (jdb != null && schemaModel != null) {
-            if (!schemaModel.equals(jdb.getSchemaModel())) {
-                System.err.println(this.getName() + ": schema from `" + this.schemaFile + "' conflicts with schema generated"
-                  + " from scanned classes " + this.schemaClasses);
-                return 1;
-            }
+        if (jdb != null) {
+            if (schemaModel != null) {
+                if (!schemaModel.equals(jdb.getSchemaModel())) {
+                    System.err.println(this.getName() + ": schema from `" + this.schemaFile + "' conflicts with schema generated"
+                      + " from scanned classes " + this.schemaClasses);
+                    return 1;
+                }
+            } else
+                schemaModel = jdb.getSchemaModel();
         }
 
+        // Core API mode or JSimpleDB mode?
+        this.coreMode |= jdb == null;
+
         // Set up console
-        final Console console = jdb != null ?
+        final Console console = !this.coreMode ?
           new Console(jdb, new FileInputStream(FileDescriptor.in), System.out) :
           new Console(db, new FileInputStream(FileDescriptor.in), System.out);
         final CliSession session = console.getSession();
@@ -138,12 +147,12 @@ public class Main extends AbstractMain {
         try {
             for (Class<?> cl : this.commandClasses) {
                 final Command annotation = cl.getAnnotation(Command.class);
-                if (jdb != null || annotation.worksInCoreAPIMode())
+                if (!this.coreMode || annotation.worksInCoreAPIMode())
                     session.registerCommand(cl);
             }
             for (Class<?> cl : this.functionClasses) {
                 final Function annotation = cl.getAnnotation(Function.class);
-                if (jdb != null || annotation.worksInCoreAPIMode())
+                if (!this.coreMode || annotation.worksInCoreAPIMode())
                     session.registerFunction(cl);
             }
         } catch (IllegalArgumentException e) {
@@ -177,6 +186,7 @@ public class Main extends AbstractMain {
           { "--schema-file file",   "Load core database schema from XML file" },
           { "--cmd-pkg package",    "Register @Command-annotated classes found under the specified Java package" },
           { "--func-pkg package",   "Register @Function-annotated classes found under the specified Java package" },
+          { "--core-mode",          "Force core API mode even though schema classes are provided" },
         });
     }
 
