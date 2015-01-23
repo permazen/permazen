@@ -53,7 +53,7 @@ Here's an example of a setup that uses a simple XML flat file for persistence:
  
     <!-- Create a Spring transaction manager -->
     <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
-      p:JSimpleDB-ref="jsimpledb"/>
+      p:JSimpleDB-ref="jsimpledb" p:allowNewSchema="true"/>
  
     <!-- Enable @Transactional annotations -->
     <tx:annotation-driven transaction-manager="transactionManager"/> 
