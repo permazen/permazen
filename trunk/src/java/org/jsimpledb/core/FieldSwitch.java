@@ -11,7 +11,7 @@ package org.jsimpledb.core;
  * Visitor pattern interface for {@link Field}s.
  *
  * @param <R> switch method return type
- * @see Field#visit
+ * @see Field#visit Field.visit()
  */
 public interface FieldSwitch<R> {
 

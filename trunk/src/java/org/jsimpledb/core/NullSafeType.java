@@ -17,8 +17,9 @@ import org.jsimpledb.util.ByteWriter;
  * null values sort last.
  *
  * <p>
- * The default value becomes null, for which {@code null} is the parseable {@link String} encoding.
- * Therefore, {@code null} must not be a valid parseable {@link String} encoding for the wrapped type.
+ * The default value becomes null, for which {@code "null"} is the value returned by {@link #toParseableString toParseableString()}.
+ * Therefore, {@code "null"} must not be returned by the wrapped type's {@link #toParseableString toParseableString()}
+ * for any value.
  * </p>
  *
  * <p>
