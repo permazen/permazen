@@ -3,12 +3,15 @@
 <!-- $Id$ -->
 <xsd:schema xmlns="http://jsimpledb.googlecode.com/schema/jsimpledb"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:context="http://www.springframework.org/schema/context"
     targetNamespace="http://jsimpledb.googlecode.com/schema/jsimpledb"
     elementFormDefault="qualified" attributeFormDefault="unqualified">
 
+    <xsd:import namespace="http://www.springframework.org/schema/beans"
+      schemaLocation="http://www.springframework.org/schema/beans/spring-beans.xsd"/>
     <xsd:import namespace="http://www.springframework.org/schema/context"
-      schemaLocation="http://www.springframework.org/schema/context/spring-context-4.0.xsd"/>
+      schemaLocation="http://www.springframework.org/schema/context/spring-context.xsd"/>
 
     <xsd:annotation>
         <xsd:documentation><![CDATA[
@@ -16,94 +19,122 @@
         ]]></xsd:documentation>
     </xsd:annotation>
 
-	<xsd:element name="scan-classes">
-		<xsd:annotation>
-			<xsd:documentation><![CDATA[
+<!-- Elements -->
+
+    <xsd:element name="jsimpledb">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[
+    Defines a JSimpleDB database.
+            ]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:sequence>
+                        <xsd:element name="scan-classes" type="scanClassPathType" minOccurs="1" maxOccurs="1">
+                            <xsd:annotation>
+                                <xsd:documentation><![CDATA[
+            Defines the Java model classes.
+                                    ]]></xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element name="scan-field-types" type="scanClassPathType" minOccurs="0" maxOccurs="1">
+                            <xsd:annotation>
+                                <xsd:documentation><![CDATA[
+            Defines the custom FieldType classes.
+                                    ]]></xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:sequence>
+                    <xsd:attributeGroup ref="beans:beanAttributes"/>
+                    <xsd:attribute name="kvstore" type="xsd:string" use="required">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+            Bean name reference to the underlying key/value database.
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="schema-version" type="xsd:int" use="required">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+            The database schema version corredsponding to the Java model classes.
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="storage-id-generator" type="xsd:string" use="optional">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+            Bean name reference to a custom StorageIdGenerator.
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="auto-generate-storage-ids" type="xsd:boolean" use="optional">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+            Whether to enable automatic generation of storage IDs. Default true.
+                            ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="scan-classes" type="scanClassPathType">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[
     Scans the classpath and builds a list of @JSimpleClass-annotated classes.
     Works just like &lt;context:component-scan/&gt;.
-			]]></xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element name="include-filter" type="context:filterType"
-					minOccurs="0" maxOccurs="unbounded">
-					<xsd:annotation>
-						<xsd:documentation><![CDATA[
-	Controls which eligible types to include for component scanning.
-							]]></xsd:documentation>
-					</xsd:annotation>
-				</xsd:element>
-				<xsd:element name="exclude-filter" type="context:filterType"
-					minOccurs="0" maxOccurs="unbounded">
-					<xsd:annotation>
-						<xsd:documentation><![CDATA[
-	Controls which eligible types to exclude for component scanning.
-						]]></xsd:documentation>
-					</xsd:annotation>
-				</xsd:element>
-			</xsd:sequence>
-			<xsd:attribute name="base-package" type="xsd:string"
-				use="required">
-				<xsd:annotation>
-					<xsd:documentation><![CDATA[
-	The comma-separated list of packages to scan for annotated components.
-					]]></xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
-			<xsd:attribute name="resource-pattern" type="xsd:string">
-				<xsd:annotation>
-					<xsd:documentation><![CDATA[
-	Controls the class files eligible for component detection. Defaults to "**/*.class", the recommended value.
-	Consider use of the include-filter and exclude-filter elements for a more fine-grained approach.
-					]]></xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
-		</xsd:complexType>
-	</xsd:element>
+            ]]></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
 
-	<xsd:element name="scan-field-types">
-		<xsd:annotation>
-			<xsd:documentation><![CDATA[
+    <xsd:element name="scan-field-types" type="scanClassPathType">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[
     Scans the classpath and builds a list of @JFieldType-annotated classes.
     Works just like &lt;context:component-scan/&gt;.
-			]]></xsd:documentation>
-		</xsd:annotation>
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element name="include-filter" type="context:filterType"
-					minOccurs="0" maxOccurs="unbounded">
-					<xsd:annotation>
-						<xsd:documentation><![CDATA[
-	Controls which eligible types to include for component scanning.
-							]]></xsd:documentation>
-					</xsd:annotation>
-				</xsd:element>
-				<xsd:element name="exclude-filter" type="context:filterType"
-					minOccurs="0" maxOccurs="unbounded">
-					<xsd:annotation>
-						<xsd:documentation><![CDATA[
-	Controls which eligible types to exclude for component scanning.
-						]]></xsd:documentation>
-					</xsd:annotation>
-				</xsd:element>
-			</xsd:sequence>
-			<xsd:attribute name="base-package" type="xsd:string"
-				use="required">
-				<xsd:annotation>
-					<xsd:documentation><![CDATA[
-	The comma-separated list of packages to scan for annotated components.
-					]]></xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
-			<xsd:attribute name="resource-pattern" type="xsd:string">
-				<xsd:annotation>
-					<xsd:documentation><![CDATA[
-	Controls the class files eligible for component detection. Defaults to "**/*.class", the recommended value.
-	Consider use of the include-filter and exclude-filter elements for a more fine-grained approach.
-					]]></xsd:documentation>
-				</xsd:annotation>
-			</xsd:attribute>
-		</xsd:complexType>
-	</xsd:element>
+            ]]></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+<!-- Types -->
+
+    <xsd:complexType name="scanClassPathType">
+        <xsd:sequence>
+            <xsd:element name="include-filter" type="context:filterType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[
+    Controls which eligible types to include for component scanning.
+                        ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="exclude-filter" type="context:filterType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[
+    Controls which eligible types to exclude for component scanning.
+                    ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="base-package" type="xsd:string"
+            use="required">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[
+    The comma-separated list of packages to scan for annotated components.
+                ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="resource-pattern" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[
+    Controls the class files eligible for component detection. Defaults to "**/*.class", the recommended value.
+    Consider use of the include-filter and exclude-filter elements for a more fine-grained approach.
+                ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
 
 </xsd:schema>

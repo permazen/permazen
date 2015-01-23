@@ -16,23 +16,20 @@
 
     <context:annotation-config/>
 
-    <tx:annotation-driven transaction-manager="transactionManager"/>
+     <bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/>
 
-    <bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/>
+     <jsimpledb:scan-classes base-package="org.jsimpledb.demo"/>
 
-    <bean id="database" class="org.jsimpledb.core.Database" c:kvdb-ref="kvdb"/>
+     <jsimpledb:jsimpledb id="jsimpledb" kvstore="kvdb" schema-version="1">
+         <jsimpledb:scan-classes base-package="org.jsimpledb.spring">
+             <jsimpledb:exclude-filter type="regex" expression=".*Banana.*"/>
+         </jsimpledb:scan-classes>
+         <jsimpledb:scan-field-types base-package="org.jsimpledb.spring"/>
+     </jsimpledb:jsimpledb>
 
-    <bean id="jsimpledbFactory" class="org.jsimpledb.JSimpleDBFactory" p:database-ref="database" p:schemaVersion="1">
-        <property name="modelClasses">
-            <jsimpledb:scan-classes base-package="org.jsimpledb.spring">
-                <jsimpledb:exclude-filter type="regex" expression=".*Banana.*"/>
-            </jsimpledb:scan-classes>
-        </property>
-    </bean>
+     <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager" p:JSimpleDB-ref="jsimpledb"/>
 
-    <bean id="jsimpledb" factory-bean="jsimpledbFactory" factory-method="newJSimpleDB"/>
-
-    <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager" p:JSimpleDB-ref="jsimpledb"/>
+     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean id="myBean" class="org.jsimpledb.spring.SimpleSpringTest"/>
 
