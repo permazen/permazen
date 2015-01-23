@@ -31,9 +31,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.validation.constraints.NotNull;
 
@@ -351,7 +351,7 @@ public class MainPanel extends VerticalLayout {
         private final JClass<?> jclass;
         private final boolean create;
         private final FieldGroup fieldGroup = new FieldGroup();
-        private final LinkedHashMap<String, Editor> editorMap = new LinkedHashMap<>();
+        private final TreeMap<String, Editor> editorMap = new TreeMap<>();
 
         EditWindow(JObject jobj, JClass<?> jclass, boolean create) {
             super(MainPanel.this.getUI(), (create ? "New" : "Edit") + " " + jclass.getName());

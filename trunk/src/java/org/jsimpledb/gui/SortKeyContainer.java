@@ -10,6 +10,8 @@ package org.jsimpledb.gui;
 import com.vaadin.ui.DefaultFieldFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.SortedMap;
 
 import org.dellroad.stuff.string.StringEncoder;
@@ -69,6 +71,14 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
                     sortKeys.add(new FieldSortKey((JSimpleField)jfield));
             }
         }
+
+        // Sort indexed field sort keys
+        Collections.sort(sortKeys.subList(2, sortKeys.size()), new Comparator<SortKey>() {
+            @Override
+            public int compare(SortKey key1, SortKey key2) {
+                return key1.getDescription().compareTo(key2.getDescription());
+            }
+        });
 
         // Load container
         this.load(sortKeys);
@@ -137,7 +147,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
     class VersionSortKey extends SortKey {
 
         VersionSortKey() {
-            super("Version");
+            super("Schema Version");
         }
 
         @Override
