@@ -15,6 +15,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -41,11 +43,13 @@ import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.ReferenceField;
+import org.jsimpledb.core.SchemaItem;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.SnapshotTransaction;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaField;
 import org.jsimpledb.schema.SchemaModel;
@@ -55,10 +59,11 @@ import org.jsimpledb.schema.SchemaObjectType;
  * Utility methods for serializing and deserializing objects in a {@link Transaction} to/from XML.
  *
  * <p>
- * There are two supported formats. The "Storage ID Format" specifies objects and fields using their storage IDs, and is robust:
+ * There are two supported formats. The "Storage ID Format" specifies objects and fields using their storage IDs
+ * and supports all possible database contents.
  *  <pre>
  *  &lt;objects&gt;
- *      &lt;object storageId="100" id="c8a971e1aef01cc8" version="1"&gt;
+ *      &lt;object storageId="100" id="64a971e1aef01cc8" version="1"&gt;
  *          &lt;field storageId="101"&gt;George Washington&lt;/field&gt;
  *          &lt;field storageId="102"&gt;true&lt;/field&gt;
  *          &lt;field storageId="103"&gt;
@@ -76,10 +81,10 @@ import org.jsimpledb.schema.SchemaObjectType;
  *
  * <p>
  * "Name Format" differs from "Storage ID Format" in that object types and fields are specified by name instead of storage ID.
- * However, it does not support schemas that have duplicate object or field names, or that use names that are not valid XML tags.
+ * However, it does not support schemas that use names that are not valid XML tags.
  * <pre>
  *  &lt;objects&gt;
- *      &lt;Person id="c8a971e1aef01cc8" version="1"&gt;
+ *      &lt;Person id="64a971e1aef01cc8" version="1"&gt;
  *          &lt;name&gt;George Washington&lt;/name&gt;
  *          &lt;wasPresident&gt;true&lt;/wasPresident&gt;
  *          &lt;attributes&gt;
@@ -98,13 +103,13 @@ import org.jsimpledb.schema.SchemaObjectType;
  * <p>
  * Some details on the input logic:
  * <ul>
- *  <li>Simple fields that are equal to their default values, and complex fields that are empty, may be omitted on input</li>
+ *  <li>Simple fields that are equal to their default values, and complex fields that are empty, may be omitted</li>
  *  <li>The {@code "version"} attribute may be omitted, in which case the default schema version associated with
  *      the {@link Transaction} being written to is assumed.</li>
  *  <li>The {@code "id"} attribute may be omitted, in which case a random unassigned ID is generated</li>
  *  <li>Any object ID (including the {@code "id"} attribute) may have the special form
  *      <code>generated:<i>TYPE</i>:<i>SUFFIX</i></code>, where <code><i>TYPE</i></code> is the object type
- *      storage ID and <code><i>SUFFIX</i></code> is an arbitrary string.
+ *      name or storage ID and <code><i>SUFFIX</i></code> is an arbitrary string.
  *      In this case, a random, unassigned object ID for type <code><i>TYPE</i></code> is generated
  *      on first occurrence, and on subsequent occurences the previously generated ID is recalled. This facilitates
  *      input generated via XSL and the {@code generate-id()} function.
@@ -125,10 +130,12 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     public static final QName ID_ATTR = new QName("id");
     public static final QName STORAGE_ID_ATTR = new QName("storageId");
     public static final QName VERSION_ATTR = new QName("version");
+    public static final QName NULL_ATTR = new QName("null");
 
     private static final Pattern GENERATED_ID_PATTERN = Pattern.compile("generated:([^:]+):(.*)");
 
     private final Transaction tx;
+    private final HashMap<Integer, NameIndex> nameIndexMap = new HashMap<>();
 
     private GeneratedIdCache generatedIdCache = new GeneratedIdCache();
 
@@ -142,6 +149,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         if (tx == null)
             throw new IllegalArgumentException("null tx");
         this.tx = tx;
+
+        // Build name index for each schema version
+        for (SchemaVersion schemaVersion : this.tx.getSchema().getSchemaVersions().values())
+            nameIndexMap.put(schemaVersion.getVersionNumber(), new NameIndex(schemaVersion.getSchemaModel()));
     }
 
     /**
@@ -201,11 +212,6 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             throw new IllegalArgumentException("null reader");
         this.expect(reader, false, OBJECTS_TAG);
 
-        // Build name index for each schema version
-        final HashMap<Integer, NameIndex> nameIndexMap = new HashMap<>();
-        for (SchemaVersion schemaVersion : this.tx.getSchema().getSchemaVersions().values())
-            nameIndexMap.put(schemaVersion.getVersionNumber(), new NameIndex(schemaVersion.getSchemaModel()));
-
         // Create a snapshot transaction so we can replace objects without triggering DeleteAction's
         final SnapshotTransaction snapshot = this.tx.createSnapshotTransaction();
 
@@ -226,16 +232,16 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 }
             } else
                 schemaVersion = this.tx.getSchemaVersion();
-            final NameIndex nameIndex = nameIndexMap.get(schemaVersion.getVersionNumber());
+            final NameIndex nameIndex = this.nameIndexMap.get(schemaVersion.getVersionNumber());
             final SchemaModel schemaModel = schemaVersion.getSchemaModel();
 
             // Determine object type
             String storageIdAttr = this.getAttr(reader, STORAGE_ID_ATTR, false);
-            final ObjType objType;
+            ObjType objType = null;
             if (storageIdAttr != null) {
                 try {
                     objType = schemaVersion.getObjType(Integer.parseInt(storageIdAttr));
-                } catch (IllegalArgumentException e) {
+                } catch (UnknownTypeException e) {
                     throw new XMLStreamException("invalid object type storage ID `" + storageIdAttr + "': " + e,
                       reader.getLocation(), e);
                 }
@@ -245,25 +251,25 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                           + name.getLocalPart() + ">; expected <" + OBJECT_TAG.getLocalPart() + ">", reader.getLocation());
                     }
                     if (!objType.getName().equals(name.getLocalPart())) {
-                        throw new XMLStreamException("element <" + name.getLocalPart()
-                          + "> does not match storage ID " + objType.getStorageId()
-                          + "; should be <" + objType.getName() + ">", reader.getLocation());
+                        throw new XMLStreamException("element <" + name.getLocalPart() + "> does not match storage ID "
+                          + objType.getStorageId() + "; should be <" + objType.getName() + ">", reader.getLocation());
                     }
                 }
             } else {
                 if (!XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI())) {
                     throw new XMLStreamException("unexpected element <" + name.getPrefix() + ":"
-                      + name.getLocalPart() + ">; expected object type name", reader.getLocation());
+                      + name.getLocalPart() + ">; expected <object> or object type name", reader.getLocation());
                 }
-                final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(name.getLocalPart());
-                if (schemaObjectType == null) {
-                    throw new XMLStreamException("unexpected element <" + name.getLocalPart()
-                      + ">; no object type named `" + name.getLocalPart() + "' found in schema version "
-                      + schemaVersion.getVersionNumber(), reader.getLocation());
+                if (!name.equals(OBJECT_TAG)) {
+                    final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(name.getLocalPart());
+                    if (schemaObjectType == null) {
+                        throw new XMLStreamException("unexpected element <" + name.getLocalPart()
+                          + ">; no object type named `" + name.getLocalPart() + "' found in schema version "
+                          + schemaVersion.getVersionNumber(), reader.getLocation());
+                    }
+                    objType = schemaVersion.getObjType(schemaObjectType.getStorageId());
                 }
-                objType = schemaVersion.getObjType(schemaObjectType.getStorageId());
             }
-            final SchemaObjectType schemaObjectType = schemaModel.getSchemaObjectTypes().get(objType.getStorageId());
 
             // Reset snapshot
             snapshot.reset();
@@ -271,9 +277,20 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             // Determine object ID and create object in snapshot
             final String idAttr = this.getAttr(reader, ID_ATTR, true);
             ObjId id;
-            if (idAttr == null)
+            if (idAttr == null) {
+
+                // Verify we know object type
+                if (objType == null) {
+                    throw new XMLStreamException("invalid <" + OBJECT_TAG.getLocalPart() + "> element: either \""
+                      + STORAGE_ID_ATTR.getLocalPart() + "\" or \"" + ID_ATTR.getLocalPart() + "\" attribute is required",
+                      reader.getLocation());
+                }
+
+                // Create object
                 id = snapshot.create(objType.getStorageId(), schemaVersion.getVersionNumber());
-            else {
+            } else {
+
+                // Parse id
                 try {
                     id = new ObjId(idAttr);
                 } catch (IllegalArgumentException e) {
@@ -281,20 +298,23 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     if (!matcher.matches())
                         throw new XMLStreamException("invalid object ID `" + idAttr + "'", reader.getLocation());
                     final String typeAttr = matcher.group(1);
-                    final String suffix = matcher.group(2);
-                    if (!typeAttr.equals("" + objType.getStorageId())) {
-                        throw new XMLStreamException("invalid storage ID `" + typeAttr + "' in generated object ID `" + idAttr
-                          + "': storage ID does not match storage ID `" + objType.getStorageId() + "' of type `"
-                          + objType.getName() + "' in schema version " + schemaVersion.getVersionNumber(), reader.getLocation());
+                    final ObjType genType = this.parseGeneratedType(reader, idAttr, typeAttr, schemaVersion);
+                    if (objType == null)
+                        objType = genType;
+                    else if (!genType.equals(objType)) {
+                        throw new XMLStreamException("type `" + typeAttr + "' in generated object ID `" + idAttr
+                          + "' does not match type `" + objType.getName() + "' in schema version "
+                          + schemaVersion.getVersionNumber(), reader.getLocation());
                     }
-                    id = this.generatedIdCache.getGeneratedId(this.tx, objType.getStorageId(), suffix);
+                    id = this.generatedIdCache.getGeneratedId(this.tx, objType.getStorageId(), matcher.group(2));
                 }
 
-                // Create new object
+                // Create object
                 snapshot.create(id, schemaVersion.getVersionNumber());
             }
 
             // Iterate over fields
+            final SchemaObjectType schemaObjectType = schemaModel.getSchemaObjectTypes().get(objType.getStorageId());
             while ((name = this.next(reader)) != null) {
                 final QName fieldTagName = name;
 
@@ -471,6 +491,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             throw new IllegalArgumentException("null writer");
         if (objIds == null)
             throw new IllegalArgumentException("null objIds");
+        final NameComparator nameComparator = new NameComparator();
         writer.setDefaultNamespace(OBJECTS_TAG.getNamespaceURI());
         writer.writeStartElement(OBJECTS_TAG.getNamespaceURI(), OBJECTS_TAG.getLocalPart());
         int count = 0;
@@ -488,7 +509,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
             // Output fields; if all are default, output empty tag
             boolean tagOutput = false;
-            for (Field<?> field : objType.getFields().values()) {
+            ArrayList<Field<?>> fieldList = new ArrayList<>(objType.getFields().values());
+            if (nameFormat)
+                Collections.sort(fieldList, nameComparator);
+            for (Field<?> field : fieldList) {
 
                 // Determine if field equals its default value; if so, skip it
                 if (field.hasDefaultValue(this.tx, id))
@@ -500,44 +524,48 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                     tagOutput = true;
                 }
 
-                // Output field opening tag
-                final QName fieldElement = nameFormat ? new QName(field.getName()) : FIELD_TAG;
-                writer.writeStartElement(fieldElement.getNamespaceURI(), fieldElement.getLocalPart());
-                if (!nameFormat) {
-                    writer.writeAttribute(STORAGE_ID_ATTR.getNamespaceURI(),
-                      STORAGE_ID_ATTR.getLocalPart(), "" + field.getStorageId());
+                // Get tag name
+                final QName fieldTag = nameFormat ? new QName(field.getName()) : FIELD_TAG;
+
+                // Special case for simple fields, which use empty tags when null
+                if (field instanceof SimpleField) {
+                    final Object value = this.tx.readSimpleField(id, field.getStorageId(), false);
+                    if (value != null)
+                        writer.writeStartElement(fieldTag.getNamespaceURI(), fieldTag.getLocalPart());
+                    else
+                        writer.writeEmptyElement(fieldTag.getNamespaceURI(), fieldTag.getLocalPart());
+                    if (!nameFormat)
+                        this.writeAttribute(writer, STORAGE_ID_ATTR, field.getStorageId());
+                    if (value != null) {
+                        this.writeSimpleField(writer, (SimpleField<?>)field, value);
+                        writer.writeEndElement();
+                    } else
+                        this.writeAttribute(writer, NULL_ATTR, "true");
+                    continue;
                 }
 
+                // Output field opening tag
+                writer.writeStartElement(fieldTag.getNamespaceURI(), fieldTag.getLocalPart());
+                if (!nameFormat)
+                    this.writeAttribute(writer, STORAGE_ID_ATTR, field.getStorageId());
+
                 // Output field value
-                if (field instanceof SimpleField)
-                    this.writeSimpleField(writer, (SimpleField<?>)field, this.tx.readSimpleField(id, field.getStorageId(), false));
-                else if (field instanceof CounterField)
+                if (field instanceof CounterField)
                     writer.writeCharacters("" + this.tx.readCounterField(id, field.getStorageId(), false));
-                else if (field instanceof SetField) {
-                    final SimpleField<?> elementField = ((SetField<?>)field).getElementField();
-                    for (Object element : this.tx.readSetField(id, field.getStorageId(), false)) {
-                        writer.writeStartElement(ELEMENT_TAG.getNamespaceURI(), ELEMENT_TAG.getLocalPart());
-                        this.writeSimpleField(writer, elementField, element);
-                        writer.writeEndElement();
-                    }
-                } else if (field instanceof ListField) {
-                    final SimpleField<?> elementField = ((ListField<?>)field).getElementField();
-                    for (Object element : this.tx.readListField(id, field.getStorageId(), false)) {
-                        writer.writeStartElement(ELEMENT_TAG.getNamespaceURI(), ELEMENT_TAG.getLocalPart());
-                        this.writeSimpleField(writer, elementField, element);
-                        writer.writeEndElement();
-                    }
+                else if (field instanceof CollectionField) {
+                    final SimpleField<?> elementField = ((CollectionField<?, ?>)field).getElementField();
+                    final Iterable<?> collection = field instanceof SetField ?
+                      this.tx.readSetField(id, field.getStorageId(), false) :
+                      this.tx.readListField(id, field.getStorageId(), false);
+                    for (Object element : collection)
+                        this.writeSimpleTag(writer, ELEMENT_TAG, elementField, element);
                 } else if (field instanceof MapField) {
                     final SimpleField<?> keyField = ((MapField<?, ?>)field).getKeyField();
                     final SimpleField<?> valueField = ((MapField<?, ?>)field).getValueField();
                     for (Map.Entry<?, ?> entry : this.tx.readMapField(id, field.getStorageId(), false).entrySet()) {
                         writer.writeStartElement(ENTRY_TAG.getNamespaceURI(), ENTRY_TAG.getLocalPart());
-                        writer.writeStartElement(KEY_TAG.getNamespaceURI(), KEY_TAG.getLocalPart());
-                        this.writeSimpleField(writer, keyField, entry.getKey());
-                        writer.writeEndElement();
-                        writer.writeStartElement(VALUE_TAG.getNamespaceURI(), VALUE_TAG.getLocalPart());
-                        this.writeSimpleField(writer, valueField, entry.getValue());
-                        writer.writeEndElement();
+                        this.writeSimpleTag(writer, KEY_TAG, keyField, entry.getKey());
+                        this.writeSimpleTag(writer, VALUE_TAG, valueField, entry.getValue());
                         writer.writeEndElement();
                     }
                 } else
@@ -570,15 +598,44 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         return Arrays.equals(writer.getBytes(), field.getFieldType().getDefaultValue());
     }
 
+    private void writeSimpleTag(XMLStreamWriter writer, QName tag, SimpleField<?> field, Object value)
+      throws XMLStreamException {
+        if (value != null) {
+            writer.writeStartElement(tag.getNamespaceURI(), tag.getLocalPart());
+            this.writeSimpleField(writer, field, value);
+            writer.writeEndElement();
+        } else {
+            writer.writeEmptyElement(tag.getNamespaceURI(), tag.getLocalPart());
+            this.writeAttribute(writer, NULL_ATTR, "true");
+        }
+    }
+
     private <T> void writeSimpleField(XMLStreamWriter writer, SimpleField<T> field, Object value) throws XMLStreamException {
         final FieldType<T> fieldType = field.getFieldType();
         writer.writeCharacters(fieldType.toString(fieldType.validate(value)));
     }
 
     private <T> T readSimpleField(XMLStreamReader reader, SimpleField<T> field) throws XMLStreamException {
+
+        // Get field type
         final FieldType<T> fieldType = field.getFieldType();
 
-        // Get text
+        // Check for null
+        final String nullAttr = this.getAttr(reader, NULL_ATTR, false);
+        boolean isNull = false;
+        if (nullAttr != null) {
+            switch (nullAttr) {
+            case "true":
+            case "false":
+                isNull = Boolean.valueOf(nullAttr);
+                break;
+            default:
+                throw new XMLStreamException("invalid value `" + nullAttr + "' for `" + NULL_ATTR.getLocalPart()
+                 + "' attribute: value must be \"true\" or \"false\"", reader.getLocation());
+            }
+        }
+
+        // Get text content
         final String text;
         try {
             text = reader.getElementText();
@@ -586,26 +643,19 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             throw new XMLStreamException("invalid value for field `" + field.getName() + "': " + e, reader.getLocation(), e);
         }
 
+        // If null, verify there is no text content
+        if (isNull) {
+            if (text.length() != 0)
+                throw new XMLStreamException("text content not allowed for values with null=\"true\"", reader.getLocation());
+            return null;
+        }
+
         // Handle generated ID's for reference fields
         if (field instanceof ReferenceField) {
             final Matcher matcher = GENERATED_ID_PATTERN.matcher(text);
             if (matcher.matches()) {
-                final String typeAttr = matcher.group(1);
-                final int storageId;
-                try {
-                    storageId = Integer.parseInt(typeAttr);
-                } catch (IllegalArgumentException e) {
-                    throw new XMLStreamException("invalid storage ID `" + typeAttr + "' in generated object ID `"
-                      + text + "': " + e, reader.getLocation(), e);
-                }
-                try {
-                    field.getVersion().getObjType(storageId);
-                } catch (IllegalArgumentException e) {
-                    throw new XMLStreamException("invalid object type storage ID `" + typeAttr + "' in generated object ID `"
-                      + text + "': " + e, reader.getLocation(), e);
-                }
-                final String suffix = matcher.group(2);
-                return fieldType.validate(this.generatedIdCache.getGeneratedId(this.tx, storageId, suffix));
+                final int storageId = this.parseGeneratedType(reader, text, matcher.group(1));
+                return fieldType.validate(this.generatedIdCache.getGeneratedId(this.tx, storageId, matcher.group(2)));
             }
         }
 
@@ -618,6 +668,56 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         }
     }
 
+    // Parse a generated ID type found in a reference
+    private int parseGeneratedType(XMLStreamReader reader, String text, String attr) throws XMLStreamException {
+        int storageId = -1;
+        for (SchemaVersion schemaVersion : this.tx.getSchema().getSchemaVersions().values()) {
+            final ObjType objType;
+            try {
+                objType = this.parseGeneratedType(reader, text, attr, schemaVersion);
+            } catch (XMLStreamException e) {
+                continue;
+            }
+            if (storageId != -1 && storageId != objType.getStorageId()) {
+                throw new XMLStreamException("invalid object type `" + attr + "' in generated object ID `"
+                  + text + "': two or more incompatible object types named `" + attr
+                  + "' exist (in different schema versions)", reader.getLocation());
+            }
+            storageId = objType.getStorageId();
+        }
+        if (storageId == -1) {
+            throw new XMLStreamException("invalid object type `" + attr + "' in generated object ID `"
+              + text + "': no such object type found in any schema version", reader.getLocation());
+        }
+        return storageId;
+    }
+
+    // Parse a generated ID type found in an object definition
+    private ObjType parseGeneratedType(XMLStreamReader reader, String text, String attr, SchemaVersion schemaVersion)
+      throws XMLStreamException {
+
+        // Try object type name
+        final NameIndex nameIndex = this.nameIndexMap.get(schemaVersion.getVersionNumber());
+        final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(attr);
+        if (schemaObjectType != null)
+            return schemaVersion.getObjType(schemaObjectType.getStorageId());
+
+        // Try storage ID
+        final int storageId;
+        try {
+            storageId = Integer.parseInt(attr);
+        } catch (IllegalArgumentException e) {
+            throw new XMLStreamException("invalid object type `" + attr + "' in generated object ID `"
+              + text + "': no such object type found in schema version " + schemaVersion.getVersionNumber(), reader.getLocation());
+        }
+        try {
+            return schemaVersion.getObjType(storageId);
+        } catch (UnknownTypeException e) {
+            throw new XMLStreamException("invalid storage ID " + storageId + " in generated object ID `"
+              + text + "': no such object type found in schema version " + schemaVersion.getVersionNumber(), reader.getLocation());
+        }
+    }
+
     private void writeOpenTag(XMLStreamWriter writer, boolean empty, QName element, int storageId, ObjId id, int version)
       throws XMLStreamException {
         if (empty)
@@ -625,9 +725,13 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         else
             writer.writeStartElement(element.getNamespaceURI(), element.getLocalPart());
         if (storageId != -1)
-            writer.writeAttribute(STORAGE_ID_ATTR.getNamespaceURI(), STORAGE_ID_ATTR.getLocalPart(), "" + storageId);
-        writer.writeAttribute(ID_ATTR.getNamespaceURI(), ID_ATTR.getLocalPart(), id.toString());
-        writer.writeAttribute(VERSION_ATTR.getNamespaceURI(), VERSION_ATTR.getLocalPart(), "" + version);
+            this.writeAttribute(writer, STORAGE_ID_ATTR, storageId);
+        this.writeAttribute(writer, ID_ATTR, id);
+        this.writeAttribute(writer, VERSION_ATTR, version);
+    }
+
+    private void writeAttribute(XMLStreamWriter writer, QName attr, Object value) throws XMLStreamException {
+        writer.writeAttribute(attr.getNamespaceURI(), attr.getLocalPart(), "" + value);
     }
 
     private QName next(XMLStreamReader reader) throws XMLStreamException {
@@ -639,6 +743,16 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 return null;
             if (eventType == XMLStreamConstants.START_ELEMENT)
                 return reader.getName();
+        }
+    }
+
+// NameComparator
+
+    private static class NameComparator implements Comparator<SchemaItem> {
+
+        @Override
+        public int compare(SchemaItem item1, SchemaItem item2) {
+            return item1.getName().compareTo(item2.getName());
         }
     }
 }
