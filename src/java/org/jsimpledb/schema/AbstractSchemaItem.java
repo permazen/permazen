@@ -7,6 +7,7 @@
 
 package org.jsimpledb.schema;
 
+import java.util.Comparator;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -207,6 +208,16 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
             return (AbstractSchemaItem)super.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+// NameComparator
+
+    static class NameComparator implements Comparator<AbstractSchemaItem> {
+
+        @Override
+        public int compare(AbstractSchemaItem item1, AbstractSchemaItem item2) {
+            return item1.getName().compareTo(item2.getName());
         }
     }
 }
