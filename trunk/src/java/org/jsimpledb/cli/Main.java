@@ -72,7 +72,6 @@ public class Main extends AbstractMain {
 
         // Register built-in commands and functions
         this.scanCommandClasses(Command.class.getPackage().getName());
-        this.scanFunctionClasses(Function.class.getPackage().getName());
         this.scanFunctionClasses(SimpleCliFunction.class.getPackage().getName());
 
         // Parse command line
@@ -144,6 +143,7 @@ public class Main extends AbstractMain {
         session.setSchemaModel(schemaModel);
         session.setSchemaVersion(this.schemaVersion);
         session.setAllowNewSchema(this.allowNewSchema);
+        session.registerStandardFunctions();
         try {
             for (Class<?> cl : this.commandClasses) {
                 final Command annotation = cl.getAnnotation(Command.class);

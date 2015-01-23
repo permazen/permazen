@@ -20,6 +20,8 @@ import org.jsimpledb.core.Database;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.func.AbstractFunction;
+import org.jsimpledb.parse.func.Function;
+import org.jsimpledb.spring.AnnotatedClassScanner;
 
 /**
  * A {@link Session} with support for parsing Java expressions.
@@ -82,6 +84,21 @@ public class ParseSession extends Session {
     }
 
 // Function registration
+
+    /**
+     * Register the standard built-in functions such as {@code all()}, {@code foreach()}, etc.
+     */
+    public void registerStandardFunctions() {
+        for (String className : new AnnotatedClassScanner(Function.class).scanForClasses(Function.class.getPackage().getName())) {
+            final Class<?> cl;
+            try {
+                cl = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("failed to load class `" + className + "'", e);
+            }
+            this.registerFunction(cl);
+        }
+    }
 
     /**
      * Create an instance of the specified class and register it as an {@link AbstractFunction}.

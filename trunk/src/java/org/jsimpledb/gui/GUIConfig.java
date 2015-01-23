@@ -46,7 +46,9 @@ public interface GUIConfig {
 
     /**
      * Get any custom {@link org.jsimpledb.parse.func.AbstractFunction} classes.
+     *
+     * @return custom function classes, or null for none
      */
-    Iterable<Class<?>> getFunctionClasses();
+    Iterable<? extends Class<?>> getFunctionClasses();
 }
 
