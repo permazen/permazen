@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -244,7 +246,9 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         writer.writeStartElement(SCHEMA_MODEL_TAG.getNamespaceURI(), SCHEMA_MODEL_TAG.getLocalPart());
         writer.writeAttribute(FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
           FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + CURRENT_FORMAT_VERSION);
-        for (SchemaObjectType schemaObjectType : this.schemaObjectTypes.values())
+        final ArrayList<SchemaObjectType> typeList = new ArrayList<>(this.schemaObjectTypes.values());
+        Collections.sort(typeList, new AbstractSchemaItem.NameComparator());
+        for (SchemaObjectType schemaObjectType : typeList)
             schemaObjectType.writeXML(writer);
         writer.writeEndElement();
     }
@@ -260,7 +264,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
             throw new RuntimeException(e);
         }
         return new String(buf.toByteArray(), Charset.forName("UTF-8"))
-          .replaceAll("(?s)<\\?xml version=\"1\\.0\" encoding=\"UTF-8\"\\?>\n", "");
+          .replaceAll("(?s)<\\?xml version=\"1\\.0\" encoding=\"UTF-8\"\\?>\n", "").trim();
     }
 
     @Override

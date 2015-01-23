@@ -7,6 +7,8 @@
 
 package org.jsimpledb.schema;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,9 +125,13 @@ public class SchemaObjectType extends AbstractSchemaItem {
         }
         writer.writeStartElement(OBJECT_TYPE_TAG.getNamespaceURI(), OBJECT_TYPE_TAG.getLocalPart());
         this.writeAttributes(writer);
-        for (SchemaField schemaField : this.schemaFields.values())
+        final ArrayList<SchemaField> fieldList = new ArrayList<>(this.schemaFields.values());
+        Collections.sort(fieldList, new AbstractSchemaItem.NameComparator());
+        for (SchemaField schemaField : fieldList)
             schemaField.writeXML(writer);
-        for (SchemaCompositeIndex schemaCompositeIndex : this.schemaCompositeIndexes.values())
+        final ArrayList<SchemaCompositeIndex> indexList = new ArrayList<>(this.schemaCompositeIndexes.values());
+        Collections.sort(indexList, new AbstractSchemaItem.NameComparator());
+        for (SchemaCompositeIndex schemaCompositeIndex : indexList)
             schemaCompositeIndex.writeXML(writer);
         writer.writeEndElement();
     }
