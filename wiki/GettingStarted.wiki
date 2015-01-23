@@ -20,14 +20,16 @@ or from the [http://ivyroundup.googlecode.com/ Ivy RoundUp] ivy repository:
 
 Creating and configuring a JSimpleDB database requires these steps:
  # Configure your underlying key/value store
- # Create a `Database` instance on top of the key/value store
- # Create a `JSimpleDB` instance using the `Database` from step 2 and your annotated classes
+ # Gather your Java model classes
+ # Create a `JSimpleDB` instance
 
-If you are using Spring you can do this all in XML using JSimpleDB's `<jsimpledb:scan-classpath>` custom XML tag. This works just like Spring's `<context:component-scan>`, except instead of scanning for classes annotated with `@Component`, etc., it scans for classes annotated with `@JSimpleClass` or `@JFieldType`.
+If you are using Spring you can do this all in XML using JSimpleDB's `<jsimpledb:jsimpledb>` custom XML tag.
+
+Inside the `<jsimpledb:jsimpledb>` is a `<jsimpledb:scan-classes>` tag, which works just like Spring's `<context:component-scan>`, except instead of scanning for classes annotated with `@Component`, etc., it scans for classes annotated with `@JSimpleClass`.
 
 JSimpleDB also provides a Spring `TransactionManager` so you can do all the normal Spring things like `@Transactional`, transaction synchronizations, etc.
 
-Here's an example setup with Spring that uses a simple flat file for persistence:
+Here's an example of a setup that uses a simple XML flat file for persistence:
 
 <code language="xml">
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -42,12 +44,12 @@ Here's an example setup with Spring that uses a simple flat file for persistence
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
  
     <!-- Define the underlying key/value store -->
-    <bean id="kvstore" class="org.jsimpledb.kv.simple.XMLKVDatabase" c:file="${user.home}/jsimpledb.xml"/>
+    <bean id="kvstore" class="org.jsimpledb.kv.simple.XMLKVDatabase" c:file="/tmp/jsimpledb.xml"/>
  
     <!-- Define the JSimpleDB database on top of that -->
-    <jsimpledb:jsimpledb id="jsimpledb" kvstore="kvstore" schema-version="1">
-        <jsimpledb:scan-classes base-package="com.example.myapp.model"/>
-    </jsimpledb:jsimpledb>
+    <jsimpledb:jsimpledb id="jsimpledb" kvstore="kvstore" schema-version="1"> 
+        <jsimpledb:scan-classes base-package="com.example.myapp.model"/> 
+    </jsimpledb:jsimpledb> 
  
     <!-- Create a Spring transaction manager -->
     <bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
@@ -106,6 +108,7 @@ Here's a complete example using normal Java code that uses a flat file `jsimpled
 <code language="java">
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.NavigableSet;
 import java.util.NavigableMap;
 import java.util.Set;
@@ -125,7 +128,7 @@ public class JSimpleDBExample {
  
         // Create database
         final JSimpleDB jdb = new JSimpleDBFactory()
-          .setDatabase(new Database(new XMLKVDatabase(new File("/jsimpledb.xml"))))
+          .setDatabase(new Database(new XMLKVDatabase(new File("jsimpledb.xml"))))
           .setSchemaVersion(1)
           .setModelClasses(Person.class)
           .newJSimpleDB();
@@ -178,7 +181,7 @@ public class JSimpleDBExample {
         }
     }
  
-// Persistent Classes
+// Model Classes
  
     @JSimpleClass
     public abstract static class Person implements JObject {
@@ -196,8 +199,9 @@ public class JSimpleDBExample {
  
         // Inverse of friends
         public Set<Person> getFriendsToMe() {
-            return this.getTransaction().queryIndex(
+            Set<Person> set = this.getTransaction().queryIndex(
               Person.class, "friends.element", Person.class).asMap().get(this);
+            return set != null ? set : Collections.<Person>emptySet();
         }
  
         @Override
@@ -219,7 +223,7 @@ public class JSimpleDBExample {
             return JTransaction.getCurrent().create(Person.class);
         }
  
-        public static Set<Person> getAll() {
+        public static NavigableSet<Person> getAll() {
             return JTransaction.getCurrent().getAll(Person.class);
         }
     }
