@@ -12,7 +12,6 @@ import org.jsimpledb.kv.KVDatabase;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -37,39 +36,36 @@ class JSimpleDBBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
         // Get KVDatabase bean name
-        final Attr kvstoreAttr = element.getAttributeNodeNS(null, KVSTORE_ATTRIBUTE);
-        if (kvstoreAttr == null) {
+        if (!element.hasAttribute(KVSTORE_ATTRIBUTE)) {
             parserContext.getReaderContext().fatal("<" + element.getTagName() + "> beans must have a \""
               + KVSTORE_ATTRIBUTE + "\" attribute containing the name of a bean of type " + KVDatabase.class.getName(),
               parserContext.extractSource(element));
             return;
         }
-        builder.addPropertyReference("KVStore", kvstoreAttr.getValue());
+        builder.addPropertyReference("KVStore", element.getAttribute(KVSTORE_ATTRIBUTE));
 
         // Get schema version
-        final Attr versionAttr = element.getAttributeNodeNS(null, SCHEMA_VERSION_ATTRIBUTE);
-        if (versionAttr == null) {
+        if (!element.hasAttribute(SCHEMA_VERSION_ATTRIBUTE)) {
             parserContext.getReaderContext().fatal("<" + element.getTagName() + "> beans must have a \""
               + SCHEMA_VERSION_ATTRIBUTE + "\" attribute containing the database schema version",
               parserContext.extractSource(element));
             return;
         }
-        builder.addPropertyValue("schemaVersion", versionAttr.getValue());
+        builder.addPropertyValue("schemaVersion", element.getAttribute(SCHEMA_VERSION_ATTRIBUTE));
 
         // Get storage ID generator bean name (optional)
-        final Attr storageIdGeneratorAttr = element.getAttributeNodeNS(null, STORAGE_ID_GENERATOR_ATTRIBUTE);
-        final Attr autogenStorageIdsAttr = element.getAttributeNodeNS(null, AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE);
-        final boolean autogenStorageIds = autogenStorageIdsAttr == null || !Boolean.valueOf(autogenStorageIdsAttr.getValue());
+        final boolean autogenStorageIds = !element.hasAttribute(AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE)
+          || Boolean.valueOf(element.getAttribute(AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE));
         if (!autogenStorageIds)
             builder.addPropertyValue("storageIdGenerator", null);
-        if (storageIdGeneratorAttr != null) {
+        if (element.hasAttribute(STORAGE_ID_GENERATOR_ATTRIBUTE)) {
             if (!autogenStorageIds) {
                 parserContext.getReaderContext().fatal("<" + element.getTagName() + "> cannot have a `"
                   + STORAGE_ID_GENERATOR_ATTRIBUTE + "' attribute and " + AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE + "=\"false\"",
                   parserContext.extractSource(element));
                 return;
             }
-            builder.addPropertyReference("storageIdGenerator", storageIdGeneratorAttr.getValue());
+            builder.addPropertyReference("storageIdGenerator", element.getAttribute(STORAGE_ID_GENERATOR_ATTRIBUTE));
         }
 
         // Construct JSimpleDBFactoryBean bean definition
