@@ -24,6 +24,7 @@ import org.jsimpledb.JSimpleDBFactory;
 import org.jsimpledb.annotation.JFieldType;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
+import org.jsimpledb.demo.Planet;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
@@ -80,7 +81,8 @@ public abstract class AbstractMain extends MainClass {
             else if (option.equals("-cp") || option.equals("--classpath")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.appendClasspath(params.removeFirst());
+                if (!this.appendClasspath(params.removeFirst()))
+                    return 1;
             } else if (option.equals("-v") || option.equals("--verbose"))
                 this.verbose = true;
             else if (option.equals("--version")) {
@@ -95,21 +97,27 @@ public abstract class AbstractMain extends MainClass {
                     System.err.println(this.getName() + ": invalid schema version `" + vstring + "': " + e.getMessage());
                     return 1;
                 }
-            } else if (option.equals("--schema-pkg")) {
-                if (params.isEmpty())
-                    this.usageError();
-                this.scanSchemaClasses(params.removeFirst());
-                this.allowAutoDemo = false;
-            } else if (option.equals("--types-pkg")) {
-                if (params.isEmpty())
-                    this.usageError();
-                this.scanTypeClasses(params.removeFirst());
-            } else if (option.equals("-p") || option.equals("--scan-pkg")) {
+            } else if (option.equals("--model-pkg")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String packageName = params.removeFirst();
-                this.scanSchemaClasses(packageName);
-                this.scanTypeClasses(packageName);
+                if (this.scanModelClasses(packageName) == 0)
+                    this.log.warn("no Java model classes found under package `" + packageName + "'");
+                this.allowAutoDemo = false;
+            } else if (option.equals("--type-pkg")) {
+                if (params.isEmpty())
+                    this.usageError();
+                final String packageName = params.removeFirst();
+                if (this.scanTypeClasses(packageName) == 0)
+                    this.log.warn("no custom FieldType classes found under package `" + packageName + "'");
+            } else if (option.equals("-p") || option.equals("--pkg")) {
+                if (params.isEmpty())
+                    this.usageError();
+                final String packageName = params.removeFirst();
+                final int numModelClasses = this.scanModelClasses(packageName);
+                final int numTypeClasses = this.scanTypeClasses(packageName);
+                if (numModelClasses + numTypeClasses == 0)
+                    this.log.warn("no Java model or custom FieldType classes found under package `" + packageName + "'");
                 this.allowAutoDemo = false;
             } else if (option.equals("--new-schema")) {
                 this.allowNewSchema = true;
@@ -227,13 +235,14 @@ public abstract class AbstractMain extends MainClass {
         this.appendClasspath(DEMO_SUBDIR.toString());
 
         // Scan classes
-        this.scanSchemaClasses("org.jsimpledb.demo");
+        this.scanModelClasses(Planet.class.getPackage().getName());
     }
 
     /**
-     * Append a path to the classpath.
+     * Append path(s) to the classpath.
      */
     protected boolean appendClasspath(String path) {
+        this.log.trace("adding classpath `" + path + "' to system classpath");
         try {
 
             // Get URLClassLoader.addURL() method and make accessible
@@ -241,26 +250,32 @@ public abstract class AbstractMain extends MainClass {
             addURLMethod.setAccessible(true);
 
             // Split path and add components
-            for (String file : path.split(System.getProperty("file.separator", ":"))) {
+            for (String file : path.split(System.getProperty("path.separator", ":"))) {
                 if (file.length() == 0)
                     continue;
                 addURLMethod.invoke(ClassLoader.getSystemClassLoader(), new Object[] { new File(file).toURI().toURL() });
+                this.log.trace("added path component `" + file + "' to system classpath");
             }
             return true;
         } catch (Exception e) {
-            System.err.println(this.getName() + ": can't append `" + path + " to classpath: " + e);
+            this.log.error("can't append `" + path + " to classpath: " + e, e);
             return false;
         }
     }
 
-    private void scanSchemaClasses(String pkgname) {
+    private int scanModelClasses(String pkgname) {
         if (this.schemaClasses == null)
             this.schemaClasses = new HashSet<>();
-        for (String className : new JSimpleDBClassScanner().scanForClasses(pkgname.split("[\\s,]")))
+        int count = 0;
+        for (String className : new JSimpleDBClassScanner().scanForClasses(pkgname.split("[\\s,]"))) {
+            this.log.debug("loading Java model class " + className);
             this.schemaClasses.add(this.loadClass(className));
+            count++;
+        }
+        return count;
     }
 
-    private void scanTypeClasses(String pkgname) {
+    private int scanTypeClasses(String pkgname) {
 
         // Check types of annotated classes as we scan them
         final Function<Class<?>, Class<? extends FieldType<?>>> checkFunction
@@ -280,8 +295,13 @@ public abstract class AbstractMain extends MainClass {
         // Scan classes
         if (this.fieldTypeClasses == null)
             this.fieldTypeClasses = new HashSet<>();
-        for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]")))
+        int count = 0;
+        for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]"))) {
+            this.log.debug("loading custom FieldType class " + className);
             this.fieldTypeClasses.add(checkFunction.apply(this.loadClass(className)));
+            count++;
+        }
+        return count;
     }
 
     /**
@@ -365,16 +385,16 @@ public abstract class AbstractMain extends MainClass {
             { "--fdb file",                 "Use FoundationDB with specified cluster file" },
             { "--bdb directory",            "Use Berkeley DB Java Edition in specified directory" },
             { "--bdb-database",             "Specify Berkeley DB database name (default `"
-                                              + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "'" },
+                                              + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },
             { "--mem",                      "Use an empty in-memory database (default)" },
             { "--prefix prefix",            "FoundationDB key prefix (hex or string)" },
             { "-ro, --read-only",           "Disallow database modifications" },
             { "--new-schema",               "Allow recording of a new database schema version" },
             { "--xml file",                 "Use the specified XML flat file database" },
             { "--version num",              "Specify database schema version (default highest recorded)" },
-            { "--schema-pkg package",       "Scan for @JSimpleClass types under Java package to build schema (=> JSimpleDB mode)" },
-            { "--types-pkg package",        "Scan for @JFieldType types under Java package to register custom types" },
-            { "-p, --scan-pkg package",     "Equivalent to `--schema-pkg package --types-pkg package'" },
+            { "--model-pkg package",        "Scan for @JSimpleClass model classes under Java package (=> JSimpleDB mode)" },
+            { "--type-pkg package",         "Scan for @JFieldType types under Java package to register custom types" },
+            { "-p, --pkg package",          "Equivalent to `--model-pkg package --type-pkg package'" },
             { "-h, --help",                 "Show this help message" },
             { "-v, --verbose",              "Show verbose error messages" },
         };

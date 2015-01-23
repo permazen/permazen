@@ -58,7 +58,7 @@ public class Main extends AbstractMain implements GUIConfig {
             if (params.isEmpty())
                 this.usageError();
             this.port = Integer.parseInt(params.removeFirst());
-        } else if (option.equals("--funcpkg")) {
+        } else if (option.equals("--func-pkg")) {
             if (params.isEmpty())
                 this.usageError();
             this.scanFunctionClasses(params.removeFirst());
@@ -94,7 +94,7 @@ public class Main extends AbstractMain implements GUIConfig {
             return 1;
         }
         if (this.schemaClasses == null) {
-            System.err.println(this.getName() + ": no schema classes defined; please specify using `--schema-pkg'");
+            System.err.println(this.getName() + ": no schema classes defined; please specify using `--pkg'");
             return 1;
         }
 
@@ -191,10 +191,10 @@ public class Main extends AbstractMain implements GUIConfig {
     @Override
     protected void usageMessage() {
         System.err.println("Usage:");
-        System.err.println("  " + this.getName() + " --schema-pkg package [options]");
+        System.err.println("  " + this.getName() + " --pkg package [options]");
         System.err.println("Options:");
         this.outputFlags(new String[][] {
-          { "--funcpkg package",    "Register @Function-annotated classes found under the specified Java package" },
+          { "--func-pkg package",   "Register @Function-annotated classes found under the specified Java package" },
           { "--port port",          "Specify HTTP port (default " + DEFAULT_HTTP_PORT + ")" },
           { "--root directory",     "Specify GUI install directory" },
         });
