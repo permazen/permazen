@@ -48,7 +48,7 @@
  *
  *     &lt;!-- Register some custom field types (this would only be required if you define custom field types) --&gt;
  *     &lt;bean id="fieldTypeRegistry" factory-bean="database" factory-method="getFieldTypeRegistry"/&gt;
- *     &lt;bean id="registerCustomFieldTypes" factory-instance="fieldTypeRegistry" factory-method="addClasses"&gt;
+ *     &lt;bean id="registerCustomFieldTypes" factory-bean="fieldTypeRegistry" factory-method="addClasses"&gt;
  *         &lt;constructor-arg&gt;
  *             &lt;<b>jsimpledb:scan-field-types</b> base-package="com.example.myapp.fieldtype"/&gt;
  *         &lt;/constructor-arg&gt;
