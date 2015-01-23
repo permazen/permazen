@@ -138,9 +138,9 @@
  *         &lt;<b>jsimpledb:scan-field-types</b> base-package="com.example.myapp.fieldtype"/&gt;
  *     &lt;/<b>jsimpledb:jsimpledb</b>&gt;
  *
- *     &lt;!-- Create a transaction manager --&gt;
+ *     &lt;!-- Create a JSimpleDB transaction manager --&gt;
  *     &lt;bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
- *       p:JSimpleDB-ref="jsimpledb"/&gt;
+ *       p:JSimpleDB-ref="jsimpledb" p:allowNewSchema="true"/&gt;
  *
  *     &lt;!-- Enable @Transactional annotations --&gt;
  *     &lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;
