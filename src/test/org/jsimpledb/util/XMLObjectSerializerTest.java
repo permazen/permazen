@@ -50,6 +50,7 @@ public class XMLObjectSerializerTest extends TestSupport {
           + "    <ReferenceField name=\"r\" storageId=\"11\"/>\n"
           + "    <SimpleField name=\"v\" type=\"java.lang.Void\" storageId=\"12\"/>\n"
           + "    <SimpleField name=\"date\" type=\"java.util.Date\" storageId=\"13\"/>\n"
+          + "    <ReferenceField name=\"r2\" storageId=\"14\"/>\n"
           + "  </ObjectType>\n"
           + "</Schema>\n"
           ).getBytes("UTF-8")));
@@ -71,6 +72,7 @@ public class XMLObjectSerializerTest extends TestSupport {
         tx.writeSimpleField(id1, 11, id1, false);
         tx.writeSimpleField(id1, 12, null, false);      // default value
         tx.writeSimpleField(id1, 13, new Date(1399604568000L), false);
+        tx.writeSimpleField(id1, 14, null, false);
 
         XMLObjectSerializer s1 = new XMLObjectSerializer(tx);
 
@@ -92,7 +94,7 @@ public class XMLObjectSerializerTest extends TestSupport {
           + "        <SimpleField type=\"int\" storageId=\"22\"/>\n"
           + "    </SetField>"
           + "    <ListField name=\"list\" storageId=\"23\">\n"
-          + "        <SimpleField type=\"int\" storageId=\"24\"/>\n"
+          + "        <SimpleField type=\"java.lang.Integer\" storageId=\"24\"/>\n"
           + "    </ListField>"
           + "    <MapField name=\"map\" storageId=\"25\">\n"
           + "        <SimpleField type=\"int\" storageId=\"26\"/>\n"
@@ -116,11 +118,13 @@ public class XMLObjectSerializerTest extends TestSupport {
 
         List<Integer> list = (List<Integer>)tx.readListField(id2, 23, false);
         list.add(789);
+        list.add(null);
         list.add(101112);
 
         Map<Integer, String> map = (Map<Integer, String>)tx.readMapField(id2, 25, false);
         map.put(55, "fifty\nfive");
         map.put(73, "seventy three");
+        map.put(99, null);
 
         XMLObjectSerializer s2 = new XMLObjectSerializer(tx);
 
