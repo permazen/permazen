@@ -27,20 +27,20 @@ public class JSimpleDBFactory {
     private Database database;
     private int schemaVersion;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
-    private Iterable<? extends Class<?>> classes;
+    private Iterable<? extends Class<?>> modelClasses;
 
     /**
      * Configure the Java model classes.
      *
      * <p>
      * Note: {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated super-types of any
-     * class in {@code classes} will be included, even if the super-type is not explicitly specified in {@code classes}.
+     * class in {@code modelClasses} will be included, even if the super-type is not explicitly specified in {@code modelClasses}.
      * </p>
      *
-     * @param classes classes annotated with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations
+     * @param modelClasses classes annotated with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations
      */
-    public JSimpleDBFactory setModelClasses(Iterable<? extends Class<?>> classes) {
-        this.classes = classes;
+    public JSimpleDBFactory setModelClasses(Iterable<? extends Class<?>> modelClasses) {
+        this.modelClasses = modelClasses;
         return this;
     }
 
@@ -48,14 +48,14 @@ public class JSimpleDBFactory {
      * Configure the Java model classes.
      *
      * <p>
-     * Equivalent to {@link #setModelClasses(Iterable) setModelClasses}{@code (Arrays.asList(classes))}.
+     * Equivalent to {@link #setModelClasses(Iterable) setModelClasses}{@code (Arrays.asList(modelClasses))}.
      * </p>
      *
-     * @param classes classes annotated with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations
+     * @param modelClasses classes annotated with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations
      * @see #setModelClasses(Iterable)
      */
-    public JSimpleDBFactory setModelClasses(Class<?>... classes) {
-        return this.setModelClasses(Arrays.asList(classes));
+    public JSimpleDBFactory setModelClasses(Class<?>... modelClasses) {
+        return this.setModelClasses(Arrays.asList(modelClasses));
     }
 
     /**
@@ -120,7 +120,7 @@ public class JSimpleDBFactory {
             if (schemaVersion1 == 0)
                 schemaVersion1 = 1;
         }
-        return new JSimpleDB(database1, schemaVersion1, this.storageIdGenerator, this.classes);
+        return new JSimpleDB(database1, schemaVersion1, this.storageIdGenerator, this.modelClasses);
     }
 }
 

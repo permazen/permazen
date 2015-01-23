@@ -8,13 +8,13 @@
 /**
  * Spring Framework integration classes.
  *
+ * <p><b>Overview</b></p>
+ *
  * <p>
- * This package provides the following features to facilitate use with Spring:
+ * This package provides the following features to facilitate use with
+ * <a href="http://projects.spring.io/spring-framework/">Spring</a>:
  * <ul>
- *  <li>The {@code <jsimpledb:scan-classes>} XML tag, which works just like Spring's {@code <context:component-scan>}
- *      to find {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated classes.</li>
- *  <li>The {@code <jsimpledb:scan-field-types>} XML tag, which works just like Spring's {@code <context:component-scan>}
- *      to find {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType}-annotated classes.</li>
+ *  <li>Custom XML tags for Spring declarative XML (see below)</li>
  *  <li>A Spring {@link org.springframework.transaction.PlatformTransactionManager PlatformTransactionManager} that integrates
  *      into Spring's transaction infrastructure and enables the
  *      {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation for
@@ -26,8 +26,91 @@
  * </ul>
  * </p>
  *
+ * <p><b>JSimpleDB XML Tags</b></p>
+ *
  * <p>
- * An example Spring XML configuration that uses an in-memory key/value store:
+ * JSimpleDB makes available the following XML tags to Spring declarative XML. All elements live in the
+ * {@code http://jsimpledb.googlecode.com/schema/jsimpledb} XML namespace:
+ * </p>
+ *
+ * <p>
+ * <div style="margin-left: 20px;">
+ * <table border="1" cellpadding="3" cellspacing="0">
+ * <tr bgcolor="#ccffcc">
+ *  <th align="left">Element</th>
+ *  <th align="left">Description</th>
+ * </tr>
+ * <tr>
+ *  <td>{@code <jsimpledb:scan-classes>}</td>
+ *  <td>Works just like Spring's {@code <context:component-scan>} but finds
+ *      {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated Java model classes.
+ *      Returns the classes found in a {@link java.util.List}.</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code <jsimpledb:scan-field-types>}</td>
+ *  <td>Works just like Spring's {@code <context:component-scan>} but finds
+ *      {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType}-annotated custom {@link org.jsimpledb.core.FieldType} classes.
+ *      Returns the classes found in a {@link java.util.List}.</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code <jsimpledb:jsimpledb>}</td>
+ *  <td>Simplifies defining and configuring a {@link org.jsimpledb.JSimpleDB} database.</td>
+ * </tr>
+ * </table>
+ * </div>
+ * </p>
+ *
+ * <p>
+ * The {@code <jsimpledb:jsimpledb>} element requires a nested {@code <jsimpledb:scan-classes>} element to configure
+ * the Java model classes. A nested {@code <jsimpledb:scan-field-types>} may also be included.
+ * The {@code <jsimpledb:jsimpledb>} element supports the following attributes:
+ * </p>
+ *
+ * <p>
+ * <div style="margin-left: 20px;">
+ * <table border="1" cellpadding="3" cellspacing="0">
+ * <tr bgcolor="#ccffcc">
+ *  <th align="left">Attribute</th>
+ *  <th align="left">Type</th>
+ *  <th align="left">Required?</th>
+ *  <th align="left">Description</th>
+ * </tr>
+ * <tr>
+ *  <td>{@code kvstore}</td>
+ *  <td>Bean reference</td>
+ *  <td>Yes</td>
+ *  <td>The underlying key/value store database. This should be the name of a Spring bean that implements
+ *      the {@link org.jsimpledb.kv.KVDatabase} interface</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code schema-version}</td>
+ *  <td>Integer</td>
+ *  <td>No</td>
+ *  <td>The schema version corresponding to the configured Java model classes. A value of zero (the default)
+ *      means to use whatever is the highest schema version already recorded in the database.</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code storage-id-generator}</td>
+ *  <td>Bean reference</td>
+ *  <td>No</td>
+ *  <td>To use a custom {@link org.jsimpledb.StorageIdGenerator}, specify the name of a Spring bean that
+ *      implements the {@link org.jsimpledb.StorageIdGenerator} interface. By default, a
+ *      {@link org.jsimpledb.DefaultStorageIdGenerator} is used. If this attribute is set, then
+ *      {@code auto-generate-storage-ids} must not be set to false.</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code auto-generate-storage-ids}</td>
+ *  <td>Boolean</td>
+ *  <td>No</td>
+ *  <td>Whether to auto-generate storage ID's. Default is true</td>
+ * </tr>
+ * </table>
+ * </div>
+ * </p>
+ *
+ * <p>
+ * An example Spring XML configuration using an in-memory key/value store and supporting Spring's
+ * {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation:
  * <pre>
  * &lt;beans xmlns="http://www.springframework.org/schema/beans"
  *   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -43,33 +126,24 @@
  *     &lt;!-- Define the underlying key/value database --&gt;
  *     &lt;bean id="kvdb" class="org.jsimpledb.kv.simple.SimpleKVDatabase" p:waitTimeout="5000" p:holdTimeout="10000"/&gt;
  *
- *     &lt;!-- Define the core Database layer on top of that --&gt;
- *     &lt;bean id="database" class="org.jsimpledb.core.Database" c:kvdb-ref="kvdb"/&gt;
+ *     &lt;!-- Define the JSimpleDB database on top of that --&gt;
+ *     &lt;<b>jsimpledb:jsimpledb</b> id="jsimpledb" kvstore="kvdb" schema-version="1"&gt;
  *
- *     &lt;!-- Register some custom field types (this would only be required if you define custom field types) --&gt;
- *     &lt;bean id="fieldTypeRegistry" factory-bean="database" factory-method="getFieldTypeRegistry"/&gt;
- *     &lt;bean id="registerCustomFieldTypes" factory-bean="fieldTypeRegistry" factory-method="addClasses"&gt;
- *         &lt;constructor-arg&gt;
- *             &lt;<b>jsimpledb:scan-field-types</b> base-package="com.example.myapp.fieldtype"/&gt;
- *         &lt;/constructor-arg&gt;
- *     &lt;/bean&gt;
+ *         &lt;!-- These are our Java model classes --&gt;
+ *         &lt;<b>jsimpledb:scan-classes</b> base-package="com.example.myapp"&gt;
+ *             &lt;<b>jsimpledb:exclude-filter</b> type="regex" expression="com\.example\.myapp\.test\..*"/&gt;
+ *         &lt;/<b>jsimpledb:scan-classes</b>&gt;
  *
- *     &lt;!-- Define the Java "JSimpleDB" on top of the core database --&gt;
- *     &lt;bean id="jsimpledb" depends-on="registerCustomFieldTypes"
- *       class="org.jsimpledb.JSimpleDB" c:database-ref="database" c:version="1"&gt;
- *         &lt;constructor-arg&gt;
- *             &lt;<b>jsimpledb:scan-classes</b> base-package="com.example.myapp"&gt;
- *                 &lt;<b>jsimpledb:exclude-filter</b> type="regex" expression="com\.example\.myapp\.test\..*"/&gt;
- *             &lt;/<b>jsimpledb:scan-classes</b>&gt;
- *         &lt;/constructor-arg&gt;
- *     &lt;/bean&gt;
+ *         &lt;!-- We have some custom FieldType's here too --&gt;
+ *         &lt;<b>jsimpledb:scan-field-types</b> base-package="com.example.myapp.fieldtype"/&gt;
+ *     &lt;/<b>jsimpledb:jsimpledb</b>&gt;
  *
  *     &lt;!-- Create a transaction manager --&gt;
- *     <b>&lt;bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
- *       p:JSimpleDB-ref="jsimpledb"/&gt;</b>
+ *     &lt;bean id="transactionManager" class="org.jsimpledb.spring.JSimpleDBTransactionManager"
+ *       p:JSimpleDB-ref="jsimpledb"/&gt;
  *
  *     &lt;!-- Enable @Transactional annotations --&gt;
- *     <b>&lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;</b>
+ *     &lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;
  *
  * &lt;/beans&gt;
  * </pre>
