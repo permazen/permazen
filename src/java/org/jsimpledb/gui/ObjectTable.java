@@ -73,7 +73,7 @@ public class ObjectTable extends AbstractTable<JObjectContainer> {
                 width = 80;
                 break;
             case JObjectContainer.VERSION_PROPERTY:
-                title = "Version";
+                title = "Schema Version";
                 width = 40;
                 showField = false;
                 break;

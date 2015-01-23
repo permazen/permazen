@@ -15,6 +15,7 @@ import com.vaadin.shared.ui.label.ContentMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
@@ -90,6 +91,12 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
             if (topType.isAssignableFrom(jclass.getType()))
                 nodes.add(new Node(jclass));
         }
+        Collections.sort(nodes, new Comparator<Node>() {
+            @Override
+            public int compare(Node node1, Node node2) {
+                return node1.propertyName().compareTo(node2.propertyName());
+            }
+        });
 
         // Determine parents by inspecting Java types
         for (Node node1 : nodes) {
