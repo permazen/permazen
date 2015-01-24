@@ -87,7 +87,9 @@ public class JSimpleDB {
     final TreeMap<Integer, JFieldInfo> jfieldInfos = new TreeMap<>();
     final TreeMap<Integer, JCompositeIndexInfo> jcompositeIndexInfos = new TreeMap<>();
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
-    final ClassGenerator<UntypedJObject> untypedClassGenerator = new ClassGenerator<UntypedJObject>(UntypedJObject.class);
+    final ClassGenerator<UntypedJObject> untypedClassGenerator;
+    final ArrayList<ClassGenerator<?>> classGenerators;
+    final ClassLoader loader;
     final Database db;
     final int configuredVersion;
     final StorageIdGenerator storageIdGenerator;
@@ -192,6 +194,39 @@ public class JSimpleDB {
             } while ((type = type.getSuperclass()) != null);
         }
 
+        // Set up class loader
+        final ClassLoader parentLoader = jsimpleClasses.isEmpty() ?
+          jsimpleClasses.iterator().next().getClassLoader() : Thread.currentThread().getContextClassLoader();
+        this.loader = new ClassLoader(parentLoader) {
+            @Override
+            protected Class<?> findClass(String name) throws ClassNotFoundException {
+
+                // Normalize name
+                final String slashName = name.replace('.', '/');
+
+                // Find matching genearator
+                byte[] bytes = null;
+                for (ClassGenerator<?> generator : JSimpleDB.this.classGenerators) {
+                    if (slashName.equals(generator.getClassName())) {
+                        bytes = generator.generateBytecode();
+                        break;
+                    }
+                    if (slashName.equals(generator.getSnapshotClassName())) {
+                        bytes = generator.generateSnapshotBytecode();
+                        break;
+                    }
+                }
+                if (bytes == null)
+                    return super.findClass(name);
+
+                // Define class
+                JSimpleDB.this.log.debug("generating class " + name);
+                final Class<?> c = this.defineClass(null, bytes, 0, bytes.length);
+                JSimpleDB.this.log.debug("done generating class " + name);
+                return c;
+            }
+        };
+
         // Add Java model classes
         for (Class<?> type : jsimpleClasses) {
 
@@ -221,6 +256,13 @@ public class JSimpleDB {
             this.addJClass(jclass);
             this.log.debug("added Java model class `" + jclass.name + "' with storage ID " + jclass.storageId);
         }
+
+        // Inventory class generators
+        this.classGenerators = new ArrayList<>(this.jclasses.size() + 1);
+        for (JClass<?> jclass : this.jclasses.values())
+            this.classGenerators.add(jclass.classGenerator);
+        this.untypedClassGenerator = new ClassGenerator<UntypedJObject>(this, UntypedJObject.class);
+        this.classGenerators.add(this.untypedClassGenerator);
 
         // Create fields
         for (JClass<?> jclass : this.jclasses.values())
