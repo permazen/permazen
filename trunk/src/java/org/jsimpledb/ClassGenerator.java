@@ -135,36 +135,23 @@ class ClassGenerator<T> {
      * Constructor for application classes.
      */
     public ClassGenerator(JClass<T> jclass) {
-        this(jclass, jclass.type);
+        this(jclass.jdb.loader, jclass, jclass.type);
     }
 
     /**
      * Constructor for a "JObject" class with no fields.
      */
-    public ClassGenerator(Class<T> modelClass) {
-        this(null, modelClass);
+    public ClassGenerator(JSimpleDB jdb, Class<T> modelClass) {
+        this(jdb.loader, null, modelClass);
     }
 
     /**
      * Internal constructor.
      */
-    public ClassGenerator(JClass<T> jclass, Class<T> modelClass) {
+    private ClassGenerator(ClassLoader loader, JClass<T> jclass, Class<T> modelClass) {
+        this.loader = loader;
         this.jclass = jclass;
         this.modelClass = modelClass;
-        this.loader = new ClassLoader(modelClass.getClassLoader()) {
-            @Override
-            protected Class<?> findClass(String name) throws ClassNotFoundException {
-                final byte[] bytes;
-                if (name.replace('.', '/').equals(ClassGenerator.this.getClassName()))
-                    bytes = ClassGenerator.this.generateBytecode();
-                else if (name.replace('.', '/').equals(ClassGenerator.this.getSnapshotClassName()))
-                    bytes = ClassGenerator.this.generateSnapshotBytecode();
-                else
-                    return super.findClass(name);
-                ClassGenerator.this.log.debug("generating class " + name);
-                return this.defineClass(null, bytes, 0, bytes.length);
-            }
-        };
     }
 
     /**
@@ -228,21 +215,21 @@ class ClassGenerator<T> {
     /**
      * Get class internal name.
      */
-    private String getClassName() {
+    public String getClassName() {
         return this.getSuperclassName() + CLASSNAME_SUFFIX;
     }
 
     /**
      * Get snapshot class internal name.
      */
-    private String getSnapshotClassName() {
+    public String getSnapshotClassName() {
         return this.getClassName() + SNAPSHOT_CLASSNAME_SUFFIX;
     }
 
     /**
      * Get superclass (i.e., original Java model class) internal name.
      */
-    private String getSuperclassName() {
+    public String getSuperclassName() {
         return Type.getInternalName(this.modelClass);
     }
 
