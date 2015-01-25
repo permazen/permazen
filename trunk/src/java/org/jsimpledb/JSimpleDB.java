@@ -89,7 +89,7 @@ public class JSimpleDB {
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final ClassGenerator<UntypedJObject> untypedClassGenerator;
     final ArrayList<ClassGenerator<?>> classGenerators;
-    final ClassLoader loader;
+    final ClassLoader loader = new Loader();
     final Database db;
     final int configuredVersion;
     final StorageIdGenerator storageIdGenerator;
@@ -193,39 +193,6 @@ public class JSimpleDB {
                 jsimpleClasses.add(type);
             } while ((type = type.getSuperclass()) != null);
         }
-
-        // Set up class loader
-        final ClassLoader parentLoader = jsimpleClasses.isEmpty() ?
-          jsimpleClasses.iterator().next().getClassLoader() : Thread.currentThread().getContextClassLoader();
-        this.loader = new ClassLoader(parentLoader) {
-            @Override
-            protected Class<?> findClass(String name) throws ClassNotFoundException {
-
-                // Normalize name
-                final String slashName = name.replace('.', '/');
-
-                // Find matching genearator
-                byte[] bytes = null;
-                for (ClassGenerator<?> generator : JSimpleDB.this.classGenerators) {
-                    if (slashName.equals(generator.getClassName())) {
-                        bytes = generator.generateBytecode();
-                        break;
-                    }
-                    if (slashName.equals(generator.getSnapshotClassName())) {
-                        bytes = generator.generateSnapshotBytecode();
-                        break;
-                    }
-                }
-                if (bytes == null)
-                    return super.findClass(name);
-
-                // Define class
-                JSimpleDB.this.log.debug("generating class " + name);
-                final Class<?> c = this.defineClass(null, bytes, 0, bytes.length);
-                JSimpleDB.this.log.debug("done generating class " + name);
-                return c;
-            }
-        };
 
         // Add Java model classes
         for (Class<?> type : jsimpleClasses) {
@@ -780,6 +747,33 @@ public class JSimpleDB {
         } else if (!info.equals(existing)) {
             throw new IllegalArgumentException("incompatible duplicate use of storage ID " + item.storageId
               + " for " + descriptionMap.get(item.storageId) + " and " + item.description);
+        }
+    }
+
+// Loader
+
+    private class Loader extends ClassLoader {
+
+        // Set up class loader
+        public Loader() {
+            super(Thread.currentThread().getContextClassLoader());
+        }
+
+        // Find matching ClassGenerator, if any, otherwise defer to parent
+        @Override
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
+            byte[] bytes = null;
+            for (ClassGenerator<?> generator : JSimpleDB.this.classGenerators) {
+                if (name.equals(generator.getClassName().replace('/', '.'))) {
+                    bytes = generator.generateBytecode();
+                    break;
+                }
+                if (name.equals(generator.getSnapshotClassName().replace('/', '.'))) {
+                    bytes = generator.generateSnapshotBytecode();
+                    break;
+                }
+            }
+            return bytes != null ? this.defineClass(name, bytes, 0, bytes.length) : super.findClass(name);
         }
     }
 }

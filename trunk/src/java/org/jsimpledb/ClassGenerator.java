@@ -194,7 +194,7 @@ class ClassGenerator<T> {
     @SuppressWarnings("unchecked")
     public Class<? extends T> generateClass() {
         try {
-            return (Class<? extends T>)this.loader.loadClass(this.getClassName());
+            return (Class<? extends T>)this.loader.loadClass(this.getClassName().replace('/', '.'));
         } catch (ClassNotFoundException e) {
             throw new DatabaseException("internal error", e);
         }
@@ -206,21 +206,21 @@ class ClassGenerator<T> {
     @SuppressWarnings("unchecked")
     public Class<? extends T> generateSnapshotClass() {
         try {
-            return (Class<? extends T>)this.loader.loadClass(this.getSnapshotClassName());
+            return (Class<? extends T>)this.loader.loadClass(this.getSnapshotClassName().replace('/', '.'));
         } catch (ClassNotFoundException e) {
             throw new DatabaseException("internal error", e);
         }
     }
 
     /**
-     * Get class internal name.
+     * Get class internal name. Note: this name contains slashes, not dots.
      */
     public String getClassName() {
         return this.getSuperclassName() + CLASSNAME_SUFFIX;
     }
 
     /**
-     * Get snapshot class internal name.
+     * Get snapshot class internal name. Note: this name contains slashes, not dots.
      */
     public String getSnapshotClassName() {
         return this.getClassName() + SNAPSHOT_CLASSNAME_SUFFIX;
@@ -241,6 +241,7 @@ class ClassGenerator<T> {
     protected byte[] generateBytecode() {
 
         // Generate class
+        this.log.debug("begin generating class " + this.getClassName());
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_SYNTHETIC,
           this.getClassName(), null, this.getSuperclassName(), new String[] { Type.getInternalName(JObject.class) });
@@ -250,6 +251,7 @@ class ClassGenerator<T> {
         this.outputMethods(cw);
         cw.visitEnd();
         final byte[] classfile = cw.toByteArray();
+        this.log.debug("done generating class " + this.getClassName());
         this.debugDump(System.out, classfile);
 
         // Done
@@ -437,6 +439,7 @@ class ClassGenerator<T> {
     protected byte[] generateSnapshotBytecode() {
 
         // Generate class
+        this.log.debug("begin generating class " + this.getSnapshotClassName());
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_SYNTHETIC,
           this.getSnapshotClassName(), null, this.getClassName(), null);
@@ -446,6 +449,7 @@ class ClassGenerator<T> {
         this.outputSnapshotMethods(cw);
         cw.visitEnd();
         final byte[] classfile = cw.toByteArray();
+        this.log.debug("done generating class " + this.getSnapshotClassName());
         this.debugDump(System.out, classfile);
 
         // Done
