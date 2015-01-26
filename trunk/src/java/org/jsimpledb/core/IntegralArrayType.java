@@ -31,8 +31,8 @@ abstract class IntegralArrayType<T, E extends Number> extends ArrayType<T, E> {
     private final IntegralType<E> integralType;
 
     @SuppressWarnings("serial")
-    IntegralArrayType(IntegralType<E> elementType) {
-        super(elementType, new TypeToken<T>() { });
+    IntegralArrayType(IntegralType<E> elementType, Class<T> arrayClass) {
+        super(elementType, TypeToken.of(arrayClass));
         if (this.elementType.hasPrefix0x00())
             throw new RuntimeException("internal error");
         this.integralType = elementType;
