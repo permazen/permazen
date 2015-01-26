@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.dellroad.stuff.java.MethodAnnotationScanner;
+
 /**
  * Automatically builds and binds fields for a Java bean annotated with {@link FieldBuilder} annotations.
  * The various nested {@link FieldBuilder} annotation types annotate Java bean property "getter" methods and specify
@@ -166,7 +168,6 @@ public class FieldBuilder {
         } catch (IntrospectionException e) {
             throw new RuntimeException("unexpected exception", e);
         }
-        final ArrayList<Method> getterList = new ArrayList<>();
         final HashMap<String, Method> getterMap = new HashMap<>();              // contains all getter methods
         for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
             Method method = propertyDescriptor.getReadMethod();
@@ -205,11 +206,7 @@ public class FieldBuilder {
 
         // Scan all methods for @FieldBuilder.ProvidesField annotations
         final HashMap<String, Method> providerMap = new HashMap<>();            // contains @FieldBuilder.ProvidesField methods
-        for (Method method : bean.getClass().getDeclaredMethods()) {
-            if (method.getReturnType() == void.class || method.getParameterTypes().length > 0)
-                continue;
-            this.buildProviderMap(providerMap, bean.getClass(), method.getName());
-        }
+        this.buildProviderMap(providerMap, bean.getClass());
 
         // Check for conflicts between @FieldBuidler.ProvidesField and other annotations and add fields to map
         for (Map.Entry<String, Method> entry : providerMap.entrySet()) {
@@ -245,7 +242,15 @@ public class FieldBuilder {
         return map;
     }
 
-    // Used by buildBeanPropertyFields()
+    // This method exists solely to bind the generic type
+    private <T> void buildProviderMap(Map<String, Method> providerMap, Class<T> type) {
+        final MethodAnnotationScanner<T, ProvidesField> scanner
+          = new MethodAnnotationScanner<T, ProvidesField>(type, ProvidesField.class);
+        for (MethodAnnotationScanner<T, ProvidesField>.MethodInfo methodInfo : scanner.findAnnotatedMethods())
+            this.buildProviderMap(providerMap, methodInfo.getMethod().getDeclaringClass(), methodInfo.getMethod().getName());
+    }
+
+    // Used by buildBeanPropertyFields() to validate @FieldBuilder.ProvidesField annotations
     private void buildProviderMap(Map<String, Method> providerMap, Class<?> type, String methodName) {
 
         // Terminate recursion
