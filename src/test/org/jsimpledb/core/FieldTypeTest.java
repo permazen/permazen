@@ -186,6 +186,49 @@ public class FieldTypeTest extends TestSupport {
                 null
             }},
 
+            {   "byte[]", new byte[][] {
+                { },
+                { (byte)0x80 },
+                { (byte)0xe0 },
+                { (byte)0xff },
+                { (byte)0x00 },
+                { (byte)0x01 },
+                { (byte)0x7f },
+                { (byte)0x7f, 0x00 },
+                { (byte)0x7f, 0x00, 0x00 },
+                null
+            }},
+
+            {   "char[]", new char[][] {
+                { },
+                { '\u0000' },
+                { 'a' },
+                { 'a', '\u0000' },
+                { 'z', 'z' },
+                null
+            }},
+
+            {   "short[]", new short[][] {
+                { },
+                { (short)0x8000 },
+                { (short)0xffff },
+                { (short)0x0000 },
+                { (short)0x0001 },
+                { (short)0x7fff },
+                null
+            }},
+
+            {   "int[]", new int[][] {
+                { },
+                { Integer.MIN_VALUE },
+                { -1 },
+                { 0 },
+                { 1 },
+                { 1, 99 },
+                { Integer.MAX_VALUE },
+                null
+            }},
+
             {   "float[]", new float[][] {
                 { },
                 { Float.NEGATIVE_INFINITY },
@@ -201,6 +244,17 @@ public class FieldTypeTest extends TestSupport {
                 { Float.MAX_VALUE },
                 { Float.POSITIVE_INFINITY },
                 { Float.intBitsToFloat(0xffffffff) },   // NaN
+                null
+            }},
+
+            {   "long[]", new long[][] {
+                { },
+                { Long.MIN_VALUE },
+                { -1L },
+                { 0L },
+                { 1L },
+                { 1L, 99L },
+                { Long.MAX_VALUE },
                 null
             }},
 
