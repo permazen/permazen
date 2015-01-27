@@ -11,24 +11,23 @@ import com.vaadin.data.Buffered;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
 import com.vaadin.ui.Field;
-import com.vaadin.ui.Panel;
+import com.vaadin.ui.HorizontalLayout;
 
 import java.util.Collection;
 
 /**
- * A {@link Panel} that is also exposes an internally wrapped {@link Field}. This is useful when you
- * have an existing {@link Field}, want to display it differently and/or with additional {@link com.vaadin.ui.Component}s
- * (for example, inside a {@link com.vaadin.ui.HorizontalLayout} with additional labeling), but still need
- * it to function as a {@link Field} from a data perspective.
+ * A {@link HorizontalLayout} that also exposes an internally wrapped {@link Field}. This is useful when you
+ * have an existing {@link Field} and want to display it differently and/or with additional {@link com.vaadin.ui.Component}s
+ * but still need it to function as a {@link Field} from a data perspective.
  *
  * <p>
- * The subclass must invoke {@link #setContent Panel.setContent()} to set the displayed content.
+ * The layout is initially empty; use {@link #addComponent HorizontalLayout.addComponent()} to add content.
  * </p>
  *
  * @param <T> field type
  */
 @SuppressWarnings({ "serial", "deprecation" })
-public abstract class FieldPanel<T> extends Panel implements Field<T> {
+public class FieldLayout<T> extends HorizontalLayout implements Field<T> {
 
     protected final Field<T> field;
 
@@ -37,7 +36,7 @@ public abstract class FieldPanel<T> extends Panel implements Field<T> {
      *
      * @param field the wrapped {@link Field} that this instance will derive its {@link Field} state from
      */
-    protected FieldPanel(Field<T> field) {
+    public FieldLayout(Field<T> field) {
         if (field == null)
             throw new IllegalArgumentException("null field");
         this.field = field;
@@ -63,6 +62,23 @@ public abstract class FieldPanel<T> extends Panel implements Field<T> {
     @Override
     public void setRequired(boolean required) {
         this.field.setRequired(required);
+    }
+
+// Component.Focusable
+
+    @Override
+    public void focus() {
+        this.field.focus();
+    }
+
+    @Override
+    public int getTabIndex() {
+        return this.field.getTabIndex();
+    }
+
+    @Override
+    public void setTabIndex(int index) {
+        this.field.setTabIndex(index);
     }
 
 // BufferedValidatable
