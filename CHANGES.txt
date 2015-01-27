@@ -3,6 +3,7 @@ Version Next
     - Make @FieldBuilder.ProvidesField search in super-types for annotated methods
     - Fixed bug in MethodAnnotationScanner that allowed duplicate methods
     - Upgraded several library dependencies
+    - Added FieldPanel
 
 Version 1.0.946 Released November 12, 2014
 
