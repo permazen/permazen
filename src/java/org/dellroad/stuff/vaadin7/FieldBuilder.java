@@ -19,6 +19,7 @@ import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
+import com.vaadin.ui.Field;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextArea;
@@ -141,7 +142,7 @@ public class FieldBuilder {
             throw new IllegalArgumentException("fieldGroup does not yet have a data source");
 
         // Scan bean properties to build fields
-        for (Map.Entry<String, com.vaadin.ui.AbstractField<?>> entry : this.buildBeanPropertyFields(beanItem.getBean()).entrySet())
+        for (Map.Entry<String, Field<?>> entry : this.buildBeanPropertyFields(beanItem.getBean()).entrySet())
             fieldGroup.bind(entry.getValue(), entry.getKey());
     }
 
@@ -155,7 +156,7 @@ public class FieldBuilder {
      * @throws IllegalArgumentException if {@code bean} is null
      * @throws IllegalArgumentException if invalid or conflicting annotations are encountered
      */
-    public Map<String, com.vaadin.ui.AbstractField<?>> buildBeanPropertyFields(Object bean) {
+    public Map<String, Field<?>> buildBeanPropertyFields(Object bean) {
 
         // Sanity check
         if (bean == null)
@@ -190,7 +191,7 @@ public class FieldBuilder {
         }
 
         // Scan getters for FieldBuilder.* annotations other than FieldBuidler.ProvidesField
-        final HashMap<String, com.vaadin.ui.AbstractField<?>> map = new HashMap<>();        // contains @FieldBuilder.* fields
+        final HashMap<String, Field<?>> map = new HashMap<>();              // contains @FieldBuilder.* fields
         for (Map.Entry<String, Method> entry : getterMap.entrySet()) {
             final String propertyName = entry.getKey();
             final Method method = entry.getValue();
@@ -221,14 +222,14 @@ public class FieldBuilder {
             }
 
             // Invoke method to create field
-            com.vaadin.ui.AbstractField<?> field;
+            Field<?> field;
             try {
                 method.setAccessible(true);
             } catch (Exception e) {
                 // ignore
             }
             try {
-                field = (com.vaadin.ui.AbstractField)method.invoke(bean);
+                field = (Field<?>)method.invoke(bean);
             } catch (Exception e) {
                 throw new RuntimeException("error invoking @" + ProvidesField.class.getName()
                   + " annotation on method " + method, e);
@@ -273,11 +274,10 @@ public class FieldBuilder {
             if (providesField == null)
                 break;
 
-            // Validate method return type is compatible with AbstractField
-            if (!com.vaadin.ui.AbstractField.class.isAssignableFrom(method.getReturnType())) {
+            // Validate method return type is compatible with Field
+            if (!Field.class.isAssignableFrom(method.getReturnType())) {
                 throw new IllegalArgumentException("invalid @" + ProvidesField.class.getName() + " annotation on method " + method
-                  + ": return type " + method.getReturnType().getName() + " is not a subtype of "
-                  + com.vaadin.ui.AbstractField.class.getName());
+                  + ": return type " + method.getReturnType().getName() + " is not a subtype of " + Field.class.getName());
             }
 
             // Check for two methods declaring fields for the same property
