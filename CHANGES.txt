@@ -4,6 +4,7 @@ Version Next
     - Fixed bug in MethodAnnotationScanner that allowed duplicate methods
     - Upgraded several library dependencies
     - Added FieldLayout
+    - Added BlobField
 
 Version 1.0.946 Released November 12, 2014
 
