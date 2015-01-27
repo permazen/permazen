@@ -176,6 +176,66 @@ public class BasicTest1 extends TestSupport {
         tx.rollback();
     }
 
+    @Test
+    public void testPrimitiveArrays() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final SchemaModel schema = SchemaModel.fromXML(new ByteArrayInputStream((
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
+          + "    <SimpleField name=\"i\" type=\"int[]\" storageId=\"2\"/>\n"
+          + "    <SimpleField name=\"z\" type=\"boolean[]\" storageId=\"3\"/>\n"
+          + "    <SimpleField name=\"b\" type=\"byte[]\" storageId=\"4\"/>\n"
+          + "    <SimpleField name=\"c\" type=\"char[]\" storageId=\"5\"/>\n"
+          + "    <SimpleField name=\"s\" type=\"short[]\" storageId=\"6\"/>\n"
+          + "    <SimpleField name=\"f\" type=\"float[]\" storageId=\"7\"/>\n"
+          + "    <SimpleField name=\"j\" type=\"long[]\" storageId=\"8\"/>\n"
+          + "    <SimpleField name=\"d\" type=\"double[]\" storageId=\"9\"/>\n"
+          + "    <SimpleField name=\"str\" type=\"java.lang.String[]\" storageId=\"10\"/>\n"
+          + "  </ObjectType>\n"
+          + "</Schema>\n"
+          ).getBytes("UTF-8")));
+        final Database db = new Database(kvstore);
+
+        Transaction tx = db.createTransaction(schema, 1, true);
+        //this.showKV(tx, "testPrimitiveFields: 1");
+        final ObjId id = tx.create(1);
+
+        final int[] i = new int[] { this.random.nextInt(), this.random.nextInt(), this.random.nextInt() };
+        final boolean[] z = new boolean[] { this.random.nextBoolean(), this.random.nextBoolean(), this.random.nextBoolean() };
+        final byte[] b = new byte[this.random.nextInt(10)];
+        this.random.nextBytes(b);
+        final char[] c = new char[] { (char)this.random.nextInt(), (char)this.random.nextInt(), (char)this.random.nextInt() };
+        final short[] s = new short[] { (short)this.random.nextInt(), (short)this.random.nextInt(), (short)this.random.nextInt() };
+        final float[] f = new float[] { this.random.nextFloat(), this.random.nextFloat(), this.random.nextFloat() };
+        final long[] j = new long[] { this.random.nextLong(), this.random.nextLong(), this.random.nextLong() };
+        final double[] d = new double[] { this.random.nextDouble(), this.random.nextDouble(), this.random.nextDouble() };
+        final String[] str = new String[] { "abc", "def", "", "\ud0d0" };
+
+        tx.writeSimpleField(id, 2, i, false);
+        tx.writeSimpleField(id, 3, z, false);
+        tx.writeSimpleField(id, 4, b, false);
+        tx.writeSimpleField(id, 5, c, false);
+        tx.writeSimpleField(id, 6, s, false);
+        tx.writeSimpleField(id, 7, f, false);
+        tx.writeSimpleField(id, 8, j, false);
+        tx.writeSimpleField(id, 9, d, false);
+        tx.writeSimpleField(id, 10, str, false);
+
+        Assert.assertTrue(Arrays.equals((int[])tx.readSimpleField(id, 2, false), i));
+        Assert.assertTrue(Arrays.equals((boolean[])tx.readSimpleField(id, 3, false), z));
+        Assert.assertTrue(Arrays.equals((byte[])tx.readSimpleField(id, 4, false), b));
+        Assert.assertTrue(Arrays.equals((char[])tx.readSimpleField(id, 5, false), c));
+        Assert.assertTrue(Arrays.equals((short[])tx.readSimpleField(id, 6, false), s));
+        Assert.assertTrue(Arrays.equals((float[])tx.readSimpleField(id, 7, false), f));
+        Assert.assertTrue(Arrays.equals((long[])tx.readSimpleField(id, 8, false), j));
+        Assert.assertTrue(Arrays.equals((double[])tx.readSimpleField(id, 9, false), d));
+        Assert.assertTrue(Arrays.equals((String[])tx.readSimpleField(id, 10, false), str));
+
+        tx.rollback();
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void testComplexDelete() throws Exception {
