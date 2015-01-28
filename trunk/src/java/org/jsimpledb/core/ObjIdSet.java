@@ -27,7 +27,7 @@ import java.util.NoSuchElementException;
  *
  * @see org.jsimpledb.JObject#copyTo
  */
-public class ObjIdSet extends AbstractSet<ObjId> {
+public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
 
     // Algorithm described here: http://en.wikipedia.org/wiki/Open_addressing
 
@@ -38,8 +38,25 @@ public class ObjIdSet extends AbstractSet<ObjId> {
     private int size;
     private volatile int modcount;
 
+    /**
+     * Constructs an empty instance.
+     */
     public ObjIdSet() {
         this.array = new long[MIN_ARRAY_LENGTH];
+    }
+
+    /**
+     * Constructs an instance initialized with the given ID's.
+     *
+     * @throws IllegalArgumentException if {@code ids} is null
+     * @throws NullPointerException if any ID in {@code ids} is null
+     */
+    public ObjIdSet(Iterable<? extends ObjId> ids) {
+        this();
+        if (ids == null)
+            throw new IllegalArgumentException("null ids");
+        for (ObjId id : ids)
+            this.add(id);
     }
 
     @Override
@@ -109,6 +126,20 @@ public class ObjIdSet extends AbstractSet<ObjId> {
         for (int i = 0; i < this.array.length; i++)
             buf.append('\n').append(String.format(" [%2d] %016x (hash %d)", i, this.array[i], this.hash(this.array[i])));
         return buf.toString();
+    }
+
+// Cloneable
+
+    @Override
+    public ObjIdSet clone() {
+        final ObjIdSet clone;
+        try {
+            clone = (ObjIdSet)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        clone.array = clone.array.clone();
+        return clone;
     }
 
 // Internal methods
