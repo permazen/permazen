@@ -402,6 +402,8 @@
         </path>
         <taskdef uri="urn:org.dellroad.jsimpledb" name="schema"
           classname="org.jsimpledb.ant.SchemaGeneratorTask" classpathref="schema.classpath"/>
+        <jsimpledb:schema mode="generate" classpathref="schema.classpath"
+          file="build/demo-schema.xml" packages="org.jsimpledb.demo"/>
         <jsimpledb:schema mode="verify" classpathref="schema.classpath"
           file="src/dist/demo-schema.xml" packages="org.jsimpledb.demo"/>
 
