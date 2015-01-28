@@ -207,7 +207,7 @@
   <td class="src"><pre class="src">&nbsp;        @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;98</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">protected</span> JObject instantiate(ClassGenerator&lt;?&gt; classGenerator, ObjId id) <span class="keyword">throws</span> Exception {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;99</td>  <td class="nbHitsCovered">&nbsp;184</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> (JObject)classGenerator.getConstructor().newInstance(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;99</td>  <td class="nbHitsCovered">&nbsp;191</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> (JObject)classGenerator.getConstructor().newInstance(id);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;100</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;101</td>  <td class="nbHits">&nbsp;</td>
@@ -842,10 +842,10 @@
   <td class="src"><pre class="src">&nbsp;    @SuppressWarnings(<span class="string">"unchecked"</span>)</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;492</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> &lt;T&gt; JClass&lt;T&gt; getJClass(Class&lt;T&gt; type) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;493</td>  <td class="nbHitsCovered">&nbsp;140</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> JClass&lt;?&gt; jclass = <span class="keyword">this</span>.jclassesByType.get(type);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;494</td>  <td class="nbHitsUncovered"><a title="Line 494: Conditional coverage 50% (1/2).">&nbsp;140</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 494: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (jclass == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;493</td>  <td class="nbHitsCovered">&nbsp;143</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> JClass&lt;?&gt; jclass = <span class="keyword">this</span>.jclassesByType.get(type);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;494</td>  <td class="nbHitsUncovered"><a title="Line 494: Conditional coverage 50% (1/2).">&nbsp;143</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 494: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (jclass == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;495</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"java model type is not recognized: "</span> + type);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;496</td>  <td class="nbHitsCovered">&nbsp;140</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (JClass&lt;T&gt;)jclass;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;496</td>  <td class="nbHitsCovered">&nbsp;143</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (JClass&lt;T&gt;)jclass;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;497</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;498</td>  <td class="nbHits">&nbsp;</td>
@@ -1210,10 +1210,10 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;703</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    &lt;T <span class="keyword">extends</span> JFieldInfo&gt; T getJFieldInfo(<span class="keyword">int</span> storageId, Class&lt;T&gt; type) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;704</td>  <td class="nbHitsUncovered"><a title="Line 704: Conditional coverage 50% (1/2).">&nbsp;19486</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 704: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (type == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;704</td>  <td class="nbHitsUncovered"><a title="Line 704: Conditional coverage 50% (1/2).">&nbsp;31546</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 704: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (type == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;705</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null type"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;706</td>  <td class="nbHitsCovered">&nbsp;19486</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> JFieldInfo jfieldInfo = <span class="keyword">this</span>.jfieldInfos.get(storageId);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;707</td>  <td class="nbHitsUncovered"><a title="Line 707: Conditional coverage 50% (1/2).">&nbsp;19486</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 707: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (jfieldInfo == <span class="keyword">null</span>) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;706</td>  <td class="nbHitsCovered">&nbsp;31546</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> JFieldInfo jfieldInfo = <span class="keyword">this</span>.jfieldInfos.get(storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;707</td>  <td class="nbHitsUncovered"><a title="Line 707: Conditional coverage 50% (1/2).">&nbsp;31546</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 707: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (jfieldInfo == <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;708</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> UnknownFieldException(storageId, <span class="string">"no JSimpleDB field exists with storage ID "</span></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;709</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;              + storageId + <span class="string">" in schema version "</span> + <span class="keyword">this</span>.actualVersion);</pre></td></tr>
@@ -1221,7 +1221,7 @@
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;711</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">try</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;712</td>  <td class="nbHitsCovered">&nbsp;19486</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> type.cast(jfieldInfo);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;712</td>  <td class="nbHitsCovered">&nbsp;31546</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> type.cast(jfieldInfo);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;713</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;        } <span class="keyword">catch</span> (ClassCastException e) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;714</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> UnknownFieldException(storageId, <span class="string">"no JSimpleDB fields exist with storage ID "</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;715</td>  <td class="nbHits">&nbsp;</td>
@@ -1331,6 +1331,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 3:37 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 5:45 PM.</div>
 </body>
 </html>

@@ -168,9 +168,9 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;79</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">byte</span>[] get(<span class="keyword">byte</span>[] key) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;80</td>  <td class="nbHitsUncovered"><a title="Line 80: Conditional coverage 50% (1/2).">&nbsp;18756</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 80: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (key == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;80</td>  <td class="nbHitsUncovered"><a title="Line 80: Conditional coverage 50% (1/2).">&nbsp;30326</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 80: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (key == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;81</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"null key"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;82</td>  <td class="nbHitsCovered">&nbsp;18756</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.map.get(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;82</td>  <td class="nbHitsCovered">&nbsp;30326</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.map.get(key);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;83</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;84</td>  <td class="nbHits">&nbsp;</td>
@@ -179,8 +179,8 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;86</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> KVPair getAtLeast(<span class="keyword">byte</span>[] minKey) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;87</td>  <td class="nbHitsCovered"><a title="Line 87: Conditional coverage 100% (2/2).">&nbsp;124325</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 87: Conditional coverage 100% (2/2).">        <span class="keyword">final</span> Map.Entry&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt; entry = minKey != <span class="keyword">null</span> ? <span class="keyword">this</span>.map.ceilingEntry(minKey) : <span class="keyword">this</span>.map.firstEntry();</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;88</td>  <td class="nbHitsCovered"><a title="Line 88: Conditional coverage 100% (2/2).">&nbsp;124325</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 88: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> entry != <span class="keyword">null</span> ? <span class="keyword">new</span> KVPair(entry) : <span class="keyword">null</span>;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;87</td>  <td class="nbHitsCovered"><a title="Line 87: Conditional coverage 100% (2/2).">&nbsp;132812</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 87: Conditional coverage 100% (2/2).">        <span class="keyword">final</span> Map.Entry&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt; entry = minKey != <span class="keyword">null</span> ? <span class="keyword">this</span>.map.ceilingEntry(minKey) : <span class="keyword">this</span>.map.firstEntry();</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;88</td>  <td class="nbHitsCovered"><a title="Line 88: Conditional coverage 100% (2/2).">&nbsp;132812</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 88: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> entry != <span class="keyword">null</span> ? <span class="keyword">new</span> KVPair(entry) : <span class="keyword">null</span>;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;89</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;90</td>  <td class="nbHits">&nbsp;</td>
@@ -189,8 +189,8 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;92</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> KVPair getAtMost(<span class="keyword">byte</span>[] maxKey) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;93</td>  <td class="nbHitsCovered"><a title="Line 93: Conditional coverage 100% (2/2).">&nbsp;20631</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 93: Conditional coverage 100% (2/2).">        <span class="keyword">final</span> Map.Entry&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt; entry = maxKey != <span class="keyword">null</span> ? <span class="keyword">this</span>.map.lowerEntry(maxKey) : <span class="keyword">this</span>.map.lastEntry();</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;94</td>  <td class="nbHitsCovered"><a title="Line 94: Conditional coverage 100% (2/2).">&nbsp;20631</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 94: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> entry != <span class="keyword">null</span> ? <span class="keyword">new</span> KVPair(entry) : <span class="keyword">null</span>;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;93</td>  <td class="nbHitsCovered"><a title="Line 93: Conditional coverage 100% (2/2).">&nbsp;20616</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 93: Conditional coverage 100% (2/2).">        <span class="keyword">final</span> Map.Entry&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt; entry = maxKey != <span class="keyword">null</span> ? <span class="keyword">this</span>.map.lowerEntry(maxKey) : <span class="keyword">this</span>.map.lastEntry();</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;94</td>  <td class="nbHitsCovered"><a title="Line 94: Conditional coverage 100% (2/2).">&nbsp;20616</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 94: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> entry != <span class="keyword">null</span> ? <span class="keyword">new</span> KVPair(entry) : <span class="keyword">null</span>;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;95</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;96</td>  <td class="nbHits">&nbsp;</td>
@@ -264,6 +264,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 3:37 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 5:45 PM.</div>
 </body>
 </html>

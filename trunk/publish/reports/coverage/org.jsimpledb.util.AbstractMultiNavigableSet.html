@@ -87,8 +87,8 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;35</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> AbstractMultiNavigableSet(Iterable&lt;? <span class="keyword">extends</span> NavigableSet&lt;E&gt;&gt; sets) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;36</td>  <td class="nbHitsCovered">&nbsp;8912</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>(sets, AbstractMultiNavigableSet.getComparator(sets), <span class="keyword">new</span> Bounds&lt;E&gt;());</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;37</td>  <td class="nbHitsCovered">&nbsp;8912</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;36</td>  <td class="nbHitsCovered">&nbsp;8794</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>(sets, AbstractMultiNavigableSet.getComparator(sets), <span class="keyword">new</span> Bounds&lt;E&gt;());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;37</td>  <td class="nbHitsCovered">&nbsp;8794</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;38</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;39</td>  <td class="nbHits">&nbsp;</td>
@@ -113,17 +113,17 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> AbstractMultiNavigableSet(Iterable&lt;? <span class="keyword">extends</span> NavigableSet&lt;E&gt;&gt; sets,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;49</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;      Comparator&lt;? <span class="keyword">super</span> E&gt; comparator, Bounds&lt;E&gt; bounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;8951</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(bounds);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;51</td>  <td class="nbHitsCovered">&nbsp;8951</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.list = Lists.newArrayList(sets);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;52</td>  <td class="nbHitsCovered">&nbsp;8951</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.comparator = comparator;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;53</td>  <td class="nbHitsCovered">&nbsp;8951</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;8833</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(bounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;51</td>  <td class="nbHitsCovered">&nbsp;8833</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.list = Lists.newArrayList(sets);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;52</td>  <td class="nbHitsCovered">&nbsp;8833</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.comparator = comparator;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;53</td>  <td class="nbHitsCovered">&nbsp;8833</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;54</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;55</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;56</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> Comparator&lt;? <span class="keyword">super</span> E&gt; comparator() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered">&nbsp;38223</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.comparator;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered">&nbsp;37132</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.comparator;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;58</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;59</td>  <td class="nbHits">&nbsp;</td>
@@ -136,20 +136,20 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;63</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">static</span> &lt;E&gt; Comparator&lt;? <span class="keyword">super</span> E&gt; getComparator(Iterable&lt;? <span class="keyword">extends</span> NavigableSet&lt;E&gt;&gt; sets) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;64</td>  <td class="nbHitsCovered">&nbsp;8912</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Iterator&lt;? <span class="keyword">extends</span> NavigableSet&lt;E&gt;&gt; i = sets.iterator();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;65</td>  <td class="nbHitsCovered"><a title="Line 65: Conditional coverage 100% (2/2).">&nbsp;8912</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 65: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!i.hasNext())</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;64</td>  <td class="nbHitsCovered">&nbsp;8794</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Iterator&lt;? <span class="keyword">extends</span> NavigableSet&lt;E&gt;&gt; i = sets.iterator();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;65</td>  <td class="nbHitsCovered"><a title="Line 65: Conditional coverage 100% (2/2).">&nbsp;8794</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 65: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!i.hasNext())</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;66</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;67</td>  <td class="nbHitsCovered">&nbsp;8910</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Comparator&lt;? <span class="keyword">super</span> E&gt; comparator = i.next().comparator();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;68</td>  <td class="nbHitsCovered"><a title="Line 68: Conditional coverage 100% (2/2).">&nbsp;39932</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 68: Conditional coverage 100% (2/2).">        <span class="keyword">while</span> (i.hasNext()) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered">&nbsp;31022</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> Comparator&lt;? <span class="keyword">super</span> E&gt; comparator2 = i.next().comparator();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsUncovered"><a title="Line 70: Conditional coverage 66% (4/6) [each condition: 100%, 50%, 50%].">&nbsp;31022</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 70: Conditional coverage 66% (4/6) [each condition: 100%, 50%, 50%].">            <span class="keyword">if</span> (!(comparator == <span class="keyword">null</span> ? comparator2 == <span class="keyword">null</span> : comparator.equals(comparator2))) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;67</td>  <td class="nbHitsCovered">&nbsp;8792</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Comparator&lt;? <span class="keyword">super</span> E&gt; comparator = i.next().comparator();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;68</td>  <td class="nbHitsCovered"><a title="Line 68: Conditional coverage 100% (2/2).">&nbsp;38930</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 68: Conditional coverage 100% (2/2).">        <span class="keyword">while</span> (i.hasNext()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered">&nbsp;30138</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> Comparator&lt;? <span class="keyword">super</span> E&gt; comparator2 = i.next().comparator();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsUncovered"><a title="Line 70: Conditional coverage 66% (4/6) [each condition: 100%, 50%, 50%].">&nbsp;30138</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 70: Conditional coverage 66% (4/6) [each condition: 100%, 50%, 50%].">            <span class="keyword">if</span> (!(comparator == <span class="keyword">null</span> ? comparator2 == <span class="keyword">null</span> : comparator.equals(comparator2))) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;71</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"sets have unequal comparators (e.g., "</span></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;72</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                  + comparator + <span class="string">" and "</span> + comparator2 + <span class="string">")"</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;73</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;74</td>  <td class="nbHitsCovered">&nbsp;31022</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;75</td>  <td class="nbHitsCovered">&nbsp;8910</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> comparator;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;74</td>  <td class="nbHitsCovered">&nbsp;30138</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;75</td>  <td class="nbHitsCovered">&nbsp;8792</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> comparator;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;76</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;77</td>  <td class="nbHits">&nbsp;</td>
@@ -276,6 +276,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 3:37 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 5:45 PM.</div>
 </body>
 </html>

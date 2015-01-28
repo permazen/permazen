@@ -160,13 +160,13 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;76</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> T read(ByteReader reader) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;77</td>  <td class="nbHitsCovered"><a title="Line 77: Conditional coverage 100% (2/2).">&nbsp;34556</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 77: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.inline) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered"><a title="Line 78: Conditional coverage 100% (2/2).">&nbsp;34200</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 78: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (reader.peek() == NULL_SENTINEL) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;79</td>  <td class="nbHitsCovered">&nbsp;20625</td>  <td class="src"><pre class="src">&nbsp;                reader.skip(1);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;80</td>  <td class="nbHitsCovered">&nbsp;20625</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;77</td>  <td class="nbHitsCovered"><a title="Line 77: Conditional coverage 100% (2/2).">&nbsp;48878</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 77: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.inline) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered"><a title="Line 78: Conditional coverage 100% (2/2).">&nbsp;48522</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 78: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (reader.peek() == NULL_SENTINEL) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;79</td>  <td class="nbHitsCovered">&nbsp;33670</td>  <td class="src"><pre class="src">&nbsp;                reader.skip(1);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;80</td>  <td class="nbHitsCovered">&nbsp;33670</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;81</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;82</td>  <td class="nbHitsCovered">&nbsp;13575</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.inner.read(reader);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;82</td>  <td class="nbHitsCovered">&nbsp;14852</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.inner.read(reader);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;83</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        } <span class="keyword">else</span> {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;84</td>  <td class="nbHitsUncovered"><a title="Line 84: Conditional coverage 66% (2/3).">&nbsp;356</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 84: Conditional coverage 66% (2/3).">            <span class="keyword">switch</span> (reader.readByte()) {</a></span></pre></td></tr>
@@ -191,22 +191,22 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;96</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">void</span> write(ByteWriter writer, T value) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;97</td>  <td class="nbHitsCovered"><a title="Line 97: Conditional coverage 100% (2/2).">&nbsp;15410</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 97: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (value == <span class="keyword">null</span>) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;98</td>  <td class="nbHitsCovered">&nbsp;7773</td>  <td class="src"><pre class="src">&nbsp;            writer.writeByte(NULL_SENTINEL);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;99</td>  <td class="nbHitsCovered">&nbsp;7773</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;97</td>  <td class="nbHitsCovered"><a title="Line 97: Conditional coverage 100% (2/2).">&nbsp;20680</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 97: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (value == <span class="keyword">null</span>) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;98</td>  <td class="nbHitsCovered">&nbsp;12668</td>  <td class="src"><pre class="src">&nbsp;            writer.writeByte(NULL_SENTINEL);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;99</td>  <td class="nbHitsCovered">&nbsp;12668</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;100</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;101</td>  <td class="nbHitsCovered"><a title="Line 101: Conditional coverage 100% (2/2).">&nbsp;7637</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 101: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.inline)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;101</td>  <td class="nbHitsCovered"><a title="Line 101: Conditional coverage 100% (2/2).">&nbsp;8012</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 101: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.inline)</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;102</td>  <td class="nbHitsCovered">&nbsp;176</td>  <td class="src"><pre class="src">&nbsp;            writer.writeByte(NOT_NULL_SENTINEL);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;103</td>  <td class="nbHitsCovered">&nbsp;7637</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.inner.write(writer, value);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;104</td>  <td class="nbHitsCovered">&nbsp;7634</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;103</td>  <td class="nbHitsCovered">&nbsp;8012</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.inner.write(writer, value);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;104</td>  <td class="nbHitsCovered">&nbsp;8009</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;105</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;106</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;107</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">byte</span>[] getDefaultValue() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;108</td>  <td class="nbHitsCovered">&nbsp;13647</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> DEFAULT_VALUE;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;108</td>  <td class="nbHitsCovered">&nbsp;21805</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> DEFAULT_VALUE;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;109</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;110</td>  <td class="nbHits">&nbsp;</td>
@@ -215,21 +215,21 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;112</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">void</span> skip(ByteReader reader) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;113</td>  <td class="nbHitsCovered"><a title="Line 113: Conditional coverage 100% (2/2).">&nbsp;32112</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 113: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.inline) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;114</td>  <td class="nbHitsCovered">&nbsp;32033</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> prefix = reader.peek();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;115</td>  <td class="nbHitsCovered"><a title="Line 115: Conditional coverage 100% (2/2).">&nbsp;32033</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 115: Conditional coverage 100% (2/2).">            <span class="keyword">switch</span> (prefix) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;113</td>  <td class="nbHitsCovered"><a title="Line 113: Conditional coverage 100% (2/2).">&nbsp;42136</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 113: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.inline) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;114</td>  <td class="nbHitsCovered">&nbsp;42057</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> prefix = reader.peek();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;115</td>  <td class="nbHitsCovered"><a title="Line 115: Conditional coverage 100% (2/2).">&nbsp;42057</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 115: Conditional coverage 100% (2/2).">            <span class="keyword">switch</span> (prefix) {</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;116</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">case</span> NULL_SENTINEL:</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;117</td>  <td class="nbHitsCovered">&nbsp;17711</td>  <td class="src"><pre class="src">&nbsp;                reader.skip(1);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;118</td>  <td class="nbHitsCovered">&nbsp;17711</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">break</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;117</td>  <td class="nbHitsCovered">&nbsp;26706</td>  <td class="src"><pre class="src">&nbsp;                reader.skip(1);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;118</td>  <td class="nbHitsCovered">&nbsp;26706</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">break</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;119</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">default</span>:</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;120</td>  <td class="nbHitsCovered">&nbsp;14322</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.inner.skip(reader);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;120</td>  <td class="nbHitsCovered">&nbsp;15351</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.inner.skip(reader);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;121</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                <span class="keyword">break</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;122</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;123</td>  <td class="nbHitsCovered">&nbsp;32033</td>  <td class="src"><pre class="src">&nbsp;        } <span class="keyword">else</span> {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;123</td>  <td class="nbHitsCovered">&nbsp;42057</td>  <td class="src"><pre class="src">&nbsp;        } <span class="keyword">else</span> {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;124</td>  <td class="nbHitsCovered">&nbsp;79</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> prefix = reader.readByte();</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;125</td>  <td class="nbHitsUncovered"><a title="Line 125: Conditional coverage 33% (1/3).">&nbsp;79</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 125: Conditional coverage 33% (1/3).">            <span class="keyword">switch</span> (prefix) {</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;126</td>  <td class="nbHits">&nbsp;</td>
@@ -246,7 +246,7 @@
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;134</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;135</td>  <td class="nbHitsCovered">&nbsp;32112</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;135</td>  <td class="nbHitsCovered">&nbsp;42136</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;136</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;137</td>  <td class="nbHits">&nbsp;</td>
@@ -291,11 +291,11 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;160</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">int</span> compare(T value1, T value2) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;161</td>  <td class="nbHitsCovered"><a title="Line 161: Conditional coverage 100% (2/2).">&nbsp;852</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 161: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (value1 == <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;161</td>  <td class="nbHitsCovered"><a title="Line 161: Conditional coverage 100% (2/2).">&nbsp;870</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 161: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (value1 == <span class="keyword">null</span>)</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;162</td>  <td class="nbHitsCovered"><a title="Line 162: Conditional coverage 100% (2/2).">&nbsp;95</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 162: Conditional coverage 100% (2/2).">            <span class="keyword">return</span> value2 == <span class="keyword">null</span> ? 0 : 1;</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;163</td>  <td class="nbHitsCovered"><a title="Line 163: Conditional coverage 100% (2/2).">&nbsp;757</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 163: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (value2 == <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;164</td>  <td class="nbHitsUncovered"><a title="Line 164: Conditional coverage 50% (1/2).">&nbsp;24</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 164: Conditional coverage 50% (1/2).">            <span class="keyword">return</span> value1 == <span class="keyword">null</span> ? 0 : -1;</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;165</td>  <td class="nbHitsCovered">&nbsp;733</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.inner.compare(value1, value2);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;163</td>  <td class="nbHitsCovered"><a title="Line 163: Conditional coverage 100% (2/2).">&nbsp;775</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 163: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (value2 == <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;164</td>  <td class="nbHitsUncovered"><a title="Line 164: Conditional coverage 50% (1/2).">&nbsp;26</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 164: Conditional coverage 50% (1/2).">            <span class="keyword">return</span> value1 == <span class="keyword">null</span> ? 0 : -1;</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;165</td>  <td class="nbHitsCovered">&nbsp;749</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.inner.compare(value1, value2);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;166</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;167</td>  <td class="nbHits">&nbsp;</td>
@@ -326,7 +326,7 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;181</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">int</span> hashCode() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;182</td>  <td class="nbHitsCovered">&nbsp;141</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">super</span>.hashCode() ^ <span class="keyword">this</span>.inner.hashCode();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;182</td>  <td class="nbHitsCovered">&nbsp;137</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">super</span>.hashCode() ^ <span class="keyword">this</span>.inner.hashCode();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;183</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;184</td>  <td class="nbHits">&nbsp;</td>
@@ -349,6 +349,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 3:37 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 5:45 PM.</div>
 </body>
 </html>

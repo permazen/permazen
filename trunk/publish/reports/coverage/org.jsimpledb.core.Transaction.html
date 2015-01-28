@@ -1017,7 +1017,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;557</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> ObjId create(<span class="keyword">int</span> storageId) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;558</td>  <td class="nbHitsCovered">&nbsp;264</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.create(storageId, <span class="keyword">this</span>.version.versionNumber);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;558</td>  <td class="nbHitsCovered">&nbsp;267</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.create(storageId, <span class="keyword">this</span>.version.versionNumber);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;559</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;560</td>  <td class="nbHits">&nbsp;</td>
@@ -1060,24 +1060,24 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;579</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;580</td>  <td class="nbHitsUncovered"><a title="Line 580: Conditional coverage 50% (1/2).">&nbsp;264</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 580: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;580</td>  <td class="nbHitsUncovered"><a title="Line 580: Conditional coverage 50% (1/2).">&nbsp;267</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 580: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;581</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;582</td>  <td class="nbHitsCovered">&nbsp;264</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjType objType = <span class="keyword">this</span>.schema.getVersion(versionNumber).getObjType(storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;582</td>  <td class="nbHitsCovered">&nbsp;267</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjType objType = <span class="keyword">this</span>.schema.getVersion(versionNumber).getObjType(storageId);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;583</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;584</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Generate object ID</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;585</td>  <td class="nbHitsCovered">&nbsp;264</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id = <span class="keyword">this</span>.generateIdValidated(objType.storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;585</td>  <td class="nbHitsCovered">&nbsp;267</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id = <span class="keyword">this</span>.generateIdValidated(objType.storageId);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;586</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;587</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Initialize object</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;588</td>  <td class="nbHitsCovered">&nbsp;264</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.initialize(id, objType);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;588</td>  <td class="nbHitsCovered">&nbsp;267</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.initialize(id, objType);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;589</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;590</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Done</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;591</td>  <td class="nbHitsCovered">&nbsp;264</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> id;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;591</td>  <td class="nbHitsCovered">&nbsp;267</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> id;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;592</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;593</td>  <td class="nbHits">&nbsp;</td>
@@ -1122,12 +1122,12 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;615</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Create a new, unique key</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;616</td>  <td class="nbHitsCovered">&nbsp;268</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter keyWriter = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;617</td>  <td class="nbHitsUncovered"><a title="Line 617: Conditional coverage 50% (1/2).">&nbsp;268</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 617: Conditional coverage 50% (1/2).">        <span class="keyword">for</span> (<span class="keyword">int</span> attempts = 0; attempts &lt; MAX_GENERATED_KEY_ATTEMPTS; attempts++) {</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;618</td>  <td class="nbHitsCovered">&nbsp;268</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> ObjId id = <span class="keyword">new</span> ObjId(storageId);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;619</td>  <td class="nbHitsCovered">&nbsp;268</td>  <td class="src"><pre class="src">&nbsp;            id.writeTo(keyWriter);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;620</td>  <td class="nbHitsUncovered"><a title="Line 620: Conditional coverage 50% (1/2).">&nbsp;268</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 620: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (<span class="keyword">this</span>.kvt.get(keyWriter.getBytes()) == <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;621</td>  <td class="nbHitsCovered">&nbsp;268</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> id;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;616</td>  <td class="nbHitsCovered">&nbsp;271</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter keyWriter = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;617</td>  <td class="nbHitsUncovered"><a title="Line 617: Conditional coverage 50% (1/2).">&nbsp;271</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 617: Conditional coverage 50% (1/2).">        <span class="keyword">for</span> (<span class="keyword">int</span> attempts = 0; attempts &lt; MAX_GENERATED_KEY_ATTEMPTS; attempts++) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;618</td>  <td class="nbHitsCovered">&nbsp;271</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> ObjId id = <span class="keyword">new</span> ObjId(storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;619</td>  <td class="nbHitsCovered">&nbsp;271</td>  <td class="src"><pre class="src">&nbsp;            id.writeTo(keyWriter);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;620</td>  <td class="nbHitsUncovered"><a title="Line 620: Conditional coverage 50% (1/2).">&nbsp;271</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 620: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (<span class="keyword">this</span>.kvt.get(keyWriter.getBytes()) == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;621</td>  <td class="nbHitsCovered">&nbsp;271</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> id;</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;622</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            keyWriter.reset(0);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;623</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
@@ -1148,25 +1148,25 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;632</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;633</td>  <td class="nbHitsUncovered"><a title="Line 633: Conditional coverage 50% (1/2).">&nbsp;316</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 633: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;633</td>  <td class="nbHitsUncovered"><a title="Line 633: Conditional coverage 50% (1/2).">&nbsp;319</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 633: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;634</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;635</td>  <td class="nbHitsUncovered"><a title="Line 635: Conditional coverage 50% (1/2).">&nbsp;316</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 635: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.readOnly)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;635</td>  <td class="nbHitsUncovered"><a title="Line 635: Conditional coverage 50% (1/2).">&nbsp;319</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 635: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.readOnly)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;636</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> ReadOnlyTransactionException(<span class="keyword">this</span>);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;637</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;638</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Write object meta-data</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;639</td>  <td class="nbHitsCovered">&nbsp;316</td>  <td class="src"><pre class="src">&nbsp;        ObjInfo.write(<span class="keyword">this</span>, id, objType.version.versionNumber, <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;639</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;        ObjInfo.write(<span class="keyword">this</span>, id, objType.version.versionNumber, <span class="keyword">false</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;640</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;641</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Write object version index entry</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;642</td>  <td class="nbHitsCovered">&nbsp;316</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kvt.put(Database.buildVersionIndexKey(id, objType.version.versionNumber), ByteUtil.EMPTY);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;642</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kvt.put(Database.buildVersionIndexKey(id, objType.version.versionNumber), ByteUtil.EMPTY);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;643</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;644</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Initialize counters to zero</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;645</td>  <td class="nbHitsCovered"><a title="Line 645: Conditional coverage 100% (2/2).">&nbsp;316</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 645: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!objType.counterFields.isEmpty()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;645</td>  <td class="nbHitsCovered"><a title="Line 645: Conditional coverage 100% (2/2).">&nbsp;319</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 645: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!objType.counterFields.isEmpty()) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;646</td>  <td class="nbHitsCovered"><a title="Line 646: Conditional coverage 100% (2/2).">&nbsp;2</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 646: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (CounterField field : objType.counterFields.values())</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;647</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.kvt.put(field.buildKey(id), <span class="keyword">this</span>.kvt.encodeCounter(0));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;648</td>  <td class="nbHits">&nbsp;</td>
@@ -1175,23 +1175,23 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;650</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Write simple field index entries</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;651</td>  <td class="nbHitsCovered"><a title="Line 651: Conditional coverage 100% (2/2).">&nbsp;316</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 651: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (SimpleField&lt;?&gt; field : objType.simpleFields.values()) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;652</td>  <td class="nbHitsCovered"><a title="Line 652: Conditional coverage 100% (2/2).">&nbsp;977</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 652: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (field.indexed)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;653</td>  <td class="nbHitsCovered">&nbsp;525</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.kvt.put(Transaction.buildSimpleIndexEntry(field, id, <span class="keyword">null</span>), ByteUtil.EMPTY);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;654</td>  <td class="nbHitsCovered">&nbsp;977</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;651</td>  <td class="nbHitsCovered"><a title="Line 651: Conditional coverage 100% (2/2).">&nbsp;319</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 651: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (SimpleField&lt;?&gt; field : objType.simpleFields.values()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;652</td>  <td class="nbHitsCovered"><a title="Line 652: Conditional coverage 100% (2/2).">&nbsp;989</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 652: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (field.indexed)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;653</td>  <td class="nbHitsCovered">&nbsp;531</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.kvt.put(Transaction.buildSimpleIndexEntry(field, id, <span class="keyword">null</span>), ByteUtil.EMPTY);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;654</td>  <td class="nbHitsCovered">&nbsp;989</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;655</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;656</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Write composite index entries</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;657</td>  <td class="nbHitsCovered"><a title="Line 657: Conditional coverage 100% (2/2).">&nbsp;316</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 657: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (CompositeIndex index : objType.compositeIndexes.values())</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;658</td>  <td class="nbHitsCovered">&nbsp;45</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.put(Transaction.buildDefaultCompositeIndexEntry(id, index), ByteUtil.EMPTY);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;657</td>  <td class="nbHitsCovered"><a title="Line 657: Conditional coverage 100% (2/2).">&nbsp;319</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 657: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (CompositeIndex index : objType.compositeIndexes.values())</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;658</td>  <td class="nbHitsCovered">&nbsp;51</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.put(Transaction.buildDefaultCompositeIndexEntry(id, index), ByteUtil.EMPTY);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;659</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;660</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Notify listeners</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;661</td>  <td class="nbHitsCovered"><a title="Line 661: Conditional coverage 100% (2/2).">&nbsp;350</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 661: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (CreateListener listener : <span class="keyword">this</span>.createListeners.toArray(<span class="keyword">new</span> CreateListener[<span class="keyword">this</span>.createListeners.size()]))</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;661</td>  <td class="nbHitsCovered"><a title="Line 661: Conditional coverage 100% (2/2).">&nbsp;353</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 661: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (CreateListener listener : <span class="keyword">this</span>.createListeners.toArray(<span class="keyword">new</span> CreateListener[<span class="keyword">this</span>.createListeners.size()]))</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;662</td>  <td class="nbHitsCovered">&nbsp;34</td>  <td class="src"><pre class="src">&nbsp;            listener.onCreate(<span class="keyword">this</span>, id);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;663</td>  <td class="nbHitsCovered">&nbsp;316</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;663</td>  <td class="nbHitsCovered">&nbsp;319</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;664</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;665</td>  <td class="nbHits">&nbsp;</td>
@@ -1262,11 +1262,11 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;698</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;699</td>  <td class="nbHitsUncovered"><a title="Line 699: Conditional coverage 50% (1/2).">&nbsp;64</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 699: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (id == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;699</td>  <td class="nbHitsUncovered"><a title="Line 699: Conditional coverage 50% (1/2).">&nbsp;61</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 699: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (id == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;700</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null id"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;701</td>  <td class="nbHitsUncovered"><a title="Line 701: Conditional coverage 50% (1/2).">&nbsp;64</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 701: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;701</td>  <td class="nbHitsUncovered"><a title="Line 701: Conditional coverage 50% (1/2).">&nbsp;61</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 701: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;702</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;703</td>  <td class="nbHitsUncovered"><a title="Line 703: Conditional coverage 50% (1/2).">&nbsp;64</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 703: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.readOnly)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;703</td>  <td class="nbHitsUncovered"><a title="Line 703: Conditional coverage 50% (1/2).">&nbsp;61</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 703: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.readOnly)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;704</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> ReadOnlyTransactionException(<span class="keyword">this</span>);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;705</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
@@ -1274,24 +1274,24 @@
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Get object info</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;707</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">try</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;708</td>  <td class="nbHitsCovered">&nbsp;64</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.getObjectInfo(id, <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;708</td>  <td class="nbHitsCovered">&nbsp;61</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.getObjectInfo(id, <span class="keyword">false</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;709</td>  <td class="nbHitsCovered">&nbsp;6</td>  <td class="src"><pre class="src">&nbsp;        } <span class="keyword">catch</span> (DeletedObjectException | UnknownTypeException e) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;710</td>  <td class="nbHitsCovered">&nbsp;6</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">false</span>;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;711</td>  <td class="nbHitsCovered">&nbsp;58</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;711</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;712</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;713</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Handle delete cascade and recurive DeleteAction.DELETE without hogging Java stack</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;714</td>  <td class="nbHitsCovered">&nbsp;58</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjIdSet deletables = <span class="keyword">new</span> ObjIdSet();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;715</td>  <td class="nbHitsCovered">&nbsp;58</td>  <td class="src"><pre class="src">&nbsp;        deletables.add(id);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;716</td>  <td class="nbHitsCovered">&nbsp;58</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">boolean</span> found = <span class="keyword">false</span>;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;717</td>  <td class="nbHitsCovered"><a title="Line 717: Conditional coverage 100% (2/2).">&nbsp;130</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 717: Conditional coverage 100% (2/2).">        <span class="keyword">while</span> (!deletables.isEmpty())</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;718</td>  <td class="nbHitsCovered">&nbsp;79</td>  <td class="src"><pre class="src">&nbsp;            found |= <span class="keyword">this</span>.doDelete(deletables.iterator().next(), deletables);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;714</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjIdSet deletables = <span class="keyword">new</span> ObjIdSet();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;715</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;        deletables.add(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;716</td>  <td class="nbHitsCovered">&nbsp;55</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">boolean</span> found = <span class="keyword">false</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;717</td>  <td class="nbHitsCovered"><a title="Line 717: Conditional coverage 100% (2/2).">&nbsp;124</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 717: Conditional coverage 100% (2/2).">        <span class="keyword">while</span> (!deletables.isEmpty())</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;718</td>  <td class="nbHitsCovered">&nbsp;76</td>  <td class="src"><pre class="src">&nbsp;            found |= <span class="keyword">this</span>.doDelete(deletables.iterator().next(), deletables);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;719</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;720</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Done</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;721</td>  <td class="nbHitsCovered">&nbsp;51</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> found;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;721</td>  <td class="nbHitsCovered">&nbsp;48</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> found;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;722</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;723</td>  <td class="nbHits">&nbsp;</td>
@@ -1312,31 +1312,31 @@
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Get object info</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;731</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">try</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;732</td>  <td class="nbHitsCovered">&nbsp;88</td>  <td class="src"><pre class="src">&nbsp;                info = <span class="keyword">this</span>.getObjectInfo(id, <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;732</td>  <td class="nbHitsCovered">&nbsp;85</td>  <td class="src"><pre class="src">&nbsp;                info = <span class="keyword">this</span>.getObjectInfo(id, <span class="keyword">false</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;733</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;            } <span class="keyword">catch</span> (DeletedObjectException e) {                    <span class="comment">// possibly due to a cycle of DeleteAction.DELETE references</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;734</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;                deletables.remove(id);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;735</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">false</span>;</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;736</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            } <span class="keyword">catch</span> (UnknownTypeException e) {</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;737</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">throw</span> <span class="keyword">new</span> InconsistentDatabaseException(<span class="string">"encountered reference with unknown type during delete cascade: "</span> + id, e);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;738</td>  <td class="nbHitsCovered">&nbsp;86</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;738</td>  <td class="nbHitsCovered">&nbsp;83</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;739</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;740</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Determine if any EXCEPTION reference fields refer to the object (from some other object); if so, throw exception</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;741</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">for</span> (ReferenceFieldStorageInfo fieldInfo :</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;742</td>  <td class="nbHitsCovered"><a title="Line 742: Conditional coverage 100% (2/2).">&nbsp;86</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 742: Conditional coverage 100% (2/2).">              Iterables.filter(<span class="keyword">this</span>.schema.storageInfos.values(), ReferenceFieldStorageInfo.<span class="keyword">class</span>)) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;743</td>  <td class="nbHitsCovered"><a title="Line 743: Conditional coverage 100% (2/2).">&nbsp;280</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 743: Conditional coverage 100% (2/2).">                <span class="keyword">for</span> (ObjId referrer : <span class="keyword">this</span>.findReferrers(id, DeleteAction.EXCEPTION, fieldInfo.storageId)) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;742</td>  <td class="nbHitsCovered"><a title="Line 742: Conditional coverage 100% (2/2).">&nbsp;83</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 742: Conditional coverage 100% (2/2).">              Iterables.filter(<span class="keyword">this</span>.schema.storageInfos.values(), ReferenceFieldStorageInfo.<span class="keyword">class</span>)) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;743</td>  <td class="nbHitsCovered"><a title="Line 743: Conditional coverage 100% (2/2).">&nbsp;274</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 743: Conditional coverage 100% (2/2).">                <span class="keyword">for</span> (ObjId referrer : <span class="keyword">this</span>.findReferrers(id, DeleteAction.EXCEPTION, fieldInfo.storageId)) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;744</td>  <td class="nbHitsCovered"><a title="Line 744: Conditional coverage 100% (2/2).">&nbsp;16</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 744: Conditional coverage 100% (2/2).">                    <span class="keyword">if</span> (!referrer.equals(id))</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;745</td>  <td class="nbHitsCovered">&nbsp;7</td>  <td class="src"><pre class="src">&nbsp;                        <span class="keyword">throw</span> <span class="keyword">new</span> ReferencedObjectException(id, referrer, fieldInfo.storageId);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;746</td>  <td class="nbHitsCovered">&nbsp;9</td>  <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;747</td>  <td class="nbHitsCovered">&nbsp;273</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;747</td>  <td class="nbHitsCovered">&nbsp;267</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;748</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;749</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Do we need to issue delete notifications for the object being deleted?</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;750</td>  <td class="nbHitsCovered"><a title="Line 750: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;79</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 750: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">            <span class="keyword">if</span> (info.isDeleteNotified() || <span class="keyword">this</span>.deleteListeners.isEmpty())</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;751</td>  <td class="nbHitsCovered">&nbsp;61</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">break</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;750</td>  <td class="nbHitsCovered"><a title="Line 750: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;76</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 750: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">            <span class="keyword">if</span> (info.isDeleteNotified() || <span class="keyword">this</span>.deleteListeners.isEmpty())</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;751</td>  <td class="nbHitsCovered">&nbsp;58</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">break</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;752</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;753</td>  <td class="nbHits">&nbsp;</td>
@@ -1350,7 +1350,7 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;759</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Find all objects referred to by a reference field with cascadeDelete = true and add them to deletables</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;760</td>  <td class="nbHitsCovered"><a title="Line 760: Conditional coverage 100% (2/2).">&nbsp;70</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 760: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (ReferenceField field : Iterables.filter(</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;760</td>  <td class="nbHitsCovered"><a title="Line 760: Conditional coverage 100% (2/2).">&nbsp;67</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 760: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (ReferenceField field : Iterables.filter(</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;761</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          Iterables.filter(info.getObjType().referenceFields.values(), ReferenceField.<span class="keyword">class</span>), <span class="keyword">new</span> HasCascadeDelete())) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;762</td>  <td class="nbHitsCovered"><a title="Line 762: Conditional coverage 100% (2/2).">&nbsp;65</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 762: Conditional coverage 100% (2/2).">            <span class="keyword">final</span> Iterable&lt;ObjId&gt; refs = field.parent != <span class="keyword">null</span> ?</a></pre></td></tr>
@@ -1365,39 +1365,39 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;770</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Actually delete the object</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;771</td>  <td class="nbHitsCovered">&nbsp;70</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.deleteObjectData(info);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;772</td>  <td class="nbHitsCovered">&nbsp;70</td>  <td class="src"><pre class="src">&nbsp;        deletables.remove(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;771</td>  <td class="nbHitsCovered">&nbsp;67</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.deleteObjectData(info);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;772</td>  <td class="nbHitsCovered">&nbsp;67</td>  <td class="src"><pre class="src">&nbsp;        deletables.remove(id);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;773</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;774</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Find all UNREFERENCE references and unreference them</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;775</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">for</span> (ReferenceFieldStorageInfo fieldInfo :</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;776</td>  <td class="nbHitsCovered"><a title="Line 776: Conditional coverage 100% (2/2).">&nbsp;70</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 776: Conditional coverage 100% (2/2).">          Iterables.filter(<span class="keyword">this</span>.schema.storageInfos.values(), ReferenceFieldStorageInfo.<span class="keyword">class</span>)) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;777</td>  <td class="nbHitsCovered">&nbsp;255</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> NavigableSet&lt;ObjId&gt; referrers = <span class="keyword">this</span>.findReferrers(id, DeleteAction.UNREFERENCE, fieldInfo.storageId);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;778</td>  <td class="nbHitsCovered"><a title="Line 778: Conditional coverage 100% (2/2).">&nbsp;255</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 778: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (fieldInfo.isSubField()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;776</td>  <td class="nbHitsCovered"><a title="Line 776: Conditional coverage 100% (2/2).">&nbsp;67</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 776: Conditional coverage 100% (2/2).">          Iterables.filter(<span class="keyword">this</span>.schema.storageInfos.values(), ReferenceFieldStorageInfo.<span class="keyword">class</span>)) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;777</td>  <td class="nbHitsCovered">&nbsp;249</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> NavigableSet&lt;ObjId&gt; referrers = <span class="keyword">this</span>.findReferrers(id, DeleteAction.UNREFERENCE, fieldInfo.storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;778</td>  <td class="nbHitsCovered"><a title="Line 778: Conditional coverage 100% (2/2).">&nbsp;249</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 778: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (fieldInfo.isSubField()) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;779</td>  <td class="nbHitsCovered">&nbsp;186</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> ComplexFieldStorageInfo&lt;?&gt; superFieldInfo = <span class="keyword">this</span>.schema.verifyStorageInfo(</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;780</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                  fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.<span class="keyword">class</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;781</td>  <td class="nbHitsCovered">&nbsp;186</td>  <td class="src"><pre class="src">&nbsp;                superFieldInfo.unreferenceAll(<span class="keyword">this</span>, fieldInfo.storageId, id, referrers);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;782</td>  <td class="nbHitsCovered">&nbsp;186</td>  <td class="src"><pre class="src">&nbsp;            } <span class="keyword">else</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;783</td>  <td class="nbHitsCovered">&nbsp;69</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> <span class="keyword">int</span> storageId = fieldInfo.storageId;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;784</td>  <td class="nbHitsCovered"><a title="Line 784: Conditional coverage 100% (2/2).">&nbsp;69</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 784: Conditional coverage 100% (2/2).">                <span class="keyword">for</span> (ObjId referrer : referrers)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;785</td>  <td class="nbHitsCovered">&nbsp;3</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">this</span>.writeSimpleField(referrer, storageId, <span class="keyword">null</span>, <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;783</td>  <td class="nbHitsCovered">&nbsp;63</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> <span class="keyword">int</span> storageId = fieldInfo.storageId;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;784</td>  <td class="nbHitsCovered"><a title="Line 784: Conditional coverage 100% (2/2).">&nbsp;63</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 784: Conditional coverage 100% (2/2).">                <span class="keyword">for</span> (ObjId referrer : referrers)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;785</td>  <td class="nbHitsCovered">&nbsp;4</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">this</span>.writeSimpleField(referrer, storageId, <span class="keyword">null</span>, <span class="keyword">false</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;786</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;787</td>  <td class="nbHitsCovered">&nbsp;255</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;787</td>  <td class="nbHitsCovered">&nbsp;249</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;788</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;789</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Find all DELETE references and mark the containing object for deletion (caller will call us back to actually delete)</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;790</td>  <td class="nbHitsCovered"><a title="Line 790: Conditional coverage 100% (2/2).">&nbsp;70</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 790: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (ObjId referrer : <span class="keyword">this</span>.findReferrers(id, DeleteAction.DELETE, -1))</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;790</td>  <td class="nbHitsCovered"><a title="Line 790: Conditional coverage 100% (2/2).">&nbsp;67</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 790: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (ObjId referrer : <span class="keyword">this</span>.findReferrers(id, DeleteAction.DELETE, -1))</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;791</td>  <td class="nbHitsCovered">&nbsp;9</td>  <td class="src"><pre class="src">&nbsp;            deletables.add(referrer);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;792</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;793</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Done</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;794</td>  <td class="nbHitsCovered">&nbsp;70</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">true</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;794</td>  <td class="nbHitsCovered">&nbsp;67</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">true</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;795</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;796</td>  <td class="nbHits">&nbsp;</td>
@@ -1410,37 +1410,37 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;800</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Delete object's simple field index entries</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;801</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id = info.getId();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;802</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjType type = info.getObjType();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;803</td>  <td class="nbHitsCovered"><a title="Line 803: Conditional coverage 100% (2/2).">&nbsp;154</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 803: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (SimpleField&lt;?&gt; field : type.simpleFields.values()) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;804</td>  <td class="nbHitsCovered"><a title="Line 804: Conditional coverage 100% (2/2).">&nbsp;361</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 804: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (field.indexed)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;805</td>  <td class="nbHitsCovered">&nbsp;95</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.kvt.remove(Transaction.buildSimpleIndexEntry(field, id, <span class="keyword">this</span>.kvt.get(field.buildKey(id))));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;806</td>  <td class="nbHitsCovered">&nbsp;361</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;801</td>  <td class="nbHitsCovered">&nbsp;151</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id = info.getId();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;802</td>  <td class="nbHitsCovered">&nbsp;151</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjType type = info.getObjType();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;803</td>  <td class="nbHitsCovered"><a title="Line 803: Conditional coverage 100% (2/2).">&nbsp;151</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 803: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (SimpleField&lt;?&gt; field : type.simpleFields.values()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;804</td>  <td class="nbHitsCovered"><a title="Line 804: Conditional coverage 100% (2/2).">&nbsp;349</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 804: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (field.indexed)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;805</td>  <td class="nbHitsCovered">&nbsp;89</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.kvt.remove(Transaction.buildSimpleIndexEntry(field, id, <span class="keyword">this</span>.kvt.get(field.buildKey(id))));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;806</td>  <td class="nbHitsCovered">&nbsp;349</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;807</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;808</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Delete object's composite index entries</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;809</td>  <td class="nbHitsCovered"><a title="Line 809: Conditional coverage 100% (2/2).">&nbsp;154</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 809: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (CompositeIndex index : type.compositeIndexes.values())</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;810</td>  <td class="nbHitsCovered">&nbsp;22</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.remove(<span class="keyword">this</span>.buildCompositeIndexEntry(id, index));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;809</td>  <td class="nbHitsCovered"><a title="Line 809: Conditional coverage 100% (2/2).">&nbsp;151</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 809: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (CompositeIndex index : type.compositeIndexes.values())</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;810</td>  <td class="nbHitsCovered">&nbsp;16</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.kvt.remove(<span class="keyword">this</span>.buildCompositeIndexEntry(id, index));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;811</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;812</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Delete object's complex field index entries</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;813</td>  <td class="nbHitsCovered"><a title="Line 813: Conditional coverage 100% (2/2).">&nbsp;154</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 813: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (ComplexField&lt;?&gt; field : type.complexFields.values())</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;813</td>  <td class="nbHitsCovered"><a title="Line 813: Conditional coverage 100% (2/2).">&nbsp;151</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 813: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (ComplexField&lt;?&gt; field : type.complexFields.values())</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;814</td>  <td class="nbHitsCovered">&nbsp;348</td>  <td class="src"><pre class="src">&nbsp;            field.removeIndexEntries(<span class="keyword">this</span>, id);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;815</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;816</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Delete object meta-data and all field content</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;817</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] minKey = info.getId().getBytes();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;818</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;819</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kvt.removeRange(minKey, maxKey);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;817</td>  <td class="nbHitsCovered">&nbsp;151</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] minKey = info.getId().getBytes();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;818</td>  <td class="nbHitsCovered">&nbsp;151</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;819</td>  <td class="nbHitsCovered">&nbsp;151</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kvt.removeRange(minKey, maxKey);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;820</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;821</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Delete object schema version entry</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;822</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kvt.remove(Database.buildVersionIndexKey(id, info.getVersionNumber()));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;823</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;822</td>  <td class="nbHitsCovered">&nbsp;151</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kvt.remove(Database.buildVersionIndexKey(id, info.getVersionNumber()));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;823</td>  <td class="nbHitsCovered">&nbsp;151</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;824</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;825</td>  <td class="nbHits">&nbsp;</td>
@@ -2347,9 +2347,9 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1396</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> CoreIndex&lt;Integer, ObjId&gt; queryVersion() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1397</td>  <td class="nbHitsUncovered"><a title="Line 1397: Conditional coverage 50% (1/2).">&nbsp;720</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1397: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1397</td>  <td class="nbHitsUncovered"><a title="Line 1397: Conditional coverage 50% (1/2).">&nbsp;705</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1397: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1398</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1399</td>  <td class="nbHitsCovered">&nbsp;720</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.db.getVersionIndex(<span class="keyword">this</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1399</td>  <td class="nbHitsCovered">&nbsp;705</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.db.getVersionIndex(<span class="keyword">this</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1400</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1401</td>  <td class="nbHits">&nbsp;</td>
@@ -2551,33 +2551,33 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1509</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1510</td>  <td class="nbHitsUncovered"><a title="Line 1510: Conditional coverage 50% (1/2).">&nbsp;19274</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1510: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1510</td>  <td class="nbHitsUncovered"><a title="Line 1510: Conditional coverage 50% (1/2).">&nbsp;31334</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1510: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1511</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1512</td>  <td class="nbHitsUncovered"><a title="Line 1512: Conditional coverage 50% (1/2).">&nbsp;19274</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1512: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (id == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1512</td>  <td class="nbHitsUncovered"><a title="Line 1512: Conditional coverage 50% (1/2).">&nbsp;31334</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1512: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (id == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1513</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null id"</span>);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1514</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1515</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Get object info</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1516</td>  <td class="nbHitsCovered">&nbsp;19274</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjInfo info = <span class="keyword">this</span>.getObjectInfo(id, updateVersion);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1516</td>  <td class="nbHitsCovered">&nbsp;31334</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjInfo info = <span class="keyword">this</span>.getObjectInfo(id, updateVersion);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1517</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1518</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Find field</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1519</td>  <td class="nbHitsCovered">&nbsp;19273</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleField&lt;?&gt; field = info.getObjType().simpleFields.get(storageId);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1520</td>  <td class="nbHitsUncovered"><a title="Line 1520: Conditional coverage 50% (1/2).">&nbsp;19273</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1520: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (field == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1519</td>  <td class="nbHitsCovered">&nbsp;31333</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleField&lt;?&gt; field = info.getObjType().simpleFields.get(storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1520</td>  <td class="nbHitsUncovered"><a title="Line 1520: Conditional coverage 50% (1/2).">&nbsp;31333</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1520: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (field == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1521</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> UnknownFieldException(info.getObjType(), storageId, <span class="string">"simple field"</span>);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1522</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1523</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Read field</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1524</td>  <td class="nbHitsCovered">&nbsp;19273</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] key = field.buildKey(id);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1525</td>  <td class="nbHitsCovered">&nbsp;19273</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] value = <span class="keyword">this</span>.kvt.get(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1524</td>  <td class="nbHitsCovered">&nbsp;31333</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] key = field.buildKey(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1525</td>  <td class="nbHitsCovered">&nbsp;31333</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] value = <span class="keyword">this</span>.kvt.get(key);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1526</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1527</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Decode value</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1528</td>  <td class="nbHitsUncovered"><a title="Line 1528: Conditional coverage 0% (0/2).">&nbsp;19273</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1528: Conditional coverage 0% (0/2).">        <span class="keyword">return</span> field.fieldType.read(<span class="keyword">new</span> ByteReader(value != <span class="keyword">null</span> ? value : field.fieldType.getDefaultValue()));</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1528</td>  <td class="nbHitsUncovered"><a title="Line 1528: Conditional coverage 0% (0/2).">&nbsp;31333</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1528: Conditional coverage 0% (0/2).">        <span class="keyword">return</span> field.fieldType.read(<span class="keyword">new</span> ByteReader(value != <span class="keyword">null</span> ? value : field.fieldType.getDefaultValue()));</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1529</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1530</td>  <td class="nbHits">&nbsp;</td>
@@ -2635,8 +2635,8 @@
   <td class="src"><pre class="src">&nbsp;            @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1557</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">public</span> Void mutate() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1558</td>  <td class="nbHitsCovered">&nbsp;720</td>  <td class="src"><pre class="src">&nbsp;                Transaction.<span class="keyword">this</span>.doWriteSimpleField(id, storageId, value, updateVersion);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1559</td>  <td class="nbHitsCovered">&nbsp;705</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1558</td>  <td class="nbHitsCovered">&nbsp;721</td>  <td class="src"><pre class="src">&nbsp;                Transaction.<span class="keyword">this</span>.doWriteSimpleField(id, storageId, value, updateVersion);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1559</td>  <td class="nbHitsCovered">&nbsp;706</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1560</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1561</td>  <td class="nbHits">&nbsp;</td>
@@ -2766,7 +2766,7 @@
 <tr>  <td class="numLine">&nbsp;1646</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Notify monitors</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1647</td>  <td class="nbHitsUncovered"><a title="Line 1647: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1647: Conditional coverage 0% (0/2).">        <span class="keyword">final</span> Object oldObj = field.fieldType.read(<span class="keyword">new</span> ByteReader(oldValue != <span class="keyword">null</span> ? oldValue : field.fieldType.getDefaultValue()));</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1648</td>  <td class="nbHitsCovered">&nbsp;582</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.addFieldChangeNotification(<span class="keyword">new</span> SimpleFieldChangeNotifier(field, id) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1648</td>  <td class="nbHitsCovered">&nbsp;580</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.addFieldChangeNotification(<span class="keyword">new</span> SimpleFieldChangeNotifier(field, id) {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1649</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1650</td>  <td class="nbHits">&nbsp;</td>
@@ -2798,10 +2798,10 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1665</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] buildSimpleIndexEntry(SimpleField&lt;?&gt; field, ObjId id, <span class="keyword">byte</span>[] value) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1666</td>  <td class="nbHitsCovered">&nbsp;1392</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter writer = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1667</td>  <td class="nbHitsCovered">&nbsp;1392</td>  <td class="src"><pre class="src">&nbsp;        UnsignedIntEncoder.write(writer, field.storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1666</td>  <td class="nbHitsCovered">&nbsp;1384</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter writer = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1667</td>  <td class="nbHitsCovered">&nbsp;1384</td>  <td class="src"><pre class="src">&nbsp;        UnsignedIntEncoder.write(writer, field.storageId);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1668</td>  <td class="nbHitsUncovered"><a title="Line 1668: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1668: Conditional coverage 0% (0/2).">        writer.write(value != <span class="keyword">null</span> ? value : field.fieldType.getDefaultValue());</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1669</td>  <td class="nbHitsCovered">&nbsp;1392</td>  <td class="src"><pre class="src">&nbsp;        id.writeTo(writer);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1669</td>  <td class="nbHitsCovered">&nbsp;1384</td>  <td class="src"><pre class="src">&nbsp;        id.writeTo(writer);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1670</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">return</span> writer.getBytes();</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1671</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
@@ -3367,12 +3367,12 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1987</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Check object type</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1988</td>  <td class="nbHitsCovered">&nbsp;21640</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.schema.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.<span class="keyword">class</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1988</td>  <td class="nbHitsCovered">&nbsp;33695</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.schema.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.<span class="keyword">class</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1989</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1990</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Check schema version</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1991</td>  <td class="nbHitsCovered">&nbsp;21529</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjInfo info = <span class="keyword">new</span> ObjInfo(<span class="keyword">this</span>, id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1991</td>  <td class="nbHitsCovered">&nbsp;33584</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjInfo info = <span class="keyword">new</span> ObjInfo(<span class="keyword">this</span>, id);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1992</td>  <td class="nbHitsUncovered"><a title="Line 1992: Conditional coverage 0% (0/4) [each condition: 0%, 0%].">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 1992: Conditional coverage 0% (0/4) [each condition: 0%, 0%].">        <span class="keyword">if</span> (!update || info.getSchemaVersion() == <span class="keyword">this</span>.version)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;1993</td>  <td class="nbHitsCovered">&nbsp;17</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> info;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1994</td>  <td class="nbHits">&nbsp;</td>
@@ -3851,8 +3851,8 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2254</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Does anybody care?</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2255</td>  <td class="nbHitsCovered">&nbsp;1002</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">int</span> storageId = notifier.getStorageId();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2256</td>  <td class="nbHitsCovered">&nbsp;1002</td>  <td class="src"><pre class="src">&nbsp;        HashSet&lt;FieldMonitor&gt; monitors = <span class="keyword">this</span>.monitorMap.get(storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2255</td>  <td class="nbHitsCovered">&nbsp;1000</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">int</span> storageId = notifier.getStorageId();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2256</td>  <td class="nbHitsCovered">&nbsp;1000</td>  <td class="src"><pre class="src">&nbsp;        HashSet&lt;FieldMonitor&gt; monitors = <span class="keyword">this</span>.monitorMap.get(storageId);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2257</td>  <td class="nbHitsUncovered"><a title="Line 2257: Conditional coverage 0% (0/4) [each condition: 0%, 0%].">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2257: Conditional coverage 0% (0/4) [each condition: 0%, 0%].">        <span class="keyword">if</span> (monitors == <span class="keyword">null</span> || !Iterables.any(monitors, <span class="keyword">new</span> MonitoredPredicate(notifier.getId(), storageId)))</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2258</td>  <td class="nbHitsCovered">&nbsp;83</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2259</td>  <td class="nbHits">&nbsp;</td>
@@ -3926,11 +3926,11 @@
 <tr>  <td class="numLine">&nbsp;2300</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Verify object exists</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2301</td>  <td class="nbHitsUncovered"><a title="Line 2301: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2301: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (id == <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2302</td>  <td class="nbHitsCovered">&nbsp;1285</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null id"</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2302</td>  <td class="nbHitsCovered">&nbsp;1286</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null id"</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2303</td>  <td class="nbHitsUncovered"><a title="Line 2303: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2303: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2304</td>  <td class="nbHitsCovered">&nbsp;1285</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2304</td>  <td class="nbHitsCovered">&nbsp;1286</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2305</td>  <td class="nbHitsUncovered"><a title="Line 2305: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2305: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.kvt.get(id.getBytes()) == <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2306</td>  <td class="nbHitsCovered">&nbsp;1274</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> DeletedObjectException(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2306</td>  <td class="nbHitsCovered">&nbsp;1275</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> DeletedObjectException(id);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2307</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2308</td>  <td class="nbHits">&nbsp;</td>
@@ -3947,27 +3947,27 @@
 <tr>  <td class="numLine">&nbsp;2314</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Validate transaction</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2315</td>  <td class="nbHitsUncovered"><a title="Line 2315: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2315: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2316</td>  <td class="nbHitsCovered">&nbsp;1446</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2316</td>  <td class="nbHitsCovered">&nbsp;1447</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2317</td>  <td class="nbHitsUncovered"><a title="Line 2317: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2317: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.readOnly)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2318</td>  <td class="nbHitsCovered">&nbsp;1445</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> ReadOnlyTransactionException(<span class="keyword">this</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2318</td>  <td class="nbHitsCovered">&nbsp;1446</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> ReadOnlyTransactionException(<span class="keyword">this</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2319</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2320</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// If re-entrant invocation, we're already set up</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2321</td>  <td class="nbHitsUncovered"><a title="Line 2321: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2321: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.pendingNotifications.get() != <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2322</td>  <td class="nbHitsCovered">&nbsp;1096</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> mutation.mutate();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2322</td>  <td class="nbHitsCovered">&nbsp;1097</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> mutation.mutate();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2323</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2324</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Set up pending report list, perform mutation, and then issue reports</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2325</td>  <td class="nbHitsCovered">&nbsp;1096</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.pendingNotifications.set(<span class="keyword">new</span> TreeMap&lt;Integer, ArrayList&lt;FieldChangeNotifier&gt;&gt;());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2325</td>  <td class="nbHitsCovered">&nbsp;1097</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.pendingNotifications.set(<span class="keyword">new</span> TreeMap&lt;Integer, ArrayList&lt;FieldChangeNotifier&gt;&gt;());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2326</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">try</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2327</td>  <td class="nbHitsCovered">&nbsp;1096</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> mutation.mutate();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2327</td>  <td class="nbHitsCovered">&nbsp;1097</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> mutation.mutate();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2328</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        } <span class="keyword">finally</span> {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2329</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">try</span> {</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2330</td>  <td class="nbHitsCovered">&nbsp;1178</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> TreeMap&lt;Integer, ArrayList&lt;FieldChangeNotifier&gt;&gt; pendingNotificationMap = <span class="keyword">this</span>.pendingNotifications.get();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2330</td>  <td class="nbHitsCovered">&nbsp;1179</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> TreeMap&lt;Integer, ArrayList&lt;FieldChangeNotifier&gt;&gt; pendingNotificationMap = <span class="keyword">this</span>.pendingNotifications.get();</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2331</td>  <td class="nbHitsUncovered"><a title="Line 2331: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2331: Conditional coverage 0% (0/2).">                <span class="keyword">while</span> (!pendingNotificationMap.isEmpty()) {</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2332</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
@@ -3985,10 +3985,10 @@
 <tr>  <td class="numLineCover">&nbsp;2341</td>  <td class="nbHitsUncovered"><a title="Line 2341: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2341: Conditional coverage 0% (0/2).">                        <span class="keyword">if</span> (!monitorList.isEmpty())</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2342</td>  <td class="nbHitsCovered">&nbsp;83</td>  <td class="src"><pre class="src">&nbsp;                            <span class="keyword">this</span>.notifyFieldMonitors(notifier, NavigableSets.singleton(notifier.getId()), monitorList, 0);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2343</td>  <td class="nbHitsCovered">&nbsp;82</td>  <td class="src"><pre class="src">&nbsp;                    }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2344</td>  <td class="nbHitsCovered">&nbsp;1120</td>  <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2344</td>  <td class="nbHitsCovered">&nbsp;1121</td>  <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2345</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            } <span class="keyword">finally</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2346</td>  <td class="nbHitsCovered">&nbsp;1072</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.pendingNotifications.remove();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2346</td>  <td class="nbHitsCovered">&nbsp;1073</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.pendingNotifications.remove();</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2347</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            }</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2348</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
@@ -4198,8 +4198,8 @@
 <tr>  <td class="numLine">&nbsp;2474</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> CoreIndex&lt;?, ObjId&gt; queryIndex(<span class="keyword">int</span> storageId) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2475</td>  <td class="nbHitsUncovered"><a title="Line 2475: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2475: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.stale)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2476</td>  <td class="nbHitsCovered">&nbsp;634</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2477</td>  <td class="nbHitsCovered">&nbsp;634</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleFieldStorageInfo&lt;?&gt; fieldInfo = <span class="keyword">this</span>.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.<span class="keyword">class</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2476</td>  <td class="nbHitsCovered">&nbsp;594</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(<span class="keyword">this</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2477</td>  <td class="nbHitsCovered">&nbsp;594</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> SimpleFieldStorageInfo&lt;?&gt; fieldInfo = <span class="keyword">this</span>.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.<span class="keyword">class</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2478</td>  <td class="nbHitsUncovered"><a title="Line 2478: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2478: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (fieldInfo.superFieldStorageId == 0)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2479</td>  <td class="nbHitsCovered">&nbsp;278</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> fieldInfo.getSimpleFieldIndex(<span class="keyword">this</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2480</td>  <td class="nbHitsCovered">&nbsp;278</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ComplexFieldStorageInfo&lt;?&gt; superFieldInfo</pre></td></tr>
@@ -4438,15 +4438,15 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2609</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> NavigableSet&lt;ObjId&gt; findReferrers(ObjId target, DeleteAction onDelete, <span class="keyword">int</span> fieldStorageId) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2610</td>  <td class="nbHitsCovered">&nbsp;605</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ArrayList&lt;NavigableSet&lt;ObjId&gt;&gt; refSets = <span class="keyword">new</span> ArrayList&lt;&gt;();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2610</td>  <td class="nbHitsCovered">&nbsp;590</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ArrayList&lt;NavigableSet&lt;ObjId&gt;&gt; refSets = <span class="keyword">new</span> ArrayList&lt;&gt;();</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2611</td>  <td class="nbHitsUncovered"><a title="Line 2611: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2611: Conditional coverage 0% (0/2).">        <span class="keyword">for</span> (SchemaVersion schemaVersion : <span class="keyword">this</span>.schema.versions.values()) {</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2612</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2613</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Check whether any object of this version exist; if not, skip</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2614</td>  <td class="nbHitsCovered">&nbsp;707</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> NavigableSet&lt;ObjId&gt; versionObjects = <span class="keyword">this</span>.queryVersion().asMap().get(schemaVersion.versionNumber);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2614</td>  <td class="nbHitsCovered">&nbsp;692</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> NavigableSet&lt;ObjId&gt; versionObjects = <span class="keyword">this</span>.queryVersion().asMap().get(schemaVersion.versionNumber);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2615</td>  <td class="nbHitsUncovered"><a title="Line 2615: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2615: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (versionObjects == <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2616</td>  <td class="nbHitsCovered">&nbsp;658</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">continue</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2616</td>  <td class="nbHitsCovered">&nbsp;637</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">continue</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2617</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2618</td>  <td class="nbHits">&nbsp;</td>
@@ -4460,24 +4460,24 @@
 <tr>  <td class="numLine">&nbsp;2623</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                    <span class="comment">// Check delete action and field</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2624</td>  <td class="nbHitsUncovered"><a title="Line 2624: Conditional coverage 33% (2/6) [each condition: 100%, 0%, 0%].">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2624: Conditional coverage 33% (2/6) [each condition: 100%, 0%, 0%].">                    <span class="keyword">if</span> (field.onDelete != onDelete || (fieldStorageId != -1 &amp;&amp; field.storageId != fieldStorageId))</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2625</td>  <td class="nbHitsCovered">&nbsp;249</td>  <td class="src"><pre class="src">&nbsp;                        <span class="keyword">continue</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2625</td>  <td class="nbHitsCovered">&nbsp;209</td>  <td class="src"><pre class="src">&nbsp;                        <span class="keyword">continue</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2626</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2627</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                    <span class="comment">// Query index on this field, restricting to those only references coming from objType objects</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2628</td>  <td class="nbHitsCovered">&nbsp;249</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">final</span> NavigableSet&lt;ObjId&gt; refs = <span class="keyword">this</span>.queryIndex(field.storageId)</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2628</td>  <td class="nbHitsCovered">&nbsp;209</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">final</span> NavigableSet&lt;ObjId&gt; refs = <span class="keyword">this</span>.queryIndex(field.storageId)</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2629</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                      .filter(1, <span class="keyword">new</span> KeyRanges(ObjId.getKeyRange(objType.storageId))).asMap().get(target);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2630</td>  <td class="nbHitsUncovered"><a title="Line 2630: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2630: Conditional coverage 0% (0/2).">                    <span class="keyword">if</span> (refs == <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2631</td>  <td class="nbHitsCovered">&nbsp;41</td>  <td class="src"><pre class="src">&nbsp;                        <span class="keyword">continue</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2631</td>  <td class="nbHitsCovered">&nbsp;42</td>  <td class="src"><pre class="src">&nbsp;                        <span class="keyword">continue</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2632</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2633</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                    <span class="comment">// Restrict further to the specific schema version</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2634</td>  <td class="nbHitsCovered">&nbsp;41</td>  <td class="src"><pre class="src">&nbsp;                    refSets.add(NavigableSets.intersection(versionObjects, refs));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2635</td>  <td class="nbHitsCovered">&nbsp;849</td>  <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2636</td>  <td class="nbHitsCovered">&nbsp;658</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2637</td>  <td class="nbHitsCovered">&nbsp;605</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2634</td>  <td class="nbHitsCovered">&nbsp;42</td>  <td class="src"><pre class="src">&nbsp;                    refSets.add(NavigableSets.intersection(versionObjects, refs));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2635</td>  <td class="nbHitsCovered">&nbsp;765</td>  <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2636</td>  <td class="nbHitsCovered">&nbsp;637</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2637</td>  <td class="nbHitsCovered">&nbsp;590</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;2638</td>  <td class="nbHitsUncovered"><a title="Line 2638: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 2638: Conditional coverage 0% (0/2).">        <span class="keyword">return</span> !refSets.isEmpty() ? NavigableSets.union(refSets) : NavigableSets.empty(FieldTypeRegistry.OBJ_ID);</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2639</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
@@ -4537,17 +4537,17 @@
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2672</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2673</td>  <td class="nbHitsCovered">&nbsp;582</td>  <td class="src"><pre class="src">&nbsp;        SimpleFieldChangeNotifier(SimpleField&lt;?&gt; field, ObjId id) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2674</td>  <td class="nbHitsCovered">&nbsp;582</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.storageId = field.storageId;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2675</td>  <td class="nbHitsCovered">&nbsp;582</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.id = id;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2676</td>  <td class="nbHitsCovered">&nbsp;582</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2673</td>  <td class="nbHitsCovered">&nbsp;580</td>  <td class="src"><pre class="src">&nbsp;        SimpleFieldChangeNotifier(SimpleField&lt;?&gt; field, ObjId id) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2674</td>  <td class="nbHitsCovered">&nbsp;580</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.storageId = field.storageId;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2675</td>  <td class="nbHitsCovered">&nbsp;580</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.id = id;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2676</td>  <td class="nbHitsCovered">&nbsp;580</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2677</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2678</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2679</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">public</span> <span class="keyword">int</span> getStorageId() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2680</td>  <td class="nbHitsCovered">&nbsp;643</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.storageId;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2680</td>  <td class="nbHitsCovered">&nbsp;641</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.storageId;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2681</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2682</td>  <td class="nbHits">&nbsp;</td>
@@ -4778,14 +4778,14 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2802</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="comment">// Matches ReferenceFields that have cascadeDelete = true</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2803</td>  <td class="nbHitsCovered">&nbsp;395</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">class</span> HasCascadeDelete <span class="keyword">implements</span> Predicate&lt;ReferenceField&gt; {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2803</td>  <td class="nbHitsCovered">&nbsp;383</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">class</span> HasCascadeDelete <span class="keyword">implements</span> Predicate&lt;ReferenceField&gt; {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2804</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2805</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2806</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">public</span> <span class="keyword">boolean</span> apply(ReferenceField field) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;2807</td>  <td class="nbHitsCovered">&nbsp;255</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> field.cascadeDelete;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;2807</td>  <td class="nbHitsCovered">&nbsp;249</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> field.cascadeDelete;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2808</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;2809</td>  <td class="nbHits">&nbsp;</td>
@@ -4796,6 +4796,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 3:37 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 5:45 PM.</div>
 </body>
 </html>

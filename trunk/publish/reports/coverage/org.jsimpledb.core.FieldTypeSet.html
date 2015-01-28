@@ -108,8 +108,8 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;46</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    FieldTypeSet(Transaction tx, FieldType&lt;E&gt; fieldType, <span class="keyword">boolean</span> prefixMode, <span class="keyword">byte</span>[] prefix) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;5788</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>(tx, fieldType, prefixMode, <span class="keyword">false</span>, prefix, KeyRange.forPrefix(prefix), <span class="keyword">null</span>, <span class="keyword">new</span> Bounds&lt;E&gt;());</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;5788</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;5772</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>(tx, fieldType, prefixMode, <span class="keyword">false</span>, prefix, KeyRange.forPrefix(prefix), <span class="keyword">null</span>, <span class="keyword">new</span> Bounds&lt;E&gt;());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;5772</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;49</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;50</td>  <td class="nbHits">&nbsp;</td>
@@ -150,26 +150,26 @@
   <td class="src"><pre class="src">&nbsp;    FieldTypeSet(Transaction tx, FieldType&lt;E&gt; fieldType, <span class="keyword">boolean</span> prefixMode, <span class="keyword">boolean</span> reversed,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;68</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;      <span class="keyword">byte</span>[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds&lt;E&gt; bounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered">&nbsp;15025</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx.kvt, prefixMode, reversed, keyRange, keyFilter, bounds);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsUncovered"><a title="Line 70: Conditional coverage 50% (1/2).">&nbsp;15025</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 70: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (fieldType == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered">&nbsp;15018</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx.kvt, prefixMode, reversed, keyRange, keyFilter, bounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsUncovered"><a title="Line 70: Conditional coverage 50% (1/2).">&nbsp;15018</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 70: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (fieldType == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;71</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null fieldType"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;72</td>  <td class="nbHitsUncovered"><a title="Line 72: Conditional coverage 50% (1/2).">&nbsp;15025</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 72: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (prefix == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;72</td>  <td class="nbHitsUncovered"><a title="Line 72: Conditional coverage 50% (1/2).">&nbsp;15018</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 72: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (prefix == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;73</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null prefix"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;74</td>  <td class="nbHitsUncovered"><a title="Line 74: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;15025</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 74: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        <span class="keyword">if</span> (prefix.length &gt; 0 &amp;&amp; keyRange == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;74</td>  <td class="nbHitsUncovered"><a title="Line 74: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;15018</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 74: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        <span class="keyword">if</span> (prefix.length &gt; 0 &amp;&amp; keyRange == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;75</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null keyRange"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;76</td>  <td class="nbHitsUncovered"><a title="Line 76: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;15025</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 76: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        <span class="keyword">if</span> (keyRange != <span class="keyword">null</span> &amp;&amp; !KeyRange.forPrefix(prefix).contains(keyRange))</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;76</td>  <td class="nbHitsUncovered"><a title="Line 76: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;15018</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 76: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        <span class="keyword">if</span> (keyRange != <span class="keyword">null</span> &amp;&amp; !KeyRange.forPrefix(prefix).contains(keyRange))</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;77</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(keyRange + <span class="string">" does not restrict to prefix "</span> + ByteUtil.toString(prefix));</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered">&nbsp;15025</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.tx = tx;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;79</td>  <td class="nbHitsCovered">&nbsp;15025</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.fieldType = fieldType;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;80</td>  <td class="nbHitsCovered">&nbsp;15025</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.prefix = prefix;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;81</td>  <td class="nbHitsCovered">&nbsp;15025</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered">&nbsp;15018</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.tx = tx;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;79</td>  <td class="nbHitsCovered">&nbsp;15018</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.fieldType = fieldType;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;80</td>  <td class="nbHitsCovered">&nbsp;15018</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.prefix = prefix;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;81</td>  <td class="nbHitsCovered">&nbsp;15018</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;82</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;83</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;84</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">final</span> Comparator&lt;? <span class="keyword">super</span> E&gt; comparator() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;85</td>  <td class="nbHitsCovered"><a title="Line 85: Conditional coverage 100% (2/2).">&nbsp;1099</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 85: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> <span class="keyword">this</span>.reversed ? Collections.reverseOrder(<span class="keyword">this</span>.fieldType) : <span class="keyword">this</span>.fieldType;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;85</td>  <td class="nbHitsCovered"><a title="Line 85: Conditional coverage 100% (2/2).">&nbsp;1123</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 85: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> <span class="keyword">this</span>.reversed ? Collections.reverseOrder(<span class="keyword">this</span>.fieldType) : <span class="keyword">this</span>.fieldType;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;86</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;87</td>  <td class="nbHits">&nbsp;</td>
@@ -178,18 +178,18 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;89</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">void</span> encode(ByteWriter writer, Object obj) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;90</td>  <td class="nbHitsCovered">&nbsp;8990</td>  <td class="src"><pre class="src">&nbsp;        writer.write(<span class="keyword">this</span>.prefix);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;91</td>  <td class="nbHitsCovered">&nbsp;8990</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.fieldType.validateAndWrite(writer, obj);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;92</td>  <td class="nbHitsCovered">&nbsp;8986</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;90</td>  <td class="nbHitsCovered">&nbsp;12576</td>  <td class="src"><pre class="src">&nbsp;        writer.write(<span class="keyword">this</span>.prefix);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;91</td>  <td class="nbHitsCovered">&nbsp;12576</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.fieldType.validateAndWrite(writer, obj);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;92</td>  <td class="nbHitsCovered">&nbsp;12572</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;93</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;94</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;95</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> E decode(ByteReader reader) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;96</td>  <td class="nbHitsUncovered"><a title="Line 96: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;20783</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 96: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">        <span class="keyword">assert</span> ByteUtil.isPrefixOf(<span class="keyword">this</span>.prefix, reader.getBytes());</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;97</td>  <td class="nbHitsCovered">&nbsp;20783</td>  <td class="src"><pre class="src">&nbsp;        reader.skip(<span class="keyword">this</span>.prefix.length);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;98</td>  <td class="nbHitsCovered">&nbsp;20783</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.fieldType.read(reader);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;96</td>  <td class="nbHitsUncovered"><a title="Line 96: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;30837</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 96: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">        <span class="keyword">assert</span> ByteUtil.isPrefixOf(<span class="keyword">this</span>.prefix, reader.getBytes());</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;97</td>  <td class="nbHitsCovered">&nbsp;30837</td>  <td class="src"><pre class="src">&nbsp;        reader.skip(<span class="keyword">this</span>.prefix.length);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;98</td>  <td class="nbHitsCovered">&nbsp;30837</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.fieldType.read(reader);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;99</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;100</td>  <td class="nbHits">&nbsp;</td>
@@ -198,6 +198,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 3:37 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 5:45 PM.</div>
 </body>
 </html>
