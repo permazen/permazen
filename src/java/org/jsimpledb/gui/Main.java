@@ -114,6 +114,7 @@ public class Main extends AbstractMain implements GUIConfig {
 
         // Set up database
         this.startupKVDatabase();
+        this.log.debug("using database: " + this.databaseDescription);
         try {
 
             // Create Database
