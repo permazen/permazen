@@ -3,13 +3,6 @@
 /* Base our theme on the Vaadin reindeer theme */
 @import "../reindeer/legacy-styles.css";
 
-/*** OVERALL ***/
-
-/* Fix for http://dev.vaadin.com/ticket/11780 */
-.v-browserframe {
-    overflow:hidden;
-}
-
 /*** NOTIFICATIONS ***/
 
 .v-Notification h1,
