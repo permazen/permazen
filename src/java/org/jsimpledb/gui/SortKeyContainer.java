@@ -176,7 +176,7 @@ class SortKeyContainer extends SelfKeyedContainer<SortKeyContainer.SortKey> {
             this.storageId = jfield.getStorageId();
             this.isSubField = jfield.getParentField() != null;
             this.fieldName = (this.isSubField ? jfield.getParentField().getName() + "." : "") + jfield.getName();
-            this.fieldType = jfield.getType().wrap().getRawType();
+            this.fieldType = jfield.getTypeToken().wrap().getRawType();
         }
 
         @Override
