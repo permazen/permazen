@@ -153,9 +153,9 @@
         <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="build.classpath"/>
         <mkdir dir="build/dist"/>
 
-        <!-- Core JAR -->
+        <!-- Main JAR -->
         <delete file="build/dist/${ant.project.name}-${library.version}.jar"/>
-        <jarjar destfile="build/dist/${ant.project.name}-core-${library.version}.jar">
+        <jarjar destfile="build/dist/${ant.project.name}-${library.version}.jar">
 
             <!-- Fold in ASM classes -->
             <zipfileset src="build/asm.jar"/>
@@ -258,8 +258,8 @@
         <jar destfile="build/dist/${ant.project.name}-sources-${library.version}.jar">
             <fileset dir="src/java" includes="**/*"/>
         </jar>
-        <delete file="build/dist/${ant.project.name}-javadocs-${library.version}.jar"/>
-        <jar destfile="build/dist/${ant.project.name}-javadocs-${library.version}.jar">
+        <delete file="build/dist/${ant.project.name}-javadoc-${library.version}.jar"/>
+        <jar destfile="build/dist/${ant.project.name}-javadoc-${library.version}.jar">
             <fileset dir="build/reports/javadoc" includes="**/*"/>
         </jar>
         <property name="otherjars.completed" value="true"/>
@@ -361,7 +361,7 @@
         <mkdir dir="build/distfile/libs"/>
         <copy todir="build/distfile/libs">
             <fileset dir="build/dist">
-                <include name="${ant.project.name}-core-${library.version}.jar"/>
+                <include name="${ant.project.name}-${library.version}.jar"/>
                 <include name="${ant.project.name}-spring-${library.version}.jar"/>
                 <include name="${ant.project.name}-gui-${library.version}.jar"/>
                 <include name="${ant.project.name}-cli-${library.version}.jar"/>
@@ -499,8 +499,34 @@
                 </filterset>
             </copy>
 
-            <!-- Sign and deploy the JARs -->
-            <antcontrib:for list="core,cli,gui,spring,javadocs,sources" param="name" trim="true">
+            <!-- Sign and deploy the main JAR -->
+            <antcontrib:if>
+                <equals arg1="@{sign}" arg2="true"/>
+                <antcontrib:then>
+                    <artifact:mvn>
+                        <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file"/>
+                        <arg value="-Dgpg.executable=${gpg.executable}"/>
+                        <arg value="-Durl=@{url}"/>
+                        <arg value="-DrepositoryId=@{id}"/>
+                        <arg value="-DpomFile=build/pom.xml"/>
+                        <arg value="-Dfile=build/dist/${ant.project.name}-${library.version}.jar"/>
+                        <arg value="-Pgpg"/>
+                    </artifact:mvn>
+                </antcontrib:then>
+                <antcontrib:else>
+                    <artifact:mvn>
+                        <arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file"/>
+                        <arg value="-Dgpg.executable=${gpg.executable}"/>
+                        <arg value="-Durl=@{url}"/>
+                        <arg value="-DrepositoryId=@{id}"/>
+                        <arg value="-DpomFile=build/pom.xml"/>
+                        <arg value="-Dfile=build/dist/${ant.project.name}-${library.version}.jar"/>
+                    </artifact:mvn>
+                </antcontrib:else>
+            </antcontrib:if>
+
+            <!-- Sign and deploy the other JARs -->
+            <antcontrib:for list="cli,gui,spring,javadoc,sources" param="name" trim="true">
                 <sequential>
                     <antcontrib:if>
                         <equals arg1="@{sign}" arg2="true"/>
