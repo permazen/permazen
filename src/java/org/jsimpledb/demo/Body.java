@@ -36,5 +36,11 @@ public interface Body extends JObject {
     @Min(0)
     float getMass();
     void setMass(float name);
+
+    /**
+     * Get the image of this instance, if any. Currently this must be a PNG file.
+     */
+    byte[] getImage();
+    void setImage(byte[] image);
 }
 

@@ -45,7 +45,7 @@ public class ChangePublisher {
 
         // We rely here on the fact that publishing a change in any property reloads all properties for that object
         this.publishChangeOnCommit(new SimpleFieldChange<Object, ObjId>(jobj,
-          Integer.MAX_VALUE, ObjectContainer.OBJECT_ID_PROPERTY, jobj.getObjId(), jobj.getObjId()));
+          Integer.MAX_VALUE, JObjectContainer.OBJECT_ID_PROPERTY, jobj.getObjId(), jobj.getObjId()));
     }
 
 // PublishChangeCallback - notifies the rest of the application when a data instance has been added/removed/changed

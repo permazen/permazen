@@ -31,17 +31,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Contains widgets that allow choosing an object reference. Supports searching and filtering.
+ * Contains widgets that allow choosing an object reference. Supports searching via Java expression and filtering.
  */
 @SuppressWarnings({ "serial", "deprecation" })
-public class ObjectChooser implements Property.ValueChangeNotifier {
+public class JObjectChooser implements Property.ValueChangeNotifier {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final Button showButton = new Button("Show", new Button.ClickListener() {
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            ObjectChooser.this.showButtonClicked();
+            JObjectChooser.this.showButtonClicked();
         }
     });
     private final CheckBox reverseCheckBox = new CheckBox("Reverse sort");
@@ -50,7 +50,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
     private final ParseSession session;
     private final boolean showFields;
     private final TypeContainer typeContainer;
-    private final ObjectContainer objectContainer;
+    private final ExprQueryJObjectContainer objectContainer;
     private final HashSet<Property.ValueChangeListener> listeners = new HashSet<>();
 
     private final HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
@@ -59,7 +59,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
     private final TextArea exprField = new TextArea();
     private final ComboBox sortComboBox = new ComboBox();
 
-    private ObjectTable objectTable;
+    private JObjectTable objectTable;
     private SortKeyContainer sortKeyContainer;
 
     /**
@@ -70,7 +70,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
      * @param type type restriction, or null for none
      * @param showFields true to show all object fields, false for just reference label
      */
-    public ObjectChooser(JSimpleDB jdb, ParseSession session, Class<?> type, boolean showFields) {
+    public JObjectChooser(JSimpleDB jdb, ParseSession session, Class<?> type, boolean showFields) {
         if (jdb == null)
             throw new IllegalArgumentException("null jdb");
         if (session == null)
@@ -80,7 +80,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         this.showFields = showFields;
         this.typeContainer = new TypeContainer(this.jdb, type);
         this.typeTable = new TypeTable(this.typeContainer);
-        this.objectContainer = new ObjectContainer(this.jdb, type, this.session);
+        this.objectContainer = new ExprQueryJObjectContainer(this.jdb, this.typeContainer.getRootType(), this.session);
 
         // Build object panel
         this.splitPanel.setWidth("100%");
@@ -93,9 +93,9 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         this.showForm.setMargin(false);
         this.showForm.setWidth("100%");
 
-        // Add "Show all by" combo box and "Reverse sort" check box
+        // Add "Sort by" combo box and "Reverse sort" check box
         final HorizontalLayout sortLayout = new HorizontalLayout();
-        sortLayout.setCaption("Show all by:");
+        sortLayout.setCaption("Sort by:");
         sortLayout.setSpacing(true);
         sortLayout.setMargin(false);
         this.sortComboBox.setNullSelectionAllowed(false);
@@ -122,28 +122,28 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         this.typeTable.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                ObjectChooser.this.selectType((Class<?>)event.getProperty().getValue(), false);
+                JObjectChooser.this.selectType((Class<?>)event.getProperty().getValue(), false);
             }
         });
 
-        // Listen to "Show all by" and "Reverse sort" selections
+        // Listen to "Sort by" and "Reverse sort" selections
         final Property.ValueChangeListener sortListener = new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                ObjectChooser.this.selectSort();
+                JObjectChooser.this.selectSort();
             }
         };
         this.sortComboBox.addValueChangeListener(sortListener);
         this.reverseCheckBox.addValueChangeListener(sortListener);
 
         // Populate table
-        this.selectType(type != null ? type : Object.class, true);
+        this.selectType(type != null ? type : this.typeContainer.getRootType(), true);
     }
 
     /**
      * Get the object container for this instance.
      */
-    public ObjectContainer getObjectContainer() {
+    public ExprQueryJObjectContainer getJObjectContainer() {
         return this.objectContainer;
     }
 
@@ -237,14 +237,20 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         if (!this.setNewType(!type.equals(Object.class) ? type : null, force))
             return;
 
+        // Get previous sort key
+        final SortKeyContainer.SortKey previousSort = (SortKeyContainer.SortKey)this.sortComboBox.getValue();
+
         // Rebuild the sort combobox
         final JClass<?> jclass = this.getJClass();
         this.sortKeyContainer = jclass != null ?
           new SortKeyContainer(this.jdb, jclass) : new SortKeyContainer(this.jdb, this.objectContainer.getType());
         this.sortComboBox.setContainerDataSource(this.sortKeyContainer);
 
-        // Default to sorting by object ID
-        this.sortComboBox.setValue(this.sortKeyContainer.new ObjectIdSortKey());
+        // Try to restore previous sort, otherwise default to sorting by object ID
+        SortKeyContainer.SortKey newSort = this.sortKeyContainer.getJavaObject(previousSort);
+        if (newSort == null)
+            newSort = this.sortKeyContainer.new ObjectIdSortKey();
+        this.sortComboBox.setValue(newSort);
         this.selectSort();
         this.showObjects();
     }
@@ -284,7 +290,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         }
         this.objectContainer.setType(type);
         this.objectContainer.load(Collections.<JObject>emptySet());
-        this.objectTable = new ObjectTable(this.jdb, this.objectContainer, this.session, this.showFields);
+        this.objectTable = new JObjectTable(this.jdb, this.objectContainer, this.session, this.showFields);
         for (Property.ValueChangeListener listener : this.listeners)
             this.objectTable.addValueChangeListener(listener);
         this.splitPanel.setSecondComponent(this.objectTable);
@@ -292,7 +298,7 @@ public class ObjectChooser implements Property.ValueChangeNotifier {
         final Property.ValueChangeEvent event = new Property.ValueChangeEvent() {
             @Override
             public Property getProperty() {
-                return ObjectChooser.this.objectTable;
+                return JObjectChooser.this.objectTable;
             }
         };
         for (Property.ValueChangeListener listener : new HashSet<Property.ValueChangeListener>(this.listeners)) {

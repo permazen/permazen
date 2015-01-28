@@ -14,12 +14,19 @@
 
 <!-- $Id$ -->
 <Schema formatVersion="2">
-    <ObjectType storageId="935" name="Star">
-        <SimpleField storageId="36701" name="luminosity" type="float"/>
-        <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
+    <ObjectType storageId="63949" name="Moon">
+        <SimpleField storageId="40763" name="image" type="byte[]"/>
         <SimpleField storageId="62200" name="mass" type="float" indexed="true"/>
+        <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
+        <ReferenceField storageId="54749" name="parent" onDelete="EXCEPTION">
+            <ObjectTypes>
+                <ObjectType storageId="8890"/>
+            </ObjectTypes>
+        </ReferenceField>
     </ObjectType>
     <ObjectType storageId="8890" name="Planet">
+        <SimpleField storageId="40763" name="image" type="byte[]"/>
+        <SimpleField storageId="62200" name="mass" type="float" indexed="true"/>
         <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
         <ReferenceField storageId="54749" name="parent" onDelete="EXCEPTION">
             <ObjectTypes>
@@ -27,15 +34,11 @@
             </ObjectTypes>
         </ReferenceField>
         <SimpleField storageId="55451" name="ringed" type="boolean"/>
-        <SimpleField storageId="62200" name="mass" type="float" indexed="true"/>
     </ObjectType>
-    <ObjectType storageId="63949" name="Moon">
-        <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
-        <ReferenceField storageId="54749" name="parent" onDelete="EXCEPTION">
-            <ObjectTypes>
-                <ObjectType storageId="8890"/>
-            </ObjectTypes>
-        </ReferenceField>
+    <ObjectType storageId="935" name="Star">
+        <SimpleField storageId="40763" name="image" type="byte[]"/>
+        <SimpleField storageId="36701" name="luminosity" type="float"/>
         <SimpleField storageId="62200" name="mass" type="float" indexed="true"/>
+        <SimpleField storageId="40098" name="name" type="java.lang.String" indexed="true"/>
     </ObjectType>
 </Schema>

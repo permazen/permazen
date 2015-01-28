@@ -15,7 +15,7 @@ import org.jsimpledb.util.NavigableSets;
 /**
  * Support superclass for {@link HasSatellites} implementations.
  */
-public abstract class AbstractHasSatellites<S extends Satellite<?>> implements HasSatellites<S> {
+public abstract class AbstractHasSatellites<S extends Satellite<?>> extends AbstractBody implements HasSatellites<S> {
 
     private final Class<S> satelliteType;
 

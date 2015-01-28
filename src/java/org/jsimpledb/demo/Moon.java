@@ -13,6 +13,6 @@ import org.jsimpledb.annotation.JSimpleClass;
  * Represents a moon of a planet.
  */
 @JSimpleClass
-public abstract class Moon implements Satellite<Planet> {
+public abstract class Moon extends AbstractBody implements Satellite<Planet> {
 }
 
