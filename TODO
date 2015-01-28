@@ -1,28 +1,63 @@
 
-- Add support for composite indexes on 3, 4, ... fields
+SHORT TERM
+==========
 
-- Add support for XA transactions
-    - But only if KVStore supports them
+- Update to next release of dellroad-stuff
 
-- Expression parsing
-    - Aggregate functions: min(), max(), avg(), sum()
+- Vaadin GUI editor generator
+    - Implement editors for collection fields
+    - Add range support - if query result is Navigable{Set,Map}
+        - Min field
+        - Max field
+        - "Chunk Size" pulldown
+        - "Next Chunk" button
+    - Add arbitrary query support
+        - Try to build JObjectContainer+table first
+        - If that fails, build ObjectContainer+table instead
+    - Make more modular/pluggable
 
-- Schema comparator
-    - Shows only differences
-    - New CLI command "schema-diff vers1 vers2"
+MEDIUM TERM
+===========
 
 - Add KVStore support for:
     - Google Cloud Datastore
         - https://cloud.google.com/datastore/docs/concepts/overview
 
-- Finish Vaadin GUI editor generator
-    - Implement collection fields
-    - Make more modular/pluggable
+- Add support for composite indexes on 3, 4, ... fields
 
-- Reimplement LockManager using Guava ranges?
-    - https://code.google.com/p/guava-libraries/wiki/RangesExplained
+LONG TERM
+=========
 
-- Reimplement LockManager using KeyRanges?
+- Key/Value database consistency checker
+    - Checks a JDB key-value store for consistency
+        - Correctly stored meta-data
+        - All field values are properly encoded
+        - Object vs. index entry consistency
+        - No extraneous key-value pairs exist
+    - Uses another, empty database to store its state
+        - State database is a JSimpleDB database of course :)
+        - Allows to run in multiple "chunked" transactions
+    - Generates inconsistency report
+    - Can auto-repair if necessary
+
+- New expression parsing functions
+    - Aggregate functions
+        - min(), max(), avg(), sum(), etc.
+        - See http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html
+
+- CLI
+    - New console "expr" input mode
+        - Command "expr -i" enters this mode
+        - Identifer "exit" exits this mode
+        - All input is evaluated; if result != Value.NO_VALUE, assigned to $N (like gdb)
+            - Unless expression is of the form "$foo = ..."
+        - Optional flag "-n" disables assignment to $N
+        - Different prompt "Expr>"
+
+- Schema comparator and difference generator
+    - Intelligently shows differences
+    - New CLI command "schema-diff vers1 vers2"
+    - Incorporate into ant task when mode is "verify"
 
 - More built-in field types:
     - BigInteger, BigDecimal
@@ -37,13 +72,11 @@
         - Log an error
         - Return reasonable default
 
-- Consistency checker
-    - Checks a JDB key-value store for consistency
-        - All field values are properly encoded
-        - Object vs. index entry consistency
-        - No extraneous key-value pairs exist
-    - Uses another, empty database to store its state
-        - Allows to run in multiple "chunked" transactions
-    - Generates inconsistency report
-    - Can auto-repair if necessary
+- Add support for XA transactions
+    - But only if KVStore supports them
+
+- Reimplement LockManager
+    - Using KeyRanges?
+    - Using Guava ranges?
+        - https://code.google.com/p/guava-libraries/wiki/RangesExplained
 
