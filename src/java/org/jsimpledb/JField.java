@@ -54,7 +54,7 @@ public abstract class JField extends JSchemaObject {
      * Does not alter the schema version of the object.
      *
      * @param jobj object containing this field
-     * @throws DeletedObjectException if {@code jobj} does not exist in {@code jtx}
+     * @throws DeletedObjectException if {@code jobj} does not exist in its associated {@link JTransaction}
      * @throws StaleTransactionException if the {@link JTransaction} associated with {@code jobj} is no longer usable
      * @throws IllegalArgumentException if {@code jobj} is null
      */
