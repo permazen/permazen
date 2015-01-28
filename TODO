@@ -2,8 +2,6 @@
 SHORT TERM
 ==========
 
-- Update to next release of dellroad-stuff
-
 - Vaadin GUI editor generator
     - Implement editors for collection fields
     - Add range support - if query result is Navigable{Set,Map}
