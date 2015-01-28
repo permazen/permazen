@@ -575,6 +575,8 @@ public class JSimpleDB {
      * <p>
      * A non-null object is always returned, but the corresponding object may not exist in a given transaction.
      * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
+     * Also, it's possible that {@code id} corresponds to an object type which no longer exists in the schema
+     * version associated with this instance. In that case, an {@link UntypedJObject} is returned.
      * </p>
      *
      * @param id object ID
