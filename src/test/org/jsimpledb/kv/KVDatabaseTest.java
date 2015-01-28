@@ -41,6 +41,17 @@ import org.testng.annotations.Test;
 
 public class KVDatabaseTest extends TestSupport {
 
+    // Work around weird Cobertura class loading bug
+    static {
+        final SimpleKVDatabase db = new SimpleKVDatabase();
+        final KVTransaction tx = db.createTransaction();
+        new KVDatabaseException(db);
+        new TransactionTimeoutException(tx);
+        new StaleTransactionException(tx);
+        new RetryTransactionException(tx);
+        tx.rollback();
+    }
+
     private ExecutorService executor;
 
     private long timeoutTestStartTime;
