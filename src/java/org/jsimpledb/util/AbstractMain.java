@@ -24,7 +24,6 @@ import org.jsimpledb.JSimpleDBFactory;
 import org.jsimpledb.annotation.JFieldType;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
-import org.jsimpledb.demo.Planet;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
@@ -235,7 +234,7 @@ public abstract class AbstractMain extends MainClass {
         this.appendClasspath(DEMO_SUBDIR.toString());
 
         // Scan classes
-        this.scanModelClasses(Planet.class.getPackage().getName());
+        this.scanModelClasses("org.jsimpledb.demo");
     }
 
     /**

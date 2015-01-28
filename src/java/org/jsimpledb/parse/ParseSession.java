@@ -20,8 +20,23 @@ import org.jsimpledb.core.Database;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.func.AbstractFunction;
-import org.jsimpledb.parse.func.Function;
-import org.jsimpledb.spring.AnnotatedClassScanner;
+import org.jsimpledb.parse.func.AllFunction;
+import org.jsimpledb.parse.func.ConcatFunction;
+import org.jsimpledb.parse.func.CountFunction;
+import org.jsimpledb.parse.func.CreateFunction;
+import org.jsimpledb.parse.func.FilterFunction;
+import org.jsimpledb.parse.func.ForEachFunction;
+import org.jsimpledb.parse.func.InvertFunction;
+import org.jsimpledb.parse.func.LimitFunction;
+import org.jsimpledb.parse.func.ListFunction;
+import org.jsimpledb.parse.func.QueryCompositeIndexFunction;
+import org.jsimpledb.parse.func.QueryIndexFunction;
+import org.jsimpledb.parse.func.QueryListElementIndexFunction;
+import org.jsimpledb.parse.func.QueryMapValueIndexFunction;
+import org.jsimpledb.parse.func.QueryVersionFunction;
+import org.jsimpledb.parse.func.TransformFunction;
+import org.jsimpledb.parse.func.UpgradeFunction;
+import org.jsimpledb.parse.func.VersionFunction;
 
 /**
  * A {@link Session} with support for parsing Java expressions.
@@ -89,15 +104,26 @@ public class ParseSession extends Session {
      * Register the standard built-in functions such as {@code all()}, {@code foreach()}, etc.
      */
     public void registerStandardFunctions() {
-        for (String className : new AnnotatedClassScanner(Function.class).scanForClasses(Function.class.getPackage().getName())) {
-            final Class<?> cl;
-            try {
-                cl = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("failed to load class `" + className + "'", e);
-            }
-            this.registerFunction(cl);
-        }
+
+        // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes
+        this.registerFunction(AllFunction.class);
+        this.registerFunction(ConcatFunction.class);
+        this.registerFunction(CountFunction.class);
+        this.registerFunction(CreateFunction.class);
+        this.registerFunction(FilterFunction.class);
+        this.registerFunction(ForEachFunction.class);
+        if (this.hasJSimpleDB())
+            this.registerFunction(InvertFunction.class);
+        this.registerFunction(LimitFunction.class);
+        this.registerFunction(ListFunction.class);
+        this.registerFunction(QueryCompositeIndexFunction.class);
+        this.registerFunction(QueryIndexFunction.class);
+        this.registerFunction(QueryListElementIndexFunction.class);
+        this.registerFunction(QueryMapValueIndexFunction.class);
+        this.registerFunction(QueryVersionFunction.class);
+        this.registerFunction(TransformFunction.class);
+        this.registerFunction(UpgradeFunction.class);
+        this.registerFunction(VersionFunction.class);
     }
 
     /**
