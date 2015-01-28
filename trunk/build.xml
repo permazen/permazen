@@ -15,6 +15,7 @@
     <property name="coverage" value="true"/>
     <property name="javadoc" value="true"/>
     <property name="custom.theme.name" value="jsdb"/>
+    <property name="gpg.executable" value="/usr/local/MacGPG2/bin/gpg2"/>
 
     <!-- Import generic build macros -->
     <import file="${basedir}/src/build/macros.xml"/>
@@ -506,6 +507,7 @@
                         <antcontrib:then>
                             <artifact:mvn>
                                 <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file"/>
+                                <arg value="-Dgpg.executable=${gpg.executable}"/>
                                 <arg value="-Durl=@{url}"/>
                                 <arg value="-DrepositoryId=@{id}"/>
                                 <arg value="-DpomFile=build/pom.xml"/>
@@ -517,6 +519,7 @@
                         <antcontrib:else>
                             <artifact:mvn>
                                 <arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file"/>
+                                <arg value="-Dgpg.executable=${gpg.executable}"/>
                                 <arg value="-Durl=@{url}"/>
                                 <arg value="-DrepositoryId=@{id}"/>
                                 <arg value="-DpomFile=build/pom.xml"/>

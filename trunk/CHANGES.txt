@@ -1,5 +1,5 @@
 
-Version Next
+Version 1.1.745 Released January 28, 2015
 
     - Added Vaadin GUI auto-generator
     - Added support for XML object import/export
@@ -11,7 +11,7 @@ Version Next
     - CLI rewrite with many improvements
     - Fixed several type safety corner cases
     - Build a distribution ZIP file with demo
-    - Lots of bugs fixes and improvements
+    - Many bug fixes and improvements
 
 Version 1.0.161 Released May 6, 2014
 
