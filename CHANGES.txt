@@ -2,8 +2,8 @@ Version Next
 
     - Make @FieldBuilder.ProvidesField search in super-types for annotated methods
     - Fixed bug in MethodAnnotationScanner that allowed duplicate methods
-    - Upgraded several library dependencies
     - Added FieldLayout, BlobField, and StringValuePropertyDef
+    - Upgraded several library dependencies
 
 Version 1.0.946 Released November 12, 2014
 
