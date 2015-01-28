@@ -25,7 +25,7 @@ public class EvalCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "evaluates the specified expression and displays the result if not null";
+        return "evaluates the specified Java expression";
     }
 
     @Override

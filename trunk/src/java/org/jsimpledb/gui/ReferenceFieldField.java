@@ -28,8 +28,8 @@ import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * A Vaadin {@link Field} that edits a database object reference. Supports displaying, but not selecting, a null value;
- * wrap in a {@link NullableField} to allow for that.
+ * A Vaadin {@link com.vaadin.ui.Field} that edits a database object reference. Supports displaying,
+ * but not selecting, a null value; wrap in a {@link NullableField} to allow for that.
  */
 @SuppressWarnings("serial")
 public class ReferenceFieldField extends CustomField<JObject> {
