@@ -107,6 +107,7 @@ public class Main extends AbstractMain {
 
         // Start up KV database
         this.startupKVDatabase();
+        this.log.debug("using database: " + this.databaseDescription);
         final Database db = new Database(this.kvdb);
 
         // Register custom field types

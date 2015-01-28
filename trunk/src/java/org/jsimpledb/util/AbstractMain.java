@@ -83,9 +83,9 @@ public abstract class AbstractMain extends MainClass {
                     this.usageError();
                 if (!this.appendClasspath(params.removeFirst()))
                     return 1;
-            } else if (option.equals("-v") || option.equals("--verbose"))
+            } else if (option.equals("--verbose"))
                 this.verbose = true;
-            else if (option.equals("--version")) {
+            else if (option.equals("-v") || option.equals("--schema-version")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String vstring = params.removeFirst();
@@ -381,22 +381,22 @@ public abstract class AbstractMain extends MainClass {
      */
     protected void outputFlags(String[][] subclassOpts) {
         final String[][] baseOpts = new String[][] {
-            { "-cp, --classpath path",      "Append to the classpath (useful with `java -jar ...')" },
+            { "--classpath, -cp path",      "Append to the classpath (useful with `java -jar ...')" },
             { "--fdb file",                 "Use FoundationDB with specified cluster file" },
             { "--bdb directory",            "Use Berkeley DB Java Edition in specified directory" },
             { "--bdb-database",             "Specify Berkeley DB database name (default `"
                                               + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },
             { "--mem",                      "Use an empty in-memory database (default)" },
             { "--prefix prefix",            "FoundationDB key prefix (hex or string)" },
-            { "-ro, --read-only",           "Disallow database modifications" },
+            { "--read-only, -ro",           "Disallow database modifications" },
             { "--new-schema",               "Allow recording of a new database schema version" },
             { "--xml file",                 "Use the specified XML flat file database" },
-            { "--version num",              "Specify database schema version (default highest recorded)" },
+            { "--schema-version, -v num",   "Specify database schema version (default highest recorded)" },
             { "--model-pkg package",        "Scan for @JSimpleClass model classes under Java package (=> JSimpleDB mode)" },
             { "--type-pkg package",         "Scan for @JFieldType types under Java package to register custom types" },
-            { "-p, --pkg package",          "Equivalent to `--model-pkg package --type-pkg package'" },
-            { "-h, --help",                 "Show this help message" },
-            { "-v, --verbose",              "Show verbose error messages" },
+            { "--pkg, -p package",          "Equivalent to `--model-pkg package --type-pkg package'" },
+            { "--help, -h",                 "Show this help message" },
+            { "--verbose",                  "Show verbose error messages" },
         };
         final String[][] combinedOpts = new String[baseOpts.length + subclassOpts.length][];
         System.arraycopy(baseOpts, 0, combinedOpts, 0, baseOpts.length);
