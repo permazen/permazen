@@ -87,7 +87,7 @@ public class JSimpleField extends JField {
     /**
      * Get the type of this field.
      */
-    public TypeToken<?> getType() {
+    public TypeToken<?> getTypeToken() {
         return this.typeToken;
     }
 

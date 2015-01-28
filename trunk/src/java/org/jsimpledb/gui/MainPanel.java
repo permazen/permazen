@@ -510,13 +510,13 @@ public class MainPanel extends VerticalLayout {
         protected Editor buildSimpleFieldEditor(JSimpleField jfield, Property<?> property, boolean allowNull) {
 
             // Get property type
-            final Class<?> propertyType = jfield.getType().getRawType();
+            final Class<?> propertyType = jfield.getTypeToken().getRawType();
 
             // Use object choosers for references
             if (jfield instanceof JReferenceField) {
                 final JReferenceField refField = (JReferenceField)jfield;
                 final ObjectEditor objectEditor = new ObjectEditor(this.jobj.getTransaction(), MainPanel.this.session,
-                  refField.getName(), refField.getType().getRawType(), (Property<JObject>)property, allowNull);
+                  refField.getName(), refField.getTypeToken().getRawType(), (Property<JObject>)property, allowNull);
                 return new Editor(objectEditor);
             }
 
@@ -587,7 +587,7 @@ public class MainPanel extends VerticalLayout {
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         private Property<?> buildProperty(JSimpleField jfield) {
-            return new MethodProperty(jfield.getType().getRawType(), this.jobj, jfield.getGetter(), jfield.getSetter());
+            return new MethodProperty(jfield.getTypeToken().getRawType(), this.jobj, jfield.getGetter(), jfield.getSetter());
         }
 
         @SuppressWarnings({ "unchecked", "rawtypes" })

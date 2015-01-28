@@ -40,7 +40,7 @@ public class JEnumField extends JSimpleField {
 
     @Override
     @SuppressWarnings("unchecked")
-    public TypeToken<? extends Enum<?>> getType() {
+    public TypeToken<? extends Enum<?>> getTypeToken() {
         return (TypeToken<? extends Enum<?>>)this.typeToken;
     }
 
@@ -61,7 +61,7 @@ public class JEnumField extends JSimpleField {
         super.initialize(jdb, schemaField0);
         final EnumSchemaField schemaField = (EnumSchemaField)schemaField0;
         schemaField.getIdentifiers().clear();
-        for (Enum<?> value : EnumUtil.getValues((Class<Enum<?>>)this.getType().getRawType()))
+        for (Enum<?> value : EnumUtil.getValues((Class<Enum<?>>)this.getTypeToken().getRawType()))
             schemaField.getIdentifiers().add(value.name());
     }
 

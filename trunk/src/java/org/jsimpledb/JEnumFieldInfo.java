@@ -19,7 +19,7 @@ class JEnumFieldInfo extends JSimpleFieldInfo {
     @SuppressWarnings("unchecked")
     JEnumFieldInfo(JEnumField jfield, int parentStorageId) {
         super(jfield, parentStorageId);
-        this.enumType = (Class<? extends Enum<?>>)jfield.getType().getRawType();
+        this.enumType = (Class<? extends Enum<?>>)jfield.getTypeToken().getRawType();
         this.converter = jfield.converter;
     }
 
