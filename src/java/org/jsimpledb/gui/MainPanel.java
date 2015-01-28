@@ -16,12 +16,12 @@ import com.vaadin.data.util.MethodProperty;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.datefield.Resolution;
-import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
+import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -370,9 +370,9 @@ public class MainPanel extends VerticalLayout {
             this.create = create;
 
             // Introspect for any @FieldBuilder.* annotations
-            for (Map.Entry<String, AbstractField<?>> entry : new FieldBuilder().buildBeanPropertyFields(this.jobj).entrySet()) {
+            for (Map.Entry<String, Field<?>> entry : new FieldBuilder().buildBeanPropertyFields(this.jobj).entrySet()) {
                 final String fieldName = entry.getKey();
-                final AbstractField<?> field = entry.getValue();
+                final Field<?> field = entry.getValue();
                 this.editorMap.put(fieldName, new Editor(field));
             }
 
@@ -553,7 +553,7 @@ public class MainPanel extends VerticalLayout {
             return new Editor(textField, allowNull ? this.addNullCheckbox(textField) : textField);
         }
 
-        private HorizontalLayout addNullCheckbox(final AbstractField<?> field) {
+        private HorizontalLayout addNullCheckbox(final Field<?> field) {
 
             // Set up checkbox
             final CheckBox checkBox = new CheckBox("Null");
@@ -606,25 +606,25 @@ public class MainPanel extends VerticalLayout {
 
     private static class Editor {
 
-        private final AbstractField<?> field;
+        private final Field<?> field;
         private final Component component;
 
         Editor(Component component) {
             this(null, component);
         }
 
-        Editor(AbstractField<?> field) {
+        Editor(Field<?> field) {
             this(field, field);
         }
 
-        Editor(AbstractField<?> field, Component component) {
+        Editor(Field<?> field, Component component) {
             if (component == null)
                 throw new IllegalArgumentException("null component");
             this.field = field;
             this.component = component;
         }
 
-        public AbstractField<?> getField() {
+        public Field<?> getField() {
             return this.field;
         }
 
