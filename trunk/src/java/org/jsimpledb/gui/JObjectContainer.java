@@ -202,8 +202,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     private final ObjTypePropertyDef objTypePropertyDef = new ObjTypePropertyDef();
     private final ObjVersionPropertyDef objVersionPropertyDef = new ObjVersionPropertyDef();
     private final RefLabelPropertyDef refLabelPropertyDef = new RefLabelPropertyDef();
-
-    private final HashMap<ObjId, ObjIdSet> dependenciesMap = new HashMap<>();
+    private final HashMap<ObjId, ObjIdSet> dependenciesMap = new HashMap<>();       // maps object to others that depend on it
 
     private Class<?> type;
     private int maxObjects = DEFAULT_MAX_OBJECTS;
@@ -368,26 +367,51 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      *
      * <p>
      * The implementation in {@link JObjectContainer} triggers value change events for all affected item(s) in this container.
-     * Affected items are those whose backing object is either the changed object, or has the changed object as a related object.
+     * Affected items are those whose backing object is either the changed object, or has the changed object as a dependency
+     * according to {@link #getDependencies getDependencies()}.
      * </p>
      */
     protected <T> void handleFieldChange(FieldChange<T> change) {
 
-        // Update the matching backing object, if any
+        // Check dependencies for the changed object
         final JObject target = change.getJObject();
-        final SimpleItem<JObject> item = (SimpleItem<JObject>)this.getItem(target.getObjId());
+        final ObjId id = target.getObjId();
+        final ObjIdSet oldDependencies = this.dependenciesMap.get(id);
+        final ObjIdSet newDependencies = new ObjIdSet(Iterables.transform(
+          Iterables.filter(this.getDependencies(target), JObject.class), new Function<JObject, ObjId>() {
+            @Override
+            public ObjId apply(JObject jobj) {
+                return jobj.getObjId();
+            }
+        }));
+        final ObjIdSet addedDependencies = newDependencies.clone();
+        if (oldDependencies != null)
+            addedDependencies.removeAll(oldDependencies);
+
+        // If any dependencies have been added, we may not have previously included them in the container so reload to be safe
+        if (!addedDependencies.isEmpty()) {
+            this.reload();
+            return;
+        }
+
+        // Update the matching backing object, if any
+        final SimpleItem<JObject> item = (SimpleItem<JObject>)this.getItem(id);
         if (item != null) {
             target.copyTo(item.getObject().getTransaction(), null, new ObjIdSet());
             item.fireValueChange();
         }
 
-        // Update any other affected objects
-        final ObjIdSet affectedIds = dependenciesMap.get(target.getObjId());
+        // Update any other affected objects that are dependent on the target object
+        final ObjIdSet affectedIds = dependenciesMap.get(id);
         if (affectedIds != null) {
+            final ObjIdSet notifiedIds = new ObjIdSet();
+            notifiedIds.add(id);
             for (ObjId affectedId : affectedIds) {
                 final SimpleItem<JObject> affectedItem = (SimpleItem<JObject>)this.getItem(affectedId);
-                if (affectedItem != null)
+                if (affectedItem != null && !notifiedIds.contains(affectedId)) {
                     affectedItem.fireValueChange();
+                    notifiedIds.add(affectedId);
+                }
             }
         }
     }
@@ -559,10 +583,10 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
             return ((PropertyExtractor<JObject>)propertyExtractor).getPropertyValue(jobj, propertyDef);
         } catch (DeletedObjectException e) {
             try {
-                return propertyDef.getType().cast(new SizedLabel("<i>Missing</i>", ContentMode.HTML));
+                return propertyDef.getType().cast(new SizedLabel("<i>Unavailable</i>", ContentMode.HTML));
             } catch (ClassCastException e2) {
                 try {
-                    return propertyDef.getType().cast("(Missing)");
+                    return propertyDef.getType().cast("(Unavailable)");
                 } catch (ClassCastException e3) {
                     return null;
                 }

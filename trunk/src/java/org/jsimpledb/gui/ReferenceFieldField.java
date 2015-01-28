@@ -10,8 +10,10 @@ package org.jsimpledb.gui;
 import com.vaadin.data.Property;
 import com.vaadin.server.Sizeable;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -24,55 +26,38 @@ import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.parse.ParseSession;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Edits an object reference.
+ * A Vaadin {@link Field} that edits a database object reference. Supports displaying, but not selecting, a null value;
+ * wrap in a {@link NullableField} to allow for that.
  */
 @SuppressWarnings("serial")
-public class ObjectEditor extends HorizontalLayout {
+public class ReferenceFieldField extends CustomField<JObject> {
 
     private final JTransaction dest;
+    private final HorizontalLayout layout = new HorizontalLayout();
     private final ParseSession session;
     private final String name;
     private final Class<?> type;
-    private final Property<JObject> property;
     private final JObjectContainer.RefLabelPropertyDef refLabelPropertyDef = new JObjectContainer.RefLabelPropertyDef();
-
     private final SmallButton changeButton = new SmallButton("Change...", new Button.ClickListener() {
         @Override
         public void buttonClick(Button.ClickEvent event) {
-            ObjectEditor.this.change();
-        }
-    });
-    private final SmallButton nullButton = new SmallButton("Null", new Button.ClickListener() {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            ObjectEditor.this.setNull();
+            ReferenceFieldField.this.change();
         }
     });
 
     private Component refLabel = new Label();
 
     /**
-     * Conveinence constructor. Sets {@code allowNull} to true.
-     */
-    public ObjectEditor(JTransaction dest, ParseSession session, String name, Class<?> type, Property<JObject> property) {
-        this(dest, session, name, type, property, true);
-    }
-
-    /**
      * Constructor.
      *
-     * @param dest destination transaction for the chosen object
+     * @param dest target transaction for the chosen {@link JObject}
      * @param session session for expression parsing
      * @param name name of the property
      * @param type type restriction, or null for none
-     * @param property reference property to edit
-     * @param allowNull whether null value is allowed
      */
-    public ObjectEditor(JTransaction dest, ParseSession session,
-      String name, Class<?> type, Property<JObject> property, boolean allowNull) {
+    public ReferenceFieldField(JTransaction dest, ParseSession session, String name, Class<?> type) {
 
         // Initialize
         if (dest == null)
@@ -81,54 +66,62 @@ public class ObjectEditor extends HorizontalLayout {
             throw new IllegalArgumentException("null session");
         if (name == null)
             throw new IllegalArgumentException("null name");
-        if (property == null)
-            throw new IllegalArgumentException("null property");
         this.dest = dest;
         this.session = session;
         this.name = name;
         this.type = type;
-        this.property = property;
-
-        // Layout parts
-        this.setMargin(false);
-        this.setSpacing(true);
-        this.addComponent(this.refLabel);
-        this.updateRefLabel();
-        this.addComponent(new Label("\u00a0\u00a0"));
-        this.addComponent(this.changeButton);
-        if (allowNull)
-            this.addComponent(this.nullButton);
 
         // Listen for property value and read-only status changes
-        if (property instanceof Property.ValueChangeNotifier) {
-            ((Property.ValueChangeNotifier)property).addValueChangeListener(new Property.ValueChangeListener() {
-                @Override
-                public void valueChange(Property.ValueChangeEvent event) {
-                    ObjectEditor.this.updateRefLabel();
-                }
-            });
-        }
-        if (property instanceof Property.ReadOnlyStatusChangeNotifier) {
-            ((Property.ReadOnlyStatusChangeNotifier)property).addReadOnlyStatusChangeListener(
-              new Property.ReadOnlyStatusChangeListener() {
-                @Override
-                public void readOnlyStatusChange(Property.ReadOnlyStatusChangeEvent event) {
-                    ObjectEditor.this.updateRefLabel();
-                }
-            });
-        }
+        this.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+                ReferenceFieldField.this.updateDisplay();
+            }
+        });
+        this.addReadOnlyStatusChangeListener(new Property.ReadOnlyStatusChangeListener() {
+            @Override
+            public void readOnlyStatusChange(Property.ReadOnlyStatusChangeEvent event) {
+                ReferenceFieldField.this.updateDisplay();
+            }
+        });
     }
 
-    // Update reference label component to reflect new choice
-    private void updateRefLabel() {
-        final JObject jobj = this.property.getValue();
-        final boolean readOnly = this.property.isReadOnly();
+// CustomField
+
+    @Override
+    public Class<JObject> getType() {
+        return JObject.class;
+    }
+
+    @Override
+    protected HorizontalLayout initContent() {
+        this.layout.setMargin(false);
+        this.layout.setSpacing(true);
+        this.layout.addComponent(this.refLabel);
+        this.layout.addComponent(new Label("\u00a0\u00a0"));
+        this.layout.addComponent(this.changeButton);
+        this.layout.setComponentAlignment(this.changeButton, Alignment.MIDDLE_LEFT);
+        this.updateDisplay();
+        return this.layout;
+    }
+
+    @Override
+    protected void setInternalValue(JObject jobj) {
+        super.setInternalValue(jobj);
+        this.updateDisplay();
+    }
+
+// Internal methods
+
+    // Update components to reflect new value
+    private void updateDisplay() {
+        final JObject jobj = this.getValue();
+        final boolean readOnly = this.isReadOnly();
         final Component newLabel = jobj != null ?
           this.refLabelPropertyDef.extract(jobj) : new SizedLabel("<i>Null</i>&#160;", ContentMode.HTML);
-        this.replaceComponent(this.refLabel, newLabel);
+        this.layout.replaceComponent(this.refLabel, newLabel);
         this.refLabel = newLabel;
         this.changeButton.setEnabled(!readOnly);
-        this.nullButton.setEnabled(!readOnly && jobj != null);
     }
 
     // Handle change button click
@@ -136,23 +129,18 @@ public class ObjectEditor extends HorizontalLayout {
         this.new ChangeWindow().show();
     }
 
-    // Handle null button click
-    private void setNull() {
-        this.property.setValue(null);
-    }
-
 // ChangeWindow
 
     public class ChangeWindow extends ConfirmWindow {
 
-        private final ObjectChooser objectChooser;
+        private final JObjectChooser objectChooser;
 
         ChangeWindow() {
-            super(ObjectEditor.this.getUI(), "Select " + ObjectEditor.this.name);
+            super(ReferenceFieldField.this.getUI(), "Select " + ReferenceFieldField.this.name);
             this.setWidth(800, Sizeable.Unit.PIXELS);
             this.setHeight(500, Sizeable.Unit.PIXELS);
-            this.objectChooser = new ObjectChooser(ObjectEditor.this.dest.getJSimpleDB(),
-              ObjectEditor.this.session, ObjectEditor.this.type, false);
+            this.objectChooser = new JObjectChooser(ReferenceFieldField.this.dest.getJSimpleDB(),
+              ReferenceFieldField.this.session, ReferenceFieldField.this.type, false);
         }
 
         @Override
@@ -166,7 +154,7 @@ public class ObjectEditor extends HorizontalLayout {
 
         @Override
         @RetryTransaction
-        @Transactional("jsimpledbGuiTransactionManager")
+        @org.springframework.transaction.annotation.Transactional("jsimpledbGuiTransactionManager")
         protected boolean execute() {
             final ObjId id = this.objectChooser.getObjId();
             if (id == null)
@@ -177,7 +165,7 @@ public class ObjectEditor extends HorizontalLayout {
                 return false;
             }
             try {
-                ObjectEditor.this.property.setValue(jobj.copyTo(ObjectEditor.this.dest, id, new ObjIdSet()));
+                ReferenceFieldField.this.setValue(jobj.copyTo(ReferenceFieldField.this.dest, id, new ObjIdSet()));
             } catch (Exception e) {
                 Notification.show("Error: " + e, null, Notification.Type.ERROR_MESSAGE);
             }

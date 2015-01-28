@@ -14,21 +14,21 @@ import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.Session;
 
 /**
- * Table showing all objects of a certain type, backed by an {@link ObjectContainer}.
+ * Table showing all objects of a certain type, backed by an {@link JObjectContainer}.
  */
 @SuppressWarnings("serial")
-public class ObjectTable extends AbstractTable<JObjectContainer> {
+public class JObjectTable extends AbstractTable<JObjectContainer> {
 
     private final JSimpleDB jdb;
     private final JObjectContainer container;
     private final Session session;
     private final boolean showFields;
 
-    public ObjectTable(JSimpleDB jdb, JObjectContainer container, Session session) {
+    public JObjectTable(JSimpleDB jdb, JObjectContainer container, Session session) {
         this(jdb, container, session, true);
     }
 
-    public ObjectTable(JSimpleDB jdb, JObjectContainer container, Session session, boolean showFields) {
+    public JObjectTable(JSimpleDB jdb, JObjectContainer container, Session session, boolean showFields) {
         if (jdb == null)
             throw new IllegalArgumentException("null jdb");
         if (container == null)

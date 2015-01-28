@@ -32,7 +32,7 @@ import org.springframework.context.event.ApplicationEventMulticaster;
  */
 @SuppressWarnings("serial")
 @VaadinConfigurable(preConstruction = true)
-public class ObjectContainer extends JObjectContainer {
+public class ExprQueryJObjectContainer extends JObjectContainer {
 
     private final ParseSession session;
 
@@ -46,7 +46,7 @@ public class ObjectContainer extends JObjectContainer {
     /**
      * Constructor.
      */
-    public <T> ObjectContainer(JSimpleDB jdb, ParseSession session) {
+    public <T> ExprQueryJObjectContainer(JSimpleDB jdb, ParseSession session) {
         this(jdb, null, session);
     }
 
@@ -55,7 +55,7 @@ public class ObjectContainer extends JObjectContainer {
      *
      * @param type type restriction, or null for no restriction
      */
-    public <T> ObjectContainer(JSimpleDB jdb, Class<T> type, ParseSession session) {
+    public <T> ExprQueryJObjectContainer(JSimpleDB jdb, Class<T> type, ParseSession session) {
         super(jdb, type);
         if (session == null)
             throw new IllegalArgumentException("null session");
@@ -70,6 +70,7 @@ public class ObjectContainer extends JObjectContainer {
         this.reload();
     }
 
+    @Override
     protected void doInTransaction(final Runnable action) {
         this.session.perform(new ParseSession.Action() {
             @Override
@@ -129,13 +130,13 @@ public class ObjectContainer extends JObjectContainer {
     private class DataChangeListener extends VaadinApplicationListener<DataChangeEvent> {
 
         DataChangeListener() {
-            super(ObjectContainer.this.eventMulticaster);
+            super(ExprQueryJObjectContainer.this.eventMulticaster);
             this.setAsynchronous(true);
         }
 
         @Override
         protected void onApplicationEventInternal(DataChangeEvent event) {
-            ObjectContainer.this.handleChange(event.getChange());
+            ExprQueryJObjectContainer.this.handleChange(event.getChange());
         }
     }
 }

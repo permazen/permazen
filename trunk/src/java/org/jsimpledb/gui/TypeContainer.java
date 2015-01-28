@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
 import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
 import org.jsimpledb.JClass;
 import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +40,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final JSimpleDB jdb;
-    private final Class<?> type;
+    private final Class<?> rootType;
     private final ArrayList<Node> rootList = new ArrayList<>();
 
     /**
@@ -53,8 +55,17 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
      */
     public TypeContainer(JSimpleDB jdb, Class<?> type) {
         super(Node.class);
+        if (jdb == null)
+            throw new IllegalArgumentException("null jdb");
         this.jdb = jdb;
-        this.type = type;
+
+        // Get the types of all JClasses assignable to the given type, and use lowest common ancestor as the "top type"
+        final HashSet<Class<?>> types = new HashSet<>();
+        for (JClass<?> jclass : this.jdb.getJClasses().values()) {
+            if (type == null || type.isAssignableFrom(jclass.getType()))
+                types.add(jclass.getType());
+        }
+        this.rootType = !types.isEmpty() ? Util.findLowestCommonAncestorOfClasses(types).getRawType() : Object.class;
     }
 
     @Override
@@ -68,29 +79,30 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
         return node.getType();
     }
 
+    public Class<?> getRootType() {
+        return this.rootType;
+    }
+
     public void reload() {
 
         // Node set
         final ArrayList<Node> nodes = new ArrayList<>();
 
-        // Create root node for type if it doesn't correspond to a JClass
-        final Class<?> topType = this.type != null ? this.type : Object.class;
-        boolean needsTop = this.type == null;
-        if (!needsTop) {
-            try {
-                this.jdb.getJClass(type);
-            } catch (IllegalArgumentException e) {
-                needsTop = true;
+        // Create Node's for each JClass
+        boolean addedRoot = false;
+        for (JClass<?> jclass : this.jdb.getJClasses().values()) {
+            if (this.rootType.isAssignableFrom(jclass.getType())) {
+                nodes.add(new Node(jclass));
+                if (jclass.getType() == this.rootType)
+                    addedRoot = true;
             }
         }
-        if (needsTop)
-            nodes.add(new Node(topType));
 
-        // Create Node's for each JClass
-        for (JClass<?> jclass : this.jdb.getJClasses().values()) {
-            if (topType.isAssignableFrom(jclass.getType()))
-                nodes.add(new Node(jclass));
-        }
+        // Ensure there is a root node
+        if (!addedRoot)
+            nodes.add(new Node(this.rootType));
+
+        // Sort by name
         Collections.sort(nodes, new Comparator<Node>() {
             @Override
             public int compare(Node node1, Node node2) {
