@@ -75,26 +75,16 @@
 <span class="sourceLineNo">067</span>    }<a name="line.67"></a>
 <span class="sourceLineNo">068</span><a name="line.68"></a>
 <span class="sourceLineNo">069</span>    @Override<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    protected Value apply(ParseSession session, final int storageId) {<a name="line.70"></a>
+<span class="sourceLineNo">070</span>    protected Value apply(ParseSession session, final Class&lt;?&gt; objectType, final String fieldName, final Class&lt;?&gt;[] valueTypes) {<a name="line.70"></a>
 <span class="sourceLineNo">071</span>        return new AbstractValue() {<a name="line.71"></a>
 <span class="sourceLineNo">072</span>            @Override<a name="line.72"></a>
 <span class="sourceLineNo">073</span>            public Object get(ParseSession session) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>                return session.getTransaction().queryIndex(storageId);<a name="line.74"></a>
+<span class="sourceLineNo">074</span>                return JTransaction.getCurrent().queryMapValueIndex(objectType, fieldName, valueTypes[0], valueTypes[1]);<a name="line.74"></a>
 <span class="sourceLineNo">075</span>            }<a name="line.75"></a>
 <span class="sourceLineNo">076</span>        };<a name="line.76"></a>
 <span class="sourceLineNo">077</span>    }<a name="line.77"></a>
-<span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>    @Override<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    protected Value apply(ParseSession session, final Class&lt;?&gt; objectType, final String fieldName, final Class&lt;?&gt;[] valueTypes) {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        return new AbstractValue() {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>            @Override<a name="line.82"></a>
-<span class="sourceLineNo">083</span>            public Object get(ParseSession session) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                return JTransaction.getCurrent().queryMapValueIndex(objectType, fieldName, valueTypes[0], valueTypes[1]);<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            }<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        };<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span>}<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">078</span>}<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
 
 
 

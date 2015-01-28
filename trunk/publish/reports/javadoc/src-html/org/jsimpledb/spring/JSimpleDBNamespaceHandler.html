@@ -22,7 +22,7 @@
 <span class="sourceLineNo">014</span> * for the &lt;code&gt;jsimpledb&lt;/code&gt; XML namespace.<a name="line.14"></a>
 <span class="sourceLineNo">015</span> *<a name="line.15"></a>
 <span class="sourceLineNo">016</span> * &lt;p&gt;<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * This class adds support for the &lt;code&gt;&amp;lt;jsimpledb:scan-classes&amp;gt;&lt;/code&gt; and<a name="line.17"></a>
+<span class="sourceLineNo">017</span> * This class adds support for the &lt;code&gt;&amp;lt;jsimpledb:jsimpledb&amp;gt;&lt;/code&gt;, &lt;code&gt;&amp;lt;jsimpledb:scan-classes&amp;gt;&lt;/code&gt; and<a name="line.17"></a>
 <span class="sourceLineNo">018</span> * &lt;code&gt;&amp;lt;jsimpledb:scan-field-types&amp;gt;&lt;/code&gt; XML tags.<a name="line.18"></a>
 <span class="sourceLineNo">019</span> * &lt;/p&gt;<a name="line.19"></a>
 <span class="sourceLineNo">020</span> *<a name="line.20"></a>
@@ -30,13 +30,20 @@
 <span class="sourceLineNo">022</span> */<a name="line.22"></a>
 <span class="sourceLineNo">023</span>public class JSimpleDBNamespaceHandler extends NamespaceHandlerSupport {<a name="line.23"></a>
 <span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>    @Override<a name="line.25"></a>
-<span class="sourceLineNo">026</span>    public void init() {<a name="line.26"></a>
-<span class="sourceLineNo">027</span>        this.registerBeanDefinitionParser("scan-classes", new ScanClassesBeanDefinitionParser());<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        this.registerBeanDefinitionParser("scan-field-types", new ScanFieldTypesBeanDefinitionParser());<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    }<a name="line.29"></a>
-<span class="sourceLineNo">030</span>}<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">025</span>    public static final String JSIMPLEDB_NAMESPACE_URI = "http://jsimpledb.googlecode.com/schema/jsimpledb";<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>    public static final String JSIMPLEDB_TAG = "jsimpledb";<a name="line.27"></a>
+<span class="sourceLineNo">028</span>    public static final String SCAN_CLASSES_TAG = "scan-classes";<a name="line.28"></a>
+<span class="sourceLineNo">029</span>    public static final String SCAN_FIELD_TYPES_TAG = "scan-field-types";<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>    @Override<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    public void init() {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        this.registerBeanDefinitionParser(JSIMPLEDB_TAG, new JSimpleDBBeanDefinitionParser());<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        this.registerBeanDefinitionParser(SCAN_CLASSES_TAG, new ScanClassesBeanDefinitionParser());<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        this.registerBeanDefinitionParser(SCAN_FIELD_TYPES_TAG, new ScanFieldTypesBeanDefinitionParser());<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
+<span class="sourceLineNo">037</span>}<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
 
 
 
