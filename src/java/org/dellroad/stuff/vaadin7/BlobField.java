@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link Field} for editing {@link Property}s with {@code byte[]} array values.
- * The {@code byte[]} value is updated using a file upload.
+ * A Vaadin {@link com.vaadin.ui.Field} for editing {@link Property}s with {@code byte[]} array values
+ * (i.e., "blobs"). The blob is updated using a file upload.
  */
 @SuppressWarnings("serial")
 public class BlobField extends CustomField<byte[]> implements Upload.Receiver,
