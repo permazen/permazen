@@ -10,7 +10,7 @@
 
     <!-- Configure build & stuff -->
     <property name="maven.group.id" value="org.jsimpledb"/>
-    <property name="library.version" value="1.1.0-SNAPSHOT"/>
+    <property name="base.version" value="1.1"/>
     <property name="javac.compiler.flags" value="-Xlint:all"/>
     <property name="coverage" value="true"/>
     <property name="javadoc" value="true"/>
@@ -19,10 +19,11 @@
     <!-- Import generic build macros -->
     <import file="${basedir}/src/build/macros.xml"/>
 
-    <!-- Determine SVN revision and version -->
+    <!-- Determine SVN revision and full version -->
     <dellroad:svnrevision property="svn.revision"/>
+    <property name="library.version" value="${base.version}.${svn.revision}"/>
     <echo message=""/>
-    <echo message="Version is ${library.version} (r${svn.revision})"/>
+    <echo message="Version is ${library.version}"/>
     <echo message=""/>
 
     <!-- Classpath targets -->
@@ -275,7 +276,6 @@
                     <fileset dir="src/java/org/jsimpledb" includes="overview.html"/>
                     <filterset>
                         <filter token="VERSION" value="${library.version}"/>
-                        <filter token="SVN_REVISION" value="${svn.revision}"/>
                     </filterset>
                 </copy>
                 <dellroad:javadoc overview="build/javadoc/overview.html">
