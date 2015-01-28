@@ -32,9 +32,9 @@ import javax.validation.Constraint;
 import org.jsimpledb.annotation.Validate;
 
 /**
- * Utility routines;
+ * Various utility routines.
  */
-final class Util {
+public final class Util {
 
     private static final WildcardType QUESTION_MARK = new WildcardType() {
 
@@ -60,14 +60,21 @@ final class Util {
     }
 
     /**
-     * Determine if instances of the given type require validation on creation or schema upgrade
-     * when in mode {@link ValidationMode#AUTOMATIC}.
+     * Determine if instances of the given type require any validation.
      *
+     * <p>
+     * This will be true if {@code type} or any of its declared methods has a JSR 303 (<i>public</i> methods only)
+     * or {@link Validate &#64;Validate} annotation, or if any of its super-types requires validation.
+     * </p>
+     *
+     * @param type object type
+     * @return true if {@code type} has any validation requirements
+     * @throws IllegalArgumentException if {@code type} is null
      * @see ValidationMode
      */
     public static boolean requiresValidation(Class<?> type) {
         if (type == null)
-            return false;
+            throw new IllegalArgumentException("null type");
         if (Util.hasValidationAnnotation(type))
             return true;
         for (Method method : type.getDeclaredMethods()) {
@@ -84,11 +91,15 @@ final class Util {
     }
 
     /**
-     * Determine if the given getter method or any method it overrides has a JSR 303 validation constraint.
+     * Determine if the given getter method, or any method it overrides, has a JSR 303 validation constraint.
      *
-     * @see ValidationMode
+     * @param method annotated method
+     * @return true if {@code obj} has one or more JSR 303 annotations
+     * @throws IllegalArgumentException if {@code method} is null
      */
     public static boolean requiresValidation(Method method) {
+        if (method == null)
+            throw new IllegalArgumentException("null method");
         for (TypeToken<?> typeToken : TypeToken.of(method.getDeclaringClass()).getTypes()) {
             final Class<?> superType = typeToken.getRawType();
             try {
@@ -103,9 +114,15 @@ final class Util {
     }
 
     /**
-     * Determine whether the given object has a JSR 303 annotation.
+     * Determine whether the given object has any JSR 303 annotation(s).
+     *
+     * @param obj annotated element
+     * @return true if {@code obj} has one or more JSR 303 annotations
+     * @throws IllegalArgumentException if {@code obj} is null
      */
     public static boolean hasValidationAnnotation(AnnotatedElement obj) {
+        if (obj == null)
+            throw new IllegalArgumentException("null obj");
         for (Annotation annotation : obj.getAnnotations()) {
             final Class<?> annotationType = annotation.annotationType();
             if (annotationType.isAnnotationPresent(Constraint.class))
@@ -116,6 +133,11 @@ final class Util {
 
     /**
      * Find the setter method corresponding to a getter method.
+     *
+     * @param type Java type (possibly a sub-type of the type in which {@code getter} is declared)
+     * @param getter Java bean property getter method
+     * @return Java bean property setter method
+     * @throws IllegalArgumentException if no corresponding setter method exists
      */
     public static Method findSetterMethod(Class<?> type, Method getter) {
         final Matcher matcher = Pattern.compile("(is|get)(.+)").matcher(getter.getName());
@@ -141,6 +163,13 @@ final class Util {
 
     /**
      * Find the narrowest type that is a supertype of all of the given types.
+     *
+     * <p>
+     * This method delegates to {@link #findLowestCommonAncestor findLowestCommonAncestor()}
+     * after converting the {@link Class} instances to {@link TypeToken}s.
+     * </p>
+     *
+     * @see #findLowestCommonAncestor findLowestCommonAncestor()
      */
     public static TypeToken<?> findLowestCommonAncestorOfClasses(Iterable<Class<?>> types) {
         return Util.findLowestCommonAncestor(Iterables.transform(types, new Function<Class<?>, TypeToken<?>>() {
@@ -153,6 +182,14 @@ final class Util {
 
     /**
      * Find the narrowest type that is a supertype of all of the given types.
+     *
+     * <p>
+     * When there is more than one choice, heuristics are used. For example, we prefer
+     * non-interface types, and {@link JObject} over other interface types.
+     * </p>
+     *
+     * @param types sub-types
+     * @return narrowest common super-type
      */
     public static TypeToken<?> findLowestCommonAncestor(Iterable<TypeToken<?>> types) {
 
@@ -228,6 +265,9 @@ final class Util {
 
     /**
      * Parameterize the raw type with wildcards.
+     *
+     * @param type raw type
+     * @return {@code type} genericized with wildcards
      */
     public static <T> TypeToken<? extends T> getWildcardedType(Class<T> type) {
         if (type == null)
@@ -243,6 +283,8 @@ final class Util {
     /**
      * Get the n'th generic type parameter.
      *
+     * @param type parameterized generic type
+     * @param index type parameter index (zero based)
      * @throws IllegalArgumentException if {@code type} is not a parameterized type with more than {@code index} type variables
      */
     public static Type getTypeParameter(Type type, int index) {
@@ -257,6 +299,10 @@ final class Util {
 
     /**
      * Invoke method via reflection and re-throw any checked exception wrapped in an {@link JSimpleDBException}.
+     *
+     * @param method method to invoke
+     * @param target instance, or null if method is static
+     * @param params method parameters
      */
     public static Object invoke(Method method, Object target, Object... params) {
         try {
@@ -282,10 +328,10 @@ final class Util {
      * @param target raw class
      * @param params type parameters
      * @return generic {@link TypeToken} for {@code target}
-     * @see <a href="https://code.google.com/p/guava-libraries/issues/detail?id=1645">Guava Issue #1645</a>
+     * @see <a href="https://github.com/google/guava/issues/1645">Guava Issue #1645</a>
      */
     @SuppressWarnings("unchecked")
-    private static <T> TypeToken<? extends T> newParameterizedType(Class<T> target, Type[] params) {
+    public static <T> TypeToken<? extends T> newParameterizedType(Class<T> target, Type[] params) {
         Type type;
         try {
             if (Util.newParameterizedTypeMethod == null) {
