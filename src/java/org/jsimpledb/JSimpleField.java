@@ -147,20 +147,17 @@ public class JSimpleField extends JField {
      * Set the Java value of this field in the given object.
      * Does not alter the schema version of the object.
      *
-     * @param jtx transaction
      * @param jobj object containing this field
      * @param value new value
-     * @throws DeletedObjectException if {@code jobj} does not exist in {@code jtx}
-     * @throws StaleTransactionException if {@code jtx} is no longer usable
+     * @throws DeletedObjectException if {@code jobj} does not exist in its associated {@link JTransaction}
+     * @throws StaleTransactionException if the {@link JTransaction} associated with {@code jobj} is no longer usable
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for this field
-     * @throws IllegalArgumentException if {@code jtx} or {@code jobj} is null
+     * @throws IllegalArgumentException if {@code jobj} is null
      */
-    public void setValue(JTransaction jtx, JObject jobj, Object value) {
-        if (jtx == null)
-            throw new IllegalArgumentException("null jtx");
+    public void setValue(JObject jobj, Object value) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        jtx.writeSimpleField(jobj, this.storageId, value, false);
+        jobj.getTransaction().writeSimpleField(jobj, this.storageId, value, false);
     }
 
     @Override
