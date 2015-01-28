@@ -45,7 +45,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * {@code int} primitive type.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;14</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;15</td>  <td class="nbHitsCovered">&nbsp;49723</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">class</span> IntegerType <span class="keyword">extends</span> IntegralType&lt;Integer&gt; {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;15</td>  <td class="nbHitsCovered">&nbsp;26483</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">class</span> IntegerType <span class="keyword">extends</span> IntegralType&lt;Integer&gt; {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;16</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;17</td>  <td class="nbHits">&nbsp;</td>
@@ -58,7 +58,7 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;22</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> Integer downCast(<span class="keyword">long</span> value) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;23</td>  <td class="nbHitsCovered">&nbsp;34074</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (<span class="keyword">int</span>)value;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;23</td>  <td class="nbHitsCovered">&nbsp;17007</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (<span class="keyword">int</span>)value;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;24</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;25</td>  <td class="nbHits">&nbsp;</td>
@@ -67,11 +67,11 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;27</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> Integer validate(Object obj) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsUncovered"><a title="Line 28: Conditional coverage 50% (1/2).">&nbsp;15649</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 28: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> Character)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsUncovered"><a title="Line 28: Conditional coverage 50% (1/2).">&nbsp;9476</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 28: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> Character)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span> (<span class="keyword">int</span>)((Character)obj).charValue();</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsUncovered"><a title="Line 30: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;15649</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 30: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">        <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> Byte || obj <span class="keyword">instanceof</span> Short)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsUncovered"><a title="Line 30: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;9476</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 30: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">        <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> Byte || obj <span class="keyword">instanceof</span> Short)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span> ((Number)obj).intValue();</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsCovered">&nbsp;15649</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">super</span>.validate(obj);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsCovered">&nbsp;9476</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">super</span>.validate(obj);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;33</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;34</td>  <td class="nbHits">&nbsp;</td>
@@ -80,6 +80,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/17/15 9:43 AM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 3:37 PM.</div>
 </body>
 </html>

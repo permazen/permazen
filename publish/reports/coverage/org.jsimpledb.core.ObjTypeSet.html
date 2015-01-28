@@ -102,8 +102,8 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;43</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    ObjTypeSet(Transaction tx) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;44</td>  <td class="nbHitsCovered">&nbsp;2606</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, FieldTypeRegistry.OBJ_ID, <span class="keyword">true</span>, <span class="keyword">false</span>, ByteUtil.EMPTY, <span class="keyword">null</span>, ObjTypeSet.getKeyRanges(tx), <span class="keyword">new</span> Bounds&lt;ObjId&gt;());</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsCovered">&nbsp;2606</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;44</td>  <td class="nbHitsCovered">&nbsp;2607</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, FieldTypeRegistry.OBJ_ID, <span class="keyword">true</span>, <span class="keyword">false</span>, ByteUtil.EMPTY, <span class="keyword">null</span>, ObjTypeSet.getKeyRanges(tx), <span class="keyword">new</span> Bounds&lt;ObjId&gt;());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsCovered">&nbsp;2607</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;46</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;47</td>  <td class="nbHits">&nbsp;</td>
@@ -128,8 +128,8 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> ObjTypeSet(Transaction tx, <span class="keyword">boolean</span> reversed,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;57</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;      <span class="keyword">byte</span>[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds&lt;ObjId&gt; bounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsCovered">&nbsp;2642</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, FieldTypeRegistry.OBJ_ID, <span class="keyword">true</span>, reversed, prefix, keyRange, keyFilter, bounds);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsCovered">&nbsp;2642</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsCovered">&nbsp;2643</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, FieldTypeRegistry.OBJ_ID, <span class="keyword">true</span>, reversed, prefix, keyRange, keyFilter, bounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsCovered">&nbsp;2643</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;60</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;61</td>  <td class="nbHits">&nbsp;</td>
@@ -152,19 +152,19 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> NavigableSet&lt;ObjId&gt; createSubSet(<span class="keyword">boolean</span> newReversed,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;73</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;      KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds&lt;ObjId&gt; newBounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;74</td>  <td class="nbHitsCovered">&nbsp;2642</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> ObjTypeSet(<span class="keyword">this</span>.tx, newReversed, <span class="keyword">this</span>.prefix, newKeyRange, newKeyFilter, newBounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;74</td>  <td class="nbHitsCovered">&nbsp;2643</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> ObjTypeSet(<span class="keyword">this</span>.tx, newReversed, <span class="keyword">this</span>.prefix, newKeyRange, newKeyFilter, newBounds);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;75</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;76</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;77</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">static</span> KeyRanges getKeyRanges(Transaction tx) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered">&nbsp;2606</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> KeyRanges(Iterables.transform(tx.schema.objTypeStorageIds, <span class="keyword">new</span> Function&lt;Integer, KeyRange&gt;() {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered">&nbsp;2607</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> KeyRanges(Iterables.transform(tx.schema.objTypeStorageIds, <span class="keyword">new</span> Function&lt;Integer, KeyRange&gt;() {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;79</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;80</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">public</span> KeyRange apply(Integer storageId) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;81</td>  <td class="nbHitsCovered">&nbsp;10414</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> ObjId.getKeyRange(storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;81</td>  <td class="nbHitsCovered">&nbsp;10415</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> ObjId.getKeyRange(storageId);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;82</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;83</td>  <td class="nbHits">&nbsp;</td>
@@ -177,6 +177,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/17/15 9:43 AM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 3:37 PM.</div>
 </body>
 </html>

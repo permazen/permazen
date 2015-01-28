@@ -353,15 +353,15 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> AbstractKVNavigableSet(KVStore kv, <span class="keyword">boolean</span> prefixMode, <span class="keyword">boolean</span> reversed,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;170</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;      KeyRange keyRange, KeyFilter keyFilter, Bounds&lt;E&gt; bounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;171</td>  <td class="nbHitsCovered">&nbsp;17660</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(bounds);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;172</td>  <td class="nbHitsUncovered"><a title="Line 172: Conditional coverage 50% (1/2).">&nbsp;17660</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 172: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (kv == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;171</td>  <td class="nbHitsCovered">&nbsp;17702</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(bounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;172</td>  <td class="nbHitsUncovered"><a title="Line 172: Conditional coverage 50% (1/2).">&nbsp;17702</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 172: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (kv == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;173</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null kv"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;174</td>  <td class="nbHitsCovered">&nbsp;17660</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kv = kv;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;175</td>  <td class="nbHitsCovered">&nbsp;17660</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.prefixMode = prefixMode;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;176</td>  <td class="nbHitsCovered">&nbsp;17660</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.reversed = reversed;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;177</td>  <td class="nbHitsCovered">&nbsp;17660</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyRange = keyRange;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;178</td>  <td class="nbHitsCovered">&nbsp;17660</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyFilter = keyFilter;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;179</td>  <td class="nbHitsCovered">&nbsp;17660</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;174</td>  <td class="nbHitsCovered">&nbsp;17702</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.kv = kv;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;175</td>  <td class="nbHitsCovered">&nbsp;17702</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.prefixMode = prefixMode;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;176</td>  <td class="nbHitsCovered">&nbsp;17702</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.reversed = reversed;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;177</td>  <td class="nbHitsCovered">&nbsp;17702</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyRange = keyRange;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;178</td>  <td class="nbHitsCovered">&nbsp;17702</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyFilter = keyFilter;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;179</td>  <td class="nbHitsCovered">&nbsp;17702</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;180</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;181</td>  <td class="nbHits">&nbsp;</td>
@@ -374,8 +374,8 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;185</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Encode key and check visibility</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;186</td>  <td class="nbHitsCovered">&nbsp;30268</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] key = <span class="keyword">this</span>.encodeVisible(obj, <span class="keyword">false</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;187</td>  <td class="nbHitsCovered"><a title="Line 187: Conditional coverage 100% (2/2).">&nbsp;30268</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 187: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (key == <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;186</td>  <td class="nbHitsCovered">&nbsp;17590</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] key = <span class="keyword">this</span>.encodeVisible(obj, <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;187</td>  <td class="nbHitsCovered"><a title="Line 187: Conditional coverage 100% (2/2).">&nbsp;17590</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 187: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (key == <span class="keyword">null</span>)</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;188</td>  <td class="nbHitsCovered">&nbsp;9</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">false</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;189</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
@@ -383,12 +383,12 @@
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Find key, or some longer key with the same prefix in prefix mode</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;191</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> KVPair pair;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;192</td>  <td class="nbHitsCovered"><a title="Line 192: Conditional coverage 100% (2/2).">&nbsp;30259</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 192: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.prefixMode) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;192</td>  <td class="nbHitsCovered"><a title="Line 192: Conditional coverage 100% (2/2).">&nbsp;17581</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 192: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.prefixMode) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;193</td>  <td class="nbHitsCovered">&nbsp;8865</td>  <td class="src"><pre class="src">&nbsp;            pair = <span class="keyword">this</span>.kv.getAtLeast(key);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;194</td>  <td class="nbHitsUncovered"><a title="Line 194: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;8865</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 194: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">            <span class="keyword">return</span> pair != <span class="keyword">null</span> &amp;&amp; ByteUtil.isPrefixOf(key, pair.getKey());</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;195</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        } <span class="keyword">else</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;196</td>  <td class="nbHitsCovered"><a title="Line 196: Conditional coverage 100% (2/2).">&nbsp;21394</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 196: Conditional coverage 100% (2/2).">            <span class="keyword">return</span> <span class="keyword">this</span>.kv.get(key) != <span class="keyword">null</span>;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;196</td>  <td class="nbHitsCovered"><a title="Line 196: Conditional coverage 100% (2/2).">&nbsp;8716</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 196: Conditional coverage 100% (2/2).">            <span class="keyword">return</span> <span class="keyword">this</span>.kv.get(key) != <span class="keyword">null</span>;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;197</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;198</td>  <td class="nbHits">&nbsp;</td>
@@ -397,14 +397,14 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;200</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> Iterator&lt;E&gt; iterator() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;201</td>  <td class="nbHitsCovered">&nbsp;12942</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> AbstractKVIterator&lt;E&gt;(<span class="keyword">this</span>.kv, <span class="keyword">this</span>.prefixMode, <span class="keyword">this</span>.reversed, <span class="keyword">this</span>.keyRange, <span class="keyword">this</span>.keyFilter) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;201</td>  <td class="nbHitsCovered">&nbsp;12953</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> AbstractKVIterator&lt;E&gt;(<span class="keyword">this</span>.kv, <span class="keyword">this</span>.prefixMode, <span class="keyword">this</span>.reversed, <span class="keyword">this</span>.keyRange, <span class="keyword">this</span>.keyFilter) {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;202</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;203</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;204</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">protected</span> E decodePair(KVPair pair, ByteReader keyReader) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;205</td>  <td class="nbHitsCovered">&nbsp;70774</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> AbstractKVNavigableSet.<span class="keyword">this</span>.decode(keyReader);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;205</td>  <td class="nbHitsCovered">&nbsp;34764</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> AbstractKVNavigableSet.<span class="keyword">this</span>.decode(keyReader);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;206</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;207</td>  <td class="nbHits">&nbsp;</td>
@@ -447,11 +447,11 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;227</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> NavigableSet&lt;E&gt; filterKeys(KeyFilter keyFilter) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;228</td>  <td class="nbHitsUncovered"><a title="Line 228: Conditional coverage 50% (1/2).">&nbsp;6090</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 228: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (keyFilter == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;228</td>  <td class="nbHitsUncovered"><a title="Line 228: Conditional coverage 50% (1/2).">&nbsp;6091</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 228: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (keyFilter == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;229</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null keyFilter"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;230</td>  <td class="nbHitsCovered"><a title="Line 230: Conditional coverage 100% (2/2).">&nbsp;6090</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 230: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.keyFilter != <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;231</td>  <td class="nbHitsCovered">&nbsp;2606</td>  <td class="src"><pre class="src">&nbsp;            keyFilter = KeyFilterUtil.intersection(keyFilter, <span class="keyword">this</span>.keyFilter);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;232</td>  <td class="nbHitsCovered">&nbsp;6090</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.createSubSet(<span class="keyword">this</span>.reversed, <span class="keyword">this</span>.keyRange, keyFilter, <span class="keyword">this</span>.bounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;230</td>  <td class="nbHitsCovered"><a title="Line 230: Conditional coverage 100% (2/2).">&nbsp;6091</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 230: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.keyFilter != <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;231</td>  <td class="nbHitsCovered">&nbsp;2607</td>  <td class="src"><pre class="src">&nbsp;            keyFilter = KeyFilterUtil.intersection(keyFilter, <span class="keyword">this</span>.keyFilter);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;232</td>  <td class="nbHitsCovered">&nbsp;6091</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.createSubSet(<span class="keyword">this</span>.reversed, <span class="keyword">this</span>.keyRange, keyFilter, <span class="keyword">this</span>.bounds);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;233</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;234</td>  <td class="nbHits">&nbsp;</td>
@@ -636,29 +636,29 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;333</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">byte</span>[] encodeVisible(Object obj, <span class="keyword">boolean</span> fail) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;334</td>  <td class="nbHitsCovered">&nbsp;30386</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter writer = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;334</td>  <td class="nbHitsCovered">&nbsp;17712</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteWriter writer = <span class="keyword">new</span> ByteWriter();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;335</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">try</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;336</td>  <td class="nbHitsCovered">&nbsp;30386</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.encode(writer, obj);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;336</td>  <td class="nbHitsCovered">&nbsp;17712</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.encode(writer, obj);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;337</td>  <td class="nbHitsCovered">&nbsp;9</td>  <td class="src"><pre class="src">&nbsp;        } <span class="keyword">catch</span> (IllegalArgumentException e) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;338</td>  <td class="nbHitsCovered"><a title="Line 338: Conditional coverage 100% (2/2).">&nbsp;9</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 338: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!fail)</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;339</td>  <td class="nbHitsCovered">&nbsp;8</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;340</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> e;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;341</td>  <td class="nbHitsCovered">&nbsp;30377</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;342</td>  <td class="nbHitsCovered">&nbsp;30377</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] key = writer.getBytes();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;343</td>  <td class="nbHitsCovered"><a title="Line 343: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;30377</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 343: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">        <span class="keyword">if</span> (<span class="keyword">this</span>.keyRange != <span class="keyword">null</span> &amp;&amp; !<span class="keyword">this</span>.keyRange.contains(key)) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;341</td>  <td class="nbHitsCovered">&nbsp;17703</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;342</td>  <td class="nbHitsCovered">&nbsp;17703</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] key = writer.getBytes();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;343</td>  <td class="nbHitsCovered"><a title="Line 343: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;17703</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 343: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">        <span class="keyword">if</span> (<span class="keyword">this</span>.keyRange != <span class="keyword">null</span> &amp;&amp; !<span class="keyword">this</span>.keyRange.contains(key)) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;344</td>  <td class="nbHitsCovered"><a title="Line 344: Conditional coverage 100% (2/2).">&nbsp;4</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 344: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (fail)</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;345</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"value is out of bounds: "</span> + obj);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;346</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;347</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;348</td>  <td class="nbHitsUncovered"><a title="Line 348: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;30373</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 348: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        <span class="keyword">if</span> (<span class="keyword">this</span>.keyFilter != <span class="keyword">null</span> &amp;&amp; !<span class="keyword">this</span>.keyFilter.contains(key)) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;348</td>  <td class="nbHitsUncovered"><a title="Line 348: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;17699</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 348: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        <span class="keyword">if</span> (<span class="keyword">this</span>.keyFilter != <span class="keyword">null</span> &amp;&amp; !<span class="keyword">this</span>.keyFilter.contains(key)) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;349</td>  <td class="nbHitsUncovered"><a title="Line 349: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 349: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (fail)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;350</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"value is filtered out: "</span> + obj);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;351</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span> <span class="keyword">null</span>;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;352</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;353</td>  <td class="nbHitsCovered">&nbsp;30373</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> key;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;353</td>  <td class="nbHitsCovered">&nbsp;17699</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> key;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;354</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;355</td>  <td class="nbHits">&nbsp;</td>
@@ -688,7 +688,7 @@
 <tr>  <td class="numLineCover">&nbsp;370</td>  <td class="nbHitsCovered">&nbsp;428</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.encode(writer, bounds.getLowerBound());</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;371</td>  <td class="nbHitsCovered">&nbsp;428</td>  <td class="src"><pre class="src">&nbsp;            newMinKey = writer.getBytes();</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;372</td>  <td class="nbHitsCovered"><a title="Line 372: Conditional coverage 100% (2/2).">&nbsp;428</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 372: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!bounds.getLowerBoundType().isInclusive())</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;373</td>  <td class="nbHitsUncovered"><a title="Line 373: Conditional coverage 50% (1/2).">&nbsp;146</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 373: Conditional coverage 50% (1/2).">                newMinKey = <span class="keyword">this</span>.prefixMode ? ByteUtil.getKeyAfterPrefix(newMinKey) : ByteUtil.getNextKey(newMinKey);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;373</td>  <td class="nbHitsUncovered"><a title="Line 373: Conditional coverage 50% (1/2).">&nbsp;148</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 373: Conditional coverage 50% (1/2).">                newMinKey = <span class="keyword">this</span>.prefixMode ? ByteUtil.getKeyAfterPrefix(newMinKey) : ByteUtil.getNextKey(newMinKey);</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;374</td>  <td class="nbHitsCovered"><a title="Line 374: Conditional coverage 100% (2/2).">&nbsp;428</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 374: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (minKey != <span class="keyword">null</span>)</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;375</td>  <td class="nbHitsCovered">&nbsp;410</td>  <td class="src"><pre class="src">&nbsp;                newMinKey = ByteUtil.max(newMinKey, minKey);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;376</td>  <td class="nbHitsCovered"><a title="Line 376: Conditional coverage 100% (2/2).">&nbsp;428</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 376: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (maxKey != <span class="keyword">null</span>)</a></pre></td></tr>
@@ -726,6 +726,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/17/15 9:43 AM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 1/28/15 3:37 PM.</div>
 </body>
 </html>

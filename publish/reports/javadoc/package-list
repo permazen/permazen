@@ -1,5 +1,6 @@
 org.jsimpledb
 org.jsimpledb.annotation
+org.jsimpledb.ant
 org.jsimpledb.change
 org.jsimpledb.cli
 org.jsimpledb.cli.cmd
@@ -9,6 +10,7 @@ org.jsimpledb.demo
 org.jsimpledb.gui
 org.jsimpledb.index
 org.jsimpledb.kv
+org.jsimpledb.kv.bdb
 org.jsimpledb.kv.fdb
 org.jsimpledb.kv.simple
 org.jsimpledb.kv.sql
