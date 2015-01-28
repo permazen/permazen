@@ -19,6 +19,7 @@ public interface PropertyExtractor<T> {
      *
      * @param obj Java object
      * @param propertyDef definition of which property to read
+     * @throws IllegalArgumentException if this instance does not recognize {@code propertyDef}
      * @throws NullPointerException if either parameter is null
      */
     <V> V getPropertyValue(T obj, PropertyDef<V> propertyDef);

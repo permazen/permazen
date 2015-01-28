@@ -153,7 +153,7 @@ public class ProvidesPropertyScanner<T> {
             @SuppressWarnings("unchecked")
             public <V> V getPropertyValue(T obj, PropertyDef<V> propertyDef) {
                 if (!(propertyDef instanceof AnnotationPropertyDef))
-                    throw new RuntimeException("unknown property " + propertyDef);
+                    throw new IllegalArgumentException("unknown property " + propertyDef);
                 final AnnotationPropertyDef<V> annotationPropertyDef = (AnnotationPropertyDef<V>)propertyDef;
                 return propertyDef.getType().cast(annotationPropertyDef.getMethodInfo().invoke(obj));
             }
