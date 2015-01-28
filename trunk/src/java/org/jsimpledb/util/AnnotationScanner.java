@@ -16,11 +16,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.dellroad.stuff.java.MethodAnnotationScanner;
 import org.jsimpledb.JClass;
@@ -57,91 +53,6 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
         super(type, annotationType);
         this.jclass = null;
     }
-
-//////////////////////////////////////////////////////////////////
-
-    // TODO: Remove the next three methods after upgrading to newer dellroad-stuff version
-
-    @Override
-    public Set<MethodInfo> findAnnotatedMethods() {
-
-        // Find all methods
-        final HashSet<MethodInfo> set = new HashSet<MethodInfo>();
-        this.findMethodInfos(this.type, set);
-
-        // Remove overridden and duplicate methods
-        final LinkedHashMap<String, HashSet<MethodInfo>> nameSetMap = new LinkedHashMap<String, HashSet<MethodInfo>>();
-    infoLoop:
-        for (MethodInfo methodInfo : set) {
-            final String name = methodInfo.getMethod().getName();
-            final Method method = methodInfo.getMethod();
-            HashSet<MethodInfo> nameSet = nameSetMap.get(name);
-            if (nameSet == null) {
-                nameSet = new HashSet<MethodInfo>();
-                nameSetMap.put(name, nameSet);
-                nameSet.add(methodInfo);
-                continue;
-            }
-            for (Iterator<MethodInfo> i = nameSet.iterator(); i.hasNext(); ) {
-                final Method otherMethod = i.next().getMethod();
-                if (MethodAnnotationScanner.overrides(method, otherMethod)) {
-                    i.remove();
-                    continue;
-                }
-                if (MethodAnnotationScanner.overrides(otherMethod, method))
-                    continue infoLoop;
-            }
-            nameSet.add(methodInfo);
-        }
-
-        // Return result
-        final HashSet<MethodInfo> result = new HashSet<MethodInfo>();
-        for (HashSet<MethodInfo> nameSet : nameSetMap.values())
-            result.addAll(nameSet);
-        return result;
-    }
-
-    @Override
-    protected void findMethodInfos(Class<?> klass, Set<MethodInfo> set) {
-
-        // Stop at null
-        if (klass == null)
-            return;
-
-        // Search methods
-        for (Method method : klass.getDeclaredMethods()) {
-            final A annotation = this.getAnnotation(method);
-            if (annotation == null || !this.includeMethod(method, annotation))
-                continue;
-            final MethodInfo methodInfo = this.createMethodInfo(method, annotation);
-            if (methodInfo != null)
-                set.add(methodInfo);
-        }
-
-        // Recurse on interfaces
-        for (Class<?> iface : klass.getInterfaces())
-            this.findMethodInfos(iface, set);
-
-        // Recurse on superclass
-        this.findMethodInfos(klass.getSuperclass(), set);
-    }
-
-    /**
-     * Get the annotation on the given method.
-     *
-     * <p>
-     * The implementation in {@link MethodAnnotationScanner} just invokes {@code method.getAnnotation()}.
-     * Subclasses may override to automatically synthesize annotations, etc.
-     * </p>
-     *
-     * @param method method in question
-     * @return annotation for {@code method}, or null if there is none
-     */
-    protected A getAnnotation(Method method) {
-        return method.getAnnotation(this.annotationType);
-    }
-
-//////////////////////////////////////////////////////////////////
 
     /**
      * Get a simple description of the annotation being scanned for.
