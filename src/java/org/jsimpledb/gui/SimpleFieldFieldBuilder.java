@@ -36,7 +36,7 @@ public class SimpleFieldFieldBuilder {
     /**
      * Constructor.
      *
-     * @param dest target transaction used by {@link JObjectChooser}
+     * @param jtx target transaction used by {@link JObjectChooser}
      * @param jfield the database {@link JSimpleField} for which to build a Vaadin {@link Field}
      * @param session session used by {@link JObjectChooser}
      * @param allowNull whether null values are allowed

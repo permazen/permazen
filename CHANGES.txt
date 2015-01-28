@@ -1,5 +1,5 @@
 
-Version 1.1.747 Released January 28, 2015
+Version 1.1.748 Released January 28, 2015
 
     - Added Vaadin GUI auto-generator
     - Added support for XML object import/export
