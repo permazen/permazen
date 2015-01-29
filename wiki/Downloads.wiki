@@ -21,7 +21,7 @@ There is also a traditional distribution ZIP file that contains executable JARs 
   * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-cli-1.1.748.jar jsimpledb-cli-1.1.748.jar] - CLI classes
   * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-gui-1.1.748.jar jsimpledb-gui-1.1.748.jar] - GUI classes
   * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-spring-1.1.748.jar jsimpledb-spring-1.1.748.jar] - Spring Framework support classes
-  * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-javadocs-1.1.748.zip jsimpledb-javadocs-1.1.748.zip] - API Javadocs
-  * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-sources-1.1.748.zip jsimpledb-sources-1.1.748.zip] - Library source files
+  * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-javadoc-1.1.748.jar jsimpledb-javadoc-1.1.748.jar] - API Javadocs
+  * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-sources-1.1.748.jar jsimpledb-sources-1.1.748.jar] - Library source files
 
 Changes are noted [http://jsimpledb.googlecode.com/svn/trunk/CHANGES.txt here].
