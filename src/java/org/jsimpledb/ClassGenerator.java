@@ -276,7 +276,7 @@ class ClassGenerator<T> {
         mv.visitInsn(Opcodes.DUP);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getSuperclassName(), "<init>", "()V");
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getSuperclassName(), "<init>", "()V", false);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -400,7 +400,7 @@ class ClassGenerator<T> {
         mv.visitInsn(Opcodes.ACONST_NULL);
         mv.visitTypeInsn(Opcodes.NEW, Type.getType(ObjIdSet.class).getInternalName());
         mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(ObjIdSet.class).getInternalName(), "<init>", "()V");
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(ObjIdSet.class).getInternalName(), "<init>", "()V", false);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         this.emitInvoke(mv, JOBJECT_COPY_TO_METHOD);
         mv.visitInsn(Opcodes.ARETURN);
@@ -415,7 +415,7 @@ class ClassGenerator<T> {
         mv.visitInsn(Opcodes.ACONST_NULL);
         mv.visitTypeInsn(Opcodes.NEW, Type.getType(ObjIdSet.class).getInternalName());
         mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(ObjIdSet.class).getInternalName(), "<init>", "()V");
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(ObjIdSet.class).getInternalName(), "<init>", "()V", false);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         this.emitInvoke(mv, JOBJECT_COPY_TO_METHOD);
         mv.visitInsn(Opcodes.ARETURN);
@@ -478,7 +478,7 @@ class ClassGenerator<T> {
           SNAPSHOT_TRANSACTION_FIELD_NAME, Type.getDescriptor(SnapshotJTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 1);                                                          // super(id)
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(),
-          "<init>", Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(ObjId.class)));
+          "<init>", Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(ObjId.class)), false);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -553,7 +553,7 @@ class ClassGenerator<T> {
     void wrap(MethodVisitor mv, Primitive<?> primitive) {
         final Type wrapperType = Type.getType(primitive.getWrapperType());
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, wrapperType.getInternalName(), "valueOf",
-          Type.getMethodDescriptor(wrapperType, Type.getType(primitive.getType())));
+          Type.getMethodDescriptor(wrapperType, Type.getType(primitive.getType())), false);
     }
 
     /**
@@ -569,16 +569,17 @@ class ClassGenerator<T> {
      * Emit code to invoke a method. This assumes the stack is loaded.
      */
     void emitInvoke(MethodVisitor mv, Method method) {
-        mv.visitMethodInsn(method.getDeclaringClass().isInterface() ? Opcodes.INVOKEINTERFACE :
-         (method.getModifiers() & Modifier.STATIC) != 0 ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL,
-          Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method));
+        final boolean isInterface = method.getDeclaringClass().isInterface();
+        final boolean isStatic = (method.getModifiers() & Modifier.STATIC) != 0;
+        mv.visitMethodInsn(isInterface ? Opcodes.INVOKEINTERFACE : isStatic ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL,
+          Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method), isInterface);
     }
 
     /**
      * Emit code to INVOKEVIRTUAL a method using the specified class. This assumes the stack is loaded.
      */
     void emitInvoke(MethodVisitor mv, String className, Method method) {
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, method.getName(), Type.getMethodDescriptor(method));
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, method.getName(), Type.getMethodDescriptor(method), false);
     }
 
     /**
