@@ -902,9 +902,13 @@ JSimpleDB also includes a Vaadin-based graphical user interface (GUI). It provid
 
 The GUI is entirely auto-generated from your Java model classes.
 
-== Core Database Model ==
+== Core Database Layer ==
 
-JSimpleDB is normally used and configured via annotated Java classes, but this is not actually required. The Java model/annotation layer sits on top of the *core database* layer, which we describe here for completeness.
+JSimpleDB is implemented in two distinct layers: the upper "JSimpleDB" layer, which is the layer you normally work with, and the "core API" layer, which is independent of the Java language. Think of the JSimpleDB layer as the "object" layer and the core API layer as the "data" layer. This separation is critical for maintaining rigorous data integrity in the database itself, while also allowing complete flexibility at the Java level.
+
+This section gives an overview of the core API layer. Normally the core API can be ignored; instead, you should only ever need to think in Java. However, an understanding of the core API layer can elucidate how JSimpleDB works. See the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/package-summary.html">core API Javadoc</a> for implementation details.
+
+The core API layer has its own notion of schema, objects, data types, references, etc., which mostly models Java but has a few important differences. In particular, core API "objects" are really just "structures", and references and `enum` types are handled differently.
 
 The core database layer has the following notions:
  * *Schema*
