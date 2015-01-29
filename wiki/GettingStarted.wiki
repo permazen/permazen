@@ -31,24 +31,13 @@ To view the demo database in the CLI:
 Use the `help` command to see all commands and functions. In particular, the `expr` command evaluates any Java expression and is used for database queries. For example, to query for all Moon objects, enter `expr all(Moon)`.
 
 The `expr` command supports several extensions to Java syntax, including:
- * _Functions_ invocations (the `all()` function used above is an example)
+ * Function invocations (the `all()` function used above is an example)
  * Objects may be referred to by object ID literal with a leading at-sign, eg., `@fc02ac0000000001`
  * Session variables have the form `$foo`; you can set them and use them later in other expressions
 
 == Installation ==
 
-JSimpleDB is availble via Maven Central:
-
-<code language="xml">
-    <dependency> 
-        <groupId>org.jsimpledb</groupId> 
-        <artifactId>jsimpledb</artifactId> 
-    </dependency></code>
-
-or from the [http://ivyroundup.googlecode.com/ Ivy RoundUp] ivy repository:
-
-<code language="xml">
-    <dependency org="org.jsimpledb" name="jsimpledb"/></code>
+See [Downloads] for how to include JSimpleDB in your build.
 
 == Configuration ==
 
@@ -63,7 +52,7 @@ Inside the `<jsimpledb:jsimpledb>` is a `<jsimpledb:scan-classes>` tag, which wo
 
 JSimpleDB also provides a Spring `TransactionManager` so you can do all the normal Spring things like `@Transactional`, transaction synchronizations, etc.
 
-Here's an example of a setup that uses a simple XML flat file for persistence:
+Here's an example of a setup that uses an <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/XMLKVDatabase.html">`XMLKVDatabase`</a>:
 
 <code language="xml">
 <beans xmlns="http://www.springframework.org/schema/beans"
