@@ -89,7 +89,7 @@ public abstract class JField extends JSchemaObject {
 
                 // Invoke JTransaction.readXXX()
                 mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
-                  readMethod.getName(), Type.getMethodDescriptor(readMethod));
+                  readMethod.getName(), Type.getMethodDescriptor(readMethod), false);
 
                 // Cast result value
                 mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType.wrap().getRawType()));

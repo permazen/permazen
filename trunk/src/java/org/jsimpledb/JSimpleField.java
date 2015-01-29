@@ -203,7 +203,7 @@ public class JSimpleField extends JField {
 
                 // Invoke Transaction.writeSimpleField()
                 mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
-                  writeMethod.getName(), Type.getMethodDescriptor(writeMethod));
+                  writeMethod.getName(), Type.getMethodDescriptor(writeMethod), false);
             }
         });
     }
