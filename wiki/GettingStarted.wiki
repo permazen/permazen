@@ -1,6 +1,40 @@
 #summary Getting JSimpleDB Running
 #labels Featured
 
+== Demonstration ==
+
+To see a simple JSimpleDB database in action, download the JSimpleDB distribution ZIP file:
+ # Download and unzip [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-1.1.748.zip jsimpledb-1.1.748.zip]
+ # Run `java -jar jsimpledb-gui.jar` to start up the GUI on port 8080
+ # Run `java -jar jsimpledb-cli.jar` to start up the command line interface
+
+The distribution ZIP file includes a simple example database containing objects in the solar system. The JSimpleDB command line interface (CLI) and automatic graphical user interface (GUI) tools will auto-detect the presence of the demonstration database in the current directory on startup when no other configuration is specified.
+
+The `demo-classes/` subdirectory contains the Java model classes used to create the example database. The database and GUI are entirely configured from the handful of annotations on these classes. Note that you are free to put these annotations anywhere in the type hierarchy (see for example <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?src-html/org/jsimpledb/demo/Body.html">`Body.java`</a> and <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?src-html/org/jsimpledb/demo/AbstractBody.html">`AbstractBody.java`</a>).
+
+The underlying key/value store for the demo database is an <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/XMLKVDatabase.html">`XMLKVDatabase`</a> instance. `XMLKVDatabase` is a "toy" key/value store implementation that uses a simple flat XML file format for persisting the key/value pairs. That file is `demo-database.xml` and is included in the distribution.
+
+The database was originally loaded using the `load` command in the CLI, which reads files in "object XML" format (in this case, the file was `demo-objs.xml`, also included).
+
+To view the demo database in the auto-generated Vaadin GUI:
+
+<code>
+    java -jar jsimpledb-gui.jar</code>
+
+Then point a web browser to port 8080. If you already have something running on port 8080, add the `--port` flag. Use the `--help` flag to see other command line options.
+
+To view the demo database in the CLI:
+
+<code>
+    java -jar jsimpledb-cli.jar</code>
+
+Use the `help` command to see all commands and functions. In particular, the `expr` command evaluates any Java expression and is used for database queries. For example, to query for all Moon objects, enter `expr all(Moon)`.
+
+The `expr` command supports several extensions to Java syntax, including:
+ * _Functions_ invocations (the `all()` function used above is an example)
+ * Objects may be referred to by object ID literal with a leading at-sign, eg., `@fc02ac0000000001`
+ * Session variables have the form `$foo`; you can set them and use them later in other expressions
+
 == Installation ==
 
 JSimpleDB is availble via Maven Central:
