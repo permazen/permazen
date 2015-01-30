@@ -513,6 +513,10 @@ public class SimpleKVDatabase implements KVDatabase {
         // Check subclass state
         this.checkState(tx);
 
+        // If there are no mutations, there's no need to write anything
+        if (tx.mutations.isEmpty())
+            return;
+
         // Commit mutations
         this.preCommit(tx);
         boolean successful = false;
