@@ -16,7 +16,7 @@ or from the [http://ivyroundup.googlecode.com/ Ivy RoundUp] ivy repository:
 
 There is also a traditional distribution ZIP file that contains executable JARs for the command line interface (CLI) and graphical user interface (GUI), as well as a demonstration database you can play with. The distribution ZIP file, as well as the Maven artifacts mentioned above, are available here:
 
-  * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-1.1.748.zip jsimpledb-1.1.748.zip] - Distribution ZIP file
+  * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-1.1.748.zip jsimpledb-1.1.748.zip] - Distribution ZIP file (includes everything below plus demo database)
   * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-1.1.748.jar jsimpledb-1.1.748.jar] - Main JAR file
   * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-cli-1.1.748.jar jsimpledb-cli-1.1.748.jar] - CLI classes
   * [https://s3.amazonaws.com/archie-public/jsimpledb/jsimpledb-gui-1.1.748.jar jsimpledb-gui-1.1.748.jar] - GUI classes
