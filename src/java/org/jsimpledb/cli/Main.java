@@ -187,7 +187,7 @@ public class Main extends AbstractMain {
           { "--schema-file file",   "Load core database schema from XML file" },
           { "--cmd-pkg package",    "Register @Command-annotated classes found under the specified Java package" },
           { "--func-pkg package",   "Register @Function-annotated classes found under the specified Java package" },
-          { "--core-mode",          "Force core API mode even though schema classes are provided" },
+          { "--core-mode",          "Force core API mode even though Java model classes are provided" },
         });
     }
 
