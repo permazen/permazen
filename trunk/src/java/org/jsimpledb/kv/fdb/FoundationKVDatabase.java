@@ -62,6 +62,12 @@ public class FoundationKVDatabase implements KVDatabase {
 
     /**
      * Configure the {@link Executor} used for the FoundationDB networking event loop.
+     *
+     * <p>
+     * By default, the default thread pool is used to execute the FoundationDB network.
+     * </p>
+     *
+     * @see FDB#startNetwork(Executor) FDB.startNetwork() 
      */
     public void setExecutor(Executor executor) {
         this.executor = executor;
