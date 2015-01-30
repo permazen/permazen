@@ -253,8 +253,10 @@ public class Database {
         // Open KV transaction
         final KVTransaction kvt = this.kvdb.createTransaction();
         boolean success = false;
-        this.log.debug("creating transaction using "
-          + (version != 0 ? "schema version " + version : "highest recorded schema version"));
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("creating transaction using "
+              + (version != 0 ? "schema version " + version : "highest recorded schema version"));
+        }
         try {
             Schema schema = null;
             boolean firstAttempt = true;
@@ -413,7 +415,8 @@ public class Database {
                 }
 
                 // Compare transaction schema with the schema of the same version found in the database
-                this.log.debug("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
+                if (this.log.isTraceEnabled())
+                    this.log.trace("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
                 final SchemaModel dbSchemaModel = schema.getVersion(version).getSchemaModel();
                 if (schemaModel != null && !schemaModel.isCompatibleWith(schema.getVersion(version).getSchemaModel())) {
                     this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}",

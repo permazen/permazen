@@ -292,14 +292,15 @@ public class Transaction {
 
         // Rollback only?
         if (this.rollbackOnly) {
-            this.log.info("commit() invoked on transaction " + this + " marked rollback-only, rolling back");
+            this.log.debug("commit() invoked on transaction " + this + " marked rollback-only, rolling back");
             this.rollback();
             throw new RollbackOnlyTransactionException(this);
         }
         this.stale = true;
 
         // Do before completion callbacks
-        this.log.debug("commit() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);
+        if (this.log.isTraceEnabled())
+            this.log.trace("commit() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);
         Callback failedCallback = null;
         try {
             for (Callback callback : this.callbacks) {
@@ -353,7 +354,8 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         this.stale = true;
-        this.log.debug("rollback() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);
+        if (this.log.isTraceEnabled())
+            this.log.trace("rollback() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);
 
         // Do before completion callbacks
         this.triggerBeforeCompletion();
