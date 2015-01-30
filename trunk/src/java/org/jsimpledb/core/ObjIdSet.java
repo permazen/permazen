@@ -25,7 +25,7 @@ import java.util.NoSuchElementException;
  * Instances do not accept null values and are not thread safe.
  * </p>
  *
- * @see org.jsimpledb.JObject#copyTo
+ * @see org.jsimpledb.JObject#copyTo JObject.copyTo()
  */
 public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
 
@@ -126,6 +126,20 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
         for (int i = 0; i < this.array.length; i++)
             buf.append('\n').append(String.format(" [%2d] %016x (hash %d)", i, this.array[i], this.hash(this.array[i])));
         return buf.toString();
+    }
+
+    /**
+     * Force this instance to be equal to the given instance. All contents of this instance are discarded.
+     * This method is more efficient than would be loading each element one-by-one.
+     *
+     * @throws IllegalArgumentException if {@code that} is null
+     */
+    public void copy(ObjIdSet that) {
+        if (that == null)
+            throw new IllegalArgumentException("null that");
+        this.array = that.array.clone();
+        this.size = that.size;
+        this.modcount++;
     }
 
 // Cloneable
