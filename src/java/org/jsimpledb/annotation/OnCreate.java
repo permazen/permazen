@@ -41,13 +41,15 @@ import java.lang.annotation.Target;
  *          this.setUUID(UUID.randomUUID());
  *      }
  *
- *      &#64;JSetField
  *      public abstract UUID getUUID();
  *      public abstract void setUUID(UUID uuid);
  *
  *      ...
  * </pre>
  * do this:
+ * </p>
+ *
+ * <p>
  * <pre>
  *  &#64;JSimpleClass
  *  public abstract class Event {
@@ -57,7 +59,6 @@ import java.lang.annotation.Target;
  *          this.setUUID(UUID.randomUUID());
  *      }
  *
- *      &#64;JSetField
  *      public abstract UUID getUUID();
  *      public abstract void setUUID(UUID uuid);
  *
@@ -72,8 +73,8 @@ import java.lang.annotation.Target;
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
  * It may have any level of access, including {@code private}.
- * </p>
- */
+* </p>
+*/
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
