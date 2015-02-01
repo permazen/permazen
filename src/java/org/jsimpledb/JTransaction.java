@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -497,7 +498,7 @@ public class JTransaction {
 
         // Parse paths
         final Class<?> startType = this.jdb.getJClass(srcId).type;
-        final HashSet<ReferencePath> paths = new HashSet<>(refPaths.length);
+        final LinkedHashSet<ReferencePath> paths = new LinkedHashSet<>(refPaths.length);
         for (String refPath : refPaths) {
 
             // Parse reference path

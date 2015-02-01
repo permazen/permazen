@@ -16,9 +16,8 @@ import org.testng.annotations.Test;
 public class JObjectCopyTest extends TestSupport {
 
     @Test
-    public void testCopyMultiplePath() throws Exception {
+    public void testCopyWithPath() throws Exception {
         final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
-        final Person p3;
         final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
         final SnapshotJTransaction stx = jtx.getSnapshotTransaction();
         JTransaction.setCurrent(jtx);
@@ -32,7 +31,7 @@ public class JObjectCopyTest extends TestSupport {
             final Person p2b = jtx.create(Person.class);
 
             // Target person
-            p3 = jtx.create(Person.class);
+            final Person p3 = jtx.create(Person.class);
 
             // Set up graph of references
             p1.getFriends().add(p2a);
@@ -42,20 +41,51 @@ public class JObjectCopyTest extends TestSupport {
             // Copy out
             p1.copyOut("friends.element.friends.element");
 
+            // Verify p3 got copied out
+            Assert.assertTrue(stx.getJObject(p3).exists());
+
             jtx.commit();
 
         } finally {
             JTransaction.setCurrent(null);
         }
+    }
 
-        // Verify p3 got copied out
-        Assert.assertTrue(stx.getJObject(p3).exists());
+    @Test
+    public void testCopyMultiplePath() throws Exception {
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.MANUAL);
+        final SnapshotJTransaction stx = jtx.getSnapshotTransaction();
+        JTransaction.setCurrent(jtx);
+        try {
+            final Person p1 = jtx.create(Person.class);
+            final Person p2 = jtx.create(Person.class);
+            final Person p3 = jtx.create(Person.class);
+
+            // Set up graph of references
+            p1.setRef(p2);
+            p2.setRef(p3);
+
+            // Copy out
+            p1.copyOut("ref", "ref.ref");
+
+            // Verify p3 got copied out
+            Assert.assertTrue(stx.getJObject(p3).exists());
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
     }
 
 // Model Classes
 
     @JSimpleClass
     public abstract static class Person implements JObject {
+
+        public abstract Person getRef();
+        public abstract void setRef(Person ref);
 
         public abstract List<Person> getFriends();
 
