@@ -11,7 +11,6 @@ import com.google.common.base.Converter;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
-import java.util.Deque;
 import java.util.List;
 
 import org.jsimpledb.change.ListFieldAdd;
@@ -80,10 +79,9 @@ class JListFieldInfo extends JCollectionFieldInfo {
 
     @Override
     public void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
-      ObjId id, int storageId, Deque<Integer> nextFields) {
-        if (storageId != this.getElementFieldInfo().storageId)
-            throw new RuntimeException("internal error");
-        this.copyRecurse(seen, srcTx, dstTx, srcTx.tx.readListField(id, this.storageId, false), nextFields);
+      ObjId id, int storageId, int fieldIndex, int[] fieldIds) {
+        assert storageId == this.getElementFieldInfo().storageId;
+        this.copyRecurse(seen, srcTx, dstTx, srcTx.tx.readListField(id, this.storageId, false), fieldIndex, fieldIds);
     }
 }
 

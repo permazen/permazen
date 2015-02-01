@@ -17,13 +17,11 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -534,19 +532,13 @@ public class JTransaction {
         }
 
         // Ensure object is copied even when there are zero reference paths
-        this.copyTo(seen, dest, srcId, dstId, true, new ArrayDeque<Integer>());
+        if (paths.isEmpty())
+            this.copyTo(seen, dest, srcId, dstId, true, 0, new int[0]);
 
         // Recurse over each reference path
         for (ReferencePath path : paths) {
-            final int[] storageIds = path.getReferenceFields();
-
-            // Convert reference path, including final target field, into a list of JReferenceFields
-            final ArrayDeque<Integer> fields = new ArrayDeque<>(storageIds.length + 1);
-            fields.addAll(Ints.asList(storageIds));
-            fields.add(path.getTargetField());
-
-            // Recurse over this path
-            this.copyTo(seen, dest, srcId, dstId, false/*doesn't matter*/, fields);
+            this.copyTo(seen, dest, srcId, dstId, false/*doesn't matter*/,
+              0, Ints.concat(path.getReferenceFields(), new int[] { path.getTargetField() }));
         }
 
         // Done
@@ -623,11 +615,11 @@ public class JTransaction {
 
             // Copy object
             final ObjId id = jobj.getObjId();
-            this.copyTo(seen, dest, id, id, true, new ArrayDeque<Integer>());
+            this.copyTo(seen, dest, id, id, true, 0, new int[0]);
         }
     }
 
-    void copyTo(ObjIdSet seen, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, Deque<Integer> fields) {
+    void copyTo(ObjIdSet seen, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, int fieldIndex, int[] fieldIds) {
 
         // Already copied this object?
         if (!seen.add(dstId))
@@ -642,19 +634,19 @@ public class JTransaction {
         }
 
         // Recurse through the next reference field in the path
-        if (fields.isEmpty())
+        if (fieldIndex == fieldIds.length)
             return;
-        final int storageId = fields.removeFirst();
+        final int storageId = fieldIds[fieldIndex++];
         final JReferenceFieldInfo referenceFieldInfo = this.jdb.getJFieldInfo(storageId, JReferenceFieldInfo.class);
         final int parentStorageId = referenceFieldInfo.getParentStorageId();
         if (parentStorageId != 0) {
             final JComplexFieldInfo parentInfo = this.jdb.getJFieldInfo(parentStorageId, JComplexFieldInfo.class);
-            parentInfo.copyRecurse(seen, this, dest, srcId, storageId, fields);
+            parentInfo.copyRecurse(seen, this, dest, srcId, storageId, fieldIndex, fieldIds);
         } else {
             assert referenceFieldInfo instanceof JReferenceFieldInfo;
             final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, storageId, false);
             if (referrent != null)
-                this.copyTo(seen, dest, referrent, referrent, false, fields);
+                this.copyTo(seen, dest, referrent, referrent, false, fieldIndex, fieldIds);
         }
     }
 

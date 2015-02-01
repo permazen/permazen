@@ -8,7 +8,6 @@
 package org.jsimpledb;
 
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 import org.jsimpledb.core.ObjId;
@@ -45,17 +44,19 @@ abstract class JComplexFieldInfo extends JFieldInfo {
      * @param dstTx destination transaction
      * @param id ID of the object containing this complex field in {@code srcTx}
      * @param storageId storage ID of the sub-field of this field containing the references to copy
-     * @param nextFields remaining fields to follow in the reference path
+     * @param fieldIndex next index into {@code fieldIds}
+     * @param fieldIds fields to follow in the reference path
      */
     public abstract void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
-      ObjId id, int storageId, Deque<Integer> nextFields);
+      ObjId id, int storageId, int fieldIndex, int[] fieldIds);
 
     // Recurse on the iteration of references
-    protected void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx, Iterable<?> it, Deque<Integer> nextFields) {
+    protected void copyRecurse(ObjIdSet seen, JTransaction srcTx,
+      JTransaction dstTx, Iterable<?> it, int fieldIndex, int[] fieldIds) {
         for (Object obj : it) {
             if (obj != null) {
                 final ObjId id = (ObjId)obj;
-                srcTx.copyTo(seen, dstTx, id, id, false, nextFields);
+                srcTx.copyTo(seen, dstTx, id, id, false, fieldIndex, fieldIds);
             }
         }
     }
