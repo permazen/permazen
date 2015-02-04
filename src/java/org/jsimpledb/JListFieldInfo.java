@@ -18,7 +18,6 @@ import org.jsimpledb.change.ListFieldClear;
 import org.jsimpledb.change.ListFieldRemove;
 import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.Transaction;
 
 class JListFieldInfo extends JCollectionFieldInfo {
@@ -78,10 +77,10 @@ class JListFieldInfo extends JCollectionFieldInfo {
     }
 
     @Override
-    public void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
-      ObjId id, int storageId, int fieldIndex, int[] fieldIds) {
+    public void copyRecurse(CopyState copyState, JTransaction srcTx, JTransaction dstTx,
+      ObjId id, int storageId, int fieldIndex, int[] fields) {
         assert storageId == this.getElementFieldInfo().storageId;
-        this.copyRecurse(seen, srcTx, dstTx, srcTx.tx.readListField(id, this.storageId, false), fieldIndex, fieldIds);
+        this.copyRecurse(copyState, srcTx, dstTx, srcTx.tx.readListField(id, this.storageId, false), fieldIndex, fields);
     }
 }
 

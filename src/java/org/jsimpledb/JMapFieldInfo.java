@@ -20,7 +20,6 @@ import org.jsimpledb.change.MapFieldRemove;
 import org.jsimpledb.change.MapFieldReplace;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.Transaction;
 
 class JMapFieldInfo extends JComplexFieldInfo {
@@ -117,13 +116,13 @@ class JMapFieldInfo extends JComplexFieldInfo {
     }
 
     @Override
-    public void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
-      ObjId id, int storageId, int fieldIndex, int[] fieldIds) {
+    public void copyRecurse(CopyState copyState, JTransaction srcTx, JTransaction dstTx,
+      ObjId id, int storageId, int fieldIndex, int[] fields) {
         final NavigableMap<?, ?> map = srcTx.tx.readMapField(id, this.storageId, false);
         if (storageId == this.getKeyFieldInfo().getStorageId())
-            this.copyRecurse(seen, srcTx, dstTx, map.keySet(), fieldIndex, fieldIds);
+            this.copyRecurse(copyState, srcTx, dstTx, map.keySet(), fieldIndex, fields);
         else if (storageId == this.getValueFieldInfo().getStorageId())
-            this.copyRecurse(seen, srcTx, dstTx, map.values(), fieldIndex, fieldIds);
+            this.copyRecurse(copyState, srcTx, dstTx, map.values(), fieldIndex, fields);
         else
             throw new RuntimeException("internal error");
     }
