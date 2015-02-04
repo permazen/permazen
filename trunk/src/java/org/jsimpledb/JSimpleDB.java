@@ -326,6 +326,15 @@ public class JSimpleDB {
 
         // Validate schema
         this.db.validateSchema(this.getSchemaModel());
+
+        // Eagerly load all generated Java classes so we "fail fast" if there are any loading errors
+        this.untypedClassGenerator.generateClass();
+        this.untypedClassGenerator.generateSnapshotClass();
+        for (JClass<?> jclass : this.jclasses.values()) {
+            final ClassGenerator<?> classGenerator = jclass.getClassGenerator();
+            classGenerator.generateClass();
+            classGenerator.generateSnapshotClass();
+        }
     }
 
     // This method exists solely to bind the generic type parameters
