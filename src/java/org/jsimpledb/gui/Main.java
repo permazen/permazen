@@ -26,7 +26,6 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.jsimpledb.JSimpleDB;
-import org.jsimpledb.ValidationMode;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.spring.AnnotatedClassScanner;
@@ -113,22 +112,14 @@ public class Main extends AbstractMain implements GUIConfig {
         this.log.debug("using root directory " + this.root);
 
         // Set up database
-        this.startupKVDatabase();
-        this.log.debug("using database: " + this.databaseDescription);
+        final Database db = this.startupKVDatabase();
         try {
-
-            // Create Database
-            final Database db = new Database(this.kvdb);
-
-            // Register custom field types
-            if (this.fieldTypeClasses != null)
-                db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
 
             // Create JSimpleDB instance
             this.jdb = this.getJSimpleDBFactory(db).newJSimpleDB();
 
-            // Verify schema
-            this.verifySchema();
+            // Perform test transaction
+            this.performTestTransaction(jdb);
 
             // Create web server with Spring application context
             this.server = new Server(this.port);
@@ -174,10 +165,6 @@ public class Main extends AbstractMain implements GUIConfig {
     @Override
     public Set<Class<?>> getFunctionClasses() {
         return this.functionClasses;
-    }
-
-    private void verifySchema() {
-        this.jdb.createTransaction(this.allowNewSchema, ValidationMode.AUTOMATIC).rollback();
     }
 
     @Override

@@ -30,6 +30,8 @@ import org.jsimpledb.util.AbstractMain;
  */
 public class Main extends AbstractMain {
 
+    public static final String HISTORY_FILE = ".jsimpledb_history";
+
     private File schemaFile;
     private boolean coreMode;
     private final LinkedHashSet<Class<?>> commandClasses = new LinkedHashSet<>();
@@ -105,14 +107,8 @@ public class Main extends AbstractMain {
             }
         }
 
-        // Start up KV database
-        this.startupKVDatabase();
-        this.log.debug("using database: " + this.databaseDescription);
-        final Database db = new Database(this.kvdb);
-
-        // Register custom field types
-        if (this.fieldTypeClasses != null)
-            db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
+        // Set up Database
+        final Database db = this.startupKVDatabase();
 
         // Load JSimpleDB layer, if specified
         final JSimpleDB jdb = this.schemaClasses != null ? this.getJSimpleDBFactory(db).newJSimpleDB() : null;
@@ -132,12 +128,18 @@ public class Main extends AbstractMain {
         // Core API mode or JSimpleDB mode?
         this.coreMode |= jdb == null;
 
+        // Perform test transaction
+        if (this.coreMode)
+            this.performTestTransaction(db, schemaModel);
+        else
+            this.performTestTransaction(jdb);
+
         // Set up console
-        final Console console = !this.coreMode ?
-          new Console(jdb, new FileInputStream(FileDescriptor.in), System.out) :
-          new Console(db, new FileInputStream(FileDescriptor.in), System.out);
+        final Console console = this.coreMode ?
+          new Console(db, new FileInputStream(FileDescriptor.in), System.out) :
+          new Console(jdb, new FileInputStream(FileDescriptor.in), System.out);
         final CliSession session = console.getSession();
-        console.setHistoryFile(new File(new File(System.getProperty("user.home")), ".jsimpledb_history"));
+        console.setHistoryFile(new File(new File(System.getProperty("user.home")), HISTORY_FILE));
         session.setDatabaseDescription(this.getDatabaseDescription());
         session.setReadOnly(this.readOnly);
         session.setVerbose(this.verbose);

@@ -20,17 +20,23 @@ import java.util.Comparator;
 import java.util.HashSet;
 
 import org.dellroad.stuff.main.MainClass;
+import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleDBFactory;
+import org.jsimpledb.ValidationMode;
 import org.jsimpledb.annotation.JFieldType;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
+import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
+import org.jsimpledb.kv.sql.MySQLKVDatabase;
+import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.spring.JSimpleDBClassScanner;
 import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * Support superclass for main entry point classes.
@@ -41,15 +47,18 @@ public abstract class AbstractMain extends MainClass {
     protected static final int KV_FDB = 1;
     protected static final int KV_XML = 2;
     protected static final int KV_BDB = 3;
+    protected static final int KV_MYSQL = 4;
 
     private static final File DEMO_XML_FILE = new File("demo-database.xml");
     private static final File DEMO_SUBDIR = new File("demo-classes");
+    private static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
 
-    protected int kvType = KV_MEM;
+    protected int kvType = -1;
     protected String fdbClusterFile;
     protected File bdbDirectory;
     protected String bdbDatabaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
     protected File xmlFile;
+    protected String jdbcUrl;
     protected byte[] keyPrefix;
     protected int schemaVersion;
     protected HashSet<Class<?>> schemaClasses;
@@ -121,10 +130,9 @@ public abstract class AbstractMain extends MainClass {
             } else if (option.equals("--new-schema")) {
                 this.allowNewSchema = true;
                 this.allowAutoDemo = false;
-            } else if (option.equals("--mem")) {
+            } else if (option.equals("--mem"))
                 this.kvType = KV_MEM;
-                this.allowAutoDemo = false;
-            } else if (option.equals("--prefix")) {
+            else if (option.equals("--prefix")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String value = params.removeFirst();
@@ -144,13 +152,11 @@ public abstract class AbstractMain extends MainClass {
                     System.err.println(this.getName() + ": file `" + this.fdbClusterFile + "' does not exist");
                     return 1;
                 }
-                this.allowAutoDemo = false;
             } else if (option.equals("--xml")) {
                 if (params.isEmpty())
                     this.usageError();
                 this.kvType = KV_XML;
                 this.xmlFile = new File(params.removeFirst());
-                this.allowAutoDemo = false;
             } else if (option.equals("--bdb")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -164,11 +170,15 @@ public abstract class AbstractMain extends MainClass {
                     System.err.println(this.getName() + ": file `" + this.bdbDirectory + "' is not a directory");
                     return 1;
                 }
-                this.allowAutoDemo = false;
             } else if (option.equals("--bdb-database")) {
                 if (params.isEmpty())
                     this.usageError();
                 this.bdbDatabaseName = params.removeFirst();
+            } else if (option.equals("--mysql")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.jdbcUrl = params.removeFirst();
+                this.kvType = KV_MYSQL;
             } else if (option.equals("--"))
                 break;
             else if (!this.parseOption(option, params)) {
@@ -177,15 +187,22 @@ public abstract class AbstractMain extends MainClass {
                 return 1;
             }
         }
+
+        // Additional logic post-processing of options
         if (this.kvType != KV_FDB && this.keyPrefix != null) {
             System.err.println(this.getName() + ": option `--prefix' is only valid in combination with `--fdb'");
             this.usageError();
             return 1;
         }
-
-        // Automatically go into demo mode if appropriate
-        if (this.allowAutoDemo && DEMO_XML_FILE.exists() && DEMO_SUBDIR.exists())
-            this.configureDemoMode();
+        if (this.kvType == -1) {
+            if (this.allowAutoDemo && DEMO_XML_FILE.exists() && DEMO_SUBDIR.exists())
+                this.configureDemoMode();
+            else {
+                System.err.println(this.getName() + ": no key/value store specified; use one of `--mem', `--fdb', etc.");
+                this.usageError();
+                return 1;
+            }
+        }
 
         // Done
         return -1;
@@ -316,7 +333,12 @@ public abstract class AbstractMain extends MainClass {
         }
     }
 
-    protected void startupKVDatabase() {
+    /**
+     * Start the {@link Database} based on the configured {@link KVDatabase} and {@link #fieldTypeClasses} and return it.
+     */
+    protected Database startupKVDatabase() {
+
+        // Construct KVDatabase
         if (this.kvdb != null)
             this.shutdownKVDatabase();
         switch (this.kvType) {
@@ -352,8 +374,61 @@ public abstract class AbstractMain extends MainClass {
             this.kvdb = new XMLKVDatabase(this.xmlFile);
             this.databaseDescription = "XML DB " + this.xmlFile.getName();
             break;
+        case KV_MYSQL:
+        {
+            try {
+                Class.forName(MYSQL_DRIVER_CLASS_NAME);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException("can't load MySQL driver class `" + MYSQL_DRIVER_CLASS_NAME + "'", e);
+            }
+            final MySQLKVDatabase mysql = new MySQLKVDatabase();
+            mysql.setDataSource(new DriverManagerDataSource(this.jdbcUrl));
+            this.kvdb = mysql;
+            this.databaseDescription = "MySQL";
+            break;
+        }
         default:
             throw new RuntimeException("internal error");
+        }
+        this.log.debug("using database: " + this.databaseDescription);
+
+        // Construct core Database
+        final Database db = new Database(this.kvdb);
+
+        // Register custom field types
+        if (this.fieldTypeClasses != null)
+            db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
+
+        // Done
+        return db;
+    }
+
+    /**
+     * Perform a test transaction.
+     */
+    protected void performTestTransaction(Database db, SchemaModel schemaModel) {
+        final Transaction tx;
+        try {
+            db.createTransaction(schemaModel, this.schemaVersion, this.allowNewSchema).rollback();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("unable to create transaction: " + (e.getMessage() != null ? e.getMessage() : e), e);
+        }
+    }
+
+    /**
+     * Perform a test transaction.
+     */
+    protected void performTestTransaction(JSimpleDB jdb) {
+        try {
+            jdb.createTransaction(this.allowNewSchema, ValidationMode.AUTOMATIC).rollback();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("unable to create transaction: " + (e.getMessage() != null ? e.getMessage() : e), e);
         }
     }
 
@@ -386,6 +461,7 @@ public abstract class AbstractMain extends MainClass {
             { "--bdb-database",             "Specify Berkeley DB database name (default `"
                                               + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },
             { "--mem",                      "Use an empty in-memory database (default)" },
+            { "--mysql URL",                "Use MySQL with the given JDBC URL" },
             { "--prefix prefix",            "FoundationDB key prefix (hex or string)" },
             { "--read-only, -ro",           "Disallow database modifications" },
             { "--new-schema",               "Allow recording of a new database schema version" },
