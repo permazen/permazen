@@ -272,12 +272,6 @@ public class Database {
                 if (metaDataIterator.hasNext()) {
                     final KVPair pair = metaDataIterator.next();
                     if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {
-
-                        // Check for old incompatible format
-                        if (kvt.get(ByteUtil.parse("008fb53fe9da1cc9")) != null)
-                            throw new InconsistentDatabaseException("old/incompatible database format; perform upgrade manually");
-
-                        // Unknown garbage
                         throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
                           + ByteUtil.toString(pair.getKey()) + ")");
                     }
@@ -295,6 +289,7 @@ public class Database {
                         throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
                     if (kvt.getRange(new byte[0], new byte[] { (byte)0xff }, false).hasNext())
                         throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
+                    this.checkAddNewSchema(schemaModel, version, allowNewSchema);
 
                     // Initialize database
                     this.log.info("detected an uninitialized database; writing initial meta-data (format version "
@@ -385,24 +380,7 @@ public class Database {
                     }
 
                     // Check whether we can add a new schema version
-                    if (!allowNewSchema) {
-                        if (version == 0)
-                            throw new SchemaMismatchException("uninitialized database and no schema version was provided");
-                        else {
-                            throw new SchemaMismatchException("schema version " + version
-                              + " not found in database and allowNewSchema is false");
-                        }
-                    }
-                    if (schemaModel == null) {
-                        if (version == 0)
-                            throw new SchemaMismatchException("uninitialized database and no schema model was provided");
-                        else {
-                            throw new SchemaMismatchException("no schema model was provided for schema version " + version
-                              + " and there is no schema version " + version + " recorded in the database");
-                        }
-                    }
-                    if (version == 0)
-                        throw new SchemaMismatchException("uninitialized database and no schema version was provided");
+                    this.checkAddNewSchema(schemaModel, version, allowNewSchema);
 
                     // Record new schema in database
                     this.log.info("recording new schema version " + version + " into database");
@@ -475,6 +453,19 @@ public class Database {
             new SchemaVersion(1, new byte[0], schemaModel, this.fieldTypeRegistry);
         } catch (IllegalArgumentException e) {
             throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);
+        }
+    }
+
+    private void checkAddNewSchema(SchemaModel schemaModel, int version, boolean allowNewSchema) {
+        if (version == 0)
+            throw new SchemaMismatchException("database is uninitialized and no schema version was provided");
+        if (schemaModel == null) {
+            throw new SchemaMismatchException("schema version " + version
+              + " was not found in database, and no schema model was provided");
+        }
+        if (!allowNewSchema) {
+            throw new SchemaMismatchException("schema version " + version
+              + " was not found in database, and recording a new schema version is disabled in this transaction");
         }
     }
 
