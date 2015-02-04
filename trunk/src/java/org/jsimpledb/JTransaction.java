@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -432,8 +431,11 @@ public class JTransaction {
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code seen} parameter tracks which objects have already been copied. For a "fresh" copy operation, pass a newly
-     * created instance; for a copy operation that is a continuation of a previous copy, the {@code seen} may be reused.
+     * The {@code copied} parameter can be used to keep track of objects that have already been copied; objects in {@code copied}
+     * are not copied, but their reference fields are still traversed if encountered along one of the {@code refPaths}
+     * (if an object in {@code copied} is traversed but does not already exist in {@code dest}, an exception is thrown).
+     * For a "fresh" copy operation, pass a newly created {@code ObjIdSet}; for a copy operation that is a continuation
+     * of a previous copy, {@code copied} may be reused.
      * </p>
      *
      * <p>
@@ -455,10 +457,11 @@ public class JTransaction {
      * @param dest destination transaction
      * @param srcObj source object
      * @param dstId target object ID, or null for the object ID of {@code srcObj}
-     * @param seen tracks which indirectly referenced objects have already been copied
-     * @param refPaths zero or more reference paths that refer to additional objects to be copied
+     * @param copied tracks which indirectly referenced objects have already been copied
+     * @param refPaths zero or more reference paths that refer to additional objects to be copied (including intermediate objects)
      * @return the copied object, i.e., the object having ID {@code dstId} in {@code dest}
      * @throws DeletedObjectException if {@code srcObj} does not exist in this transaction
+     * @throws org.jsimpledb.core.DeletedObjectException if an object in {@code copied} is traversed but does not actually exist
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcObj}'s object's version
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the source object's type
@@ -472,15 +475,15 @@ public class JTransaction {
      * @see JObject#copyIn JObject.copyIn()
      * @see #copyTo(JTransaction, ObjIdSet, Iterable)
      */
-    public JObject copyTo(JTransaction dest, JObject srcObj, ObjId dstId, ObjIdSet seen, String... refPaths) {
+    public JObject copyTo(JTransaction dest, JObject srcObj, ObjId dstId, ObjIdSet copied, String... refPaths) {
 
         // Sanity check
         if (dest == null)
             throw new IllegalArgumentException("null destination transaction");
         if (srcObj == null)
             throw new IllegalArgumentException("null srcObj");
-        if (seen == null)
-            throw new IllegalArgumentException("null seen");
+        if (copied == null)
+            throw new IllegalArgumentException("null copied");
         if (refPaths == null)
             throw new IllegalArgumentException("null refPaths");
 
@@ -532,13 +535,16 @@ public class JTransaction {
             }
         }
 
+        // Initialize copy state
+        final CopyState copyState = new CopyState(copied);
+
         // Ensure object is copied even when there are zero reference paths
         if (paths.isEmpty())
-            this.copyTo(seen, dest, srcId, dstId, true, 0, new int[0]);
+            this.copyTo(copyState, dest, srcId, dstId, true, 0, new int[0]);
 
         // Recurse over each reference path
         for (ReferencePath path : paths) {
-            this.copyTo(seen, dest, srcId, dstId, false/*doesn't matter*/,
+            this.copyTo(copyState, dest, srcId, dstId, false/*doesn't matter*/,
               0, Ints.concat(path.getReferenceFields(), new int[] { path.getTargetField() }));
         }
 
@@ -558,8 +564,8 @@ public class JTransaction {
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code seen} set tracks which objects have already been copied. For a "fresh" copy operation, pass a newly
-     * created instance; for a copy operation that is a continuation of a previous copy, the {@code seen} may be reused.
+     * The {@code copied} set tracks which objects have already been copied. For a "fresh" copy operation, pass a newly
+     * created instance; for a copy operation that is a continuation of a previous copy, the {@code copied} may be reused.
      * </p>
      *
      * <p>
@@ -580,7 +586,7 @@ public class JTransaction {
      *
      * @param dest destination transaction
      * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
-     * @param seen tracks which objects have already been copied
+     * @param copied tracks which objects have already been copied
      * @throws DeletedObjectException if an object in {@code jobjs} does not exist in this transaction
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema version corresponding to an object in
      *  {@code jobjs} is not identical in this instance and {@code dest}
@@ -590,19 +596,22 @@ public class JTransaction {
      * @throws IllegalArgumentException if {@code dest} or {@code jobjs} is null
      * @see #copyTo(JTransaction, JObject, ObjId, ObjIdSet, String[])
      */
-    public void copyTo(JTransaction dest, ObjIdSet seen, Iterable<? extends JObject> jobjs) {
+    public void copyTo(JTransaction dest, ObjIdSet copied, Iterable<? extends JObject> jobjs) {
 
         // Sanity check
         if (dest == null)
             throw new IllegalArgumentException("null dest");
-        if (seen == null)
-            throw new IllegalArgumentException("null seen");
+        if (copied == null)
+            throw new IllegalArgumentException("null copied");
         if (jobjs == null)
             throw new IllegalArgumentException("null jobjs");
 
         // Check trivial case
         if (this.tx == dest.tx)
             return;
+
+        // Initialize copy state
+        final CopyState copyState = new CopyState(copied);
 
         // Copy objects
         for (JObject jobj : jobjs) {
@@ -616,38 +625,43 @@ public class JTransaction {
 
             // Copy object
             final ObjId id = jobj.getObjId();
-            this.copyTo(seen, dest, id, id, true, 0, new int[0]);
+            this.copyTo(copyState, dest, id, id, true, 0, new int[0]);
         }
     }
 
-    void copyTo(ObjIdSet seen, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, int fieldIndex, int[] fieldIds) {
+    void copyTo(CopyState copyState, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, int fieldIndex, int[] fields) {
 
-        // Already copied this object?
-        if (!seen.add(dstId))
-            return;
-
-        // Copy current instance
-        try {
-            this.tx.copy(srcId, dstId, dest.tx);
-        } catch (DeletedObjectException e) {
-            if (required)
-                throw e;
+        // Copy current instance unless already copied
+        if (copyState.markCopied(dstId)) {
+            try {
+                this.tx.copy(srcId, dstId, dest.tx);
+            } catch (DeletedObjectException e) {
+                if (required)
+                    throw e;
+            }
         }
 
-        // Recurse through the next reference field in the path
-        if (fieldIndex == fieldIds.length)
+        // Any more fields to traverse?
+        if (fieldIndex == fields.length)
             return;
-        final int storageId = fieldIds[fieldIndex++];
+
+        // Have we already traversed the path?
+        final int[] pathSuffix = fieldIndex == 0 ? fields : Arrays.copyOfRange(fields, fieldIndex, fields.length);
+        if (!copyState.markTraversed(srcId, pathSuffix))
+            return;
+
+        // Recurse through the next reference field in the path
+        final int storageId = fields[fieldIndex++];
         final JReferenceFieldInfo referenceFieldInfo = this.jdb.getJFieldInfo(storageId, JReferenceFieldInfo.class);
         final int parentStorageId = referenceFieldInfo.getParentStorageId();
         if (parentStorageId != 0) {
             final JComplexFieldInfo parentInfo = this.jdb.getJFieldInfo(parentStorageId, JComplexFieldInfo.class);
-            parentInfo.copyRecurse(seen, this, dest, srcId, storageId, fieldIndex, fieldIds);
+            parentInfo.copyRecurse(copyState, this, dest, srcId, storageId, fieldIndex, fields);
         } else {
             assert referenceFieldInfo instanceof JReferenceFieldInfo;
             final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, storageId, false);
             if (referrent != null)
-                this.copyTo(seen, dest, referrent, referrent, false, fieldIndex, fieldIds);
+                this.copyTo(copyState, dest, referrent, referrent, false, fieldIndex, fields);
         }
     }
 

@@ -19,7 +19,6 @@ import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.Transaction;
 
 class JSetFieldInfo extends JCollectionFieldInfo {
@@ -77,10 +76,10 @@ class JSetFieldInfo extends JCollectionFieldInfo {
     }
 
     @Override
-    public void copyRecurse(ObjIdSet seen, JTransaction srcTx, JTransaction dstTx,
-      ObjId id, int storageId, int fieldIndex, int[] fieldIds) {
+    public void copyRecurse(CopyState copyState, JTransaction srcTx, JTransaction dstTx,
+      ObjId id, int storageId, int fieldIndex, int[] fields) {
         assert storageId == this.getElementFieldInfo().storageId;
-        this.copyRecurse(seen, srcTx, dstTx, srcTx.tx.readSetField(id, this.storageId, false), fieldIndex, fieldIds);
+        this.copyRecurse(copyState, srcTx, dstTx, srcTx.tx.readSetField(id, this.storageId, false), fieldIndex, fields);
     }
 }
 

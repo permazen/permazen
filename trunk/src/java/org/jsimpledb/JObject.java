@@ -187,11 +187,17 @@ public interface JObject {
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code seen} parameter tracks which objects have already been copied. For a "fresh" copy operation, pass a newly
-     * created instance; for a copy operation that is a continuation of a previous copy, {@code seen} may be reused.
+     * The {@code copied} parameter can be used to keep track of objects that have already been copied; objects in {@code copied}
+     * are not copied, but their reference fields are still traversed if encountered along one of the {@code refPaths}
+     * (if an object in {@code copied} is traversed but does not already exist in {@code dest}, an exception is thrown).
+     * For a "fresh" copy operation, pass a newly created {@code ObjIdSet}; for a copy operation that is a continuation
+     * of a previous copy, {@code copied} may be reused.
+     * </p>
+     *
+     * <p>
      * Note: if {@code target} is not equal to this instance's object ID, and through one of the {@code refPaths} there
      * is a circular reference back to this instance, then that reference is copied as-is (i.e., it is not copied
-     * to {@code target}).
+     * onto {@code target}).
      * </p>
      *
      * <p>
@@ -201,24 +207,25 @@ public interface JObject {
      *
      * @param dest destination transaction for copies
      * @param target target object ID in {@code dest} onto which to copy this instance's fields, or null for this instance
-     * @param seen tracks which indirectly referenced objects have already been copied
+     * @param copied tracks which indirectly referenced objects have already been copied
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the copied version of this instance in {@code dest}
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
-     *  (no exception is thrown however if an indirectly referenced object does not exist)
+     *  (no exception is thrown however if an indirectly referenced object does not exist unless it is traversed)
+     * @throws org.jsimpledb.core.DeletedObjectException if an object in {@code copied} is traversed but does not actually exist
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread
      * @throws org.jsimpledb.core.SchemaMismatchException
      *  if the schema corresponding to this object's version is not identical in both the {@link JTransaction}
      *  associated with this instance and {@code dest} (as well for any referenced objects)
-     * @throws IllegalArgumentException if {@code dest}, {@code seen}, or {@code refPaths} is null
+     * @throws IllegalArgumentException if {@code dest}, {@code copied}, or {@code refPaths} is null
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      * @see #copyOut copyOut()
      * @see JTransaction#copyTo(JTransaction, JObject, ObjId, ObjIdSet, String[]) JTransaction.copyTo()
      */
-    JObject copyTo(JTransaction dest, ObjId target, ObjIdSet seen, String... refPaths);
+    JObject copyTo(JTransaction dest, ObjId target, ObjIdSet copied, String... refPaths);
 
     /**
      * Snapshot this instance and other instances it references.
