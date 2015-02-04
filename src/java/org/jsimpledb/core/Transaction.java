@@ -226,7 +226,8 @@ public class Transaction {
 
     /**
      * Get the database schema version associated with this transaction.
-     * This is default schema version used and the target version when updating objects' schema versions.
+     * This is the schema version used for newly created objects, and the target schema version when
+     * {@linkplain #updateSchemaVersion upgrading} objects.
      */
     public SchemaVersion getSchemaVersion() {
         return this.version;
@@ -492,7 +493,7 @@ public class Transaction {
      *
      * <p>
      * If the object doesn't already exist, all fields are set to their default values and the object's
-     * schema version is set to {@linkplain #getSchemaVersion the version associated with this transaction}.
+     * schema version is set to {@linkplain #getSchemaVersion() the version associated with this transaction}.
      * </p>
      *
      * @param id object ID
@@ -547,7 +548,7 @@ public class Transaction {
      *
      * <p>
      * All fields will be set to their default values.
-     * The object's schema version will be set to {@linkplain #getSchemaVersion the version associated with this transaction}.
+     * The object's schema version will be set to {@linkplain #getSchemaVersion() the version associated with this transaction}.
      * </p>
      *
      * @param storageId object type storage ID
@@ -675,15 +676,18 @@ public class Transaction {
      *
      * <p>
      * Deleting an object can trigger additional secondary deletions. Specifically,
-     * if the object contains reference fields with {@linkplain ReferenceField#cascadeDelete delete cascade} enabled,
-     * any objects referred to through those fields will also be deleted, and if the object is referred to by any other objects
+     * (a) if the object contains reference fields with {@linkplain ReferenceField#cascadeDelete delete cascade} enabled,
+     * any objects referred to through those fields will also be deleted, and (b) if the object is referred to by any other objects
      * through fields configured for {@link DeleteAction#DELETE}, those referring objects will be deleted.
      * </p>
      *
      * <p>
      * In any case, deletions occur one at a time, and only when an object is actually deleted are any associated secondary
      * deletions added to an internal deletion queue. However, the order in which objects on this deletion queue are
-     * processed is unspecified.
+     * processed is unspecified. For an example of where this ordering matters, consider an object {@code A} referring to objects
+     * {@code B} and {@code C} with delete cascading references, where B also refers to C with a {@link DeleteAction#EXCEPTION}
+     * reference. Then if {@code A} is deleted, it's indeterminate whether a {@link ReferencedObjectException} will be thrown,
+     * as that depends on whether {@code B} or {@code C} is deleted first (with the answer being, respectively, no and yes).
      * </p>
      *
      * @param id object ID of the object to delete
@@ -1095,7 +1099,7 @@ public class Transaction {
 
     /**
      * Change the schema version of the specified object, if necessary, so that its version matches
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}.
+     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}.
      *
      * <p>
      * If a schema change occurs, any registered {@link VersionChangeListener}s will be notified prior
@@ -1111,7 +1115,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code id} is null
      * @throws TypeNotInSchemaVersionException if the object version could not be updated because the object's type
      *   does not exist in the schema version associated with this transaction
-     * @see #getSchemaVersion
+     * @see #getSchemaVersion(ObjId)
      */
     public synchronized boolean updateSchemaVersion(ObjId id) {
 
@@ -1490,7 +1494,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
      * reading the field.
      * </p>
      *
@@ -1535,7 +1539,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
      * writing the field.
      * </p>
      *
@@ -1677,7 +1681,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
      * reading the field.
      * </p>
      *
@@ -1722,7 +1726,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
      * writing the field.
      * </p>
      *
@@ -1766,7 +1770,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
      * writing the field.
      * </p>
      *
@@ -1813,7 +1817,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary.
      * </p>
      *
      * @param id object ID of the object
@@ -1836,7 +1840,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary.
      * </p>
      *
      * @param id object ID of the object
@@ -1859,7 +1863,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion the schema version associated with this transaction}, if necessary.
+     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary.
      * </p>
      *
      * @param id object ID of the object
