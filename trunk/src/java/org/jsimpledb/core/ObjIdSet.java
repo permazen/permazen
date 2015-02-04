@@ -42,7 +42,21 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
      * Constructs an empty instance.
      */
     public ObjIdSet() {
-        this.array = new long[MIN_ARRAY_LENGTH];
+        this(0);
+    }
+
+    /**
+     * Constructs an instance with the given initial capacity.
+     *
+     * @param capacity initial capacity
+     * @throws IllegalArgumentException if {@code capacity} is negative
+     */
+    public ObjIdSet(int capacity) {
+        if (capacity < 0)
+            throw new IllegalArgumentException("capacity < 0");
+        capacity &= 0x3fffffff;                                                     // avoid integer overflow from large values
+        final int arrayLength = Math.max(capacity << 1, MIN_ARRAY_LENGTH);          // array length should be twice the capacity
+        this.array = new long[arrayLength];
     }
 
     /**
@@ -52,7 +66,7 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
      * @throws NullPointerException if any ID in {@code ids} is null
      */
     public ObjIdSet(Iterable<? extends ObjId> ids) {
-        this();
+        this(0);
         if (ids == null)
             throw new IllegalArgumentException("null ids");
         for (ObjId id : ids)
@@ -90,7 +104,7 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
         final long value = id.asLong();
         if (!this.insert(value))
             return false;
-        if (++this.size > (this.array.length >> 1))
+        if (++this.size > (this.array.length >> 1))             // expand when > 50% full
             this.expand();
         this.modcount++;
         return true;
@@ -104,7 +118,7 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
         assert value != 0;
         if (!this.exsert(value))
             return false;
-        if (--this.size < (this.array.length >> 2))
+        if (--this.size < (this.array.length >> 2))             // shrink when < 25% full
             this.shrink();
         this.modcount++;
         return true;
