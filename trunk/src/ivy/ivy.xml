@@ -39,7 +39,7 @@
         <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7+" conf="base->default; build,test,runtime->log4j"/>
         <dependency force="true" org="org.sonatype.jline" name="jline" rev="2.12" conf="javac,cli->default"/>
         <dependency force="true" org="org.springframework" name="spring" rev="4.1+"
-          conf="javac,gui->aop,aspects,beans,context,tx,web; cli->context"/>
+          conf="javac,cli,gui->aop,aspects,beans,context,jdbc,tx,web"/>
         <dependency force="true" org="org.testng" name="testng" rev="6.8+" conf="test->default"/>
     </dependencies>
 

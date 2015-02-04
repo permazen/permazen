@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsimpledb.JSimpleDB;
-import org.jsimpledb.Session;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
@@ -93,12 +92,6 @@ public class Console {
         // Set up tab completion
         console.addCompleter(new ConsoleCompleter(lineBuffer));
 
-        // Open a transaction to load and verify database schema
-        this.session.perform(new Session.Action() {
-            @Override
-            public void run(Session session) { }
-        });
-
         // Main command loop
         try {
 
@@ -106,12 +99,6 @@ public class Console {
               + (this.session.hasJSimpleDB() ? "JSimpleDB" : "Core API") + " CLI Mode. Type `help' for help.");
             this.console.println();
             while (!session.isDone()) {
-
-                // Spit out warning
-                if (this.session.getSchemaVersion() == 0) {
-                    this.console.println("Warning: uninitialized database schema. Please use the `--new-schema', `--version',");
-                    this.console.println("`--schema-file' and/or `--schema-pkg' flags to configure the schema and version.");
-                }
 
                 // Read command line
                 String line;
