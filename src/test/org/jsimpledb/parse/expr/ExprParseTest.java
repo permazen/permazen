@@ -248,6 +248,8 @@ public class ExprParseTest extends TestSupport {
                (byte)(short)(int)(float)123.45 },
             { "4 & 7 | 6 << 5 >>> 2 << 1 >>> 2 + 6 * 3 - 7 / 2 ^ 99",
                4 & 7 | 6 << 5 >>> 2 << 1 >>> 2 + 6 * 3 - 7 / 2 ^ 99 },
+            { "(null)",
+              null },
 
         //CHECKSTYLE ON: SimplifyBooleanExpression
 
