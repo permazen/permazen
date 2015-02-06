@@ -42,7 +42,7 @@ import java.lang.annotation.Target;
  * in the current Java model. Specifically, this can happen in two ways:
  *  <ul>
  *  <li>A reference field refers to an object type that no longer exists; or</li>
- *  <li>An {@link Enum} field refers to an {@link Enum} type taht no longer exists, or whose constants have changed</li>
+ *  <li>An {@link Enum} field refers to an {@link Enum} type that no longer exists, or whose constants have changed</li>
  *  </ul>
  * </p>
  *
