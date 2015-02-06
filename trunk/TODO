@@ -14,9 +14,6 @@ SHORT TERM
         - If that fails, build ObjectContainer+table instead
     - Make more modular/pluggable
 
-- CLI
-    - Improve experience when run with no arguments
-
 MEDIUM TERM
 ===========
 
