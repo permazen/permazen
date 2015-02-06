@@ -15,6 +15,21 @@ import java.util.TreeMap;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.Session;
 import org.jsimpledb.cli.cmd.AbstractCommand;
+import org.jsimpledb.cli.cmd.DeleteSchemaVersionCommand;
+import org.jsimpledb.cli.cmd.EvalCommand;
+import org.jsimpledb.cli.cmd.HelpCommand;
+import org.jsimpledb.cli.cmd.ImportCommand;
+import org.jsimpledb.cli.cmd.InfoCommand;
+import org.jsimpledb.cli.cmd.LoadCommand;
+import org.jsimpledb.cli.cmd.QuitCommand;
+import org.jsimpledb.cli.cmd.SaveCommand;
+import org.jsimpledb.cli.cmd.SetAllowNewSchemaCommand;
+import org.jsimpledb.cli.cmd.SetSchemaVersionCommand;
+import org.jsimpledb.cli.cmd.SetValidationModeCommand;
+import org.jsimpledb.cli.cmd.ShowAllSchemasCommand;
+import org.jsimpledb.cli.cmd.ShowSchemaCommand;
+import org.jsimpledb.cli.func.DumpFunction;
+import org.jsimpledb.cli.func.PrintFunction;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.parse.ParseException;
@@ -100,6 +115,39 @@ public class CliSession extends ParseSession {
     }
 
 // Command registration
+
+    /**
+     * Register the standard CLI built-in functions such as {@code print()}, {@code dump()}, etc.
+     */
+    @Override
+    public void registerStandardFunctions() {
+        super.registerStandardFunctions();
+
+        // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes
+        this.registerFunction(DumpFunction.class);
+        this.registerFunction(PrintFunction.class);
+    }
+
+    /**
+     * Register the standard CLI built-in commands.
+     */
+    public void registerStandardCommands() {
+
+        // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes
+        this.registerCommand(DeleteSchemaVersionCommand.class);
+        this.registerCommand(EvalCommand.class);
+        this.registerCommand(HelpCommand.class);
+        this.registerCommand(ImportCommand.class);
+        this.registerCommand(InfoCommand.class);
+        this.registerCommand(LoadCommand.class);
+        this.registerCommand(QuitCommand.class);
+        this.registerCommand(SaveCommand.class);
+        this.registerCommand(SetAllowNewSchemaCommand.class);
+        this.registerCommand(SetSchemaVersionCommand.class);
+        this.registerCommand(SetValidationModeCommand.class);
+        this.registerCommand(ShowAllSchemasCommand.class);
+        this.registerCommand(ShowSchemaCommand.class);
+    }
 
     /**
      * Create an instance of the specified class and register it as a {@link AbstractCommand}.
