@@ -14,7 +14,7 @@ import java.util.Map;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Java operations.
+ * Java expression operators.
  */
 public enum Op {
 

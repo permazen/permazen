@@ -14,6 +14,9 @@ import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.SpaceParser;
 
+/**
+ * Parses unary expressions using one of {@code !}, {@code ~}, {@code +}, {@code -}, {@code ++}, {@code --}.
+ */
 public class UnaryExprParser implements Parser<Node> {
 
     public static final UnaryExprParser INSTANCE = new UnaryExprParser();

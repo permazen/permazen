@@ -13,7 +13,7 @@ import java.lang.reflect.Modifier;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Value that reflects a instance Java field in some object.
+ * {@link Value} that reflects a instance Java field in some object.
  */
 public class ObjectFieldValue extends AbstractFieldValue {
 

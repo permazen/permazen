@@ -16,6 +16,9 @@ import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.SpaceParser;
 
+/**
+ * Parses type cast expressions.
+ */
 public class CastExprParser implements Parser<Node> {
 
     public static final CastExprParser INSTANCE = new CastExprParser();

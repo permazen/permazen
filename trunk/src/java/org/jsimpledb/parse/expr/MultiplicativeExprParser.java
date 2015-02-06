@@ -7,6 +7,9 @@
 
 package org.jsimpledb.parse.expr;
 
+/**
+ * Parses multiplicative expressions of the form {@code x & y}, {@code x / y}, and {@code x % y}.
+ */
 public class MultiplicativeExprParser extends BinaryExprParser {
 
     public static final MultiplicativeExprParser INSTANCE = new MultiplicativeExprParser();

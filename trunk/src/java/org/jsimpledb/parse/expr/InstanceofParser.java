@@ -13,6 +13,9 @@ import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 
+/**
+ * Parses {@code instanceof} expressions.
+ */
 public class InstanceofParser implements Parser<Node> {
 
     public static final InstanceofParser INSTANCE = new InstanceofParser();

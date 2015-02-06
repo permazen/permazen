@@ -211,7 +211,7 @@ public interface Value {
     Value or(ParseSession session, Value that);
 
     /**
-     * Xor this value.
+     * Xor this value. Also supports {@link java.util.Set} and {@link java.util.NavigableSet} symmetric difference.
      *
      * @param session current session
      * @param that xor value

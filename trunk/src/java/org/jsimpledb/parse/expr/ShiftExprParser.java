@@ -7,6 +7,9 @@
 
 package org.jsimpledb.parse.expr;
 
+/**
+ * Parses shift expressions of the form {@code x << y}, {@code x >> y}, and {@code x >>> y}.
+ */
 public class ShiftExprParser extends BinaryExprParser {
 
     public static final ShiftExprParser INSTANCE = new ShiftExprParser();

@@ -20,7 +20,7 @@ import org.jsimpledb.parse.SpaceParser;
 /**
  * Support superclass for tail-recursive binary expression parsers for expressions of the form {@code ARG1 OP ARG2}.
  *
- * @see <a href="http://en.wikipedia.org/wiki/Tail_recursive_parser">Tail Recursive Parser"</a>
+ * @see <a href="http://en.wikipedia.org/wiki/Tail_recursive_parser">Tail Recursive Parser</a>
  */
 public abstract class BinaryExprParser implements Parser<Node> {
 

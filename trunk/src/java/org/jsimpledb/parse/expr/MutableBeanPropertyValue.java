@@ -13,7 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Value that reflects a mutable bean property in some object.
+ * {@link Value} that reflects a mutable bean property in some object.
  */
 public class MutableBeanPropertyValue extends BeanPropertyValue implements LValue {
 

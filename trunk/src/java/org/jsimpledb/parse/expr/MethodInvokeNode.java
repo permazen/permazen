@@ -19,7 +19,7 @@ import java.util.Set;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * {@link Node} that invokes a Java method.
+ * {@link Node} that invokes a Java method when evaluated.
  */
 public class MethodInvokeNode implements Node {
 

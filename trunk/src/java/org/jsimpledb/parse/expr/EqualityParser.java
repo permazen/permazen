@@ -7,6 +7,9 @@
 
 package org.jsimpledb.parse.expr;
 
+/**
+ * Parses equality expressions of the form {@code x == y} or {@code x != y}.
+ */
 public class EqualityParser extends BinaryExprParser {
 
     public static final EqualityParser INSTANCE = new EqualityParser();

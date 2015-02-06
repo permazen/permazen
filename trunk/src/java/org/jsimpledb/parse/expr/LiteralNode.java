@@ -10,12 +10,17 @@ package org.jsimpledb.parse.expr;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * A parsed literal value.
+ * A parsed literal value. Evaluates to a {@link ConstValue}.
  */
 public class LiteralNode implements Node {
 
     private final Object value;
 
+    /**
+     * Constructor.
+     *
+     * @param value the literal value
+     */
     public LiteralNode(Object value) {
         this.value = value;
     }
@@ -28,7 +33,7 @@ public class LiteralNode implements Node {
     }
 
     @Override
-    public Value evaluate(ParseSession session) {
+    public ConstValue evaluate(ParseSession session) {
         return new ConstValue(this.value);
     }
 
