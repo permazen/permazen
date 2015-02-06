@@ -80,7 +80,8 @@ public class Database {
     /**
      * The maximum number of fields that may be indexed in a composite index ({@value #MAX_INDEXED_FIELDS}).
      */
-    public static final int MAX_INDEXED_FIELDS = 2;
+    // COMPOSITE-INDEX
+    public static final int MAX_INDEXED_FIELDS = 4;
 
     // Prefix of all meta-data keys
     private static final byte METADATA_PREFIX = (byte)0x00;
