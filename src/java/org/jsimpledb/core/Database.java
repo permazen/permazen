@@ -7,14 +7,20 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.primitives.Bytes;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
@@ -91,8 +97,53 @@ public class Database {
     };
 
     // JSimpleDB format version numbers
-    private static final int FORMAT_VERSION_1 = 1;
-    private static final int CURRENT_FORMAT_VERSION = FORMAT_VERSION_1;
+    private static final int FORMAT_VERSION_1 = 1;                                      // original format
+    private static final int FORMAT_VERSION_2 = 2;                                      // added compressed schema XML
+    private static final int CURRENT_FORMAT_VERSION = FORMAT_VERSION_2;
+
+    /* Note: this string must not ever change */
+    private static final byte[] SCHEMA_XML_COMPRESSION_DICTIONARY = (""
+      + "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+      + "<Schema formatVersion=\"2"
+      + "<CompositeIndex"
+      + "<Counter"
+      + "<Enum"
+      + "<Identifier"
+      + "<Indexed"
+      + "<List"
+      + "<Map"
+      + "<ObjectType"
+      + "<ReferenceField"
+      + "<SetField"
+      + "<SimpleField storageId=\""
+      + " cascadeDelete=\""
+      + " encodingSignature=\""
+      + " indexed=\""
+      + " name=\""
+      + " onDelete=\""
+      + " type=\""
+      + "boolean"
+      + "byte[]"
+      + "short"
+      + "char"
+      + "integer"
+      + "float"
+      + "long"
+      + "double"
+      + "java.lang.String"
+      + "util.Date"
+      + "UUID"
+      + "URI"
+      + "io.File"
+      + "regex.Pattern"
+      + "true"
+      + "false"
+      + "NOTHING"
+      + "EXCEPTION"
+      + "UNREFERENCE"
+      + "DELETE"
+      + "\"><")
+      .getBytes(Charset.forName("UTF-8"));
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
@@ -258,78 +309,95 @@ public class Database {
               + (version != 0 ? "schema version " + version : "highest recorded schema version"));
         }
         try {
-            Schema schema = null;
-            boolean firstAttempt = true;
-            while (true) {
 
-                // Get iterator over meta-data key/value pairs
-                final byte[] metaDataPrefix = new byte[] { METADATA_PREFIX };
-                final Iterator<KVPair> metaDataIterator = kvt.getRange(metaDataPrefix,
-                  ByteUtil.getKeyAfterPrefix(metaDataPrefix), false);
+            // Get iterator over meta-data key/value pairs
+            final byte[] metaDataPrefix = new byte[] { METADATA_PREFIX };
+            final Iterator<KVPair> metaDataIterator = kvt.getRange(metaDataPrefix,
+              ByteUtil.getKeyAfterPrefix(metaDataPrefix), false);
 
-                // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
-                byte[] formatVersionBytes = null;
-                if (metaDataIterator.hasNext()) {
-                    final KVPair pair = metaDataIterator.next();
-                    if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {
-                        throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
-                          + ByteUtil.toString(pair.getKey()) + ")");
-                    }
-                    formatVersionBytes = pair.getValue();
+            // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
+            byte[] formatVersionBytes = null;
+            if (metaDataIterator.hasNext()) {
+                final KVPair pair = metaDataIterator.next();
+                if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {
+                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
+                      + ByteUtil.toString(pair.getKey()) + ")");
                 }
+                formatVersionBytes = pair.getValue();
+            }
 
-                // Check for an uninitialized database
-                final boolean uninitialized = formatVersionBytes == null;
-                if (uninitialized) {
+            // Get database format object; check for an uninitialized database
+            final boolean uninitialized = formatVersionBytes == null;
+            final int formatVersion;
+            if (uninitialized) {
 
-                    // Sanity checks
-                    if (kvt.getAtLeast(new byte[0]) != null)
-                        throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
-                    if (kvt.getAtMost(new byte[] { (byte)0xff }) != null)
-                        throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
-                    if (kvt.getRange(new byte[0], new byte[] { (byte)0xff }, false).hasNext())
-                        throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
-                    this.checkAddNewSchema(schemaModel, version, allowNewSchema);
+                // Sanity checks
+                if (kvt.getAtLeast(new byte[0]) != null)
+                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
+                if (kvt.getAtMost(new byte[] { (byte)0xff }) != null)
+                    throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
+                if (kvt.getRange(new byte[0], new byte[] { (byte)0xff }, false).hasNext())
+                    throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
+                this.checkAddNewSchema(schemaModel, version, allowNewSchema);
 
-                    // Initialize database
-                    this.log.info("detected an uninitialized database; writing initial meta-data (format version "
-                      + CURRENT_FORMAT_VERSION + ")");
-                    final ByteWriter writer = new ByteWriter();
-                    UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);
-                    kvt.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
+                // Initialize database
+                formatVersion = CURRENT_FORMAT_VERSION;
+                this.log.info("detected an uninitialized database; initializing with format version " + formatVersion);
+                final ByteWriter writer = new ByteWriter();
+                UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);
+                kvt.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
 
-                    // Sanity check again
-                    formatVersionBytes = kvt.get(FORMAT_VERSION_KEY.clone());
-                    if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)
-                        throw new InconsistentDatabaseException("database failed basic read/write test");
-                    final KVPair lower = kvt.getAtLeast(new byte[0]);
-                    if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
-                        throw new InconsistentDatabaseException("database failed basic read/write test");
-                    final KVPair upper = kvt.getAtMost(new byte[] { (byte)0xff });
-                    if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
-                        throw new InconsistentDatabaseException("database failed basic read/write test");
-                }
-
-                // Verify format version
-                final int formatVersion;
+                // Sanity check again
+                formatVersionBytes = kvt.get(FORMAT_VERSION_KEY.clone());
+                if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)
+                    throw new InconsistentDatabaseException("database failed basic read/write test");
+                final KVPair lower = kvt.getAtLeast(new byte[0]);
+                if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
+                    throw new InconsistentDatabaseException("database failed basic read/write test");
+                final KVPair upper = kvt.getAtMost(new byte[] { (byte)0xff });
+                if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
+                    throw new InconsistentDatabaseException("database failed basic read/write test");
+            } else {
                 try {
                     formatVersion = UnsignedIntEncoder.read(new ByteReader(formatVersionBytes));
                 } catch (IllegalArgumentException e) {
                     throw new InconsistentDatabaseException("database contains invalid encoded format version "
                       + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
                 }
-                switch (formatVersion) {
-                case FORMAT_VERSION_1:
-                    break;
-                default:
-                    throw new InconsistentDatabaseException("database contains unrecognized format version "
-                      + formatVersion + " != " + CURRENT_FORMAT_VERSION + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
+            }
+            final boolean compressedSchemaXML;
+            switch (formatVersion) {
+            case FORMAT_VERSION_1:
+            case FORMAT_VERSION_2:
+                compressedSchemaXML = formatVersion >= FORMAT_VERSION_2;
+                break;
+            default:
+                throw new InconsistentDatabaseException("database contains unrecognized format version "
+                  + formatVersion + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
+            }
+
+            // There should not be any other meta data prior to recorded schemas
+            if (metaDataIterator.hasNext()) {
+                final KVPair pair = metaDataIterator.next();
+                if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) < 0) {
+                    throw new InconsistentDatabaseException("database contains unrecognized garbage at key "
+                      + ByteUtil.toString(pair.getKey()));
                 }
+            }
+
+            // Check schema
+            Schema schema = null;
+            boolean firstAttempt = true;
+            while (true) {
+
+                // Get iterator over schema key/value pairs
+                final Iterator<KVPair> schemaIterator = kvt.getRange(SCHEMA_KEY_PREFIX.clone(),
+                  ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);
 
                 // Read recorded database schema versions - should immediately follow FORMAT_VERSION_KEY
                 final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
-                while (metaDataIterator.hasNext()) {
-                    final KVPair pair = metaDataIterator.next();
+                while (schemaIterator.hasNext()) {
+                    final KVPair pair = schemaIterator.next();
 
                     // Sanity check
                     if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) < 0) {
@@ -354,7 +422,7 @@ public class Database {
                     schema = null;
                 if (schema == null) {
                     try {
-                        schema = this.buildSchema(bytesMap);
+                        schema = this.buildSchema(bytesMap, compressedSchemaXML);
                     } catch (IllegalArgumentException e) {
                         if (firstAttempt)
                             throw new InconsistentDatabaseException("database contains invalid schema information", e);
@@ -384,7 +452,7 @@ public class Database {
 
                     // Record new schema in database
                     this.log.info("recording new schema version " + version + " into database");
-                    this.writeSchema(kvt, version, schemaModel);
+                    this.writeSchema(kvt, version, schemaModel, compressedSchemaXML);
 
                     // Try again
                     schema = null;
@@ -499,14 +567,14 @@ public class Database {
      *
      * @throws InconsistentDatabaseException if any recorded schema version is invalid
      */
-    private Schema buildSchema(SortedMap<Integer, byte[]> bytesMap) {
+    private Schema buildSchema(SortedMap<Integer, byte[]> bytesMap, boolean compressed) {
         final TreeMap<Integer, SchemaVersion> versionMap = new TreeMap<>();
         for (Map.Entry<Integer, byte[]> entry : bytesMap.entrySet()) {
             final int version = entry.getKey();
             final byte[] bytes = entry.getValue();
             final SchemaModel schemaModel;
             try {
-                schemaModel = this.decodeSchema(bytes);
+                schemaModel = this.decodeSchema(bytes, compressed);
             } catch (InvalidSchemaException e) {
                 throw new InconsistentDatabaseException("found invalid schema version " + version + " recorded in database", e);
             }
@@ -522,7 +590,29 @@ public class Database {
      *
      * @throws InvalidSchemaException if schema is invalid
      */
-    private SchemaModel decodeSchema(byte[] value) {
+    private SchemaModel decodeSchema(byte[] value, boolean compressed) {
+
+        // Decompress
+        if (compressed) {
+            try {
+                final Inflater inflater = new Inflater(true);
+                inflater.setDictionary(SCHEMA_XML_COMPRESSION_DICTIONARY);
+                inflater.setInput(Bytes.concat(value, new byte[1]));
+                final ByteArrayOutputStream decompressed = new ByteArrayOutputStream();
+                final byte[] temp = new byte[100];
+                int r;
+                while ((r = inflater.inflate(temp)) != 0)
+                    decompressed.write(temp, 0, r);
+                if (!inflater.finished())
+                    throw new RuntimeException("internal error: inflater did not finish");
+                inflater.end();
+                value = decompressed.toByteArray();
+            } catch (DataFormatException e) {
+                throw new InvalidSchemaException("error in compressed data", e);
+            }
+        }
+
+        // Decode XML
         try {
             return SchemaModel.fromXML(new ByteArrayInputStream(value));
         } catch (IOException e) {
@@ -533,7 +623,7 @@ public class Database {
     /**
      * Record the given schema into the database.
      */
-    private void writeSchema(KVTransaction kvt, int version, SchemaModel schema) {
+    private void writeSchema(KVTransaction kvt, int version, SchemaModel schema, boolean compress) {
 
         // Encode as XML
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -542,9 +632,27 @@ public class Database {
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
         }
+        byte[] value = buf.toByteArray();
 
-        // Write XML
-        kvt.put(this.getSchemaKey(version), buf.toByteArray());
+        // Compress
+        if (compress) {
+            final Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true);
+            deflater.setDictionary(SCHEMA_XML_COMPRESSION_DICTIONARY);
+            deflater.setInput(value);
+            deflater.finish();
+            final ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+            final byte[] temp = new byte[100];
+            int r;
+            while ((r = deflater.deflate(temp)) != 0)
+                compressed.write(temp, 0, r);
+            if (!deflater.finished())
+                throw new RuntimeException("internal error: deflater did not finish");
+            deflater.end();
+            value = compressed.toByteArray();
+        }
+
+        // Write schema
+        kvt.put(this.getSchemaKey(version), value);
     }
 
     /**
