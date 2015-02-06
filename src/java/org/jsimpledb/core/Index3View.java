@@ -125,7 +125,7 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
         Index2View<Tuple2<V1, V2>, V3, T> indexView = new Index2View<Tuple2<V1, V2>, V3, T>(this.prefix, this.prefixMode,
           new Tuple2FieldType<V1, V2>(this.getValue1Type(), this.getValue2Type()), this.getValue3Type(), this.getTargetType());
 
-        // Apply filters
+        // Get filters
         final KeyFilter value1Filter = this.getFilter(0);
         final KeyFilter value2Filter = this.getFilter(1);
         final KeyFilter value3Filter = this.getFilter(2);
@@ -161,14 +161,17 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
         Index2View<V1, V2, V3> indexView = new Index2View<V1, V2, V3>(this.prefix,
           true, this.getValue1Type(), this.getValue2Type(), this.getValue3Type());
 
-        // Apply filters
+        // Get filters
         final KeyFilter value1Filter = this.getFilter(0);
+        final KeyFilter value2Filter = this.getFilter(1);
+        final KeyFilter value3Filter = this.getFilter(2);
+        final KeyFilter targetFilter = this.getFilter(3);
+
+        // Apply filters
         if (value1Filter != null)
             indexView = indexView.filter(0, value1Filter);
-        final KeyFilter value2Filter = this.getFilter(1);
         if (value2Filter != null)
             indexView = indexView.filter(1, value2Filter);
-        final KeyFilter value3Filter = this.getFilter(2);
         if (value3Filter != null)
             indexView = indexView.filter(2, value3Filter);
 
@@ -184,14 +187,17 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
         Index2View<V2, V3, T> indexView = new Index2View<V2, V3, T>(keyPrefix,
           this.prefixMode, this.getValue2Type(), this.getValue3Type(), this.getTargetType());
 
-        // Apply filters
+        // Get filters
+        final KeyFilter value1Filter = this.getFilter(0);
         final KeyFilter value2Filter = this.getFilter(1);
+        final KeyFilter value3Filter = this.getFilter(2);
+        final KeyFilter targetFilter = this.getFilter(3);
+
+        // Apply filters
         if (value2Filter != null)
             indexView = indexView.filter(0, value2Filter);
-        final KeyFilter value3Filter = this.getFilter(2);
         if (value3Filter != null)
             indexView = indexView.filter(1, value3Filter);
-        final KeyFilter targetFilter = this.getFilter(3);
         if (targetFilter != null)
             indexView = indexView.filter(2, targetFilter);
 
