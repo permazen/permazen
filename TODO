@@ -21,8 +21,6 @@ MEDIUM TERM
     - Google Cloud Datastore
         - https://cloud.google.com/datastore/docs/concepts/overview
 
-- Add support for composite indexes on 3, 4, ... fields
-
 LONG TERM
 =========
 
