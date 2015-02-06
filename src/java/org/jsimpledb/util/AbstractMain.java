@@ -18,6 +18,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import org.dellroad.stuff.main.MainClass;
 import org.jsimpledb.JSimpleDB;
@@ -79,6 +80,8 @@ public abstract class AbstractMain extends MainClass {
     public int parseOptions(ArrayDeque<String> params) {
 
         // Parse options
+        final LinkedHashSet<String> modelPackages = new LinkedHashSet<>();
+        final LinkedHashSet<String> typePackages = new LinkedHashSet<>();
         while (!params.isEmpty() && params.peekFirst().startsWith("-")) {
             final String option = params.removeFirst();
             if (option.equals("-h") || option.equals("--help")) {
@@ -108,25 +111,17 @@ public abstract class AbstractMain extends MainClass {
             } else if (option.equals("--model-pkg")) {
                 if (params.isEmpty())
                     this.usageError();
-                final String packageName = params.removeFirst();
-                if (this.scanModelClasses(packageName) == 0)
-                    this.log.warn("no Java model classes found under package `" + packageName + "'");
-                this.allowAutoDemo = false;
+                modelPackages.add(params.removeFirst());
             } else if (option.equals("--type-pkg")) {
                 if (params.isEmpty())
                     this.usageError();
-                final String packageName = params.removeFirst();
-                if (this.scanTypeClasses(packageName) == 0)
-                    this.log.warn("no custom FieldType classes found under package `" + packageName + "'");
+                typePackages.add(params.removeFirst());
             } else if (option.equals("-p") || option.equals("--pkg")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String packageName = params.removeFirst();
-                final int numModelClasses = this.scanModelClasses(packageName);
-                final int numTypeClasses = this.scanTypeClasses(packageName);
-                if (numModelClasses + numTypeClasses == 0)
-                    this.log.warn("no Java model or custom FieldType classes found under package `" + packageName + "'");
-                this.allowAutoDemo = false;
+                modelPackages.add(packageName);
+                typePackages.add(packageName);
             } else if (option.equals("--new-schema")) {
                 this.allowNewSchema = true;
                 this.allowAutoDemo = false;
@@ -189,6 +184,8 @@ public abstract class AbstractMain extends MainClass {
         }
 
         // Additional logic post-processing of options
+        if (!modelPackages.isEmpty() || !typePackages.isEmpty())
+            this.allowAutoDemo = false;
         if (this.kvType != KV_FDB && this.keyPrefix != null) {
             System.err.println(this.getName() + ": option `--prefix' is only valid in combination with `--fdb'");
             this.usageError();
@@ -202,6 +199,31 @@ public abstract class AbstractMain extends MainClass {
                 this.usageError();
                 return 1;
             }
+        }
+
+        // Scan for model and type classes
+        final LinkedHashSet<String> emptyPackages = new LinkedHashSet<>();
+        emptyPackages.addAll(modelPackages);
+        emptyPackages.addAll(typePackages);
+        for (String packageName : modelPackages) {
+            if (this.scanModelClasses(packageName) > 0)
+                emptyPackages.remove(packageName);
+        }
+        for (String packageName : typePackages) {
+            if (this.scanTypeClasses(packageName) > 0)
+                emptyPackages.remove(packageName);
+        }
+
+        // Warn if we didn't find anything
+        for (String packageName : emptyPackages) {
+            final boolean isModel = modelPackages.contains(packageName);
+            final boolean isType = typePackages.contains(packageName);
+            if (isModel && isType)
+                this.log.warn("no Java model or custom FieldType classes found under package `" + packageName + "'");
+            else if (isModel)
+                this.log.warn("no Java model classes found under package `" + packageName + "'");
+            else
+                this.log.warn("no custom FieldType classes found under package `" + packageName + "'");
         }
 
         // Done
