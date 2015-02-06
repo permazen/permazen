@@ -1,6 +1,10 @@
 Version Next
 
     - Fixed bug in copyTo() not following reference path(s)
+    - Allow revalidate() to be invoked during validation
+    - Increase the number of fields in a composite index to four
+    - Compress schema information before storing
+    - Improvements to CLI and GUI command line utilities
 
 Version 1.1.748 Released January 28, 2015
 
