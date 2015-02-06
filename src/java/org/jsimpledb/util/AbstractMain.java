@@ -411,7 +411,7 @@ public abstract class AbstractMain extends MainClass {
     protected void performTestTransaction(Database db, SchemaModel schemaModel) {
         final Transaction tx;
         try {
-            db.createTransaction(schemaModel, this.schemaVersion, this.allowNewSchema).rollback();
+            db.createTransaction(schemaModel, this.schemaVersion, this.allowNewSchema).commit();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -424,7 +424,7 @@ public abstract class AbstractMain extends MainClass {
      */
     protected void performTestTransaction(JSimpleDB jdb) {
         try {
-            jdb.createTransaction(this.allowNewSchema, ValidationMode.AUTOMATIC).rollback();
+            jdb.createTransaction(this.allowNewSchema, ValidationMode.AUTOMATIC).commit();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
