@@ -70,6 +70,29 @@ public class EnumValue {
         return this.ordinal;
     }
 
+    /**
+     * Find the instance in the given {@link Enum} type that matches this instance in both name and ordinal value, if any.
+     *
+     * <p>
+     * Note: to match only by name, just use {@link Enum#valueOf Enum.valueOf()}.
+     * </p>
+     *
+     * @param type {@link Enum} type
+     * @return matching instance of type {@code type}, or null if none exists
+     * @throws IllegalArgumentException if {@code type} is null
+     */
+    public <T extends Enum<T>> T find(Class<T> type) {
+        if (type == null)
+            throw new IllegalArgumentException("null type");
+        final T value;
+        try {
+            value = Enum.valueOf(type, this.name);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        return value.ordinal() == this.ordinal ? value : null;
+    }
+
 // Object
 
     @Override
