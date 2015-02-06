@@ -561,24 +561,5 @@ public abstract class AbstractValue implements Value {
             return "null value";
         return (prefix.length > 0 ? prefix[0] + " " : "") + "value of type " + obj.getClass().getName();
     }
-
-    /**
-     * Function that evaluates (i.e., invokes {@link #get Value.get()}) on its argument.
-     */
-    public static class GetFunction implements Function<Value, Object> {
-
-        private final ParseSession session;
-
-        public GetFunction(ParseSession session) {
-            if (session == null)
-                throw new IllegalArgumentException("null session");
-            this.session = session;
-        }
-
-        @Override
-        public Object apply(Value item) {
-            return item.get(this.session);
-        }
-    }
 }
 
