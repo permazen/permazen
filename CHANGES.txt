@@ -1,3 +1,7 @@
+Version Next
+
+    - Fix bug in FileStreamRepository when filename is less than 3 characters
+
 Version 1.0.964 Released January 28, 2015
 
     - Make @FieldBuilder.ProvidesField search in super-types for annotated methods

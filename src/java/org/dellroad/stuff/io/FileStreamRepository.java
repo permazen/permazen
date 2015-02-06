@@ -110,7 +110,10 @@ public class FileStreamRepository implements StreamRepository {
 
     @Override
     public AtomicUpdateFileOutputStream getOutputStream() throws IOException {
-        File tempFile = File.createTempFile(this.file.getName(), null, this.file.getParentFile());
+        String tempName = this.file.getName();
+        while (tempName.length() < 3)
+            tempName += "z";
+        final File tempFile = File.createTempFile(tempName, null, this.file.getParentFile());
         return new AtomicUpdateFileOutputStream(this.file, tempFile) {
             @Override
             public void close() throws IOException {
