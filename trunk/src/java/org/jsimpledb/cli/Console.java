@@ -66,10 +66,23 @@ public class Console {
         this.session = jdb != null ? new CliSession(jdb, writer) : new CliSession(db, writer);
     }
 
+    /**
+     * Get the associated JLine {@link ConsoleReader}.
+     */
+    public ConsoleReader getConsoleReader() {
+        return this.console;
+    }
+
+    /**
+     * Get the associated {@link CliSession}.
+     */
     public CliSession getSession() {
         return this.session;
     }
 
+    /**
+     * Configure the command history file.
+     */
     public void setHistoryFile(File historyFile) {
         if (this.history != null)
             throw new IllegalStateException("history file already configured");
@@ -82,7 +95,7 @@ public class Console {
     }
 
     /**
-     * Run this instance.
+     * Run this instance. This method blocks until the connected user exits the console.
      */
     public void run() throws IOException {
 
