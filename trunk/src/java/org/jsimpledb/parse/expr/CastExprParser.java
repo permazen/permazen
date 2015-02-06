@@ -29,10 +29,15 @@ public class CastExprParser implements Parser<Node> {
     public Node parse(ParseSession session, ParseContext ctx, boolean complete) {
 
         // Try cast
+        final int start = ctx.getIndex();
         final Matcher castMatcher = ctx.tryPattern("\\((" + IdentNode.NAME_PATTERN
           + "(\\s*\\.\\s*" + IdentNode.NAME_PATTERN + ")*)\\s*\\)\\s*");
         if (castMatcher != null) {
             final String className = castMatcher.group(1).replaceAll("\\s", "");
+            if (className.equals("null")) {
+                ctx.setIndex(start);
+                return UnaryExprParser.INSTANCE.parse(session, ctx, complete);
+            }
             final Node target = this.parse(session, ctx, complete);             // associates right-to-left
             ctx.skipWhitespace();
             return new Node() {
