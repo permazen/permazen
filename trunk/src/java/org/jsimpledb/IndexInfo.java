@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import org.jsimpledb.core.CoreIndex;
 import org.jsimpledb.core.CoreIndex2;
 import org.jsimpledb.core.CoreIndex3;
+import org.jsimpledb.core.CoreIndex4;
 import org.jsimpledb.kv.KeyRanges;
 
 /**
@@ -179,6 +180,15 @@ class IndexInfo {
     }
 
     public <V1, V2, V3, T> CoreIndex3<V1, V2, V3, T> applyFilters(CoreIndex3<V1, V2, V3, T> index) {
+        for (int i = 0; i < this.filters.size(); i++) {
+            final KeyRanges filter = this.filters.get(i);
+            if (filter != null && !filter.isFull())
+                index = index.filter(i, filter);
+        }
+        return index;
+    }
+
+    public <V1, V2, V3, V4, T> CoreIndex4<V1, V2, V3, V4, T> applyFilters(CoreIndex4<V1, V2, V3, V4, T> index) {
         for (int i = 0; i < this.filters.size(); i++) {
             final KeyRanges filter = this.filters.get(i);
             if (filter != null && !filter.isFull())

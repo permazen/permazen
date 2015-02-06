@@ -37,6 +37,7 @@ import org.dellroad.stuff.validation.ValidationUtil;
 import org.jsimpledb.core.CoreIndex;
 import org.jsimpledb.core.CoreIndex2;
 import org.jsimpledb.core.CoreIndex3;
+import org.jsimpledb.core.CoreIndex4;
 import org.jsimpledb.core.CreateListener;
 import org.jsimpledb.core.DeleteListener;
 import org.jsimpledb.core.DeletedObjectException;
@@ -60,6 +61,7 @@ import org.jsimpledb.core.VersionChangeListener;
 import org.jsimpledb.index.Index;
 import org.jsimpledb.index.Index2;
 import org.jsimpledb.index.Index3;
+import org.jsimpledb.index.Index4;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.AbstractKVNavigableSet;
 import org.jsimpledb.util.ConvertedNavigableMap;
@@ -124,6 +126,8 @@ import org.slf4j.LoggerFactory;
  *      - Access a composite index defined on two fields</li>
  *  <li>{@link #queryCompositeIndex(Class, String, Class, Class, Class) queryCompositeIndex()}
  *      - Access a composite index defined on three fields</li>
+ *  <li>{@link #queryCompositeIndex(Class, String, Class, Class, Class, Class) queryCompositeIndex()}
+ *      - Access a composite index defined on four fields</li>
  *  <!-- COMPOSITE-INDEX -->
  * </ul>
  * </p>
@@ -1217,6 +1221,35 @@ public class JTransaction {
     }
 
     /**
+     * Access a composite index on four fields.
+     *
+     * @param targetType type containing the indexed fields; may also be any super-type (e.g., an interface type)
+     * @param indexName the name of the composite index
+     * @param value1Type the Java type corresponding to the first field value
+     * @param value2Type the Java type corresponding to the second field value
+     * @param value3Type the Java type corresponding to the third field value
+     * @param value4Type the Java type corresponding to the fourth field value
+     * @return read-only, real-time view of the fields' values and the objects having those values in the fields
+     * @throws IllegalArgumentException if any parameter is null, or invalid
+     * @throws StaleTransactionException if this transaction is no longer usable
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <V1, V2, V3, V4, T> Index4<V1, V2, V3, V4, T> queryCompositeIndex(Class<T> targetType,
+      String indexName, Class<V1> value1Type, Class<V2> value2Type, Class<V3> value3Type, Class<V4> value4Type) {
+        final IndexInfo info = this.getIndexInfo(
+          new IndexInfoKey(indexName, true, targetType, value1Type, value2Type, value3Type, value4Type));
+        final CoreIndex4<?, ?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex4(info.indexInfo.storageId));
+        final Converter<?, ?> value1Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(0));
+        final Converter<?, ?> value2Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(1));
+        final Converter<?, ?> value3Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(2));
+        final Converter<?, ?> value4Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(3));
+        final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
+        return new ConvertedIndex4(index, value1Converter, value2Converter, value3Converter, value4Converter, targetConverter);
+    }
+
+    // COMPOSITE-INDEX
+
+    /**
      * Query an index by storage ID. For storage ID's corresponding to simple fields, this method returns an
      * {@link Index}, except for list element and map value fields, for which an {@link Index2} is returned.
      * For storage ID's corresponding to composite indexes, this method returns an {@link Index2}, {@link Index3},
@@ -1253,6 +1286,15 @@ public class JTransaction {
                 final Converter<?, ?> value3Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(2));
                 return new ConvertedIndex3(this.tx.queryCompositeIndex3(indexInfo.storageId),
                   value1Converter, value2Converter, value3Converter, targetConverter);
+            }
+            case 4:
+            {
+                final Converter<?, ?> value1Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(0));
+                final Converter<?, ?> value2Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(1));
+                final Converter<?, ?> value3Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(2));
+                final Converter<?, ?> value4Converter = this.getReverseConverter(indexInfo.jfieldInfos.get(3));
+                return new ConvertedIndex4(this.tx.queryCompositeIndex4(indexInfo.storageId),
+                  value1Converter, value2Converter, value3Converter, value4Converter, targetConverter);
             }
             // COMPOSITE-INDEX
             default:
