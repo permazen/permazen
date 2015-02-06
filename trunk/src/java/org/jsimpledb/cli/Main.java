@@ -18,7 +18,6 @@ import java.util.LinkedHashSet;
 
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.cli.cmd.Command;
-import org.jsimpledb.cli.func.SimpleCliFunction;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.schema.SchemaModel;
@@ -71,10 +70,6 @@ public class Main extends AbstractMain {
 
     @Override
     public int run(String[] args) throws Exception {
-
-        // Register built-in commands and functions
-        this.scanCommandClasses(Command.class.getPackage().getName());
-        this.scanFunctionClasses(SimpleCliFunction.class.getPackage().getName());
 
         // Parse command line
         final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));
@@ -138,8 +133,10 @@ public class Main extends AbstractMain {
         final Console console = this.coreMode ?
           new Console(db, new FileInputStream(FileDescriptor.in), System.out) :
           new Console(jdb, new FileInputStream(FileDescriptor.in), System.out);
-        final CliSession session = console.getSession();
         console.setHistoryFile(new File(new File(System.getProperty("user.home")), HISTORY_FILE));
+
+        // Set up CLI session
+        final CliSession session = console.getSession();
         session.setDatabaseDescription(this.getDatabaseDescription());
         session.setReadOnly(this.readOnly);
         session.setVerbose(this.verbose);
@@ -147,6 +144,7 @@ public class Main extends AbstractMain {
         session.setSchemaVersion(this.schemaVersion);
         session.setAllowNewSchema(this.allowNewSchema);
         session.registerStandardFunctions();
+        session.registerStandardCommands();
         try {
             for (Class<?> cl : this.commandClasses) {
                 final Command annotation = cl.getAnnotation(Command.class);
