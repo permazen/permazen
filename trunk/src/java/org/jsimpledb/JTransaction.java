@@ -216,7 +216,7 @@ public class JTransaction {
     });
 
     private SnapshotJTransaction snapshotTransaction;
-    private boolean committing;
+    private boolean commitInvoked;
 
 // Constructor
 
@@ -859,8 +859,6 @@ public class JTransaction {
     public synchronized void resetValidationQueue() {
         if (!this.tx.isValid())
             throw new StaleTransactionException(this.tx);
-        if (this.committing)
-            throw new IllegalStateException("commit() has already been invoked");
         this.validationQueue.clear();
     }
 
@@ -870,8 +868,6 @@ public class JTransaction {
         if (this.validationMode == ValidationMode.DISABLED)
             return;
         synchronized (this) {
-            if (this.committing)
-                throw new IllegalStateException("commit() has already been invoked");
             this.validationQueue.addAll(ids);
         }
     }
@@ -1426,9 +1422,9 @@ public class JTransaction {
         if (!this.tx.isValid())
             throw new StaleTransactionException(this.tx);
         synchronized (this) {
-            if (this.committing)
+            if (this.commitInvoked)
                 throw new IllegalStateException("commit() invoked re-entrantly");
-            this.committing = true;
+            this.commitInvoked = true;
         }
 
         // Do validation
