@@ -7,8 +7,12 @@
 
 package org.jsimpledb.parse.expr;
 
+import org.jsimpledb.parse.ParseSession;
+
 /**
- * Runtime value representing a session variable.
+ * {@link Node} representing a parsed {@link ParseSession} variable.
+ *
+ * @see ParseSession#getVars
  */
 public class VarNode extends ConstNode {
 
@@ -21,6 +25,11 @@ public class VarNode extends ConstNode {
      */
     public VarNode(String name) {
         super(new VarValue(name));
+    }
+
+    @Override
+    public VarValue evaluate(ParseSession session) {
+        return (VarValue)super.evaluate(session);
     }
 
     /**

@@ -13,7 +13,9 @@ import org.jsimpledb.core.ObjId;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Value that reflects a core API {@link org.jsimpledb.core.Field} in some database object.
+ * {@link Value} that reflects a core API {@link org.jsimpledb.core.Field} in some database object.
+ *
+ * @see JFieldValue
  */
 public class FieldValue extends AbstractValue {
 

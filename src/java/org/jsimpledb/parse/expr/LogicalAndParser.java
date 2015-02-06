@@ -9,6 +9,9 @@ package org.jsimpledb.parse.expr;
 
 import org.jsimpledb.parse.ParseSession;
 
+/**
+ * Parses logical AND expressions of the form {@code x && y}.
+ */
 public class LogicalAndParser extends BinaryExprParser {
 
     public static final LogicalAndParser INSTANCE = new LogicalAndParser();

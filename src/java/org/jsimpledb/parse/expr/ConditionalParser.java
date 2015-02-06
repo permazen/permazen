@@ -13,6 +13,9 @@ import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.SpaceParser;
 
+/**
+ * Parses conditional expressions of the form {@code x ? y : z}.
+ */
 public class ConditionalParser implements Parser<Node> {
 
     public static final ConditionalParser INSTANCE = new ConditionalParser();

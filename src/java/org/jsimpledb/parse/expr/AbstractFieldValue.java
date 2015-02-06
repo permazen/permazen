@@ -10,7 +10,7 @@ package org.jsimpledb.parse.expr;
 import java.lang.reflect.Field;
 
 /**
- * Value that reflects a Java field in some class or object.
+ * {@link Value} that reflects a Java field in some class or object.
  */
 abstract class AbstractFieldValue extends AbstractValue implements LValue {
 

@@ -9,6 +9,9 @@ package org.jsimpledb.parse.expr;
 
 import org.jsimpledb.parse.ParseSession;
 
+/**
+ * Parses Java assignment expressions of the form {@code x = y}, {@code x += y}, etc.
+ */
 public class AssignmentExprParser extends BinaryExprParser {
 
     public static final AssignmentExprParser INSTANCE = new AssignmentExprParser();

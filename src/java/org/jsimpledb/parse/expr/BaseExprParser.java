@@ -44,6 +44,20 @@ import org.jsimpledb.parse.SpaceParser;
 import org.jsimpledb.parse.func.AbstractFunction;
 import org.jsimpledb.parse.util.AddSuffixFunction;
 
+/**
+ * Parses basic Java expressions such as {@link Class} literals, {@code new} expressions, auto-increment expressions,
+ * array access, field access, method invocation, etc.
+ *
+ * <p>
+ * Includes these extensions:
+ * <ul>
+ *  <li>Access to Java bean methods via "property syntax", e.g., {@code foo.name = "fred"} means {@code foo.setName("fred")}</li>
+ *  <li>Access database object fields via "property syntax" given an object ID, e.g., <code>@fc21bf6d8930a215.name</code></li>
+ *  <li>Array syntax for {@link Map} and {@link List} value access, e.g., {@code mymap[key] = value} means
+ *      {@code mymap.put(key, value)}, and {@code mylist[12] = "abc"} means {@code mylist.set(12, "abc")}</li>
+ * </ul>
+ * </p>
+ */
 public class BaseExprParser implements Parser<Node> {
 
     public static final BaseExprParser INSTANCE = new BaseExprParser();

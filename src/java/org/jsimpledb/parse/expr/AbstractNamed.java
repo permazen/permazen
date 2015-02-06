@@ -9,6 +9,9 @@ package org.jsimpledb.parse.expr;
 
 import java.util.regex.Pattern;
 
+/**
+ * Support superclass for things with a name.
+ */
 public abstract class AbstractNamed {
 
     public static final Pattern NAME_PATTERN = Pattern.compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");

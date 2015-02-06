@@ -12,7 +12,7 @@ import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Value that reflects a core API {@link SimpleField} in some database object.
+ * {@link Value} that reflects a core API {@link SimpleField} in some database object.
  */
 public class SimpleFieldValue extends FieldValue implements LValue {
 

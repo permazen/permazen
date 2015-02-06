@@ -7,6 +7,9 @@
 
 package org.jsimpledb.parse.expr;
 
+/**
+ * Parses relational expressions of the form {@code x < y}, {@code x >= y}, etc.
+ */
 public class RelationalExprParser extends BinaryExprParser {
 
     public static final RelationalExprParser INSTANCE = new RelationalExprParser();

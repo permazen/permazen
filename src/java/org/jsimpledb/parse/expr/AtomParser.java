@@ -25,7 +25,17 @@ import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.SpaceParser;
 
 /**
- * The lowest parse level.
+ * The lowest parse level. Parses parenthesized expressions, literals, and identifiers.
+ *
+ * <p>
+ * Includes these special extensions:
+ * <ul>
+ *  <li>Variable references, e.g., {@code $foo}</li>
+ *  <li>Object ID literals, e.g., <code>@fc21bf6d8930a215</code></li>
+ *  <li>Any {@link FieldType} value in {@linkplain FieldType#fromParseableString parseable string form}
+ *      preceded by the {@link FieldType} name in curly braces, e.g., <code>{java.util.Date}2015-01-23T07:19:42</code></li>
+ * </ul>
+ * </p>
  */
 public class AtomParser implements Parser<Node> {
 

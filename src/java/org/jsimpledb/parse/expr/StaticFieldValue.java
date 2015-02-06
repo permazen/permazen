@@ -13,7 +13,7 @@ import java.lang.reflect.Modifier;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Value that reflects a static Java field.
+ * {@link Value} that reflects a static Java field in some {@link Class}.
  */
 public class StaticFieldValue extends AbstractFieldValue {
 

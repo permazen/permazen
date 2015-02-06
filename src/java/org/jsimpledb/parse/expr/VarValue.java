@@ -10,7 +10,9 @@ package org.jsimpledb.parse.expr;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Runtime value representing a session variable.
+ * {@link Value} that represents a {@link ParseSession} variable.
+ *
+ * @see ParseSession#getVars
  */
 public class VarValue extends AbstractLValue {
 

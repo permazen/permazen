@@ -12,7 +12,7 @@ import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 
 /**
- * Expression parser.
+ * Java expression parser.
  */
 public class ExprParser implements Parser<Node> {
 

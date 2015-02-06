@@ -12,7 +12,9 @@ import org.jsimpledb.JObject;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Value that reflects a {@link JField} in some {@link JObject}.
+ * {@link Value} that reflects a {@link JField} in some {@link JObject}.
+ *
+ * @see FieldValue
  */
 public class JFieldValue extends AbstractValue {
 

@@ -12,7 +12,7 @@ import org.jsimpledb.JSimpleField;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Value that reflects a {@link JSimpleField} in some {@link JObject}.
+ * {@link Value} that reflects a {@link JSimpleField} in some {@link JObject}.
  */
 public class JSimpleFieldValue extends JFieldValue implements LValue {
 

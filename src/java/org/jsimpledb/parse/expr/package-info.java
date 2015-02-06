@@ -6,6 +6,6 @@
  */
 
 /**
- * Classes relating to parsing Java-style expressions.
+ * Classes for parsing Java expressions with JSimpleDB-specific extensions.
  */
 package org.jsimpledb.parse.expr;

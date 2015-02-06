@@ -14,7 +14,11 @@ import java.lang.reflect.InvocationTargetException;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * Value that reflects a bean property in some object.
+ * {@link Value} that reflects a bean property in some object.
+ *
+ * <p>
+ * For mutable bean properties, use {@link MutableBeanPropertyValue}, which is also an {@link LValue}.
+ * </p>
  */
 public class BeanPropertyValue extends AbstractValue {
 
