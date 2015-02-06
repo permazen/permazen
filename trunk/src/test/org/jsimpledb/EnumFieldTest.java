@@ -129,6 +129,23 @@ public class EnumFieldTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testFindEnum() throws Exception {
+
+        // Try with matching name and ordinal
+        final Enum1 e = Enum1.BBB;
+        final Enum1 e2 = new EnumValue(e).find(Enum1.class);
+        Assert.assertEquals(e2, e);
+
+        // Try with matching name only
+        final Enum1 e3 = new EnumValue(e.name(), e.ordinal() + 1).find(Enum1.class);
+        Assert.assertNull(e3);
+
+        // Try with matching ordinal only
+        final Enum1 e4 = new EnumValue(e.name() + "x", e.ordinal()).find(Enum1.class);
+        Assert.assertNull(e4);
+    }
+
 // Model Classes
 
     public enum MyEnum {
