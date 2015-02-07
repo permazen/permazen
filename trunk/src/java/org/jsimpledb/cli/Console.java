@@ -25,6 +25,7 @@ import org.jsimpledb.parse.util.AddPrefixFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jline.Terminal;
 import jline.console.ConsoleReader;
 import jline.console.UserInterruptException;
 import jline.console.completer.Completer;
@@ -45,20 +46,47 @@ public class Console {
 
     /**
      * Constructor for core level access only.
+     *
+     * @param db core API {@link Database}
+     * @param input console input
+     * @param output console output
      */
-    public Console(Database db, InputStream in, OutputStream out) throws IOException {
-        this(null, db, in, out);
+    public Console(Database db, InputStream input, OutputStream output) throws IOException {
+        this(db, null, input, output, null, null, null);
     }
 
     /**
      * Constructor for {@link JSimpleDB} level access.
+     *
+     * @param jdb {@link JSimpleDB} database
+     * @param input console input
+     * @param output console output
      */
-    public Console(JSimpleDB jdb, InputStream in, OutputStream out) throws IOException {
-        this(jdb, null, in, out);
+    public Console(JSimpleDB jdb, InputStream input, OutputStream output) throws IOException {
+        this(null, jdb, input, output, null, null, null);
     }
 
-    private Console(JSimpleDB jdb, Database db, InputStream in, OutputStream out) throws IOException {
-        this.console = new ConsoleReader(in, out);
+    /**
+     * Primary constructor.
+     *
+     * @param db core API {@link Database}; must be null if and only if {@code jdb} is not null
+     * @param jdb {@link JSimpleDB} database; must be null if and only if {@code db} is not null
+     * @param input console input
+     * @param output console output
+     * @param terminal JLine terminal interface, or null for default
+     * @param encoding character encoding for {@code terminal}, or null for default
+     * @param appName JLine application name, or null for none
+     * @throws IllegalArgumentException if {@code db} and {@code jdb} are both null or both not null
+     */
+    public Console(Database db, JSimpleDB jdb, InputStream input, OutputStream output,
+      Terminal terminal, String encoding, String appName) throws IOException {
+        if (!((jdb == null) ^ (db == null)))
+            throw new IllegalArgumentException("exactly one of db or jdb must be null");
+        if (input == null)
+            throw new IllegalArgumentException("null input");
+        if (output == null)
+            throw new IllegalArgumentException("null output");
+        this.console = new ConsoleReader(appName, input, output, terminal, encoding);
         this.console.setBellEnabled(true);
         this.console.setHistoryEnabled(true);
         this.console.setHandleUserInterrupt(true);
