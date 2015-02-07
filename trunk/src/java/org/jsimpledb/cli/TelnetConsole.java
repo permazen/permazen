@@ -21,7 +21,19 @@ import jline.TerminalFactory;
  * A {@link Console} connected to a telnet client via a {@link Socket}.
  *
  * <p>
- * This class can be used to implement an embedded CLI console within an application.
+ * This class can be used to implement an embedded CLI console within an application, accessed via telnet. For example:
+ * <pre>
+ *      // Accept a new connection
+ *      final Socket socket = ...
+ *
+ *      // Set up telnet CLI console
+ *      final TelnetConsole console = TelnetConsole.create(database, socket);
+ *      console.getSession().registerStandardFunctions();
+ *      console.getSession().registerStandardCommands();
+ *
+ *      // Run the console
+ *      console.run();
+ * </pre>
  * </p>
  */
 public final class TelnetConsole extends Console {
@@ -113,7 +125,7 @@ public final class TelnetConsole extends Console {
 // ForwardingTerminal
 
     /**
-     * Wrapper class for a {@link jline.Terminal} that forwards all methods to the wrapped delegate.
+     * Wrapper class for a JLine {@link jline.Terminal} that forwards all methods to the wrapped delegate.
      */
     public static class ForwardingTerminal implements jline.Terminal {
 
