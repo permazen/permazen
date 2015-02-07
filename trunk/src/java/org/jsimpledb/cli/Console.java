@@ -36,16 +36,17 @@ import jline.console.history.FileHistory;
  */
 public class Console {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final ConsoleReader console;
-    private final CliSession session;
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    protected final ConsoleReader console;
+    protected final CliSession session;
+
     private final CommandParser commandParser = new CommandParser();
     private final CommandListParser commandListParser = new CommandListParser(this.commandParser);
 
     private FileHistory history;
 
     /**
-     * Constructor for core level access only.
+     * Simplified constructor for core API CLI mode.
      *
      * @param db core API {@link Database}
      * @param input console input
@@ -56,7 +57,7 @@ public class Console {
     }
 
     /**
-     * Constructor for {@link JSimpleDB} level access.
+     * Simplified constructor for {@link JSimpleDB} API CLI mode.
      *
      * @param jdb {@link JSimpleDB} database
      * @param input console input
@@ -67,7 +68,7 @@ public class Console {
     }
 
     /**
-     * Primary constructor.
+     * Generic constructor.
      *
      * @param db core API {@link Database}; must be null if and only if {@code jdb} is not null
      * @param jdb {@link JSimpleDB} database; must be null if and only if {@code db} is not null
