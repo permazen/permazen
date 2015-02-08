@@ -2,12 +2,6 @@
 SHORT TERM
 ==========
 
-- Bug: "eval transform(queryVersion().entrySet(), $x, $x.value.size())" results in:
-      Error: EvalException: error reading property `value' from object of type
-      org.jsimpledb.util.ConvertedMapEntry: java.lang.IllegalAccessException:
-      Class org.jsimpledb.parse.expr.BeanPropertyValue can not access a member
-      of class org.jsimpledb.util.ConvertedMapEntry with modifiers "public"
-
 - Vaadin GUI editor generator
     - Implement editors for collection fields
     - Add range support - if query result is Navigable{Set,Map}
