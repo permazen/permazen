@@ -44,7 +44,7 @@ public class CompareSchemasCommand extends AbstractCommand {
                     session.getWriter().println("No differences found between schema versions " + version1 + " and " + version2);
                 else {
                     session.getWriter().println("Found differences found between schema versions " + version1 + " and "
-                      + version2 + "\n" + diffs.toString().trim());
+                      + version2 + "\n" + diffs);
                 }
             }
         };

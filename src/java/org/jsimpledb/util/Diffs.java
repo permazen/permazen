@@ -68,7 +68,7 @@ public class Diffs extends LinkedHashMap<String, Diffs> {
             return "no differences";
         final StringBuilder buf = new StringBuilder();
         this.format(buf, 0);
-        return buf.toString();
+        return buf.toString().trim();
     }
 
     private void format(StringBuilder buf, int depth) {
