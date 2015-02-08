@@ -7,8 +7,8 @@
 
 package org.jsimpledb.parse.expr;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.jsimpledb.parse.ParseSession;
 
@@ -17,29 +17,33 @@ import org.jsimpledb.parse.ParseSession;
  */
 public class MutableBeanPropertyValue extends BeanPropertyValue implements LValue {
 
+    protected final Method setter;
+
     /**
      * Constructor.
      *
      * @param bean bean object
-     * @param propertyDescriptor property descriptor
-     * @throws IllegalArgumentException if {@code bean} is null
-     * @throws IllegalArgumentException if {@code propertyDescriptor} is null, indexed, has no read method, or has no write method
+     * @param name property name
+     * @param getter getter method
+     * @param setter setter method
+     * @throws IllegalArgumentException if any parameter is null
      */
-    public MutableBeanPropertyValue(Object bean, PropertyDescriptor propertyDescriptor) {
-        super(bean, propertyDescriptor);
-        if (propertyDescriptor.getWriteMethod() == null)
-            throw new IllegalArgumentException("unwritable property");
+    public MutableBeanPropertyValue(Object bean, String name, Method getter, Method setter) {
+        super(bean, name, getter);
+        if (setter == null)
+            throw new IllegalArgumentException("null setter");
+        this.setter = setter;
     }
 
     @Override
     public void set(ParseSession session, Value value) {
         final Object obj = value.get(session);
         try {
-            this.propertyDescriptor.getWriteMethod().invoke(this.bean, obj);
+            this.setter.invoke(this.bean, obj);
         } catch (Exception e) {
             final Throwable t = e instanceof InvocationTargetException ?
               ((InvocationTargetException)e).getTargetException() : e;
-            throw new EvalException("error writing property `" + this.propertyDescriptor.getName() + "' from object of type "
+            throw new EvalException("error writing property `" + this.name + "' from object of type "
               + this.bean.getClass().getName() + ": " + t, t);
         }
     }
