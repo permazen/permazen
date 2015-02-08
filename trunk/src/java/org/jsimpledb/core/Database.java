@@ -468,13 +468,13 @@ public class Database {
                 final SchemaModel dbSchemaModel = schema.getVersion(version).getSchemaModel();
                 if (schemaModel != null) {
                     if (!schemaModel.isCompatibleWith(dbSchemaModel)) {
-                        final Diffs diffs = dbSchemaModel.differencesFrom(dbSchemaModel);
+                        final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
                         this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}"
                           + "\n=== Differences ===\n{}", dbSchemaModel, schemaModel, diffs);
                         throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "
                           + version + " that is already recorded in the database:\n" + diffs);
                     } else if (this.log.isTraceEnabled() && !schemaModel.equals(dbSchemaModel)) {
-                        final Diffs diffs = dbSchemaModel.differencesFrom(dbSchemaModel);
+                        final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
                         this.log.trace("the provided schema differs from, but is compatible with, the database schema:\n{}", diffs);
                     }
                 }
