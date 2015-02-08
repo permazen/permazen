@@ -113,7 +113,8 @@ public class Main extends AbstractMain {
             if (schemaModel != null) {
                 if (!schemaModel.equals(jdb.getSchemaModel())) {
                     System.err.println(this.getName() + ": schema from `" + this.schemaFile + "' conflicts with schema generated"
-                      + " from scanned classes " + this.schemaClasses);
+                      + " from scanned classes");
+                    System.err.println(schemaModel.differencesFrom(jdb.getSchemaModel()).toString().trim());
                     return 1;
                 }
             } else
