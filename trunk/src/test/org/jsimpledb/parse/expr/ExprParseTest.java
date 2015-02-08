@@ -255,5 +255,30 @@ public class ExprParseTest extends TestSupport {
 
         };
     }
+
+    @Test(dataProvider = "multiCases")
+    public void testBeanProperty(String[] exprs, Object expected) throws Exception {
+        final ExprParser p = new ExprParser();
+        Object actual = null;
+        for (String expr : exprs) {
+            final Node node = p.parse(this.session, new ParseContext(expr), false);
+            actual = node.evaluate(this.session).get(this.session);
+        }
+        Assert.assertEquals(actual, expected);
+    }
+
+    @DataProvider(name = "multiCases")
+    public Object[][] genMultiExprParseCases() {
+        return new Object[][] {
+            {
+                new String[] {
+                    "$x = new java.util.HashMap()",
+                    "$x.put(\"abc\", \"def\")",
+                    "$x.entrySet().iterator().next().value"
+                },
+                "def"
+            }
+        };
+    }
 }
 
