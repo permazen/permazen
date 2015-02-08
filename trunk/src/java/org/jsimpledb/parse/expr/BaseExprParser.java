@@ -480,10 +480,12 @@ public class BaseExprParser implements Parser<Node> {
                 continue;
             if (!propertyDescriptor.getName().equals(name))
                 continue;
-            if (propertyDescriptor.getReadMethod() != null && propertyDescriptor.getWriteMethod() != null)
-                return new MutableBeanPropertyValue(target, propertyDescriptor);
-            else if (propertyDescriptor.getReadMethod() != null)
-                return new BeanPropertyValue(target, propertyDescriptor);
+            final Method getter = this.makeAccessible(propertyDescriptor.getReadMethod());
+            final Method setter = this.makeAccessible(propertyDescriptor.getWriteMethod());
+            if (getter != null && setter != null)
+                return new MutableBeanPropertyValue(target, propertyDescriptor.getName(), getter, setter);
+            else if (getter != null)
+                return new BeanPropertyValue(target, propertyDescriptor.getName(), getter);
         }
 
         // Try instance field
@@ -502,6 +504,26 @@ public class BaseExprParser implements Parser<Node> {
 
         // Not found
         throw new EvalException("property `" + name + "' not found in " + cl);
+    }
+
+    // Workaround the problem where non-public class C implements public method M of interface I.
+    // In that case, invoking method C.M results in IllegalAccessException; instead, you have to invoke I.M.
+    private Method makeAccessible(Method method) {
+        if (method == null)
+            return null;
+        Class<?> cl = method.getDeclaringClass();
+        if ((cl.getModifiers() & Modifier.PUBLIC) != 0)
+            return method;
+        do {
+            for (Class<?> iface : cl.getInterfaces()) {
+                try {
+                    return iface.getMethod(method.getName(), method.getParameterTypes());
+                } catch (NoSuchMethodException e) {
+                    continue;
+                }
+            }
+        } while ((cl = cl.getSuperclass()) != null);
+        return null;
     }
 
     private Node createMethodInvokeNode(final Object target, final String name, final List<Node> paramNodes) {

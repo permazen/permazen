@@ -7,9 +7,8 @@
 
 package org.jsimpledb.parse.expr;
 
-import java.beans.IndexedPropertyDescriptor;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.jsimpledb.parse.ParseSession;
 
@@ -23,37 +22,37 @@ import org.jsimpledb.parse.ParseSession;
 public class BeanPropertyValue extends AbstractValue {
 
     protected final Object bean;
-    protected final PropertyDescriptor propertyDescriptor;
+    protected final String name;
+    protected final Method getter;
 
     /**
      * Constructor.
      *
      * @param bean bean object
-     * @param propertyDescriptor property descriptor
-     * @throws IllegalArgumentException if {@code bean} is null
-     * @throws IllegalArgumentException if {@code propertyDescriptor} is null, indexed, or has no read method
+     * @param name property name
+     * @param getter getter method
+     * @throws IllegalArgumentException if any parameter is null
      */
-    public BeanPropertyValue(Object bean, PropertyDescriptor propertyDescriptor) {
+    public BeanPropertyValue(Object bean, String name, Method getter) {
         if (bean == null)
             throw new IllegalArgumentException("null bean");
-        if (propertyDescriptor == null)
-            throw new IllegalArgumentException("null propertyDescriptor");
-        if (propertyDescriptor instanceof IndexedPropertyDescriptor)
-            throw new IllegalArgumentException("propertyDescriptor is indexed");
-        if (propertyDescriptor.getReadMethod() == null)
-            throw new IllegalArgumentException("unreadable property");
+        if (name == null)
+            throw new IllegalArgumentException("null name");
+        if (getter == null)
+            throw new IllegalArgumentException("null getter");
         this.bean = bean;
-        this.propertyDescriptor = propertyDescriptor;
+        this.name = name;
+        this.getter = getter;
     }
 
     @Override
     public Object get(ParseSession session) {
         try {
-            return this.propertyDescriptor.getReadMethod().invoke(this.bean);
+            return getter.invoke(this.bean);
         } catch (Exception e) {
             final Throwable t = e instanceof InvocationTargetException ?
               ((InvocationTargetException)e).getTargetException() : e;
-            throw new EvalException("error reading property `" + this.propertyDescriptor.getName() + "' from object of type "
+            throw new EvalException("error reading property `" + this.name + "' from object of type "
               + this.bean.getClass().getName() + ": " + t, t);
         }
     }
