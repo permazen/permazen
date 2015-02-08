@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -20,11 +21,14 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.jsimpledb.core.InvalidSchemaException;
+import org.jsimpledb.util.DiffGenerating;
+import org.jsimpledb.util.Diffs;
+import org.jsimpledb.util.NavigableSets;
 
 /**
  * One object type in a {@link SchemaModel}.
  */
-public class SchemaObjectType extends AbstractSchemaItem {
+public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerating<SchemaObjectType> {
 
     private /*final*/ TreeMap<Integer, SchemaField> schemaFields = new TreeMap<>();
     private /*final*/ TreeMap<Integer, SchemaCompositeIndex> schemaCompositeIndexes = new TreeMap<>();
@@ -156,6 +160,79 @@ public class SchemaObjectType extends AbstractSchemaItem {
                 return false;
         }
         return true;
+    }
+
+// DiffGenerating
+
+    @Override
+    public Diffs differencesFrom(SchemaObjectType that) {
+        final Diffs diffs = new Diffs(super.differencesFrom(that));
+
+        // Check fields
+        final NavigableSet<Integer> allFieldIds = NavigableSets.union(
+          this.schemaFields.navigableKeySet(), that.schemaFields.navigableKeySet());
+        for (int storageId : allFieldIds) {
+            final SchemaField thisField = this.schemaFields.get(storageId);
+            final SchemaField thatField = that.schemaFields.get(storageId);
+            if (thatField != null && (thisField == null || !thisField.getClass().equals(thatField.getClass())))
+                diffs.add("removed " + thatField);
+            else if (thisField != null && (thatField == null || !thatField.getClass().equals(thisField.getClass())))
+                diffs.add("added " + thisField);
+            else {
+                final Diffs fieldDiffs = thisField.visit(new SchemaFieldSwitch<Diffs>() {
+                    @Override
+                    public Diffs caseSetSchemaField(SetSchemaField field) {
+                        return field.differencesFrom((SetSchemaField)thatField);
+                    }
+                    @Override
+                    public Diffs caseListSchemaField(ListSchemaField field) {
+                        return field.differencesFrom((ListSchemaField)thatField);
+                    }
+                    @Override
+                    public Diffs caseMapSchemaField(MapSchemaField field) {
+                        return field.differencesFrom((MapSchemaField)thatField);
+                    }
+                    @Override
+                    public Diffs caseSimpleSchemaField(SimpleSchemaField field) {
+                        return field.differencesFrom((SimpleSchemaField)thatField);
+                    }
+                    @Override
+                    public Diffs caseReferenceSchemaField(ReferenceSchemaField field) {
+                        return field.differencesFrom((ReferenceSchemaField)thatField);
+                    }
+                    @Override
+                    public Diffs caseEnumSchemaField(EnumSchemaField field) {
+                        return field.differencesFrom((EnumSchemaField)thatField);
+                    }
+                    @Override
+                    public Diffs caseCounterSchemaField(CounterSchemaField field) {
+                        return new Diffs();
+                    }
+                });
+                if (!fieldDiffs.isEmpty())
+                    diffs.add("changed " + thatField, fieldDiffs);
+            }
+        }
+
+        // Check composite indexes
+        final NavigableSet<Integer> allIndexIds = NavigableSets.union(
+          this.schemaCompositeIndexes.navigableKeySet(), that.schemaCompositeIndexes.navigableKeySet());
+        for (int storageId : allIndexIds) {
+            final SchemaCompositeIndex thisIndex = this.schemaCompositeIndexes.get(storageId);
+            final SchemaCompositeIndex thatIndex = that.schemaCompositeIndexes.get(storageId);
+            if (thisIndex == null)
+                diffs.add("removed " + thatIndex);
+            else if (thatIndex == null)
+                diffs.add("added " + thisIndex);
+            else {
+                final Diffs indexDiffs = thisIndex.differencesFrom(thatIndex);
+                if (!indexDiffs.isEmpty())
+                    diffs.add("changed " + thatIndex, indexDiffs);
+            }
+        }
+
+        // Done
+        return diffs;
     }
 
 // Object

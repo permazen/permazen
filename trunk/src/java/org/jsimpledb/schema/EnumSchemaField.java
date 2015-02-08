@@ -17,13 +17,14 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.string.StringEncoder;
 import org.jsimpledb.core.EnumFieldType;
 import org.jsimpledb.core.InvalidSchemaException;
+import org.jsimpledb.util.Diffs;
 
 /**
  * An enum field in a {@link SchemaObjectType}.
  */
 public class EnumSchemaField extends SimpleSchemaField {
 
-    private List<String> idents = new ArrayList<>();
+    private /*final*/ List<String> idents = new ArrayList<>();
 
     /**
      * Get the ordered list of identifiers.
@@ -75,6 +76,21 @@ public class EnumSchemaField extends SimpleSchemaField {
             writer.writeEndElement();
         }
         writer.writeEndElement();
+    }
+
+// DiffGenerating
+
+    @Override
+    public Diffs differencesFrom(SimpleSchemaField other) {
+        final Diffs diffs = new Diffs(super.differencesFrom(other));
+        if (!(other instanceof EnumSchemaField)) {
+            diffs.add("change type from " + other.getClass().getSimpleName() + " to " + this.getClass().getSimpleName());
+            return diffs;
+        }
+        final EnumSchemaField that = (EnumSchemaField)other;
+        if (!this.idents.equals(that.idents))
+            diffs.add("changed enum identifier list");          // TODO: refine
+        return diffs;
     }
 
 // Object

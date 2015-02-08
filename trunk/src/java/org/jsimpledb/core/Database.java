@@ -31,6 +31,7 @@ import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
+import org.jsimpledb.util.Diffs;
 import org.jsimpledb.util.UnsignedIntEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -465,11 +466,17 @@ public class Database {
                 if (this.log.isTraceEnabled())
                     this.log.trace("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
                 final SchemaModel dbSchemaModel = schema.getVersion(version).getSchemaModel();
-                if (schemaModel != null && !schemaModel.isCompatibleWith(schema.getVersion(version).getSchemaModel())) {
-                    this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}",
-                      dbSchemaModel, schemaModel);
-                    throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "
-                      + version + " that is already recorded in the database");
+                if (schemaModel != null) {
+                    if (!schemaModel.isCompatibleWith(dbSchemaModel)) {
+                        final Diffs diffs = dbSchemaModel.differencesFrom(dbSchemaModel);
+                        this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}"
+                          + "\n=== Differences ===\n{}", dbSchemaModel, schemaModel, diffs);
+                        throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "
+                          + version + " that is already recorded in the database:\n" + diffs);
+                    } else if (this.log.isTraceEnabled() && !schemaModel.equals(dbSchemaModel)) {
+                        final Diffs diffs = dbSchemaModel.differencesFrom(dbSchemaModel);
+                        this.log.trace("the provided schema differs from, but is compatible with, the database schema:\n{}", diffs);
+                    }
                 }
                 break;
             }

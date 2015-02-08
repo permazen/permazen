@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.jsimpledb.core.CollectionField;
+import org.jsimpledb.util.Diffs;
 
 /**
  * A collection field in one version of a {@link SchemaObjectType}.
@@ -38,6 +39,16 @@ public abstract class CollectionSchemaField extends ComplexSchemaField {
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.elementField = this.readSubField(reader, formatVersion, CollectionField.ELEMENT_FIELD_NAME);
         this.expectClose(reader);
+    }
+
+// DiffGenerating
+
+    protected Diffs differencesFrom(CollectionSchemaField that) {
+        final Diffs diffs = new Diffs(super.differencesFrom(that));
+        final Diffs elementDiffs = this.elementField.differencesFrom(that.elementField);
+        if (!elementDiffs.isEmpty())
+            diffs.add("changed element field", elementDiffs);
+        return diffs;
     }
 
 // Object

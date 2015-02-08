@@ -15,11 +15,13 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.jsimpledb.core.MapField;
+import org.jsimpledb.util.DiffGenerating;
+import org.jsimpledb.util.Diffs;
 
 /**
  * A map field in one version of a {@link SchemaObjectType}.
  */
-public class MapSchemaField extends ComplexSchemaField {
+public class MapSchemaField extends ComplexSchemaField implements DiffGenerating<MapSchemaField> {
 
     private SimpleSchemaField keyField;
     private SimpleSchemaField valueField;
@@ -61,6 +63,20 @@ public class MapSchemaField extends ComplexSchemaField {
     @Override
     public <R> R visit(SchemaFieldSwitch<R> target) {
         return target.caseMapSchemaField(this);
+    }
+
+// DiffGenerating
+
+    @Override
+    public Diffs differencesFrom(MapSchemaField that) {
+        final Diffs diffs = new Diffs(super.differencesFrom(that));
+        final Diffs keyDiffs = this.keyField.differencesFrom(that.keyField);
+        if (!keyDiffs.isEmpty())
+            diffs.add("changed key field", keyDiffs);
+        final Diffs valueDiffs = this.valueField.differencesFrom(that.valueField);
+        if (!valueDiffs.isEmpty())
+            diffs.add("changed value field", valueDiffs);
+        return diffs;
     }
 
 // Object

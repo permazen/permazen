@@ -18,6 +18,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.jsimpledb.core.InvalidSchemaException;
 import org.jsimpledb.core.SchemaItem;
 import org.jsimpledb.util.AbstractXMLStreaming;
+import org.jsimpledb.util.Diffs;
 
 /**
  * Common superclass for {@link SchemaObjectType} and {@link SchemaField}.
@@ -77,6 +78,21 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
     }
 
     abstract boolean isCompatibleWithInternal(AbstractSchemaItem that);
+
+// DiffGenerating
+
+    protected Diffs differencesFrom(AbstractSchemaItem that) {
+        if (that == null)
+            throw new IllegalArgumentException("null that");
+        final Diffs diffs = new Diffs();
+        if (!(this.name != null ? this.name.equals(that.name) : that.name == null)) {
+            diffs.add("changed name from " + (that.name != null ? "`" + that.name + "'" : null)
+              + " to " + (this.name != null ? "`" + this.name + "'" : null));
+        }
+        if (this.storageId != that.storageId)
+            diffs.add("changed storage ID from " + that.storageId + " to " + this.storageId);
+        return diffs;
+    }
 
 // XML Reading
 

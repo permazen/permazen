@@ -17,6 +17,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.InvalidSchemaException;
+import org.jsimpledb.util.Diffs;
 
 /**
  * A reference field in a {@link SchemaObjectType}.
@@ -94,6 +95,25 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
             return false;
         return true;
+    }
+
+// DiffGenerating
+
+    @Override
+    public Diffs differencesFrom(SimpleSchemaField other) {
+        final Diffs diffs = new Diffs(super.differencesFrom(other));
+        if (!(other instanceof ReferenceSchemaField)) {
+            diffs.add("change type from " + other.getClass().getSimpleName() + " to " + this.getClass().getSimpleName());
+            return diffs;
+        }
+        final ReferenceSchemaField that = (ReferenceSchemaField)other;
+        if (!(this.onDelete != null ? this.onDelete.equals(that.onDelete) : that.onDelete == null))
+            diffs.add("changed on-delete action from " + that.onDelete + " to " + this.onDelete);
+        if (this.cascadeDelete != that.cascadeDelete)
+            diffs.add("changed cascade delete from " + that.cascadeDelete + " to " + this.cascadeDelete);
+        if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
+            diffs.add("changed allowed object type storage IDs from " + that.objectTypes + " to " + this.objectTypes);
+        return diffs;
     }
 
 // XML Reading

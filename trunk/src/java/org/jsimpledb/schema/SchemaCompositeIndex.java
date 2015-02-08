@@ -17,11 +17,13 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.InvalidSchemaException;
+import org.jsimpledb.util.DiffGenerating;
+import org.jsimpledb.util.Diffs;
 
 /**
  * A composite index associated with a {@link SchemaObjectType}.
  */
-public class SchemaCompositeIndex extends AbstractSchemaItem {
+public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGenerating<SchemaCompositeIndex> {
 
     private /*final*/ ArrayList<Integer> indexedFields = new ArrayList<>();
 
@@ -80,6 +82,16 @@ public class SchemaCompositeIndex extends AbstractSchemaItem {
             writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
         }
         writer.writeEndElement();           // </CompositeIndex>
+    }
+
+// DiffGenerating
+
+    @Override
+    public Diffs differencesFrom(SchemaCompositeIndex that) {
+        final Diffs diffs = new Diffs(super.differencesFrom(that));
+        if (!this.indexedFields.equals(that.indexedFields))
+            diffs.add("changed indexed field storage IDs from " + that.indexedFields + " to " + this.indexedFields);
+        return diffs;
     }
 
 // Object
