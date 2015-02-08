@@ -5,6 +5,7 @@ Version Next
     - Increase the number of fields in a composite index to four
     - Compress schema information before storing
     - Improvements to CLI and GUI command line utilities
+    - Added schema differences calculator plus CLI command
     - Added support for embedded CLI telnet consoles
 
 Version 1.1.748 Released January 28, 2015

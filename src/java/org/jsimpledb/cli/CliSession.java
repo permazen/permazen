@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.Session;
 import org.jsimpledb.cli.cmd.AbstractCommand;
+import org.jsimpledb.cli.cmd.CompareSchemasCommand;
 import org.jsimpledb.cli.cmd.DeleteSchemaVersionCommand;
 import org.jsimpledb.cli.cmd.EvalCommand;
 import org.jsimpledb.cli.cmd.HelpCommand;
@@ -134,6 +135,7 @@ public class CliSession extends ParseSession {
     public void registerStandardCommands() {
 
         // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes
+        this.registerCommand(CompareSchemasCommand.class);
         this.registerCommand(DeleteSchemaVersionCommand.class);
         this.registerCommand(EvalCommand.class);
         this.registerCommand(HelpCommand.class);

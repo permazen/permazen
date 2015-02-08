@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -34,11 +35,14 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.core.InvalidSchemaException;
 import org.jsimpledb.util.AbstractXMLStreaming;
+import org.jsimpledb.util.DiffGenerating;
+import org.jsimpledb.util.Diffs;
+import org.jsimpledb.util.NavigableSets;
 
 /**
  * Models one JSimpleDB {@link org.jsimpledb.core.Database} schema version.
  */
-public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, Cloneable {
+public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, Cloneable, DiffGenerating<SchemaModel> {
 
     static final Map<QName, Class<? extends SchemaField>> FIELD_TAG_MAP = new HashMap<>();
     static {
@@ -200,6 +204,31 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
                 return false;
         }
         return true;
+    }
+
+// DiffGenerating
+
+    @Override
+    public Diffs differencesFrom(SchemaModel that) {
+        if (that == null)
+            throw new IllegalArgumentException("null that");
+        final Diffs diffs = new Diffs();
+        final NavigableSet<Integer> allObjectTypeIds = NavigableSets.union(
+          this.schemaObjectTypes.navigableKeySet(), that.schemaObjectTypes.navigableKeySet());
+        for (int storageId : allObjectTypeIds) {
+            final SchemaObjectType thisObjectType = this.schemaObjectTypes.get(storageId);
+            final SchemaObjectType thatObjectType = that.schemaObjectTypes.get(storageId);
+            if (thisObjectType == null)
+                diffs.add("removed " + thatObjectType);
+            else if (thatObjectType == null)
+                diffs.add("added " + thisObjectType);
+            else {
+                final Diffs objectTypeDiffs = thisObjectType.differencesFrom(thatObjectType);
+                if (!objectTypeDiffs.isEmpty())
+                    diffs.add("changed " + thatObjectType, objectTypeDiffs);
+            }
+        }
+        return diffs;
     }
 
 // XML Reading

@@ -61,7 +61,7 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *      </p>
  *
  *      <p>
- *      Default is {@code verify}.</td>
+ *      Default is {@code verify}.
  *      </p>
  * </td>
  * </tr>
@@ -79,8 +79,8 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *  <td>No</td>
  *  <td>
  *      <p>
- *      Whether to verify not only schema compatibility but also that the same names are used for
- *      object types, fields, and composite indexes.
+ *      Whether to verify not only schema compatibility but also that the two schemas are identical, i.e.,
+ *      the same names are used for object types, fields, and composite indexes.
  *      </p>
  *
  *      <p>
@@ -90,8 +90,37 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *      </p>
  *
  *      <p>
- *      Default is {@code true}. Ignored unless {@code mode} is {@code verify}.</td>
+ *      Default is {@code true}. Ignored unless {@code mode} is {@code verify}.
  *      </p>
+ * </td>
+ * </tr>
+ * <tr>
+ *  <td>{@code failOnError}</td>
+ *  <td>No</td>
+ *  <td>
+ *      <p>
+ *      Whether to fail if verification fails.
+ *      </p>
+ *
+ *      <p>
+ *      Default is {@code true}. Ignored unless {@code mode} is {@code verify}.
+ *      </p>
+ * </td>
+ * </tr>
+ * <tr>
+ *  <td>{@code verifiedProperty}</td>
+ *  <td>No</td>
+ *  <td>
+ *      <p>
+ *      The name of an ant property to set to {@code true} or {@code false} depending on whether
+ *      verification succeeded or failed. Useful when {@code failOnError} is set to {@code false}
+ *      and you want to handle the failure elsewhere in the build file.
+ *      </p>
+ *
+ *      <p>
+ *      Default is to not set any property.
+ *      </p>
+ * </td>
  * </tr>
  * <tr>
  *  <td>{@code classpath} or {@code classpathref}</td>
@@ -123,8 +152,9 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *      </p>
  *
  *      <p>
- *      By default, a {@link DefaultStorageIdGenerator} is used.</td>
+ *      By default, a {@link DefaultStorageIdGenerator} is used.
  *      </p>
+ * </td>
  * </tr>
  * </table>
  * </div>
@@ -153,6 +183,8 @@ public class SchemaGeneratorTask extends Task {
     private String[] packages;
     private String mode = MODE_VERIFY;
     private boolean matchNames = true;
+    private boolean failOnError = true;
+    private String verifiedProperty;
     private File file;
     private Path classPath;
     private String storageIdGeneratorClassName = DefaultStorageIdGenerator.class.getName();
@@ -167,6 +199,14 @@ public class SchemaGeneratorTask extends Task {
 
     public void setMatchNames(boolean matchNames) {
         this.matchNames = matchNames;
+    }
+
+    public void setFailOnError(boolean failOnError) {
+        this.failOnError = failOnError;
+    }
+
+    public void setVerifiedProperty(String verifiedProperty) {
+        this.verifiedProperty = verifiedProperty;
     }
 
     public void setFile(File file) {
@@ -198,10 +238,18 @@ public class SchemaGeneratorTask extends Task {
 
         // Sanity check
         if (this.file == null)
-            throw new BuildException("`file' attribute is required specifying output file");
-        if (!this.mode.equalsIgnoreCase(MODE_VERIFY) && !this.mode.equalsIgnoreCase(MODE_GENERATE))
-            throw new BuildException("`mode' attribute must be `" + MODE_VERIFY + "' or `" + MODE_GENERATE + "'");
-        final boolean generate = this.mode.equalsIgnoreCase(MODE_GENERATE);
+            throw new BuildException("`file' attribute is required specifying output/verify file");
+        final boolean generate;
+        switch (this.mode) {
+        case MODE_VERIFY:
+            generate = false;
+            break;
+        case MODE_GENERATE:
+            generate = true;
+            break;
+        default:
+            throw new BuildException("`mode' attribute must be one of `" + MODE_VERIFY + "' or `" + MODE_GENERATE + "'");
+        }
         if (this.packages == null)
             throw new BuildException("`packages' attribute is required specifying packages to scan for Java model classes");
         if (this.classPath == null)
@@ -299,8 +347,15 @@ public class SchemaGeneratorTask extends Task {
                 }
 
                 // Compare
-                if (!(matchNames ? schemaModel.equals(verifyModel) : schemaModel.isCompatibleWith(verifyModel)))
-                    throw new BuildException("schema verification failed");
+                final boolean verified = matchNames ? schemaModel.equals(verifyModel) : schemaModel.isCompatibleWith(verifyModel);
+                if (this.verifiedProperty != null)
+                    this.getProject().setProperty(this.verifiedProperty, "" + verified);
+                this.log("schema verification " + (verified ? "succeeded" : "failed"));
+                if (!verified) {
+                    this.log(schemaModel.differencesFrom(verifyModel).toString());
+                    if (this.failOnError)
+                        throw new BuildException("schema verification failed");
+                }
             }
         } finally {
             loader.resetThreadContextLoader();

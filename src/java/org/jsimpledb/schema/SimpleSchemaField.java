@@ -15,11 +15,13 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.InvalidSchemaException;
+import org.jsimpledb.util.DiffGenerating;
+import org.jsimpledb.util.Diffs;
 
 /**
  * A simple field in a {@link SchemaObjectType}.
  */
-public class SimpleSchemaField extends SchemaField {
+public class SimpleSchemaField extends SchemaField implements DiffGenerating<SimpleSchemaField> {
 
     private String type;
     private long encodingSignature;
@@ -82,6 +84,20 @@ public class SimpleSchemaField extends SchemaField {
         if (this.indexed != that.indexed)
             return false;
         return true;
+    }
+
+// DiffGenerating
+
+    @Override
+    public Diffs differencesFrom(SimpleSchemaField that) {
+        final Diffs diffs = new Diffs(super.differencesFrom(that));
+        if (!(this.type != null ? this.type.equals(that.type) : that.type == null))
+            diffs.add("changed field type from `" + that.type + "' to `" + this.type + "'");
+        if (this.encodingSignature != that.encodingSignature)
+            diffs.add("changed field type encoding signature from " + that.encodingSignature + " to " + this.encodingSignature);
+        if (this.indexed != that.indexed)
+            diffs.add((this.indexed ? "added" : "removed") + " index on field");
+        return diffs;
     }
 
 // XML Reading
