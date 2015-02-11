@@ -276,6 +276,7 @@ public class FoundationKVTransaction implements KVTransaction {
         }
         switch (e.getCode()) {
         case ErrorCodes.TRANSACTION_TIMED_OUT:
+        case ErrorCodes.PAST_VERSION:
             return new TransactionTimeoutException(this, e);
         case ErrorCodes.NOT_COMMITTED:
         case ErrorCodes.COMMIT_UNKNOWN_RESULT:
