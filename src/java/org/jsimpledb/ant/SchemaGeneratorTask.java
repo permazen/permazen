@@ -223,7 +223,7 @@ public class SchemaGeneratorTask extends Task {
     }
 
     public void setClasspathRef(Reference ref) {
-        this.classPath = (Path)ref.getReferencedObject(getProject());
+        this.classPath = (Path)ref.getReferencedObject(this.getProject());
     }
 
     public void setStorageIdGeneratorClass(String storageIdGeneratorClassName) {
