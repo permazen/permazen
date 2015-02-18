@@ -146,8 +146,10 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default in-memory transaction
  *      associated with this transaction</li>
- *  <li>{@link #copyTo(JTransaction, JObject, ObjId, ObjIdSet, String[]) copyTo()} - Copy an object into another transaction</li>
- *  <li>{@link #copyTo(JTransaction, ObjIdSet, Iterable) copyTo()} - Copy explicitly specified objects into another transaction</li>
+ *  <li>{@link #copyTo(JTransaction, JObject, ObjId, CopyState, String[]) copyTo()}
+ *      - Copy an object into another transaction</li>
+ *  <li>{@link #copyTo(JTransaction, CopyState, Iterable) copyTo()}
+ *      - Copy explicitly specified objects into another transaction</li>
  * </ul>
  * </p>
  *
@@ -435,17 +437,20 @@ public class JTransaction {
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code copied} parameter can be used to keep track of objects that have already been copied; objects in {@code copied}
-     * are not copied, but their reference fields are still traversed if encountered along one of the {@code refPaths}
-     * (if an object in {@code copied} is traversed but does not already exist in {@code dest}, an exception is thrown).
-     * For a "fresh" copy operation, pass a newly created {@code ObjIdSet}; for a copy operation that is a continuation
-     * of a previous copy, {@code copied} may be reused.
+     * The {@code copyState} parameter can be used to keep track of objects that have already been copied and/or traversed
+     * along some reference path (however, if an object is marked as copied in {@code copyState} and is traversed, but does not
+     * actually already exist in {@code dest}, an exception is thrown).
+     * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
+     * of a previous copy, {@code copyState} may be reused.
      * </p>
      *
      * <p>
-     * Does nothing if this instance and {@code dest} are the same instance and {@code srcId} and {@code dstId} are equal.
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
      * must be identical in both transactions.
+     * </p>
+     *
+     * <p>
+     * Does nothing if this instance and {@code dest} are the same instance and {@code srcObj}'s object ID is {@code dstId}.
      * </p>
      *
      * <p>
@@ -461,11 +466,11 @@ public class JTransaction {
      * @param dest destination transaction
      * @param srcObj source object
      * @param dstId target object ID, or null for the object ID of {@code srcObj}
-     * @param copied tracks which indirectly referenced objects have already been copied
+     * @param copyState tracks which objects have already been copied and traversed
      * @param refPaths zero or more reference paths that refer to additional objects to be copied (including intermediate objects)
      * @return the copied object, i.e., the object having ID {@code dstId} in {@code dest}
      * @throws DeletedObjectException if {@code srcObj} does not exist in this transaction
-     * @throws org.jsimpledb.core.DeletedObjectException if an object in {@code copied} is traversed but does not actually exist
+     * @throws org.jsimpledb.core.DeletedObjectException if an object in {@code copyState} is traversed but does not actually exist
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcObj}'s object's version
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the source object's type
@@ -477,17 +482,17 @@ public class JTransaction {
      * @see JObject#copyTo JObject.copyTo()
      * @see JObject#copyOut JObject.copyOut()
      * @see JObject#copyIn JObject.copyIn()
-     * @see #copyTo(JTransaction, ObjIdSet, Iterable)
+     * @see #copyTo(JTransaction, CopyState, Iterable)
      */
-    public JObject copyTo(JTransaction dest, JObject srcObj, ObjId dstId, ObjIdSet copied, String... refPaths) {
+    public JObject copyTo(JTransaction dest, JObject srcObj, ObjId dstId, CopyState copyState, String... refPaths) {
 
         // Sanity check
         if (dest == null)
             throw new IllegalArgumentException("null destination transaction");
         if (srcObj == null)
             throw new IllegalArgumentException("null srcObj");
-        if (copied == null)
-            throw new IllegalArgumentException("null copied");
+        if (copyState == null)
+            throw new IllegalArgumentException("null copyState");
         if (refPaths == null)
             throw new IllegalArgumentException("null refPaths");
 
@@ -539,9 +544,6 @@ public class JTransaction {
             }
         }
 
-        // Initialize copy state
-        final CopyState copyState = new CopyState(copied);
-
         // Ensure object is copied even when there are zero reference paths
         if (paths.isEmpty())
             this.copyTo(copyState, dest, srcId, dstId, true, 0, new int[0]);
@@ -567,20 +569,18 @@ public class JTransaction {
      * {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
-     * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code copied} set tracks which objects have already been copied. For a "fresh" copy operation, pass a newly
-     * created instance; for a copy operation that is a continuation of a previous copy, the {@code copied} may be reused.
+     * The {@code copyState} parameter tracks which objects that have already been copied. For a "fresh" copy operation,
+     * pass a newly created {@code CopyState}; for a copy operation that is a continuation of a previous copy,
+     * the previous {@link CopyState} may be reused.
      * </p>
      *
      * <p>
-     * If an object is encountered more than once, it is not copied again.
-     * Does nothing if this instance and {@code dest} are the same instance.
-     * </p>
-     *
-     * <p>
-     * Does nothing if this instance and {@code dest} are the same instance and {@code srcId} and {@code dstId} are equal.
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
      * must be identical in both transactions.
+     * </p>
+     *
+     * <p>
+     * Does nothing if this instance and {@code dest} are the same instance.
      * </p>
      *
      * <p>
@@ -590,7 +590,7 @@ public class JTransaction {
      *
      * @param dest destination transaction
      * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
-     * @param copied tracks which objects have already been copied
+     * @param copyState tracks which objects have already been copied
      * @throws DeletedObjectException if an object in {@code jobjs} does not exist in this transaction
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema version corresponding to an object in
      *  {@code jobjs} is not identical in this instance and {@code dest}
@@ -598,24 +598,21 @@ public class JTransaction {
      * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
      *  is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if {@code dest} or {@code jobjs} is null
-     * @see #copyTo(JTransaction, JObject, ObjId, ObjIdSet, String[])
+     * @see #copyTo(JTransaction, JObject, ObjId, CopyState, String[])
      */
-    public void copyTo(JTransaction dest, ObjIdSet copied, Iterable<? extends JObject> jobjs) {
+    public void copyTo(JTransaction dest, CopyState copyState, Iterable<? extends JObject> jobjs) {
 
         // Sanity check
         if (dest == null)
             throw new IllegalArgumentException("null dest");
-        if (copied == null)
-            throw new IllegalArgumentException("null copied");
+        if (copyState == null)
+            throw new IllegalArgumentException("null copyState");
         if (jobjs == null)
             throw new IllegalArgumentException("null jobjs");
 
         // Check trivial case
         if (this.tx == dest.tx)
             return;
-
-        // Initialize copy state
-        final CopyState copyState = new CopyState(copied);
 
         // Copy objects
         for (JObject jobj : jobjs) {

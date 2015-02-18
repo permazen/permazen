@@ -18,6 +18,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import org.dellroad.stuff.spring.RetryTransaction;
 import org.dellroad.stuff.vaadin7.VaadinConfigurable;
+import org.jsimpledb.CopyState;
 import org.jsimpledb.JClass;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
@@ -26,7 +27,6 @@ import org.jsimpledb.UntypedJObject;
 import org.jsimpledb.change.ObjectDelete;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.ReferencedObjectException;
 import org.jsimpledb.parse.ParseSession;
 import org.slf4j.Logger;
@@ -226,7 +226,7 @@ public class MainPanel extends VerticalLayout {
             return null;
 
         // Copy object and dependencies
-        return this.objectChooser.getJObjectContainer().copyOut(jobj, new ObjIdSet());
+        return this.objectChooser.getJObjectContainer().copyOut(jobj, new CopyState());
     }
 
 // New

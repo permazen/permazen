@@ -7,9 +7,9 @@
 
 package org.jsimpledb.change;
 
+import org.jsimpledb.CopyState;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
-import org.jsimpledb.core.ObjIdSet;
 
 /**
  * Creates a new {@link Change} object based on an existing one where the {@link JObject}s referred to by the
@@ -17,13 +17,13 @@ import org.jsimpledb.core.ObjIdSet;
  * change information to be accessed after the transaction in which the change occured has completed.
  *
  * <p>
- * Each instance has an internal {@link ObjIdSet} used to avoid redundant copies, accessible via {@link #getObjIdSet}.
+ * Each instance has an internal {@link CopyState} used to avoid redundant copies, accessible via {@link #getCopyState}.
  * </p>
  */
 public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
     protected final JTransaction dest;
-    protected final ObjIdSet objIdSet = new ObjIdSet();
+    protected final CopyState copyState = new CopyState();
 
     /**
      * Primary constructor.
@@ -63,10 +63,10 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     }
 
     /**
-     * Get the {@link ObjIdSet} used by this instance.
+     * Get the {@link CopyState} used by this instance.
      */
-    public ObjIdSet getObjIdSet() {
-        return this.objIdSet;
+    public CopyState getCopyState() {
+        return this.copyState;
     }
 
     @Override
@@ -158,7 +158,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      * Copy the given {@link JObject} into the destination transaction.
      *
      * <p>
-     * The implementation in {@link ChangeCopier} invokes {@code jobj.copyTo(this.dest, null, this.getObjIdSet())} unless
+     * The implementation in {@link ChangeCopier} invokes {@code jobj.copyTo(this.dest, null, this.getCopyState())} unless
      * {@code jobj} does not exist, in which case it is not copied (but the
      * {@linkplain JTransaction#getJObject(ObjId) corresponding} {@link JObject} is still returned).
      * Subclasses may override to copy additional objects referenced by {@code jobj} as needed.
@@ -172,7 +172,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     protected JObject copy(JObject jobj) {
         if (jobj == null)
             throw new IllegalArgumentException("null jobj");
-        return !jobj.exists() ? this.dest.getJObject(jobj) : jobj.copyTo(this.dest, null, this.getObjIdSet());
+        return !jobj.exists() ? this.dest.getJObject(jobj) : jobj.copyTo(this.dest, null, this.getCopyState());
     }
 }
 

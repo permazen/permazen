@@ -24,7 +24,6 @@ import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SetFieldChangeListener;
 import org.jsimpledb.core.Transaction;
@@ -153,7 +152,7 @@ public class SnapshotTest extends TestSupport {
             Assert.assertFalse(p1.exists());
             Assert.assertFalse(p1.isSnapshot());
 
-            snapshot.copyTo(tx2, null, new ObjIdSet());
+            snapshot.copyTo(tx2, null, new CopyState());
             Assert.assertTrue(p1.exists());
 
             Assert.assertEquals(p1.getName(), "Foobar");
@@ -194,7 +193,7 @@ public class SnapshotTest extends TestSupport {
             snapshot.getMap2().put(33.33f, p2);
             snapshot.getMap2().put(null, p3);
 
-            snapshot.copyTo(tx2, null, new ObjIdSet());
+            snapshot.copyTo(tx2, null, new CopyState());
 
             Assert.assertEquals(p1.getName(), "Another Name");
             Assert.assertEquals(p1.getAge(), 123);
@@ -279,7 +278,7 @@ public class SnapshotTest extends TestSupport {
             TestSupport.checkSet(f2.getReferrers(), buildSet(f1));
             TestSupport.checkSet(f3.getReferrers(), buildSet(f2));
 
-            tx.copyTo(stx, new ObjIdSet(), f1.getWithRelatedObjects());
+            tx.copyTo(stx, new CopyState(), f1.getWithRelatedObjects());
             final Foo f1s = stx.getJObject(f1.getObjId(), Foo.class);
 
             final Foo f2s = (Foo)stx.getJObject(f2.getObjId());

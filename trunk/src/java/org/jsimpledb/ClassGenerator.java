@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -93,7 +92,7 @@ class ClassGenerator<T> {
             JOBJECT_UPGRADE_METHOD = JObject.class.getMethod("upgrade");
             JOBJECT_REVALIDATE_METHOD = JObject.class.getMethod("revalidate");
             JOBJECT_COPY_TO_METHOD = JObject.class.getMethod("copyTo",
-              JTransaction.class, ObjId.class, ObjIdSet.class, String[].class);
+              JTransaction.class, ObjId.class, CopyState.class, String[].class);
             JOBJECT_COPY_OUT_METHOD = JObject.class.getMethod("copyOut", String[].class);
             JOBJECT_COPY_IN_METHOD = JObject.class.getMethod("copyIn", String[].class);
 
@@ -113,7 +112,7 @@ class ClassGenerator<T> {
             UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
             REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", JObject.class);
             COPY_TO_METHOD = JTransaction.class.getMethod("copyTo",
-              JTransaction.class, JObject.class, ObjId.class, ObjIdSet.class, String[].class);
+              JTransaction.class, JObject.class, ObjId.class, CopyState.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("internal error", e);
@@ -398,9 +397,9 @@ class ClassGenerator<T> {
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         this.emitInvoke(mv, GET_SNAPSHOT_TRANSACTION_METHOD);
         mv.visitInsn(Opcodes.ACONST_NULL);
-        mv.visitTypeInsn(Opcodes.NEW, Type.getType(ObjIdSet.class).getInternalName());
+        mv.visitTypeInsn(Opcodes.NEW, Type.getType(CopyState.class).getInternalName());
         mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(ObjIdSet.class).getInternalName(), "<init>", "()V", false);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(CopyState.class).getInternalName(), "<init>", "()V", false);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         this.emitInvoke(mv, JOBJECT_COPY_TO_METHOD);
         mv.visitInsn(Opcodes.ARETURN);
@@ -413,9 +412,9 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, GET_CURRENT_METHOD);
         mv.visitInsn(Opcodes.ACONST_NULL);
-        mv.visitTypeInsn(Opcodes.NEW, Type.getType(ObjIdSet.class).getInternalName());
+        mv.visitTypeInsn(Opcodes.NEW, Type.getType(CopyState.class).getInternalName());
         mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(ObjIdSet.class).getInternalName(), "<init>", "()V", false);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(CopyState.class).getInternalName(), "<init>", "()V", false);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         this.emitInvoke(mv, JOBJECT_COPY_TO_METHOD);
         mv.visitInsn(Opcodes.ARETURN);

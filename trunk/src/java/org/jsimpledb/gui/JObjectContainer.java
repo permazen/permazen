@@ -29,6 +29,7 @@ import org.dellroad.stuff.vaadin7.PropertyExtractor;
 import org.dellroad.stuff.vaadin7.ProvidesPropertyScanner;
 import org.dellroad.stuff.vaadin7.SimpleItem;
 import org.dellroad.stuff.vaadin7.SimpleKeyedContainer;
+import org.jsimpledb.CopyState;
 import org.jsimpledb.JCollectionField;
 import org.jsimpledb.JCounterField;
 import org.jsimpledb.JField;
@@ -397,7 +398,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         // Update the matching backing object, if any
         final SimpleItem<JObject> item = (SimpleItem<JObject>)this.getItem(id);
         if (item != null) {
-            target.copyTo(item.getObject().getTransaction(), null, new ObjIdSet());
+            target.copyTo(item.getObject().getTransaction(), null, new CopyState());
             item.fireValueChange();
         }
 
@@ -433,13 +434,13 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         }
 
         // Filter out any duplicate objects using ObjId set
-        final ObjIdSet seen = new ObjIdSet();
+        final CopyState copyState = new CopyState();
 
         // Copy database objects out of the database transaction into my in-memory transaction as we load them
         jobjs = Iterables.transform(jobjs, new Function<JObject, JObject>() {
             @Override
             public JObject apply(JObject jobj) {
-                return JObjectContainer.this.copyOut(jobj, seen);
+                return JObjectContainer.this.copyOut(jobj, copyState);
             }
         });
 
@@ -458,15 +459,15 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      *
      * <p>
      * The implementation in {@link JObjectContainer} copies {@code jobj}, and all of {@code jobj}'s related objects returned
-     * by {@link #getDependencies getDependencies()}, via {@link JTransaction#copyTo(JTransaction, ObjIdSet, Iterable)}.
+     * by {@link #getDependencies getDependencies()}, via {@link JTransaction#copyTo(JTransaction, CopyState, Iterable)}.
      * </p>
      *
      * @param target the object to copy, or null (ignored)
-     * @param seen object ID's already copied
+     * @param copyState tracks what's already been copied
      * @return the copy of {@code target} in the current {@link org.jsimpledb.SnapshotJTransaction},
      *  or null if {@code target} is null
      */
-    protected JObject copyOut(JObject target, ObjIdSet seen) {
+    protected JObject copyOut(JObject target, CopyState copyState) {
 
         // Ignore null
         if (target == null)
@@ -476,13 +477,13 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         final ObjId targetId = target.getObjId();
         final JTransaction jtx = JTransaction.getCurrent();
         final SnapshotJTransaction sjtx = jtx.getSnapshotTransaction();
-        final JObject copy = target.copyTo(sjtx, null, seen);
+        final JObject copy = target.copyTo(sjtx, null, copyState);
 
         // Copy out (and track) related objects
         Iterable<? extends JObject> dependencies = this.getDependencies(target);
         if (dependencies != null) {
             dependencies = Iterables.filter(dependencies, JObject.class);                       // filter out nulls
-            jtx.copyTo(sjtx, seen, dependencies);
+            jtx.copyTo(sjtx, copyState, dependencies);
             for (JObject jobj : dependencies) {
                 final ObjId id = jobj.getObjId();
                 ObjIdSet affectedIds = this.dependenciesMap.get(id);
