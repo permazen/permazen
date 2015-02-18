@@ -40,6 +40,7 @@ import org.dellroad.stuff.vaadin7.EnumComboBox;
 import org.dellroad.stuff.vaadin7.FieldBuilder;
 import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.dellroad.stuff.vaadin7.VaadinUtil;
+import org.jsimpledb.CopyState;
 import org.jsimpledb.Counter;
 import org.jsimpledb.JClass;
 import org.jsimpledb.JCounterField;
@@ -55,7 +56,6 @@ import org.jsimpledb.ValidationException;
 import org.jsimpledb.change.ObjectCreate;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.parse.ParseSession;
 import org.slf4j.Logger;
@@ -200,7 +200,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
         }
 
         // Copy fields
-        this.jobj.copyTo(jtx, target.getObjId(), new ObjIdSet());
+        this.jobj.copyTo(jtx, target.getObjId(), new CopyState());
 
         // Run validation queue
         try {

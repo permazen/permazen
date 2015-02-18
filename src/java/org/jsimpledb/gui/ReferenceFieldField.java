@@ -21,10 +21,10 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 import org.dellroad.stuff.spring.RetryTransaction;
+import org.jsimpledb.CopyState;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.parse.ParseSession;
 
 /**
@@ -165,7 +165,7 @@ public class ReferenceFieldField extends CustomField<JObject> {
                 return false;
             }
             try {
-                ReferenceFieldField.this.setValue(jobj.copyTo(ReferenceFieldField.this.dest, id, new ObjIdSet()));
+                ReferenceFieldField.this.setValue(jobj.copyTo(ReferenceFieldField.this.dest, id, new CopyState()));
             } catch (Exception e) {
                 Notification.show("Error: " + e, null, Notification.Type.ERROR_MESSAGE);
             }

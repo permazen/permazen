@@ -8,7 +8,6 @@
 package org.jsimpledb;
 
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 
 /**
  * Interface implemented by {@link JSimpleDB} Java model objects.
@@ -187,11 +186,11 @@ public interface JObject {
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
-     * The {@code copied} parameter can be used to keep track of objects that have already been copied; objects in {@code copied}
-     * are not copied, but their reference fields are still traversed if encountered along one of the {@code refPaths}
-     * (if an object in {@code copied} is traversed but does not already exist in {@code dest}, an exception is thrown).
-     * For a "fresh" copy operation, pass a newly created {@code ObjIdSet}; for a copy operation that is a continuation
-     * of a previous copy, {@code copied} may be reused.
+     * The {@code copyState} parameter can be used to keep track of objects that have already been copied and/or traversed
+     * along some reference path (however, if an object is marked as copied in {@code copyState} and is traversed, but does not
+     * actually already exist in {@code dest}, an exception is thrown).
+     * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
+     * of a previous copy, {@code copyState} may be reused.
      * </p>
      *
      * <p>
@@ -207,7 +206,7 @@ public interface JObject {
      *
      * @param dest destination transaction for copies
      * @param target target object ID in {@code dest} onto which to copy this instance's fields, or null for this instance
-     * @param copied tracks which indirectly referenced objects have already been copied
+     * @param copyState tracks which indirectly referenced objects have already been copied
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the copied version of this instance in {@code dest}
      * @throws org.jsimpledb.core.DeletedObjectException
@@ -223,9 +222,9 @@ public interface JObject {
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      * @see #copyOut copyOut()
-     * @see JTransaction#copyTo(JTransaction, JObject, ObjId, ObjIdSet, String[]) JTransaction.copyTo()
+     * @see JTransaction#copyTo(JTransaction, JObject, ObjId, CopyState, String[]) JTransaction.copyTo()
      */
-    JObject copyTo(JTransaction dest, ObjId target, ObjIdSet copied, String... refPaths);
+    JObject copyTo(JTransaction dest, ObjId target, CopyState copyState, String... refPaths);
 
     /**
      * Snapshot this instance and other instances it references.
@@ -248,7 +247,7 @@ public interface JObject {
      * <p>
      * This is a convenience method, and is equivalent to invoking:
      *  <blockquote><code>
-     *  this.copyTo(this.getTransaction().getSnapshotTransaction(), null, new ObjIdSet(), refPaths);
+     *  this.copyTo(this.getTransaction().getSnapshotTransaction(), null, new CopyState(), refPaths);
      *  </code></blockquote>
      * </p>
      *
@@ -284,7 +283,7 @@ public interface JObject {
      * <p>
      * This is a convenience method, and is equivalent to invoking:
      *  <blockquote><code>
-     *  this.copyTo(JTransaction.getCurrent(), null, new ObjIdSet(), refPaths)
+     *  this.copyTo(JTransaction.getCurrent(), null, new CopyState(), refPaths)
      *  </code></blockquote>
      * </p>
      *
