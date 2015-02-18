@@ -38,11 +38,11 @@ import java.lang.annotation.Target;
  *  public abstract class Event {
  *
  *      protected Event() {
- *          this.setUUID(UUID.randomUUID());
+ *          this.setCreateTime(new Date());
  *      }
  *
- *      public abstract UUID getUUID();
- *      public abstract void setUUID(UUID uuid);
+ *      public abstract Date getCreateTime();
+ *      public abstract void setCreateTime(Date createTime);
  *
  *      ...
  * </pre>
@@ -54,13 +54,16 @@ import java.lang.annotation.Target;
  *  &#64;JSimpleClass
  *  public abstract class Event {
  *
- *      &#64;OnCreate(snapshotTransactions = true)
- *      private void initialize() {
- *          this.setUUID(UUID.randomUUID());
+ *      protected Event() {
  *      }
  *
- *      public abstract UUID getUUID();
- *      public abstract void setUUID(UUID uuid);
+ *      &#64;OnCreate
+ *      private void init() {
+ *          this.setCreateTime(new Date());
+ *      }
+ *
+ *      public abstract Date getCreateTime();
+ *      public abstract void setCreateTime(Date createTime);
  *
  *      ...
  * </pre>
