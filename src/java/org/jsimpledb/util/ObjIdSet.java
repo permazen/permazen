@@ -144,20 +144,6 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
         return buf.toString();
     }
 
-    /**
-     * Force this instance to be equal to the given instance. All contents of this instance are discarded.
-     * This method is more efficient than would be loading each element one-by-one.
-     *
-     * @throws IllegalArgumentException if {@code that} is null
-     */
-    public void copy(ObjIdSet that) {
-        if (that == null)
-            throw new IllegalArgumentException("null that");
-        this.array = that.array.clone();
-        this.size = that.size;
-        this.modcount++;
-    }
-
 // Cloneable
 
     @Override
