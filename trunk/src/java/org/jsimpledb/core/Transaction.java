@@ -34,6 +34,7 @@ import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.NavigableSets;
+import org.jsimpledb.util.ObjIdSet;
 import org.jsimpledb.util.UnsignedIntEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

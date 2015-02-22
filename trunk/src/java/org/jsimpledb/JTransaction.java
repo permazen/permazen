@@ -47,7 +47,6 @@ import org.jsimpledb.core.FieldSwitchAdapter;
 import org.jsimpledb.core.ListField;
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.ReferenceField;
 import org.jsimpledb.core.SchemaVersion;
@@ -66,6 +65,7 @@ import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.AbstractKVNavigableSet;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
+import org.jsimpledb.util.ObjIdSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -640,7 +640,7 @@ public class JSimpleDB {
      *
      * <p>
      * Note: the returned {@link Iterable} may contain duplicates; these can be eliminated using an
-     * {@link org.jsimpledb.core.ObjIdSet} if necessary.
+     * {@link org.jsimpledb.util.ObjIdSet} if necessary.
      * </p>
      *
      * @param jobj starting object

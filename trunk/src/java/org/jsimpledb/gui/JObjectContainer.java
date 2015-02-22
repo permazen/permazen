@@ -47,8 +47,8 @@ import org.jsimpledb.change.ObjectCreate;
 import org.jsimpledb.change.ObjectDelete;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
 import org.jsimpledb.core.UnknownFieldException;
+import org.jsimpledb.util.ObjIdSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
