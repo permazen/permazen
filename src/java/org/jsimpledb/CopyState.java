@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.jsimpledb.core.ObjId;
-import org.jsimpledb.core.ObjIdSet;
+import org.jsimpledb.util.ObjIdSet;
 
 /**
  * Keeps tracks of which objects have already been copied when copying objects between transactions.

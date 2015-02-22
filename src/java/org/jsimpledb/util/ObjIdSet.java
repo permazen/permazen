@@ -5,12 +5,14 @@
  * $Id$
  */
 
-package org.jsimpledb.core;
+package org.jsimpledb.util;
 
 import java.util.AbstractSet;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import org.jsimpledb.core.ObjId;
 
 /**
  * A set of {@link ObjId}s.

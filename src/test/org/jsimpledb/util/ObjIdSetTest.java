@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.jsimpledb.core;
+package org.jsimpledb.util;
 
 import com.google.common.collect.Iterators;
 
@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.jsimpledb.TestSupport;
+import org.jsimpledb.core.ObjId;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
