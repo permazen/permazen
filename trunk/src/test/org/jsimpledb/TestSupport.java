@@ -162,6 +162,10 @@ public abstract class TestSupport {
         // Check set equals
         Assert.assertEquals(actual, expected);
 
+        // Check size() and isEmpty()
+        Assert.assertEquals(actual.size(), expected.size());
+        Assert.assertEquals(actual.isEmpty(), expected.isEmpty());
+
         // Check iterators
         Assert.assertEquals(Sets.newHashSet(actual.iterator()), expected);
         Assert.assertEquals(actual, Sets.newHashSet(expected.iterator()));
@@ -180,6 +184,13 @@ public abstract class TestSupport {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void checkMap(Map actual, Map expected, boolean recurse) {
+
+        // Check map equals
+        Assert.assertEquals(actual, expected);
+
+        // Check size() and isEmpty()
+        Assert.assertEquals(actual.size(), expected.size());
+        Assert.assertEquals(actual.isEmpty(), expected.isEmpty());
 
         // Check key sets
         TestSupport.checkSet(actual.keySet(), expected.keySet(), true);
