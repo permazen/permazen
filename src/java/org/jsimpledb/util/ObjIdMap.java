@@ -29,12 +29,19 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
 
     // Algorithm described here: http://en.wikipedia.org/wiki/Open_addressing
 
-    private static final int MIN_ARRAY_LENGTH = 0x00000008;
-    private static final int MAX_ARRAY_LENGTH = 0x40000000;
+    private static final float EXPAND_THRESHOLD = 0.70f;    // expand array when > 70% full
+    private static final float SHRINK_THRESHOLD = 0.25f;    // shrink array when < 25% full
 
-    private long[] keys;
-    private V[] values;                                 // will be null if we are being used to implement ObjIdSet
-    private int size;
+    private static final int MIN_LOG2_LENGTH = 4;           // minimum array length = 16 slots
+    private static final int MAX_LOG2_LENGTH = 30;          // maximum array length = 1 billion slots
+
+    private long[] keys;                                    // has length always a power of 2
+    private V[] values;                                     // will be null if we are being used to implement ObjIdSet
+    private int size;                                       // the number of entries in the map
+    private int log2len;                                    // log2 of keys.length and values.length (if not null)
+    private int upperSizeLimit;                             // size threshold when to grow array
+    private int lowerSizeLimit;                             // size threshold when to shrink array
+    private int numHashShifts;                              // used by hash() function
     private volatile int modcount;
 
 // Constructors
@@ -52,7 +59,6 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
      * @param capacity initial capacity
      * @throws IllegalArgumentException if {@code capacity} is negative
      */
-    @SuppressWarnings("unchecked")
     public ObjIdMap(int capacity) {
         this(capacity, true);
     }
@@ -70,14 +76,16 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
     }
 
     // Internal constructor
-    @SuppressWarnings("unchecked")
     ObjIdMap(int capacity, boolean withValues) {
         if (capacity < 0)
             throw new IllegalArgumentException("capacity < 0");
-        capacity &= 0x3fffffff;                                                     // avoid integer overflow from large values
-        final int arrayLength = Math.max(capacity << 1, MIN_ARRAY_LENGTH);          // array length should be twice the capacity
-        this.keys = new long[arrayLength];
-        this.values = withValues ? (V[])new Object[arrayLength] : null;
+        capacity &= 0x3fffffff;                                                 // avoid integer overflow from large values
+        capacity = (int)(capacity / EXPAND_THRESHOLD);                          // increase to account for overhead
+        capacity = Math.max(1, capacity);                                       // avoid zero, on which the next line fails
+        this.log2len = 32 - Integer.numberOfLeadingZeros(capacity - 1);         // round up to next power of 2
+        this.log2len = Math.max(MIN_LOG2_LENGTH, this.log2len);                 // clip to bounds
+        this.log2len = Math.min(MAX_LOG2_LENGTH, this.log2len);
+        this.createArrays(withValues);
     }
 
 // Methods
@@ -145,11 +153,9 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void clear() {
-        this.keys = new long[MIN_ARRAY_LENGTH];
-        if (this.values != null)
-            this.values = (V[])new Object[MIN_ARRAY_LENGTH];
+        this.log2len = MIN_LOG2_LENGTH;
+        this.createArrays(this.values != null);
         this.size = 0;
         this.modcount++;
     }
@@ -218,8 +224,10 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
         }
 
         // Expand if necessary
-        if (++this.size > (this.keys.length >> 1))                      // expand when > 50% full
-            this.resize(this.keys.length << 1);
+        if (++this.size > this.upperSizeLimit && this.log2len < MAX_LOG2_LENGTH) {
+            this.log2len++;
+            this.resize();
+        }
         this.modcount++;
         return null;
     }
@@ -271,8 +279,10 @@ loop:   while (true) {
         }
 
         // Shrink if necessary
-        if (--this.size < (this.keys.length >> 2))                      // shrink when < 25% full
-            this.resize(this.keys.length >> 1);
+        if (--this.size < this.lowerSizeLimit && this.log2len > MIN_LOG2_LENGTH) {
+            this.log2len--;
+            this.resize();
+        }
         this.modcount++;
         return ovalue;
     }
@@ -289,25 +299,22 @@ loop:   while (true) {
     }
 
     private int hash(long value) {
-        return ((int)value ^ (int)(value >>> 32)) & (this.keys.length - 1);
+        final int shift = this.log2len;
+        int hash = (int)value;
+        for (int i = 0; i < this.numHashShifts; i++) {
+            value >>>= shift;
+            hash ^= (int)value;
+        }
+        return hash & (this.keys.length - 1);
     }
 
-    @SuppressWarnings("unchecked")
-    private void resize(int newLength) {
+    private void resize() {
 
-        // Clip to bounds
-        newLength = Math.max(newLength, MIN_ARRAY_LENGTH);
-        newLength = Math.min(newLength, MAX_ARRAY_LENGTH);
-        if (newLength == this.keys.length)
-            return;
-
-        // Allocate new arrays
+        // Grab a copy of old arrays and create new ones
         final long[] oldKeys = this.keys;
         final V[] oldValues = this.values;
         assert oldValues == null || oldValues.length == oldKeys.length;
-        this.keys = new long[newLength];
-        if (oldValues != null)
-            this.values = (V[])new Object[newLength];
+        this.createArrays(oldValues != null);
 
         // Rehash key/value pairs from old array into new array
         for (int oldSlot = 0; oldSlot < oldKeys.length; oldSlot++) {
@@ -324,6 +331,20 @@ loop:   while (true) {
                 this.values[newSlot] = oldValues[oldSlot];
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void createArrays(boolean withValues) {
+        assert this.log2len >= MIN_LOG2_LENGTH;
+        assert this.log2len <= MAX_LOG2_LENGTH;
+        final int arrayLength = 1 << this.log2len;
+        this.lowerSizeLimit = this.log2len > MIN_LOG2_LENGTH ? (int)(SHRINK_THRESHOLD * arrayLength) : 0;
+        this.upperSizeLimit = this.log2len < MAX_LOG2_LENGTH ? (int)(EXPAND_THRESHOLD * arrayLength) : arrayLength;
+        this.numHashShifts = (64 + (this.log2len - 1)) / this.log2len;
+        this.numHashShifts = Math.min(12, this.numHashShifts);
+        this.keys = new long[arrayLength];
+        if (withValues)
+            this.values = (V[])new Object[arrayLength];
     }
 
 // EntrySet
