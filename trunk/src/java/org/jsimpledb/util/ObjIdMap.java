@@ -1,0 +1,448 @@
+
+/*
+ * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.
+ *
+ * $Id$
+ */
+
+package org.jsimpledb.util;
+
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.jsimpledb.core.ObjId;
+
+/**
+ * A map with {@link ObjId} keys.
+ *
+ * <p>
+ * This implementation is space optimized for the 64-bits of information contained in an {@link ObjId}.
+ * Instances do not accept null keys and are not thread safe.
+ * </p>
+ */
+public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
+
+    // Algorithm described here: http://en.wikipedia.org/wiki/Open_addressing
+
+    private static final int MIN_ARRAY_LENGTH = 0x00000008;
+    private static final int MAX_ARRAY_LENGTH = 0x40000000;
+
+    private long[] keys;
+    private V[] values;                                 // will be null if we are being used to implement ObjIdSet
+    private int size;
+    private volatile int modcount;
+
+// Constructors
+
+    /**
+     * Constructs an empty instance.
+     */
+    public ObjIdMap() {
+        this(0, true);
+    }
+
+    /**
+     * Constructs an instance with the given initial capacity.
+     *
+     * @param capacity initial capacity
+     * @throws IllegalArgumentException if {@code capacity} is negative
+     */
+    @SuppressWarnings("unchecked")
+    public ObjIdMap(int capacity) {
+        this(capacity, true);
+    }
+
+    /**
+     * Constructs an instance initialized from the given map.
+     *
+     * @throws NullPointerException if {@code map} is null
+     * @throws IllegalArgumentException if {@code map} contains a null key
+     */
+    public ObjIdMap(Map<ObjId, ? extends V> map) {
+        this(map.size(), true);
+        for (Map.Entry<ObjId, ? extends V> entry : map.entrySet())
+            this.put(entry.getKey(), entry.getValue());
+    }
+
+    // Internal constructor
+    @SuppressWarnings("unchecked")
+    ObjIdMap(int capacity, boolean withValues) {
+        if (capacity < 0)
+            throw new IllegalArgumentException("capacity < 0");
+        capacity &= 0x3fffffff;                                                     // avoid integer overflow from large values
+        final int arrayLength = Math.max(capacity << 1, MIN_ARRAY_LENGTH);          // array length should be twice the capacity
+        this.keys = new long[arrayLength];
+        this.values = withValues ? (V[])new Object[arrayLength] : null;
+    }
+
+// Methods
+
+    @Override
+    public int size() {
+        return this.size;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.size == 0;
+    }
+
+    @Override
+    public boolean containsKey(Object obj) {
+
+        // Check type
+        if (!(obj instanceof ObjId))
+            return false;
+        final long value = ((ObjId)obj).asLong();
+        assert value != 0;
+
+        // Check slot for value
+        final int slot = this.findSlot(value);
+        if (this.keys[slot] == value)
+            return true;
+        assert this.keys[slot] == 0;
+        return false;
+    }
+
+    @Override
+    public V get(Object obj) {
+
+        // Check type
+        if (!(obj instanceof ObjId))
+            return null;
+        final long value = ((ObjId)obj).asLong();
+        assert value != 0;
+
+        // Check slot for value
+        final int slot = this.findSlot(value);
+        if (this.keys[slot] == value)
+            return this.values != null ? this.values[slot] : null;
+        assert this.keys[slot] == 0;
+        return null;
+    }
+
+    @Override
+    public V put(ObjId id, V value) {
+        if (id == null)
+            throw new IllegalArgumentException("illegal null key");
+        final long key = id.asLong();
+        assert key != 0;
+        return this.insert(key, value);
+    }
+
+    @Override
+    public V remove(Object obj) {
+        if (!(obj instanceof ObjId))
+            return null;
+        final long key = ((ObjId)obj).asLong();
+        assert key != 0;
+        return this.exsert(key);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void clear() {
+        this.keys = new long[MIN_ARRAY_LENGTH];
+        if (this.values != null)
+            this.values = (V[])new Object[MIN_ARRAY_LENGTH];
+        this.size = 0;
+        this.modcount++;
+    }
+
+    @Override
+    public ObjIdSet keySet() {
+        return new ObjIdSet(this);
+    }
+
+    @Override
+    public Set<Map.Entry<ObjId, V>> entrySet() {
+        return new EntrySet();
+    }
+
+    /**
+     * Produce a debug dump of this instance's keys.
+     */
+    String debugDump() {
+        final StringBuilder buf = new StringBuilder();
+        buf.append("OBJIDMAP: size=" + this.size + " len=" + this.keys.length + " modcount=" + this.modcount);
+        for (int i = 0; i < this.keys.length; i++)
+            buf.append('\n').append(String.format(" [%2d] %016x (hash %d)", i, this.keys[i], this.hash(this.keys[i])));
+        return buf.toString();
+    }
+
+// Cloneable
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public ObjIdMap<V> clone() {
+        final ObjIdMap<V> clone;
+        try {
+            clone = (ObjIdMap<V>)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        clone.keys = clone.keys.clone();
+        if (clone.values != null)
+            clone.values = clone.values.clone();
+        return clone;
+    }
+
+// Internal methods
+
+    private V insert(long key, V value) {
+
+        // Find slot for key
+        assert key != 0;
+        final int slot = this.findSlot(key);
+
+        // Key already exists? Just replace value
+        if (this.keys[slot] == key) {
+            if (this.values == null)
+                return null;
+            final V prev = this.values[slot];
+            this.values[slot] = value;
+            return prev;
+        }
+
+        // Insert new key/value pair
+        assert this.keys[slot] == 0;
+        this.keys[slot] = key;
+        if (this.values != null) {
+            assert this.values[slot] == null;
+            this.values[slot] = value;
+        }
+
+        // Expand if necessary
+        if (++this.size > (this.keys.length >> 1))                      // expand when > 50% full
+            this.resize(this.keys.length << 1);
+        this.modcount++;
+        return null;
+    }
+
+    private V exsert(long key) {
+
+        // Find slot for key
+        final int slot = this.findSlot(key);
+        if (this.keys[slot] == 0) {
+            assert this.values == null || this.values[slot] == null;
+            return null;
+        }
+        assert this.keys[slot] == key;
+
+        // Remove key
+        return this.exsert(slot);
+    }
+
+    private V exsert(final int slot) {
+
+        // Sanity check
+        assert this.keys[slot] != 0;
+        final V ovalue = this.values != null ? this.values[slot] : null;
+
+        // Remove key/value pair and fixup subsequent entries
+        int i = slot;                                                   // i points to the new empty slot
+        int j = slot;                                                   // j points to the next slot to fixup
+loop:   while (true) {
+            this.keys[i] = 0;
+            if (this.values != null)
+                this.values[i] = null;
+            long jkey;
+            V jvalue;
+            while (true) {
+                j = (j + 1) & (this.keys.length - 1);
+                jkey = this.keys[j];
+                if (jkey == 0)                                          // end of hash chain, no more fixups required
+                    break loop;
+                jvalue = this.values != null ? this.values[j] : null;   // get corresponding value
+                final int k = this.hash(jkey);                          // find where jkey's hash chain started
+                if (i <= j ? (i < k && k <= j) : (i < k || k <= j))     // jkey is between i and j, so it's not cut off
+                    continue;
+                break;                                                  // jkey is cut off from its hash chain, need to fix
+            }
+            this.keys[i] = jkey;                                        // move jkey back into its hash chain
+            if (this.values != null)
+                this.values[i] = jvalue;
+            i = j;                                                      // restart fixups at jkey's old location
+        }
+
+        // Shrink if necessary
+        if (--this.size < (this.keys.length >> 2))                      // shrink when < 25% full
+            this.resize(this.keys.length >> 1);
+        this.modcount++;
+        return ovalue;
+    }
+
+    private int findSlot(long value) {
+        assert value != 0;
+        int slot = this.hash(value);
+        while (true) {
+            final long existing = this.keys[slot];
+            if (existing == 0 || existing == value)
+                return slot;
+            slot = (slot + 1) & (this.keys.length - 1);
+        }
+    }
+
+    private int hash(long value) {
+        return ((int)value ^ (int)(value >>> 32)) & (this.keys.length - 1);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void resize(int newLength) {
+
+        // Clip to bounds
+        newLength = Math.max(newLength, MIN_ARRAY_LENGTH);
+        newLength = Math.min(newLength, MAX_ARRAY_LENGTH);
+        if (newLength == this.keys.length)
+            return;
+
+        // Allocate new arrays
+        final long[] oldKeys = this.keys;
+        final V[] oldValues = this.values;
+        assert oldValues == null || oldValues.length == oldKeys.length;
+        this.keys = new long[newLength];
+        if (oldValues != null)
+            this.values = (V[])new Object[newLength];
+
+        // Rehash key/value pairs from old array into new array
+        for (int oldSlot = 0; oldSlot < oldKeys.length; oldSlot++) {
+            final long key = oldKeys[oldSlot];
+            if (key == 0) {
+                assert oldValues == null || oldValues[oldSlot] == null;
+                continue;
+            }
+            final int newSlot = this.findSlot(key);
+            assert this.keys[newSlot] == 0;
+            this.keys[newSlot] = key;
+            if (this.values != null) {
+                assert this.values[newSlot] == null;
+                this.values[newSlot] = oldValues[oldSlot];
+            }
+        }
+    }
+
+// EntrySet
+
+    class EntrySet extends AbstractSet<Map.Entry<ObjId, V>> {
+
+        @Override
+        public Iterator<Map.Entry<ObjId, V>> iterator() {
+            return new EntrySetIterator();
+        }
+
+        @Override
+        public int size() {
+            return ObjIdMap.this.size;
+        }
+
+        @Override
+        public boolean contains(Object obj) {
+            if (!(obj instanceof Map.Entry))
+                return false;
+            final Map.Entry<?, ?> entry = (Map.Entry<?, ?>)obj;
+            final Object key = entry.getKey();
+            final V actualValue = ObjIdMap.this.get(key);
+            if (actualValue == null && !ObjIdMap.this.containsKey(key))
+                return false;
+            return entry.equals(new AbstractMap.SimpleEntry<ObjId, V>((ObjId)key, actualValue));
+        }
+
+        @Override
+        public boolean remove(Object obj) {
+            if (!(obj instanceof Map.Entry))
+                return false;
+            final Map.Entry<?, ?> entry = (Map.Entry<?, ?>)obj;
+            final Object key = entry.getKey();
+            final V actualValue = ObjIdMap.this.get(key);
+            if (actualValue == null && !ObjIdMap.this.containsKey(key))
+                return false;
+            if (actualValue != null ? actualValue.equals(entry.getValue()) : entry.getValue() == null) {
+                ObjIdMap.this.remove(key);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void clear() {
+            ObjIdMap.this.clear();
+        }
+    }
+
+// EntrySetIterator
+
+    class EntrySetIterator implements Iterator<Map.Entry<ObjId, V>> {
+
+        private int modcount = ObjIdMap.this.modcount;
+        private int removeSlot = -1;
+        private int nextSlot;
+
+        @Override
+        public boolean hasNext() {
+            return this.findNext(false) != -1;
+        }
+
+        @Override
+        public Entry next() {
+            final int slot = this.findNext(true);
+            if (slot == -1)
+                throw new NoSuchElementException();
+            final long key = ObjIdMap.this.keys[slot];
+            assert key != 0;
+            this.removeSlot = slot;
+            return new Entry(slot);
+        }
+
+        @Override
+        public void remove() {
+            if (this.removeSlot == -1)
+                throw new IllegalStateException();
+            if (this.modcount != ObjIdMap.this.modcount)
+                throw new ConcurrentModificationException();
+            ObjIdMap.this.exsert(this.removeSlot);
+            this.removeSlot = -1;
+            this.modcount++;                            // keep synchronized with ObjIdMap.this.modcount
+        }
+
+        private int findNext(boolean advance) {
+            if (this.modcount != ObjIdMap.this.modcount)
+                throw new ConcurrentModificationException();
+            for (int slot = this.nextSlot; slot < ObjIdMap.this.keys.length; slot++) {
+                if (ObjIdMap.this.keys[slot] == 0)
+                    continue;
+                this.nextSlot = advance ? slot + 1 : slot;
+                return slot;
+            }
+            return -1;
+        }
+    }
+
+// Entry
+
+    @SuppressWarnings("serial")
+    class Entry extends AbstractMap.SimpleEntry<ObjId, V> {
+
+        private final int modcount = ObjIdMap.this.modcount;
+        private final int slot;
+
+        public Entry(int slot) {
+            super(new ObjId(ObjIdMap.this.keys[slot]), ObjIdMap.this.values != null ? ObjIdMap.this.values[slot] : null);
+            this.slot = slot;
+        }
+
+        @Override
+        public V setValue(V value) {
+            if (ObjIdMap.this.modcount != this.modcount)
+                throw new ConcurrentModificationException();
+            if (ObjIdMap.this.values != null)
+                ObjIdMap.this.values[this.slot] = value;
+            return super.setValue(value);
+        }
+    }
+}
+
