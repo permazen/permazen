@@ -14,6 +14,8 @@ SHORT TERM
         - If that fails, build ObjectContainer+table instead
     - Make more modular/pluggable
 
+- Should you be able to create snapshot tx's from snapshot tx's ?
+
 MEDIUM TERM
 ===========
 
@@ -23,6 +25,9 @@ MEDIUM TERM
 
 LONG TERM
 =========
+
+- Add expression predicates to reference paths, e.g.:
+    "friend[this.name.length() > 3].name"
 
 - Key/Value database consistency checker
     - Checks a JDB key-value store for consistency
