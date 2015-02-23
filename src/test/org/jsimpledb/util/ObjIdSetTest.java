@@ -54,13 +54,9 @@ public class ObjIdSetTest extends TestSupport {
                 actualResult = actual.contains(id);
                 expectedResult = expected.contains(id);
             }
-            Assert.assertEquals(actual, expected);
+            TestSupport.checkSet(actual, expected);
             Assert.assertEquals(actualResult, expectedResult,
               "wrong result: actual=" + actual.debugDump() + " expected=" + expected);
-            Assert.assertEquals(actual.size(), expected.size(),
-              "wrong size: actual=" + actual.debugDump() + " expected=" + expected);
-            Assert.assertEquals(actual.isEmpty(), expected.isEmpty(),
-              "wrong empty: actual=" + actual.debugDump() + " expected=" + expected);
         }
     }
 }
