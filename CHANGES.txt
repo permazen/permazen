@@ -1,6 +1,7 @@
 Version Next
 
     - Fix bug in FileStreamRepository when filename is less than 3 characters
+    - Added PersistentObjectSchemaUpdater.setTransformerFactory()
 
 Version 1.0.964 Released January 28, 2015
 

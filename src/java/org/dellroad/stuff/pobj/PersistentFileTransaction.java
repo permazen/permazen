@@ -42,12 +42,27 @@ public class PersistentFileTransaction {
      *
      * @param source XML input
      * @throws PersistentObjectException if no updates are found
+     * @throws IllegalArgumentException if {@code source} is null
      */
     public PersistentFileTransaction(Source source) throws IOException, XMLStreamException {
+        this(source, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param source XML input
+     * @param transformerFactory transformer factory, or null for platform default
+     * @throws PersistentObjectException if no updates are found
+     * @throws IllegalArgumentException if {@code source} is null
+     */
+    public PersistentFileTransaction(Source source, TransformerFactory transformerFactory) throws IOException, XMLStreamException {
         if (source == null)
             throw new IllegalArgumentException("null source");
+        if (transformerFactory == null)
+            transformerFactory = TransformerFactory.newInstance();
         this.systemId = source.getSystemId();
-        this.read(source);
+        this.read(source, transformerFactory);
     }
 
     /**
@@ -96,7 +111,7 @@ public class PersistentFileTransaction {
         this.current = (Document)result.getNode();
     }
 
-    private void read(Source input) throws IOException, XMLStreamException {
+    private void read(Source input, TransformerFactory transformerFactory) throws IOException, XMLStreamException {
 
         // Read in XML into memory, extracting and removing the updates list in the process
         final UpdatesXMLStreamReader reader = new UpdatesXMLStreamReader(this.xmlInputFactory.createXMLStreamReader(input));
@@ -104,7 +119,7 @@ public class PersistentFileTransaction {
         final DOMResult result = new DOMResult();
         result.setSystemId(this.systemId);
         try {
-            TransformerFactory.newInstance().newTransformer().transform(source, result);
+            transformerFactory.newTransformer().transform(source, result);
         } catch (TransformerException e) {
             throw new XMLStreamException("error reading XML input from " + this.systemId, e);
         }

@@ -18,6 +18,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamResult;
@@ -93,8 +94,9 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
     private final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
 
     private List<String> updateNames;
+    private TransformerFactory transformerFactory;
 
-// PersistentObjectDelegate methods
+// Constructors
 
     /**
      * Constructor.
@@ -112,6 +114,24 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
             throw new IllegalArgumentException("null delegate");
         this.delegate = delegate;
     }
+
+// Accessors
+
+    /**
+     * Configure the {@link TransformerFactory} to be used by this instance when reading the updates from the XML file.
+     * Must support reading from a StAX {@link Source}.
+     *
+     * <p>
+     * The implementation in {@link PersistentObjectSchemaUpdater} returns null.
+     * </p>
+     *
+     * @param transformerFactory {@link TransformerFactory} to use or null for the platform default
+     */
+    public void setTransformerFactory(TransformerFactory transformerFactory) {
+        this.transformerFactory = transformerFactory;
+    }
+
+// PersistentObjectDelegate methods
 
     /**
      * Make a deep copy of the given object.
@@ -215,6 +235,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
      * <p>
      * The implementation in {@link PersistentObjectSchemaUpdater} delegates to the delegate provided in the constructor
      * but also removes the update list as the first XML tag and applies any needed updates.
+     * </p>
      *
      * @throws PersistentObjectException {@inheritDoc}
      */
@@ -223,7 +244,7 @@ public class PersistentObjectSchemaUpdater<T> extends AbstractSchemaUpdater<Pers
         try {
 
             // Create a temporary in-memory "database" containing the XML content
-            PersistentFileTransaction transaction = new PersistentFileTransaction(source);
+            PersistentFileTransaction transaction = new PersistentFileTransaction(source, this.transformerFactory);
 
             // Apply schema updates as necessary to update the XML structure
             this.initializeAndUpdateDatabase(transaction);
