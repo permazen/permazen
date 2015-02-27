@@ -418,8 +418,14 @@ public class JSimpleDB {
 // Transactions
 
     /**
-     * Create a new transaction. This does not invoke {@link JTransaction#setCurrent JTransaction.setCurrent()}: the
-     * caller is responsible for doing that if necessary.
+     * Create a new transaction.
+     *
+     * <p>
+     * This does not invoke {@link JTransaction#setCurrent JTransaction.setCurrent()}: the caller is responsible
+     * for doing that if necessary. However, this method does arrange for
+     * {@link JTransaction#setCurrent JTransaction.setCurrent}{@code (null)} to be invoked as soon as the
+     * returned transaction is committed (or rolled back).
+     * </p>
      *
      * @param allowNewSchema whether creating a new schema version is allowed
      * @param validationMode the {@link ValidationMode} to use for the new transaction
@@ -439,6 +445,7 @@ public class JSimpleDB {
         if (validationMode == null)
             throw new IllegalArgumentException("null validationMode");
         final Transaction tx = this.db.createTransaction(this.getSchemaModel(), this.configuredVersion, allowNewSchema);
+        tx.addCallback(new CleanupCurrentCallback());
         this.actualVersion = tx.getSchema().getSchemaVersions().lastKey();
         return new JTransaction(this, tx, validationMode);
     }
@@ -785,6 +792,31 @@ public class JSimpleDB {
                 }
             }
             return bytes != null ? this.defineClass(name, bytes, 0, bytes.length) : super.findClass(name);
+        }
+    }
+
+// CleanupCurrentCallback
+
+    private static final class CleanupCurrentCallback extends Transaction.CallbackAdapter {
+
+        @Override
+        public void afterCommit() {
+            JTransaction.setCurrent(null);
+        }
+
+        @Override
+        public void afterCompletion(boolean committed) {
+            JTransaction.setCurrent(null);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.getClass().hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj != null && obj.getClass() == this.getClass();
         }
     }
 }
