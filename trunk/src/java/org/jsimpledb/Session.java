@@ -219,8 +219,8 @@ public class Session {
     /**
      * Perform the given action within the given existing transaction, if any, otherwise within a new transaction.
      * If {@code tx} is not null, it will used and left open when this method returns. Otherwise, if there is already
-     * an open transaction associated with this instance, it will be used and left open when this method returns;
-     * otherwise, a new transaction is created for the duration of {@code action} and then committed.
+     * an open transaction associated with this instance, or else the current thread, it will be used and left open when
+     * this method returns; otherwise, a new transaction is created for the duration of {@code action} and then committed.
      *
      * <p>
      * If {@code tx} is not null and there is already an open transaction associated with this instance and they
@@ -234,7 +234,7 @@ public class Session {
      * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance
      * @throws IllegalArgumentException if {@code action} is null
      */
-    public boolean perform(final Transaction tx, final Action action) {
+    public boolean perform(Transaction tx, final Action action) {
 
         // Sanity check
         if (action == null)
@@ -245,7 +245,20 @@ public class Session {
         // Perform action within (possibly new) transaction
         final Transaction previousTransaction = this.tx;
         try {
-            final boolean newTransaction = tx == null && this.tx == null;
+            final boolean newTransaction;
+            if (tx != null || this.tx != null)
+                newTransaction = false;
+            else if (this.jdb == null)
+                newTransaction = true;
+            else {
+                final JTransaction jtx = this.getCurrentJTransaction();
+                if (jtx == null)
+                    newTransaction = true;
+                else {
+                    tx = jtx.getTransaction();
+                    newTransaction = false;
+                }
+            }
             if (newTransaction) {
                 if (!this.openTransaction())
                     return false;
@@ -277,13 +290,7 @@ public class Session {
             if (this.tx != null)
                 throw new IllegalStateException("a transaction is already open in this session");
             if (this.jdb != null) {
-                boolean exists = true;
-                try {
-                    JTransaction.getCurrent();
-                } catch (IllegalStateException e) {
-                    exists = false;
-                }
-                if (exists)
+                if (this.getCurrentJTransaction() != null)
                     throw new IllegalStateException("a JSimpleDB transaction is already open in the current thread");
                 final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,
                   validationMode != null ? validationMode : ValidationMode.AUTOMATIC);
@@ -338,6 +345,14 @@ public class Session {
             this.tx = null;
             if (this.jdb != null)
                 JTransaction.setCurrent(null);
+        }
+    }
+
+    private JTransaction getCurrentJTransaction() {
+        try {
+            return JTransaction.getCurrent();
+        } catch (IllegalStateException e) {
+            return null;
         }
     }
 
