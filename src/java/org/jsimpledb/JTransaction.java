@@ -1499,7 +1499,7 @@ public class JTransaction {
      *
      * <p>
      * If another instance is currently associated with the current thread, it is set aside for the duration of
-     * {@code action}'s execution, and then restored when {@code action} is complete.
+     * {@code action}'s execution, and then restored when {@code action} is finished (regardless of outcome).
      * </p>
      *
      * @param action action to perform

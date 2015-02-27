@@ -38,7 +38,8 @@ public abstract class AbstractBody implements Body {
 
     // The @ProvidesProperty annotation here indicates that this method should be invoked
     // to build the Vaadin property named "image" instead of doing the default thing (using toString()).
-    // We are converting the byte[] value into a Vaadin Image object.
+    // We are converting the byte[] value into a Vaadin PNG Image object.
+
     @ProvidesProperty("image")
     @SuppressWarnings("serial")
     private Component propertyImage() {
@@ -55,7 +56,8 @@ public abstract class AbstractBody implements Body {
 
     // The @FieldBuilder.ProvidesField annotation indicates that if anyone wants to edit
     // the "image" field, they should use this method to build an appropriate Vaaddin Field instead
-    // of doing the default thing (using a TextField).
+    // of doing the default thing (i.e., using a TextField).
+
     @FieldBuilder.ProvidesField("image")
     private Field<byte[]> buildImagePropertyField() {
         return new NullableField<byte[]>(new BlobField());

@@ -424,23 +424,15 @@ public class Transaction {
 
     /**
      * Determine whether this transaction is marked rollback only.
-     *
-     * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized boolean isRollbackOnly() {
-        if (this.stale)
-            throw new StaleTransactionException(this);
         return this.rollbackOnly;
     }
 
     /**
      * Mark this transaction for rollback only. A subsequent attempt to {@link #commit} will throw an exception.
-     *
-     * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized void setRollbackOnly() {
-        if (this.stale)
-            throw new StaleTransactionException(this);
         this.rollbackOnly = true;
     }
 
@@ -461,6 +453,13 @@ public class Transaction {
     /**
      * Register a transaction {@link Callback} to be invoked when this transaction completes.
      * Callbacks will be invoked in the order they are registered, but <i>duplicate registrations are ignored</i>.
+     *
+     * <p>
+     * Note: if you are using Spring for transaction demarcation (via {@link org.jsimpledb.spring.JSimpleDBTransactionManager}),
+     * then you may also use Spring's
+     * {@link org.springframework.transaction.support.TransactionSynchronizationManager#registerSynchronization
+     * TransactionSynchronizationManager.registerSynchronization()} instead of this method.
+     * </p>
      *
      * @throws IllegalArgumentException if {@code callback} is null
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -2728,7 +2727,8 @@ public class Transaction {
 
     /**
      * Callback interface for notification of transaction completion events.
-     * Callbacks are registered with a transaction via {@link Transaction#addCallback Transaction.addCallback()}.
+     * Callbacks are registered with a transaction via {@link Transaction#addCallback Transaction.addCallback()},
+     * and are executed in the order registered, in the same thread that just committed (or rolled back) the transaction.
      *
      * <p>
      * Modeled after Spring's {@link org.springframework.transaction.support.TransactionSynchronization} interface.
