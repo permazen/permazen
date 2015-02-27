@@ -130,6 +130,21 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
         return this.map.debugDump();
     }
 
+// Object
+
+    // This works because ObjId.hashCode() == ObjId.asLong().hashCode()
+    @Override
+    public int hashCode() {
+        final long[] keyArray = this.map.getKeys();
+        int hash = 0;
+        for (int i = 0; i < keyArray.length; i++) {
+            final long key = keyArray[i];
+            if (key != 0)
+                hash += (int)(key >>> 32) ^ (int)key;
+        }
+        return hash;
+    }
+
 // Cloneable
 
     @Override

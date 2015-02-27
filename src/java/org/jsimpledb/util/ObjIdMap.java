@@ -181,6 +181,13 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
         return buf.toString();
     }
 
+// Object
+
+    @Override
+    public int hashCode() {
+        return this.entrySet().hashCode();              // this is more efficient than what superclass does
+    }
+
 // Cloneable
 
     @Override
@@ -196,6 +203,20 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
         if (clone.values != null)
             clone.values = clone.values.clone();
         return clone;
+    }
+
+// Package methods
+
+    long[] getKeys() {
+        return this.keys;
+    }
+
+    V getValue(int slot) {
+        return this.values[slot];
+    }
+
+    void setValue(int slot, V value) {
+        this.values[slot] = value;
     }
 
 // Internal methods
@@ -392,6 +413,27 @@ loop:   while (true) {
         @Override
         public void clear() {
             ObjIdMap.this.clear();
+        }
+
+        // This works because ObjId.hashCode() == ObjId.asLong().hashCode()
+        @Override
+        public int hashCode() {
+            final long[] keyArray = ObjIdMap.this.keys;
+            final V[] valueArray = ObjIdMap.this.values;
+            int hash = 0;
+            for (int i = 0; i < keyArray.length; i++) {
+                final long key = keyArray[i];
+                if (key != 0) {
+                    int entryHash = (int)(key >>> 32) ^ (int)key;
+                    if (valueArray != null) {
+                        final V value = valueArray[i];
+                        if (value != null)
+                            entryHash ^= value.hashCode();
+                    }
+                    hash += entryHash;
+                }
+            }
+            return hash;
         }
     }
 
