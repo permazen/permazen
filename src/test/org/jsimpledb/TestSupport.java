@@ -166,6 +166,9 @@ public abstract class TestSupport {
         Assert.assertEquals(actual.size(), expected.size());
         Assert.assertEquals(actual.isEmpty(), expected.isEmpty());
 
+        // Check hashCode()
+        Assert.assertEquals(actual.hashCode(), expected.hashCode());
+
         // Check iterators
         Assert.assertEquals(Sets.newHashSet(actual.iterator()), expected);
         Assert.assertEquals(actual, Sets.newHashSet(expected.iterator()));
@@ -191,6 +194,9 @@ public abstract class TestSupport {
         // Check size() and isEmpty()
         Assert.assertEquals(actual.size(), expected.size());
         Assert.assertEquals(actual.isEmpty(), expected.isEmpty());
+
+        // Check hashCode()
+        Assert.assertEquals(actual.hashCode(), expected.hashCode());
 
         // Check key sets
         TestSupport.checkSet(actual.keySet(), expected.keySet(), true);
