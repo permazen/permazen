@@ -206,6 +206,14 @@ public class ObjId implements Comparable<ObjId> {
         return this.value == that.value;
     }
 
+    /**
+     * Returns the hash code value for this instance.
+     *
+     * <p>
+     * The hash code of an {@link ObjId} is defined as the hash code of its {@link #asLong} value,
+     * which is {@linkplain Long#hashCode defined} as the exclusive-or of the upper and lower 32 bits.
+     * </p>
+     */
     @Override
     public int hashCode() {
         return (int)(this.value >> 32) ^ (int)this.value;
