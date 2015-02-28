@@ -20,7 +20,7 @@ import org.jsimpledb.parse.expr.Value;
 public class EvalCommand extends AbstractCommand {
 
     public EvalCommand() {
-        super("eval expr:expr");
+        super("eval -f:force expr:expr");
     }
 
     @Override
@@ -29,8 +29,15 @@ public class EvalCommand extends AbstractCommand {
     }
 
     @Override
+    public String getHelpDetail() {
+        return "The expression is evaluated within a transaction. If an exception occurs, the transaction is rolled back"
+          + " unless the `-f' flag is given, in which case it will be committed anyway.";
+    }
+
+    @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final Node expr = (Node)params.get("expr");
+        final boolean force = params.containsKey("force");
         return new CliSession.Action() {
             @Override
             public void run(CliSession session) throws Exception {
@@ -40,6 +47,8 @@ public class EvalCommand extends AbstractCommand {
                 try {
                     result = (value = expr.evaluate(session)).get(session);
                 } catch (EvalException e) {
+                    if (!force)
+                        session.getTransaction().setRollbackOnly();
                     writer.println("Error: " + e.getMessage());
                     if (session.isVerbose())
                         e.printStackTrace(writer);
