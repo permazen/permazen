@@ -22,7 +22,7 @@ public class ShowSchemaCommand extends AbstractCommand implements CliSession.Act
 
     @Override
     public String getHelpSummary() {
-        return "Shows the currently active database schema";
+        return "Shows the currently active database schema in XML form";
     }
 
     @Override
