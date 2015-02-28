@@ -12,12 +12,13 @@ import java.util.Map;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.core.SchemaVersion;
 import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.schema.SchemaModel;
 
 @Command
-public class ShowAllSchemasCommand extends AbstractCommand implements CliSession.Action {
+public class ShowAllSchemasCommand extends AbstractCommand {
 
     public ShowAllSchemasCommand() {
-        super("show-all-schemas");
+        super("show-all-schemas -x:xml");
     }
 
     @Override
@@ -26,18 +27,28 @@ public class ShowAllSchemasCommand extends AbstractCommand implements CliSession
     }
 
     @Override
-    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
-        return this;
+    public String getHelpDetail() {
+        return "If the `-x' flag is provided, the XML representation of each schema version is included.";
     }
 
-// CliSession.Action
-
     @Override
-    public void run(CliSession session) throws Exception {
-        for (Map.Entry<Integer, SchemaVersion> entry : session.getTransaction().getSchema().getSchemaVersions().entrySet()) {
-            session.getWriter().println("=== Schema version " + entry.getKey() + " ===\n"
-              + entry.getValue().getSchemaModel().toString().replaceAll("^<.xml[^>]+>\\n", ""));
-        }
+    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+        final boolean xml = params.containsKey("xml");
+        return new CliSession.Action() {
+            @Override
+            public void run(CliSession session) throws Exception {
+                for (Map.Entry<Integer, SchemaVersion> entry :
+                  session.getTransaction().getSchema().getSchemaVersions().entrySet()) {
+                    final int number = entry.getKey();
+                    final SchemaModel model = entry.getValue().getSchemaModel();
+                    if (xml) {
+                        session.getWriter().println("=== Schema version " + number + " ===\n"
+                          + model.toString().replaceAll("^<.xml[^>]+>\\n", ""));
+                    } else
+                        session.getWriter().println(number);
+                }
+            }
+        };
     }
 }
 
