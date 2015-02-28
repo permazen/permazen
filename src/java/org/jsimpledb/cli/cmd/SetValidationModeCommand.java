@@ -30,7 +30,7 @@ public class SetValidationModeCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "Sets the validation mode for JSimpleDB transactions, one of `disabled', `manual', or `automatic' (the default)."
-          + " This setting is only used when a JSimpleDB instance has been created by the `--schema-pkg' command line flag.";
+          + " This setting is only used when the CLI is running in JSimpleDB mode.";
     }
 
     @Override
