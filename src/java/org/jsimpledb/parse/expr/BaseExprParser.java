@@ -22,10 +22,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 
@@ -524,91 +522,6 @@ public class BaseExprParser implements Parser<Node> {
             }
         } while ((cl = cl.getSuperclass()) != null);
         return null;
-    }
-
-    private Node createMethodInvokeNode(final Object target, final String name, final List<Node> paramNodes) {
-        return new Node() {
-            @Override
-            public Value evaluate(final ParseSession session) {
-
-                // Evaluate params
-                final Object[] params = Lists.transform(paramNodes, new com.google.common.base.Function<Node, Object>() {
-                    @Override
-                    public Object apply(Node param) {
-                        return param.evaluate(session).get(session);
-                    }
-                }).toArray();
-
-                // Handle static method
-                if (!(target instanceof Node))
-                    return this.invokeMethod((Class<?>)target, null, name, params);
-
-                // Handle instance method
-                final Object obj = ((Node)target).evaluate(session).checkNotNull(session, "method " + name + "() invocation");
-                return this.invokeMethod(obj.getClass(), obj, name, params);
-            }
-
-            private Value invokeMethod(Class<?> cl, Object obj, String name, Object[] params) {
-
-                // Try interface methods
-                for (Class<?> iface : this.addInterfaces(cl, new LinkedHashSet<Class<?>>())) {
-                    for (Method method : iface.getMethods()) {
-                        final Value value = this.tryMethod(method, obj, name, params);
-                        if (value != null)
-                            return value;
-                    }
-                }
-
-                // Try class methods
-                for (Method method : cl.getMethods()) {
-                    final Value value = this.tryMethod(method, obj, name, params);
-                    if (value != null)
-                        return value;
-                }
-
-                // Not found
-                throw new EvalException("no compatible method `" + name + "()' found in " + cl);
-            }
-
-            private Set<Class<?>> addInterfaces(Class<?> cl, Set<Class<?>> interfaces) {
-                for (Class<?> iface : cl.getInterfaces()) {
-                    interfaces.add(iface);
-                    this.addInterfaces(iface, interfaces);
-                }
-                if (cl.getSuperclass() != null)
-                    this.addInterfaces(cl.getSuperclass(), interfaces);
-                return interfaces;
-            }
-
-            private Value tryMethod(Method method, Object obj, String name, Object[] params) {
-                if (!method.getName().equals(name))
-                    return null;
-                final Class<?>[] ptypes = method.getParameterTypes();
-                if (method.isVarArgs()) {
-                    if (params.length < ptypes.length - 1)
-                        return null;
-                    Object[] newParams = new Object[ptypes.length];
-                    System.arraycopy(params, 0, newParams, 0, ptypes.length - 1);
-                    Object[] varargs = new Object[params.length - (ptypes.length - 1)];
-                    System.arraycopy(params, ptypes.length - 1, varargs, 0, varargs.length);
-                    newParams[ptypes.length - 1] = varargs;
-                    params = newParams;
-                } else if (params.length != ptypes.length)
-                    return null;
-                final Object result;
-                try {
-                    result = method.invoke(obj, params);
-                } catch (IllegalArgumentException e) {
-                    return null;                            // a parameter type didn't match -> wrong method
-                } catch (Exception e) {
-                    final Throwable t = e instanceof InvocationTargetException ?
-                      ((InvocationTargetException)e).getTargetException() : e;
-                    throw new EvalException("error invoking method `" + name + "()' on "
-                      + (obj != null ? "object of type " + obj.getClass().getName() : method.getDeclaringClass()) + ": " + t, t);
-                }
-                return result != null || method.getReturnType() != Void.TYPE ? new ConstValue(result) : Value.NO_VALUE;
-            }
-        };
     }
 
     private Node createPostcrementNode(final String operation, final Node node, final boolean increment) {
