@@ -19,8 +19,6 @@ SHORT TERM
 - Add "--command" flag to CLI for one shot command execution
     - This should disable the CLI greeting message
 
-- Consolidate redundant code in BaseExprParser.java and MethodInvokeNode.java
-
 MEDIUM TERM
 ===========
 
