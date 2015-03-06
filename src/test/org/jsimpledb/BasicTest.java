@@ -268,7 +268,7 @@ public class BasicTest extends TestSupport {
         return BasicTest.getJSimpleDB(MeanPerson.class, Person.class);
     }
 
-    public static JSimpleDB getJSimpleDB(Class... classes) {
+    public static JSimpleDB getJSimpleDB(Class<?>... classes) {
         return BasicTest.getJSimpleDB(Arrays.<Class<?>>asList(classes));
     }
 

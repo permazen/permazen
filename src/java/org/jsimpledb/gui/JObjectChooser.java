@@ -297,7 +297,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
         this.objectTable.setValue(null);
         final Property.ValueChangeEvent event = new Property.ValueChangeEvent() {
             @Override
-            public Property getProperty() {
+            public Property<?> getProperty() {
                 return JObjectChooser.this.objectTable;
             }
         };
