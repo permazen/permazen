@@ -31,7 +31,7 @@ public class ParamParserTest extends TestSupport {
                 final FieldType<?> fieldType = new FieldTypeRegistry().getFieldType(typeName);
                 return fieldType != null ? this.createFieldTypeParser(fieldType) : super.getParser(typeName);
             }
-            private <T> FieldTypeParser createFieldTypeParser(FieldType<T> fieldType) {
+            private <T> FieldTypeParser<T> createFieldTypeParser(FieldType<T> fieldType) {
                 return new FieldTypeParser<T>(fieldType);
             }
         };
