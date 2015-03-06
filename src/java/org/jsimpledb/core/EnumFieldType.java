@@ -82,8 +82,13 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @throws ClassCastException if {@code enumType} does not subclass {@link Enum}
      * @throws NullPointerException if {@code enumType} is null
      */
+    public static EnumFieldType create(Class<?> enumType) {
+        return EnumFieldType.doCreate(enumType);
+    }
+
+    // This method exists solely to bind the generic type parameters
     @SuppressWarnings("unchecked")
-    public static <T extends Enum<T>> EnumFieldType create(Class<?> enumType) {
+    private static <T extends Enum<T>> EnumFieldType doCreate(Class<?> enumType) {
         return new EnumFieldType((Class<T>)enumType.asSubclass(Enum.class));
     }
 
@@ -100,8 +105,13 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @throws IllegalArgumentException if {@code name} is null or invalid
      * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier
      */
+    public static EnumFieldType create(String name, List<String> idents) {
+        return EnumFieldType.doCreate(name, idents);
+    }
+
+    // This method exists solely to bind the generic type parameters
     @SuppressWarnings("unchecked")
-    public static <T extends Enum<T>> EnumFieldType create(String name, List<String> idents) {
+    private static <T extends Enum<T>> EnumFieldType doCreate(String name, List<String> idents) {
         do {
 
             // Search for Enum type
