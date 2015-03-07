@@ -45,7 +45,7 @@ public class Main extends AbstractMain {
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
             this.allowAutoDemo = false;
-        } else if (option.equals("--command")) {
+        } else if (option.equals("--command") || option.equals("-c")) {
             if (params.isEmpty())
                 this.usageError();
             this.oneShotCommands.add(params.removeFirst());
