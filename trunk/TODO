@@ -16,9 +16,6 @@ SHORT TERM
 
 - Should you be able to create snapshot tx's from snapshot tx's ?
 
-- Add "--command" flag to CLI for one shot command execution
-    - This should disable the CLI greeting message
-
 MEDIUM TERM
 ===========
 
